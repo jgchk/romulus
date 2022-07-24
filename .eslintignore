@@ -1,1 +1,6 @@
+# eslint
 .eslintrc.js
+
+# tailwind
+postcss.config.js
+tailwind.config.js
