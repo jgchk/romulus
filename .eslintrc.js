@@ -24,5 +24,6 @@ module.exports = {
     'unicorn/no-array-reduce': 'off',
     'unicorn/no-null': 'off',
     'unicorn/no-array-callback-reference': 'off',
+    'react/prop-types': 'off',
   },
 }

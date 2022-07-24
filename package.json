@@ -10,9 +10,15 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@trpc/client": "^9.26.2",
+    "@trpc/next": "^9.26.2",
+    "@trpc/react": "^9.26.2",
+    "@trpc/server": "^9.26.2",
     "next": "12.2.3",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-query": "3",
+    "zod": "^3.17.10"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^12.2.3",
