@@ -3,6 +3,7 @@
  */
 import { createRouter } from '../createRouter'
 import { artistRouter } from './artist'
+import { releaseRouter } from './release'
 
 /**
  * Create your application's root router
@@ -17,5 +18,6 @@ export const appRouter = createRouter()
    */
   // .formatError(({ shape, error }) => { })
   .merge('artist.', artistRouter)
+  .merge('release.', releaseRouter)
 
 export type AppRouter = typeof appRouter
