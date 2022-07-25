@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id     Int     @id @default(autoincrement())
+  name   String
+  albums Album[]
+  tracks Track[]
+}
+
+model Album {
+  id          Int           @id @default(autoincrement())
+  title       String
+  artists     Artist[]
+  releaseDate String?
+  ratings     AlbumRating[]
+  reviews     AlbumReview[]
+}
+
+model Track {
+  id         Int           @id @default(autoincrement())
+  title      String
+  durationMs Int
+  artists    Artist[]
+  ratings    TrackRating[]
+  reviews    TrackReview[]
+}
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  username     String
+  albumRatings AlbumRating[]
+  trackRatings TrackRating[]
+  albumReviews AlbumReview[]
+  trackReviews TrackReview[]
+}
+
+model AlbumRating {
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+  album     Album   @relation(fields: [albumId], references: [id])
+  albumId   Int
+  rating    Int
+}
+
+model TrackRating {
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+  track     Track   @relation(fields: [trackId], references: [id])
+  trackId   Int
+  rating    Int
+}
+
+model AlbumReview {
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+  album     Album   @relation(fields: [albumId], references: [id])
+  albumId   Int
+  title     String?
+  text      String
+}
+
+model TrackReview {
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+  track     Track   @relation(fields: [trackId], references: [id])
+  trackId   Int
+  title     String?
+  text      String
+}

@@ -1,6 +1,6 @@
 import { withTRPC } from '@trpc/next'
 import { AppType } from 'next/dist/shared/lib/utils'
-import { AppRouter } from './api/trpc/[trpc]'
+import { AppRouter } from '../server/routers/_app'
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return <Component {...pageProps} />

@@ -4,3 +4,9 @@
 # tailwind
 postcss.config.js
 tailwind.config.js
+
+# next
+next.config.js
+
+# env
+src/server/env.js
