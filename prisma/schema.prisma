@@ -11,19 +11,19 @@ datasource db {
 }
 
 model Artist {
-  id     Int     @id @default(autoincrement())
-  name   String
-  albums Album[]
-  tracks Track[]
+  id       Int       @id @default(autoincrement())
+  name     String
+  releases Release[]
+  tracks   Track[]
 }
 
-model Album {
-  id          Int           @id @default(autoincrement())
+model Release {
+  id          Int             @id @default(autoincrement())
   title       String
   artists     Artist[]
   releaseDate String?
-  ratings     AlbumRating[]
-  reviews     AlbumReview[]
+  ratings     ReleaseRating[]
+  reviews     ReleaseReview[]
 }
 
 model Track {
@@ -36,20 +36,20 @@ model Track {
 }
 
 model Account {
-  id           Int           @id @default(autoincrement())
-  username     String
-  albumRatings AlbumRating[]
-  trackRatings TrackRating[]
-  albumReviews AlbumReview[]
-  trackReviews TrackReview[]
+  id             Int             @id @default(autoincrement())
+  username       String
+  releaseRatings ReleaseRating[]
+  trackRatings   TrackRating[]
+  releaseReviews ReleaseReview[]
+  trackReviews   TrackReview[]
 }
 
-model AlbumRating {
+model ReleaseRating {
   id        Int     @id @default(autoincrement())
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
-  album     Album   @relation(fields: [albumId], references: [id])
-  albumId   Int
+  release   Release @relation(fields: [releaseId], references: [id])
+  releaseId Int
   rating    Int
 }
 
@@ -62,12 +62,12 @@ model TrackRating {
   rating    Int
 }
 
-model AlbumReview {
+model ReleaseReview {
   id        Int     @id @default(autoincrement())
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
-  album     Album   @relation(fields: [albumId], references: [id])
-  albumId   Int
+  release   Release @relation(fields: [releaseId], references: [id])
+  releaseId Int
   title     String?
   text      String
 }
