@@ -3,6 +3,7 @@
  */
 import { createRouter } from '../createRouter'
 import { artistRouter } from './artist'
+import { genreRouter } from './genre'
 import { releaseRouter } from './release'
 
 /**
@@ -19,5 +20,6 @@ export const appRouter = createRouter()
   // .formatError(({ shape, error }) => { })
   .merge('artist.', artistRouter)
   .merge('release.', releaseRouter)
+  .merge('genre.', genreRouter)
 
 export type AppRouter = typeof appRouter
