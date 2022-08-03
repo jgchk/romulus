@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
-import Cookies from 'cookies'
-import AuthenticationManager from '../../server/authentication'
+import AuthenticationManager, {
+  setTokenCookie,
+} from '../../server/authentication'
 import { withExceptionFilter } from '../../server/middleware'
 
 const authenticationManager = new AuthenticationManager()
@@ -30,11 +31,7 @@ export default function registerHandler(
       registerRequest.password
     )
 
-    const cookies = new Cookies(req, res)
-    cookies.set('Authorization', `Bearer ${token}`, {
-      httpOnly: true,
-      sameSite: true,
-    })
+    setTokenCookie(req, res, token)
 
     res.status(200).json({ status: 'success', token })
   }

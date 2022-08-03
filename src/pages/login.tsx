@@ -1,22 +1,13 @@
-import ky from 'ky'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useMutation } from 'react-query'
-import { useAutoFocus } from '../utils/hooks'
+import { useAutoFocus, useLoginMutation } from '../utils/hooks'
 
 const Login: NextPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const { mutate: login } = useMutation(
-    () => ky.post('/api/login', { json: { username, password } }),
-    {
-      onSuccess: (data) => {
-        console.log({ data })
-      },
-    }
-  )
+  const { mutate: login } = useLoginMutation()
 
   const usernameInput = useAutoFocus<HTMLInputElement>()
 
@@ -26,7 +17,7 @@ const Login: NextPage = () => {
         className='border p-4 shadow bg-white'
         onSubmit={(e) => {
           e.preventDefault()
-          login()
+          login({ username, password })
         }}
       >
         <div className='space-y-3'>

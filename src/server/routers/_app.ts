@@ -3,6 +3,7 @@
  */
 import { createRouter } from '../createRouter'
 import { artistRouter } from './artist'
+import { authRouter } from './auth'
 import { genreRouter } from './genre'
 import { releaseRouter } from './release'
 
@@ -18,6 +19,7 @@ export const appRouter = createRouter()
    * @link https://trpc.io/docs/error-formatting
    */
   // .formatError(({ shape, error }) => { })
+  .merge('auth.', authRouter)
   .merge('artist.', artistRouter)
   .merge('release.', releaseRouter)
   .merge('genre.', genreRouter)

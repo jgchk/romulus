@@ -1,9 +1,7 @@
 import { NextPage } from 'next'
 import { useCallback, useState } from 'react'
-import { useMutation } from 'react-query'
-import ky from 'ky'
 import Link from 'next/link'
-import { useAutoFocus } from '../utils/hooks'
+import { useAutoFocus, useRegisterMutation } from '../utils/hooks'
 import { showErrorToast } from '../utils/error'
 
 const Register: NextPage = () => {
@@ -11,14 +9,7 @@ const Register: NextPage = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const { mutate: register } = useMutation(
-    () => ky.post('/api/register', { json: { username, password } }),
-    {
-      onSuccess: (data) => {
-        console.log({ data })
-      },
-    }
-  )
+  const { mutate: register } = useRegisterMutation()
 
   const handleRegister = useCallback(() => {
     if (password !== confirmPassword) {
@@ -26,8 +17,8 @@ const Register: NextPage = () => {
       return
     }
 
-    register()
-  }, [confirmPassword, password, register])
+    register({ username, password })
+  }, [confirmPassword, password, register, username])
 
   const usernameInput = useAutoFocus<HTMLInputElement>()
 

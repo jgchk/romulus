@@ -33,4 +33,8 @@ export default class SessionManager {
   stashSession(key: string, session: Session, ttl: number) {
     return this.cache.stash('sessions', key, session, ttl)
   }
+
+  getSession(token: string) {
+    return this.cache.fetch<Session>('sessions', token)
+  }
 }

@@ -11,6 +11,7 @@ import {
 import { AppRouter } from '../server/routers/_app'
 import { showErrorToast } from '../utils/error'
 import '../../styles/globals.css'
+import { useSession } from '../utils/hooks'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {
@@ -52,14 +53,18 @@ const queryClient = new QueryClient({
   defaultOptions,
 })
 
-const MyApp: AppType = ({ Component, pageProps }) => (
-  <QueryClientProvider client={queryClient}>
-    <div className='w-screen h-screen'>
-      <Component {...pageProps} />
-      <Toaster />
-    </div>
-  </QueryClientProvider>
-)
+const MyApp: AppType = ({ Component, pageProps }) => {
+  const session = useSession()
+  return (
+    <QueryClientProvider client={queryClient}>
+      <div className='w-screen h-screen'>
+        <div>{session.data?.username ?? 'Loading...'}</div>
+        <Component {...pageProps} />
+        <Toaster />
+      </div>
+    </QueryClientProvider>
+  )
+}
 
 export default withTRPC<AppRouter>({
   config() {
