@@ -10,6 +10,7 @@ import {
 } from 'react-query'
 import { AppRouter } from '../server/routers/_app'
 import { showErrorToast } from '../utils/error'
+import '../../styles/globals.css'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {
@@ -55,8 +56,10 @@ const queryClient = new QueryClient({
 
 const MyApp: AppType = ({ Component, pageProps }) => (
   <QueryClientProvider client={queryClient}>
-    <Component {...pageProps} />
-    <Toaster />
+    <div className='w-screen h-screen'>
+      <Component {...pageProps} />
+      <Toaster />
+    </div>
   </QueryClientProvider>
 )
 
