@@ -7,8 +7,8 @@ import { withExceptionFilter } from '../../server/middleware'
 const authenticationManager = new AuthenticationManager()
 
 const RegisterRequest = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(1, 'Username cannot be empty'),
+  password: z.string().min(1, 'Password cannot be empty'),
 })
 
 type RegisterRequest = z.infer<typeof RegisterRequest>
