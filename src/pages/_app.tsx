@@ -14,7 +14,6 @@ import '../../styles/globals.css'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {
-    console.log('onERROR', error, query)
     // TODO: tell typescript that showToast is a valid option
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -26,7 +25,6 @@ const queryCache = new QueryCache({
 
 const mutationCache = new MutationCache({
   onError: (error, variables, context, mutation) => {
-    console.log('onERROR', error, mutation)
     // TODO: tell typescript that showToast is a valid option
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
