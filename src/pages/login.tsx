@@ -40,6 +40,7 @@ const Login: NextPage = () => {
               id='username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
 
@@ -53,6 +54,7 @@ const Login: NextPage = () => {
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
         </div>

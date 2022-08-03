@@ -1,13 +1,15 @@
 import { NextPage } from 'next'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useMutation } from 'react-query'
 import ky from 'ky'
 import Link from 'next/link'
 import { useAutoFocus } from '../utils/hooks'
+import { showErrorToast } from '../utils/error'
 
 const Register: NextPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   const { mutate: register } = useMutation(
     () => ky.post('/api/register', { json: { username, password } }),
@@ -18,6 +20,15 @@ const Register: NextPage = () => {
     }
   )
 
+  const handleRegister = useCallback(() => {
+    if (password !== confirmPassword) {
+      showErrorToast('Passwords do not match')
+      return
+    }
+
+    register()
+  }, [confirmPassword, password, register])
+
   const usernameInput = useAutoFocus<HTMLInputElement>()
 
   return (
@@ -26,7 +37,7 @@ const Register: NextPage = () => {
         className='border p-4 shadow bg-white'
         onSubmit={(e) => {
           e.preventDefault()
-          register()
+          handleRegister()
         }}
       >
         <div className='space-y-3'>
@@ -40,6 +51,7 @@ const Register: NextPage = () => {
               id='username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
 
@@ -53,6 +65,24 @@ const Register: NextPage = () => {
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              className='block text-gray-700 text-sm'
+              htmlFor='confirm-password'
+            >
+              Confirm Password
+            </label>
+            <input
+              className='border rounded-sm p-1 px-2 mt-0.5'
+              id='confirm-password'
+              type='password'
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
             />
           </div>
         </div>
