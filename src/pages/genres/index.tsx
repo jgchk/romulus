@@ -3,12 +3,15 @@ import { useCallback, useState } from 'react'
 
 import CreateGenreDialog from '../../components/CreateGenreDialog'
 import EditGenreDialog from '../../components/EditGenreDialog'
+import { GenreFormFields } from '../../components/GenreForm'
 import GenreTree from '../../components/GenreTree'
 import ViewGenre from '../../components/ViewGenre'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 
-type DialogState = { type: 'edit'; id: number } | { type: 'create' }
+type DialogState =
+  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
+  | { type: 'create' }
 
 const Genres: NextPage = () => {
   const session = useSession()
@@ -22,7 +25,7 @@ const Genres: NextPage = () => {
     if (genresQuery.data) {
       return (
         <div className='w-full h-full flex flex-col'>
-          <div className='flex-1'>
+          <div className='flex-1 p-4'>
             <GenreTree
               genres={genresQuery.data}
               onClickGenre={(id) => setViewingGenreId(id)}
@@ -67,10 +70,12 @@ const Genres: NextPage = () => {
 
     return (
       <div className='w-full h-full flex flex-col'>
-        <div className='flex-1'>
+        <div className='flex-1 p-4'>
           <ViewGenre
             id={viewingGenreId}
-            onClickGenre={(id) => setViewingGenreId(id)}
+            onEditGenre={(id, autoFocus) =>
+              setDialogState({ type: 'edit', id, autoFocus })
+            }
           />
         </div>
         {session.isLoggedIn && (
@@ -105,6 +110,7 @@ const Genres: NextPage = () => {
         <EditGenreDialog
           id={dialogState.id}
           onClose={() => setDialogState(undefined)}
+          autoFocus={dialogState.autoFocus}
         />
       )}
     </>

@@ -3,12 +3,12 @@ import toast from 'react-hot-toast'
 
 import { useAddGenreMutation } from '../services/genres'
 import Dialog from './Dialog'
-import GenreForm, { CompleteData } from './GenreForm'
+import GenreForm, { GenreFormData } from './GenreForm'
 
 const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
   const { mutate } = useAddGenreMutation()
   const onSubmit = useCallback(
-    (data: CompleteData) =>
+    (data: GenreFormData) =>
       mutate(
         {
           ...data,

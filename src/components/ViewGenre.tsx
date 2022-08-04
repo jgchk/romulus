@@ -1,12 +1,20 @@
 import { FC } from 'react'
 
 import { DefaultGenre } from '../server/db/genre'
+import { useSession } from '../services/auth'
 import { useGenreQuery } from '../services/genres'
+import { GenreFormFields } from './GenreForm'
 
-const ViewGenre: FC<{
-  genre: DefaultGenre
-  onClickGenre: (id: number) => void
-}> = ({ genre }) => {
+type BaseProps = {
+  onEditGenre: (id: number, autoFocus?: keyof GenreFormFields) => void
+}
+
+const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
+  genre,
+  onEditGenre,
+}) => {
+  const session = useSession()
+
   return (
     <div>
       <div className='text-lg font-bold text-gray-600 mb-4'>{genre.name}</div>
@@ -18,7 +26,22 @@ const ViewGenre: FC<{
           >
             Short Description
           </label>
-          <div id='short-description'>{genre.shortDescription}</div>
+          <div id='short-description'>
+            {genre.shortDescription || (
+              <span>
+                Missing a short description.{' '}
+                {session.isLoggedIn && (
+                  <button
+                    className='text-blue-500 hover:underline'
+                    onClick={() => onEditGenre(genre.id, 'shortDescription')}
+                  >
+                    Add one.
+                  </button>
+                )}
+              </span>
+            )}
+            {genre.shortDescription}
+          </div>
         </div>
 
         <div>
@@ -28,21 +51,32 @@ const ViewGenre: FC<{
           >
             Long Description
           </label>
-          <div id='long-description'>{genre.longDescription}</div>
+          <div id='long-description'>
+            {genre.longDescription || (
+              <span>
+                Missing a long description.{' '}
+                {session.isLoggedIn && (
+                  <button
+                    className='text-blue-500 hover:underline'
+                    onClick={() => onEditGenre(genre.id, 'longDescription')}
+                  >
+                    Add one.
+                  </button>
+                )}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-const Wrapper: FC<{ id: number; onClickGenre: (id: number) => void }> = ({
-  id,
-  onClickGenre,
-}) => {
+const Wrapper: FC<BaseProps & { id: number }> = ({ id, ...props }) => {
   const genreQuery = useGenreQuery(id)
 
   if (genreQuery.data) {
-    return <ViewGenre genre={genreQuery.data} onClickGenre={onClickGenre} />
+    return <ViewGenre genre={genreQuery.data} {...props} />
   }
 
   if (genreQuery.error) {

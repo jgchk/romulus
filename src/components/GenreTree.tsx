@@ -52,7 +52,7 @@ const GenreTree: FC<{
   }
 
   return (
-    <div className='w-full h-full p-4'>
+    <div className='w-full h-full'>
       <ul className='list-disc list-inside'>
         {topLevelGenres.map((genre) => renderGenre(genre))}
       </ul>

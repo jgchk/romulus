@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { DefaultGenre } from '../server/db/genre'
 import GenreMultiselect from './GenreMultiselect'
 
-type FormData = {
+export type GenreFormFields = {
   name: string
   shortDescription: string
   longDescription: string
@@ -13,7 +13,7 @@ type FormData = {
   // endDate: string
 }
 
-export type CompleteData = {
+export type GenreFormData = {
   name: string
   shortDescription: string | null
   longDescription: string | null
@@ -25,15 +25,16 @@ export type CompleteData = {
 
 const GenreForm: FC<{
   genre?: DefaultGenre
-  onSubmit: (data: CompleteData) => void
+  onSubmit: (data: GenreFormData) => void
   onClose: () => void
-}> = ({ genre, onSubmit, onClose }) => {
+  autoFocus?: keyof GenreFormFields
+}> = ({ genre, onSubmit, onClose, autoFocus }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setFocus,
-  } = useForm<FormData>({
+  } = useForm<GenreFormFields>({
     defaultValues: {
       name: genre?.name ?? '',
       shortDescription: genre?.shortDescription ?? '',
@@ -51,7 +52,7 @@ const GenreForm: FC<{
   )
 
   const submitHandler = useCallback(
-    (data: FormData) =>
+    (data: GenreFormFields) =>
       onSubmit({
         name: data.name,
         shortDescription:
@@ -66,7 +67,7 @@ const GenreForm: FC<{
     [childGenres, onSubmit, parentGenres]
   )
 
-  useEffect(() => setFocus('name'), [setFocus])
+  useEffect(() => setFocus(autoFocus ?? 'name'), [autoFocus, setFocus])
 
   return (
     <form onSubmit={handleSubmit(submitHandler)}>

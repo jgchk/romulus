@@ -3,15 +3,16 @@ import toast from 'react-hot-toast'
 
 import { useEditGenreMutation, useGenreQuery } from '../services/genres'
 import Dialog from './Dialog'
-import GenreForm, { CompleteData } from './GenreForm'
+import GenreForm, { GenreFormData, GenreFormFields } from './GenreForm'
 
-const EditGenreDialog: FC<{ id: number; onClose: () => void }> = ({
-  id,
-  onClose,
-}) => {
+const EditGenreDialog: FC<{
+  id: number
+  onClose: () => void
+  autoFocus?: keyof GenreFormFields
+}> = ({ id, onClose, autoFocus }) => {
   const { mutate } = useEditGenreMutation()
   const onSubmit = useCallback(
-    (data: CompleteData) =>
+    (data: GenreFormData) =>
       mutate(
         { id, data },
         {
@@ -32,6 +33,7 @@ const EditGenreDialog: FC<{ id: number; onClose: () => void }> = ({
           genre={genreQuery.data}
           onSubmit={(data) => onSubmit(data)}
           onClose={() => onClose()}
+          autoFocus={autoFocus}
         />
       )
     }
@@ -41,7 +43,7 @@ const EditGenreDialog: FC<{ id: number; onClose: () => void }> = ({
     }
 
     return <div>Loading...</div>
-  }, [genreQuery.data, genreQuery.error, onClose, onSubmit])
+  }, [autoFocus, genreQuery.data, genreQuery.error, onClose, onSubmit])
 
   return (
     <Dialog>
