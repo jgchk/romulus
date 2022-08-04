@@ -11,10 +11,23 @@ const ViewGenre: FC<{
       <div className='text-lg font-bold text-gray-600 mb-4'>{genre.name}</div>
       <div className='space-y-3'>
         <div>
-          <label className='block text-gray-700 text-sm' htmlFor='description'>
-            Description
+          <label
+            className='block text-gray-700 text-sm'
+            htmlFor='short-description'
+          >
+            Short Description
           </label>
-          <div>{genre.description}</div>
+          <div id='short-description'>{genre.shortDescription}</div>
+        </div>
+
+        <div>
+          <label
+            className='block text-gray-700 text-sm'
+            htmlFor='long-description'
+          >
+            Long Description
+          </label>
+          <div id='long-description'>{genre.longDescription}</div>
         </div>
       </div>
     </div>
