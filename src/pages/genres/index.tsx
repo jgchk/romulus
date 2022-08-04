@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Link from 'next/link'
 import { useCallback, useState } from 'react'
 
 import CreateGenreDialog from '../../components/CreateGenreDialog'
@@ -92,14 +93,25 @@ const Genres: NextPage = () => {
 
   return (
     <>
-      <div className='bg-texture w-full h-full flex items-center justify-center'>
-        <div className='flex justify-center space-x-4 w-full h-1/3'>
-          <div className='w-1/3 h-full border bg-white shadow-sm '>
-            {renderGenreTree()}
+      <div className='bg-texture w-full h-full flex items-center'>
+        <div className='w-full flex flex-col items-center'>
+          <div className='flex justify-center space-x-4'>
+            <div className='w-[500px] h-[500px] border bg-white shadow-sm '>
+              {renderGenreTree()}
+            </div>
+            <div className='w-[500px] h-[500px] border bg-white shadow-sm'>
+              {renderViewGenre()}
+            </div>
           </div>
-          <div className='w-1/3 h-full border bg-white shadow-sm'>
-            {renderViewGenre()}
-          </div>
+
+          {session.isLoggedOut && (
+            <div className='mt-6 text-gray-700'>
+              <Link href='/login'>
+                <a className='text-blue-500 hover:underline'>Log in</a>
+              </Link>{' '}
+              to create and edit genres.
+            </div>
+          )}
         </div>
       </div>
 
