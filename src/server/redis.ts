@@ -31,7 +31,7 @@ export default class RedisHelper {
     const data = await this.client.get(dbKey)
 
     if (data === null) {
-      throw new Error(`${dbKey} not found`)
+      return null
     }
 
     return JSON.parse(data) as T

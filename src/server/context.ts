@@ -10,11 +10,14 @@ export async function createContext(opts: trpcNext.CreateNextContextOptions) {
   const token = getTokenFromCookie(opts.req)
 
   if (!token) {
-    return { token }
+    return { token, session: null, account: null }
   }
 
   const session = await new SessionManager().getSession(token)
-  const account = await getAccountById(session.accountId)
+  if (!session) {
+    return { token, session: null, account: null }
+  }
 
+  const account = await getAccountById(session.accountId)
   return { token, session, account }
 }
