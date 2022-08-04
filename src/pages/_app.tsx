@@ -11,9 +11,7 @@ import {
 import { AppRouter } from '../server/routers/_app'
 import { showErrorToast } from '../utils/error'
 import '../../styles/globals.css'
-import { useCallback } from 'react'
-import Link from 'next/link'
-import { useSession } from '../services/auth'
+import Navbar from '../components/Navbar'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {
@@ -57,35 +55,15 @@ const queryClient = new QueryClient({
 })
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  const session = useSession()
-
-  const renderToolbar = useCallback(() => {
-    if (session.isSuccess) {
-      return session.data ? (
-        session.data.username
-      ) : (
-        <Link href='/login'>
-          <a>Log in</a>
-        </Link>
-      )
-    }
-
-    if (session.error) {
-      return (
-        <Link href='/login'>
-          <a>Log in</a>
-        </Link>
-      )
-    }
-
-    return 'Loading...'
-  }, [session.data, session.error, session.isSuccess])
-
   return (
     <QueryClientProvider client={queryClient}>
-      <div className='w-screen h-screen'>
-        <div>{renderToolbar()}</div>
-        <Component {...pageProps} />
+      <div className='w-screen h-screen flex flex-col'>
+        <Navbar />
+
+        <div className='flex-1'>
+          <Component {...pageProps} />
+        </div>
+
         <Toaster />
       </div>
     </QueryClientProvider>

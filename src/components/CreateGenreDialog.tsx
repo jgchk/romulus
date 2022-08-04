@@ -30,7 +30,15 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
     (data: FormData) => {
       console.log({ data })
       mutate(
-        { ...data, parentGenres, childGenres },
+        {
+          name: data.name,
+          description:
+            data.description.length > 0 ? data.description : undefined,
+          startDate: data.startDate.length > 0 ? data.startDate : undefined,
+          endDate: data.endDate.length > 0 ? data.endDate : undefined,
+          parentGenres,
+          childGenres,
+        },
         {
           onSuccess: (data) => {
             toast.success(`Created genre '${data.name}'`)
@@ -91,9 +99,7 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
                   'border rounded-sm p-1 px-2 mt-0.5',
                   errors.description && 'border-red-600 outline-red-600'
                 )}
-                {...register('description', {
-                  required: 'Description is required',
-                })}
+                {...register('description')}
               />
               {errors.description && (
                 <div className='text-sm text-red-600'>

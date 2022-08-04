@@ -6,6 +6,8 @@ export const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   description: true,
   parentGenres: { select: { id: true, name: true } },
   childGenres: { select: { id: true, name: true } },
+  x: true,
+  y: true,
 })
 
 export type DefaultGenre = Prisma.GenreGetPayload<{

@@ -18,7 +18,7 @@ export const genreRouter = createRouter()
   .mutation('add', {
     input: z.object({
       name: z.string().min(1),
-      description: z.string().min(1),
+      description: z.string().min(1).optional(),
       locations: z.union([LocationId, LocationData]).array().optional(),
       startDate: iso8601.optional(),
       endDate: iso8601.optional(),
