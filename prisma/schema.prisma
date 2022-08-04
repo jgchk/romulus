@@ -93,6 +93,8 @@ model Genre {
   contributors Account[]
   startDate    String?
   endDate      String?
+  parentGenres Genre[]    @relation("hierarchy")
+  childGenres  Genre[]    @relation("hierarchy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { FC, useState } from 'react'
 import CreateGenreDialog from '../../components/CreateGenreDialog'
+import GenreTree from '../../components/GenreTree'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 
@@ -8,17 +9,7 @@ const Content: FC = () => {
   const genresQuery = useGenresQuery()
 
   if (genresQuery.data) {
-    if (genresQuery.data.length === 0) {
-      return <div>No genres found</div>
-    }
-
-    return (
-      <div>
-        {genresQuery.data.map((genre) => (
-          <div key={genre.id}>{genre.name}</div>
-        ))}
-      </div>
-    )
+    return <GenreTree genres={genresQuery.data} />
   }
 
   if (genresQuery.error) {

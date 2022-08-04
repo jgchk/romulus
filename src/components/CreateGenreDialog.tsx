@@ -3,16 +3,19 @@ import toast from 'react-hot-toast'
 import { useAddGenreMutation } from '../services/genres'
 import { useAutoFocus } from '../utils/hooks'
 import Dialog from './Dialog'
+import GenreMultiselect from './GenreMultiselect'
 
 const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [parentGenres, setParentGenres] = useState<number[]>([])
+  const [childGenres, setChildGenres] = useState<number[]>([])
 
   const { mutate } = useAddGenreMutation()
 
   const handleSubmit = useCallback(() => {
     mutate(
-      { name, description },
+      { name, description, parentGenres, childGenres },
       {
         onSuccess: (data) => {
           toast.success(`Created genre '${data.name}'`)
@@ -20,7 +23,7 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
         },
       }
     )
-  }, [description, mutate, name, onClose])
+  }, [childGenres, description, mutate, name, onClose, parentGenres])
 
   const nameRef = useAutoFocus<HTMLInputElement>()
 
@@ -61,6 +64,26 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
                 id='description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className='block text-gray-700 text-sm'>
+                Parent Genres
+              </label>
+              <GenreMultiselect
+                selectedIds={parentGenres}
+                onChange={(g) => setParentGenres(g)}
+              />
+            </div>
+
+            <div>
+              <label className='block text-gray-700 text-sm'>
+                Child Genres
+              </label>
+              <GenreMultiselect
+                selectedIds={childGenres}
+                onChange={(g) => setChildGenres(g)}
               />
             </div>
           </div>

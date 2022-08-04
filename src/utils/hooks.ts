@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { DefaultGenre } from '../server/db/genre'
 
 export const useAutoFocus = <T extends HTMLOrSVGElement>() => {
   const inputRef = useRef<T>(null)
@@ -11,3 +12,11 @@ export const useAutoFocus = <T extends HTMLOrSVGElement>() => {
 
   return inputRef
 }
+
+export const useGenreMap = (
+  genres: DefaultGenre[]
+): Record<number, DefaultGenre> =>
+  useMemo(
+    () => Object.fromEntries(genres.map((genre) => [genre.id, genre])),
+    [genres]
+  )

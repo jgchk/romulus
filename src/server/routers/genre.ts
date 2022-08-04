@@ -22,6 +22,8 @@ export const genreRouter = createRouter()
       locations: z.union([LocationId, LocationData]).array().optional(),
       startDate: iso8601.optional(),
       endDate: iso8601.optional(),
+      parentGenres: z.number().array().optional(),
+      childGenres: z.number().array().optional(),
     }),
     resolve: async ({ input, ctx }) => {
       requireLogin(ctx)
@@ -52,6 +54,12 @@ export const genreRouter = createRouter()
             : undefined,
           startDate: input.startDate,
           endDate: input.endDate,
+          parentGenres: input.parentGenres
+            ? { connect: input.parentGenres.map((id) => ({ id })) }
+            : undefined,
+          childGenres: input.childGenres
+            ? { connect: input.childGenres.map((id) => ({ id })) }
+            : undefined,
         },
         select: defaultGenreSelect,
       })
