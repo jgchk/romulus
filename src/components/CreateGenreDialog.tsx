@@ -8,12 +8,19 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
   const { mutate } = useAddGenreMutation()
   const onSubmit = useCallback(
     (data: CompleteData) =>
-      mutate(data, {
-        onSuccess: (data) => {
-          toast.success(`Created genre '${data.name}'`)
-          onClose()
+      mutate(
+        {
+          ...data,
+          shortDescription: data.shortDescription ?? undefined,
+          longDescription: data.longDescription ?? undefined,
         },
-      }),
+        {
+          onSuccess: (data) => {
+            toast.success(`Created genre '${data.name}'`)
+            onClose()
+          },
+        }
+      ),
     [mutate, onClose]
   )
 

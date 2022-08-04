@@ -18,7 +18,8 @@ export const genreRouter = createRouter()
   .mutation('add', {
     input: z.object({
       name: z.string().min(1),
-      description: z.string().min(1).optional(),
+      shortDescription: z.string().min(1).optional(),
+      longDescription: z.string().min(1).optional(),
       locations: z.union([LocationId, LocationData]).array().optional(),
       startDate: iso8601.optional(),
       endDate: iso8601.optional(),
@@ -48,7 +49,8 @@ export const genreRouter = createRouter()
       return prisma.genre.create({
         data: {
           name: input.name,
-          description: input.description,
+          shortDescription: input.shortDescription,
+          longDescription: input.longDescription,
           locations: locationIds
             ? { connect: locationIds.map((id) => ({ id })) }
             : undefined,
@@ -95,7 +97,8 @@ export const genreRouter = createRouter()
       id: z.number(),
       data: z.object({
         name: z.string().min(1),
-        description: z.string().min(1).optional(),
+        shortDescription: z.string().min(1).optional().nullable(),
+        longDescription: z.string().min(1).optional().nullable(),
         locations: z.union([LocationId, LocationData]).array().optional(),
         startDate: iso8601.optional(),
         endDate: iso8601.optional(),

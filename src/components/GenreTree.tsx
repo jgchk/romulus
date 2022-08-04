@@ -43,7 +43,11 @@ const GenreTree: FC<{
   )
 
   if (genres.length === 0) {
-    return <div>No genres found</div>
+    return (
+      <div className='w-full h-full flex items-center justify-center text-gray-400'>
+        No genres found
+      </div>
+    )
   }
 
   return (

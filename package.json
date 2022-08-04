@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "tsc && eslint .",
     "prepare": "husky install",
     "db": "docker-compose -f docker.yml up"
   },

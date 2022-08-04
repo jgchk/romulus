@@ -6,14 +6,16 @@ import GenreMultiselect from './GenreMultiselect'
 
 type FormData = {
   name: string
-  description: string
+  shortDescription: string
+  longDescription: string
   // startDate: string
   // endDate: string
 }
 
 export type CompleteData = {
   name: string
-  description?: string
+  shortDescription: string | null
+  longDescription: string | null
   // startDate?: string
   // endDate?: string
   parentGenres: number[]
@@ -33,7 +35,8 @@ const GenreForm: FC<{
   } = useForm<FormData>({
     defaultValues: {
       name: genre?.name ?? '',
-      description: genre?.description ?? '',
+      shortDescription: genre?.shortDescription ?? '',
+      longDescription: genre?.longDescription ?? '',
       // startDate: genre?.startDate ?? '',
       // endDate: genre?.endDate ?? '',
     },
@@ -50,7 +53,10 @@ const GenreForm: FC<{
     (data: FormData) =>
       onSubmit({
         name: data.name,
-        description: data.description.length > 0 ? data.description : undefined,
+        shortDescription:
+          data.shortDescription.length > 0 ? data.shortDescription : null,
+        longDescription:
+          data.longDescription.length > 0 ? data.longDescription : null,
         // startDate: data.startDate.length > 0 ? data.startDate : undefined,
         // endDate: data.endDate.length > 0 ? data.endDate : undefined,
         parentGenres,
@@ -89,25 +95,50 @@ const GenreForm: FC<{
 
         <div>
           <label
-            htmlFor='description'
+            htmlFor='short-description'
             className={clsx(
               'block text-gray-700 text-sm',
-              errors.description && 'text-red-600'
+              errors.shortDescription && 'text-red-600'
             )}
           >
-            Description
+            Short Description
           </label>
           <input
-            id='description'
+            id='short-description'
             className={clsx(
               'border rounded-sm p-1 px-2 mt-0.5',
-              errors.description && 'border-red-600 outline-red-600'
+              errors.shortDescription && 'border-red-600 outline-red-600'
             )}
-            {...register('description')}
+            {...register('shortDescription')}
           />
-          {errors.description && (
+          {errors.shortDescription && (
             <div className='text-sm text-red-600'>
-              {errors.description.message}
+              {errors.shortDescription.message}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='long-description'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.longDescription && 'text-red-600'
+            )}
+          >
+            Long Description
+          </label>
+          <textarea
+            id='long-description'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5',
+              errors.longDescription && 'border-red-600 outline-red-600'
+            )}
+            {...register('longDescription')}
+          />
+          {errors.longDescription && (
+            <div className='text-sm text-red-600'>
+              {errors.longDescription.message}
             </div>
           )}
         </div>

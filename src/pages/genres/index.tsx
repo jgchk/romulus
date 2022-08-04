@@ -42,14 +42,14 @@ const Genres: NextPage = () => {
 
     if (genresQuery.error) {
       return (
-        <div className='w-full h-full flex items-center justify-center'>
+        <div className='w-full h-full flex items-center justify-center text-red-600'>
           Error fetching genres :(
         </div>
       )
     }
 
     return (
-      <div className='w-full h-full flex items-center justify-center'>
+      <div className='w-full h-full flex items-center justify-center text-gray-400'>
         Loading...
       </div>
     )

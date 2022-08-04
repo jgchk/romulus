@@ -86,15 +86,16 @@ model TrackReview {
 }
 
 model Genre {
-  id           Int        @id @default(autoincrement())
-  name         String
-  description  String?
-  locations    Location[]
-  contributors Account[]
-  startDate    String?
-  endDate      String?
-  parentGenres Genre[]    @relation("hierarchy")
-  childGenres  Genre[]    @relation("hierarchy")
+  id               Int        @id @default(autoincrement())
+  name             String
+  shortDescription String?
+  longDescription  String?
+  locations        Location[]
+  contributors     Account[]
+  startDate        String?
+  endDate          String?
+  parentGenres     Genre[]    @relation("hierarchy")
+  childGenres      Genre[]    @relation("hierarchy")
 
   x Int?
   y Int?
