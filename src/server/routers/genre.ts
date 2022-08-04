@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { createRouter } from '../createRouter'
 import { prisma } from '../prisma'
 import { iso8601 } from '../../utils/validators'
+import { requireLogin } from '../guards'
 
 const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   id: true,
@@ -27,11 +28,14 @@ export const genreRouter = createRouter()
       startDate: iso8601.optional(),
       endDate: iso8601.optional(),
     }),
-    resolve: ({ input }) =>
-      prisma.genre.create({
+    resolve: ({ input, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.genre.create({
         data: input,
         select: defaultGenreSelect,
-      }),
+      })
+    },
   })
   // read
   .query('all', {
@@ -46,12 +50,14 @@ export const genreRouter = createRouter()
         where: { id },
         select: defaultGenreSelect,
       })
+
       if (!genre) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `No genre with id '${id}'`,
         })
       }
+
       return genre
     },
   })
@@ -63,19 +69,24 @@ export const genreRouter = createRouter()
         name: z.string().optional(),
       }),
     }),
-    resolve: ({ input: { id, data } }) =>
-      prisma.genre.update({
+    resolve: ({ input: { id, data }, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.genre.update({
         where: { id },
         data,
         select: defaultGenreSelect,
-      }),
+      })
+    },
   })
   // delete
   .mutation('delete', {
     input: z.object({
       id: z.number(),
     }),
-    resolve: async ({ input: { id } }) => {
+    resolve: async ({ input: { id }, ctx }) => {
+      requireLogin(ctx)
+
       await prisma.genre.delete({ where: { id } })
       return { id }
     },

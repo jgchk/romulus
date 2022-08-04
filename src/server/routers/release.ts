@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { createRouter } from '../createRouter'
+import { requireLogin } from '../guards'
 import { prisma } from '../prisma'
 
 const defaultReleaseSelect = Prisma.validator<Prisma.ReleaseSelect>()({
@@ -15,35 +16,38 @@ export const releaseRouter = createRouter()
     input: z.object({
       title: z.string(),
     }),
-    async resolve({ input }) {
-      const release = await prisma.release.create({
+    resolve: ({ input, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.release.create({
         data: input,
         select: defaultReleaseSelect,
       })
-      return release
     },
   })
   // read
   .query('all', {
-    async resolve() {
-      return prisma.release.findMany({ select: defaultReleaseSelect })
-    },
+    resolve: () => prisma.release.findMany({ select: defaultReleaseSelect }),
   })
   .query('byId', {
     input: z.object({
       id: z.number(),
     }),
-    async resolve({ input: { id } }) {
+    resolve: async ({ input: { id }, ctx }) => {
+      requireLogin(ctx)
+
       const release = await prisma.release.findUnique({
         where: { id },
         select: defaultReleaseSelect,
       })
+
       if (!release) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `No release with id '${id}'`,
         })
       }
+
       return release
     },
   })
@@ -55,13 +59,14 @@ export const releaseRouter = createRouter()
         title: z.string().optional(),
       }),
     }),
-    async resolve({ input: { id, data } }) {
-      const release = await prisma.release.update({
+    resolve: ({ input: { id, data }, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.release.update({
         where: { id },
         data,
         select: defaultReleaseSelect,
       })
-      return release
     },
   })
   // delete
@@ -69,7 +74,9 @@ export const releaseRouter = createRouter()
     input: z.object({
       id: z.number(),
     }),
-    async resolve({ input: { id } }) {
+    resolve: async ({ input: { id }, ctx }) => {
+      requireLogin(ctx)
+
       await prisma.release.delete({ where: { id } })
       return { id }
     },

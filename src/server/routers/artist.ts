@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { createRouter } from '../createRouter'
+import { requireLogin } from '../guards'
 import { prisma } from '../prisma'
 
 /**
@@ -24,40 +25,36 @@ export const artistRouter = createRouter()
     input: z.object({
       name: z.string(),
     }),
-    async resolve({ input }) {
-      const artist = await prisma.artist.create({
+    resolve: ({ input, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.artist.create({
         data: input,
         select: defaultArtistSelect,
       })
-      return artist
     },
   })
   // read
   .query('all', {
-    async resolve() {
-      /**
-       * For pagination you can have a look at this docs site
-       * @link https://trpc.io/docs/useInfiniteQuery
-       */
-
-      return prisma.artist.findMany({ select: defaultArtistSelect })
-    },
+    resolve: () => prisma.artist.findMany({ select: defaultArtistSelect }),
   })
   .query('byId', {
     input: z.object({
       id: z.number(),
     }),
-    async resolve({ input: { id } }) {
+    resolve: async ({ input: { id } }) => {
       const artist = await prisma.artist.findUnique({
         where: { id },
         select: defaultArtistSelect,
       })
+
       if (!artist) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `No artist with id '${id}'`,
         })
       }
+
       return artist
     },
   })
@@ -69,13 +66,14 @@ export const artistRouter = createRouter()
         name: z.string().optional(),
       }),
     }),
-    async resolve({ input: { id, data } }) {
-      const artist = await prisma.artist.update({
+    resolve: async ({ input: { id, data }, ctx }) => {
+      requireLogin(ctx)
+
+      return prisma.artist.update({
         where: { id },
         data,
         select: defaultArtistSelect,
       })
-      return artist
     },
   })
   // delete
@@ -83,7 +81,9 @@ export const artistRouter = createRouter()
     input: z.object({
       id: z.number(),
     }),
-    async resolve({ input: { id } }) {
+    resolve: async ({ input: { id }, ctx }) => {
+      requireLogin(ctx)
+
       await prisma.artist.delete({ where: { id } })
       return { id }
     },
