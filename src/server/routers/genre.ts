@@ -95,6 +95,8 @@ export const genreRouter = createRouter()
       id: z.number(),
       data: z.object({
         name: z.string().optional(),
+        x: z.number().nullable().optional(),
+        y: z.number().nullable().optional(),
       }),
     }),
     resolve: ({ input: { id, data }, ctx }) => {

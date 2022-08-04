@@ -1,12 +1,20 @@
 import type { NextPage } from 'next'
+import { FC, useState } from 'react'
 import GenreCanvas from '../../components/GenreCanvas'
+import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'
 
-const Canvas: NextPage = () => {
+const Canvas: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {
+  const [data, setData] = useState(genres)
+
+  return <GenreCanvas genres={data} onChange={(g) => setData(g)} />
+}
+
+const Wrapper: NextPage = () => {
   const genresQuery = useGenresQuery()
 
   if (genresQuery.data) {
-    return <GenreCanvas genres={genresQuery.data} />
+    return <Canvas genres={genresQuery.data} />
   }
 
   if (genresQuery.error) {
@@ -16,4 +24,4 @@ const Canvas: NextPage = () => {
   return <div>Loading...</div>
 }
 
-export default Canvas
+export default Wrapper
