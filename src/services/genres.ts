@@ -13,3 +13,13 @@ export const useAddGenreMutation = () => {
     },
   })
 }
+
+export const useEditGenreMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['genre.edit'], {
+    onSuccess: (data) => {
+      utils.invalidateQueries(['genre.all'])
+      utils.setQueryData(['genre.byId', { id: data.id }], data)
+    },
+  })
+}

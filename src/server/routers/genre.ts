@@ -94,7 +94,13 @@ export const genreRouter = createRouter()
     input: z.object({
       id: z.number(),
       data: z.object({
-        name: z.string().optional(),
+        name: z.string().min(1),
+        description: z.string().min(1).optional(),
+        locations: z.union([LocationId, LocationData]).array().optional(),
+        startDate: iso8601.optional(),
+        endDate: iso8601.optional(),
+        parentGenres: z.number().array().optional(),
+        childGenres: z.number().array().optional(),
         x: z.number().nullable().optional(),
         y: z.number().nullable().optional(),
       }),
@@ -104,7 +110,15 @@ export const genreRouter = createRouter()
 
       return prisma.genre.update({
         where: { id },
-        data,
+        data: {
+          ...data,
+          parentGenres: data.parentGenres
+            ? { set: data.parentGenres.map((id) => ({ id })) }
+            : undefined,
+          childGenres: data.childGenres
+            ? { set: data.childGenres.map((id) => ({ id })) }
+            : undefined,
+        },
         select: defaultGenreSelect,
       })
     },
