@@ -5,7 +5,7 @@ import { useGenreQuery } from '../services/genres'
 const ViewGenre: FC<{
   genre: DefaultGenre
   onClickGenre: (id: number) => void
-}> = ({ genre, onClickGenre }) => {
+}> = ({ genre }) => {
   return (
     <div>
       <div className='text-lg font-bold text-gray-600 mb-4'>{genre.name}</div>

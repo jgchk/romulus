@@ -2,21 +2,20 @@ import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { DefaultGenre } from '../server/db/genre'
-import { isISO8601 } from '../utils/validators'
 import GenreMultiselect from './GenreMultiselect'
 
 type FormData = {
   name: string
   description: string
-  startDate: string
-  endDate: string
+  // startDate: string
+  // endDate: string
 }
 
 export type CompleteData = {
   name: string
   description?: string
-  startDate?: string
-  endDate?: string
+  // startDate?: string
+  // endDate?: string
   parentGenres: number[]
   childGenres: number[]
 }
@@ -35,8 +34,8 @@ const GenreForm: FC<{
     defaultValues: {
       name: genre?.name ?? '',
       description: genre?.description ?? '',
-      startDate: genre?.startDate ?? '',
-      endDate: genre?.endDate ?? '',
+      // startDate: genre?.startDate ?? '',
+      // endDate: genre?.endDate ?? '',
     },
   })
 
@@ -52,8 +51,8 @@ const GenreForm: FC<{
       onSubmit({
         name: data.name,
         description: data.description.length > 0 ? data.description : undefined,
-        startDate: data.startDate.length > 0 ? data.startDate : undefined,
-        endDate: data.endDate.length > 0 ? data.endDate : undefined,
+        // startDate: data.startDate.length > 0 ? data.startDate : undefined,
+        // endDate: data.endDate.length > 0 ? data.endDate : undefined,
         parentGenres,
         childGenres,
       }),
@@ -113,7 +112,7 @@ const GenreForm: FC<{
           )}
         </div>
 
-        <div>
+        {/* <div>
           <label
             htmlFor='start-date'
             className={clsx(
@@ -167,7 +166,7 @@ const GenreForm: FC<{
           {errors.endDate && (
             <div className='text-sm text-red-600'>{errors.endDate.message}</div>
           )}
-        </div>
+        </div> */}
 
         <div>
           <label className='block text-gray-700 text-sm'>Parent Genres</label>
