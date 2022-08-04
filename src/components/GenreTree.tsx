@@ -1,8 +1,11 @@
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { DefaultGenre } from '../server/db/genre'
 import { useGenreMap } from '../utils/hooks'
+import ViewGenreDialog from './ViewGenreDialog'
 
 const GenreTree: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {
+  const [viewingGenreId, setViewingGenreId] = useState<number>()
+
   const topLevelGenres = useMemo(
     () => genres.filter((genre) => genre.parentGenres.length === 0),
     [genres]
@@ -14,7 +17,9 @@ const GenreTree: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {
     (genre: DefaultGenre) => {
       return (
         <li className='ml-2' key={genre.id}>
-          {genre.name}
+          <button onClick={() => setViewingGenreId(genre.id)}>
+            {genre.name}
+          </button>
           {genre.childGenres.length > 0 && (
             <ul>
               {genre.childGenres.map(({ id }) => {
@@ -34,9 +39,19 @@ const GenreTree: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {
   }
 
   return (
-    <div>
-      <ul>{topLevelGenres.map((genre) => renderGenre(genre))}</ul>
-    </div>
+    <>
+      <div>
+        <ul>{topLevelGenres.map((genre) => renderGenre(genre))}</ul>
+      </div>
+
+      {viewingGenreId && (
+        <ViewGenreDialog
+          id={viewingGenreId}
+          onClose={() => setViewingGenreId(undefined)}
+          onClickGenre={(id) => setViewingGenreId(id)}
+        />
+      )}
+    </>
   )
 }
 
