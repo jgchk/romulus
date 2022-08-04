@@ -26,7 +26,6 @@ const queryCache = new QueryCache({
 
 const mutationCache = new MutationCache({
   onError: (error, variables, context, mutation) => {
-    console.log({ error, mutation })
     // TODO: tell typescript that showToast is a valid option
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
