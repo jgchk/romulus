@@ -2,7 +2,8 @@ import { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { useAutoFocus, useLoginMutation, useSession } from '../utils/hooks'
+import { useLoginMutation, useSession } from '../services/auth'
+import { useAutoFocus } from '../utils/hooks'
 
 const Login: NextPage = () => {
   // navigate away from the page if the user is already logged in

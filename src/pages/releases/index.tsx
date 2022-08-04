@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
-import { trpc } from '../../utils/trpc'
+import { useReleasesQuery } from '../../services/releases'
 
 const Releases: NextPage = () => {
-  const releasesQuery = trpc.useQuery(['release.all'])
+  const releasesQuery = useReleasesQuery()
 
   if (releasesQuery.data) {
     if (releasesQuery.data.length === 0) {

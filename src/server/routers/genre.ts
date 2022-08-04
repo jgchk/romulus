@@ -1,38 +1,58 @@
-import { Prisma } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { createRouter } from '../createRouter'
 import { prisma } from '../prisma'
-import { iso8601 } from '../../utils/validators'
+import { check, iso8601 } from '../../utils/validators'
 import { requireLogin } from '../guards'
+import { defaultGenreSelect } from '../db/genre'
 
-const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
-  id: true,
-  name: true,
+const LocationId = z.object({ id: z.number() })
+const LocationData = z.object({
+  city: z.string().min(1).optional(),
+  region: z.string().min(1).optional(),
+  country: z.string().min(1),
 })
 
 export const genreRouter = createRouter()
   // create
   .mutation('add', {
     input: z.object({
-      name: z.string(),
-      description: z.string(),
-      location: z.union([
-        z.object({ id: z.number() }),
-        z.object({
-          city: z.string().optional(),
-          region: z.string().optional(),
-          country: z.string(),
-        }),
-      ]),
+      name: z.string().min(1),
+      description: z.string().min(1),
+      locations: z.union([LocationId, LocationData]).array().optional(),
       startDate: iso8601.optional(),
       endDate: iso8601.optional(),
     }),
-    resolve: ({ input, ctx }) => {
+    resolve: async ({ input, ctx }) => {
       requireLogin(ctx)
 
+      const locationIds = input.locations
+        ? await Promise.all(
+            input.locations.map(async (location) => {
+              if (check(LocationId, location)) {
+                return location.id
+              }
+
+              const dbLocation = await prisma.location.create({
+                data: location,
+                select: { id: true },
+              })
+
+              return dbLocation.id
+            })
+          )
+        : undefined
+
       return prisma.genre.create({
-        data: input,
+        data: {
+          name: input.name,
+          description: input.description,
+          locations: locationIds
+            ? { connect: locationIds.map((id) => ({ id })) }
+            : undefined,
+          startDate: input.startDate,
+          endDate: input.endDate,
+        },
         select: defaultGenreSelect,
       })
     },

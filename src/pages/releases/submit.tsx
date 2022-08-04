@@ -1,14 +1,14 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
-import { trpc } from '../../utils/trpc'
+import { useAddReleaseMutation } from '../../services/releases'
 
 const SubmitRelease: NextPage = () => {
   const router = useRouter()
 
   const [title, setTitle] = useState('')
 
-  const addReleaseMutation = trpc.useMutation('release.add')
+  const addReleaseMutation = useAddReleaseMutation()
 
   const handleSubmitRelease = useCallback(
     () =>
