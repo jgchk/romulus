@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+
 import { useLoginMutation, useSession } from '../services/auth'
 import { useAutoFocus } from '../utils/hooks'
 

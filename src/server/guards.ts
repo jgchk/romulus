@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server'
+
 import { Context } from './context'
 
 export const requireLogin = (ctx: Context) => {

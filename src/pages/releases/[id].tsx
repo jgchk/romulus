@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Error from 'next/error'
 import { FC } from 'react'
+
 import { useReleaseQuery } from '../../services/releases'
 import { useIntRouteParam } from '../../utils/routes'
 

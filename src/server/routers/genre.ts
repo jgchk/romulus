@@ -1,10 +1,11 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { createRouter } from '../createRouter'
-import { prisma } from '../prisma'
+
 import { check, iso8601 } from '../../utils/validators'
-import { requireLogin } from '../guards'
+import { createRouter } from '../createRouter'
 import { defaultGenreSelect } from '../db/genre'
+import { requireLogin } from '../guards'
+import { prisma } from '../prisma'
 
 const LocationId = z.object({ id: z.number() })
 const LocationData = z.object({

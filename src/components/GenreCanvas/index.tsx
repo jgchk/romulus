@@ -1,7 +1,9 @@
-import { FC, useCallback, useMemo, useState } from 'react'
-import { DefaultGenre } from '../../server/db/genre'
 import { DndContext } from '@dnd-kit/core'
+import { FC, useCallback, useMemo, useState } from 'react'
+
+import { DefaultGenre } from '../../server/db/genre'
 import { useGenreMap } from '../../utils/hooks'
+import Canvas from './Canvas'
 import { CanvasContextProvider } from './CanvasContext'
 import {
   CANVAS_ID,
@@ -9,7 +11,6 @@ import {
   PositionedGenre,
   UNPLACED_ID,
 } from './common'
-import Canvas from './Canvas'
 import Sidebar from './Sidebar'
 
 const GenreCanvas: FC<{

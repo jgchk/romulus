@@ -1,5 +1,6 @@
 import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
+
 import { getTokenFromCookie } from './authentication'
 import { getAccountById } from './db/account'
 import SessionManager from './session'

@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
+
 import { useAddReleaseMutation } from '../../services/releases'
 
 const SubmitRelease: NextPage = () => {

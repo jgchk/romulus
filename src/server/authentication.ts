@@ -1,10 +1,11 @@
+import { Prisma } from '@prisma/client'
+import bcrypt from 'bcrypt'
+import Cookies from 'cookies'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { ApiError } from 'next/dist/server/api-utils'
+
 import { prisma } from './prisma'
 import SessionManager from './session'
-import bcrypt from 'bcrypt'
-import { ApiError } from 'next/dist/server/api-utils'
-import { Prisma } from '@prisma/client'
-import { NextApiRequest, NextApiResponse } from 'next'
-import Cookies from 'cookies'
 
 export const setTokenCookie = (
   req: NextApiRequest,

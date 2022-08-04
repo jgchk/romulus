@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+
 import { useReleasesQuery } from '../../services/releases'
 
 const Releases: NextPage = () => {

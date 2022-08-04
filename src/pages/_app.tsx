@@ -1,3 +1,5 @@
+import '../../styles/globals.css'
+
 import { withTRPC } from '@trpc/next'
 import { AppType } from 'next/dist/shared/lib/utils'
 import { Toaster } from 'react-hot-toast'
@@ -8,10 +10,10 @@ import {
   QueryClient,
   QueryClientProvider,
 } from 'react-query'
+
+import Navbar from '../components/Navbar'
 import { AppRouter } from '../server/routers/_app'
 import { showErrorToast } from '../utils/error'
-import '../../styles/globals.css'
-import Navbar from '../components/Navbar'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {

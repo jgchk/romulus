@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FC, useCallback } from 'react'
+
 import { useSession } from '../services/auth'
 
 const Navbar: FC = () => {

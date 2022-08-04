@@ -1,5 +1,6 @@
-import RedisHelper from './redis'
 import crypto from 'node:crypto'
+
+import RedisHelper from './redis'
 
 const TTL = 60 * 20 // 20 minutes
 

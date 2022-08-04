@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { FC, useCallback, useMemo } from 'react'
+
 import { DefaultGenre } from '../server/db/genre'
 import { useGenreMap } from '../utils/hooks'
 

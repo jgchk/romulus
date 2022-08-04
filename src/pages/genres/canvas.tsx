@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { FC, useState } from 'react'
+
 import GenreCanvas from '../../components/GenreCanvas'
 import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'

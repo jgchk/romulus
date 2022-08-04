@@ -1,5 +1,6 @@
 import { useDroppable } from '@dnd-kit/core'
 import { FC } from 'react'
+
 import { CANVAS_ID, PositionedGenre } from './common'
 import GenreNode from './GenreNode'
 

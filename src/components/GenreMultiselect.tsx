@@ -1,8 +1,9 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
+
 import { DefaultGenre } from '../server/db/genre'
 import { useGenresQuery } from '../services/genres'
 import { useGenreMap } from '../utils/hooks'
-import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 const GenreMultiselect: FC<{
   id?: string

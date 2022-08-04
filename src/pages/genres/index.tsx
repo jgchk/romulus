@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useCallback, useState } from 'react'
+
 import CreateGenreDialog from '../../components/CreateGenreDialog'
 import EditGenreDialog from '../../components/EditGenreDialog'
 import GenreTree from '../../components/GenreTree'

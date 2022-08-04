@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+
 import { DefaultGenre } from '../server/db/genre'
 
 export const useAutoFocus = <T extends HTMLOrSVGElement>() => {

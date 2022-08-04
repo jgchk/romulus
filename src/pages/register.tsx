@@ -1,10 +1,11 @@
 import { NextPage } from 'next'
-import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useAutoFocus } from '../utils/hooks'
-import { showErrorToast } from '../utils/error'
 import { useRouter } from 'next/router'
+import { useCallback, useEffect, useState } from 'react'
+
 import { useRegisterMutation, useSession } from '../services/auth'
+import { showErrorToast } from '../utils/error'
+import { useAutoFocus } from '../utils/hooks'
 
 const Register: NextPage = () => {
   // navigate away from the page if the user is already logged in
