@@ -1,9 +1,19 @@
 import { NextPage } from 'next'
 import Link from 'next/link'
-import { useState } from 'react'
-import { useAutoFocus, useLoginMutation } from '../utils/hooks'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { useAutoFocus, useLoginMutation, useSession } from '../utils/hooks'
 
 const Login: NextPage = () => {
+  // navigate away from the page if the user is already logged in
+  const session = useSession()
+  const router = useRouter()
+  useEffect(() => {
+    if (session.isLoggedIn) {
+      router.push('/genres')
+    }
+  }, [router, session.isLoggedIn])
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 

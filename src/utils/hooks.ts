@@ -1,5 +1,5 @@
 import ky from 'ky'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useMutation } from 'react-query'
 import { trpc } from './trpc'
 
@@ -15,7 +15,21 @@ export const useAutoFocus = <T extends HTMLOrSVGElement>() => {
   return inputRef
 }
 
-export const useSession = () => trpc.useQuery(['auth.whoami'])
+export const useSession = () => {
+  const whoamiQuery = trpc.useQuery(['auth.whoami'])
+
+  const isLoggedIn = useMemo(() => {
+    if (!whoamiQuery.isSuccess) return undefined
+    return whoamiQuery.data !== null
+  }, [whoamiQuery.data, whoamiQuery.isSuccess])
+
+  const isLoggedOut = useMemo(() => {
+    if (!whoamiQuery.isSuccess) return undefined
+    return whoamiQuery.data === null
+  }, [whoamiQuery.data, whoamiQuery.isSuccess])
+
+  return { ...whoamiQuery, isLoggedIn, isLoggedOut }
+}
 
 export const useLoginMutation = () => {
   const utils = trpc.useContext()
