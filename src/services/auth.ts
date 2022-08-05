@@ -45,3 +45,12 @@ export const useRegisterMutation = () => {
     }
   )
 }
+
+export const useLogoutMutation = () => {
+  const utils = trpc.useContext()
+  return useMutation(() => ky.post('/api/logout'), {
+    onSuccess: () => {
+      utils.invalidateQueries(['auth.whoami'])
+    },
+  })
+}

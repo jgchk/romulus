@@ -7,13 +7,24 @@ import { ApiError } from 'next/dist/server/api-utils'
 import { prisma } from './prisma'
 import SessionManager from './session'
 
+const TOKEN_COOKIE_NAME = 'token'
+const TOKEN_COOKIE_OPTIONS = { httpOnly: true, sameSite: true }
+
 export const setTokenCookie = (
   req: NextApiRequest,
   res: NextApiResponse,
   token: string
 ) => {
   const cookies = new Cookies(req, res)
-  cookies.set('token', token, { httpOnly: true, sameSite: true })
+  cookies.set(TOKEN_COOKIE_NAME, token, TOKEN_COOKIE_OPTIONS)
+}
+
+export const clearTokenCookie = (req: NextApiRequest, res: NextApiResponse) => {
+  const cookies = new Cookies(req, res)
+  cookies.set(TOKEN_COOKIE_NAME, '', {
+    ...TOKEN_COOKIE_OPTIONS,
+    expires: new Date('01 Jan 1970 00:00:00 GMT'),
+  })
 }
 
 export const getTokenFromCookie = (req: NextApiRequest) => {
@@ -79,5 +90,11 @@ export default class AuthenticationManager {
 
       throw error
     }
+  }
+
+  async logout(token: string, everywhere = false) {
+    return everywhere
+      ? this.sessionManager.clearAccountSessions(token)
+      : this.sessionManager.clearSession(token)
   }
 }

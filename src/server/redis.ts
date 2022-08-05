@@ -37,4 +37,28 @@ export default class RedisHelper {
 
     return JSON.parse(data) as T
   }
+
+  async fetchAll<T>(db: string): Promise<Record<string, T | null>> {
+    const dbKey = getDbKey(db, '*')
+    const keys = await this.client.keys(dbKey)
+
+    const keyValues = await Promise.all(
+      keys.map(async (key): Promise<[string, T | null]> => {
+        const data = await this.client.get(key)
+
+        if (data === null) {
+          return [key, null]
+        }
+
+        return [key, JSON.parse(data) as T]
+      })
+    )
+
+    return Object.fromEntries(keyValues)
+  }
+
+  purge(db: string, key: string) {
+    const dbKey = getDbKey(db, key)
+    return this.client.del(dbKey)
+  }
 }
