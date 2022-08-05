@@ -19,3 +19,5 @@ export const findAncestorElement = (
   }
   return current
 }
+
+export const isBrowser = typeof window !== 'undefined'

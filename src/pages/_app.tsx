@@ -13,6 +13,7 @@ import {
 
 import Navbar from '../components/Navbar'
 import { AppRouter } from '../server/routers/_app'
+import { isBrowser } from '../utils/dom'
 import { showErrorToast } from '../utils/error'
 
 const queryCache = new QueryCache({
@@ -90,7 +91,7 @@ const getBaseUrl = () => {
 }
 
 export default withTRPC<AppRouter>({
-  config() {
+  config({ ctx }) {
     /**
      * If you want to use SSR, you need to use the server's full URL
      * @link https://trpc.io/docs/ssr
@@ -107,6 +108,17 @@ export default withTRPC<AppRouter>({
         mutationCache,
         defaultOptions,
       },
+      headers: isBrowser
+        ? undefined
+        : () => {
+            const cookieStr = ctx?.req?.headers.cookie
+
+            if (cookieStr) {
+              return { Cookie: cookieStr }
+            }
+
+            return {}
+          },
     }
   },
   /**
