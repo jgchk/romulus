@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 import { DefaultGenre } from '../server/db/genre'
 import { useSession } from '../services/auth'
@@ -52,7 +53,11 @@ const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
             Long Description
           </label>
           <div id='long-description'>
-            {genre.longDescription || (
+            {genre.longDescription ? (
+              <div className='prose prose-gray'>
+                <ReactMarkdown>{genre.longDescription}</ReactMarkdown>
+              </div>
+            ) : (
               <span>
                 Missing a long description.{' '}
                 {session.isLoggedIn && (

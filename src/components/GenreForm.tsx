@@ -1,9 +1,10 @@
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import { DefaultGenre } from '../server/db/genre'
 import GenreMultiselect from './GenreMultiselect'
+import MarkdownEditor from './MarkdownEditor'
 
 export type GenreFormFields = {
   name: string
@@ -30,6 +31,7 @@ const GenreForm: FC<{
   autoFocus?: keyof GenreFormFields
 }> = ({ genre, onSubmit, onClose, autoFocus }) => {
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
@@ -105,7 +107,7 @@ const GenreForm: FC<{
           >
             Short Description
           </label>
-          <input
+          <textarea
             id='short-description'
             className={clsx(
               'border rounded-sm p-1 px-2 mt-0.5',
@@ -130,14 +132,21 @@ const GenreForm: FC<{
           >
             Long Description
           </label>
-          <textarea
-            id='long-description'
-            className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.longDescription && 'border-red-600 outline-red-600'
+          <Controller
+            name='longDescription'
+            control={control}
+            render={({ field }) => (
+              <MarkdownEditor id='long-description' {...field} />
             )}
-            {...register('longDescription')}
           />
+          {/* <MarkdownEditor
+            id='long-description'
+            // className={clsx(
+            //   'border rounded-sm p-1 px-2 mt-0.5',
+            //   errors.longDescription && 'border-red-600 outline-red-600'
+            // )}
+            {...register('longDescription')}
+          /> */}
           {errors.longDescription && (
             <div className='text-sm text-red-600'>
               {errors.longDescription.message}
