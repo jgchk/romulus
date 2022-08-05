@@ -26,7 +26,7 @@ const Genres: NextPage = () => {
     if (genresQuery.data) {
       return (
         <div className='w-full h-full flex flex-col'>
-          <div className='flex-1 p-4'>
+          <div className='flex-1 p-4 overflow-auto'>
             <GenreTree
               genres={genresQuery.data}
               onClickGenre={(id) => setViewingGenreId(id)}
@@ -71,7 +71,7 @@ const Genres: NextPage = () => {
 
     return (
       <div className='w-full h-full flex flex-col'>
-        <div className='flex-1 p-4'>
+        <div className='flex-1 p-4 overflow-auto'>
           <ViewGenre
             id={viewingGenreId}
             onEditGenre={(id, autoFocus) =>
