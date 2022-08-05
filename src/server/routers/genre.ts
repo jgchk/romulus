@@ -28,7 +28,7 @@ export const genreRouter = createRouter()
       childGenres: z.number().array().optional(),
     }),
     resolve: async ({ input, ctx }) => {
-      requireLogin(ctx)
+      const { account } = requireLogin(ctx)
 
       const locationIds = input.locations
         ? await Promise.all(
@@ -63,6 +63,7 @@ export const genreRouter = createRouter()
           childGenres: input.childGenres
             ? { connect: input.childGenres.map((id) => ({ id })) }
             : undefined,
+          contributors: { connect: { id: account.id } },
         },
         select: defaultGenreSelect,
       })
@@ -110,7 +111,7 @@ export const genreRouter = createRouter()
       }),
     }),
     resolve: ({ input: { id, data }, ctx }) => {
-      requireLogin(ctx)
+      const { account } = requireLogin(ctx)
 
       return prisma.genre.update({
         where: { id },
@@ -122,6 +123,7 @@ export const genreRouter = createRouter()
           childGenres: data.childGenres
             ? { set: data.childGenres.map((id) => ({ id })) }
             : undefined,
+          contributors: { connect: { id: account.id } },
         },
         select: defaultGenreSelect,
       })

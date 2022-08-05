@@ -67,6 +67,19 @@ const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
             )}
           </div>
         </div>
+
+        <div>
+          <label className='block text-gray-700 text-sm' htmlFor='contributors'>
+            Contributors
+          </label>
+          <div id='contributors'>
+            {genre.contributors.length > 0
+              ? genre.contributors
+                  .map((contributor) => contributor.username)
+                  .join(', ')
+              : 'No contributors'}
+          </div>
+        </div>
       </div>
     </div>
   )
