@@ -75,7 +75,7 @@ const getBaseUrl = () => {
   const env = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV
 
   if (env === 'production') {
-    return `https://romulus.lol`
+    return `https://www.romulus.lol`
   }
 
   if (process.env.VERCEL_URL) {
