@@ -10,16 +10,12 @@ export type GenreFormFields = {
   name: string
   shortDescription: string
   longDescription: string
-  // startDate: string
-  // endDate: string
 }
 
 export type GenreFormData = {
   name: string
   shortDescription: string | null
   longDescription: string | null
-  // startDate?: string
-  // endDate?: string
   parentGenres: number[]
   childGenres: number[]
 }
@@ -41,8 +37,6 @@ const GenreForm: FC<{
       name: genre?.name ?? '',
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
-      // startDate: genre?.startDate ?? '',
-      // endDate: genre?.endDate ?? '',
     },
   })
 
@@ -61,8 +55,6 @@ const GenreForm: FC<{
           data.shortDescription.length > 0 ? data.shortDescription : null,
         longDescription:
           data.longDescription.length > 0 ? data.longDescription : null,
-        // startDate: data.startDate.length > 0 ? data.startDate : undefined,
-        // endDate: data.endDate.length > 0 ? data.endDate : undefined,
         parentGenres,
         childGenres,
       }),
@@ -73,7 +65,7 @@ const GenreForm: FC<{
 
   return (
     <form onSubmit={handleSubmit(submitHandler)}>
-      <div className='space-y-3'>
+      <div className='space-y-3 w-[500px]'>
         <div>
           <label
             htmlFor='name'
@@ -98,6 +90,22 @@ const GenreForm: FC<{
         </div>
 
         <div>
+          <label className='block text-gray-700 text-sm'>Parent Genres</label>
+          <GenreMultiselect
+            selectedIds={parentGenres}
+            onChange={(g) => setParentGenres(g)}
+          />
+        </div>
+
+        <div>
+          <label className='block text-gray-700 text-sm'>Child Genres</label>
+          <GenreMultiselect
+            selectedIds={childGenres}
+            onChange={(g) => setChildGenres(g)}
+          />
+        </div>
+
+        <div>
           <label
             htmlFor='short-description'
             className={clsx(
@@ -110,7 +118,7 @@ const GenreForm: FC<{
           <textarea
             id='short-description'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
+              'border rounded-sm p-1 px-2 mt-0.5 w-full',
               errors.shortDescription && 'border-red-600 outline-red-600'
             )}
             {...register('shortDescription')}
@@ -139,91 +147,11 @@ const GenreForm: FC<{
               <MarkdownEditor id='long-description' {...field} />
             )}
           />
-          {/* <MarkdownEditor
-            id='long-description'
-            // className={clsx(
-            //   'border rounded-sm p-1 px-2 mt-0.5',
-            //   errors.longDescription && 'border-red-600 outline-red-600'
-            // )}
-            {...register('longDescription')}
-          /> */}
           {errors.longDescription && (
             <div className='text-sm text-red-600'>
               {errors.longDescription.message}
             </div>
           )}
-        </div>
-
-        {/* <div>
-          <label
-            htmlFor='start-date'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.startDate && 'text-red-600'
-            )}
-          >
-            Start Date
-          </label>
-          <input
-            id='start-date'
-            placeholder='YYYY-MM-DD'
-            className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.startDate && 'border-red-600 outline-red-600'
-            )}
-            {...register('startDate', {
-              validate: (val) =>
-                !val || isISO8601(val) || 'Must be a valid date',
-            })}
-          />
-          {errors.startDate && (
-            <div className='text-sm text-red-600'>
-              {errors.startDate.message}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor='end-date'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.endDate && 'text-red-600'
-            )}
-          >
-            End Date
-          </label>
-          <input
-            id='end-date'
-            placeholder='YYYY-MM-DD'
-            className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.endDate && 'border-red-600 outline-red-600'
-            )}
-            {...register('endDate', {
-              validate: (val) =>
-                !val || isISO8601(val) || 'Must be a valid date',
-            })}
-          />
-          {errors.endDate && (
-            <div className='text-sm text-red-600'>{errors.endDate.message}</div>
-          )}
-        </div> */}
-
-        <div>
-          <label className='block text-gray-700 text-sm'>Parent Genres</label>
-          <GenreMultiselect
-            selectedIds={parentGenres}
-            onChange={(g) => setParentGenres(g)}
-          />
-        </div>
-
-        <div>
-          <label className='block text-gray-700 text-sm'>Child Genres</label>
-          <GenreMultiselect
-            selectedIds={childGenres}
-            onChange={(g) => setChildGenres(g)}
-          />
         </div>
       </div>
 
