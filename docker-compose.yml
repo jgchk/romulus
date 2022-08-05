@@ -1,8 +1,20 @@
-# Use postgres/example user/password credentials
 version: '3.1'
 
 services:
-  db:
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+
+  nextjs:
+    build: ./
+    environment:
+      DATABASE_URL: postgresql://postgres:example@postgres:5432/postgres?schema=public
+      REDIS_URL: redis:6379
+    ports:
+      - 3000:3000
+
+  postgres:
     image: postgres
     restart: always
     environment:

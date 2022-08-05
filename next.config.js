@@ -17,6 +17,7 @@ function getConfig(config) {
  * @link https://nextjs.org/docs/api-reference/next.config.js/introduction
  */
 module.exports = getConfig({
+  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
 

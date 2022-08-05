@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "migrate": "prisma migrate deploy",
     "start": "next start",
     "lint": "tsc && eslint .",
-    "prepare": "husky install",
-    "db": "docker-compose -f docker.yml up"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.5",
