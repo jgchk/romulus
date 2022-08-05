@@ -1,18 +1,18 @@
 version: '3.1'
 
 services:
-  nginx:
-    build: ./nginx
-    ports:
-      - 80:80
+  # nginx:
+  #   build: ./nginx
+  #   ports:
+  #     - 80:80
 
-  nextjs:
-    build: ./
-    environment:
-      DATABASE_URL: postgresql://postgres:example@postgres:5432/postgres?schema=public
-      REDIS_URL: redis:6379
-    ports:
-      - 3000:3000
+  # nextjs:
+  #   build: ./
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:example@postgres:5432/postgres?schema=public
+  #     REDIS_URL: redis:6379
+  #   ports:
+  #     - 3000:3000
 
   postgres:
     image: postgres
