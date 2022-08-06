@@ -14,6 +14,50 @@ const LocationData = z.object({
   country: z.string().min(1),
 })
 
+// TODO: implement more robust cycle-detection algorithm
+const detectCycle = async (data: {
+  id?: number
+  parentGenres?: number[]
+  childGenres?: number[]
+}) => {
+  // detect 1-cycles
+  if (data.id !== undefined) {
+    if (data.parentGenres?.includes(data.id)) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Genre cannot have itself as a parent',
+      })
+    }
+
+    if (data.childGenres?.includes(data.id)) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Genre cannot have itself as a child',
+      })
+    }
+  }
+
+  // detect 2-cycles
+  if (data.parentGenres && data.childGenres) {
+    console.log({ data })
+    for (const genreId of data.parentGenres) {
+      if (data.childGenres.includes(genreId)) {
+        const genre = await prisma.genre.findUnique({
+          where: { id: genreId },
+          select: { name: true },
+        })
+
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Cannot set genre ${
+            genre?.name ?? genreId
+          } as both parent and child`,
+        })
+      }
+    }
+  }
+}
+
 export const genreRouter = createRouter()
   // create
   .mutation('add', {
@@ -29,6 +73,8 @@ export const genreRouter = createRouter()
     }),
     resolve: async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
+
+      await detectCycle(input)
 
       const locationIds = input.locations
         ? await Promise.all(
@@ -110,22 +156,10 @@ export const genreRouter = createRouter()
         y: z.number().nullable().optional(),
       }),
     }),
-    resolve: ({ input: { id, data }, ctx }) => {
-      if (data.parentGenres?.includes(id)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Genre cannot have itself as a parent',
-        })
-      }
-
-      if (data.childGenres?.includes(id)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Genre cannot have itself as a child',
-        })
-      }
-
+    resolve: async ({ input: { id, data }, ctx }) => {
       const { account } = requireLogin(ctx)
+
+      await detectCycle({ id, ...data })
 
       return prisma.genre.update({
         where: { id },

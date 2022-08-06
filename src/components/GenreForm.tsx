@@ -92,7 +92,10 @@ const GenreForm: FC<{
         <div>
           <label className='block text-gray-700 text-sm'>Parent Genres</label>
           <GenreMultiselect
-            excludeIds={genre !== undefined ? [genre.id] : []}
+            excludeIds={[
+              ...(genre !== undefined ? [genre.id] : []),
+              ...childGenres,
+            ]}
             selectedIds={parentGenres}
             onChange={(g) => setParentGenres(g)}
           />
@@ -101,7 +104,10 @@ const GenreForm: FC<{
         <div>
           <label className='block text-gray-700 text-sm'>Child Genres</label>
           <GenreMultiselect
-            excludeIds={genre !== undefined ? [genre.id] : []}
+            excludeIds={[
+              ...(genre !== undefined ? [genre.id] : []),
+              ...parentGenres,
+            ]}
             selectedIds={childGenres}
             onChange={(g) => setChildGenres(g)}
           />
