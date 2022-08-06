@@ -194,7 +194,7 @@ export const genreRouter = createRouter()
         influencesGenres: z.number().array().optional(),
         x: z.number().nullable().optional(),
         y: z.number().nullable().optional(),
-        notes: z.string().min(1).optional(),
+        notes: z.string().min(1).optional().nullable(),
       }),
     }),
     resolve: async ({ input: { id, data }, ctx }) => {

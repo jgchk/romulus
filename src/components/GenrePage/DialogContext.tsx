@@ -10,12 +10,8 @@ import {
 } from 'react'
 
 import CreateGenreDialog from '../CreateGenreDialog'
-import EditGenreDialog from '../EditGenreDialog'
-import { GenreFormFields } from '../GenreForm'
 
-export type DialogState =
-  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
-  | { type: 'create' }
+export type DialogState = { type: 'create' }
 
 const DialogContext = createContext<
   [DialogState | null, Dispatch<SetStateAction<DialogState | null>>]
@@ -42,13 +38,6 @@ export const DialogProvider: FC<PropsWithChildren> = ({ children }) => {
           <CreateGenreDialog
             onClose={() => setDialogState(null)}
             onCreate={(genre) => router.push(`/genres/${genre.id}`)}
-          />
-        )}
-        {dialogState && dialogState.type === 'edit' && (
-          <EditGenreDialog
-            id={dialogState.id}
-            onClose={() => setDialogState(null)}
-            autoFocus={dialogState.autoFocus}
           />
         )}
       </>

@@ -68,8 +68,11 @@ const GenreForm: FC<{
   useEffect(() => setFocus(autoFocus ?? 'name'), [autoFocus, setFocus])
 
   return (
-    <form onSubmit={handleSubmit(submitHandler)}>
-      <div className='space-y-3 w-[500px]'>
+    <form
+      onSubmit={handleSubmit(submitHandler)}
+      className='flex flex-col h-full'
+    >
+      <div className='space-y-3 w-full flex-1 overflow-auto p-4'>
         <div>
           <label
             htmlFor='name'
@@ -173,38 +176,37 @@ const GenreForm: FC<{
             </div>
           )}
         </div>
-      </div>
 
-      <div>
-        <label
-          htmlFor='notes'
-          className={clsx(
-            'block text-gray-700 text-sm',
-            errors.notes && 'text-red-600'
+        <div>
+          <label
+            htmlFor='notes'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.notes && 'text-red-600'
+            )}
+          >
+            Notes
+          </label>
+          <Controller
+            name='notes'
+            control={control}
+            render={({ field }) => <MarkdownEditor id='notes' {...field} />}
+          />
+          {errors.notes && (
+            <div className='text-sm text-red-600'>{errors.notes.message}</div>
           )}
-        >
-          Notes
-        </label>
-        <Controller
-          name='notes'
-          control={control}
-          render={({ field }) => <MarkdownEditor id='notes' {...field} />}
-        />
-        {errors.notes && (
-          <div className='text-sm text-red-600'>{errors.notes.message}</div>
-        )}
+        </div>
       </div>
 
-      <div className='flex space-x-1'>
+      <div className='flex p-1 space-x-1 border-t'>
         <button
-          className='flex-1 bg-blue-600 rounded-sm text-white font-bold p-1 mt-4'
           type='submit'
+          className='flex-1 bg-blue-600 font-bold text-white rounded-sm p-1'
         >
           Submit
         </button>
         <button
-          className='flex-1 rounded-sm text-gray-600 font-bold p-1 mt-4'
-          type='button'
+          className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
           onClick={() => onClose()}
         >
           Cancel
