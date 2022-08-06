@@ -79,6 +79,7 @@ const Genres: NextPage = () => {
             onEditGenre={(id, autoFocus) =>
               setDialogState({ type: 'edit', id, autoFocus })
             }
+            onClickGenre={(id) => setSelectedGenreId(id)}
           />
         </div>
         {session.isLoggedIn && (

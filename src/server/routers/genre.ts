@@ -19,6 +19,8 @@ const detectCycle = async (data: {
   id?: number
   parentGenres?: number[]
   childGenres?: number[]
+  influencedByGenres?: number[]
+  influencesGenres?: number[]
 }) => {
   // detect 1-cycles
   if (data.id !== undefined) {
@@ -35,11 +37,24 @@ const detectCycle = async (data: {
         message: 'Genre cannot have itself as a child',
       })
     }
+
+    if (data.influencedByGenres?.includes(data.id)) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Genre cannot be influenced by itself',
+      })
+    }
+
+    if (data.influencesGenres?.includes(data.id)) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Genre cannot influence itself',
+      })
+    }
   }
 
   // detect 2-cycles
   if (data.parentGenres && data.childGenres) {
-    console.log({ data })
     for (const genreId of data.parentGenres) {
       if (data.childGenres.includes(genreId)) {
         const genre = await prisma.genre.findUnique({
@@ -52,6 +67,24 @@ const detectCycle = async (data: {
           message: `Cannot set genre ${
             genre?.name ?? genreId
           } as both parent and child`,
+        })
+      }
+    }
+  }
+
+  if (data.influencedByGenres && data.influencesGenres) {
+    for (const genreId of data.influencedByGenres) {
+      if (data.influencesGenres.includes(genreId)) {
+        const genre = await prisma.genre.findUnique({
+          where: { id: genreId },
+          select: { name: true },
+        })
+
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Cannot set genre ${
+            genre?.name ?? genreId
+          } as both influencer and influenced`,
         })
       }
     }
@@ -70,6 +103,8 @@ export const genreRouter = createRouter()
       endDate: iso8601.optional(),
       parentGenres: z.number().array().optional(),
       childGenres: z.number().array().optional(),
+      influencedByGenres: z.number().array().optional(),
+      influencesGenres: z.number().array().optional(),
     }),
     resolve: async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
@@ -108,6 +143,12 @@ export const genreRouter = createRouter()
             : undefined,
           childGenres: input.childGenres
             ? { connect: input.childGenres.map((id) => ({ id })) }
+            : undefined,
+          influencedByGenres: input.influencedByGenres
+            ? { connect: input.influencedByGenres.map((id) => ({ id })) }
+            : undefined,
+          influencesGenres: input.influencesGenres
+            ? { connect: input.influencesGenres.map((id) => ({ id })) }
             : undefined,
           contributors: { connect: { id: account.id } },
         },
@@ -152,6 +193,8 @@ export const genreRouter = createRouter()
         endDate: iso8601.optional(),
         parentGenres: z.number().array().optional(),
         childGenres: z.number().array().optional(),
+        influencedByGenres: z.number().array().optional(),
+        influencesGenres: z.number().array().optional(),
         x: z.number().nullable().optional(),
         y: z.number().nullable().optional(),
       }),
@@ -170,6 +213,12 @@ export const genreRouter = createRouter()
             : undefined,
           childGenres: data.childGenres
             ? { set: data.childGenres.map((id) => ({ id })) }
+            : undefined,
+          influencedByGenres: data.influencedByGenres
+            ? { set: data.influencedByGenres.map((id) => ({ id })) }
+            : undefined,
+          influencesGenres: data.influencesGenres
+            ? { set: data.influencesGenres.map((id) => ({ id })) }
             : undefined,
           contributors: { connect: { id: account.id } },
         },

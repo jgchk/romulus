@@ -8,11 +8,13 @@ import { GenreFormFields } from './GenreForm'
 
 type BaseProps = {
   onEditGenre: (id: number, autoFocus?: keyof GenreFormFields) => void
+  onClickGenre?: (id: number) => void
 }
 
 const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
   genre,
   onEditGenre,
+  onClickGenre,
 }) => {
   const session = useSession()
 
@@ -20,6 +22,26 @@ const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
     <div>
       <div className='text-lg font-bold text-gray-600 mb-4'>{genre.name}</div>
       <div className='space-y-3'>
+        {genre.influencedByGenres.length > 0 && (
+          <div>
+            <label className='block text-gray-700 text-sm' htmlFor='influences'>
+              Influences
+            </label>
+            <ul id='influences' className='comma-list'>
+              {genre.influencedByGenres.map(({ id, name }) => (
+                <li key={id}>
+                  <button
+                    onClick={() => onClickGenre?.(id)}
+                    className='text-blue-500 hover:underline'
+                  >
+                    {name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div>
           <label
             className='block text-gray-700 text-sm'

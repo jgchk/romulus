@@ -17,7 +17,7 @@ export type GenreFormData = {
   shortDescription: string | null
   longDescription: string | null
   parentGenres: number[]
-  childGenres: number[]
+  influencedByGenres: number[]
 }
 
 const GenreForm: FC<{
@@ -43,8 +43,8 @@ const GenreForm: FC<{
   const [parentGenres, setParentGenres] = useState<number[]>(
     genre?.parentGenres.map((genre) => genre.id) ?? []
   )
-  const [childGenres, setChildGenres] = useState<number[]>(
-    genre?.childGenres.map((genre) => genre.id) ?? []
+  const [influencedByGenres, setInfluencedByGenres] = useState<number[]>(
+    genre?.influencedByGenres.map((genre) => genre.id) ?? []
   )
 
   const submitHandler = useCallback(
@@ -56,9 +56,9 @@ const GenreForm: FC<{
         longDescription:
           data.longDescription.length > 0 ? data.longDescription : null,
         parentGenres,
-        childGenres,
+        influencedByGenres,
       }),
-    [childGenres, onSubmit, parentGenres]
+    [influencedByGenres, onSubmit, parentGenres]
   )
 
   useEffect(() => setFocus(autoFocus ?? 'name'), [autoFocus, setFocus])
@@ -90,11 +90,11 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label className='block text-gray-700 text-sm'>Parent Genres</label>
+          <label className='block text-gray-700 text-sm'>Parents</label>
           <GenreMultiselect
             excludeIds={[
               ...(genre !== undefined ? [genre.id] : []),
-              ...childGenres,
+              ...(genre?.childGenres.map(({ id }) => id) ?? []),
             ]}
             selectedIds={parentGenres}
             onChange={(g) => setParentGenres(g)}
@@ -102,14 +102,14 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label className='block text-gray-700 text-sm'>Child Genres</label>
+          <label className='block text-gray-700 text-sm'>Influences</label>
           <GenreMultiselect
             excludeIds={[
               ...(genre !== undefined ? [genre.id] : []),
-              ...parentGenres,
+              ...(genre?.influencesGenres.map(({ id }) => id) ?? []),
             ]}
-            selectedIds={childGenres}
-            onChange={(g) => setChildGenres(g)}
+            selectedIds={influencedByGenres}
+            onChange={(g) => setInfluencedByGenres(g)}
           />
         </div>
 

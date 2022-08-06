@@ -95,8 +95,12 @@ model Genre {
   contributors     Account[]
   startDate        String?
   endDate          String?
-  parentGenres     Genre[]    @relation("hierarchy")
-  childGenres      Genre[]    @relation("hierarchy")
+
+  parentGenres Genre[] @relation("hierarchy")
+  childGenres  Genre[] @relation("hierarchy")
+
+  influencedByGenres Genre[] @relation("influence")
+  influencesGenres   Genre[] @relation("influence")
 
   x Int?
   y Int?
