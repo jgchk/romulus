@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 
-import { DefaultGenre } from '../server/db/genre'
-import { useGenreMap } from '../utils/hooks'
+import { DefaultGenre } from '../../server/db/genre'
+import { useGenreMap } from '../../utils/hooks'
 
 const GenreTree: FC<{
   genres: DefaultGenre[]
