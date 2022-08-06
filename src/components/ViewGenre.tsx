@@ -41,7 +41,6 @@ const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
                 )}
               </span>
             )}
-            {genre.shortDescription}
           </div>
         </div>
 
