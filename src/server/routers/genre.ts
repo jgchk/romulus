@@ -105,6 +105,7 @@ export const genreRouter = createRouter()
       childGenres: z.number().array().optional(),
       influencedByGenres: z.number().array().optional(),
       influencesGenres: z.number().array().optional(),
+      notes: z.string().min(1).optional(),
     }),
     resolve: async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
@@ -130,14 +131,10 @@ export const genreRouter = createRouter()
 
       return prisma.genre.create({
         data: {
-          name: input.name,
-          shortDescription: input.shortDescription,
-          longDescription: input.longDescription,
+          ...input,
           locations: locationIds
             ? { connect: locationIds.map((id) => ({ id })) }
             : undefined,
-          startDate: input.startDate,
-          endDate: input.endDate,
           parentGenres: input.parentGenres
             ? { connect: input.parentGenres.map((id) => ({ id })) }
             : undefined,
@@ -197,6 +194,7 @@ export const genreRouter = createRouter()
         influencesGenres: z.number().array().optional(),
         x: z.number().nullable().optional(),
         y: z.number().nullable().optional(),
+        notes: z.string().min(1).optional(),
       }),
     }),
     resolve: async ({ input: { id, data }, ctx }) => {

@@ -10,12 +10,14 @@ export type GenreFormFields = {
   name: string
   shortDescription: string
   longDescription: string
+  notes: string
 }
 
 export type GenreFormData = {
   name: string
   shortDescription: string | null
   longDescription: string | null
+  notes: string | null
   parentGenres: number[]
   influencedByGenres: number[]
 }
@@ -37,6 +39,7 @@ const GenreForm: FC<{
       name: genre?.name ?? '',
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
+      notes: genre?.notes ?? '',
     },
   })
 
@@ -55,6 +58,7 @@ const GenreForm: FC<{
           data.shortDescription.length > 0 ? data.shortDescription : null,
         longDescription:
           data.longDescription.length > 0 ? data.longDescription : null,
+        notes: data.notes.length > 0 ? data.notes : null,
         parentGenres,
         influencedByGenres,
       }),
@@ -161,6 +165,26 @@ const GenreForm: FC<{
             </div>
           )}
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor='notes'
+          className={clsx(
+            'block text-gray-700 text-sm',
+            errors.notes && 'text-red-600'
+          )}
+        >
+          Notes
+        </label>
+        <Controller
+          name='notes'
+          control={control}
+          render={({ field }) => <MarkdownEditor id='notes' {...field} />}
+        />
+        {errors.notes && (
+          <div className='text-sm text-red-600'>{errors.notes.message}</div>
+        )}
       </div>
 
       <div className='flex space-x-1'>

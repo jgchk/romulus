@@ -91,6 +91,7 @@ model Genre {
   name             String
   shortDescription String?
   longDescription  String?
+  notes            String?
   locations        Location[]
   contributors     Account[]
   startDate        String?
