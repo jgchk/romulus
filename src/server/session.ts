@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { isNotNull } from '../utils/types'
 import RedisHelper from './redis'
 
-const TTL = 60 * 20 // 20 minutes
+const TTL = 0 // never expire
 const SESSION_DB = 'sessions'
 
 const createToken = () => crypto.randomBytes(16).toString('base64')
@@ -28,12 +28,12 @@ export default class SessionManager {
       accountId,
     }
 
-    await this.stashSession(token, session, TTL)
+    await this.stashSession(token, session)
 
     return { token, session }
   }
 
-  stashSession(key: string, session: Session, ttl: number) {
+  stashSession(key: string, session: Session, ttl = TTL) {
     return this.cache.stash(SESSION_DB, key, session, ttl)
   }
 

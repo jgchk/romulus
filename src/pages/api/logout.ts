@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import AuthenticationManager, {
   clearTokenCookie,
-  getTokenFromCookie,
+  getTokenFromApiRequest,
 } from '../../server/authentication'
 import { withExceptionFilter } from '../../server/middleware'
 
@@ -29,7 +29,7 @@ export default function loginHandler(
       everywhere = logoutRequest?.everywhere ?? false
     }
 
-    const token = getTokenFromCookie(req)
+    const token = getTokenFromApiRequest(req)
     if (token === null) {
       throw new ApiError(401, 'You are not logged in')
     }

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import Cookies from 'cookies'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiError } from 'next/dist/server/api-utils'
+import { NextRequest } from 'next/server'
 
 import { prisma } from './prisma'
 import SessionManager from './session'
@@ -27,12 +28,21 @@ export const clearTokenCookie = (req: NextApiRequest, res: NextApiResponse) => {
   })
 }
 
-export const getTokenFromCookie = (req: NextApiRequest) => {
+export const getTokenFromApiRequest = (req: NextApiRequest) => {
   if (!req.cookies.token) {
     return null
   }
 
   const token = req.cookies.token
+  if (!token) {
+    return null
+  }
+
+  return token
+}
+
+export const getTokenFromRequest = (req: NextRequest) => {
+  const token = req.cookies.get('token')
   if (!token) {
     return null
   }
