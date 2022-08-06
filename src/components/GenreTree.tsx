@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 
 import { DefaultGenre } from '../server/db/genre'
@@ -6,9 +7,8 @@ import { useGenreMap } from '../utils/hooks'
 
 const GenreTree: FC<{
   genres: DefaultGenre[]
-  onClickGenre: (id: number) => void
   selectedId?: number
-}> = ({ genres, onClickGenre, selectedId }) => {
+}> = ({ genres, selectedId }) => {
   const topLevelGenres = useMemo(
     () => genres.filter((genre) => genre.parentGenres.length === 0),
     [genres]
@@ -27,9 +27,9 @@ const GenreTree: FC<{
         )}
         key={genre.id}
       >
-        <button className={clsx()} onClick={() => onClickGenre(genre.id)}>
-          {genre.name}
-        </button>
+        <Link href={`/genres/${genre.id}`}>
+          <a>{genre.name}</a>
+        </Link>
         {genre.childGenres.length > 0 && (
           <ul className='list-disc list-inside'>
             {genre.childGenres.map(({ id }) => {
@@ -40,7 +40,7 @@ const GenreTree: FC<{
         )}
       </li>
     ),
-    [genreMap, onClickGenre, selectedId]
+    [genreMap, selectedId]
   )
 
   if (genres.length === 0) {

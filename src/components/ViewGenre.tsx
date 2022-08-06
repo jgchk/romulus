@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { FC } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -8,13 +9,11 @@ import { GenreFormFields } from './GenreForm'
 
 type BaseProps = {
   onEditGenre: (id: number, autoFocus?: keyof GenreFormFields) => void
-  onClickGenre?: (id: number) => void
 }
 
 const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
   genre,
   onEditGenre,
-  onClickGenre,
 }) => {
   const session = useSession()
 
@@ -30,12 +29,9 @@ const ViewGenre: FC<BaseProps & { genre: DefaultGenre }> = ({
             <ul id='influences' className='comma-list'>
               {genre.influencedByGenres.map(({ id, name }) => (
                 <li key={id}>
-                  <button
-                    onClick={() => onClickGenre?.(id)}
-                    className='text-blue-500 hover:underline'
-                  >
-                    {name}
-                  </button>
+                  <Link href={`/genres/${id}`}>
+                    <a className='text-blue-500 hover:underline'>{name}</a>
+                  </Link>
                 </li>
               ))}
             </ul>
