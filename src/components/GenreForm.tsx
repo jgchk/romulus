@@ -150,7 +150,15 @@ const GenreForm: FC<{
               errors.longDescription && 'text-red-600'
             )}
           >
-            Long Description
+            Long Description{' '}
+            <a
+              href='https://www.markdownguide.org/cheat-sheet'
+              target='_blank'
+              rel='noreferrer'
+              className='text-blue-500 hover:underline text-xs'
+            >
+              (Formatting Guide)
+            </a>
           </label>
           <Controller
             name='longDescription'
