@@ -1,6 +1,8 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next'
 import { ApiError } from 'next/dist/server/api-utils'
 
+import { env } from './env'
+
 const getExceptionStatus = (exception: unknown) =>
   exception instanceof ApiError ? exception.statusCode : 500
 
@@ -13,6 +15,14 @@ const getExceptionStack = (exception: unknown) =>
 const isError = (exception: unknown): exception is Error =>
   exception instanceof Error
 
+type ErrorResponse = {
+  statusCode: number
+  message: string
+  stack?: string
+  timestamp: string
+  path?: string
+}
+
 export const withExceptionFilter =
   (req: NextApiRequest, res: NextApiResponse) =>
   async (handler: NextApiHandler) => {
@@ -21,17 +31,20 @@ export const withExceptionFilter =
     } catch (error) {
       const statusCode = getExceptionStatus(error)
       const message = getExceptionMessage(error)
-      const stack = getExceptionStack(error)
 
       const timestamp = new Date().toISOString()
 
       // return just enough information without leaking any data
-      const responseBody = {
+      const responseBody: ErrorResponse = {
         statusCode,
         message,
-        stack,
         timestamp,
         path: req.url,
+      }
+
+      if (env.NODE_ENV !== 'production') {
+        const stack = getExceptionStack(error)
+        responseBody.stack = stack
       }
 
       return res.status(statusCode).send(responseBody)
