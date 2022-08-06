@@ -36,9 +36,10 @@ model Track {
 }
 
 model Account {
-  id       Int    @id @default(autoincrement())
-  username String @unique
+  id       Int     @id @default(autoincrement())
+  username String  @unique
   password String
+  darkMode Boolean @default(true)
 
   releaseRatings ReleaseRating[]
   trackRatings   TrackRating[]

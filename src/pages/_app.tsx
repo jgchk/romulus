@@ -2,7 +2,6 @@ import '../../styles/globals.css'
 
 import { withTRPC } from '@trpc/next'
 import { AppType } from 'next/dist/shared/lib/utils'
-import { Toaster } from 'react-hot-toast'
 import {
   DefaultOptions,
   MutationCache,
@@ -11,7 +10,7 @@ import {
   QueryClientProvider,
 } from 'react-query'
 
-import Navbar from '../components/Navbar'
+import Layout from '../components/Layout'
 import { AppRouter } from '../server/routers/_app'
 import { isBrowser } from '../utils/dom'
 import { showErrorToast } from '../utils/error'
@@ -59,15 +58,9 @@ const queryClient = new QueryClient({
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className='w-screen h-screen flex flex-col'>
-        <Navbar />
-
-        <div className='flex-1'>
-          <Component {...pageProps} />
-        </div>
-
-        <Toaster />
-      </div>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </QueryClientProvider>
   )
 }
