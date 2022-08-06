@@ -8,8 +8,9 @@ import { useGenreMap } from '../utils/hooks'
 const GenreMultiselect: FC<{
   id?: string
   selectedIds: number[]
+  excludeIds?: number[]
   onChange: (value: number[]) => void
-}> = ({ id, selectedIds, onChange }) => {
+}> = ({ id, selectedIds, excludeIds, onChange }) => {
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
@@ -52,10 +53,11 @@ const GenreMultiselect: FC<{
     () =>
       genresQuery.data?.filter(
         (genre) =>
+          !(excludeIds ?? []).includes(genre.id) &&
           !selectedIds.includes(genre.id) &&
           genre.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [genresQuery.data, inputValue, selectedIds]
+    [excludeIds, genresQuery.data, inputValue, selectedIds]
   )
 
   const renderOptions = useCallback(() => {

@@ -111,6 +111,20 @@ export const genreRouter = createRouter()
       }),
     }),
     resolve: ({ input: { id, data }, ctx }) => {
+      if (data.parentGenres?.includes(id)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Genre cannot have itself as a parent',
+        })
+      }
+
+      if (data.childGenres?.includes(id)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Genre cannot have itself as a child',
+        })
+      }
+
       const { account } = requireLogin(ctx)
 
       return prisma.genre.update({
