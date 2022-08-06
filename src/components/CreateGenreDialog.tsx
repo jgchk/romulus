@@ -1,13 +1,17 @@
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
+import { DefaultGenre } from '../server/db/genre'
 import { useAddGenreMutation } from '../services/genres'
 import Dialog from './Dialog'
 import GenreForm, { GenreFormData } from './GenreForm'
 
-const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
+const CreateGenreDialog: FC<{
+  onClose: () => void
+  onCreate: (genre: DefaultGenre) => void
+}> = ({ onClose, onCreate }) => {
   const { mutate } = useAddGenreMutation()
-  const onSubmit = useCallback(
+  const handleCreate = useCallback(
     (data: GenreFormData) =>
       mutate(
         {
@@ -18,11 +22,12 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
         {
           onSuccess: (data) => {
             toast.success(`Created genre '${data.name}'`)
+            onCreate(data)
             onClose()
           },
         }
       ),
-    [mutate, onClose]
+    [mutate, onClose, onCreate]
   )
 
   return (
@@ -30,7 +35,7 @@ const CreateGenreDialog: FC<{ onClose: () => void }> = ({ onClose }) => {
       <div className='border p-4 shadow bg-white'>
         <div className='text-lg font-bold text-gray-600 mb-4'>New Genre</div>
         <GenreForm
-          onSubmit={(data) => onSubmit(data)}
+          onSubmit={(data) => handleCreate(data)}
           onClose={() => onClose()}
         />
       </div>

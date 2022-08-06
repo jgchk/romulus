@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useCallback, useState } from 'react'
 
 import CreateGenreDialog from '../../components/CreateGenreDialog'
+import DeleteGenreDialog from '../../components/DeleteGenreDialog'
 import EditGenreDialog from '../../components/EditGenreDialog'
 import { GenreFormFields } from '../../components/GenreForm'
 import GenreTree from '../../components/GenreTree'
@@ -13,11 +14,12 @@ import { useGenresQuery } from '../../services/genres'
 type DialogState =
   | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
   | { type: 'create' }
+  | { type: 'delete'; id: number }
 
 const Genres: NextPage = () => {
   const session = useSession()
 
-  const [viewingGenreId, setViewingGenreId] = useState<number>()
+  const [selectedGenreId, setSelectedGenreId] = useState<number>()
   const [dialogState, setDialogState] = useState<DialogState>()
 
   const genresQuery = useGenresQuery()
@@ -29,8 +31,8 @@ const Genres: NextPage = () => {
           <div className='flex-1 p-4 overflow-auto'>
             <GenreTree
               genres={genresQuery.data}
-              onClickGenre={(id) => setViewingGenreId(id)}
-              selectedId={viewingGenreId}
+              onClickGenre={(id) => setSelectedGenreId(id)}
+              selectedId={selectedGenreId}
             />
           </div>
           {session.isLoggedIn && (
@@ -58,10 +60,10 @@ const Genres: NextPage = () => {
         Loading...
       </div>
     )
-  }, [genresQuery.data, genresQuery.error, session.isLoggedIn, viewingGenreId])
+  }, [genresQuery.data, genresQuery.error, session.isLoggedIn, selectedGenreId])
 
   const renderViewGenre = useCallback(() => {
-    if (viewingGenreId === undefined) {
+    if (selectedGenreId === undefined) {
       return (
         <div className='w-full h-full flex items-center justify-center text-gray-400'>
           Select a genre
@@ -73,23 +75,35 @@ const Genres: NextPage = () => {
       <div className='w-full h-full flex flex-col'>
         <div className='flex-1 p-4 overflow-auto'>
           <ViewGenre
-            id={viewingGenreId}
+            id={selectedGenreId}
             onEditGenre={(id, autoFocus) =>
               setDialogState({ type: 'edit', id, autoFocus })
             }
           />
         </div>
         {session.isLoggedIn && (
-          <button
-            className='border-t text-gray-400 font-bold p-1 hover:bg-gray-100 hover:text-gray-500'
-            onClick={() => setDialogState({ type: 'edit', id: viewingGenreId })}
-          >
-            Edit
-          </button>
+          <div className='w-full flex'>
+            <button
+              className='flex-1 border-t text-gray-400 font-bold p-1 hover:bg-gray-100 hover:text-gray-500'
+              onClick={() =>
+                setDialogState({ type: 'edit', id: selectedGenreId })
+              }
+            >
+              Edit
+            </button>
+            <button
+              className='flex-1 border-t text-gray-400 font-bold p-1 hover:bg-gray-100 hover:text-gray-500'
+              onClick={() =>
+                setDialogState({ type: 'delete', id: selectedGenreId })
+              }
+            >
+              Delete
+            </button>
+          </div>
         )}
       </div>
     )
-  }, [session.isLoggedIn, viewingGenreId])
+  }, [session.isLoggedIn, selectedGenreId])
 
   return (
     <>
@@ -116,13 +130,23 @@ const Genres: NextPage = () => {
       </div>
 
       {dialogState && dialogState.type === 'create' && (
-        <CreateGenreDialog onClose={() => setDialogState(undefined)} />
+        <CreateGenreDialog
+          onClose={() => setDialogState(undefined)}
+          onCreate={(genre) => setSelectedGenreId(genre.id)}
+        />
       )}
       {dialogState && dialogState.type === 'edit' && (
         <EditGenreDialog
           id={dialogState.id}
           onClose={() => setDialogState(undefined)}
           autoFocus={dialogState.autoFocus}
+        />
+      )}
+      {dialogState && dialogState.type === 'delete' && (
+        <DeleteGenreDialog
+          id={dialogState.id}
+          onDelete={() => setSelectedGenreId(undefined)}
+          onClose={() => setDialogState(undefined)}
         />
       )}
     </>

@@ -23,3 +23,13 @@ export const useEditGenreMutation = () => {
     },
   })
 }
+
+export const useDeleteGenreMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['genre.delete'], {
+    onSuccess: (data, { id }) => {
+      utils.invalidateQueries(['genre.all'])
+      utils.invalidateQueries(['genre.byId', { id }])
+    },
+  })
+}
