@@ -18,6 +18,7 @@ const CreateGenreDialog: FC<{
           ...data,
           shortDescription: data.shortDescription ?? undefined,
           longDescription: data.longDescription ?? undefined,
+          notes: data.notes ?? undefined,
         },
         {
           onSuccess: (data) => {
