@@ -2,10 +2,10 @@ import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { DefaultGenre } from '../server/db/genre'
-import { ButtonPrimary, ButtonTertiary } from './common/Button'
+import { DefaultGenre } from '../../server/db/genre'
+import { ButtonPrimary, ButtonTertiary } from '../common/Button'
+import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
-import MarkdownEditor from './MarkdownEditor'
 
 const GenreFormFields = {
   name: '',

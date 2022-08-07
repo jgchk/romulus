@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 
 import { DefaultGenre } from '../../server/db/genre'
 import { useEditGenreMutation, useGenreQuery } from '../../services/genres'
-import GenreForm, { GenreFormData, GenreFormFields } from '../GenreForm'
+import GenreForm, { GenreFormData, GenreFormFields } from './GenreForm'
 
 export const GenreEdit: FC<{
   id: number

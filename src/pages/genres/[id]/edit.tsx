@@ -3,8 +3,8 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { isGenreFormField } from '../../../components/GenreForm'
 import GenrePage from '../../../components/GenrePage'
+import { isGenreFormField } from '../../../components/GenrePage/GenreForm'
 import { useSession } from '../../../services/auth'
 import { useCustomRouteParam, useIntRouteParam } from '../../../utils/routes'
 
