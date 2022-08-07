@@ -3,10 +3,10 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import GenrePage from '../../components/GenrePage'
-import { useIntRouteParam } from '../../utils/routes'
+import GenrePage from '../../../components/GenrePage'
+import { useIntRouteParam } from '../../../utils/routes'
 
-const Genre: NextPage = () => {
+const EditGenre: NextPage = () => {
   const id = useIntRouteParam('id')
 
   const router = useRouter()
@@ -20,7 +20,7 @@ const Genre: NextPage = () => {
     return <Error statusCode={404} />
   }
 
-  return <GenrePage selectedGenreId={id} />
+  return <GenrePage state={{ type: 'edit', id }} />
 }
 
-export default Genre
+export default EditGenre

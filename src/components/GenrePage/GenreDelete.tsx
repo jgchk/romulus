@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC } from 'react'
+import { FC, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
-import { useGenreQuery } from '../../services/genres'
+import { useDeleteGenreMutation, useGenreQuery } from '../../services/genres'
 
-export const GenreView: FC<{
+export const GenreDelete: FC<{
   id: number
 }> = ({ id }) => {
   const genreQuery = useGenreQuery(id)
@@ -26,6 +27,21 @@ export const GenreView: FC<{
 const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
   const session = useSession()
   const router = useRouter()
+
+  const { mutate: deleteGenre } = useDeleteGenreMutation()
+  const handleDelete = useCallback(() => {
+    const message = `Deleted genre '${genre.name}'`
+
+    deleteGenre(
+      { id: genre.id },
+      {
+        onSuccess: () => {
+          toast.success(message)
+          router.push('/genres')
+        },
+      }
+    )
+  }, [deleteGenre, genre.id, genre.name, router])
 
   return (
     <div className='flex flex-col h-full'>
@@ -123,23 +139,28 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       </div>
 
       {session.isLoggedIn && (
-        <div className='flex p-1 space-x-1 border-t'>
-          <button
-            className='flex-1 bg-blue-600 font-bold text-white rounded-sm p-1'
-            onClick={() => router.push(`/genres/${genre.id}/edit`)}
-          >
-            Edit
-          </button>
-          <button
-            className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
-            onClick={() => router.push(`/genres/${genre.id}/delete`)}
-          >
-            Delete
-          </button>
+        <div className='border-t'>
+          <div className='flex justify-center mt-1 text-gray-800'>
+            Are you sure?
+          </div>
+          <div className='flex p-1 space-x-1'>
+            <button
+              className='flex-1 bg-red-600 font-bold text-white rounded-sm p-1'
+              onClick={() => handleDelete()}
+            >
+              Delete
+            </button>
+            <button
+              className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
+              onClick={() => router.push(`/genres/${genre.id}`)}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </div>
   )
 }
 
-export default GenreView
+export default GenreDelete

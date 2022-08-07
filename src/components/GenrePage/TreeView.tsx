@@ -1,8 +1,8 @@
+import { useRouter } from 'next/router'
 import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
-import { useDialogState } from './DialogContext'
 import GenreTree from './GenreTree'
 
 const TreeView: FC<{
@@ -10,8 +10,7 @@ const TreeView: FC<{
 }> = ({ selectedGenreId }) => {
   const genresQuery = useGenresQuery()
   const session = useSession()
-
-  const [, setDialogState] = useDialogState()
+  const router = useRouter()
 
   if (genresQuery.data) {
     return (
@@ -22,7 +21,7 @@ const TreeView: FC<{
         {session.isLoggedIn && (
           <button
             className='border-t text-gray-400 font-bold p-1 hover:bg-gray-100 hover:text-gray-500'
-            onClick={() => setDialogState({ type: 'create' })}
+            onClick={() => router.push('/genres/create')}
           >
             New Genre
           </button>
