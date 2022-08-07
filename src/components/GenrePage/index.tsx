@@ -5,7 +5,6 @@ import { useSession } from '../../services/auth'
 import { GenreFormFields } from '../GenreForm'
 import { DialogProvider } from './DialogContext'
 import GenreCreate from './GenreCreate'
-import GenreDelete from './GenreDelete'
 import GenreEdit from './GenreEdit'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
@@ -15,7 +14,6 @@ export type GenrePageState =
   | { type: 'default'; id?: undefined }
   | { type: 'view'; id: number }
   | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
-  | { type: 'delete'; id: number }
   | { type: 'create'; id?: undefined }
 
 export const genrePageState = {
@@ -25,7 +23,6 @@ export const genrePageState = {
     id,
     autoFocus,
   }),
-  delete: (id: number): GenrePageState => ({ type: 'delete', id }),
   create: (): GenrePageState => ({ type: 'create' }),
 }
 
@@ -46,7 +43,6 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
               {state.type === 'edit' && (
                 <GenreEdit id={state.id} autoFocus={state.autoFocus} />
               )}
-              {state.type === 'delete' && <GenreDelete id={state.id} />}
               {state.type === 'create' && <GenreCreate />}
             </div>
           </div>
