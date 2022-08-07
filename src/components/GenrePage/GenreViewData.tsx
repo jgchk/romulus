@@ -14,7 +14,7 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       <div className='space-y-3'>
         {genre.influencedByGenres.length > 0 && (
           <div>
-            <label className='block text-gray-700 text-sm' htmlFor='influences'>
+            <label className='block text-gray-500 text-sm' htmlFor='influences'>
               Influences
             </label>
             <ul id='influences' className='comma-list'>
@@ -36,16 +36,16 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
         <div>
           <label
-            className='block text-gray-700 text-sm'
+            className='block text-gray-500 text-sm'
             htmlFor='short-description'
           >
             Short Description
           </label>
           <div id='short-description'>
             {genre.shortDescription ? (
-              <div className='prose prose-gray'>
-                <ReactMarkdown>{genre.shortDescription}</ReactMarkdown>
-              </div>
+              <ReactMarkdown className='prose prose-gray'>
+                {genre.shortDescription}
+              </ReactMarkdown>
             ) : (
               <span>
                 Missing a short description.{' '}
@@ -69,16 +69,16 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
         <div>
           <label
-            className='block text-gray-700 text-sm'
+            className='block text-gray-500 text-sm'
             htmlFor='long-description'
           >
             Long Description
           </label>
           <div id='long-description'>
             {genre.longDescription ? (
-              <div className='prose prose-gray'>
-                <ReactMarkdown>{genre.longDescription}</ReactMarkdown>
-              </div>
+              <ReactMarkdown className='prose prose-gray'>
+                {genre.longDescription}
+              </ReactMarkdown>
             ) : (
               <span>
                 Missing a long description.{' '}
@@ -100,8 +100,21 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           </div>
         </div>
 
+        {genre.notes && (
+          <div>
+            <label className='block text-gray-500 text-sm' htmlFor='notes'>
+              Notes
+            </label>
+            <div id='notes'>
+              <ReactMarkdown className='prose prose-gray'>
+                {genre.notes}
+              </ReactMarkdown>
+            </div>
+          </div>
+        )}
+
         <div>
-          <label className='block text-gray-700 text-sm' htmlFor='contributors'>
+          <label className='block text-gray-500 text-sm' htmlFor='contributors'>
             Contributors
           </label>
           <div id='contributors'>
