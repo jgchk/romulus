@@ -66,7 +66,12 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
                   {session.isLoggedIn && (
                     <button
                       className='text-blue-500 hover:underline'
-                      onClick={() => router.push(`/genres/${genre.id}/edit`)}
+                      onClick={() =>
+                        router.push({
+                          pathname: `/genres/${genre.id}/edit`,
+                          query: { autoFocus: 'shortDescription' },
+                        })
+                      }
                     >
                       Add one.
                     </button>
@@ -94,7 +99,12 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
                   {session.isLoggedIn && (
                     <button
                       className='text-blue-500 hover:underline'
-                      onClick={() => router.push(`/genres/${genre.id}/edit`)}
+                      onClick={() =>
+                        router.push({
+                          pathname: `/genres/${genre.id}/edit`,
+                          query: { autoFocus: 'longDescription' },
+                        })
+                      }
                     >
                       Add one.
                     </button>

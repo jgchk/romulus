@@ -43,7 +43,9 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
             <div className='w-[500px] h-[500px] border bg-white shadow-sm'>
               {state.type === 'default' && <GenreViewPlaceholder />}
               {state.type === 'view' && <GenreView id={state.id} />}
-              {state.type === 'edit' && <GenreEdit id={state.id} />}
+              {state.type === 'edit' && (
+                <GenreEdit id={state.id} autoFocus={state.autoFocus} />
+              )}
               {state.type === 'delete' && <GenreDelete id={state.id} />}
               {state.type === 'create' && <GenreCreate />}
             </div>

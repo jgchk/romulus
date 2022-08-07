@@ -6,12 +6,17 @@ import { DefaultGenre } from '../server/db/genre'
 import GenreMultiselect from './GenreMultiselect'
 import MarkdownEditor from './MarkdownEditor'
 
-export type GenreFormFields = {
-  name: string
-  shortDescription: string
-  longDescription: string
-  notes: string
+const GenreFormFields = {
+  name: '',
+  shortDescription: '',
+  longDescription: '',
+  notes: '',
 }
+
+export type GenreFormFields = typeof GenreFormFields
+
+export const isGenreFormField = (t: string): t is keyof GenreFormFields =>
+  t in GenreFormFields
 
 export type GenreFormData = {
   name: string

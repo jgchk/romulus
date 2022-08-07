@@ -4,15 +4,16 @@ import toast from 'react-hot-toast'
 
 import { DefaultGenre } from '../../server/db/genre'
 import { useEditGenreMutation, useGenreQuery } from '../../services/genres'
-import GenreForm, { GenreFormData } from '../GenreForm'
+import GenreForm, { GenreFormData, GenreFormFields } from '../GenreForm'
 
 export const GenreEdit: FC<{
   id: number
-}> = ({ id }) => {
+  autoFocus?: keyof GenreFormFields
+}> = ({ id, autoFocus }) => {
   const genreQuery = useGenreQuery(id)
 
   if (genreQuery.data) {
-    return <HasData genre={genreQuery.data} />
+    return <HasData genre={genreQuery.data} autoFocus={autoFocus} />
   }
 
   if (genreQuery.error) {
@@ -22,7 +23,10 @@ export const GenreEdit: FC<{
   return <div>Loading...</div>
 }
 
-const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
+const HasData: FC<{
+  genre: DefaultGenre
+  autoFocus?: keyof GenreFormFields
+}> = ({ genre, autoFocus }) => {
   const router = useRouter()
 
   const { mutate: editGenre } = useEditGenreMutation()
@@ -42,6 +46,7 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
   return (
     <GenreForm
+      autoFocus={autoFocus}
       genre={genre}
       onSubmit={(data) => handleEdit(data)}
       onClose={() => router.push(`/genres/${genre.id}`)}
