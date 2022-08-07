@@ -16,6 +16,7 @@ const LocationData = z.object({
 
 type BasicGenre = {
   id: number
+  name: string
   parentGenres: {
     id: number
   }[]
@@ -25,17 +26,18 @@ const detectCycleInner = (
   id: number,
   stack: number[],
   allGenresMap: Record<number, BasicGenre>
-) => {
+): number[] | false => {
   if (stack.includes(id)) {
-    return true
+    return [...stack, id]
   }
 
   const genre = allGenresMap[id]
   const parentIds = genre.parentGenres.map((g) => g.id)
 
   for (const parentId of parentIds) {
-    if (detectCycleInner(parentId, [...stack, id], allGenresMap)) {
-      return true
+    const cycle = detectCycleInner(parentId, [...stack, id], allGenresMap)
+    if (cycle) {
+      return cycle
     }
   }
 
@@ -45,16 +47,25 @@ const detectCycleInner = (
 // TODO: implement more robust cycle-detection algorithm
 const detectCycle = async (data: {
   id?: number
+  name: string
   parentGenres?: number[]
   childGenres?: number[]
 }) => {
   let allGenres: BasicGenre[] = await prisma.genre.findMany({
-    select: { id: true, parentGenres: { select: { id: true } } },
+    select: { id: true, name: true, parentGenres: { select: { id: true } } },
   })
 
   // if the user has made any updates to parent/child genres,
   // temporarily apply those updates before checking for cycles
   const id = data.id ?? -1
+  if (!allGenres.some((genre) => genre.id === id)) {
+    allGenres.push({
+      id,
+      name: data.name,
+      parentGenres: data.parentGenres?.map((id) => ({ id })) ?? [],
+    })
+  }
+
   if (data.parentGenres) {
     const parentGenres = data.parentGenres
     allGenres = allGenres.map((genre) =>
@@ -77,12 +88,31 @@ const detectCycle = async (data: {
   )
 
   for (const genre of allGenres) {
-    if (detectCycleInner(genre.id, [], allGenresMap)) {
-      return true
+    const cycle = detectCycleInner(genre.id, [], allGenresMap)
+    if (cycle) {
+      const formattedCycle = cycle
+        .map((id) => allGenresMap[id].name)
+        .join(' → ')
+      return formattedCycle
     }
   }
 
   return false
+}
+
+export const throwOnCycle = async (data: {
+  id?: number
+  name: string
+  parentGenres?: number[]
+  childGenres?: number[]
+}) => {
+  const cycle = await detectCycle(data)
+  if (cycle) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Cycle detected in genre tree:\n${cycle}`,
+    })
+  }
 }
 
 export const genreRouter = createRouter()
@@ -105,13 +135,7 @@ export const genreRouter = createRouter()
     resolve: async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
 
-      const isCycle = await detectCycle(input)
-      if (isCycle) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Cycle detected in genre tree',
-        })
-      }
+      await throwOnCycle(input)
 
       const locationIds = input.locations
         ? await Promise.all(
@@ -202,14 +226,7 @@ export const genreRouter = createRouter()
     resolve: async ({ input: { id, data }, ctx }) => {
       const { account } = requireLogin(ctx)
 
-      await detectCycle({ id, ...data })
-      const isCycle = await detectCycle({ id, ...data })
-      if (isCycle) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Cycle detected in genre tree',
-        })
-      }
+      await throwOnCycle({ id, ...data })
 
       return prisma.genre.update({
         where: { id },
