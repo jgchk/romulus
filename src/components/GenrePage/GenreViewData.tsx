@@ -42,7 +42,11 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             Short Description
           </label>
           <div id='short-description'>
-            {genre.shortDescription || (
+            {genre.shortDescription ? (
+              <div className='prose prose-gray'>
+                <ReactMarkdown>{genre.shortDescription}</ReactMarkdown>
+              </div>
+            ) : (
               <span>
                 Missing a short description.{' '}
                 {session.isLoggedIn && (
