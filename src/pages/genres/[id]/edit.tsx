@@ -1,14 +1,15 @@
 import type { NextPage } from 'next'
 import Error from 'next/error'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 import { isGenreFormField } from '../../../components/GenreForm'
 import GenrePage from '../../../components/GenrePage'
-import { useIntRouteParam } from '../../../utils/routes'
+import { useCustomRouteParam, useIntRouteParam } from '../../../utils/routes'
 
 const EditGenre: NextPage = () => {
   const id = useIntRouteParam('id')
+  const autoFocus = useCustomRouteParam('autoFocus', isGenreFormField)
 
   const router = useRouter()
   useEffect(() => {
@@ -16,23 +17,6 @@ const EditGenre: NextPage = () => {
       router.push('/genres')
     }
   }, [id, router])
-
-  const autoFocus = useMemo(() => {
-    let maybeAutoFocus = router.query.autoFocus
-    if (Array.isArray(maybeAutoFocus)) {
-      maybeAutoFocus = maybeAutoFocus[0]
-    }
-
-    if (!maybeAutoFocus) {
-      return
-    }
-
-    if (!isGenreFormField(maybeAutoFocus)) {
-      return
-    }
-
-    return maybeAutoFocus
-  }, [router.query.autoFocus])
 
   if (id === undefined) {
     return <Error statusCode={404} />

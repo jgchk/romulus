@@ -7,16 +7,18 @@ import { ButtonPrimary } from '../components/common/Button'
 import { useRegisterMutation, useSession } from '../services/auth'
 import { showErrorToast } from '../utils/error'
 import { useAutoFocus } from '../utils/hooks'
+import { useStringRouteParam } from '../utils/routes'
 
 const Register: NextPage = () => {
   // navigate away from the page if the user is already logged in
   const session = useSession()
   const router = useRouter()
+  const referer = useStringRouteParam('referer')
   useEffect(() => {
     if (session.isLoggedIn) {
-      router.push('/genres')
+      router.push(referer ?? '/genres')
     }
-  }, [router, session.isLoggedIn])
+  }, [referer, router, session.isLoggedIn])
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -97,7 +99,12 @@ const Register: NextPage = () => {
 
         <div className='mt-3 text-sm text-gray-700'>
           Already have an account?{' '}
-          <Link href='/login'>
+          <Link
+            href={{
+              pathname: '/login',
+              query: { referer },
+            }}
+          >
             <a className='text-blue-500 hover:underline'>Log in.</a>
           </Link>
         </div>

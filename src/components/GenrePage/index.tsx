@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
+import { useRefererRouteParam } from '../../utils/routes'
 import { GenreFormFields } from '../GenreForm'
 import { DialogProvider } from './DialogContext'
 import GenreCreate from './GenreCreate'
@@ -28,6 +29,7 @@ export const genrePageState = {
 
 const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
   const session = useSession()
+  const referer = useRefererRouteParam()
 
   return (
     <DialogProvider>
@@ -49,7 +51,12 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
 
           {session.isLoggedOut && (
             <div className='mt-6 text-gray-700'>
-              <Link href='/login'>
+              <Link
+                href={{
+                  pathname: '/login',
+                  query: { referer },
+                }}
+              >
                 <a className='text-blue-500 hover:underline'>Log in</a>
               </Link>{' '}
               to create and edit genres.

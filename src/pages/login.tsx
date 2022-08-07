@@ -6,16 +6,18 @@ import { useEffect, useState } from 'react'
 import { ButtonPrimary } from '../components/common/Button'
 import { useLoginMutation, useSession } from '../services/auth'
 import { useAutoFocus } from '../utils/hooks'
+import { useStringRouteParam } from '../utils/routes'
 
 const Login: NextPage = () => {
   // navigate away from the page if the user is already logged in
   const session = useSession()
   const router = useRouter()
+  const referer = useStringRouteParam('referer')
   useEffect(() => {
     if (session.isLoggedIn) {
-      router.push('/genres')
+      router.push(referer ?? '/genres')
     }
-  }, [router, session.isLoggedIn])
+  }, [referer, router, session.isLoggedIn])
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -69,7 +71,12 @@ const Login: NextPage = () => {
 
         <div className='mt-3 text-sm text-gray-700'>
           Need an account?{' '}
-          <Link href='/register'>
+          <Link
+            href={{
+              pathname: '/register',
+              query: { referer },
+            }}
+          >
             <a className='text-blue-500 hover:underline'>Register.</a>
           </Link>
         </div>
