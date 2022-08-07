@@ -1,12 +1,18 @@
+import clsx from 'clsx'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { ButtonPrimary } from '../components/common/Button'
 import { useRegisterMutation, useSession } from '../services/auth'
-import { showErrorToast } from '../utils/error'
-import { useAutoFocus } from '../utils/hooks'
+
+type RegisterFormFields = {
+  username: string
+  password: string
+  confirmPassword: string
+}
 
 const Register: NextPage = () => {
   // navigate away from the page if the user is already logged in
@@ -18,76 +24,108 @@ const Register: NextPage = () => {
     }
   }, [router, session.isLoggedIn])
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setFocus,
+    watch,
+  } = useForm<RegisterFormFields>()
 
-  const { mutate: register } = useRegisterMutation()
+  const { mutate } = useRegisterMutation()
+  const onSubmit = useCallback(
+    (data: RegisterFormFields) => mutate(data),
+    [mutate]
+  )
 
-  const handleRegister = useCallback(() => {
-    if (password !== confirmPassword) {
-      showErrorToast('Passwords do not match')
-      return
-    }
-
-    register({ username, password })
-  }, [confirmPassword, password, register, username])
-
-  const usernameInput = useAutoFocus<HTMLInputElement>()
+  useEffect(() => setFocus('username'), [setFocus])
 
   return (
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <form
         className='border p-4 shadow bg-white'
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleRegister()
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className='space-y-3'>
           <div>
-            <label className='block text-gray-700 text-sm' htmlFor='username'>
+            <label
+              className={clsx(
+                'block text-gray-700 text-sm',
+                errors.username && 'text-red-600'
+              )}
+              htmlFor='username'
+            >
               Username
             </label>
             <input
-              ref={usernameInput}
-              className='border rounded-sm p-1 px-2 mt-0.5'
               id='username'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              className={clsx(
+                'border rounded-sm p-1 px-2 mt-0.5',
+                errors.username && 'border-red-600 outline-red-600'
+              )}
+              {...register('username', { required: 'Username is required' })}
             />
-          </div>
-
-          <div>
-            <label className='block text-gray-700 text-sm' htmlFor='password'>
-              Password
-            </label>
-            <input
-              className='border rounded-sm p-1 px-2 mt-0.5'
-              id='password'
-              type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            {errors.username && (
+              <div className='text-sm text-red-600'>
+                {errors.username.message}
+              </div>
+            )}
           </div>
 
           <div>
             <label
-              className='block text-gray-700 text-sm'
+              className={clsx(
+                'block text-gray-700 text-sm',
+                errors.password && 'text-red-600'
+              )}
+              htmlFor='password'
+            >
+              Password
+            </label>
+            <input
+              id='password'
+              type='password'
+              className={clsx(
+                'border rounded-sm p-1 px-2 mt-0.5',
+                errors.password && 'border-red-600 outline-red-600'
+              )}
+              {...register('password', { required: 'Password is required' })}
+            />
+            {errors.password && (
+              <div className='text-sm text-red-600'>
+                {errors.password.message}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label
+              className={clsx(
+                'block text-gray-700 text-sm',
+                errors.confirmPassword && 'text-red-600'
+              )}
               htmlFor='confirm-password'
             >
               Confirm Password
             </label>
             <input
-              className='border rounded-sm p-1 px-2 mt-0.5'
-              id='confirm-password'
               type='password'
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
+              id='confirm-password'
+              className={clsx(
+                'border rounded-sm p-1 px-2 mt-0.5',
+                errors.confirmPassword && 'border-red-600 outline-red-600'
+              )}
+              {...register('confirmPassword', {
+                required: 'Password confirmation is required',
+                validate: (value) =>
+                  watch('password') === value || 'Passwords do not match',
+              })}
             />
+            {errors.confirmPassword && (
+              <div className='text-sm text-red-600'>
+                {errors.confirmPassword.message}
+              </div>
+            )}
           </div>
         </div>
 

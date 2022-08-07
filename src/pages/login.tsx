@@ -1,11 +1,17 @@
+import clsx from 'clsx'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { ButtonPrimary } from '../components/common/Button'
 import { useLoginMutation, useSession } from '../services/auth'
-import { useAutoFocus } from '../utils/hooks'
+
+type LoginFormFields = {
+  username: string
+  password: string
+}
 
 const Login: NextPage = () => {
   // navigate away from the page if the user is already logged in
@@ -17,49 +23,77 @@ const Login: NextPage = () => {
     }
   }, [router, session.isLoggedIn])
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setFocus,
+  } = useForm<LoginFormFields>()
 
-  const { mutate: login } = useLoginMutation()
+  const { mutate } = useLoginMutation()
+  const onSubmit = useCallback(
+    (data: LoginFormFields) => mutate(data),
+    [mutate]
+  )
 
-  const usernameInput = useAutoFocus<HTMLInputElement>()
+  useEffect(() => setFocus('username'), [setFocus])
 
   return (
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <form
         className='border p-4 shadow bg-white'
-        onSubmit={(e) => {
-          e.preventDefault()
-          login({ username, password })
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className='space-y-3'>
           <div>
-            <label className='block text-gray-700 text-sm' htmlFor='username'>
+            <label
+              className={clsx(
+                'block text-gray-700 text-sm',
+                errors.username && 'text-red-600'
+              )}
+              htmlFor='username'
+            >
               Username
             </label>
             <input
-              ref={usernameInput}
-              className='border rounded-sm p-1 px-2 mt-0.5'
               id='username'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              className={clsx(
+                'border rounded-sm p-1 px-2 mt-0.5',
+                errors.username && 'border-red-600 outline-red-600'
+              )}
+              {...register('username', { required: 'Username is required' })}
             />
+            {errors.username && (
+              <div className='text-sm text-red-600'>
+                {errors.username.message}
+              </div>
+            )}
           </div>
 
           <div>
-            <label className='block text-gray-700 text-sm' htmlFor='password'>
+            <label
+              className={clsx(
+                'block text-gray-700 text-sm',
+                errors.password && 'text-red-600'
+              )}
+              htmlFor='password'
+            >
               Password
             </label>
             <input
-              className='border rounded-sm p-1 px-2 mt-0.5'
               id='password'
               type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              className={clsx(
+                'border rounded-sm p-1 px-2 mt-0.5',
+                errors.password && 'border-red-600 outline-red-600'
+              )}
+              {...register('password', { required: 'Password is required' })}
             />
+            {errors.password && (
+              <div className='text-sm text-red-600'>
+                {errors.password.message}
+              </div>
+            )}
           </div>
         </div>
 
