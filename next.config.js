@@ -1,6 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { env } = require('./src/server/env')
 
+const { withRoutes } = require('nextjs-routes/next-config.cjs')
+
 /**
  * Don't be scared of the generics here.
  * All they do is to give us autocompletion when using this.
@@ -16,17 +18,19 @@ function getConfig(config) {
 /**
  * @link https://nextjs.org/docs/api-reference/next.config.js/introduction
  */
-module.exports = getConfig({
-  output: 'standalone',
-  reactStrictMode: true,
-  swcMinify: true,
+module.exports = withRoutes(
+  getConfig({
+    output: 'standalone',
+    reactStrictMode: true,
+    swcMinify: true,
 
-  /**
-   * Dynamic configuration available for the browser and server.
-   * Note: requires `ssr: true` or a `getInitialProps` in `_app.tsx`
-   * @link https://nextjs.org/docs/api-reference/next.config.js/runtime-configuration
-   */
-  publicRuntimeConfig: {
-    NODE_ENV: env.NODE_ENV,
-  },
-})
+    /**
+     * Dynamic configuration available for the browser and server.
+     * Note: requires `ssr: true` or a `getInitialProps` in `_app.tsx`
+     * @link https://nextjs.org/docs/api-reference/next.config.js/runtime-configuration
+     */
+    publicRuntimeConfig: {
+      NODE_ENV: env.NODE_ENV,
+    },
+  })
+)

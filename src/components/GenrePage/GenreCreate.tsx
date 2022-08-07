@@ -21,7 +21,10 @@ export const GenreCreate: FC = () => {
         {
           onSuccess: (data) => {
             toast.success(`Created genre '${data.name}'`)
-            router.push(`/genres/${data.id}`)
+            router.push({
+              pathname: '/genres/[id]',
+              query: { id: data.id.toString() },
+            })
           },
         }
       ),
@@ -31,7 +34,7 @@ export const GenreCreate: FC = () => {
   return (
     <GenreForm
       onSubmit={(data) => handleCreate(data)}
-      onClose={() => router.push('/genres')}
+      onClose={() => router.push({ pathname: '/genres' })}
     />
   )
 }

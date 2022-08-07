@@ -14,7 +14,7 @@ const EditGenre: NextPage = () => {
   const router = useRouter()
   useEffect(() => {
     if (id === undefined) {
-      router.push('/genres')
+      router.push({ pathname: '/genres' })
     }
   }, [id, router])
 

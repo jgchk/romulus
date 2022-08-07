@@ -7,6 +7,7 @@ tailwind.config.js
 
 # next
 next.config.js
+nextjs-routes.d.ts
 
 # env
 src/server/env.js

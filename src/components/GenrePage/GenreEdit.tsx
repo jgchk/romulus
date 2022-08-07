@@ -37,7 +37,10 @@ const HasData: FC<{
         {
           onSuccess: (data) => {
             toast.success(`Updated genre '${data.name}'`)
-            router.push(`/genres/${data.id}`)
+            router.push({
+              pathname: '/genres/[id]',
+              query: { id: data.id.toString() },
+            })
           },
         }
       ),
@@ -49,7 +52,12 @@ const HasData: FC<{
       autoFocus={autoFocus}
       genre={genre}
       onSubmit={(data) => handleEdit(data)}
-      onClose={() => router.push(`/genres/${genre.id}`)}
+      onClose={() =>
+        router.push({
+          pathname: '/genres/[id]',
+          query: { id: genre.id.toString() },
+        })
+      }
     />
   )
 }

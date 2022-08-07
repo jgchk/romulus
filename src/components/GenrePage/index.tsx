@@ -2,9 +2,7 @@ import Link from 'next/link'
 import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
-import { useRefererRouteParam } from '../../utils/routes'
 import { GenreFormFields } from '../GenreForm'
-import { DialogProvider } from './DialogContext'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import GenreView from './GenreView'
@@ -29,42 +27,34 @@ export const genrePageState = {
 
 const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
   const session = useSession()
-  const referer = useRefererRouteParam()
 
   return (
-    <DialogProvider>
-      <div className='bg-texture w-full h-full flex items-center'>
-        <div className='w-full flex flex-col items-center'>
-          <div className='flex justify-center space-x-4'>
-            <div className='w-[250px] h-[800px] border bg-white shadow-sm '>
-              <TreeView selectedGenreId={state.id} />
-            </div>
-            <div className='w-[800px] h-[800px] border bg-white shadow-sm'>
-              {state.type === 'default' && <GenreViewPlaceholder />}
-              {state.type === 'view' && <GenreView id={state.id} />}
-              {state.type === 'edit' && (
-                <GenreEdit id={state.id} autoFocus={state.autoFocus} />
-              )}
-              {state.type === 'create' && <GenreCreate />}
-            </div>
+    <div className='bg-texture w-full h-full flex items-center'>
+      <div className='w-full flex flex-col items-center'>
+        <div className='flex justify-center space-x-4'>
+          <div className='w-[250px] h-[800px] border bg-white shadow-sm '>
+            <TreeView selectedGenreId={state.id} />
           </div>
-
-          {session.isLoggedOut && (
-            <div className='mt-6 text-gray-700'>
-              <Link
-                href={{
-                  pathname: '/login',
-                  query: { referer },
-                }}
-              >
-                <a className='text-blue-500 hover:underline'>Log in</a>
-              </Link>{' '}
-              to create and edit genres.
-            </div>
-          )}
+          <div className='w-[800px] h-[800px] border bg-white shadow-sm'>
+            {state.type === 'default' && <GenreViewPlaceholder />}
+            {state.type === 'view' && <GenreView id={state.id} />}
+            {state.type === 'edit' && (
+              <GenreEdit id={state.id} autoFocus={state.autoFocus} />
+            )}
+            {state.type === 'create' && <GenreCreate />}
+          </div>
         </div>
+
+        {session.isLoggedOut && (
+          <div className='mt-6 text-gray-700'>
+            <Link href={{ pathname: '/login' }}>
+              <a className='text-blue-500 hover:underline'>Log in</a>
+            </Link>{' '}
+            to create and edit genres.
+          </div>
+        )}
       </div>
-    </DialogProvider>
+    </div>
   )
 }
 

@@ -18,7 +18,10 @@ const SubmitRelease: NextPage = () => {
         { title },
         {
           onSuccess: (data) => {
-            router.push(`/releases/${data.id}`)
+            router.push({
+              pathname: '/releases/[id]',
+              query: { id: data.id.toString() },
+            })
           },
         }
       ),

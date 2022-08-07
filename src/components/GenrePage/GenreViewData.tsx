@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { FC } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -8,7 +7,6 @@ import { useSession } from '../../services/auth'
 
 const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
   const session = useSession()
-  const router = useRouter()
 
   return (
     <div className='flex-1 overflow-auto p-4'>
@@ -22,7 +20,12 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             <ul id='influences' className='comma-list'>
               {genre.influencedByGenres.map(({ id, name }) => (
                 <li key={id}>
-                  <Link href={`/genres/${id}`}>
+                  <Link
+                    href={{
+                      pathname: '/genres/[id]',
+                      query: { id: id.toString() },
+                    }}
+                  >
                     <a className='text-blue-500 hover:underline'>{name}</a>
                   </Link>
                 </li>
@@ -43,12 +46,17 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
               <span>
                 Missing a short description.{' '}
                 {session.isLoggedIn && (
-                  <button
-                    className='text-blue-500 hover:underline'
-                    onClick={() => router.push(`/genres/${genre.id}/edit`)}
+                  <Link
+                    href={{
+                      pathname: '/genres/[id]/edit',
+                      query: {
+                        id: genre.id.toString(),
+                        autoFocus: 'shortDescription',
+                      },
+                    }}
                   >
-                    Add one.
-                  </button>
+                    <a className='text-blue-500 hover:underline'>Add one.</a>
+                  </Link>
                 )}
               </span>
             )}
@@ -71,12 +79,17 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
               <span>
                 Missing a long description.{' '}
                 {session.isLoggedIn && (
-                  <button
-                    className='text-blue-500 hover:underline'
-                    onClick={() => router.push(`/genres/${genre.id}/edit`)}
+                  <Link
+                    href={{
+                      pathname: '/genres/[id]/edit',
+                      query: {
+                        id: genre.id.toString(),
+                        autoFocus: 'longDescription',
+                      },
+                    }}
                   >
-                    Add one.
-                  </button>
+                    <a className='text-blue-500 hover:underline'>Add one.</a>
+                  </Link>
                 )}
               </span>
             )}

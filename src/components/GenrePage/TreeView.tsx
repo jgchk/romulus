@@ -23,7 +23,7 @@ const TreeView: FC<{
           <div className='p-1 border-t'>
             <ButtonSecondary
               className='w-full'
-              onClick={() => router.push('/genres/create')}
+              onClick={() => router.push({ pathname: '/genres/create' })}
             >
               New Genre
             </ButtonSecondary>

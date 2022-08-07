@@ -2,31 +2,24 @@ import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
 import { useLogoutMutation, useSession } from '../services/auth'
-import { useRefererRouteParam } from '../utils/routes'
 
 const Navbar: FC = () => {
   const session = useSession()
 
   const { mutate: logout } = useLogoutMutation()
 
-  const referer = useRefererRouteParam()
   const renderLoginLinks = useCallback(
     () => (
       <>
-        <Link href={{ pathname: '/login', query: { referer } }}>
+        <Link href={{ pathname: '/login' }}>
           <a>Log in</a>
         </Link>
-        <Link
-          href={{
-            pathname: '/register',
-            query: { referer },
-          }}
-        >
+        <Link href={{ pathname: '/register' }}>
           <a>Register</a>
         </Link>
       </>
     ),
-    [referer]
+    []
   )
 
   const renderSession = useCallback(() => {
@@ -51,7 +44,7 @@ const Navbar: FC = () => {
   return (
     <div className='flex justify-between p-2 px-4 border-b'>
       <div className='flex space-x-2'>
-        <Link href='/genres'>
+        <Link href={{ pathname: '/genres' }}>
           <a>Genres</a>
         </Link>
       </div>

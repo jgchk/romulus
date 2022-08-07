@@ -27,7 +27,12 @@ const GenreTree: FC<{
         )}
         key={genre.id}
       >
-        <Link href={`/genres/${genre.id}`}>
+        <Link
+          href={{
+            pathname: '/genres/[id]',
+            query: { id: genre.id.toString() },
+          }}
+        >
           <a>{genre.name}</a>
         </Link>
         {genre.childGenres.length > 0 && (

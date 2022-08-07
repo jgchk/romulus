@@ -42,7 +42,7 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
         {
           onSuccess: () => {
             toast.success(`Deleted genre '${genre.name}'`)
-            router.push('/genres')
+            router.push({ pathname: '/genres' })
           },
         }
       ),
@@ -78,7 +78,12 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           <div className='flex p-1 space-x-1 border-t'>
             <ButtonPrimary
               className='flex-1'
-              onClick={() => router.push(`/genres/${genre.id}/edit`)}
+              onClick={() =>
+                router.push({
+                  pathname: '/genres/[id]/edit',
+                  query: { id: genre.id.toString() },
+                })
+              }
             >
               Edit
             </ButtonPrimary>

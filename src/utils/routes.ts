@@ -42,15 +42,3 @@ export const useCustomRouteParam = <T>(
 
   return value
 }
-
-export const useRefererRouteParam = () => {
-  const { asPath } = useRouter()
-
-  const rawReferer = useStringRouteParam('referer')
-
-  return useMemo(() => {
-    const referer = rawReferer ?? asPath
-    if (referer === '/login' || referer === '/register') return
-    return referer
-  }, [asPath, rawReferer])
-}
