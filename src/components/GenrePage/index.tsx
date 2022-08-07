@@ -37,10 +37,10 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
       <div className='bg-texture w-full h-full flex items-center'>
         <div className='w-full flex flex-col items-center'>
           <div className='flex justify-center space-x-4'>
-            <div className='w-[500px] h-[500px] border bg-white shadow-sm '>
+            <div className='w-[250px] h-[800px] border bg-white shadow-sm '>
               <TreeView selectedGenreId={state.id} />
             </div>
-            <div className='w-[500px] h-[500px] border bg-white shadow-sm'>
+            <div className='w-[800px] h-[800px] border bg-white shadow-sm'>
               {state.type === 'default' && <GenreViewPlaceholder />}
               {state.type === 'view' && <GenreView id={state.id} />}
               {state.type === 'edit' && (
