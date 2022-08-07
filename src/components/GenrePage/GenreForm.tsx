@@ -145,10 +145,7 @@ const GenreForm: FC<{
         <div>
           <label className='block text-gray-700 text-sm'>Influences</label>
           <GenreMultiselect
-            excludeIds={[
-              ...(genre !== undefined ? [genre.id] : []),
-              ...(genre?.influencesGenres.map(({ id }) => id) ?? []),
-            ]}
+            excludeIds={genre !== undefined ? [genre.id] : []}
             selectedIds={influencedByGenres}
             onChange={(g) => setInfluencedByGenres(g)}
           />

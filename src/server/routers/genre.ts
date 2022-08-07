@@ -19,8 +19,6 @@ const detectCycle = async (data: {
   id?: number
   parentGenres?: number[]
   childGenres?: number[]
-  influencedByGenres?: number[]
-  influencesGenres?: number[]
 }) => {
   // detect 1-cycles
   if (data.id !== undefined) {
@@ -35,20 +33,6 @@ const detectCycle = async (data: {
       throw new TRPCError({
         code: 'BAD_REQUEST',
         message: 'Genre cannot have itself as a child',
-      })
-    }
-
-    if (data.influencedByGenres?.includes(data.id)) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Genre cannot be influenced by itself',
-      })
-    }
-
-    if (data.influencesGenres?.includes(data.id)) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Genre cannot influence itself',
       })
     }
   }
@@ -67,24 +51,6 @@ const detectCycle = async (data: {
           message: `Cannot set genre ${
             genre?.name ?? genreId
           } as both parent and child`,
-        })
-      }
-    }
-  }
-
-  if (data.influencedByGenres && data.influencesGenres) {
-    for (const genreId of data.influencedByGenres) {
-      if (data.influencesGenres.includes(genreId)) {
-        const genre = await prisma.genre.findUnique({
-          where: { id: genreId },
-          select: { name: true },
-        })
-
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `Cannot set genre ${
-            genre?.name ?? genreId
-          } as both influencer and influenced`,
         })
       }
     }
