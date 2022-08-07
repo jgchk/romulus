@@ -3,6 +3,7 @@ import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
+import { ButtonSecondary } from '../common/Button'
 import GenreTree from './GenreTree'
 
 const TreeView: FC<{
@@ -19,12 +20,14 @@ const TreeView: FC<{
           <GenreTree genres={genresQuery.data} selectedId={selectedGenreId} />
         </div>
         {session.isLoggedIn && (
-          <button
-            className='border-t text-gray-400 font-bold p-1 hover:bg-gray-100 hover:text-gray-500'
-            onClick={() => router.push('/genres/create')}
-          >
-            New Genre
-          </button>
+          <div className='p-1 border-t'>
+            <ButtonSecondary
+              className='w-full'
+              onClick={() => router.push('/genres/create')}
+            >
+              New Genre
+            </ButtonSecondary>
+          </div>
         )}
       </div>
     )

@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { DefaultGenre } from '../server/db/genre'
+import { ButtonPrimary, ButtonTertiary } from './common/Button'
 import GenreMultiselect from './GenreMultiselect'
 import MarkdownEditor from './MarkdownEditor'
 
@@ -204,18 +205,12 @@ const GenreForm: FC<{
       </div>
 
       <div className='flex p-1 space-x-1 border-t'>
-        <button
-          type='submit'
-          className='flex-1 bg-blue-600 font-bold text-white rounded-sm p-1'
-        >
+        <ButtonPrimary type='submit' className='flex-1'>
           Submit
-        </button>
-        <button
-          className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
-          onClick={() => onClose()}
-        >
+        </ButtonPrimary>
+        <ButtonTertiary className='flex-1' onClick={() => onClose()}>
           Cancel
-        </button>
+        </ButtonTertiary>
       </div>
     </form>
   )

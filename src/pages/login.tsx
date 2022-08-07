@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 
+import { ButtonPrimary } from '../components/common/Button'
 import { useLoginMutation, useSession } from '../services/auth'
 import { useAutoFocus } from '../utils/hooks'
 
@@ -62,12 +63,9 @@ const Login: NextPage = () => {
           </div>
         </div>
 
-        <button
-          className='w-full bg-blue-600 rounded-sm text-white font-bold p-1 mt-4'
-          type='submit'
-        >
+        <ButtonPrimary className='w-full mt-4' type='submit'>
           Login
-        </button>
+        </ButtonPrimary>
 
         <div className='mt-3 text-sm text-gray-700'>
           Need an account?{' '}

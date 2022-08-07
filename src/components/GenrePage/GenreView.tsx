@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
 import { useGenreQuery } from '../../services/genres'
+import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 
 export const GenreView: FC<{
   id: number
@@ -134,18 +135,18 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
       {session.isLoggedIn && (
         <div className='flex p-1 space-x-1 border-t'>
-          <button
-            className='flex-1 bg-blue-600 font-bold text-white rounded-sm p-1'
+          <ButtonPrimary
+            className='flex-1'
             onClick={() => router.push(`/genres/${genre.id}/edit`)}
           >
             Edit
-          </button>
-          <button
-            className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
+          </ButtonPrimary>
+          <ButtonTertiary
+            className='flex-1'
             onClick={() => router.push(`/genres/${genre.id}/delete`)}
           >
             Delete
-          </button>
+          </ButtonTertiary>
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 
+import { ButtonPrimary } from '../components/common/Button'
 import { useRegisterMutation, useSession } from '../services/auth'
 import { showErrorToast } from '../utils/error'
 import { useAutoFocus } from '../utils/hooks'
@@ -90,12 +91,9 @@ const Register: NextPage = () => {
           </div>
         </div>
 
-        <button
-          className='w-full bg-blue-600 rounded-sm text-white font-bold p-1 mt-4'
-          type='submit'
-        >
+        <ButtonPrimary className='w-full mt-4' type='submit'>
           Register
-        </button>
+        </ButtonPrimary>
 
         <div className='mt-3 text-sm text-gray-700'>
           Already have an account?{' '}

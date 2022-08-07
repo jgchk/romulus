@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 
+import { ButtonPrimary } from '../../components/common/Button'
 import { useAddReleaseMutation } from '../../services/releases'
 
 const SubmitRelease: NextPage = () => {
@@ -37,7 +38,7 @@ const SubmitRelease: NextPage = () => {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <button type='submit'>Submit</button>
+      <ButtonPrimary type='submit'>Submit</ButtonPrimary>
     </form>
   )
 }

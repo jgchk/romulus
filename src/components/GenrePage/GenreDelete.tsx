@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
 import { useDeleteGenreMutation, useGenreQuery } from '../../services/genres'
+import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 
 export const GenreDelete: FC<{
   id: number
@@ -144,18 +145,18 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             Are you sure?
           </div>
           <div className='flex p-1 space-x-1'>
-            <button
-              className='flex-1 bg-red-600 font-bold text-white rounded-sm p-1'
+            <ButtonPrimary
+              className='flex-1 bg-red-600 hover:bg-red-700'
               onClick={() => handleDelete()}
             >
               Delete
-            </button>
-            <button
-              className='flex-1 bg-gray-200 font-bold text-gray-700 rounded-sm p-1'
+            </ButtonPrimary>
+            <ButtonTertiary
+              className='flex-1'
               onClick={() => router.push(`/genres/${genre.id}`)}
             >
               Cancel
-            </button>
+            </ButtonTertiary>
           </div>
         </div>
       )}
