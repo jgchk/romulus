@@ -96,6 +96,7 @@ model Genre {
   contributors     Account[]
   startDate        String?
   endDate          String?
+  akas             String[]
 
   parentGenres Genre[] @relation("hierarchy")
   childGenres  Genre[] @relation("hierarchy")

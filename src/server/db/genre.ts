@@ -15,6 +15,7 @@ export const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   y: true,
   contributors: { select: { id: true, username: true } },
   notes: true,
+  akas: true,
 })
 
 export type DefaultGenre = Prisma.GenreGetPayload<{

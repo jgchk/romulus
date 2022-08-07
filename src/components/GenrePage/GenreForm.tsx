@@ -3,12 +3,14 @@ import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { DefaultGenre } from '../../server/db/genre'
+import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
 
 const GenreFormFields = {
   name: '',
+  akas: '',
   shortDescription: '',
   longDescription: '',
   notes: '',
@@ -21,6 +23,7 @@ export const isGenreFormField = (t: string): t is keyof GenreFormFields =>
 
 export type GenreFormData = {
   name: string
+  akas: string[]
   shortDescription: string | null
   longDescription: string | null
   notes: string | null
@@ -43,6 +46,7 @@ const GenreForm: FC<{
   } = useForm<GenreFormFields>({
     defaultValues: {
       name: genre?.name ?? '',
+      akas: ifDefined(genre?.akas, (akas) => akas.join(', ')),
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
       notes: genre?.notes ?? '',
@@ -60,6 +64,7 @@ const GenreForm: FC<{
     (data: GenreFormFields) =>
       onSubmit({
         name: data.name,
+        akas: data.akas.split(',').map((s) => s.trim()),
         shortDescription:
           data.shortDescription.length > 0 ? data.shortDescription : null,
         longDescription:
@@ -96,6 +101,29 @@ const GenreForm: FC<{
               errors.name && 'border-red-600 outline-red-600'
             )}
             {...register('name', { required: 'Name is required' })}
+          />
+          {errors.name && (
+            <div className='text-sm text-red-600'>{errors.name.message}</div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='akas'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.akas && 'text-red-600'
+            )}
+          >
+            AKAs
+          </label>
+          <input
+            id='akas'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5',
+              errors.akas && 'border-red-600 outline-red-600'
+            )}
+            {...register('akas')}
           />
           {errors.name && (
             <div className='text-sm text-red-600'>{errors.name.message}</div>
