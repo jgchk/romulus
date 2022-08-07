@@ -1,14 +1,60 @@
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo } from 'react'
 
 import { DefaultGenre } from '../../server/db/genre'
+import { useSession } from '../../services/auth'
+import { useGenresQuery } from '../../services/genres'
 import { useGenreMap } from '../../utils/hooks'
+import { ButtonSecondary } from '../common/Button'
 
 const GenreTree: FC<{
-  genres: DefaultGenre[]
-  selectedId?: number
-}> = ({ genres, selectedId }) => {
+  selectedGenreId?: number
+}> = ({ selectedGenreId }) => {
+  const genresQuery = useGenresQuery()
+  const session = useSession()
+  const router = useRouter()
+
+  if (genresQuery.data) {
+    return (
+      <div className='w-full h-full flex flex-col'>
+        <div className='flex-1 p-4 overflow-auto'>
+          <Tree genres={genresQuery.data} selectedId={selectedGenreId} />
+        </div>
+        {session.isLoggedIn && (
+          <div className='p-1 border-t'>
+            <ButtonSecondary
+              className='w-full'
+              onClick={() => router.push({ pathname: '/genres/create' })}
+            >
+              New Genre
+            </ButtonSecondary>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (genresQuery.error) {
+    return (
+      <div className='w-full h-full flex items-center justify-center text-red-600'>
+        Error fetching genres :(
+      </div>
+    )
+  }
+
+  return (
+    <div className='w-full h-full flex items-center justify-center text-gray-400'>
+      Loading...
+    </div>
+  )
+}
+
+const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
+  genres,
+  selectedId,
+}) => {
   const topLevelGenres = useMemo(
     () => genres.filter((genre) => genre.parentGenres.length === 0),
     [genres]
