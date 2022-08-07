@@ -236,7 +236,11 @@ const GenreForm: FC<{
         <ButtonPrimary type='submit' className='flex-1'>
           Submit
         </ButtonPrimary>
-        <ButtonTertiary className='flex-1' onClick={() => onClose()}>
+        <ButtonTertiary
+          type='button'
+          className='flex-1'
+          onClick={() => onClose()}
+        >
           Cancel
         </ButtonTertiary>
       </div>

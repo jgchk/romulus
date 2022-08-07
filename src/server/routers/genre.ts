@@ -234,7 +234,32 @@ export const genreRouter = createRouter()
     resolve: async ({ input: { id }, ctx }) => {
       requireLogin(ctx)
 
-      await prisma.genre.delete({ where: { id } })
+      const genre = await prisma.genre.findUnique({
+        where: { id },
+        select: {
+          parentGenres: { select: { id: true } },
+          childGenres: { select: { id: true } },
+        },
+      })
+      if (!genre) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `No genre with id '${id}'`,
+        })
+      }
+
+      await prisma.$transaction([
+        ...genre.childGenres.flatMap((childGenre) =>
+          genre.parentGenres.map((parentGenre) =>
+            prisma.genre.update({
+              where: { id: childGenre.id },
+              data: { parentGenres: { connect: { id: parentGenre.id } } },
+            })
+          )
+        ),
+        prisma.genre.delete({ where: { id } }),
+      ])
+
       return { id }
     },
   })
