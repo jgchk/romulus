@@ -1,6 +1,15 @@
 import { trpc } from '../utils/trpc'
 
-export const useGenresQuery = () => trpc.useQuery(['genre.all'])
+export const useGenresQuery = () => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genre.all'], {
+    onSuccess: (data) => {
+      for (const genre of data) {
+        utils.setQueryData(['genre.byId', { id: genre.id }], genre)
+      }
+    },
+  })
+}
 
 export const useGenreQuery = (id: number) =>
   trpc.useQuery(['genre.byId', { id }])
