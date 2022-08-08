@@ -1,8 +1,11 @@
 import { Prisma } from '@prisma/client'
 
+export { GenreType } from '@prisma/client'
+
 export const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   id: true,
   name: true,
+  type: true,
   shortDescription: true,
   longDescription: true,
   startDate: true,

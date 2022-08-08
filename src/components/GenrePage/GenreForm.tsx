@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre, GenreType } from '../../server/db/genre'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 import Loader from '../common/Loader'
@@ -11,6 +11,7 @@ import GenreMultiselect from './GenreMultiselect'
 
 const GenreFormFields = {
   name: '',
+  type: GenreType.STYLE as GenreType,
   akas: '',
   shortDescription: '',
   longDescription: '',
@@ -24,6 +25,7 @@ export const isGenreFormField = (t: string): t is keyof GenreFormFields =>
 
 export type GenreFormData = {
   name: string
+  type: GenreType
   akas: string[]
   shortDescription: string | null
   longDescription: string | null
@@ -48,6 +50,7 @@ const GenreForm: FC<{
   } = useForm<GenreFormFields>({
     defaultValues: {
       name: genre?.name ?? '',
+      type: genre?.type ?? 'STYLE',
       akas: ifDefined(genre?.akas, (akas) => akas.join(', ')),
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
@@ -66,6 +69,7 @@ const GenreForm: FC<{
     (data: GenreFormFields) =>
       onSubmit({
         name: data.name,
+        type: data.type,
         akas: data.akas
           .split(',')
           .map((s) => s.trim())
@@ -132,6 +136,35 @@ const GenreForm: FC<{
           />
           {errors.akas && (
             <div className='text-sm text-red-600'>{errors.akas.message}</div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='type'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.type && 'text-red-600'
+            )}
+          >
+            Type
+          </label>
+          <select
+            id='type'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5 capitalize',
+              errors.type && 'border-red-600 outline-red-600'
+            )}
+            {...register('type')}
+          >
+            {Object.values(GenreType).map((type) => (
+              <option key={type} value={type}>
+                {type.toLowerCase()}
+              </option>
+            ))}
+          </select>
+          {errors.type && (
+            <div className='text-sm text-red-600'>{errors.type.message}</div>
           )}
         </div>
 

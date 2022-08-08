@@ -10,7 +10,7 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='text-lg font-bold text-gray-600 mb-4'>{genre.name}</div>
+      <div className='text-2xl font-bold text-gray-600 mb-4'>{genre.name}</div>
 
       <div className='space-y-3'>
         {genre.akas.length > 0 && (
@@ -21,6 +21,15 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             <div id='akas'>{genre.akas.join(', ')}</div>
           </div>
         )}
+
+        <div>
+          <label className='block text-gray-500 text-sm' htmlFor='type'>
+            Type
+          </label>
+          <div id='type' className='capitalize'>
+            {genre.type.toLowerCase()}
+          </div>
+        </div>
 
         {genre.parentGenres.length > 0 && (
           <div>

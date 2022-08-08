@@ -86,9 +86,18 @@ model TrackReview {
   text      String
 }
 
+enum GenreType {
+  MOVEMENT
+  META
+  STYLE
+  SCENE
+  TREND
+}
+
 model Genre {
   id               Int        @id @default(autoincrement())
   name             String
+  type             GenreType  @default(STYLE)
   shortDescription String?
   longDescription  String?
   notes            String?

@@ -14,6 +14,14 @@ const LocationData = z.object({
   country: z.string().min(1),
 })
 
+const GenreType = z.union([
+  z.literal('MOVEMENT'),
+  z.literal('META'),
+  z.literal('STYLE'),
+  z.literal('SCENE'),
+  z.literal('TREND'),
+])
+
 type BasicGenre = {
   id: number
   name: string
@@ -120,6 +128,7 @@ export const genreRouter = createRouter()
   .mutation('add', {
     input: z.object({
       name: z.string().min(1),
+      type: GenreType,
       shortDescription: z.string().min(1).optional(),
       longDescription: z.string().min(1).optional(),
       locations: z.union([LocationId, LocationData]).array().optional(),
@@ -208,6 +217,7 @@ export const genreRouter = createRouter()
       id: z.number(),
       data: z.object({
         name: z.string().min(1),
+        type: GenreType,
         shortDescription: z.string().min(1).optional().nullable(),
         longDescription: z.string().min(1).optional().nullable(),
         locations: z.union([LocationId, LocationData]).array().optional(),
