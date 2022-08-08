@@ -208,13 +208,22 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
 
   const genre = useMemo(() => genreMap[id], [genreMap, id])
 
-  const isExpanded = useMemo(
-    () =>
-      expanded[genre.id] === 'expanded' ||
-      (expanded[genre.id] === undefined &&
-        getDescendants(genre.id).some((id) => getMatchesFilter(id))),
-    [expanded, genre.id, getDescendants, getMatchesFilter]
+  const descendants = useMemo(
+    () => getDescendants(genre.id),
+    [genre.id, getDescendants]
   )
+
+  const isExpanded = useMemo(() => {
+    if (expanded[genre.id] === 'expanded') return true
+
+    if (expanded[genre.id] === undefined) {
+      if (selectedId !== undefined && descendants.includes(selectedId))
+        return true
+      if (descendants.some((id) => getMatchesFilter(id))) return true
+    }
+
+    return false
+  }, [descendants, expanded, genre.id, getMatchesFilter, selectedId])
 
   const children = useMemo(() => {
     let matchingChildren = genre.childGenres
