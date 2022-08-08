@@ -10,6 +10,7 @@ import {
   ButtonPrimaryRed,
   ButtonTertiary,
 } from '../common/Button'
+import { CenteredLoader } from '../common/Loader'
 import GenreViewData from './GenreViewData'
 
 export const GenreView: FC<{
@@ -25,7 +26,7 @@ export const GenreView: FC<{
     return <div>Error fetching genre :(</div>
   }
 
-  return <div>Loading...</div>
+  return <CenteredLoader />
 }
 
 const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {

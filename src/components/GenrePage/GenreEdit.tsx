@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 
 import { DefaultGenre } from '../../server/db/genre'
 import { useEditGenreMutation, useGenreQuery } from '../../services/genres'
+import { CenteredLoader } from '../common/Loader'
 import GenreForm, { GenreFormData, GenreFormFields } from './GenreForm'
 
 export const GenreEdit: FC<{
@@ -20,7 +21,7 @@ export const GenreEdit: FC<{
     return <div>Error fetching genre :(</div>
   }
 
-  return <div>Loading...</div>
+  return <CenteredLoader />
 }
 
 const HasData: FC<{

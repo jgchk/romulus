@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { FC, useState } from 'react'
 
+import { CenteredLoader } from '../../components/common/Loader'
 import GenreCanvas from '../../components/GenreCanvas'
 import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'
@@ -22,7 +23,7 @@ const Wrapper: NextPage = () => {
     return <div>Error while fetching genres :(</div>
   }
 
-  return <div>Loading...</div>
+  return <CenteredLoader />
 }
 
 export default Wrapper

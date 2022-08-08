@@ -8,6 +8,7 @@ import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { useGenreMap } from '../../utils/hooks'
 import { ButtonSecondary } from '../common/Button'
+import { CenteredLoader } from '../common/Loader'
 
 const GenreTree: FC<{
   selectedGenreId?: number
@@ -44,11 +45,7 @@ const GenreTree: FC<{
     )
   }
 
-  return (
-    <div className='w-full h-full flex items-center justify-center text-gray-400'>
-      Loading...
-    </div>
-  )
+  return <CenteredLoader />
 }
 
 const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({

@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 
+import { CenteredLoader } from '../../components/common/Loader'
 import { useReleasesQuery } from '../../services/releases'
 
 const Releases: NextPage = () => {
@@ -23,7 +24,7 @@ const Releases: NextPage = () => {
     return <div>Error while fetching releases :(</div>
   }
 
-  return <div>Loading...</div>
+  return <CenteredLoader />
 }
 
 export default Releases

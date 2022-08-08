@@ -4,6 +4,7 @@ import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'
 import { useGenreMap } from '../../utils/hooks'
+import { CenteredLoader } from '../common/Loader'
 
 const GenreMultiselect: FC<{
   id?: string
@@ -62,7 +63,7 @@ const GenreMultiselect: FC<{
 
   const renderOptions = useCallback(() => {
     if (!options) {
-      return <div className='px-2 py-1 text-sm text-gray-700'>Loading...</div>
+      return <CenteredLoader className='m-2' />
     }
 
     if (options.length === 0) {
