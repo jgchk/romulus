@@ -10,7 +10,7 @@ import {
   ButtonPrimaryRed,
   ButtonTertiary,
 } from '../common/Button'
-import { CenteredLoader } from '../common/Loader'
+import Loader, { CenteredLoader } from '../common/Loader'
 import GenreViewData from './GenreViewData'
 
 export const GenreView: FC<{
@@ -33,9 +33,10 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
   const session = useSession()
   const router = useRouter()
 
-  const [isDeleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const { mutate: deleteGenre } = useDeleteGenreMutation()
+  const { mutate: deleteGenre, isLoading: isDeleting } =
+    useDeleteGenreMutation()
   const handleDelete = useCallback(
     () =>
       deleteGenre(
@@ -55,21 +56,32 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       <GenreViewData genre={genre} />
 
       {session.isLoggedIn &&
-        (isDeleting ? (
+        (confirmDelete ? (
           <div className='border-t'>
             <div className='flex justify-center mt-1 text-gray-800'>
               Are you sure?
             </div>
             <div className='flex p-1 space-x-1'>
-              <ButtonPrimaryRed
-                className='flex-1'
-                onClick={() => handleDelete()}
-              >
-                Delete
-              </ButtonPrimaryRed>
+              {isDeleting ? (
+                <ButtonPrimary
+                  type='submit'
+                  className='flex-1 flex items-center justify-center space-x-2'
+                  disabled
+                >
+                  <Loader className='text-white' size={16} />
+                  <div>Deleting...</div>
+                </ButtonPrimary>
+              ) : (
+                <ButtonPrimaryRed
+                  className='flex-1'
+                  onClick={() => handleDelete()}
+                >
+                  Delete
+                </ButtonPrimaryRed>
+              )}
               <ButtonTertiary
                 className='flex-1'
-                onClick={() => setDeleting(false)}
+                onClick={() => setConfirmDelete(false)}
               >
                 Cancel
               </ButtonTertiary>
@@ -90,7 +102,7 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             </ButtonPrimary>
             <ButtonTertiary
               className='flex-1'
-              onClick={() => setDeleting(true)}
+              onClick={() => setConfirmDelete(true)}
             >
               Delete
             </ButtonTertiary>

@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { DefaultGenre } from '../../server/db/genre'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
+import Loader from '../common/Loader'
 import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
 
@@ -36,7 +37,8 @@ const GenreForm: FC<{
   onSubmit: (data: GenreFormData) => void
   onClose: () => void
   autoFocus?: keyof GenreFormFields
-}> = ({ genre, onSubmit, onClose, autoFocus }) => {
+  isSubmitting?: boolean
+}> = ({ genre, onSubmit, onClose, autoFocus, isSubmitting }) => {
   const {
     control,
     register,
@@ -233,9 +235,20 @@ const GenreForm: FC<{
       </div>
 
       <div className='flex p-1 space-x-1 border-t'>
-        <ButtonPrimary type='submit' className='flex-1'>
-          Submit
-        </ButtonPrimary>
+        {isSubmitting ? (
+          <ButtonPrimary
+            type='submit'
+            className='flex-1 flex items-center justify-center space-x-2'
+            disabled
+          >
+            <Loader className='text-white' size={16} />
+            <div>Submitting...</div>
+          </ButtonPrimary>
+        ) : (
+          <ButtonPrimary type='submit' className='flex-1'>
+            Submit
+          </ButtonPrimary>
+        )}
         <ButtonTertiary
           type='button'
           className='flex-1'

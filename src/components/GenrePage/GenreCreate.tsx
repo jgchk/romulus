@@ -8,7 +8,7 @@ import GenreForm, { GenreFormData } from './GenreForm'
 export const GenreCreate: FC = () => {
   const router = useRouter()
 
-  const { mutate } = useAddGenreMutation()
+  const { mutate, isLoading } = useAddGenreMutation()
   const handleCreate = useCallback(
     (data: GenreFormData) =>
       mutate(
@@ -35,6 +35,7 @@ export const GenreCreate: FC = () => {
     <GenreForm
       onSubmit={(data) => handleCreate(data)}
       onClose={() => router.push({ pathname: '/genres' })}
+      isSubmitting={isLoading}
     />
   )
 }

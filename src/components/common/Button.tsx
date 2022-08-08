@@ -14,6 +14,7 @@ export const ButtonPrimary: FC<PropsWithChildren<ButtonProps>> = ({
     className={clsx(
       'border-transparent bg-blue-600 text-white',
       'hover:bg-blue-700',
+      'disabled:bg-gray-600',
       commonStyles,
       className
     )}
@@ -32,6 +33,7 @@ export const ButtonPrimaryRed: FC<PropsWithChildren<ButtonProps>> = ({
     className={clsx(
       'border-transparent bg-red-600 text-white',
       'hover:bg-red-700',
+      'disabled:bg-gray-600',
       commonStyles,
       className
     )}
@@ -50,6 +52,7 @@ export const ButtonSecondary: FC<ButtonProps> = ({
     className={clsx(
       'border-blue-600 text-blue-600',
       'hover:bg-blue-200 hover:text-blue-700',
+      'disabled:border-gray-600 text-gray-600',
       commonStyles,
       className
     )}

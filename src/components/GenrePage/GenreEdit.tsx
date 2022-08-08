@@ -30,7 +30,7 @@ const HasData: FC<{
 }> = ({ genre, autoFocus }) => {
   const router = useRouter()
 
-  const { mutate: editGenre } = useEditGenreMutation()
+  const { mutate: editGenre, isLoading } = useEditGenreMutation()
   const handleEdit = useCallback(
     (data: GenreFormData) =>
       editGenre(
@@ -59,6 +59,7 @@ const HasData: FC<{
           query: { id: genre.id.toString() },
         })
       }
+      isSubmitting={isLoading}
     />
   )
 }
