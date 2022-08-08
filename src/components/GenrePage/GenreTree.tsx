@@ -52,9 +52,14 @@ const GenreTree: FC<{
 }
 
 const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
-  genres,
+  genres: unsortedGenres,
   selectedId,
 }) => {
+  const genres = useMemo(
+    () => unsortedGenres.sort((a, b) => a.name.localeCompare(b.name)),
+    [unsortedGenres]
+  )
+
   const topLevelGenres = useMemo(
     () => genres.filter((genre) => genre.parentGenres.length === 0),
     [genres]
