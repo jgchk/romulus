@@ -56,10 +56,10 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
     <div className='bg-texture w-full h-full flex items-center'>
       <div className='w-full h-full flex flex-col items-center p-4'>
         <div className='flex-1 min-h-0 flex justify-center w-full space-x-4'>
-          <div className='w-[250px] border bg-white shadow-sm rounded-sm'>
+          <div className='flex-[1] max-w-[350px] border bg-white shadow-sm rounded-sm'>
             <GenreTree selectedGenreId={state.id} />
           </div>
-          <div className='flex-1 max-w-[800px] border bg-white shadow-sm rounded-sm'>
+          <div className='flex-[3] max-w-[800px] border bg-white shadow-sm rounded-sm'>
             {renderGenre()}
           </div>
         </div>
