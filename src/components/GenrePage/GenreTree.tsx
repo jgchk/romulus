@@ -2,10 +2,19 @@ import anyAscii from 'any-ascii'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
+import {
+  createContext,
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
-import useGenreMap from '../../hooks/useGenreMap'
+import useGenreMap, { GenreMap } from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
@@ -50,13 +59,41 @@ const GenreTree: FC<{
   return <CenteredLoader />
 }
 
+type Expanded = Record<number, 'expanded' | 'collapsed' | undefined>
+
+type TreeContext = {
+  selectedId: number | undefined
+  filter: string
+  genreMap: GenreMap
+  expanded: Expanded
+  setExpanded: Dispatch<SetStateAction<Expanded>>
+  getDescendants: (id: number) => number[]
+  getMatchesFilter: (id: number) => boolean
+}
+
+const TreeContext = createContext<TreeContext>({
+  selectedId: undefined,
+  filter: '',
+  genreMap: {},
+  expanded: {},
+  setExpanded: () => {
+    throw new Error('Must use TreeContext inside of a TreeProvider')
+  },
+  getDescendants: () => {
+    throw new Error('Must use TreeContext inside of a TreeProvider')
+  },
+  getMatchesFilter: () => {
+    throw new Error('Must use TreeContext inside of a TreeProvider')
+  },
+})
+
+const useTreeContext = () => useContext(TreeContext)
+
 const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
   genres: unsortedGenres,
   selectedId,
 }) => {
-  const [expanded, setExpanded] = useState<
-    Record<number, 'expanded' | 'collapsed' | undefined>
-  >({})
+  const [expanded, setExpanded] = useState<Expanded>({})
   const [filter, setFilter] = useState('')
 
   const genreMap = useGenreMap(unsortedGenres)
@@ -116,97 +153,130 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
   const session = useSession()
 
-  const renderGenre = useCallback(
-    (genre: DefaultGenre) => {
-      const isExpanded =
-        expanded[genre.id] === 'expanded' ||
-        (expanded[genre.id] === undefined &&
-          getDescendants(genre.id).some((id) => getMatchesFilter(id)))
-
-      let matchingChildren = genre.childGenres
-      if (filter) {
-        matchingChildren = matchingChildren.filter((g) => {
-          const descendants = getDescendants(g.id)
-          return [g.id, ...descendants].some((id) => getMatchesFilter(id))
-        })
-      }
-
-      return (
-        <li
-          className={clsx(
-            genre.parentGenres.length > 0 && 'ml-4 border-l',
-            genre.parentGenres.some(({ id }) => selectedId === id) &&
-              'border-gray-400',
-            filter && getMatchesFilter(genre.id) && 'font-bold'
-          )}
-          key={genre.id}
-        >
-          <div className='ml-1 flex space-x-1'>
-            <button
-              className={clsx(
-                'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
-                genre.childGenres.length === 0 && 'invisible'
-              )}
-              onClick={() =>
-                setExpanded({
-                  ...expanded,
-                  [genre.id]: isExpanded ? 'collapsed' : 'expanded',
-                })
-              }
-            >
-              {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
-            </button>
-            <Link
-              href={{
-                pathname: '/genres/[id]',
-                query: { id: genre.id.toString() },
-              }}
-            >
-              <a
-                className={
-                  selectedId === genre.id
-                    ? 'text-blue-600 font-bold'
-                    : 'text-gray-600'
-                }
-              >
-                {genre.name}
-              </a>
-            </Link>
+  return (
+    <TreeContext.Provider
+      value={{
+        selectedId,
+        filter,
+        genreMap,
+        expanded,
+        setExpanded,
+        getDescendants,
+        getMatchesFilter,
+      }}
+    >
+      <div className='w-full h-full flex flex-col'>
+        <input
+          className='border rounded-sm p-1 px-2 mb-2 w-full'
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder='Filter...'
+        />
+        {genres.length > 0 ? (
+          <ul>
+            {topLevelGenres.map((genre) => (
+              <GenreNode key={genre.id} id={genre.id} />
+            ))}
+          </ul>
+        ) : (
+          <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
+            <div>No genres found.</div>
+            {session.isLoggedIn && (
+              <div>
+                <Link href={{ pathname: '/genres/create' }}>
+                  <a className='text-blue-500 hover:underline'>Create one.</a>
+                </Link>
+              </div>
+            )}
           </div>
-          {matchingChildren.length > 0 && isExpanded && (
-            <ul>
-              {matchingChildren.map(({ id }) => renderGenre(genreMap[id]))}
-            </ul>
-          )}
-        </li>
-      )
-    },
-    [expanded, filter, genreMap, getDescendants, getMatchesFilter, selectedId]
+        )}
+      </div>
+    </TreeContext.Provider>
+  )
+}
+
+const GenreNode: FC<{ id: number }> = ({ id }) => {
+  const {
+    selectedId,
+    filter,
+    genreMap,
+    expanded,
+    setExpanded,
+    getDescendants,
+    getMatchesFilter,
+  } = useTreeContext()
+
+  const genre = useMemo(() => genreMap[id], [genreMap, id])
+
+  const isExpanded = useMemo(
+    () =>
+      expanded[genre.id] === 'expanded' ||
+      (expanded[genre.id] === undefined &&
+        getDescendants(genre.id).some((id) => getMatchesFilter(id))),
+    [expanded, genre.id, getDescendants, getMatchesFilter]
   )
 
+  const children = useMemo(() => {
+    let matchingChildren = genre.childGenres
+    if (filter) {
+      matchingChildren = matchingChildren.filter((g) => {
+        const descendants = getDescendants(g.id)
+        return [g.id, ...descendants].some((id) => getMatchesFilter(id))
+      })
+    }
+    return matchingChildren
+  }, [filter, genre.childGenres, getDescendants, getMatchesFilter])
+
   return (
-    <div className='w-full h-full flex flex-col'>
-      <input
-        className='border rounded-sm p-1 px-2 mb-2 w-full'
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        placeholder='Filter...'
-      />
-      {genres.length > 0 ? (
-        <ul>{topLevelGenres.map((genre) => renderGenre(genre))}</ul>
-      ) : (
-        <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
-          <div>No genres found.</div>
-          {session.isLoggedIn && (
-            <div>
-              <Link href={{ pathname: '/genres/create' }}>
-                <a className='text-blue-500 hover:underline'>Create one.</a>
-              </Link>
-            </div>
-          )}
-        </div>
+    <li
+      className={clsx(
+        genre.parentGenres.length > 0 && 'ml-4 border-l',
+        genre.parentGenres.some(({ id }) => selectedId === id) &&
+          'border-gray-400',
+        filter && getMatchesFilter(genre.id) && 'font-bold'
       )}
-    </div>
+      key={genre.id}
+    >
+      <div className='ml-1 flex space-x-1'>
+        <button
+          className={clsx(
+            'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
+            genre.childGenres.length === 0 && 'invisible'
+          )}
+          onClick={() =>
+            setExpanded({
+              ...expanded,
+              [genre.id]: isExpanded ? 'collapsed' : 'expanded',
+            })
+          }
+        >
+          {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
+        </button>
+        <Link
+          href={{
+            pathname: '/genres/[id]',
+            query: { id: genre.id.toString() },
+          }}
+        >
+          <a
+            className={
+              selectedId === genre.id
+                ? 'text-blue-600 font-bold'
+                : 'text-gray-600'
+            }
+          >
+            {genre.name}
+          </a>
+        </Link>
+      </div>
+      {isExpanded && children.length > 0 && (
+        <ul>
+          {children.map(({ id }) => (
+            <GenreNode key={id} id={id} />
+          ))}
+        </ul>
+      )}
+    </li>
   )
 }
 
