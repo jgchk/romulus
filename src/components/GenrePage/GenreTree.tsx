@@ -98,15 +98,15 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
   if (genres.length === 0) {
     return (
-      <div className='w-full h-full flex items-center justify-center text-gray-400'>
-        <div>
-          No genres found.{' '}
-          {session.isLoggedIn && (
+      <div className='w-full h-full flex flex-col items-center justify-center text-gray-400'>
+        <div>No genres found.</div>
+        {session.isLoggedIn && (
+          <div>
             <Link href={{ pathname: '/genres/create' }}>
               <a className='text-blue-500 hover:underline'>Create one.</a>
             </Link>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     )
   }
