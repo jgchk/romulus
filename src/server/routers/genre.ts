@@ -130,7 +130,7 @@ export const genreRouter = createRouter()
       influencedByGenres: z.number().array().optional(),
       influencesGenres: z.number().array().optional(),
       notes: z.string().min(1).optional(),
-      akas: z.string().array(),
+      akas: z.string().min(1).array(),
     }),
     resolve: async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
@@ -220,7 +220,7 @@ export const genreRouter = createRouter()
         x: z.number().nullable().optional(),
         y: z.number().nullable().optional(),
         notes: z.string().min(1).optional().nullable(),
-        akas: z.string().array().optional(),
+        akas: z.string().min(1).array().optional(),
       }),
     }),
     resolve: async ({ input: { id, data }, ctx }) => {
