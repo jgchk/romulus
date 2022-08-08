@@ -5,10 +5,10 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
+import useGenreMap from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
-import { useGenreMap } from '../../utils/hooks'
 import { ButtonSecondary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
 

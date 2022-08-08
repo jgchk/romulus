@@ -5,12 +5,12 @@ import { Config } from 'tailwindcss'
 import resolveConfig from 'tailwindcss/resolveConfig'
 
 import tailwindConfig from '../../tailwind.config'
-import { isBrowser } from './dom'
-import { useIsomorphicEffect } from './hooks'
+import { isBrowser } from '../utils/dom'
+import useIsomorphicLayoutEffect from './useIsomorphicLayoutEffect'
 
 const config: Config = resolveConfig(tailwindConfig)
 
-export const useBreakpoint = (breakpoint: string, defaultValue = false) => {
+export const useBreakpoint = (breakpoint: string, defaultValue = true) => {
   const [match, setMatch] = useState(defaultValue)
   const matchRef = useRef(defaultValue)
 
@@ -24,7 +24,7 @@ export const useBreakpoint = (breakpoint: string, defaultValue = false) => {
     }
   }, [breakpoint, match])
 
-  useIsomorphicEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!(isBrowser && 'matchMedia' in window)) return undefined
 
     track()

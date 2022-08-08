@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { useSession } from '../../services/auth'
-import { useBreakpoint } from '../../utils/tailwind'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import { GenreFormFields } from './GenreForm'

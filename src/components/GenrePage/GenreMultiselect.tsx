@@ -2,9 +2,9 @@ import anyAscii from 'any-ascii'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
+import useGenreMap from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'
-import { useGenreMap } from '../../utils/hooks'
 import { CenteredLoader } from '../common/Loader'
 
 const GenreMultiselect: FC<{

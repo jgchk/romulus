@@ -1,8 +1,8 @@
 import { DndContext } from '@dnd-kit/core'
 import { FC, useCallback, useMemo, useState } from 'react'
 
+import useGenreMap from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
-import { useGenreMap } from '../../utils/hooks'
 import Canvas from './Canvas'
 import { CanvasContextProvider } from './CanvasContext'
 import {
