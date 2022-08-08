@@ -19,6 +19,7 @@
     "@trpc/next": "^9.26.2",
     "@trpc/react": "^9.26.2",
     "@trpc/server": "^9.26.2",
+    "any-ascii": "^0.3.1",
     "bcrypt": "^5.0.1",
     "clsx": "^1.2.1",
     "cookies": "^0.8.0",

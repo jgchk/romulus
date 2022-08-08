@@ -1,3 +1,4 @@
+import anyAscii from 'any-ascii'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
@@ -56,7 +57,9 @@ const GenreMultiselect: FC<{
         (genre) =>
           !(excludeIds ?? []).includes(genre.id) &&
           !selectedIds.includes(genre.id) &&
-          genre.name.toLowerCase().startsWith(inputValue.toLowerCase())
+          anyAscii(genre.name.toLowerCase()).includes(
+            anyAscii(inputValue.toLowerCase())
+          )
       ),
     [excludeIds, genresQuery.data, inputValue, selectedIds]
   )
