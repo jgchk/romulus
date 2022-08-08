@@ -118,12 +118,20 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
         (expanded[genre.id] === undefined &&
           getDescendants(genre.id).some((id) => getMatchesFilter(id)))
 
+      let matchingChildren = genre.childGenres
+      if (filter) {
+        matchingChildren = matchingChildren.filter((g) =>
+          getMatchesFilter(g.id)
+        )
+      }
+
       return (
         <li
           className={clsx(
             genre.parentGenres.length > 0 && 'ml-4 border-l',
             genre.parentGenres.some(({ id }) => selectedId === id) &&
-              'border-gray-400'
+              'border-gray-400',
+            filter && getMatchesFilter(genre.id) && 'font-bold'
           )}
           key={genre.id}
         >
@@ -159,15 +167,15 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
               </a>
             </Link>
           </div>
-          {genre.childGenres.length > 0 && isExpanded && (
+          {matchingChildren.length > 0 && isExpanded && (
             <ul>
-              {genre.childGenres.map(({ id }) => renderGenre(genreMap[id]))}
+              {matchingChildren.map(({ id }) => renderGenre(genreMap[id]))}
             </ul>
           )}
         </li>
       )
     },
-    [expanded, genreMap, getDescendants, getMatchesFilter, selectedId]
+    [expanded, filter, genreMap, getDescendants, getMatchesFilter, selectedId]
   )
 
   return (
