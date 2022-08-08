@@ -93,16 +93,21 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
     [filter, genreMap]
   )
 
+  const sortedGenres = useMemo(
+    () => unsortedGenres.sort((a, b) => a.name.localeCompare(b.name)),
+    [unsortedGenres]
+  )
+
   const genres = useMemo(() => {
-    let gs = unsortedGenres
+    let gs = sortedGenres
     if (filter) {
       gs = gs.filter((g) => {
         const descendants = getDescendants(g.id)
         return [g.id, ...descendants].some((id) => getMatchesFilter(id))
       })
     }
-    return gs.sort((a, b) => a.name.localeCompare(b.name))
-  }, [filter, getDescendants, getMatchesFilter, unsortedGenres])
+    return gs
+  }, [filter, getDescendants, getMatchesFilter, sortedGenres])
 
   const topLevelGenres = useMemo(
     () => genres.filter((genre) => genre.parentGenres.length === 0),
@@ -120,9 +125,10 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
       let matchingChildren = genre.childGenres
       if (filter) {
-        matchingChildren = matchingChildren.filter((g) =>
-          getMatchesFilter(g.id)
-        )
+        matchingChildren = matchingChildren.filter((g) => {
+          const descendants = getDescendants(g.id)
+          return [g.id, ...descendants].some((id) => getMatchesFilter(id))
+        })
       }
 
       return (
