@@ -72,9 +72,9 @@ const GenreMultiselect: FC<{
     }
 
     return options.map((item) => (
-      <li className='group hover:bg-stone-100' key={item.id}>
+      <li className='group hover:bg-gray-100' key={item.id}>
         <button
-          className='w-full text-left text-sm text-stone-700 px-2 py-1 border-b border-stone-200 group-last:border-0'
+          className='w-full text-left text-sm text-gray-700 px-2 py-1 border-b border-gray-200 group-last:border-0'
           type='button'
           onClick={() => {
             selectId(item.id)
@@ -91,7 +91,7 @@ const GenreMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
+      <div className='flex bg-white border focus-within:outline outline-1 focus-within:border-black rounded-sm'>
         <div
           className='flex-1 flex flex-wrap gap-1 w-full p-1'
           onClick={() => {
@@ -141,7 +141,7 @@ const GenreMultiselect: FC<{
           />
         </div>
         <button
-          className='px-1 border-l text-stone-400 border-stone-200 hover:bg-stone-100'
+          className='px-1 border-l text-gray-400 border-gray-200 hover:bg-gray-100'
           type='button'
           onClick={() => {
             setOpen(!open)
@@ -158,7 +158,7 @@ const GenreMultiselect: FC<{
       </div>
       {open && (
         <ul
-          className='absolute z-10 w-full bg-white border border-stone-300 shadow max-h-64 overflow-auto'
+          className='absolute z-10 w-full bg-white border shadow-sm max-h-64 overflow-auto'
           style={{ top: 'calc(100% - 1px)' }}
         >
           {renderOptions()}
@@ -172,7 +172,7 @@ const SelectedGenre: FC<{ genre: DefaultGenre; onRemove: () => void }> = ({
   genre,
   onRemove,
 }) => (
-  <div className='flex border border-gray-400 bg-gray-200 text-gray-600'>
+  <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
     <div className='flex items-center px-2 py-0.5 text-sm font-medium'>
       {genre.name}
     </div>
