@@ -64,10 +64,10 @@ const GenreForm: FC<{
     (data: GenreFormFields) =>
       onSubmit({
         name: data.name,
-        akas:
-          data.akas.length === 0
-            ? []
-            : data.akas.split(',').map((s) => s.trim()),
+        akas: data.akas
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0),
         shortDescription:
           data.shortDescription.length > 0 ? data.shortDescription : null,
         longDescription:
