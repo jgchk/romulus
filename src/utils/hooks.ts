@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
 import { DefaultGenre } from '../server/db/genre'
+import { isBrowser } from './dom'
 
 export const useAutoFocus = <T extends HTMLOrSVGElement>() => {
   const inputRef = useRef<T>(null)
@@ -21,3 +22,5 @@ export const useGenreMap = (
     () => Object.fromEntries(genres.map((genre) => [genre.id, genre])),
     [genres]
   )
+
+export const useIsomorphicEffect = isBrowser ? useLayoutEffect : useEffect

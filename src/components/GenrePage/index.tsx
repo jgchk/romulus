@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { FC } from 'react'
+import { FC, useCallback } from 'react'
 
 import { useSession } from '../../services/auth'
+import { useBreakpoint } from '../../utils/tailwind'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import { GenreFormFields } from './GenreForm'
@@ -28,25 +29,43 @@ export const genrePageState = {
 const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
   const session = useSession()
 
+  const isDesktop = useBreakpoint('md')
+
+  const renderGenre = useCallback(() => {
+    switch (state.type) {
+      case 'default':
+        return <GenreViewPlaceholder />
+      case 'view':
+        return <GenreView id={state.id} />
+      case 'edit':
+        return <GenreEdit id={state.id} autoFocus={state.autoFocus} />
+      case 'create':
+        return <GenreCreate />
+    }
+  }, [state])
+
+  if (!isDesktop) {
+    return state.type === 'default' ? (
+      <GenreTree selectedGenreId={state.id} />
+    ) : (
+      renderGenre()
+    )
+  }
+
   return (
     <div className='bg-texture w-full h-full flex items-center'>
-      <div className='w-full flex flex-col items-center'>
-        <div className='flex justify-center space-x-4'>
-          <div className='w-[250px] h-[800px] border bg-white shadow-sm '>
+      <div className='w-full h-full flex flex-col items-center p-4'>
+        <div className='flex-1 min-h-0 flex justify-center w-full space-x-4'>
+          <div className='w-[250px] border bg-white shadow-sm '>
             <GenreTree selectedGenreId={state.id} />
           </div>
-          <div className='w-[800px] h-[800px] border bg-white shadow-sm'>
-            {state.type === 'default' && <GenreViewPlaceholder />}
-            {state.type === 'view' && <GenreView id={state.id} />}
-            {state.type === 'edit' && (
-              <GenreEdit id={state.id} autoFocus={state.autoFocus} />
-            )}
-            {state.type === 'create' && <GenreCreate />}
+          <div className='flex-1 max-w-[800px] border bg-white shadow-sm'>
+            {renderGenre()}
           </div>
         </div>
 
         {session.isLoggedOut && (
-          <div className='mt-6 text-gray-700'>
+          <div className='mt-4 text-gray-700'>
             <Link href={{ pathname: '/login' }}>
               <a className='text-blue-500 hover:underline'>Log in</a>
             </Link>{' '}
