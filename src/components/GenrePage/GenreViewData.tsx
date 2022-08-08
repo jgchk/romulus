@@ -22,6 +22,28 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           </div>
         )}
 
+        {genre.parentGenres.length > 0 && (
+          <div>
+            <label className='block text-gray-500 text-sm' htmlFor='parents'>
+              Parents
+            </label>
+            <ul id='parents' className='comma-list'>
+              {genre.parentGenres.map(({ id, name }) => (
+                <li key={id}>
+                  <Link
+                    href={{
+                      pathname: '/genres/[id]',
+                      query: { id: id.toString() },
+                    }}
+                  >
+                    <a className='text-blue-500 hover:underline'>{name}</a>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {genre.influencedByGenres.length > 0 && (
           <div>
             <label className='block text-gray-500 text-sm' htmlFor='influences'>
