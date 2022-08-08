@@ -128,8 +128,8 @@ const GenreForm: FC<{
             )}
             {...register('akas')}
           />
-          {errors.name && (
-            <div className='text-sm text-red-600'>{errors.name.message}</div>
+          {errors.akas && (
+            <div className='text-sm text-red-600'>{errors.akas.message}</div>
           )}
         </div>
 
