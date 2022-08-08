@@ -1,7 +1,8 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
+import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
@@ -66,36 +67,67 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
   const session = useSession()
 
+  const [expanded, setExpanded] = useState<number[]>([])
+
   const renderGenre = useCallback(
-    (genre: DefaultGenre) => (
-      <li
-        className={clsx(
-          'ml-2',
-          selectedId === genre.id
-            ? 'text-blue-600 decoration-blue-600 font-bold'
-            : 'text-gray-600 decoration-gray-600'
-        )}
-        key={genre.id}
-      >
-        <Link
-          href={{
-            pathname: '/genres/[id]',
-            query: { id: genre.id.toString() },
-          }}
+    (genre: DefaultGenre) => {
+      const isExpanded = expanded.includes(genre.id)
+
+      return (
+        <li
+          className={clsx(
+            genre.parentGenres.length > 0 && 'ml-4 border-l',
+            genre.parentGenres.some(({ id }) => selectedId === id) &&
+              'border-gray-400'
+          )}
+          key={genre.id}
         >
-          <a>{genre.name}</a>
-        </Link>
-        {genre.childGenres.length > 0 && (
-          <ul className='list-disc list-inside'>
-            {genre.childGenres.map(({ id }) => {
-              const childGenre = genreMap[id]
-              return renderGenre(childGenre)
-            })}
-          </ul>
-        )}
-      </li>
-    ),
-    [genreMap, selectedId]
+          <div className='ml-1 flex space-x-1'>
+            <button
+              className={clsx(
+                'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
+                genre.childGenres.length === 0 && 'invisible'
+              )}
+              onClick={() => {
+                if (isExpanded) {
+                  setExpanded(expanded.filter((id) => id !== genre.id))
+                } else {
+                  setExpanded([...expanded, genre.id])
+                }
+              }}
+            >
+              {expanded.includes(genre.id) ? (
+                <RiArrowDownSLine />
+              ) : (
+                <RiArrowRightSLine />
+              )}
+            </button>
+            <Link
+              href={{
+                pathname: '/genres/[id]',
+                query: { id: genre.id.toString() },
+              }}
+            >
+              <a
+                className={
+                  selectedId === genre.id
+                    ? 'text-blue-600 font-bold'
+                    : 'text-gray-600'
+                }
+              >
+                {genre.name}
+              </a>
+            </Link>
+          </div>
+          {genre.childGenres.length > 0 && isExpanded && (
+            <ul>
+              {genre.childGenres.map(({ id }) => renderGenre(genreMap[id]))}
+            </ul>
+          )}
+        </li>
+      )
+    },
+    [expanded, genreMap, selectedId]
   )
 
   if (genres.length === 0) {
@@ -115,9 +147,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
   return (
     <div className='w-full h-full'>
-      <ul className='list-disc list-inside'>
-        {topLevelGenres.map((genre) => renderGenre(genre))}
-      </ul>
+      <ul>{topLevelGenres.map((genre) => renderGenre(genre))}</ul>
     </div>
   )
 }
