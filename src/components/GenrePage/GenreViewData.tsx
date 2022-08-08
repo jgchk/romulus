@@ -161,6 +161,7 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           <div id='contributors'>
             {genre.contributors.length > 0
               ? genre.contributors
+                  .reverse()
                   .map((contributor) => contributor.username)
                   .join(', ')
               : 'No contributors'}
