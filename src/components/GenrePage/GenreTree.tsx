@@ -62,6 +62,8 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 
   const genreMap = useGenreMap(genres)
 
+  const session = useSession()
+
   const renderGenre = useCallback(
     (genre: DefaultGenre) => (
       <li
@@ -97,7 +99,14 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
   if (genres.length === 0) {
     return (
       <div className='w-full h-full flex items-center justify-center text-gray-400'>
-        No genres found
+        <div>
+          No genres found.{' '}
+          {session.isLoggedIn && (
+            <Link href={{ pathname: '/genres/create' }}>
+              <a className='text-blue-500 hover:underline'>Create one.</a>
+            </Link>
+          )}
+        </div>
       </div>
     )
   }

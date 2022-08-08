@@ -2,7 +2,7 @@ import { FC } from 'react'
 
 export const GenreViewPlaceholder: FC = () => (
   <div className='w-full h-full flex items-center justify-center text-gray-400'>
-    Select a genre
+    Select a genre.
   </div>
 )
 
