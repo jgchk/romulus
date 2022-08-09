@@ -6,7 +6,7 @@ const GenreTreeSettings: FC = () => {
   const { showTypeTags, setShowTypeTags } = useGenreTreeSettings()
 
   return (
-    <div className='space-x-2'>
+    <div className='flex items-center space-x-2'>
       <input
         id='show-type-tags'
         type='checkbox'
