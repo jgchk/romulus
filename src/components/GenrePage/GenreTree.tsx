@@ -31,7 +31,7 @@ const GenreTree: FC<{
   if (genresQuery.data) {
     return (
       <div className='w-full h-full flex flex-col'>
-        <div className='flex-1 p-4 overflow-auto'>
+        <div className='flex-1 overflow-auto'>
           <Tree genres={genresQuery.data} selectedId={selectedGenreId} />
         </div>
         {session.isLoggedIn && (
@@ -166,18 +166,22 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
       }}
     >
       <div className='w-full h-full flex flex-col'>
-        <input
-          className='border rounded-sm p-1 px-2 mb-2 w-full'
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder='Filter...'
-        />
+        <div className='p-4'>
+          <input
+            className='border rounded-sm p-1 px-2 w-full'
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder='Filter...'
+          />
+        </div>
         {genres.length > 0 ? (
-          <ul className='overflow-auto'>
-            {topLevelGenres.map((genre) => (
-              <GenreNode key={genre.id} id={genre.id} />
-            ))}
-          </ul>
+          <div className='flex-1 overflow-auto p-4 pt-0'>
+            <ul>
+              {topLevelGenres.map((genre) => (
+                <GenreNode key={genre.id} id={genre.id} />
+              ))}
+            </ul>
+          </div>
         ) : (
           <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
             <div>No genres found.</div>
