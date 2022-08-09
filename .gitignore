@@ -37,5 +37,7 @@ yarn-error.log*
 # eslint
 .eslintcache
 
-# deployment
-ssh-key.pem
+# backups
+backup.sh
+restore.sh
+prisma/backups/
