@@ -20,6 +20,7 @@ import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { ButtonSecondary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
+import GenreTypeChip from './GenreTypeChip'
 
 const GenreTree: FC<{
   selectedGenreId?: number
@@ -284,6 +285,12 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
             }
           >
             {genre.name}
+            {genre.type !== 'STYLE' && (
+              <>
+                {' '}
+                <GenreTypeChip type={genre.type} />
+              </>
+            )}
           </a>
         </Link>
       </div>
