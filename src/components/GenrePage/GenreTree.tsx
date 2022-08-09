@@ -12,7 +12,11 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
+import {
+  RiArrowDownSLine,
+  RiArrowRightSLine,
+  RiSettings3Fill,
+} from 'react-icons/ri'
 
 import useGenreMap, { GenreMap } from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
@@ -20,6 +24,8 @@ import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { ButtonSecondary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
+import { useGenreTreeSettings } from './common'
+import GenreTreeSettings from './GenreTreeSettings'
 import GenreTypeChip from './GenreTypeChip'
 
 const GenreTree: FC<{
@@ -96,6 +102,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
 }) => {
   const [expanded, setExpanded] = useState<Expanded>({})
   const [filter, setFilter] = useState('')
+  const [showSettings, setShowSettings] = useState(false)
 
   const genreMap = useGenreMap(unsortedGenres)
 
@@ -170,16 +177,28 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
       }}
     >
       <div className='w-full h-full flex flex-col'>
-        <div className='p-4'>
+        <div className='p-4 flex space-x-1 border-b'>
           <input
             className='border rounded-sm p-1 px-2 w-full'
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder='Filter...'
           />
+          <button
+            className='p-2 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500'
+            title='Settings'
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            <RiSettings3Fill />
+          </button>
         </div>
+        {showSettings && (
+          <div className='border-b p-4'>
+            <GenreTreeSettings />
+          </div>
+        )}
         {genres.length > 0 ? (
-          <div className='flex-1 overflow-auto p-4 pt-0'>
+          <div className='flex-1 overflow-auto p-4'>
             <ul>
               {topLevelGenres.map((genre) => (
                 <GenreNode key={genre.id} id={genre.id} />
@@ -246,6 +265,8 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
     )
   }, [filter, genre.childGenres, getDescendants, getMatchesFilter])
 
+  const { showTypeTags } = useGenreTreeSettings()
+
   return (
     <li
       className={clsx(
@@ -285,7 +306,7 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
             }
           >
             {genre.name}
-            {genre.type !== 'STYLE' && (
+            {showTypeTags && genre.type !== 'STYLE' && (
               <>
                 {' '}
                 <GenreTypeChip type={genre.type} />

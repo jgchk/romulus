@@ -1,3 +1,6 @@
+import { useMemo } from 'react'
+
+import useLocalStorage from '../../hooks/useLocalStorage'
 import { GenreType } from '../../server/db/genre'
 
 export const genreTypeColors: Record<GenreType, string> = {
@@ -14,4 +17,21 @@ export const genreTypeBgColors: Record<GenreType, string> = {
   STYLE: 'bg-blue-100',
   SCENE: 'bg-emerald-100',
   TREND: 'bg-orange-100',
+}
+
+export const useGenreTreeSettings = () => {
+  const [showTypeTags, setShowTypeTags] = useLocalStorage(
+    'settings.genreTree.showTypeTags',
+    true
+  )
+
+  const data = useMemo(
+    () => ({
+      showTypeTags,
+      setShowTypeTags,
+    }),
+    [setShowTypeTags, showTypeTags]
+  )
+
+  return data
 }
