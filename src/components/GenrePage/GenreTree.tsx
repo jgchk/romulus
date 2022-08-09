@@ -7,7 +7,6 @@ import {
   Dispatch,
   FC,
   SetStateAction,
-  useCallback,
   useContext,
   useMemo,
   useState,
@@ -18,6 +17,7 @@ import {
   RiSettings3Fill,
 } from 'react-icons/ri'
 
+import useDebounce from '../../hooks/useDebounce'
 import useGenreMap, { GenreMap } from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
@@ -74,8 +74,8 @@ type TreeContext = {
   genreMap: GenreMap
   expanded: Expanded
   setExpanded: Dispatch<SetStateAction<Expanded>>
-  getDescendants: (id: number) => number[]
-  getMatchesFilter: (id: number) => boolean
+  descendants: Descendants
+  filterMatches: FilterMatches
 }
 
 const TreeContext = createContext<TreeContext>({
@@ -86,28 +86,57 @@ const TreeContext = createContext<TreeContext>({
   setExpanded: () => {
     throw new Error('Must use TreeContext inside of a TreeProvider')
   },
-  getDescendants: () => {
-    throw new Error('Must use TreeContext inside of a TreeProvider')
-  },
-  getMatchesFilter: () => {
-    throw new Error('Must use TreeContext inside of a TreeProvider')
-  },
+  descendants: {},
+  filterMatches: {},
 })
 
 const useTreeContext = () => useContext(TreeContext)
 
+type FilterMatches = Record<
+  number,
+  { name: boolean; aka?: string | undefined } | undefined
+>
+
+type Descendants = Record<number, number[]>
+
 const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
-  genres: unsortedGenres,
+  genres: allGenres,
   selectedId,
 }) => {
   const [expanded, setExpanded] = useState<Expanded>({})
   const [filter, setFilter] = useState('')
+  const asciiFilter_ = useMemo(() => anyAscii(filter.toLowerCase()), [filter])
+  const asciiFilter = useDebounce(asciiFilter_, 200)
   const [showSettings, setShowSettings] = useState(false)
 
-  const genreMap = useGenreMap(unsortedGenres)
+  const genreMap = useGenreMap(allGenres)
 
-  const getDescendants = useCallback(
-    (id: number) => {
+  const filterMatches = useMemo(() => {
+    const matches: FilterMatches = {}
+    if (!asciiFilter) return matches
+
+    for (const genre of allGenres) {
+      const matchesName = anyAscii(genre.name.toLowerCase()).includes(
+        asciiFilter
+      )
+      if (matchesName) {
+        matches[genre.id] = { name: true }
+        continue
+      }
+
+      const akaMatch = genre.akas.find((aka) =>
+        anyAscii(aka.toLowerCase()).includes(asciiFilter)
+      )
+      if (akaMatch) {
+        matches[genre.id] = { name: false, aka: akaMatch }
+      }
+    }
+
+    return matches
+  }, [allGenres, asciiFilter])
+
+  const descendants: Descendants = useMemo(() => {
+    const getDescendants = (id: number) => {
       const descendants: number[] = []
       const queue = [id]
 
@@ -122,44 +151,31 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
       }
 
       return descendants
-    },
-    [genreMap]
-  )
+    }
 
-  const getMatchesFilter = useCallback(
-    (id: number) => {
-      if (!filter) return false
+    return Object.fromEntries(
+      allGenres.map((genre) => [genre.id, getDescendants(genre.id)])
+    )
+  }, [allGenres, genreMap])
 
-      const genre = genreMap[id]
-      return anyAscii(genre.name.toLowerCase()).includes(
-        anyAscii(filter.toLowerCase())
+  const filteredGenres = useMemo(() => {
+    let gs = allGenres
+    if (asciiFilter) {
+      gs = gs.filter((g) =>
+        [g.id, ...descendants[g.id]].some((id) => filterMatches[id])
       )
-    },
-    [filter, genreMap]
-  )
-
-  const sortedGenres = useMemo(
-    () =>
-      unsortedGenres.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      ),
-    [unsortedGenres]
-  )
-
-  const genres = useMemo(() => {
-    let gs = sortedGenres
-    if (filter) {
-      gs = gs.filter((g) => {
-        const descendants = getDescendants(g.id)
-        return [g.id, ...descendants].some((id) => getMatchesFilter(id))
-      })
     }
     return gs
-  }, [filter, getDescendants, getMatchesFilter, sortedGenres])
+  }, [allGenres, asciiFilter, descendants, filterMatches])
 
   const topLevelGenres = useMemo(
-    () => genres.filter((genre) => genre.parentGenres.length === 0),
-    [genres]
+    () =>
+      filteredGenres
+        .filter((genre) => genre.parentGenres.length === 0)
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
+    [filteredGenres]
   )
 
   const session = useSession()
@@ -168,12 +184,12 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
     <TreeContext.Provider
       value={{
         selectedId,
-        filter,
+        filter: asciiFilter,
         genreMap,
         expanded,
         setExpanded,
-        getDescendants,
-        getMatchesFilter,
+        descendants,
+        filterMatches,
       }}
     >
       <div className='w-full h-full flex flex-col'>
@@ -197,7 +213,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
             <GenreTreeSettings />
           </div>
         )}
-        {genres.length > 0 ? (
+        {filteredGenres.length > 0 ? (
           <div className='flex-1 overflow-auto p-4'>
             <ul>
               {topLevelGenres.map((genre) => (
@@ -229,15 +245,30 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
     genreMap,
     expanded,
     setExpanded,
-    getDescendants,
-    getMatchesFilter,
+    descendants: allDescendants,
+    filterMatches,
   } = useTreeContext()
 
   const genre = useMemo(() => genreMap[id], [genreMap, id])
 
+  const genreName = useMemo(() => {
+    if (!filter) return genre.name
+
+    const match = filterMatches[genre.id]
+    if (!match?.name && match?.aka) {
+      return (
+        <>
+          {genre.name} <span className='text-sm'>({match.aka})</span>
+        </>
+      )
+    }
+
+    return genre.name
+  }, [filter, filterMatches, genre.id, genre.name])
+
   const descendants = useMemo(
-    () => getDescendants(genre.id),
-    [genre.id, getDescendants]
+    () => allDescendants[genre.id],
+    [allDescendants, genre.id]
   )
 
   const isExpanded = useMemo(() => {
@@ -246,24 +277,23 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
     if (expanded[genre.id] === undefined) {
       if (selectedId !== undefined && descendants.includes(selectedId))
         return true
-      if (descendants.some((id) => getMatchesFilter(id))) return true
+      if (descendants.some((id) => filterMatches[id])) return true
     }
 
     return false
-  }, [descendants, expanded, genre.id, getMatchesFilter, selectedId])
+  }, [descendants, expanded, filterMatches, genre.id, selectedId])
 
   const children = useMemo(() => {
     let matchingChildren = genre.childGenres
     if (filter) {
       matchingChildren = matchingChildren.filter((g) => {
-        const descendants = getDescendants(g.id)
-        return [g.id, ...descendants].some((id) => getMatchesFilter(id))
+        return [g.id, ...allDescendants[g.id]].some((id) => filterMatches[id])
       })
     }
     return matchingChildren.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase())
     )
-  }, [filter, genre.childGenres, getDescendants, getMatchesFilter])
+  }, [allDescendants, filter, filterMatches, genre.childGenres])
 
   const { showTypeTags } = useGenreTreeSettings()
 
@@ -273,7 +303,7 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
         genre.parentGenres.length > 0 && 'ml-4 border-l',
         genre.parentGenres.some(({ id }) => selectedId === id) &&
           'border-gray-400',
-        filter && getMatchesFilter(genre.id) && 'font-bold'
+        filter && filterMatches[genre.id] && 'font-bold'
       )}
       key={genre.id}
     >
@@ -305,7 +335,7 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
                 : 'text-gray-600'
             }
           >
-            {genre.name}
+            {genreName}
             {showTypeTags && genre.type !== 'STYLE' && (
               <>
                 {' '}
