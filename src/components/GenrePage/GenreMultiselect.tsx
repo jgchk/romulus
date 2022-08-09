@@ -76,18 +76,15 @@ const GenreMultiselect: FC<{
     }
 
     return options.map((item) => (
-      <li className='group hover:bg-gray-100' key={item.id}>
-        <button
-          className='w-full text-left text-sm text-gray-700 px-2 py-1 border-b border-gray-200 group-last:border-0'
-          type='button'
-          onClick={() => {
-            selectId(item.id)
-            setInputValue('')
-          }}
-        >
-          {item.name}
-        </button>
-      </li>
+      <Option
+        key={item.id}
+        genre={item}
+        options={options}
+        onClick={() => {
+          selectId(item.id)
+          setInputValue('')
+        }}
+      />
     ))
   }, [options, selectId])
 
@@ -169,6 +166,34 @@ const GenreMultiselect: FC<{
         </ul>
       )}
     </div>
+  )
+}
+
+const Option: FC<{
+  genre: DefaultGenre
+  options: DefaultGenre[]
+  onClick: () => void
+}> = ({ genre, options, onClick }) => {
+  const isOtherOptionWithSameName = useMemo(
+    () => options.some((g) => g.id !== genre.id && g.name === genre.name),
+    [genre.id, genre.name, options]
+  )
+
+  return (
+    <li className='group hover:bg-gray-100'>
+      <button
+        className='w-full text-left text-sm text-gray-700 px-2 py-1 border-b border-gray-200 group-last:border-0'
+        type='button'
+        onClick={() => onClick()}
+      >
+        {genre.name}{' '}
+        {isOtherOptionWithSameName && (
+          <span className='text-xs capitalize'>
+            ({genre.type.toLowerCase()})
+          </span>
+        )}
+      </button>
+    </li>
   )
 }
 
