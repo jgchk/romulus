@@ -1,32 +1,24 @@
 import anyAscii from 'any-ascii'
-import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import {
-  createContext,
-  Dispatch,
-  FC,
-  SetStateAction,
-  useContext,
-  useMemo,
-  useState,
-} from 'react'
-import {
-  RiArrowDownSLine,
-  RiArrowRightSLine,
-  RiSettings3Fill,
-} from 'react-icons/ri'
+import { FC, useMemo, useState } from 'react'
+import { RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../hooks/useDebounce'
-import useGenreMap, { GenreMap } from '../../hooks/useGenreMap'
+import useGenreMap from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { ButtonSecondary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
-import { useGenreTreeSettings } from './common'
+import {
+  Descendants,
+  Expanded,
+  FilterMatches,
+  TreeContext,
+} from './GenreTreeContext'
+import GenreTreeNode from './GenreTreeNode'
 import GenreTreeSettings from './GenreTreeSettings'
-import GenreTypeChip from './GenreTypeChip'
 
 const GenreTree: FC<{
   selectedGenreId?: number
@@ -65,39 +57,6 @@ const GenreTree: FC<{
 
   return <CenteredLoader />
 }
-
-type Expanded = Record<number, 'expanded' | 'collapsed' | undefined>
-
-type TreeContext = {
-  selectedId: number | undefined
-  filter: string
-  genreMap: GenreMap
-  expanded: Expanded
-  setExpanded: Dispatch<SetStateAction<Expanded>>
-  descendants: Descendants
-  filterMatches: FilterMatches
-}
-
-const TreeContext = createContext<TreeContext>({
-  selectedId: undefined,
-  filter: '',
-  genreMap: {},
-  expanded: {},
-  setExpanded: () => {
-    throw new Error('Must use TreeContext inside of a TreeProvider')
-  },
-  descendants: {},
-  filterMatches: {},
-})
-
-const useTreeContext = () => useContext(TreeContext)
-
-type FilterMatches = Record<
-  number,
-  { name: boolean; aka?: string | undefined } | undefined
->
-
-type Descendants = Record<number, number[]>
 
 const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
   genres: allGenres,
@@ -217,7 +176,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
           <div className='flex-1 overflow-auto p-4'>
             <ul>
               {topLevelGenres.map((genre) => (
-                <GenreNode key={genre.id} id={genre.id} />
+                <GenreTreeNode key={genre.id} id={genre.id} />
               ))}
             </ul>
           </div>
@@ -235,124 +194,6 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
         )}
       </div>
     </TreeContext.Provider>
-  )
-}
-
-const GenreNode: FC<{ id: number }> = ({ id }) => {
-  const {
-    selectedId,
-    filter,
-    genreMap,
-    expanded,
-    setExpanded,
-    descendants: allDescendants,
-    filterMatches,
-  } = useTreeContext()
-
-  const genre = useMemo(() => genreMap[id], [genreMap, id])
-
-  const genreName = useMemo(() => {
-    if (!filter) return genre.name
-
-    const match = filterMatches[genre.id]
-    if (!match?.name && match?.aka) {
-      return (
-        <>
-          {genre.name} <span className='text-sm'>({match.aka})</span>
-        </>
-      )
-    }
-
-    return genre.name
-  }, [filter, filterMatches, genre.id, genre.name])
-
-  const descendants = useMemo(
-    () => allDescendants[genre.id],
-    [allDescendants, genre.id]
-  )
-
-  const isExpanded = useMemo(() => {
-    if (expanded[genre.id] === 'expanded') return true
-
-    if (expanded[genre.id] === undefined) {
-      if (selectedId !== undefined && descendants.includes(selectedId))
-        return true
-      if (descendants.some((id) => filterMatches[id])) return true
-    }
-
-    return false
-  }, [descendants, expanded, filterMatches, genre.id, selectedId])
-
-  const children = useMemo(() => {
-    let matchingChildren = genre.childGenres
-    if (filter) {
-      matchingChildren = matchingChildren.filter((g) => {
-        return [g.id, ...allDescendants[g.id]].some((id) => filterMatches[id])
-      })
-    }
-    return matchingChildren.sort((a, b) =>
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    )
-  }, [allDescendants, filter, filterMatches, genre.childGenres])
-
-  const { showTypeTags } = useGenreTreeSettings()
-
-  return (
-    <li
-      className={clsx(
-        genre.parentGenres.length > 0 && 'ml-4 border-l',
-        genre.parentGenres.some(({ id }) => selectedId === id) &&
-          'border-gray-400',
-        filter && filterMatches[genre.id] && 'font-bold'
-      )}
-      key={genre.id}
-    >
-      <div className='ml-1 flex space-x-1'>
-        <button
-          className={clsx(
-            'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
-            genre.childGenres.length === 0 && 'invisible'
-          )}
-          onClick={() =>
-            setExpanded({
-              ...expanded,
-              [genre.id]: isExpanded ? 'collapsed' : 'expanded',
-            })
-          }
-        >
-          {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
-        </button>
-        <Link
-          href={{
-            pathname: '/genres/[id]',
-            query: { id: genre.id.toString() },
-          }}
-        >
-          <a
-            className={
-              selectedId === genre.id
-                ? 'text-blue-600 font-bold'
-                : 'text-gray-600'
-            }
-          >
-            {genreName}
-            {showTypeTags && genre.type !== 'STYLE' && (
-              <>
-                {' '}
-                <GenreTypeChip type={genre.type} />
-              </>
-            )}
-          </a>
-        </Link>
-      </div>
-      {isExpanded && children.length > 0 && (
-        <ul>
-          {children.map(({ id }) => (
-            <GenreNode key={id} id={id} />
-          ))}
-        </ul>
-      )}
-    </li>
   )
 }
 
