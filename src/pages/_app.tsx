@@ -10,6 +10,7 @@ import {
   QueryClientProvider,
 } from 'react-query'
 
+import ErrorBoundary from '../components/ErrorBoundary'
 import Layout from '../components/Layout'
 import { AppRouter } from '../server/routers/_app'
 import { isBrowser } from '../utils/dom'
@@ -57,11 +58,15 @@ const queryClient = new QueryClient({
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <ErrorBoundary>
+            <Component {...pageProps} />
+          </ErrorBoundary>
+        </Layout>
+      </QueryClientProvider>
+    </ErrorBoundary>
   )
 }
 
