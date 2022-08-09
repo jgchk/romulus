@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { FC, useState } from 'react'
+import { FC, useCallback, useState } from 'react'
 import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../hooks/useDebounce'
@@ -17,7 +17,12 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
 
   const [showSettings, setShowSettings] = useState(false)
   const [filter, setFilter] = useState('')
-  const debouncedFilter = useDebounce(filter, 200)
+  const [debouncedFilter, setDebouncedFilter] = useDebounce(filter, 200)
+
+  const clearFilter = useCallback(() => {
+    setFilter('')
+    setDebouncedFilter('')
+  }, [setDebouncedFilter])
 
   return (
     <div className='w-full h-full flex flex-col'>
@@ -33,7 +38,7 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
             <div className='absolute right-1 top-0 h-full flex items-center'>
               <button
                 className='p-1 hover:bg-gray-200 rounded-full text-gray-500'
-                onClick={() => setFilter('')}
+                onClick={() => clearFilter()}
               >
                 <RiCloseFill />
               </button>
@@ -55,14 +60,17 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
       )}
       {debouncedFilter && (
         <div className='border-b flex justify-center'>
-          <ButtonTertiary className='w-full' onClick={() => setFilter('')}>
+          <ButtonTertiary className='w-full' onClick={() => clearFilter()}>
             Back to Tree
           </ButtonTertiary>
         </div>
       )}
       <div className='flex-1 overflow-auto'>
         {debouncedFilter ? (
-          <GenreSearchResults filter={debouncedFilter} setFilter={setFilter} />
+          <GenreSearchResults
+            filter={debouncedFilter}
+            clearFilter={clearFilter}
+          />
         ) : (
           <GenreTree selectedGenreId={selectedGenreId} />
         )}

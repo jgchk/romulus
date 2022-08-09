@@ -9,7 +9,7 @@ import { CenteredLoader } from '../common/Loader'
 import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
 
-type Props = { filter: string; setFilter: (s: string) => void }
+type Props = { filter: string; clearFilter: () => void }
 type Match = { genre: DefaultGenre; matchedAka?: string; weight: number }
 
 const toFilterString = (s: string) => anyAscii(s.toLowerCase())
@@ -52,7 +52,7 @@ const GenreSearchResults: FC<Props> = (props) => {
 
 const HasData: FC<Props & { allGenres: DefaultGenre[] }> = ({
   filter,
-  setFilter,
+  clearFilter,
   allGenres,
 }) => {
   const matches = useMemo(() => {
@@ -91,16 +91,16 @@ const HasData: FC<Props & { allGenres: DefaultGenre[] }> = ({
         <SearchResult
           key={match.genre.id}
           match={match}
-          setFilter={setFilter}
+          clearFilter={clearFilter}
         />
       ))}
     </div>
   )
 }
 
-const SearchResult: FC<{ match: Match; setFilter: Props['setFilter'] }> = ({
+const SearchResult: FC<{ match: Match; clearFilter: Props['clearFilter'] }> = ({
   match: { genre, matchedAka },
-  setFilter,
+  clearFilter,
 }) => {
   const { showTypeTags } = useGenreTreeSettings()
 
@@ -110,7 +110,7 @@ const SearchResult: FC<{ match: Match; setFilter: Props['setFilter'] }> = ({
     >
       <a
         className='block text-gray-700 hover:font-bold'
-        onClick={() => setFilter('')}
+        onClick={() => clearFilter()}
       >
         {genre.name}
         {matchedAka && (
