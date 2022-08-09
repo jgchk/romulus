@@ -6,6 +6,7 @@ import useGenreMap from '../../hooks/useGenreMap'
 import { DefaultGenre } from '../../server/db/genre'
 import { useGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
+import GenreTypeChip from './GenreTypeChip'
 
 const GenreMultiselect: FC<{
   id?: string
@@ -186,11 +187,12 @@ const Option: FC<{
         type='button'
         onClick={() => onClick()}
       >
-        {genre.name}{' '}
-        {isOtherOptionWithSameName && (
-          <span className='text-xs capitalize'>
-            ({genre.type.toLowerCase()})
-          </span>
+        {genre.name}
+        {isOtherOptionWithSameName && genre.type !== 'STYLE' && (
+          <>
+            {' '}
+            <GenreTypeChip type={genre.type} />
+          </>
         )}
       </button>
     </li>
