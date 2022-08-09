@@ -10,30 +10,13 @@ import GenreTypeChip from './GenreTypeChip'
 const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
   const {
     selectedId,
-    filter,
     genreMap,
     expanded,
     setExpanded,
     descendants: allDescendants,
-    filterMatches,
   } = useTreeContext()
 
   const genre = useMemo(() => genreMap[id], [genreMap, id])
-
-  const genreName = useMemo(() => {
-    if (!filter) return genre.name
-
-    const match = filterMatches[genre.id]
-    if (!match?.name && match?.aka) {
-      return (
-        <>
-          {genre.name} <span className='text-sm'>({match.aka})</span>
-        </>
-      )
-    }
-
-    return genre.name
-  }, [filter, filterMatches, genre.id, genre.name])
 
   const descendants = useMemo(
     () => allDescendants[genre.id],
@@ -43,26 +26,23 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
   const isExpanded = useMemo(() => {
     if (expanded[genre.id] === 'expanded') return true
 
-    if (expanded[genre.id] === undefined) {
-      if (selectedId !== undefined && descendants.includes(selectedId))
-        return true
-      if (descendants.some((id) => filterMatches[id])) return true
-    }
+    if (
+      expanded[genre.id] === undefined &&
+      selectedId !== undefined &&
+      descendants.includes(selectedId)
+    )
+      return true
 
     return false
-  }, [descendants, expanded, filterMatches, genre.id, selectedId])
+  }, [descendants, expanded, genre.id, selectedId])
 
-  const children = useMemo(() => {
-    let matchingChildren = genre.childGenres
-    if (filter) {
-      matchingChildren = matchingChildren.filter((g) => {
-        return [g.id, ...allDescendants[g.id]].some((id) => filterMatches[id])
-      })
-    }
-    return matchingChildren.sort((a, b) =>
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    )
-  }, [allDescendants, filter, filterMatches, genre.childGenres])
+  const children = useMemo(
+    () =>
+      genre.childGenres.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      ),
+    [genre.childGenres]
+  )
 
   const { showTypeTags } = useGenreTreeSettings()
 
@@ -71,8 +51,7 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
       className={clsx(
         genre.parentGenres.length > 0 && 'ml-4 border-l',
         genre.parentGenres.some(({ id }) => selectedId === id) &&
-          'border-gray-400',
-        filter && filterMatches[genre.id] && 'font-bold'
+          'border-gray-400'
       )}
       key={genre.id}
     >
@@ -104,7 +83,7 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
                 : 'text-gray-600'
             }
           >
-            {genreName}
+            {genre.name}
             {showTypeTags && genre.type !== 'STYLE' && (
               <>
                 {' '}

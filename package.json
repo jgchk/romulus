@@ -34,6 +34,7 @@
     "react-icons": "^4.4.0",
     "react-markdown": "^8.0.3",
     "react-query": "3",
+    "string-similarity": "^4.0.4",
     "validator": "^13.7.0",
     "zod": "^3.17.10"
   },
@@ -45,6 +46,7 @@
     "@types/node": "18.6.0",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
+    "@types/string-similarity": "^4.0.0",
     "@types/validator": "^13.7.4",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",

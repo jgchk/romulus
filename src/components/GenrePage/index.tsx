@@ -6,6 +6,7 @@ import { useSession } from '../../services/auth'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import { GenreFormFields } from './GenreForm'
+import GenreNavigator from './GenreNavigator'
 import GenreTree from './GenreTree'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
@@ -57,7 +58,7 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
       <div className='w-full h-full flex flex-col items-center p-4'>
         <div className='flex-1 min-h-0 flex justify-center w-full space-x-4'>
           <div className='flex-[1] max-w-[350px] border bg-white shadow-sm rounded-sm'>
-            <GenreTree selectedGenreId={state.id} />
+            <GenreNavigator selectedGenreId={state.id} />
           </div>
           <div className='flex-[3] max-w-[800px] border bg-white shadow-sm rounded-sm'>
             {renderGenre()}
