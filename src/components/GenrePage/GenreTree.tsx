@@ -131,7 +131,10 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
   )
 
   const sortedGenres = useMemo(
-    () => unsortedGenres.sort((a, b) => a.name.localeCompare(b.name)),
+    () =>
+      unsortedGenres.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      ),
     [unsortedGenres]
   )
 
@@ -237,7 +240,9 @@ const GenreNode: FC<{ id: number }> = ({ id }) => {
         return [g.id, ...descendants].some((id) => getMatchesFilter(id))
       })
     }
-    return matchingChildren
+    return matchingChildren.sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    )
   }, [filter, genre.childGenres, getDescendants, getMatchesFilter])
 
   return (
