@@ -173,7 +173,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
           placeholder='Filter...'
         />
         {genres.length > 0 ? (
-          <ul>
+          <ul className='overflow-auto'>
             {topLevelGenres.map((genre) => (
               <GenreNode key={genre.id} id={genre.id} />
             ))}
