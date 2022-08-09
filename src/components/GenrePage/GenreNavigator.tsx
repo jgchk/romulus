@@ -4,7 +4,7 @@ import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../hooks/useDebounce'
 import { useSession } from '../../services/auth'
-import { ButtonSecondary } from '../common/Button'
+import { ButtonSecondary, ButtonTertiary } from '../common/Button'
 import GenreSearchResults from './GenreSearchResults'
 import GenreTree from './GenreTree'
 import GenreTreeSettings from './GenreTreeSettings'
@@ -51,6 +51,13 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
       {showSettings && (
         <div className='border-b p-4'>
           <GenreTreeSettings />
+        </div>
+      )}
+      {debouncedFilter && (
+        <div className='border-b flex justify-center'>
+          <ButtonTertiary className='w-full' onClick={() => setFilter('')}>
+            Back to Tree
+          </ButtonTertiary>
         </div>
       )}
       <div className='flex-1 overflow-auto'>
