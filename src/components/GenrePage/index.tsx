@@ -7,7 +7,6 @@ import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import { GenreFormFields } from './GenreForm'
 import GenreNavigator from './GenreNavigator'
-import GenreTree from './GenreTree'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
 
@@ -47,7 +46,7 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
 
   if (!isDesktop) {
     return state.type === 'default' ? (
-      <GenreTree selectedGenreId={state.id} />
+      <GenreNavigator selectedGenreId={state.id} />
     ) : (
       renderGenre()
     )
