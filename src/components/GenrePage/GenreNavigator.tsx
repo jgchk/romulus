@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
-import { RiSettings3Fill } from 'react-icons/ri'
+import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../hooks/useDebounce'
 import { useSession } from '../../services/auth'
@@ -22,12 +22,24 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
   return (
     <div className='w-full h-full flex flex-col'>
       <div className='p-4 flex space-x-1 border-b'>
-        <input
-          className='border rounded-sm p-1 px-2 w-full'
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder='Filter...'
-        />
+        <div className='flex-1 relative'>
+          <input
+            className='border rounded-sm p-1 px-2 pr-7 w-full'
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder='Filter...'
+          />
+          {filter && (
+            <div className='absolute right-1 top-0 h-full flex items-center'>
+              <button
+                className='p-1 hover:bg-gray-200 rounded-full text-gray-500'
+                onClick={() => setFilter('')}
+              >
+                <RiCloseFill />
+              </button>
+            </div>
+          )}
+        </div>
         <button
           className='p-2 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500'
           title='Settings'
