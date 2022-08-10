@@ -48,7 +48,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
         if (currId === undefined) break
 
         const currGenre = genreMap[currId]
-        const childIds = currGenre.childGenres.map((g) => g.id) ?? []
+        const childIds = (currGenre?.childGenres ?? []).map((g) => g.id) ?? []
         descendants.push(...childIds)
         queue.push(...childIds)
       }
