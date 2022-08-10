@@ -4,8 +4,19 @@ import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
 
+export const useWhoamiQuery = () => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['auth.whoami'], {
+    onSuccess: (data) => {
+      if (data) {
+        utils.setQueryData(['account.byId', { id: data.id }], data)
+      }
+    },
+  })
+}
+
 export const useSession = () => {
-  const whoamiQuery = trpc.useQuery(['auth.whoami'])
+  const whoamiQuery = useWhoamiQuery()
 
   const isLoggedIn = useMemo(() => {
     if (!whoamiQuery.isSuccess) return undefined

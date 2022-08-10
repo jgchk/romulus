@@ -26,7 +26,14 @@ const Navbar: FC = () => {
     if (session.isSuccess) {
       return session.data ? (
         <>
-          <span>{session.data.username}</span>
+          <Link
+            href={{
+              pathname: '/accounts/[id]',
+              query: { id: session.data.id.toString() },
+            }}
+          >
+            <a>{session.data.username}</a>
+          </Link>
           <button onClick={() => logout()}>Log out</button>
         </>
       ) : (

@@ -5,6 +5,7 @@
 // prettier-ignore
 declare module "nextjs-routes" {
   export type Route =
+    | { pathname: "/accounts/[id]"; query: Query<{ id: string }> }
     | { pathname: "/api/login"; query?: Query | undefined }
     | { pathname: "/api/logout"; query?: Query | undefined }
     | { pathname: "/api/register"; query?: Query | undefined }

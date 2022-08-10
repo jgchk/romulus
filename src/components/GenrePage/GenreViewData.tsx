@@ -158,16 +158,20 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           <label className='block text-gray-500 text-sm' htmlFor='contributors'>
             Contributors
           </label>
-          <div id='contributors'>
-            {genre.contributors.length > 0
-              ? genre.contributors
-                  .map((contributor) => contributor.username)
-                  .sort((a, b) =>
-                    a.toLowerCase().localeCompare(b.toLowerCase())
-                  )
-                  .join(', ')
-              : 'No contributors'}
-          </div>
+          <ul id='contributors' className='comma-list'>
+            {genre.contributors.map(({ id, username }) => (
+              <li key={id}>
+                <Link
+                  href={{
+                    pathname: '/accounts/[id]',
+                    query: { id: id.toString() },
+                  }}
+                >
+                  <a className='text-blue-500 hover:underline'>{username}</a>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

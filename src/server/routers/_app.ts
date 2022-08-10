@@ -2,6 +2,7 @@
  * This file contains the root router of your tRPC-backend
  */
 import { createRouter } from '../createRouter'
+import { accountRouter } from './account'
 import { artistRouter } from './artist'
 import { authRouter } from './auth'
 import { genreRouter } from './genre'
@@ -23,5 +24,6 @@ export const appRouter = createRouter()
   .merge('artist.', artistRouter)
   .merge('release.', releaseRouter)
   .merge('genre.', genreRouter)
+  .merge('account.', accountRouter)
 
 export type AppRouter = typeof appRouter
