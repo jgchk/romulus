@@ -46,34 +46,31 @@ export const genreHistoryRouter = createRouter()
         include: { history: true, contributors: true },
       })
 
-      await Promise.all(
-        allGenres.flatMap(async (genre) => {
-          if (genre.history.length > 0) return
+      for (const genre of allGenres) {
+        if (genre.history.length > 0) continue
 
-          if (genre.contributors.length === 1) {
-            const contributor = genre.contributors[0]
-            return addGenreHistoryById(
+        if (genre.contributors.length === 1) {
+          const contributor = genre.contributors[0]
+          await addGenreHistoryById(
+            genre.id,
+            GenreOperation.CREATE,
+            contributor.id
+          )
+        } else {
+          await addGenreHistoryById(
+            genre.id,
+            GenreOperation.CREATE,
+            systemAccount.id
+          )
+
+          for (const contributor of genre.contributors) {
+            await addGenreHistoryById(
               genre.id,
-              GenreOperation.CREATE,
+              GenreOperation.UPDATE,
               contributor.id
             )
-          } else {
-            return [
-              addGenreHistoryById(
-                genre.id,
-                GenreOperation.CREATE,
-                systemAccount.id
-              ),
-              ...genre.contributors.map((contributor) =>
-                addGenreHistoryById(
-                  genre.id,
-                  GenreOperation.UPDATE,
-                  contributor.id
-                )
-              ),
-            ]
           }
-        })
-      )
+        }
+      }
     },
   })
