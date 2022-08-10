@@ -9,6 +9,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from 'react-query'
+import superjson from 'superjson'
 
 import ErrorBoundary from '../components/ErrorBoundary'
 import Layout from '../components/Layout'
@@ -22,7 +23,7 @@ const queryCache = new QueryCache({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (query.options.showToast) {
-      showErrorToast(error)
+      void showErrorToast(error)
     }
   },
 })
@@ -33,7 +34,7 @@ const mutationCache = new MutationCache({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (mutation.options.showToast) {
-      showErrorToast(error)
+      void showErrorToast(error)
     }
   },
 })
@@ -98,6 +99,7 @@ export default withTRPC<AppRouter>({
 
     return {
       url,
+      transformer: superjson,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */

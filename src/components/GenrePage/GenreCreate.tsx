@@ -19,9 +19,9 @@ export const GenreCreate: FC = () => {
           notes: data.notes ?? undefined,
         },
         {
-          onSuccess: (data) => {
+          onSuccess: async (data) => {
             toast.success(`Created genre '${data.name}'`)
-            router.push({
+            await router.push({
               pathname: '/genres/[id]',
               query: { id: data.id.toString() },
             })
@@ -34,7 +34,7 @@ export const GenreCreate: FC = () => {
   return (
     <GenreForm
       onSubmit={(data) => handleCreate(data)}
-      onClose={() => router.push({ pathname: '/genres' })}
+      onClose={() => void router.push({ pathname: '/genres' })}
       isSubmitting={isLoading}
     />
   )

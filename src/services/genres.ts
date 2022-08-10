@@ -17,8 +17,12 @@ export const useGenreQuery = (id: number) =>
 export const useAddGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.add'], {
-    onSuccess: () => {
-      utils.invalidateQueries(['genre.all'])
+    onSuccess: async () => {
+      await Promise.all([
+        utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.history.byGenreId']),
+        utils.invalidateQueries(['genre.history.byUserId']),
+      ])
     },
   })
 }
@@ -26,9 +30,13 @@ export const useAddGenreMutation = () => {
 export const useEditGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.edit'], {
-    onSuccess: (data) => {
-      utils.invalidateQueries(['genre.all'])
+    onSuccess: async (data) => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
+      await Promise.all([
+        utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.history.byGenreId']),
+        utils.invalidateQueries(['genre.history.byUserId']),
+      ])
     },
   })
 }
@@ -36,9 +44,31 @@ export const useEditGenreMutation = () => {
 export const useDeleteGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.delete'], {
-    onSuccess: (data, { id }) => {
-      utils.invalidateQueries(['genre.all'])
-      utils.invalidateQueries(['genre.byId', { id }])
+    onSuccess: async (data, { id }) => {
+      await Promise.all([
+        utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.byId', { id }]),
+        utils.invalidateQueries(['genre.history.byGenreId']),
+        utils.invalidateQueries(['genre.history.byUserId']),
+      ])
+    },
+  })
+}
+
+export const useGenreHistoryQuery = (id: number) =>
+  trpc.useQuery(['genre.history.byGenreId', { id }])
+
+export const useGenreHistoryByUserQuery = (id: number) =>
+  trpc.useQuery(['genre.history.byUserId', { id }])
+
+export const useMigrateContributorsMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['genre.history.migrateContributors'], {
+    onSuccess: async () => {
+      await Promise.all([
+        utils.invalidateQueries(['genre.history.byGenreId']),
+        utils.invalidateQueries(['genre.history.byUserId']),
+      ])
     },
   })
 }

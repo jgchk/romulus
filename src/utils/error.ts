@@ -10,10 +10,12 @@ const formatZodError = (issues: ZodIssue[]) => {
     .join('\n')
 }
 
-export const getErrorMessage = async (error: unknown) => {
+export const getErrorMessage = async (error: unknown): Promise<string> => {
   if (error instanceof TRPCClientError) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const issues = JSON.parse(error.message)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return formatZodError(issues)
     } catch {
       // ignore
@@ -21,16 +23,20 @@ export const getErrorMessage = async (error: unknown) => {
   }
 
   if (error instanceof HTTPError) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const body = await error.response.json()
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       const issues = JSON.parse(body.message)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return formatZodError(issues)
     } catch {
       // ignore
     }
 
     if ('message' in body) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return body.message
     }
   }
@@ -41,4 +47,5 @@ export const getErrorMessage = async (error: unknown) => {
 }
 
 export const showErrorToast = async (error: unknown) =>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   toast.error(await getErrorMessage(error))

@@ -19,7 +19,7 @@ const Login: NextPage = () => {
   const router = useRouter()
   useEffect(() => {
     if (session.isLoggedIn) {
-      router.push({ pathname: '/genres' })
+      void router.push({ pathname: '/genres' })
     }
   }, [router, session.isLoggedIn])
 
@@ -42,7 +42,7 @@ const Login: NextPage = () => {
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <form
         className='border p-4 shadow bg-white'
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(e) => void handleSubmit(onSubmit)(e)}
       >
         <div className='space-y-3'>
           <div>

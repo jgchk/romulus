@@ -3,7 +3,7 @@ import { FC, useState } from 'react'
 
 import { CenteredLoader } from '../../components/common/Loader'
 import GenreCanvas from '../../components/GenreCanvas'
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre } from '../../server/db/genre/types'
 import { useGenresQuery } from '../../services/genres'
 
 const Canvas: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {

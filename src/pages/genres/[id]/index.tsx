@@ -12,7 +12,7 @@ const Genre: NextPage = () => {
   const router = useRouter()
   useEffect(() => {
     if (id === undefined) {
-      router.push({ pathname: '/genres' })
+      void router.push({ pathname: '/genres' })
     }
   }, [id, router])
 

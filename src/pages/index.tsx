@@ -6,7 +6,7 @@ const Home: NextPage = () => {
   const router = useRouter()
 
   useEffect(() => {
-    router.push({ pathname: '/genres' })
+    void router.push({ pathname: '/genres' })
   }, [router])
 
   return <div />

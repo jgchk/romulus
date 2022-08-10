@@ -52,7 +52,7 @@ export const ButtonSecondary: FC<ButtonProps> = ({
     className={clsx(
       'border-blue-600 text-blue-600',
       'hover:bg-blue-200 hover:text-blue-700',
-      'disabled:border-gray-600 text-gray-600',
+      'disabled:border-gray-600 disabled:text-gray-600 disabled:bg-transparent',
       commonStyles,
       className
     )}

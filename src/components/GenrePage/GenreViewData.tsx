@@ -1,19 +1,59 @@
-import { Permission } from '@prisma/client'
+import { GenreOperation, Permission } from '@prisma/client'
+import { compareAsc } from 'date-fns'
 import Link from 'next/link'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre, DefaultGenreHistory } from '../../server/db/genre/types'
 import { useSession } from '../../services/auth'
 
-const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
+const GenreViewData: FC<{
+  genre: DefaultGenre
+  history: DefaultGenreHistory[]
+}> = ({ genre, history }) => {
   const session = useSession()
+
+  const sortedHistory = useMemo(
+    () =>
+      history.sort((a, b) => {
+        // always show CREATE first
+        if (
+          a.operation === GenreOperation.CREATE &&
+          b.operation !== GenreOperation.CREATE
+        ) {
+          return -1
+        } else if (
+          b.operation === GenreOperation.CREATE &&
+          a.operation !== GenreOperation.CREATE
+        ) {
+          return 1
+        }
+
+        return compareAsc(a.createdAt, b.createdAt)
+      }),
+    [history]
+  )
+
+  const contributors = useMemo(
+    () => [...new Set(sortedHistory.map((h) => h.account))],
+    [sortedHistory]
+  )
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='text-2xl font-bold text-gray-600 mb-4'>{genre.name}</div>
+      <div className='flex items-center justify-between pb-4 border-b border-gray-100'>
+        <div className='text-2xl font-bold text-gray-600'>{genre.name}</div>
+        <Link
+          href={{
+            pathname: '/genres/[id]/history',
+            query: { id: genre.id.toString() },
+          }}
+        >
+          <a className='text-gray-400 text-sm hover:underline'>History</a>
+        </Link>
+      </div>
 
-      <div className='space-y-3'>
+      <div className='space-y-3 pt-4'>
         {genre.akas.length > 0 && (
           <div>
             <label className='block text-gray-500 text-sm' htmlFor='akas'>
@@ -162,7 +202,7 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             Contributors
           </label>
           <ul id='contributors' className='comma-list'>
-            {genre.contributors.map(({ id, username }) => (
+            {contributors.map(({ id, username }) => (
               <li key={id}>
                 <Link
                   href={{

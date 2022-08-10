@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import useGenreMap from '../../hooks/useGenreMap'
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre } from '../../server/db/genre/types'
 import { useGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'

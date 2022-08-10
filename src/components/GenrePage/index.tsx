@@ -6,6 +6,7 @@ import { useSession } from '../../services/auth'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
 import { GenreFormFields } from './GenreForm'
+import GenreHistory from './GenreHistory'
 import GenreNavigator from './GenreNavigator'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
@@ -13,6 +14,7 @@ import GenreViewPlaceholder from './GenreViewPlaceholder'
 export type GenrePageState =
   | { type: 'default'; id?: undefined }
   | { type: 'view'; id: number }
+  | { type: 'history'; id: number }
   | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
   | { type: 'create'; id?: undefined }
 
@@ -37,6 +39,8 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
         return <GenreViewPlaceholder />
       case 'view':
         return <GenreView id={state.id} />
+      case 'history':
+        return <GenreHistory id={state.id} />
       case 'edit':
         return <GenreEdit id={state.id} autoFocus={state.autoFocus} />
       case 'create':

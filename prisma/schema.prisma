@@ -37,6 +37,7 @@ model Track {
 
 enum Permission {
   EDIT_GENRES
+  MIGRATE_CONTRIBUTORS
 }
 
 model Account {
@@ -53,6 +54,7 @@ model Account {
   releaseReviews ReleaseReview[]
   trackReviews   TrackReview[]
   genresEdited   Genre[]
+  genreHistory   GenreHistory[]
 }
 
 model ReleaseRating {
@@ -123,8 +125,46 @@ model Genre {
   x Int?
   y Int?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  history   GenreHistory[]
+}
+
+enum GenreOperation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model GenreHistory {
+  id               Int        @id @default(autoincrement())
+  name             String
+  type             GenreType  @default(STYLE)
+  shortDescription String?
+  longDescription  String?
+  notes            String?
+  locations        Location[]
+  startDate        String?
+  endDate          String?
+  akas             String[]
+
+  parentGenreIds Int[]
+  childGenreIds  Int[]
+
+  influencedByGenreIds Int[]
+  influencesGenreIds   Int[]
+
+  x Int?
+  y Int?
+
+  treeGenreId Int
+  treeGenre   Genre @relation(fields: [treeGenreId], references: [id])
+
+  createdAt DateTime       @default(now())
+  operation GenreOperation
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
 }
 
 model Location {
@@ -134,7 +174,8 @@ model Location {
   region  String?
   country String
 
-  genres Genre[]
+  genres       Genre[]
+  genreHistory GenreHistory[]
 
   @@unique([city, region, country])
 }

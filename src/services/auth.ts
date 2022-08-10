@@ -5,16 +5,7 @@ import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
 
-export const useWhoamiQuery = () => {
-  const utils = trpc.useContext()
-  return trpc.useQuery(['auth.whoami'], {
-    onSuccess: (data) => {
-      if (data) {
-        utils.setQueryData(['account.byId', { id: data.id }], data)
-      }
-    },
-  })
-}
+export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
 export const useSession = () => {
   const whoamiQuery = useWhoamiQuery()
@@ -44,8 +35,8 @@ export const useLoginMutation = () => {
     ({ username, password }: { username: string; password: string }) =>
       ky.post('/api/login', { json: { username, password } }),
     {
-      onSuccess: () => {
-        utils.invalidateQueries(['auth.whoami'])
+      onSuccess: async () => {
+        await utils.invalidateQueries(['auth.whoami'])
       },
     }
   )
@@ -57,8 +48,8 @@ export const useRegisterMutation = () => {
     ({ username, password }: { username: string; password: string }) =>
       ky.post('/api/register', { json: { username, password } }),
     {
-      onSuccess: () => {
-        utils.invalidateQueries(['auth.whoami'])
+      onSuccess: async () => {
+        await utils.invalidateQueries(['auth.whoami'])
       },
     }
   )
@@ -67,8 +58,8 @@ export const useRegisterMutation = () => {
 export const useLogoutMutation = () => {
   const utils = trpc.useContext()
   return useMutation(() => ky.post('/api/logout'), {
-    onSuccess: () => {
-      utils.invalidateQueries(['auth.whoami'])
+    onSuccess: async () => {
+      await utils.invalidateQueries(['auth.whoami'])
     },
   })
 }

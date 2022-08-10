@@ -8,7 +8,8 @@ import tailwindConfig from '../../tailwind.config'
 import { isBrowser } from '../utils/dom'
 import useIsomorphicLayoutEffect from './useIsomorphicLayoutEffect'
 
-const config: Config = resolveConfig(tailwindConfig)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+const config = resolveConfig(tailwindConfig) as Config
 
 export const useBreakpoint = (breakpoint: string, defaultValue = true) => {
   const [match, setMatch] = useState(defaultValue)

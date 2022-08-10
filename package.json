@@ -15,6 +15,7 @@
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/modifiers": "^6.0.0",
     "@prisma/client": "^4.2.0",
+    "@tanstack/react-table": "^8.5.11",
     "@trpc/client": "^9.26.2",
     "@trpc/next": "^9.26.2",
     "@trpc/react": "^9.26.2",
@@ -23,6 +24,7 @@
     "bcrypt": "^5.0.1",
     "clsx": "^1.2.1",
     "cookies": "^0.8.0",
+    "date-fns": "^2.29.1",
     "ioredis": "^5.2.2",
     "ky": "^0.31.1",
     "next": "12.2.3",
@@ -35,6 +37,7 @@
     "react-markdown": "^8.0.3",
     "react-query": "3",
     "string-similarity": "^4.0.4",
+    "superjson": "^1.9.1",
     "validator": "^13.7.0",
     "zod": "^3.17.10"
   },

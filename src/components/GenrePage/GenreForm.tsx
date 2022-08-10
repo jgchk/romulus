@@ -1,9 +1,9 @@
-import { Permission } from '@prisma/client'
+import { GenreType, Permission } from '@prisma/client'
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { DefaultGenre, GenreType } from '../../server/db/genre'
+import { DefaultGenre } from '../../server/db/genre/types'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
@@ -93,7 +93,7 @@ const GenreForm: FC<{
 
   return (
     <form
-      onSubmit={handleSubmit(submitHandler)}
+      onSubmit={(e) => void handleSubmit(submitHandler)(e)}
       className='flex flex-col h-full'
     >
       <div className='space-y-3 w-full flex-1 overflow-auto p-4'>

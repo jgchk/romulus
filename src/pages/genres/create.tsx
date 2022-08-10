@@ -15,7 +15,7 @@ const CreateGenre: NextPage = () => {
       session.isLoggedOut ||
       session.hasPermission(Permission.EDIT_GENRES) === false
     ) {
-      router.push({ pathname: '/genres' })
+      void router.push({ pathname: '/genres' })
     }
   }, [router, session])
 

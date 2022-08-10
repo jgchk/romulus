@@ -17,7 +17,7 @@ const EditGenre: NextPage = () => {
   // if we didn't get a valid genre id, redirect to the all genres page
   useEffect(() => {
     if (id === undefined) {
-      router.push({ pathname: '/genres' })
+      void router.push({ pathname: '/genres' })
     }
   }, [id, router])
 
@@ -29,9 +29,12 @@ const EditGenre: NextPage = () => {
       session.hasPermission(Permission.EDIT_GENRES) === false
     ) {
       if (id !== undefined) {
-        router.push({ pathname: '/genres/[id]', query: { id: id.toString() } })
+        void router.push({
+          pathname: '/genres/[id]',
+          query: { id: id.toString() },
+        })
       } else {
-        router.push({ pathname: '/genres' })
+        void router.push({ pathname: '/genres' })
       }
     }
   }, [id, router, session])

@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core'
 import clsx from 'clsx'
 import { FC } from 'react'
 
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre } from '../../server/db/genre/types'
 import { UNPLACED_ID } from './common'
 import GenreNode from './GenreNode'
 

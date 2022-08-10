@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
 
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre } from '../../server/db/genre/types'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'

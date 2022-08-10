@@ -17,8 +17,8 @@ const SubmitRelease: NextPage = () => {
       addReleaseMutation.mutate(
         { title },
         {
-          onSuccess: (data) => {
-            router.push({
+          onSuccess: async (data) => {
+            await router.push({
               pathname: '/releases/[id]',
               query: { id: data.id.toString() },
             })

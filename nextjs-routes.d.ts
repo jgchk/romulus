@@ -11,6 +11,7 @@ declare module "nextjs-routes" {
     | { pathname: "/api/register"; query?: Query | undefined }
     | { pathname: "/api/trpc/[trpc]"; query: Query<{ trpc: string }> }
     | { pathname: "/genres/[id]/edit"; query: Query<{ id: string }> }
+    | { pathname: "/genres/[id]/history"; query: Query<{ id: string }> }
     | { pathname: "/genres/[id]"; query: Query<{ id: string }> }
     | { pathname: "/genres/canvas"; query?: Query | undefined }
     | { pathname: "/genres/create"; query?: Query | undefined }

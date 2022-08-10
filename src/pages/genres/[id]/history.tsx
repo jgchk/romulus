@@ -3,10 +3,10 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import AccountPage from '../../components/AccountPage'
-import { useIntRouteParam } from '../../utils/routes'
+import GenrePage from '../../../components/GenrePage'
+import { useIntRouteParam } from '../../../utils/routes'
 
-const Account: NextPage = () => {
+const History: NextPage = () => {
   const id = useIntRouteParam('id')
 
   const router = useRouter()
@@ -20,7 +20,7 @@ const Account: NextPage = () => {
     return <Error statusCode={404} />
   }
 
-  return <AccountPage id={id} />
+  return <GenrePage state={{ type: 'history', id }} />
 }
 
-export default Account
+export default History

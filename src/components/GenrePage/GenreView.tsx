@@ -4,9 +4,13 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { DefaultGenre } from '../../server/db/genre'
+import { DefaultGenre, DefaultGenreHistory } from '../../server/db/genre/types'
 import { useSession } from '../../services/auth'
-import { useDeleteGenreMutation, useGenreQuery } from '../../services/genres'
+import {
+  useDeleteGenreMutation,
+  useGenreHistoryQuery,
+  useGenreQuery,
+} from '../../services/genres'
 import {
   ButtonPrimary,
   ButtonPrimaryRed,
@@ -19,19 +23,26 @@ export const GenreView: FC<{
   id: number
 }> = ({ id }) => {
   const genreQuery = useGenreQuery(id)
+  const historyQuery = useGenreHistoryQuery(id)
 
-  if (genreQuery.data) {
-    return <HasData genre={genreQuery.data} />
+  if (genreQuery.data && historyQuery.data) {
+    return <HasData genre={genreQuery.data} history={historyQuery.data} />
   }
 
   if (genreQuery.error) {
     return <div>Error fetching genre :(</div>
   }
+  if (historyQuery.error) {
+    return <div>Error fetching genre history :(</div>
+  }
 
   return <CenteredLoader />
 }
 
-const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
+const HasData: FC<{ genre: DefaultGenre; history: DefaultGenreHistory[] }> = ({
+  genre,
+  history,
+}) => {
   const session = useSession()
   const router = useRouter()
 
@@ -44,9 +55,9 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       deleteGenre(
         { id: genre.id },
         {
-          onSuccess: () => {
+          onSuccess: async () => {
             toast.success(`Deleted genre '${genre.name}'`)
-            router.push({ pathname: '/genres' })
+            await router.push({ pathname: '/genres' })
           },
         }
       ),
@@ -55,7 +66,7 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
 
   return (
     <div className='flex flex-col h-full'>
-      <GenreViewData genre={genre} />
+      <GenreViewData genre={genre} history={history} />
 
       {session.isLoggedIn &&
         session.hasPermission(Permission.EDIT_GENRES) &&
