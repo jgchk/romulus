@@ -1,6 +1,7 @@
 import { GenreOperation, Permission } from '@prisma/client'
 import { compareAsc } from 'date-fns'
 import Link from 'next/link'
+import { uniqBy } from 'ramda'
 import { FC, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -35,7 +36,11 @@ const GenreViewData: FC<{
   )
 
   const contributors = useMemo(
-    () => [...new Set(sortedHistory.map((h) => h.account))],
+    () =>
+      uniqBy(
+        (account) => account.id,
+        sortedHistory.map((h) => h.account).reverse()
+      ).reverse(),
     [sortedHistory]
   )
 
