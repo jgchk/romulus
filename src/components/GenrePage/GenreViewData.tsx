@@ -39,8 +39,8 @@ const GenreViewData: FC<{
     () =>
       uniqBy(
         (account) => account.id,
-        sortedHistory.map((h) => h.account).reverse()
-      ).reverse(),
+        sortedHistory.map((h) => h.account)
+      ),
     [sortedHistory]
   )
 
