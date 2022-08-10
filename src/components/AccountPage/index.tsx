@@ -155,7 +155,7 @@ const CreateCreditForm: FC = () => {
       >
         {sortedGenres.map((genre) => (
           <option key={genre.id} value={genre.id}>
-            {genre.name}
+            {genre.name} ({genre.id})
           </option>
         ))}
       </select>
