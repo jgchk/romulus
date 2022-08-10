@@ -27,6 +27,31 @@ export const genreHistoryRouter = createRouter()
         select: defaultGenreHistorySelect,
       }),
   })
+  .mutation('giveCreateCredit', {
+    input: z.object({ genreId: z.number(), accountId: z.number() }),
+    resolve: async ({ ctx, input }) => {
+      requirePermission(ctx, Permission.MIGRATE_CONTRIBUTORS)
+
+      const createAction = await prisma.genreHistory.findFirst({
+        where: { treeGenreId: input.genreId, operation: GenreOperation.CREATE },
+        select: { id: true, account: { select: { username: true } } },
+      })
+
+      if (!createAction) {
+        return addGenreHistoryById(
+          input.genreId,
+          GenreOperation.CREATE,
+          input.accountId
+        )
+      }
+
+      await prisma.genreHistory.update({
+        where: { id: createAction.id },
+        data: { accountId: input.accountId },
+        select: null,
+      })
+    },
+  })
   .mutation('migrateContributors', {
     resolve: async ({ ctx }) => {
       requirePermission(ctx, Permission.MIGRATE_CONTRIBUTORS)
