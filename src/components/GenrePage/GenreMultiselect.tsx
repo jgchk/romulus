@@ -54,14 +54,18 @@ const GenreMultiselect: FC<{
 
   const options = useMemo(
     () =>
-      genresQuery.data?.filter(
-        (genre) =>
-          !(excludeIds ?? []).includes(genre.id) &&
-          !selectedIds.includes(genre.id) &&
-          anyAscii(genre.name.toLowerCase()).includes(
-            anyAscii(inputValue.toLowerCase())
-          )
-      ),
+      genresQuery.data
+        ?.filter(
+          (genre) =>
+            !(excludeIds ?? []).includes(genre.id) &&
+            !selectedIds.includes(genre.id) &&
+            anyAscii(genre.name.toLowerCase()).includes(
+              anyAscii(inputValue.toLowerCase())
+            )
+        )
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
     [excludeIds, genresQuery.data, inputValue, selectedIds]
   )
 
