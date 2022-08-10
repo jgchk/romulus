@@ -1,3 +1,4 @@
+import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC } from 'react'
 import ReactMarkdown from 'react-markdown'
@@ -90,19 +91,20 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             ) : (
               <span>
                 Missing a short description.{' '}
-                {session.isLoggedIn && (
-                  <Link
-                    href={{
-                      pathname: '/genres/[id]/edit',
-                      query: {
-                        id: genre.id.toString(),
-                        autoFocus: 'shortDescription',
-                      },
-                    }}
-                  >
-                    <a className='text-blue-500 hover:underline'>Add one.</a>
-                  </Link>
-                )}
+                {session.isLoggedIn &&
+                  session.hasPermission(Permission.EDIT_GENRES) && (
+                    <Link
+                      href={{
+                        pathname: '/genres/[id]/edit',
+                        query: {
+                          id: genre.id.toString(),
+                          autoFocus: 'shortDescription',
+                        },
+                      }}
+                    >
+                      <a className='text-blue-500 hover:underline'>Add one.</a>
+                    </Link>
+                  )}
               </span>
             )}
           </div>
@@ -123,19 +125,20 @@ const GenreViewData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
             ) : (
               <span>
                 Missing a long description.{' '}
-                {session.isLoggedIn && (
-                  <Link
-                    href={{
-                      pathname: '/genres/[id]/edit',
-                      query: {
-                        id: genre.id.toString(),
-                        autoFocus: 'longDescription',
-                      },
-                    }}
-                  >
-                    <a className='text-blue-500 hover:underline'>Add one.</a>
-                  </Link>
-                )}
+                {session.isLoggedIn &&
+                  session.hasPermission(Permission.EDIT_GENRES) && (
+                    <Link
+                      href={{
+                        pathname: '/genres/[id]/edit',
+                        query: {
+                          id: genre.id.toString(),
+                          autoFocus: 'longDescription',
+                        },
+                      }}
+                    >
+                      <a className='text-blue-500 hover:underline'>Add one.</a>
+                    </Link>
+                  )}
               </span>
             )}
           </div>

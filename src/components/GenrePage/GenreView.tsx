@@ -1,3 +1,5 @@
+import { Permission } from '@prisma/client'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -56,6 +58,7 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       <GenreViewData genre={genre} />
 
       {session.isLoggedIn &&
+        session.hasPermission(Permission.EDIT_GENRES) &&
         (confirmDelete ? (
           <div className='border-t'>
             <div className='flex justify-center mt-1 text-gray-800'>
@@ -89,17 +92,16 @@ const HasData: FC<{ genre: DefaultGenre }> = ({ genre }) => {
           </div>
         ) : (
           <div className='flex p-1 space-x-1 border-t'>
-            <ButtonPrimary
-              className='flex-1'
-              onClick={() =>
-                router.push({
-                  pathname: '/genres/[id]/edit',
-                  query: { id: genre.id.toString() },
-                })
-              }
+            <Link
+              href={{
+                pathname: '/genres/[id]/edit',
+                query: { id: genre.id.toString() },
+              }}
             >
-              Edit
-            </ButtonPrimary>
+              <a className='flex-1'>
+                <ButtonPrimary className='w-full'>Edit</ButtonPrimary>
+              </a>
+            </Link>
             <ButtonTertiary
               className='flex-1'
               onClick={() => setConfirmDelete(true)}

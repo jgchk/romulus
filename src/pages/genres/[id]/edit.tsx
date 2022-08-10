@@ -1,3 +1,4 @@
+import { Permission } from '@prisma/client'
 import type { NextPage } from 'next'
 import Error from 'next/error'
 import { useRouter } from 'next/router'
@@ -20,17 +21,20 @@ const EditGenre: NextPage = () => {
     }
   }, [id, router])
 
-  // navigate away from the page if the user is not logged in
+  // navigate away from the page if the user is not logged in or the user does not have edit permissions
   const session = useSession()
   useEffect(() => {
-    if (session.isLoggedOut) {
+    if (
+      session.isLoggedOut ||
+      session.hasPermission(Permission.EDIT_GENRES) === false
+    ) {
       if (id !== undefined) {
         router.push({ pathname: '/genres/[id]', query: { id: id.toString() } })
       } else {
         router.push({ pathname: '/genres' })
       }
     }
-  }, [id, router, session.isLoggedOut])
+  }, [id, router, session])
 
   if (id === undefined) {
     return <Error statusCode={404} />

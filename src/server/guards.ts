@@ -1,3 +1,4 @@
+import { Permission } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { Context } from './context'
@@ -19,4 +20,20 @@ export const requireLogin = (ctx: Context): LoggedInContext => {
   }
 
   return ctx
+}
+
+export const requirePermission = (
+  ctx: Context,
+  permission: Permission
+): LoggedInContext => {
+  const ctx_ = requireLogin(ctx)
+
+  if (!ctx_.account.permissions.includes(permission)) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'You do not have the required permissions to use this endpoint',
+    })
+  }
+
+  return ctx_
 }

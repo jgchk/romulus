@@ -7,6 +7,7 @@ export const defaultAccountSelect = Prisma.validator<Prisma.AccountSelect>()({
   username: true,
   darkMode: true,
   genresEdited: true,
+  permissions: true,
 })
 
 export type DefaultAccount = Prisma.AccountGetPayload<{

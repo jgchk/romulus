@@ -1,10 +1,11 @@
+import { Permission } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { check, iso8601 } from '../../utils/validators'
 import { createRouter } from '../createRouter'
 import { defaultGenreSelect } from '../db/genre'
-import { requireLogin } from '../guards'
+import { requireLogin, requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
 const LocationId = z.object({ id: z.number() })
@@ -52,7 +53,6 @@ const detectCycleInner = (
   return false
 }
 
-// TODO: implement more robust cycle-detection algorithm
 const detectCycle = async (data: {
   id?: number
   name: string
@@ -142,7 +142,7 @@ export const genreRouter = createRouter()
       akas: z.string().min(1).array(),
     }),
     resolve: async ({ input, ctx }) => {
-      const { account } = requireLogin(ctx)
+      const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
 
       await throwOnCycle(input)
 
@@ -234,7 +234,7 @@ export const genreRouter = createRouter()
       }),
     }),
     resolve: async ({ input: { id, data }, ctx }) => {
-      const { account } = requireLogin(ctx)
+      const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
 
       await throwOnCycle({ id, ...data })
 

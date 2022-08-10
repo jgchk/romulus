@@ -1,4 +1,5 @@
-import { useRouter } from 'next/router'
+import { Permission } from '@prisma/client'
+import Link from 'next/link'
 import { FC, useCallback, useState } from 'react'
 import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
@@ -13,7 +14,6 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
   selectedGenreId,
 }) => {
   const session = useSession()
-  const router = useRouter()
 
   const [showSettings, setShowSettings] = useState(false)
   const [filter, setFilter] = useState('')
@@ -75,14 +75,13 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
           <GenreTree selectedGenreId={selectedGenreId} />
         )}
       </div>
-      {session.isLoggedIn && (
+      {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
         <div className='p-1 border-t'>
-          <ButtonSecondary
-            className='w-full'
-            onClick={() => router.push({ pathname: '/genres/create' })}
-          >
-            New Genre
-          </ButtonSecondary>
+          <Link href={{ pathname: '/genres/create' }}>
+            <a className='w-full'>
+              <ButtonSecondary className='w-full'>New Genre</ButtonSecondary>
+            </a>
+          </Link>
         </div>
       )}
     </div>

@@ -1,9 +1,11 @@
+import { Permission } from '@prisma/client'
 import anyAscii from 'any-ascii'
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
 
 import { DefaultGenre } from '../../server/db/genre'
+import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import { useGenreTreeSettings } from './common'
@@ -55,6 +57,8 @@ const HasData: FC<Props & { allGenres: DefaultGenre[] }> = ({
   clearFilter,
   allGenres,
 }) => {
+  const session = useSession()
+
   const matches = useMemo(() => {
     const m: Match[] = []
 
@@ -87,13 +91,26 @@ const HasData: FC<Props & { allGenres: DefaultGenre[] }> = ({
 
   return (
     <div className='p-4'>
-      {matches.map((match) => (
-        <SearchResult
-          key={match.genre.id}
-          match={match}
-          clearFilter={clearFilter}
-        />
-      ))}
+      {matches.length > 0 ? (
+        matches.map((match) => (
+          <SearchResult
+            key={match.genre.id}
+            match={match}
+            clearFilter={clearFilter}
+          />
+        ))
+      ) : (
+        <div className='w-full flex flex-col items-center justify-center text-gray-400'>
+          <div>No genres found.</div>
+          {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
+            <div>
+              <Link href={{ pathname: '/genres/create' }}>
+                <a className='text-blue-500 hover:underline'>Create one.</a>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

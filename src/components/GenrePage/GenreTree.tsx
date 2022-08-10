@@ -1,3 +1,4 @@
+import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
@@ -94,13 +95,14 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
         ) : (
           <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
             <div>No genres found.</div>
-            {session.isLoggedIn && (
-              <div>
-                <Link href={{ pathname: '/genres/create' }}>
-                  <a className='text-blue-500 hover:underline'>Create one.</a>
-                </Link>
-              </div>
-            )}
+            {session.isLoggedIn &&
+              session.hasPermission(Permission.EDIT_GENRES) && (
+                <div>
+                  <Link href={{ pathname: '/genres/create' }}>
+                    <a className='text-blue-500 hover:underline'>Create one.</a>
+                  </Link>
+                </div>
+              )}
           </div>
         )}
       </div>

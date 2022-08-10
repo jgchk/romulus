@@ -1,5 +1,6 @@
+import { Permission } from '@prisma/client'
 import ky from 'ky'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
@@ -28,7 +29,13 @@ export const useSession = () => {
     return whoamiQuery.data === null
   }, [whoamiQuery.data, whoamiQuery.isSuccess])
 
-  return { ...whoamiQuery, isLoggedIn, isLoggedOut }
+  const hasPermission = useCallback(
+    (permission: Permission) =>
+      whoamiQuery.data?.permissions.includes(permission),
+    [whoamiQuery.data?.permissions]
+  )
+
+  return { ...whoamiQuery, isLoggedIn, isLoggedOut, hasPermission }
 }
 
 export const useLoginMutation = () => {
