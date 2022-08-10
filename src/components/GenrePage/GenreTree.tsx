@@ -48,7 +48,7 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
         if (currId === undefined) break
 
         const currGenre = genreMap[currId]
-        const childIds = currGenre.childGenres.map((g) => g.id)
+        const childIds = currGenre.childGenres.map((g) => g.id) ?? []
         descendants.push(...childIds)
         queue.push(...childIds)
       }
@@ -57,18 +57,21 @@ const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
     }
 
     return Object.fromEntries(
-      allGenres.map((genre) => [genre.id, getDescendants(genre.id)])
+      Object.values(genreMap).map((genre) => [
+        genre.id,
+        getDescendants(genre.id),
+      ])
     )
-  }, [allGenres, genreMap])
+  }, [genreMap])
 
   const topLevelGenres = useMemo(
     () =>
-      allGenres
+      Object.values(genreMap)
         .filter((genre) => genre.parentGenres.length === 0)
         .sort((a, b) =>
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         ),
-    [allGenres]
+    [genreMap]
   )
 
   const session = useSession()
