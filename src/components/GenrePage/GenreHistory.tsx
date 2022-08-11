@@ -10,22 +10,18 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 
-import { DefaultGenre, DefaultGenreHistory } from '../../server/db/genre/types'
-import { useGenreHistoryQuery, useGenreQuery } from '../../services/genres'
+import { DefaultGenreHistory } from '../../server/db/genre/types'
+import { useGenreHistoryQuery } from '../../services/genres'
 import { capitalize } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
 
 const GenreHistory: FC<{ id: number }> = ({ id }) => {
-  const genreQuery = useGenreQuery(id)
   const historyQuery = useGenreHistoryQuery(id)
 
-  if (genreQuery.data && historyQuery.data) {
-    return <HasData genre={genreQuery.data} history={historyQuery.data} />
+  if (historyQuery.data) {
+    return <HasData history={historyQuery.data} />
   }
 
-  if (genreQuery.error) {
-    return <div>Error fetching genre :(</div>
-  }
   if (historyQuery.error) {
     return <div>Error fetching history :(</div>
   }
@@ -61,34 +57,35 @@ const defaultColumns = [
   }),
 ]
 
-const HasData: FC<{ genre: DefaultGenre; history: DefaultGenreHistory[] }> = ({
-  genre,
-  history,
-}) => (
-  <div className='flex-1 overflow-auto p-4'>
-    <div className='flex items-center pb-4 border-b border-gray-100'>
-      <Link
-        href={{
-          pathname: '/genres/[id]',
-          query: { id: genre.id.toString() },
-        }}
-      >
-        <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
-          <IoMdArrowBack size={18} />
-        </a>
-      </Link>
-      <div className='text-2xl font-bold text-gray-600'>{genre.name}</div>
-    </div>
+const HasData: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => {
+  const { id, name } = useMemo(() => history[0].treeGenre, [history])
 
-    <div className='pt-4'>
-      {history.length > 0 ? (
-        <Table history={history} />
-      ) : (
-        <div className='flex justify-center text-gray-600'>No history</div>
-      )}
+  return (
+    <div className='flex-1 overflow-auto p-4'>
+      <div className='flex items-center pb-4 border-b border-gray-100'>
+        <Link
+          href={{
+            pathname: '/genres/[id]',
+            query: { id: id.toString() },
+          }}
+        >
+          <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+            <IoMdArrowBack size={18} />
+          </a>
+        </Link>
+        <div className='text-2xl font-bold text-gray-600'>{name}</div>
+      </div>
+
+      <div className='pt-4'>
+        {history.length > 0 ? (
+          <Table history={history} />
+        ) : (
+          <div className='flex justify-center text-gray-600'>No history</div>
+        )}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const Table: FC<{ history: DefaultGenreHistory[] }> = ({
   history: unsortedHistory,

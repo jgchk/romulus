@@ -48,20 +48,17 @@ const HasData: FC<{ genre: DefaultGenre; history: DefaultGenreHistory[] }> = ({
 
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const { mutate: deleteGenre, isLoading: isDeleting } =
-    useDeleteGenreMutation()
+  const { mutate: deleteGenre, isLoading: isDeleting } = useDeleteGenreMutation(
+    {
+      onSuccess: async () => {
+        toast.success(`Deleted genre '${genre.name}'`)
+        await router.push({ pathname: '/genres' })
+      },
+    }
+  )
   const handleDelete = useCallback(
-    () =>
-      deleteGenre(
-        { id: genre.id },
-        {
-          onSuccess: async () => {
-            toast.success(`Deleted genre '${genre.name}'`)
-            await router.push({ pathname: '/genres' })
-          },
-        }
-      ),
-    [deleteGenre, genre.id, genre.name, router]
+    () => deleteGenre({ id: genre.id }),
+    [deleteGenre, genre.id]
   )
 
   return (

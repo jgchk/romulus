@@ -38,7 +38,7 @@ export const defaultGenreHistorySelect =
     influencesGenreIds: true,
     x: true,
     y: true,
-    treeGenre: { select: { id: true, name: true } },
+    treeGenreId: true,
     operation: true,
     account: { select: { id: true, username: true } },
     createdAt: true,
@@ -50,4 +50,4 @@ export type DefaultGenre = Prisma.GenreGetPayload<{
 
 export type DefaultGenreHistory = Prisma.GenreHistoryGetPayload<{
   select: typeof defaultGenreHistorySelect
-}>
+}> & { treeGenre: { id: number; name: string } }
