@@ -47,27 +47,34 @@ const HasData: FC<{
   const { mutate: migrateContributors, isLoading: isMigrating } =
     useMigrateContributorsMutation()
 
-  const [numGenresCreated, numGenresEdited] = useMemo(() => {
-    let numCreated = 0
-    let numEdited = 0
+  const createdGenreIds = useMemo(
+    () =>
+      new Set(
+        genreHistory
+          .filter((h) => h.operation === GenreOperation.CREATE)
+          .map((h) => h.treeGenreId)
+      ),
+    [genreHistory]
+  )
+  const editedGenreIds = useMemo(
+    () =>
+      new Set(
+        genreHistory
+          .filter((h) => h.operation === GenreOperation.UPDATE)
+          .map((h) => h.treeGenreId)
+      ),
+    [genreHistory]
+  )
 
-    for (const entry of genreHistory) {
-      if (entry.operation === GenreOperation.CREATE) {
-        numCreated += 1
-      } else if (entry.operation === GenreOperation.UPDATE) {
-        numEdited += 1
-      }
-    }
-
-    return [numCreated, numEdited]
-  }, [genreHistory])
+  const numCreated = useMemo(() => createdGenreIds.size, [createdGenreIds.size])
+  const numEdited = useMemo(() => editedGenreIds.size, [editedGenreIds.size])
 
   return (
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <div className='border p-4 shadow bg-white'>
         <div className='text-xl font-bold'>{account.username}</div>
-        <div>Genres created: {numGenresCreated}</div>
-        <div>Genres edited: {numGenresEdited}</div>
+        <div>Genres created: {numCreated}</div>
+        <div>Genres edited: {numEdited}</div>
         {session.data?.id === account.id &&
           session.hasPermission(Permission.MIGRATE_CONTRIBUTORS) && (
             <>
