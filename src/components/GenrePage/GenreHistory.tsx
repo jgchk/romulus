@@ -58,7 +58,10 @@ const defaultColumns = [
 ]
 
 const HasData: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => {
-  const { id, name } = useMemo(() => history[0].treeGenre, [history])
+  const { id, name } = useMemo(() => {
+    const latestHistory = history[0]
+    return { id: latestHistory.treeGenreId, name: latestHistory.name }
+  }, [history])
 
   return (
     <div className='flex-1 overflow-auto p-4'>

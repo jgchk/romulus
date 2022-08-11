@@ -2,67 +2,30 @@ import { GenreOperation, Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import {
-  DefaultGenreHistory,
-  defaultGenreHistorySelect,
-} from '../db/genre/types'
+import { defaultGenreHistorySelect } from '../db/genre/types'
 import { addGenreHistoryById } from '../db/genre/utils'
 import { env } from '../env'
 import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
-
-const getTreeGenre = async (id: number) => {
-  const treeGenre = await prisma.genre.findUnique({
-    where: { id },
-    select: { id: true, name: true },
-  })
-
-  if (treeGenre) {
-    return treeGenre
-  }
-
-  const latestHistory = await prisma.genreHistory.findMany({
-    where: { treeGenreId: id },
-    orderBy: { createdAt: 'desc' },
-    take: 1,
-    select: { name: true },
-  })
-  return { id, name: latestHistory[0].name }
-}
 
 export const genreHistoryRouter = createRouter()
   .query('byGenreId', {
     input: z.object({
       id: z.number(),
     }),
-    resolve: async ({ input: { id } }): Promise<DefaultGenreHistory[]> => {
-      const history = await prisma.genreHistory.findMany({
+    resolve: async ({ input: { id } }) =>
+      prisma.genreHistory.findMany({
         where: { treeGenreId: id },
         select: defaultGenreHistorySelect,
-      })
-
-      const treeGenre = await getTreeGenre(id)
-
-      return history.map((h) => ({ ...h, treeGenre }))
-    },
+      }),
   })
   .query('byUserId', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input: { id } }): Promise<DefaultGenreHistory[]> => {
-      const defaultHistory = await prisma.genreHistory.findMany({
+    resolve: async ({ input: { id } }) =>
+      prisma.genreHistory.findMany({
         where: { accountId: id },
         select: defaultGenreHistorySelect,
-      })
-
-      const history: DefaultGenreHistory[] = []
-
-      for (const h of defaultHistory) {
-        const treeGenre = await getTreeGenre(h.treeGenreId)
-        history.push({ ...h, treeGenre })
-      }
-
-      return history
-    },
+      }),
   })
   .mutation('giveCreateCredit', {
     input: z.object({ genreId: z.number(), accountId: z.number() }),

@@ -50,4 +50,4 @@ export type DefaultGenre = Prisma.GenreGetPayload<{
 
 export type DefaultGenreHistory = Prisma.GenreHistoryGetPayload<{
   select: typeof defaultGenreHistorySelect
-}> & { treeGenre: { id: number; name: string } }
+}>
