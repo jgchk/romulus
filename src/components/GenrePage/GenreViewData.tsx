@@ -91,7 +91,9 @@ const GenreViewData: FC<{
                       query: { id: id.toString() },
                     }}
                   >
-                    <a className='text-blue-500 hover:underline'>{name}</a>
+                    <a className='text-blue-500 hover:underline font-bold'>
+                      {name}
+                    </a>
                   </Link>
                 </li>
               ))}
