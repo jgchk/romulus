@@ -1,7 +1,4 @@
-import { TRPCClientErrorLike, UseTRPCMutationOptions } from '@trpc/react'
-
-import { AppRouter } from '../server/routers/_app'
-import { InferMutationInput, InferMutationOutput, trpc } from '../utils/trpc'
+import { trpc } from '../utils/trpc'
 
 export const useGenresQuery = () => {
   const utils = trpc.useContext()
@@ -44,21 +41,12 @@ export const useEditGenreMutation = () => {
   })
 }
 
-export const useDeleteGenreMutation = (
-  opts?: UseTRPCMutationOptions<
-    InferMutationInput<'genre.delete'>,
-    TRPCClientErrorLike<AppRouter>,
-    InferMutationOutput<'genre.delete'>
-  >
-) => {
+export const useDeleteGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.delete'], {
-    ...opts,
-    onSuccess: async (data, variables, context) => {
-      await opts?.onSuccess?.(data, variables, context)
+    onSuccess: async () => {
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
-        utils.invalidateQueries(['genre.byId', { id: variables.id }]),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
       ])
