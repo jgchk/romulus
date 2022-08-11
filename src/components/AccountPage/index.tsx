@@ -14,6 +14,7 @@ import {
 } from '../../services/genres'
 import { ButtonPrimary, ButtonSecondary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
+import AccountGenreHistory from './AccountGenreHistory'
 
 const AccountPage: FC<{ id: number }> = ({ id }) => {
   const accountQuery = useAccountQuery(id)
@@ -73,8 +74,13 @@ const HasData: FC<{
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <div className='border p-4 shadow bg-white'>
         <div className='text-xl font-bold'>{account.username}</div>
-        <div>Genres created: {numCreated}</div>
-        <div>Genres edited: {numEdited}</div>
+        <div className='py-2'>
+          <div>Genres created: {numCreated}</div>
+          <div>Genres edited: {numEdited}</div>
+        </div>
+        <div className='h-[500px] overflow-auto'>
+          <AccountGenreHistory id={account.id} />
+        </div>
         {session.data?.id === account.id &&
           session.hasPermission(Permission.MIGRATE_CONTRIBUTORS) && (
             <>
