@@ -30,7 +30,7 @@ const HasData: FC<{
 }> = ({ genre, autoFocus }) => {
   const router = useRouter()
 
-  const { mutate: editGenre, isLoading } = useEditGenreMutation()
+  const { mutate: editGenre, isLoading, isSuccess } = useEditGenreMutation()
   const handleEdit = useCallback(
     (data: GenreFormData) =>
       editGenre(
@@ -60,6 +60,7 @@ const HasData: FC<{
         })
       }
       isSubmitting={isLoading}
+      isSubmitted={isSuccess}
     />
   )
 }

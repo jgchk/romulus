@@ -43,7 +43,8 @@ const GenreForm: FC<{
   onClose: () => void
   autoFocus?: keyof GenreFormFields
   isSubmitting?: boolean
-}> = ({ genre, onSubmit, onClose, autoFocus, isSubmitting }) => {
+  isSubmitted?: boolean
+}> = ({ genre, onSubmit, onClose, autoFocus, isSubmitting, isSubmitted }) => {
   const session = useSession()
 
   const {
@@ -111,7 +112,7 @@ const GenreForm: FC<{
         throw `Route change to "${url}" was aborted (this error can be safely ignored). See https://github.com/zeit/next.js/issues/2476.`
       }
     }
-    if (hasDirtyFields) {
+    if (!(isSubmitting || isSubmitted) && hasDirtyFields) {
       window.addEventListener('beforeunload', beforeUnloadHandler)
       router.events.on('routeChangeStart', beforeRouteHandler)
     } else {
@@ -122,7 +123,13 @@ const GenreForm: FC<{
       window.removeEventListener('beforeunload', beforeUnloadHandler)
       router.events.off('routeChangeStart', beforeRouteHandler)
     }
-  }, [hasDirtyFields, router.events, router.pathname])
+  }, [
+    hasDirtyFields,
+    isSubmitted,
+    isSubmitting,
+    router.events,
+    router.pathname,
+  ])
 
   return (
     <form
