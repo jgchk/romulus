@@ -181,9 +181,7 @@ export const deleteGenre = async (
   await addGenreHistory(genre, GenreOperation.DELETE, accountId)
 
   const relationIds = [
-    ...genre.parentGenres.map((g) => g.id),
     ...genre.childGenres.map((g) => g.id),
-    ...genre.influencedByGenres.map((g) => g.id),
     ...genre.influencesGenres.map((g) => g.id),
   ]
   await Promise.all(
