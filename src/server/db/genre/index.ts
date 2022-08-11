@@ -58,9 +58,7 @@ export const createGenre = async (
   await addGenreHistory(genre, GenreOperation.CREATE, accountId)
 
   const relationIds = [
-    ...(input.parentGenres ?? []),
     ...(input.childGenres ?? []),
-    ...(input.influencedByGenres ?? []),
     ...(input.influencesGenres ?? []),
   ]
   await Promise.all(
@@ -94,23 +92,11 @@ export const editGenre = async (
     })
   }
 
-  const parentGenresUpdated =
-    !!data.parentGenres &&
-    setDiff(
-      new Set(originalGenre.parentGenres.map((g) => g.id)),
-      new Set(data.parentGenres)
-    )
   const childGenresUpdated =
     !!data.childGenres &&
     setDiff(
       new Set(originalGenre.childGenres.map((g) => g.id)),
       new Set(data.childGenres)
-    )
-  const influencedByGenresUpdated =
-    !!data.influencedByGenres &&
-    setDiff(
-      new Set(originalGenre.influencedByGenres.map((g) => g.id)),
-      new Set(data.influencedByGenres)
     )
   const influencesGenresUpdated =
     !!data.influencesGenres &&
@@ -143,17 +129,8 @@ export const editGenre = async (
   await addGenreHistory(genre, GenreOperation.UPDATE, accountId)
 
   const updatedRelationIds = [
-    ...(parentGenresUpdated
-      ? [...parentGenresUpdated.added, ...parentGenresUpdated.removed]
-      : []),
     ...(childGenresUpdated
       ? [...childGenresUpdated.added, ...childGenresUpdated.removed]
-      : []),
-    ...(influencedByGenresUpdated
-      ? [
-          ...influencedByGenresUpdated.added,
-          ...influencedByGenresUpdated.removed,
-        ]
       : []),
     ...(influencesGenresUpdated
       ? [...influencesGenresUpdated.added, ...influencesGenresUpdated.removed]
