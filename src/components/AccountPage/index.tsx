@@ -102,7 +102,6 @@ const HasData: FC<{
 const CreateCreditForm: FC = () => {
   const [accountId, setAccountId] = useState<number>()
   const [genreId, setGenreId] = useState<number>()
-  useEffect(() => console.log({ accountId, genreId }), [accountId, genreId])
 
   const accountsQuery = useAccountsQuery()
   const genresQuery = useGenresQuery()
