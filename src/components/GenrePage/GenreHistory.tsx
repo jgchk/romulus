@@ -58,25 +58,37 @@ const defaultColumns = [
 ]
 
 const HasData: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => {
-  const { id, name } = useMemo(() => {
+  const genre = useMemo(() => {
     const latestHistory = history[0]
+    if (!latestHistory) return
     return { id: latestHistory.treeGenreId, name: latestHistory.name }
   }, [history])
 
   return (
     <div className='flex-1 overflow-auto p-4'>
       <div className='flex items-center pb-4 border-b border-gray-100'>
-        <Link
-          href={{
-            pathname: '/genres/[id]',
-            query: { id: id.toString() },
-          }}
-        >
-          <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
-            <IoMdArrowBack size={18} />
-          </a>
-        </Link>
-        <div className='text-2xl font-bold text-gray-600'>{name}</div>
+        {genre ? (
+          <>
+            <Link
+              href={{
+                pathname: '/genres/[id]',
+                query: { id: genre.id.toString() },
+              }}
+            >
+              <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+                <IoMdArrowBack size={18} />
+              </a>
+            </Link>
+            <div className='text-2xl font-bold text-gray-600'>{genre.name}</div>
+          </>
+        ) : (
+          <>
+            <span className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+              <IoMdArrowBack size={18} />
+            </span>
+            <div className='text-2xl font-bold text-gray-600'>Loading...</div>
+          </>
+        )}
       </div>
 
       <div className='pt-4'>
