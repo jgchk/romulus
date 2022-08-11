@@ -77,11 +77,12 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
           }}
         >
           <a
-            className={
+            className={clsx(
+              'hover:font-bold',
               selectedId === genre.id
                 ? 'text-blue-600 font-bold'
                 : 'text-gray-600'
-            }
+            )}
           >
             {genre.name}
             {showTypeTags && genre.type !== 'STYLE' && (
