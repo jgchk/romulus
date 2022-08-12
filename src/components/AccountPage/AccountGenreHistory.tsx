@@ -47,21 +47,6 @@ const defaultColumns = [
     header: 'Change',
     cell: (props) => capitalize(props.getValue()),
   }),
-  columnHelper.accessor('account', {
-    header: 'Contributor',
-    cell: (props) => (
-      <Link
-        href={{
-          pathname: '/accounts/[id]',
-          query: { id: props.getValue().id.toString() },
-        }}
-      >
-        <a className='text-blue-500 hover:underline'>
-          {props.getValue().username}
-        </a>
-      </Link>
-    ),
-  }),
   columnHelper.accessor('createdAt', {
     header: 'Date',
     cell: (props) => format(props.getValue(), 'PPpp'),
