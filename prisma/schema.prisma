@@ -53,8 +53,8 @@ model Account {
   trackRatings   TrackRating[]
   releaseReviews ReleaseReview[]
   trackReviews   TrackReview[]
-  genresEdited   Genre[]
-  genreHistory   GenreHistory[]
+
+  genreHistory GenreHistory[]
 }
 
 model ReleaseRating {
@@ -110,7 +110,6 @@ model Genre {
   shortDescription String?
   longDescription  String?
   notes            String?
-  contributors     Account[]
   startDate        String?
   endDate          String?
   akas             String[]

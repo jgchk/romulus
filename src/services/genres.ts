@@ -60,18 +60,6 @@ export const useGenreHistoryQuery = (id: number) =>
 export const useGenreHistoryByUserQuery = (id: number) =>
   trpc.useQuery(['genre.history.byUserId', { id }])
 
-export const useMigrateContributorsMutation = () => {
-  const utils = trpc.useContext()
-  return trpc.useMutation(['genre.history.migrateContributors'], {
-    onSuccess: async () => {
-      await Promise.all([
-        utils.invalidateQueries(['genre.history.byGenreId']),
-        utils.invalidateQueries(['genre.history.byUserId']),
-      ])
-    },
-  })
-}
-
 export const useGiveCreateCreditMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.history.giveCreateCredit'], {

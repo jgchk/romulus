@@ -6,7 +6,6 @@ export const defaultAccountSelect = Prisma.validator<Prisma.AccountSelect>()({
   id: true,
   username: true,
   darkMode: true,
-  genresEdited: true,
   permissions: true,
 })
 

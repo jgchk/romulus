@@ -10,9 +10,8 @@ import {
   useGenreHistoryByUserQuery,
   useGenresQuery,
   useGiveCreateCreditMutation,
-  useMigrateContributorsMutation,
 } from '../../services/genres'
-import { ButtonPrimary, ButtonSecondary } from '../common/Button'
+import { ButtonPrimary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
 import AccountGenreHistory from './AccountGenreHistory'
 
@@ -44,9 +43,6 @@ const HasData: FC<{
   genreHistory: DefaultGenreHistory[]
 }> = ({ account, genreHistory }) => {
   const session = useSession()
-
-  const { mutate: migrateContributors, isLoading: isMigrating } =
-    useMigrateContributorsMutation()
 
   const createdGenreIds = useMemo(
     () =>
@@ -83,16 +79,7 @@ const HasData: FC<{
         </div>
         {session.data?.id === account.id &&
           session.hasPermission(Permission.MIGRATE_CONTRIBUTORS) && (
-            <>
-              <CreateCreditForm />
-              {isMigrating ? (
-                <ButtonSecondary disabled>Migrating...</ButtonSecondary>
-              ) : (
-                <ButtonSecondary onClick={() => migrateContributors()}>
-                  Migrate Contributors
-                </ButtonSecondary>
-              )}
-            </>
+            <CreateCreditForm />
           )}
       </div>
     </div>

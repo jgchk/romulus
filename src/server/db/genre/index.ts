@@ -22,7 +22,6 @@ export const createGenre = async (
       influencedByGenres: input.influencedByGenres
         ? { connect: input.influencedByGenres.map((id) => ({ id })) }
         : undefined,
-      contributors: { connect: { id: accountId } },
     },
     select: defaultGenreSelect,
   })
@@ -64,7 +63,6 @@ export const editGenre = async (
       influencedByGenres: data.influencedByGenres
         ? { set: data.influencedByGenres.map((id) => ({ id })) }
         : undefined,
-      contributors: { connect: { id: accountId } },
     },
     select: defaultGenreSelect,
   })
