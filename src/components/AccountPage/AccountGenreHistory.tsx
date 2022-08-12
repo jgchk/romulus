@@ -4,28 +4,15 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { compareDesc, format } from 'date-fns'
+import { format } from 'date-fns'
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
 import { DefaultGenreHistory } from '../../server/db/genre/outputs'
 import { useGenreHistoryByUserQuery } from '../../services/genres'
 import { capitalize } from '../../utils/string'
+import { ButtonTertiary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
-
-const AccountGenreHistory: FC<{ id: number }> = ({ id }) => {
-  const historyQuery = useGenreHistoryByUserQuery(id)
-
-  if (historyQuery.data) {
-    return <HasData history={historyQuery.data} />
-  }
-
-  if (historyQuery.error) {
-    return <div>Error fetching history :(</div>
-  }
-
-  return <CenteredLoader />
-}
 
 const columnHelper = createColumnHelper<DefaultGenreHistory>()
 
@@ -53,77 +40,99 @@ const defaultColumns = [
   }),
 ]
 
-const HasData: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => (
-  <div>
-    {history.length > 0 ? (
-      <Table history={history} />
-    ) : (
-      <div className='flex justify-center text-gray-600'>No history</div>
-    )}
-  </div>
-)
+const AccountGenreHistory: FC<{ id: number }> = ({ id }) => {
+  const {
+    data: history,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGenreHistoryByUserQuery(id)
 
-const Table: FC<{ history: DefaultGenreHistory[] }> = ({
-  history: unsortedHistory,
-}) => {
-  const history = useMemo(
-    () => unsortedHistory.sort((a, b) => compareDesc(a.createdAt, b.createdAt)),
-    [unsortedHistory]
+  const data: DefaultGenreHistory[] = useMemo(
+    () => history?.pages.flatMap((page) => page.history) ?? [],
+    [history?.pages]
   )
 
   const table = useReactTable({
-    data: history,
+    data,
     columns: defaultColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th key={header.id} className='p-1 px-2 text-left'>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </th>
+  if (data) {
+    if (data.length === 0) {
+      return <div className='flex justify-center text-gray-600'>No history</div>
+    }
+
+    return (
+      <>
+        <table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className='p-1 px-2 text-left'>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
             ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className='p-1 px-2'>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </td>
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className='p-1 px-2'>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
             ))}
-          </tr>
-        ))}
-      </tbody>
-      <tfoot>
-        {table.getFooterGroups().map((footerGroup) => (
-          <tr key={footerGroup.id}>
-            {footerGroup.headers.map((header) => (
-              <th key={header.id}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.footer,
-                      header.getContext()
-                    )}
-              </th>
+          </tbody>
+          <tfoot>
+            {table.getFooterGroups().map((footerGroup) => (
+              <tr key={footerGroup.id}>
+                {footerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
             ))}
-          </tr>
-        ))}
-      </tfoot>
-    </table>
-  )
+          </tfoot>
+        </table>
+        <div className='w-full flex justify-center'>
+          <ButtonTertiary
+            onClick={() => void fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
+          >
+            {isFetchingNextPage
+              ? 'Loading more...'
+              : hasNextPage
+              ? 'Load More'
+              : 'Nothing more to load'}
+          </ButtonTertiary>
+        </div>
+      </>
+    )
+  }
+
+  if (error) {
+    return <div>Error fetching history :(</div>
+  }
+
+  return <CenteredLoader />
 }
 
 export default AccountGenreHistory

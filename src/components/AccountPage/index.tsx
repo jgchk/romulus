@@ -3,11 +3,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { DefaultAccount } from '../../server/db/account'
-import { DefaultGenreHistory } from '../../server/db/genre/outputs'
 import { useAccountQuery, useAccountsQuery } from '../../services/accounts'
 import { useSession } from '../../services/auth'
 import {
-  useGenreHistoryByUserQuery,
+  useGenreHistoryCountByUserQuery,
   useGenresQuery,
   useGiveCreateCreditMutation,
 } from '../../services/genres'
@@ -17,22 +16,13 @@ import AccountGenreHistory from './AccountGenreHistory'
 
 const AccountPage: FC<{ id: number }> = ({ id }) => {
   const accountQuery = useAccountQuery(id)
-  const genreHistoryQuery = useGenreHistoryByUserQuery(id)
 
-  if (accountQuery.data && genreHistoryQuery.data) {
-    return (
-      <HasData
-        account={accountQuery.data}
-        genreHistory={genreHistoryQuery.data}
-      />
-    )
+  if (accountQuery.data) {
+    return <HasData account={accountQuery.data} />
   }
 
   if (accountQuery.error) {
     return <div>Error fetching account :(</div>
-  }
-  if (genreHistoryQuery.error) {
-    return <div>Error fetching contribution history :(</div>
   }
 
   return <CenteredLoader />
@@ -40,39 +30,36 @@ const AccountPage: FC<{ id: number }> = ({ id }) => {
 
 const HasData: FC<{
   account: DefaultAccount
-  genreHistory: DefaultGenreHistory[]
-}> = ({ account, genreHistory }) => {
+}> = ({ account }) => {
   const session = useSession()
 
-  const createdGenreIds = useMemo(
-    () =>
-      new Set(
-        genreHistory
-          .filter((h) => h.operation === GenreOperation.CREATE)
-          .map((h) => h.treeGenreId)
-      ),
-    [genreHistory]
+  const createdCountQuery = useGenreHistoryCountByUserQuery(
+    account.id,
+    GenreOperation.CREATE
   )
-  const editedGenreIds = useMemo(
-    () =>
-      new Set(
-        genreHistory
-          .filter((h) => h.operation === GenreOperation.UPDATE)
-          .map((h) => h.treeGenreId)
-      ),
-    [genreHistory]
+  const editedCountQuery = useGenreHistoryCountByUserQuery(
+    account.id,
+    GenreOperation.UPDATE
   )
-
-  const numCreated = useMemo(() => createdGenreIds.size, [createdGenreIds.size])
-  const numEdited = useMemo(() => editedGenreIds.size, [editedGenreIds.size])
+  const deletedCountQuery = useGenreHistoryCountByUserQuery(
+    account.id,
+    GenreOperation.DELETE
+  )
 
   return (
     <div className='w-full h-full flex items-center justify-center bg-texture'>
       <div className='border p-4 shadow bg-white'>
         <div className='text-xl font-bold'>{account.username}</div>
         <div className='py-2'>
-          <div>Genres created: {numCreated}</div>
-          <div>Genres edited: {numEdited}</div>
+          <div>
+            Genres created: {createdCountQuery.data?.count ?? 'Loading...'}
+          </div>
+          <div>
+            Genres edited: {editedCountQuery.data?.count ?? 'Loading...'}
+          </div>
+          <div>
+            Genres deleted: {deletedCountQuery.data?.count ?? 'Loading...'}
+          </div>
         </div>
         <div className='h-[500px] overflow-auto'>
           <AccountGenreHistory id={account.id} />

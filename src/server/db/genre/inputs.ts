@@ -1,4 +1,4 @@
-import { GenreType } from '@prisma/client'
+import { GenreOperation, GenreType } from '@prisma/client'
 import { z } from 'zod'
 
 import { iso8601 } from '../../../utils/validators'
@@ -16,6 +16,12 @@ export const GenreTypeInput = z.union([
   z.literal(GenreType.STYLE),
   z.literal(GenreType.SCENE),
   z.literal(GenreType.TREND),
+])
+
+export const GenreOperationInput = z.union([
+  z.literal(GenreOperation.CREATE),
+  z.literal(GenreOperation.UPDATE),
+  z.literal(GenreOperation.DELETE),
 ])
 
 export const CreateGenreInput = z.object({
