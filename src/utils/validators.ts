@@ -3,9 +3,13 @@ import { z } from 'zod'
 
 export const isISO8601 = isISO8601_
 
-export const iso8601 = z.string().refine((val) => isISO8601(val), {
-  message: 'Must be a valid ISO 8601 string',
-})
+export const iso8601 = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((val) => isISO8601(val), {
+    message: 'Must be a valid ISO 8601 string',
+  })
 
 export const check = <T>(
   schema: z.ZodType<T, z.ZodTypeDef, T>,

@@ -9,8 +9,8 @@ import { withExceptionFilter } from '../../server/middleware'
 const authenticationManager = new AuthenticationManager()
 
 const LoginRequest = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().trim().min(1, 'Username cannot be empty'),
+  password: z.string().trim().min(1, 'Password cannot be empty'),
 })
 
 type LoginRequest = z.infer<typeof LoginRequest>
