@@ -4,12 +4,12 @@ import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
 import { createGenre, deleteGenre, editGenre } from '../db/genre'
-import { defaultGenreSelect } from '../db/genre/types'
 import {
   CreateGenreInput,
   DeleteGenreInput,
   EditGenreInput,
-} from '../db/genre/validators'
+} from '../db/genre/inputs'
+import { defaultGenreSelect } from '../db/genre/outputs'
 import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 

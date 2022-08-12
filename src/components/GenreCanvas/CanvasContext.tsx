@@ -1,6 +1,6 @@
 import { createContext, FC, PropsWithChildren, useContext } from 'react'
 
-import { DefaultGenre } from '../../server/db/genre/types'
+import { DefaultGenre } from '../../server/db/genre/outputs'
 
 type CanvasContext = {
   activeId?: number

@@ -4,7 +4,10 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { DefaultGenre, DefaultGenreHistory } from '../../server/db/genre/types'
+import {
+  DefaultGenre,
+  DefaultGenreHistory,
+} from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import {
   useDeleteGenreMutation,

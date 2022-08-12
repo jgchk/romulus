@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react'
 
-import { GenreType } from '../../server/db/genre/types'
+import { GenreType } from '../../server/db/genre/outputs'
 import { capitalize } from '../../utils/string'
 
 const GenreTypeChip: FC<{ type: GenreType }> = ({ type }) => {

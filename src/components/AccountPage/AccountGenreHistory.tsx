@@ -8,7 +8,7 @@ import { compareDesc, format } from 'date-fns'
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
-import { DefaultGenreHistory } from '../../server/db/genre/types'
+import { DefaultGenreHistory } from '../../server/db/genre/outputs'
 import { useGenreHistoryByUserQuery } from '../../services/genres'
 import { capitalize } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'

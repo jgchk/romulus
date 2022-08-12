@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { DefaultAccount } from '../../server/db/account'
-import { DefaultGenreHistory } from '../../server/db/genre/types'
+import { DefaultGenreHistory } from '../../server/db/genre/outputs'
 import { useAccountQuery, useAccountsQuery } from '../../services/accounts'
 import { useSession } from '../../services/auth'
 import {

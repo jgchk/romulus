@@ -5,7 +5,10 @@ import { uniqBy } from 'ramda'
 import { FC, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import { DefaultGenre, DefaultGenreHistory } from '../../server/db/genre/types'
+import {
+  DefaultGenre,
+  DefaultGenreHistory,
+} from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 
 const GenreViewData: FC<{

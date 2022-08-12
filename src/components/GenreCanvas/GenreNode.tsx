@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSSProperties, FC, useMemo } from 'react'
 
-import { DefaultGenre } from '../../server/db/genre/types'
+import { DefaultGenre } from '../../server/db/genre/outputs'
 import { isPositionedGenre } from './common'
 
 export const GenreNode: FC<{ genre: DefaultGenre }> = ({ genre }) => {

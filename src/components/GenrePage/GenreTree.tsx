@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
 import useGenreMap from '../../hooks/useGenreMap'
-import { DefaultGenre } from '../../server/db/genre/types'
+import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'

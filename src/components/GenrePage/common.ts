@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import useLocalStorage from '../../hooks/useLocalStorage'
-import { GenreType } from '../../server/db/genre/types'
+import { GenreType } from '../../server/db/genre/outputs'
 
 export const genreTypeColors: Record<GenreType, string> = {
   MOVEMENT: 'text-rose-500',

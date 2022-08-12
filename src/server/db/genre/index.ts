@@ -1,13 +1,12 @@
 import { GenreOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { setDiff } from '../../../utils/set'
 import { check } from '../../../utils/validators'
 import { prisma } from '../../prisma'
-import { DefaultGenre, defaultGenreSelect } from './types'
+import { CreateGenreInput, EditGenreInput, LocationIdInput } from './inputs'
+import { DefaultGenre, defaultGenreSelect } from './outputs'
 import { throwOnCycle } from './utils'
 import { addGenreHistory, addGenreHistoryById } from './utils'
-import { CreateGenreInput, EditGenreInput, LocationIdInput } from './validators'
 
 export const createGenre = async (
   input: CreateGenreInput,
@@ -41,14 +40,8 @@ export const createGenre = async (
       parentGenres: input.parentGenres
         ? { connect: input.parentGenres.map((id) => ({ id })) }
         : undefined,
-      childGenres: input.childGenres
-        ? { connect: input.childGenres.map((id) => ({ id })) }
-        : undefined,
       influencedByGenres: input.influencedByGenres
         ? { connect: input.influencedByGenres.map((id) => ({ id })) }
-        : undefined,
-      influencesGenres: input.influencesGenres
-        ? { connect: input.influencesGenres.map((id) => ({ id })) }
         : undefined,
       contributors: { connect: { id: accountId } },
     },
@@ -56,16 +49,6 @@ export const createGenre = async (
   })
 
   await addGenreHistory(genre, GenreOperation.CREATE, accountId)
-
-  const relationIds = [
-    ...(input.childGenres ?? []),
-    ...(input.influencesGenres ?? []),
-  ]
-  await Promise.all(
-    relationIds.map((id) =>
-      addGenreHistoryById(id, GenreOperation.UPDATE, accountId)
-    )
-  )
 
   return genre
 }
@@ -92,19 +75,6 @@ export const editGenre = async (
     })
   }
 
-  const childGenresUpdated =
-    !!data.childGenres &&
-    setDiff(
-      new Set(originalGenre.childGenres.map((g) => g.id)),
-      new Set(data.childGenres)
-    )
-  const influencesGenresUpdated =
-    !!data.influencesGenres &&
-    setDiff(
-      new Set(originalGenre.influencesGenres.map((g) => g.id)),
-      new Set(data.influencesGenres)
-    )
-
   const genre = await prisma.genre.update({
     where: { id },
     data: {
@@ -112,14 +82,8 @@ export const editGenre = async (
       parentGenres: data.parentGenres
         ? { set: data.parentGenres.map((id) => ({ id })) }
         : undefined,
-      childGenres: data.childGenres
-        ? { set: data.childGenres.map((id) => ({ id })) }
-        : undefined,
       influencedByGenres: data.influencedByGenres
         ? { set: data.influencedByGenres.map((id) => ({ id })) }
-        : undefined,
-      influencesGenres: data.influencesGenres
-        ? { set: data.influencesGenres.map((id) => ({ id })) }
         : undefined,
       contributors: { connect: { id: accountId } },
     },
@@ -127,20 +91,6 @@ export const editGenre = async (
   })
 
   await addGenreHistory(genre, GenreOperation.UPDATE, accountId)
-
-  const updatedRelationIds = [
-    ...(childGenresUpdated
-      ? [...childGenresUpdated.added, ...childGenresUpdated.removed]
-      : []),
-    ...(influencesGenresUpdated
-      ? [...influencesGenresUpdated.added, ...influencesGenresUpdated.removed]
-      : []),
-  ]
-  await Promise.all(
-    updatedRelationIds.map((id) =>
-      addGenreHistoryById(id, GenreOperation.UPDATE, accountId)
-    )
-  )
 
   return genre
 }

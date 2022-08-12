@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { DefaultGenre } from '../server/db/genre/types'
+import { DefaultGenre } from '../server/db/genre/outputs'
 
 export type GenreMap = Record<number, DefaultGenre>
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { DefaultGenre } from '../../server/db/genre/types'
+import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'

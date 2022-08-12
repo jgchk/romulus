@@ -1,4 +1,4 @@
-import { DefaultGenre } from '../../server/db/genre/types'
+import { DefaultGenre } from '../../server/db/genre/outputs'
 
 export const CANVAS_ID = 'canvas'
 export const UNPLACED_ID = 'unplaced'
