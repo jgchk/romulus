@@ -4,6 +4,8 @@ export const useGenresQuery = () => {
   const utils = trpc.useContext()
   return trpc.useQuery(['genre.all'], {
     onSuccess: (data) => {
+      utils.setQueryData(['genre.all.simple'], data)
+      utils.setQueryData(['genre.all.tree'], data)
       for (const genre of data) {
         utils.setQueryData(['genre.byId', { id: genre.id }], genre)
       }
@@ -11,8 +13,16 @@ export const useGenresQuery = () => {
   })
 }
 
+export const useTreeGenresQuery = () => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genre.all.tree'], {
+    onSuccess: (data) => {
+      utils.setQueryData(['genre.all.simple'], data)
+    },
+  })
+}
+
 export const useSimpleGenresQuery = () => trpc.useQuery(['genre.all.simple'])
-export const useTreeGenresQuery = () => trpc.useQuery(['genre.all.tree'])
 
 export const useGenreQuery = (id: number) =>
   trpc.useQuery(['genre.byId', { id }])
