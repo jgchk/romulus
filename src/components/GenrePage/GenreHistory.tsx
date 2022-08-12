@@ -10,8 +10,8 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 
-import { DefaultGenreHistory } from '../../server/db/genre/outputs'
-import { useGenreHistoryQuery } from '../../services/genres'
+import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
+import { useGenreHistoryQuery } from '../../services/genre-history'
 import { capitalize } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
 

@@ -4,16 +4,11 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import {
-  DefaultGenre,
-  DefaultGenreHistory,
-} from '../../server/db/genre/outputs'
+import { DefaultGenre } from '../../server/db/genre/outputs'
+import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
-import {
-  useDeleteGenreMutation,
-  useGenreHistoryQuery,
-  useGenreQuery,
-} from '../../services/genres'
+import { useGenreHistoryQuery } from '../../services/genre-history'
+import { useDeleteGenreMutation, useGenreQuery } from '../../services/genres'
 import {
   ButtonPrimary,
   ButtonPrimaryRed,

@@ -6,7 +6,7 @@ import { accountRouter } from './account'
 import { artistRouter } from './artist'
 import { authRouter } from './auth'
 import { genreRouter } from './genre'
-import { genreHistoryRouter } from './genreHistory'
+import { genreHistoryRouter } from './genre-history'
 import { releaseRouter } from './release'
 
 /**

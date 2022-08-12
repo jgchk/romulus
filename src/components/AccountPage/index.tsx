@@ -7,9 +7,9 @@ import { useAccountQuery, useAccountsQuery } from '../../services/accounts'
 import { useSession } from '../../services/auth'
 import {
   useGenreHistoryCountByUserQuery,
-  useGenresQuery,
   useGiveCreateCreditMutation,
-} from '../../services/genres'
+} from '../../services/genre-history'
+import { useGenresQuery } from '../../services/genres'
 import { ButtonPrimary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
 import AccountGenreHistory from './AccountGenreHistory'

@@ -2,10 +2,10 @@ import { GenreOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
+import { addGenreHistory } from '../genre-history'
 import { CreateGenreInput, EditGenreInput } from './inputs'
 import { DefaultGenre, defaultGenreSelect } from './outputs'
 import { throwOnCycle } from './utils'
-import { addGenreHistory } from './utils'
 
 export const createGenre = async (
   input: CreateGenreInput,

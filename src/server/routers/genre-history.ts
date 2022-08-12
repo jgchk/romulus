@@ -2,9 +2,9 @@ import { GenreOperation, Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { GenreOperationInput } from '../db/genre/inputs'
-import { defaultGenreHistorySelect } from '../db/genre/outputs'
-import { addGenreHistoryById } from '../db/genre/utils'
+import { addGenreHistoryById } from '../db/genre-history'
+import { GenreOperationInput } from '../db/genre-history/inputs'
+import { defaultGenreHistorySelect } from '../db/genre-history/outputs'
 import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
