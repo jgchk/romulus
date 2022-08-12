@@ -106,44 +106,30 @@ export const throwOnCycle = async (data: {
 export const addGenreHistory = (
   genre: Omit<Genre, 'createdAt' | 'updatedAt'> & {
     parentGenres: { id: number }[]
-    childGenres: { id: number }[]
     influencedByGenres: { id: number }[]
-    influencesGenres: { id: number }[]
-    contributors?: unknown
-    createdAt?: unknown
-    updatedAt?: unknown
   },
   operation: GenreOperation,
   accountId: number
-) => {
-  const {
-    id,
-    parentGenres,
-    childGenres,
-    influencedByGenres,
-    influencesGenres,
-
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    contributors,
-    createdAt,
-    updatedAt,
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-
-    ...data
-  } = genre
-  return prisma.genreHistory.create({
+) =>
+  prisma.genreHistory.create({
     data: {
-      ...data,
-      parentGenreIds: parentGenres.map((g) => g.id),
-      childGenreIds: childGenres.map((g) => g.id),
-      influencedByGenreIds: influencedByGenres.map((g) => g.id),
-      influencesGenreIds: influencesGenres.map((g) => g.id),
-      treeGenreId: id,
+      name: genre.name,
+      type: genre.type,
+      shortDescription: genre.shortDescription,
+      longDescription: genre.longDescription,
+      notes: genre.notes,
+      startDate: genre.startDate,
+      endDate: genre.endDate,
+      akas: genre.akas,
+      parentGenreIds: genre.parentGenres.map((g) => g.id),
+      influencedByGenreIds: genre.influencedByGenres.map((g) => g.id),
+      x: genre.x,
+      y: genre.y,
+      treeGenreId: genre.id,
       operation,
       accountId,
     },
   })
-}
 
 export const addGenreHistoryById = async (
   id: number,

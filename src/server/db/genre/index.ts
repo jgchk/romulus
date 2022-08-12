@@ -1,12 +1,11 @@
 import { GenreOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { check } from '../../../utils/validators'
 import { prisma } from '../../prisma'
-import { CreateGenreInput, EditGenreInput, LocationIdInput } from './inputs'
+import { CreateGenreInput, EditGenreInput } from './inputs'
 import { DefaultGenre, defaultGenreSelect } from './outputs'
 import { throwOnCycle } from './utils'
-import { addGenreHistory, addGenreHistoryById } from './utils'
+import { addGenreHistory } from './utils'
 
 export const createGenre = async (
   input: CreateGenreInput,
@@ -14,29 +13,9 @@ export const createGenre = async (
 ): Promise<DefaultGenre> => {
   await throwOnCycle(input)
 
-  const locationIds = input.locations
-    ? await Promise.all(
-        input.locations.map(async (location) => {
-          if (check(LocationIdInput, location)) {
-            return location.id
-          }
-
-          const dbLocation = await prisma.location.create({
-            data: location,
-            select: { id: true },
-          })
-
-          return dbLocation.id
-        })
-      )
-    : undefined
-
   const genre = await prisma.genre.create({
     data: {
       ...input,
-      locations: locationIds
-        ? { connect: locationIds.map((id) => ({ id })) }
-        : undefined,
       parentGenres: input.parentGenres
         ? { connect: input.parentGenres.map((id) => ({ id })) }
         : undefined,
@@ -103,9 +82,23 @@ export const deleteGenre = async (
     where: { id },
     include: {
       parentGenres: { select: { id: true } },
-      childGenres: { select: { id: true } },
+      childGenres: {
+        include: {
+          parentGenres: { select: { id: true } },
+          childGenres: { select: { id: true } },
+          influencedByGenres: { select: { id: true } },
+          influencesGenres: { select: { id: true } },
+        },
+      },
       influencedByGenres: { select: { id: true } },
-      influencesGenres: { select: { id: true } },
+      influencesGenres: {
+        include: {
+          parentGenres: { select: { id: true } },
+          childGenres: { select: { id: true } },
+          influencedByGenres: { select: { id: true } },
+          influencesGenres: { select: { id: true } },
+        },
+      },
     },
   })
   if (!genre) {
@@ -130,15 +123,10 @@ export const deleteGenre = async (
 
   await addGenreHistory(genre, GenreOperation.DELETE, accountId)
 
-  const relationIds = [
-    ...genre.childGenres.map((g) => g.id),
-    ...genre.influencesGenres.map((g) => g.id),
-  ]
-  await Promise.all(
-    relationIds.map((id) =>
-      addGenreHistoryById(id, GenreOperation.UPDATE, accountId)
-    )
-  )
+  const relations = [...genre.childGenres, ...genre.influencesGenres]
+  for (const genre of relations) {
+    await addGenreHistory(genre, GenreOperation.UPDATE, accountId)
+  }
 
   return { id }
 }

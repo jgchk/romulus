@@ -104,13 +104,12 @@ enum GenreType {
 }
 
 model Genre {
-  id               Int        @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   name             String
-  type             GenreType  @default(STYLE)
+  type             GenreType @default(STYLE)
   shortDescription String?
   longDescription  String?
   notes            String?
-  locations        Location[]
   contributors     Account[]
   startDate        String?
   endDate          String?
@@ -136,22 +135,18 @@ enum GenreOperation {
 }
 
 model GenreHistory {
-  id               Int        @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   name             String
-  type             GenreType  @default(STYLE)
+  type             GenreType @default(STYLE)
   shortDescription String?
   longDescription  String?
   notes            String?
-  locations        Location[]
   startDate        String?
   endDate          String?
   akas             String[]
 
-  parentGenreIds Int[]
-  childGenreIds  Int[]
-
+  parentGenreIds       Int[]
   influencedByGenreIds Int[]
-  influencesGenreIds   Int[]
 
   x Int?
   y Int?
@@ -163,17 +158,4 @@ model GenreHistory {
 
   accountId Int
   account   Account @relation(fields: [accountId], references: [id])
-}
-
-model Location {
-  id Int @id @default(autoincrement())
-
-  city    String?
-  region  String?
-  country String
-
-  genres       Genre[]
-  genreHistory GenreHistory[]
-
-  @@unique([city, region, country])
 }
