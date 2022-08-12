@@ -4,15 +4,15 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
 
-import { DefaultGenre } from '../../server/db/genre/outputs'
+import { SimpleGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
-import { useGenresQuery } from '../../services/genres'
+import { useSimpleGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
 
 type Props = { filter: string; clearFilter: () => void }
-type Match = { genre: DefaultGenre; matchedAka?: string; weight: number }
+type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }
 
 const toFilterString = (s: string) => anyAscii(s.toLowerCase())
 const getMatchWeight = (name: string, filter: string) => {
@@ -35,7 +35,7 @@ const getMatchWeight = (name: string, filter: string) => {
 const WEIGHT_THRESHOLD = 0.2
 
 const GenreSearchResults: FC<Props> = (props) => {
-  const genresQuery = useGenresQuery()
+  const genresQuery = useSimpleGenresQuery()
 
   if (genresQuery.data) {
     return <HasData {...props} allGenres={genresQuery.data} />
@@ -52,7 +52,7 @@ const GenreSearchResults: FC<Props> = (props) => {
   return <CenteredLoader />
 }
 
-const HasData: FC<Props & { allGenres: DefaultGenre[] }> = ({
+const HasData: FC<Props & { allGenres: SimpleGenre[] }> = ({
   filter,
   clearFilter,
   allGenres,

@@ -2,9 +2,9 @@ import anyAscii from 'any-ascii'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
-import useGenreMap from '../../hooks/useGenreMap'
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { useGenresQuery } from '../../services/genres'
+import useIdMap from '../../hooks/useIdMap'
+import { SimpleGenre } from '../../server/db/genre/outputs'
+import { useSimpleGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'
 
@@ -49,8 +49,8 @@ const GenreMultiselect: FC<{
     return () => document.removeEventListener('click', listener)
   }, [])
 
-  const genresQuery = useGenresQuery()
-  const genreMap = useGenreMap(genresQuery.data ?? [])
+  const genresQuery = useSimpleGenresQuery()
+  const genreMap = useIdMap(genresQuery.data ?? [])
 
   const options = useMemo(
     () =>
@@ -175,8 +175,8 @@ const GenreMultiselect: FC<{
 }
 
 const Option: FC<{
-  genre: DefaultGenre
-  options: DefaultGenre[]
+  genre: SimpleGenre
+  options: SimpleGenre[]
   onClick: () => void
 }> = ({ genre, options, onClick }) => {
   const isOtherOptionWithSameName = useMemo(
@@ -203,7 +203,7 @@ const Option: FC<{
   )
 }
 
-const SelectedGenre: FC<{ genre: DefaultGenre; onRemove: () => void }> = ({
+const SelectedGenre: FC<{ genre: SimpleGenre; onRemove: () => void }> = ({
   genre,
   onRemove,
 }) => (

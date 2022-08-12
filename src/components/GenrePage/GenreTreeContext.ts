@@ -1,6 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useContext } from 'react'
 
-import { GenreMap } from '../../hooks/useGenreMap'
+import { IdMap } from '../../hooks/useIdMap'
+import { TreeGenre } from '../../server/db/genre/outputs'
 
 export type Expanded = Record<number, 'expanded' | 'collapsed' | undefined>
 
@@ -13,7 +14,7 @@ export type Descendants = Record<number, number[]>
 
 type TreeContext = {
   selectedId: number | undefined
-  genreMap: GenreMap
+  genreMap: IdMap<TreeGenre>
   expanded: Expanded
   setExpanded: Dispatch<SetStateAction<Expanded>>
   descendants: Descendants

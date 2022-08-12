@@ -2,10 +2,10 @@ import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
-import useGenreMap from '../../hooks/useGenreMap'
-import { DefaultGenre } from '../../server/db/genre/outputs'
+import useIdMap from '../../hooks/useIdMap'
+import { TreeGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
-import { useGenresQuery } from '../../services/genres'
+import { useTreeGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import { Descendants, Expanded, TreeContext } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
@@ -13,7 +13,7 @@ import GenreTreeNode from './GenreTreeNode'
 const GenreTree: FC<{
   selectedGenreId?: number
 }> = ({ selectedGenreId }) => {
-  const genresQuery = useGenresQuery()
+  const genresQuery = useTreeGenresQuery()
 
   if (genresQuery.data) {
     return <Tree genres={genresQuery.data} selectedId={selectedGenreId} />
@@ -30,13 +30,13 @@ const GenreTree: FC<{
   return <CenteredLoader />
 }
 
-const Tree: FC<{ genres: DefaultGenre[]; selectedId?: number }> = ({
+const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
   genres: allGenres,
   selectedId,
 }) => {
   const [expanded, setExpanded] = useState<Expanded>({})
 
-  const genreMap = useGenreMap(allGenres)
+  const genreMap = useIdMap(allGenres)
 
   const descendants: Descendants = useMemo(() => {
     const getDescendants = (id: number) => {

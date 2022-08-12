@@ -1,7 +1,7 @@
 import { DndContext } from '@dnd-kit/core'
 import { FC, useCallback, useMemo, useState } from 'react'
 
-import useGenreMap from '../../hooks/useGenreMap'
+import useIdMap from '../../hooks/useIdMap'
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import Canvas from './Canvas'
 import { CanvasContextProvider } from './CanvasContext'
@@ -32,7 +32,7 @@ const GenreCanvas: FC<{
     return [positioned, unpositioned]
   }, [genres])
 
-  const genreMap = useGenreMap(genres)
+  const genreMap = useIdMap(genres)
 
   const [activeId, setActiveId] = useState<number>()
   const activeGenre = useMemo(

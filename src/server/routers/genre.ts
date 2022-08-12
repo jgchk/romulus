@@ -9,7 +9,11 @@ import {
   DeleteGenreInput,
   EditGenreInput,
 } from '../db/genre/inputs'
-import { defaultGenreSelect } from '../db/genre/outputs'
+import {
+  defaultGenreSelect,
+  simpleGenreSelect,
+  treeGenreSelect,
+} from '../db/genre/outputs'
 import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
@@ -25,6 +29,12 @@ export const genreRouter = createRouter()
   // read
   .query('all', {
     resolve: () => prisma.genre.findMany({ select: defaultGenreSelect }),
+  })
+  .query('all.simple', {
+    resolve: () => prisma.genre.findMany({ select: simpleGenreSelect }),
+  })
+  .query('all.tree', {
+    resolve: () => prisma.genre.findMany({ select: treeGenreSelect }),
   })
   .query('byId', {
     input: z.object({

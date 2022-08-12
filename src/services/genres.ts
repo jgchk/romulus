@@ -11,6 +11,9 @@ export const useGenresQuery = () => {
   })
 }
 
+export const useSimpleGenresQuery = () => trpc.useQuery(['genre.all.simple'])
+export const useTreeGenresQuery = () => trpc.useQuery(['genre.all.tree'])
+
 export const useGenreQuery = (id: number) =>
   trpc.useQuery(['genre.byId', { id }])
 
@@ -20,6 +23,8 @@ export const useAddGenreMutation = () => {
     onSuccess: async () => {
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.all.simple']),
+        utils.invalidateQueries(['genre.all.tree']),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),
@@ -35,6 +40,8 @@ export const useEditGenreMutation = () => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.all.simple']),
+        utils.invalidateQueries(['genre.all.tree']),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),
@@ -49,6 +56,8 @@ export const useDeleteGenreMutation = () => {
     onSuccess: async () => {
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
+        utils.invalidateQueries(['genre.all.simple']),
+        utils.invalidateQueries(['genre.all.tree']),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),

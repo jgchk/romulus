@@ -9,7 +9,7 @@ import {
   useGenreHistoryCountByUserQuery,
   useGiveCreateCreditMutation,
 } from '../../services/genre-history'
-import { useGenresQuery } from '../../services/genres'
+import { useSimpleGenresQuery } from '../../services/genres'
 import { ButtonPrimary } from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
 import AccountGenreHistory from './AccountGenreHistory'
@@ -78,7 +78,7 @@ const CreateCreditForm: FC = () => {
   const [genreId, setGenreId] = useState<number>()
 
   const accountsQuery = useAccountsQuery()
-  const genresQuery = useGenresQuery()
+  const genresQuery = useSimpleGenresQuery()
 
   const sortedAccounts = useMemo(
     () =>
