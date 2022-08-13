@@ -175,13 +175,13 @@ const GenreMultiselect: FC<{
 }
 
 const Option: FC<{
-  genre: SimpleGenre
+  genre?: SimpleGenre
   options: SimpleGenre[]
   onClick: () => void
 }> = ({ genre, options, onClick }) => {
   const isOtherOptionWithSameName = useMemo(
-    () => options.some((g) => g.id !== genre.id && g.name === genre.name),
-    [genre.id, genre.name, options]
+    () => options.some((g) => g.id !== genre?.id && g.name === genre?.name),
+    [genre?.id, genre?.name, options]
   )
 
   return (
@@ -191,8 +191,8 @@ const Option: FC<{
         type='button'
         onClick={() => onClick()}
       >
-        {genre.name}
-        {isOtherOptionWithSameName && genre.type !== 'STYLE' && (
+        {genre?.name ?? 'Loading...'}
+        {isOtherOptionWithSameName && genre?.type && genre?.type !== 'STYLE' && (
           <>
             {' '}
             <GenreTypeChip type={genre.type} />
