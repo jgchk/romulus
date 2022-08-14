@@ -7,6 +7,7 @@ import { TreeGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useTreeGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
+import { useGenreTreeSettings } from './common'
 import { Descendants, Expanded, TreeContext } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
 
@@ -36,7 +37,31 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
 }) => {
   const [expanded, setExpanded] = useState<Expanded>({})
 
-  const genreMap = useIdMap(allGenres)
+  const { genreRelevanceFilter } = useGenreTreeSettings()
+  const filteredGenres = useMemo(() => {
+    const genreMap: Record<number, TreeGenre> = Object.fromEntries(
+      allGenres.map((genre) => [genre.id, genre])
+    )
+
+    for (const genre of allGenres) {
+      const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
+        const parentGenre = genreMap[id]
+        return parentGenre.relevance >= genreRelevanceFilter
+      })
+      const filteredChildGenres = genre.childGenres.filter(({ id }) => {
+        const childGenre = genreMap[id]
+        return childGenre.relevance >= genreRelevanceFilter
+      })
+
+      genreMap[genre.id].parentGenres = filteredParentGenres
+      genreMap[genre.id].childGenres = filteredChildGenres
+    }
+
+    return Object.values(genreMap).filter(
+      (genre) => genre.relevance >= genreRelevanceFilter
+    )
+  }, [allGenres, genreRelevanceFilter])
+  const genreMap = useIdMap(filteredGenres)
 
   const descendants: Descendants = useMemo(() => {
     const getDescendants = (id: number) => {
