@@ -46,10 +46,12 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
     for (const genre of allGenres) {
       const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
         const parentGenre = genreMap[id]
+        if (!parentGenre) return false
         return parentGenre.relevance >= genreRelevanceFilter
       })
       const filteredChildGenres = genre.childGenres.filter(({ id }) => {
         const childGenre = genreMap[id]
+        if (!childGenre) return false
         return childGenre.relevance >= genreRelevanceFilter
       })
 
