@@ -53,8 +53,11 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
         return childGenre.relevance >= genreRelevanceFilter
       })
 
-      genreMap[genre.id].parentGenres = filteredParentGenres
-      genreMap[genre.id].childGenres = filteredChildGenres
+      genreMap[genre.id] = {
+        ...genreMap[genre.id],
+        parentGenres: filteredParentGenres,
+        childGenres: filteredChildGenres,
+      }
     }
 
     return Object.values(genreMap).filter(
