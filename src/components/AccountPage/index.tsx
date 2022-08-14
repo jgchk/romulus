@@ -2,7 +2,7 @@ import { CrudOperation, Permission } from '@prisma/client'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { DefaultAccount } from '../../server/db/account'
+import { DefaultAccount } from '../../server/db/account/outputs'
 import { useAccountQuery, useAccountsQuery } from '../../services/accounts'
 import { useSession } from '../../services/auth'
 import {

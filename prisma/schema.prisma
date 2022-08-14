@@ -135,7 +135,8 @@ model Account {
   username String @unique
   password String
 
-  darkMode Boolean @default(true)
+  genreRelevanceFilter Int     @default(1)
+  darkMode             Boolean @default(true)
 
   permissions Permission[]
 

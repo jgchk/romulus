@@ -2,7 +2,10 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { defaultAccountSelect } from '../db/account'
+import { editAccount } from '../db/account'
+import { EditAccountInput } from '../db/account/inputs'
+import { defaultAccountSelect } from '../db/account/outputs'
+import { requireLogin } from '../guards'
 import { prisma } from '../prisma'
 
 export const accountRouter = createRouter()
@@ -22,6 +25,19 @@ export const accountRouter = createRouter()
       }
 
       return account
+    },
+  })
+  .mutation('edit', {
+    input: EditAccountInput,
+    resolve: async ({ input, ctx }) => {
+      const { account } = requireLogin(ctx)
+      if (input.id !== account.id) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: "Cannot edit another member's account",
+        })
+      }
+      return editAccount(input)
     },
   })
   .query('all', {

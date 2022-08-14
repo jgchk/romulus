@@ -2,13 +2,7 @@ import { GenreType } from '@prisma/client'
 import { z } from 'zod'
 
 import { iso8601 } from '../../../utils/validators'
-
-export const RelevanceInput = z
-  .number()
-  .refine((val) => Number.isInteger(val), { message: 'Must be an integer' })
-  .refine((val) => val >= 1 && val <= 5, {
-    message: 'Must be between 1 and 5 (inclusive)',
-  })
+import { GenreRelevanceInput } from '../common/inputs'
 
 export const LocationIdInput = z.object({ id: z.number() })
 export const LocationInput = z.object({
@@ -37,7 +31,7 @@ export const CreateGenreInput = z.object({
   influencedByGenres: z.number().array().optional(),
   notes: z.string().trim().min(1).optional(),
   akas: z.string().trim().min(1).array(),
-  relevance: RelevanceInput,
+  relevance: GenreRelevanceInput,
 })
 export type CreateGenreInput = z.infer<typeof CreateGenreInput>
 
@@ -57,7 +51,7 @@ export const EditGenreInput = z.object({
     y: z.number().nullable().optional(),
     notes: z.string().trim().min(1).optional().nullable(),
     akas: z.string().trim().min(1).array().optional(),
-    relevance: RelevanceInput.optional(),
+    relevance: GenreRelevanceInput.optional(),
   }),
 })
 export type EditGenreInput = z.infer<typeof EditGenreInput>
