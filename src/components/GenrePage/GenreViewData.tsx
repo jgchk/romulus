@@ -78,6 +78,15 @@ const GenreViewData: FC<{
           </div>
         </div>
 
+        {genre.relevance !== 99 && (
+          <div>
+            <label className='block text-gray-500 text-sm' htmlFor='relevance'>
+              Relevance
+            </label>
+            <div id='relevance'>{genre.relevance}</div>
+          </div>
+        )}
+
         {genre.parentGenres.length > 0 && (
           <div>
             <label className='block text-gray-500 text-sm' htmlFor='parents'>
