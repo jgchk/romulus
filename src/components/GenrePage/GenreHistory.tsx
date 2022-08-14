@@ -1,4 +1,4 @@
-import { GenreOperation } from '@prisma/client'
+import { CrudOperation } from '@prisma/client'
 import {
   createColumnHelper,
   flexRender,
@@ -110,13 +110,13 @@ const Table: FC<{ history: DefaultGenreHistory[] }> = ({
       unsortedHistory.sort((a, b) => {
         // always show CREATE first
         if (
-          a.operation === GenreOperation.CREATE &&
-          b.operation !== GenreOperation.CREATE
+          a.operation === CrudOperation.CREATE &&
+          b.operation !== CrudOperation.CREATE
         ) {
           return -1
         } else if (
-          b.operation === GenreOperation.CREATE &&
-          a.operation !== GenreOperation.CREATE
+          b.operation === CrudOperation.CREATE &&
+          a.operation !== CrudOperation.CREATE
         ) {
           return 1
         }

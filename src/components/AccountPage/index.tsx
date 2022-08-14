@@ -1,4 +1,4 @@
-import { GenreOperation, Permission } from '@prisma/client'
+import { CrudOperation, Permission } from '@prisma/client'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -35,15 +35,15 @@ const HasData: FC<{
 
   const createdCountQuery = useGenreHistoryCountByUserQuery(
     account.id,
-    GenreOperation.CREATE
+    CrudOperation.CREATE
   )
   const editedCountQuery = useGenreHistoryCountByUserQuery(
     account.id,
-    GenreOperation.UPDATE
+    CrudOperation.UPDATE
   )
   const deletedCountQuery = useGenreHistoryCountByUserQuery(
     account.id,
-    GenreOperation.DELETE
+    CrudOperation.DELETE
   )
 
   return (

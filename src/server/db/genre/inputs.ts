@@ -36,8 +36,8 @@ export type CreateGenreInput = z.infer<typeof CreateGenreInput>
 export const EditGenreInput = z.object({
   id: z.number(),
   data: z.object({
-    name: z.string().trim().min(1),
-    type: GenreTypeInput,
+    name: z.string().trim().min(1).optional(),
+    type: GenreTypeInput.optional(),
     shortDescription: z.string().trim().min(1).optional().nullable(),
     longDescription: z.string().trim().min(1).optional().nullable(),
     locations: z.union([LocationIdInput, LocationInput]).array().optional(),

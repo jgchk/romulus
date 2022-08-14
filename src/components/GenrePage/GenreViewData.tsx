@@ -1,4 +1,4 @@
-import { GenreOperation, Permission } from '@prisma/client'
+import { CrudOperation, Permission } from '@prisma/client'
 import { compareAsc } from 'date-fns'
 import Link from 'next/link'
 import { uniqBy } from 'ramda'
@@ -20,13 +20,13 @@ const GenreViewData: FC<{
       history.sort((a, b) => {
         // always show CREATE first
         if (
-          a.operation === GenreOperation.CREATE &&
-          b.operation !== GenreOperation.CREATE
+          a.operation === CrudOperation.CREATE &&
+          b.operation !== CrudOperation.CREATE
         ) {
           return -1
         } else if (
-          b.operation === GenreOperation.CREATE &&
-          a.operation !== GenreOperation.CREATE
+          b.operation === CrudOperation.CREATE &&
+          a.operation !== CrudOperation.CREATE
         ) {
           return 1
         }

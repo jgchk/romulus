@@ -10,6 +10,10 @@ declare module "nextjs-routes" {
     | { pathname: "/api/logout"; query?: Query | undefined }
     | { pathname: "/api/register"; query?: Query | undefined }
     | { pathname: "/api/trpc/[trpc]"; query: Query<{ trpc: string }> }
+    | { pathname: "/artists/[id]/history"; query: Query<{ id: string }> }
+    | { pathname: "/artists/[id]"; query: Query<{ id: string }> }
+    | { pathname: "/artists/create"; query?: Query | undefined }
+    | { pathname: "/artists"; query?: Query | undefined }
     | { pathname: "/genres/[id]/edit"; query: Query<{ id: string }> }
     | { pathname: "/genres/[id]/history"; query: Query<{ id: string }> }
     | { pathname: "/genres/[id]"; query: Query<{ id: string }> }
@@ -19,9 +23,8 @@ declare module "nextjs-routes" {
     | { pathname: "/"; query?: Query | undefined }
     | { pathname: "/login"; query?: Query | undefined }
     | { pathname: "/register"; query?: Query | undefined }
-    | { pathname: "/releases/[id]"; query: Query<{ id: string }> }
-    | { pathname: "/releases"; query?: Query | undefined }
-    | { pathname: "/releases/submit"; query?: Query | undefined };
+    | { pathname: "/releases/create"; query?: Query | undefined }
+    | { pathname: "/releases"; query?: Query | undefined };
 
   type Query<Params = {}> = Params & { [key: string]: string | string[] | undefined };
 }

@@ -12,6 +12,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']),
   SYSTEM_USERNAME: z.string(),
   SYSTEM_PASSWORD: z.string(),
+  SPOTIFY_ID: z.string(),
+  SPOTIFY_SECRET: z.string(),
 })
 
 const env = envSchema.safeParse(process.env)

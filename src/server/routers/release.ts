@@ -1,42 +1,29 @@
-import { Prisma } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { requireLogin } from '../guards'
+import { createRelease, deleteRelease, editRelease } from '../db/release'
+import {
+  CreateReleaseInput,
+  DeleteReleaseInput,
+  EditReleaseInput,
+} from '../db/release/input'
+import { defaultReleaseSelect } from '../db/release/output'
+import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
-const defaultReleaseSelect = Prisma.validator<Prisma.ReleaseSelect>()({
-  id: true,
-  title: true,
-})
-
 export const releaseRouter = createRouter()
-  // create
   .mutation('add', {
-    input: z.object({
-      title: z.string(),
-    }),
+    input: CreateReleaseInput,
     resolve: ({ input, ctx }) => {
-      requireLogin(ctx)
-
-      return prisma.release.create({
-        data: input,
-        select: defaultReleaseSelect,
-      })
+      const { account } = requirePermission(ctx, Permission.EDIT_RELEASES)
+      return createRelease(input, account.id)
     },
   })
-  // read
-  .query('all', {
-    resolve: () => prisma.release.findMany({ select: defaultReleaseSelect }),
-  })
   .query('byId', {
-    input: z.object({
-      id: z.number(),
-    }),
-    resolve: async ({ input: { id }, ctx }) => {
-      requireLogin(ctx)
-
+    input: z.object({ id: z.number() }),
+    resolve: async ({ input: { id } }) => {
       const release = await prisma.release.findUnique({
         where: { id },
         select: defaultReleaseSelect,
@@ -52,33 +39,17 @@ export const releaseRouter = createRouter()
       return release
     },
   })
-  // update
   .mutation('edit', {
-    input: z.object({
-      id: z.number(),
-      data: z.object({
-        title: z.string().optional(),
-      }),
-    }),
-    resolve: ({ input: { id, data }, ctx }) => {
-      requireLogin(ctx)
-
-      return prisma.release.update({
-        where: { id },
-        data,
-        select: defaultReleaseSelect,
-      })
+    input: EditReleaseInput,
+    resolve: ({ input, ctx }) => {
+      const { account } = requirePermission(ctx, Permission.EDIT_RELEASES)
+      return editRelease(input, account.id)
     },
   })
-  // delete
   .mutation('delete', {
-    input: z.object({
-      id: z.number(),
-    }),
+    input: DeleteReleaseInput,
     resolve: async ({ input: { id }, ctx }) => {
-      requireLogin(ctx)
-
-      await prisma.release.delete({ where: { id } })
-      return { id }
+      const { account } = requirePermission(ctx, Permission.EDIT_RELEASES)
+      return deleteRelease(id, account.id)
     },
   })

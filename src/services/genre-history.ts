@@ -1,4 +1,4 @@
-import { GenreOperation } from '@prisma/client'
+import { CrudOperation } from '@prisma/client'
 
 import { trpc } from '../utils/trpc'
 
@@ -12,7 +12,7 @@ export const useGenreHistoryByUserQuery = (id: number) =>
 
 export const useGenreHistoryCountByUserQuery = (
   id: number,
-  operation: GenreOperation
+  operation: CrudOperation
 ) => trpc.useQuery(['genre.history.byUserId.count', { id, operation }])
 
 export const useGiveCreateCreditMutation = () => {

@@ -30,7 +30,8 @@ export const useGenreQuery = (id: number) =>
 export const useAddGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.add'], {
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      utils.setQueryData(['genre.byId', { id: data.id }], data)
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.all.simple']),

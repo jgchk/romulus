@@ -1,8 +1,13 @@
 import { trpc } from '../utils/trpc'
 
-export const useReleasesQuery = () => trpc.useQuery(['release.all'])
-
 export const useReleaseQuery = (id: number) =>
   trpc.useQuery(['release.byId', { id }])
 
-export const useAddReleaseMutation = () => trpc.useMutation('release.add')
+export const useAddReleaseMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['release.add'], {
+    onSuccess: (data) => {
+      utils.setQueryData(['release.byId', { id: data.id }], data)
+    },
+  })
+}

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,33 +7,132 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CrudOperation {
+  CREATE
+  UPDATE
+  DELETE
+
+  @@map("GenreOperation")
+}
+
 model Artist {
-  id       Int       @id @default(autoincrement())
-  name     String
-  releases Release[]
-  tracks   Track[]
+  id   Int      @id @default(autoincrement())
+  name String
+  akas String[]
+
+  spotifyIds String[]
+
+  issues IssueArtist[]
+  tracks Track[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ArtistHistory {
+  id   Int      @id @default(autoincrement())
+  name String
+  akas String[]
+
+  spotifyIds String[]
+
+  artistId Int
+
+  createdAt DateTime      @default(now())
+  operation CrudOperation
+  accountId Int
+  account   Account       @relation(fields: [accountId], references: [id])
 }
 
 model Release {
-  id          Int             @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
+  issues  Issue[]
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReleaseHistory {
+  id Int @id @default(autoincrement())
+
+  releaseId Int
+
+  createdAt DateTime      @default(now())
+  operation CrudOperation
+  accountId Int
+  account   Account       @relation(fields: [accountId], references: [id])
+}
+
+model Issue {
+  id          Int           @id @default(autoincrement())
   title       String
-  artists     Artist[]
+  artists     IssueArtist[]
   releaseDate String?
-  ratings     ReleaseRating[]
-  reviews     ReleaseReview[]
+
+  spotifyId String?
+
+  release   Release @relation(fields: [releaseId], references: [id])
+  releaseId Int
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PhysicalObject {
+  id   Int    @id @default(autoincrement())
+  type String
+  // ... other fields, e.g. 
+}
+
+model IssueArtist {
+  issue   Issue @relation(fields: [issueId], references: [id])
+  issueId Int
+
+  artist   Artist @relation(fields: [artistId], references: [id])
+  artistId Int
+
+  order Int
+
+  @@id([issueId, artistId])
+}
+
+model IssueHistory {
+  id          Int     @id @default(autoincrement())
+  title       String
+  artistIds   Int[]
+  releaseDate String?
+
+  spotifyId String?
+
+  issueId   Int
+  releaseId Int
+
+  createdAt DateTime      @default(now())
+  operation CrudOperation
+  accountId Int
+  account   Account       @relation(fields: [accountId], references: [id])
 }
 
 model Track {
-  id         Int           @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   title      String
   durationMs Int
   artists    Artist[]
-  ratings    TrackRating[]
-  reviews    TrackReview[]
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Permission {
   EDIT_GENRES
+  EDIT_ARTISTS
+  EDIT_RELEASES
   MIGRATE_CONTRIBUTORS
 }
 
@@ -49,50 +145,36 @@ model Account {
 
   permissions Permission[]
 
-  releaseRatings ReleaseRating[]
-  trackRatings   TrackRating[]
-  releaseReviews ReleaseReview[]
-  trackReviews   TrackReview[]
+  genreHistory   GenreHistory[]
+  artistHistory  ArtistHistory[]
+  releaseHistory ReleaseHistory[]
+  issueHistory   IssueHistory[]
 
-  genreHistory GenreHistory[]
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
-model ReleaseRating {
-  id        Int     @id @default(autoincrement())
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId Int
-  release   Release @relation(fields: [releaseId], references: [id])
-  releaseId Int
-  rating    Int
-}
+model Review {
+  id     Int  @id @default(autoincrement())
+  rating Int?
+  review Int?
 
-model TrackRating {
-  id        Int     @id @default(autoincrement())
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
-  track     Track   @relation(fields: [trackId], references: [id])
-  trackId   Int
-  rating    Int
-}
 
-model ReleaseReview {
-  id        Int     @id @default(autoincrement())
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId Int
-  release   Release @relation(fields: [releaseId], references: [id])
-  releaseId Int
-  title     String?
-  text      String
-}
+  release   Release? @relation(fields: [releaseId], references: [id])
+  releaseId Int?
 
-model TrackReview {
-  id        Int     @id @default(autoincrement())
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId Int
-  track     Track   @relation(fields: [trackId], references: [id])
-  trackId   Int
-  title     String?
-  text      String
+  issue   Issue? @relation(fields: [issueId], references: [id])
+  issueId Int?
+
+  track   Track? @relation(fields: [trackId], references: [id])
+  trackId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum GenreType {
@@ -127,12 +209,6 @@ model Genre {
   updatedAt DateTime @updatedAt
 }
 
-enum GenreOperation {
-  CREATE
-  UPDATE
-  DELETE
-}
-
 model GenreHistory {
   id               Int       @id @default(autoincrement())
   name             String
@@ -152,9 +228,8 @@ model GenreHistory {
 
   treeGenreId Int
 
-  createdAt DateTime       @default(now())
-  operation GenreOperation
-
+  createdAt DateTime      @default(now())
+  operation CrudOperation
   accountId Int
-  account   Account @relation(fields: [accountId], references: [id])
+  account   Account       @relation(fields: [accountId], references: [id])
 }
