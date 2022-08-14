@@ -9,8 +9,8 @@ import { useAccountQuery } from './accounts'
 export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
 export const useSession = () => {
-  const whoamiQueryy = useWhoamiQuery()
-  const accountQuery = useAccountQuery(whoamiQueryy.data?.id)
+  const whoamiQuery = useWhoamiQuery()
+  const accountQuery = useAccountQuery(whoamiQuery.data?.id)
 
   const isLoggedIn = useMemo(() => {
     if (!accountQuery.isSuccess) return undefined
@@ -28,7 +28,9 @@ export const useSession = () => {
     [accountQuery.data?.permissions]
   )
 
-  return { ...accountQuery, isLoggedIn, isLoggedOut, hasPermission }
+  return !whoamiQuery.data?.id
+    ? { ...whoamiQuery, isLoggedIn, isLoggedOut, hasPermission }
+    : { ...accountQuery, isLoggedIn, isLoggedOut, hasPermission }
 }
 
 export const useLoginMutation = () => {
