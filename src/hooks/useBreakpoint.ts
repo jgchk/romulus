@@ -1,15 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
-import { Config } from 'tailwindcss'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import resolveConfig from 'tailwindcss/resolveConfig'
 
 import tailwindConfig from '../../tailwind.config'
 import { isBrowser } from '../utils/dom'
 import useIsomorphicLayoutEffect from './useIsomorphicLayoutEffect'
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-const config = resolveConfig(tailwindConfig) as Config
+const config = resolveConfig(tailwindConfig)
 
 export const useBreakpoint = (breakpoint: string, defaultValue = true) => {
   const [match, setMatch] = useState(defaultValue)
