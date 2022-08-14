@@ -1,14 +1,24 @@
 import { Permission } from '@prisma/client'
+import { TRPCClientErrorLike } from '@trpc/client'
 import ky from 'ky'
 import { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-query'
 
+import { DefaultAccount } from '../server/db/account/outputs'
+import type { AppRouter } from '../server/routers/_app'
 import { trpc } from '../utils/trpc'
 import { useAccountQuery } from './accounts'
 
 export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
-export const useSession = () => {
+export const useSession = (): {
+  data: DefaultAccount | null | undefined
+  error: TRPCClientErrorLike<AppRouter> | null
+  isSuccess: boolean
+  isLoggedIn: boolean | undefined
+  isLoggedOut: boolean | undefined
+  hasPermission: (permission: Permission) => boolean | undefined
+} => {
   const whoamiQuery = useWhoamiQuery()
   const accountQuery = useAccountQuery(whoamiQuery.data?.id)
 
@@ -28,9 +38,25 @@ export const useSession = () => {
     [accountQuery.data?.permissions]
   )
 
-  return !whoamiQuery.data?.id
-    ? { ...whoamiQuery, isLoggedIn, isLoggedOut, hasPermission }
-    : { ...accountQuery, isLoggedIn, isLoggedOut, hasPermission }
+  if (!whoamiQuery.data) {
+    return {
+      data: whoamiQuery.data,
+      error: whoamiQuery.error,
+      isSuccess: whoamiQuery.isSuccess,
+      isLoggedIn,
+      isLoggedOut,
+      hasPermission,
+    }
+  }
+
+  return {
+    data: accountQuery.data,
+    error: accountQuery.error,
+    isSuccess: accountQuery.isSuccess,
+    isLoggedIn,
+    isLoggedOut,
+    hasPermission,
+  }
 }
 
 export const useLoginMutation = () => {
