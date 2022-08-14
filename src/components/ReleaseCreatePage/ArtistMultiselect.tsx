@@ -106,7 +106,7 @@ const ArtistMultiselect: FC<{
           {selectedIds.map((id) => (
             <SelectedArtist
               key={id}
-              artist={artistMap[id]}
+              artist={artistMap.get(id)}
               onRemove={() => unselectId(id)}
             />
           ))}
@@ -187,13 +187,13 @@ const Option: FC<{
   </li>
 )
 
-const SelectedArtist: FC<{ artist: SimpleArtist; onRemove: () => void }> = ({
+const SelectedArtist: FC<{ artist?: SimpleArtist; onRemove: () => void }> = ({
   artist,
   onRemove,
 }) => (
   <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
     <div className='flex items-center px-2 py-0.5 text-sm font-medium'>
-      {artist.name}
+      {artist?.name ?? 'Loading...'}
     </div>
     <button
       className='border-l h-full px-1 border-gray-300 hover:bg-gray-300'

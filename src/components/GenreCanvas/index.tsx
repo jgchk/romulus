@@ -36,7 +36,7 @@ const GenreCanvas: FC<{
 
   const [activeId, setActiveId] = useState<number>()
   const activeGenre = useMemo(
-    () => (activeId !== undefined ? genreMap[activeId] : undefined),
+    () => (activeId !== undefined ? genreMap.get(activeId) : undefined),
     [activeId, genreMap]
   )
 

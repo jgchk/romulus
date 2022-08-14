@@ -39,37 +39,34 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
 
   const { genreRelevanceFilter } = useGenreTreeSettings()
   const filteredGenres = useMemo(() => {
-    const genreMap: Record<number, TreeGenre> = Object.fromEntries(
+    const genreMap: Map<number, TreeGenre> = new Map(
       allGenres.map((genre) => [genre.id, genre])
     )
 
-    for (const genre of allGenres) {
-      const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
-        const parentGenre = genreMap[id]
-        if (!parentGenre) return false
-        return parentGenre.relevance >= genreRelevanceFilter
+    return allGenres
+      .filter((genre) => genre.relevance >= genreRelevanceFilter)
+      .map((genre) => {
+        const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
+          const parentGenre = genreMap.get(id)
+          if (!parentGenre) return false
+          return parentGenre.relevance >= genreRelevanceFilter
+        })
+        const filteredChildGenres = genre.childGenres.filter(({ id }) => {
+          const childGenre = genreMap.get(id)
+          if (!childGenre) return false
+          return childGenre.relevance >= genreRelevanceFilter
+        })
+        return {
+          ...genre,
+          parentGenres: filteredParentGenres,
+          childGenres: filteredChildGenres,
+        }
       })
-      const filteredChildGenres = genre.childGenres.filter(({ id }) => {
-        const childGenre = genreMap[id]
-        if (!childGenre) return false
-        return childGenre.relevance >= genreRelevanceFilter
-      })
-
-      genreMap[genre.id] = {
-        ...genreMap[genre.id],
-        parentGenres: filteredParentGenres,
-        childGenres: filteredChildGenres,
-      }
-    }
-
-    return Object.values(genreMap).filter(
-      (genre) => genre.relevance >= genreRelevanceFilter
-    )
   }, [allGenres, genreRelevanceFilter])
   const genreMap = useIdMap(filteredGenres)
 
   const descendants: Descendants = useMemo(() => {
-    const getDescendants = (id: number) => {
+    const getDescendants = (id: number): number[] => {
       const descendants: number[] = []
       const queue = [id]
 
@@ -77,7 +74,7 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
         const currId = queue.shift()
         if (currId === undefined) break
 
-        const currGenre = genreMap[currId]
+        const currGenre = genreMap.get(currId)
         const childIds = (currGenre?.childGenres ?? []).map((g) => g.id) ?? []
         descendants.push(...childIds)
         queue.push(...childIds)
@@ -86,8 +83,8 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
       return descendants
     }
 
-    return Object.fromEntries(
-      Object.values(genreMap).map((genre) => [
+    return new Map(
+      [...genreMap.values()].map((genre) => [
         genre.id,
         getDescendants(genre.id),
       ])
@@ -96,7 +93,7 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
 
   const topLevelGenres = useMemo(
     () =>
-      Object.values(genreMap)
+      [...genreMap.values()]
         .filter((genre) => genre.parentGenres.length === 0)
         .sort((a, b) =>
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())

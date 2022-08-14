@@ -10,7 +10,7 @@ export type FilterMatches = Record<
   { name: boolean; aka?: string | undefined } | undefined
 >
 
-export type Descendants = Record<number, number[]>
+export type Descendants = Map<number, number[]>
 
 type TreeContext = {
   selectedId: number | undefined
@@ -22,12 +22,12 @@ type TreeContext = {
 
 export const TreeContext = createContext<TreeContext>({
   selectedId: undefined,
-  genreMap: {},
+  genreMap: new Map(),
   expanded: {},
   setExpanded: () => {
     throw new Error('Must use TreeContext inside of a TreeProvider')
   },
-  descendants: {},
+  descendants: new Map(),
 })
 
 export const useTreeContext = () => useContext(TreeContext)

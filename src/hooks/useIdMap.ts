@@ -1,11 +1,8 @@
 import { useMemo } from 'react'
 
-export type IdMap<T> = Record<number, T>
+export type IdMap<T> = Map<number, T>
 
 const useIdMap = <T extends { id: number }>(items: T[]): IdMap<T> =>
-  useMemo(
-    () => Object.fromEntries(items.map((item) => [item.id, item])),
-    [items]
-  )
+  useMemo(() => new Map(items.map((item) => [item.id, item])), [items])
 
 export default useIdMap

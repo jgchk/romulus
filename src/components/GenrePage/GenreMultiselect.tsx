@@ -108,7 +108,7 @@ const GenreMultiselect: FC<{
           {selectedIds.map((id) => (
             <SelectedGenre
               key={id}
-              genre={genreMap[id]}
+              genre={genreMap.get(id)}
               onRemove={() => unselectId(id)}
             />
           ))}

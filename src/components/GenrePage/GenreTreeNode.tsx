@@ -16,32 +16,32 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
     descendants: allDescendants,
   } = useTreeContext()
 
-  const genre = useMemo(() => genreMap[id], [genreMap, id])
+  const genre = useMemo(() => genreMap.get(id), [genreMap, id])
 
   const descendants = useMemo(
-    () => allDescendants[genre.id],
-    [allDescendants, genre.id]
+    () => allDescendants.get(id),
+    [allDescendants, id]
   )
 
   const isExpanded = useMemo(() => {
-    if (expanded[genre.id] === 'expanded') return true
+    if (expanded[id] === 'expanded') return true
 
     if (
-      expanded[genre.id] === undefined &&
+      expanded[id] === undefined &&
       selectedId !== undefined &&
-      descendants.includes(selectedId)
+      descendants?.includes(selectedId)
     )
       return true
 
     return false
-  }, [descendants, expanded, genre.id, selectedId])
+  }, [descendants, expanded, id, selectedId])
 
   const children = useMemo(
     () =>
-      genre.childGenres.sort((a, b) =>
+      genre?.childGenres.sort((a, b) =>
         a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      ),
-    [genre.childGenres]
+      ) ?? [],
+    [genre?.childGenres]
   )
 
   const { showTypeTags } = useGenreTreeSettings()
@@ -49,22 +49,22 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
   return (
     <li
       className={clsx(
-        genre.parentGenres.length > 0 && 'ml-4 border-l',
-        genre.parentGenres.some(({ id }) => selectedId === id) &&
+        genre && genre.parentGenres.length > 0 && 'ml-4 border-l',
+        genre &&
+          genre.parentGenres.some(({ id }) => selectedId === id) &&
           'border-gray-400'
       )}
-      key={genre.id}
     >
       <div className='ml-1 flex space-x-1'>
         <button
           className={clsx(
             'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
-            genre.childGenres.length === 0 && 'invisible'
+            genre && genre.childGenres.length === 0 && 'invisible'
           )}
           onClick={() =>
             setExpanded({
               ...expanded,
-              [genre.id]: isExpanded ? 'collapsed' : 'expanded',
+              [id]: isExpanded ? 'collapsed' : 'expanded',
             })
           }
         >
@@ -73,19 +73,17 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
         <Link
           href={{
             pathname: '/genres/[id]',
-            query: { id: genre.id.toString() },
+            query: { id: id.toString() },
           }}
         >
           <a
             className={clsx(
               'hover:font-bold',
-              selectedId === genre.id
-                ? 'text-blue-600 font-bold'
-                : 'text-gray-600'
+              selectedId === id ? 'text-blue-600 font-bold' : 'text-gray-600'
             )}
           >
-            {genre.name}
-            {showTypeTags && genre.type !== 'STYLE' && (
+            {genre?.name ?? 'Loading...'}
+            {showTypeTags && genre && genre.type !== 'STYLE' && (
               <>
                 {' '}
                 <GenreTypeChip type={genre.type} />
