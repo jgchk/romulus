@@ -208,7 +208,7 @@ const GenreForm: FC<{
             <option value={4}>4</option>
             <option value={5}>5</option>
             <option value={99} disabled className='hidden'>
-              Always
+              Unset
             </option>
           </select>
           {errors.relevance && (
