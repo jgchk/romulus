@@ -1,48 +1,28 @@
-/**
- *
- * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
- */
-import { Prisma } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { requireLogin } from '../guards'
+import { createArtist, deleteArtist, editArtist } from '../db/artist'
+import {
+  CreateArtistInput,
+  DeleteArtistInput,
+  EditArtistInput,
+} from '../db/artist/input'
+import { defaultArtistSelect, simpleArtistSelect } from '../db/artist/output'
+import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
-/**
- * Default selector for Artist.
- * It's important to always explicitly say which fields you want to return in order to not leak extra information
- * @see https://github.com/prisma/prisma/issues/9353
- */
-const defaultArtistSelect = Prisma.validator<Prisma.ArtistSelect>()({
-  id: true,
-  name: true,
-})
-
 export const artistRouter = createRouter()
-  // create
   .mutation('add', {
-    input: z.object({
-      name: z.string(),
-    }),
-    resolve: ({ input, ctx }) => {
-      requireLogin(ctx)
-
-      return prisma.artist.create({
-        data: input,
-        select: defaultArtistSelect,
-      })
+    input: CreateArtistInput,
+    resolve: async ({ input, ctx }) => {
+      const { account } = requirePermission(ctx, Permission.EDIT_ARTISTS)
+      return createArtist(input, account.id)
     },
   })
-  // read
-  .query('all', {
-    resolve: () => prisma.artist.findMany({ select: defaultArtistSelect }),
-  })
   .query('byId', {
-    input: z.object({
-      id: z.number(),
-    }),
+    input: z.object({ id: z.number() }),
     resolve: async ({ input: { id } }) => {
       const artist = await prisma.artist.findUnique({
         where: { id },
@@ -59,33 +39,20 @@ export const artistRouter = createRouter()
       return artist
     },
   })
-  // update
+  .query('all.simple', {
+    resolve: () => prisma.artist.findMany({ select: simpleArtistSelect }),
+  })
   .mutation('edit', {
-    input: z.object({
-      id: z.number(),
-      data: z.object({
-        name: z.string().optional(),
-      }),
-    }),
-    resolve: async ({ input: { id, data }, ctx }) => {
-      requireLogin(ctx)
-
-      return prisma.artist.update({
-        where: { id },
-        data,
-        select: defaultArtistSelect,
-      })
+    input: EditArtistInput,
+    resolve: async ({ input, ctx }) => {
+      const { account } = requirePermission(ctx, Permission.EDIT_ARTISTS)
+      return editArtist(input, account.id)
     },
   })
-  // delete
   .mutation('delete', {
-    input: z.object({
-      id: z.number(),
-    }),
+    input: DeleteArtistInput,
     resolve: async ({ input: { id }, ctx }) => {
-      requireLogin(ctx)
-
-      await prisma.artist.delete({ where: { id } })
-      return { id }
+      const { account } = requirePermission(ctx, Permission.EDIT_ARTISTS)
+      return deleteArtist(id, account.id)
     },
   })

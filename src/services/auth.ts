@@ -4,29 +4,31 @@ import { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
+import { useAccountQuery } from './accounts'
 
 export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
 export const useSession = () => {
-  const whoamiQuery = useWhoamiQuery()
+  const whoamiQueryy = useWhoamiQuery()
+  const accountQuery = useAccountQuery(whoamiQueryy.data?.id)
 
   const isLoggedIn = useMemo(() => {
-    if (!whoamiQuery.isSuccess) return undefined
-    return whoamiQuery.data !== null
-  }, [whoamiQuery.data, whoamiQuery.isSuccess])
+    if (!accountQuery.isSuccess) return undefined
+    return accountQuery.data !== null
+  }, [accountQuery.data, accountQuery.isSuccess])
 
   const isLoggedOut = useMemo(() => {
-    if (!whoamiQuery.isSuccess) return undefined
-    return whoamiQuery.data === null
-  }, [whoamiQuery.data, whoamiQuery.isSuccess])
+    if (!accountQuery.isSuccess) return undefined
+    return accountQuery.data === null
+  }, [accountQuery.data, accountQuery.isSuccess])
 
   const hasPermission = useCallback(
     (permission: Permission) =>
-      whoamiQuery.data?.permissions.includes(permission),
-    [whoamiQuery.data?.permissions]
+      accountQuery.data?.permissions.includes(permission),
+    [accountQuery.data?.permissions]
   )
 
-  return { ...whoamiQuery, isLoggedIn, isLoggedOut, hasPermission }
+  return { ...accountQuery, isLoggedIn, isLoggedOut, hasPermission }
 }
 
 export const useLoginMutation = () => {

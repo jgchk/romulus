@@ -1,9 +1,9 @@
-import { GenreOperation, Permission } from '@prisma/client'
+import { CrudOperation, Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
+import { CrudOperationInput } from '../db/common/inputs'
 import { addGenreHistoryById } from '../db/genre-history'
-import { GenreOperationInput } from '../db/genre-history/inputs'
 import { defaultGenreHistorySelect } from '../db/genre-history/outputs'
 import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
@@ -50,7 +50,7 @@ export const genreHistoryRouter = createRouter()
     },
   })
   .query('byUserId.count', {
-    input: z.object({ id: z.number(), operation: GenreOperationInput }),
+    input: z.object({ id: z.number(), operation: CrudOperationInput }),
     resolve: async ({ input: { id, operation } }) => {
       const genres = await prisma.genreHistory.findMany({
         where: { accountId: id, operation },
@@ -68,14 +68,14 @@ export const genreHistoryRouter = createRouter()
       requirePermission(ctx, Permission.MIGRATE_CONTRIBUTORS)
 
       const createAction = await prisma.genreHistory.findFirst({
-        where: { treeGenreId: input.genreId, operation: GenreOperation.CREATE },
+        where: { treeGenreId: input.genreId, operation: CrudOperation.CREATE },
         select: { id: true, account: { select: { username: true } } },
       })
 
       if (!createAction) {
         return addGenreHistoryById(
           input.genreId,
-          GenreOperation.CREATE,
+          CrudOperation.CREATE,
           input.accountId
         )
       }

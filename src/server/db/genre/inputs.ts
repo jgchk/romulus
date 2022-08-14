@@ -2,6 +2,7 @@ import { GenreType } from '@prisma/client'
 import { z } from 'zod'
 
 import { iso8601 } from '../../../utils/validators'
+import { GenreRelevanceInput } from '../common/inputs'
 
 export const LocationIdInput = z.object({ id: z.number() })
 export const LocationInput = z.object({
@@ -30,14 +31,15 @@ export const CreateGenreInput = z.object({
   influencedByGenres: z.number().array().optional(),
   notes: z.string().trim().min(1).optional(),
   akas: z.string().trim().min(1).array(),
+  relevance: GenreRelevanceInput,
 })
 export type CreateGenreInput = z.infer<typeof CreateGenreInput>
 
 export const EditGenreInput = z.object({
   id: z.number(),
   data: z.object({
-    name: z.string().trim().min(1),
-    type: GenreTypeInput,
+    name: z.string().trim().min(1).optional(),
+    type: GenreTypeInput.optional(),
     shortDescription: z.string().trim().min(1).optional().nullable(),
     longDescription: z.string().trim().min(1).optional().nullable(),
     locations: z.union([LocationIdInput, LocationInput]).array().optional(),
@@ -49,6 +51,7 @@ export const EditGenreInput = z.object({
     y: z.number().nullable().optional(),
     notes: z.string().trim().min(1).optional().nullable(),
     akas: z.string().trim().min(1).array().optional(),
+    relevance: GenreRelevanceInput.optional(),
   }),
 })
 export type EditGenreInput = z.infer<typeof EditGenreInput>

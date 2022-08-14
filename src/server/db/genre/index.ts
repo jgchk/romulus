@@ -1,4 +1,4 @@
-import { GenreOperation } from '@prisma/client'
+import { CrudOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
@@ -26,7 +26,7 @@ export const createGenre = async (
     select: defaultGenreSelect,
   })
 
-  await addGenreHistory(genre, GenreOperation.CREATE, accountId)
+  await addGenreHistory(genre, CrudOperation.CREATE, accountId)
 
   return genre
 }
@@ -35,23 +35,24 @@ export const editGenre = async (
   { id, data }: EditGenreInput,
   accountId: number
 ): Promise<DefaultGenre> => {
-  await throwOnCycle({ id, ...data })
+  let name = data.name
 
-  const originalGenre = await prisma.genre.findUnique({
-    where: { id },
-    select: {
-      parentGenres: { select: { id: true } },
-      childGenres: { select: { id: true } },
-      influencedByGenres: { select: { id: true } },
-      influencesGenres: { select: { id: true } },
-    },
-  })
-  if (!originalGenre) {
+  if (name === undefined) {
+    const genre = await prisma.genre.findUnique({
+      where: { id },
+      select: { name: true },
+    })
+    name = genre?.name
+  }
+
+  if (name === undefined) {
     throw new TRPCError({
       code: 'NOT_FOUND',
       message: `No genre with id '${id}'`,
     })
   }
+
+  await throwOnCycle({ id, ...data, name })
 
   const genre = await prisma.genre.update({
     where: { id },
@@ -67,7 +68,7 @@ export const editGenre = async (
     select: defaultGenreSelect,
   })
 
-  await addGenreHistory(genre, GenreOperation.UPDATE, accountId)
+  await addGenreHistory(genre, CrudOperation.UPDATE, accountId)
 
   return genre
 }
@@ -119,11 +120,11 @@ export const deleteGenre = async (
     prisma.genre.delete({ where: { id } }),
   ])
 
-  await addGenreHistory(genre, GenreOperation.DELETE, accountId)
+  await addGenreHistory(genre, CrudOperation.DELETE, accountId)
 
   const relations = [...genre.childGenres, ...genre.influencesGenres]
   for (const genre of relations) {
-    await addGenreHistory(genre, GenreOperation.UPDATE, accountId)
+    await addGenreHistory(genre, CrudOperation.UPDATE, accountId)
   }
 
   return { id }

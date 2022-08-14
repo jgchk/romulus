@@ -1,9 +1,9 @@
 import { GenreType, Permission } from '@prisma/client'
 import clsx from 'clsx'
-import { useRouter } from 'next/router'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
+import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
@@ -12,6 +12,8 @@ import Loader from '../common/Loader'
 import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
 
+const DEFAULT_RELEVANCE = 3
+
 const GenreFormFields = {
   name: '',
   type: GenreType.STYLE as GenreType,
@@ -19,6 +21,7 @@ const GenreFormFields = {
   shortDescription: '',
   longDescription: '',
   notes: '',
+  relevance: DEFAULT_RELEVANCE,
 }
 
 export type GenreFormFields = typeof GenreFormFields
@@ -35,6 +38,7 @@ export type GenreFormData = {
   notes: string | null
   parentGenres: number[]
   influencedByGenres: number[]
+  relevance: number
 }
 
 const GenreForm: FC<{
@@ -61,6 +65,7 @@ const GenreForm: FC<{
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
       notes: genre?.notes ?? '',
+      relevance: genre?.relevance ?? DEFAULT_RELEVANCE,
     },
   })
 
@@ -87,49 +92,14 @@ const GenreForm: FC<{
         notes: data.notes.length > 0 ? data.notes : null,
         parentGenres,
         influencedByGenres,
+        relevance: data.relevance,
       }),
     [influencedByGenres, onSubmit, parentGenres]
   )
 
   useEffect(() => setFocus(autoFocus ?? 'name'), [autoFocus, setFocus])
 
-  const router = useRouter()
-  const hasDirtyFields = useMemo(
-    () => Object.values(dirtyFields).some((dirty) => !!dirty),
-    [dirtyFields]
-  )
-  useEffect(() => {
-    const confirmationMessage = 'Changes you made may not be saved.'
-    const beforeUnloadHandler = (e: BeforeUnloadEvent) => {
-      ;(e || window.event).returnValue = confirmationMessage
-      return confirmationMessage // Gecko + Webkit, Safari, Chrome etc.
-    }
-    const beforeRouteHandler = (url: string) => {
-      if (router.pathname !== url && !confirm(confirmationMessage)) {
-        // to inform NProgress or something ...
-        router.events.emit('routeChangeError')
-        // tslint:disable-next-line: no-string-throw
-        throw `Route change to "${url}" was aborted (this error can be safely ignored). See https://github.com/zeit/next.js/issues/2476.`
-      }
-    }
-    if (!(isSubmitting || isSubmitted) && hasDirtyFields) {
-      window.addEventListener('beforeunload', beforeUnloadHandler)
-      router.events.on('routeChangeStart', beforeRouteHandler)
-    } else {
-      window.removeEventListener('beforeunload', beforeUnloadHandler)
-      router.events.off('routeChangeStart', beforeRouteHandler)
-    }
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnloadHandler)
-      router.events.off('routeChangeStart', beforeRouteHandler)
-    }
-  }, [
-    hasDirtyFields,
-    isSubmitted,
-    isSubmitting,
-    router.events,
-    router.pathname,
-  ])
+  useWarnOnUnsavedChanges({ dirtyFields, isSubmitted, isSubmitting })
 
   return (
     <form
@@ -209,6 +179,42 @@ const GenreForm: FC<{
           </select>
           {errors.type && (
             <div className='text-sm text-red-600'>{errors.type.message}</div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='relevance'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.relevance && 'text-red-600'
+            )}
+          >
+            Relevance
+          </label>
+          <select
+            id='relevance'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5 capitalize',
+              errors.relevance && 'border-red-600 outline-red-600'
+            )}
+            {...register('relevance', {
+              setValueAs: (value: string) => Number.parseInt(value),
+            })}
+          >
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+            <option value={99} disabled className='hidden'>
+              Always
+            </option>
+          </select>
+          {errors.relevance && (
+            <div className='text-sm text-red-600'>
+              {errors.relevance.message}
+            </div>
           )}
         </div>
 
