@@ -5,18 +5,18 @@
 // prettier-ignore
 declare module "nextjs-routes" {
   export type Route =
-    | { pathname: "/accounts/[id]"; query: Query<{ id: string }> }
+    | { pathname: "/accounts/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/api/login"; query?: Query | undefined }
     | { pathname: "/api/logout"; query?: Query | undefined }
     | { pathname: "/api/register"; query?: Query | undefined }
-    | { pathname: "/api/trpc/[trpc]"; query: Query<{ trpc: string }> }
-    | { pathname: "/artists/[id]/history"; query: Query<{ id: string }> }
-    | { pathname: "/artists/[id]"; query: Query<{ id: string }> }
+    | { pathname: "/api/trpc/[trpc]"; query: Query<{ "trpc": string }> }
+    | { pathname: "/artists/[id]/history"; query: Query<{ "id": string }> }
+    | { pathname: "/artists/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/artists/create"; query?: Query | undefined }
     | { pathname: "/artists"; query?: Query | undefined }
-    | { pathname: "/genres/[id]/edit"; query: Query<{ id: string }> }
-    | { pathname: "/genres/[id]/history"; query: Query<{ id: string }> }
-    | { pathname: "/genres/[id]"; query: Query<{ id: string }> }
+    | { pathname: "/genres/[id]/edit"; query: Query<{ "id": string }> }
+    | { pathname: "/genres/[id]/history"; query: Query<{ "id": string }> }
+    | { pathname: "/genres/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/genres/canvas"; query?: Query | undefined }
     | { pathname: "/genres/create"; query?: Query | undefined }
     | { pathname: "/genres"; query?: Query | undefined }

@@ -21,6 +21,7 @@ export const addGenreHistory = (
       startDate: genre.startDate,
       endDate: genre.endDate,
       akas: genre.akas,
+      relevance: genre.relevance,
       parentGenreIds: genre.parentGenres.map((g) => g.id),
       influencedByGenreIds: genre.influencedByGenres.map((g) => g.id),
       x: genre.x,

@@ -12,6 +12,8 @@ import Loader from '../common/Loader'
 import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
 
+const DEFAULT_RELEVANCE = 3
+
 const GenreFormFields = {
   name: '',
   type: GenreType.STYLE as GenreType,
@@ -19,6 +21,7 @@ const GenreFormFields = {
   shortDescription: '',
   longDescription: '',
   notes: '',
+  relevance: DEFAULT_RELEVANCE,
 }
 
 export type GenreFormFields = typeof GenreFormFields
@@ -35,6 +38,7 @@ export type GenreFormData = {
   notes: string | null
   parentGenres: number[]
   influencedByGenres: number[]
+  relevance: number
 }
 
 const GenreForm: FC<{
@@ -61,6 +65,7 @@ const GenreForm: FC<{
       shortDescription: genre?.shortDescription ?? '',
       longDescription: genre?.longDescription ?? '',
       notes: genre?.notes ?? '',
+      relevance: genre?.relevance ?? DEFAULT_RELEVANCE,
     },
   })
 
@@ -87,6 +92,7 @@ const GenreForm: FC<{
         notes: data.notes.length > 0 ? data.notes : null,
         parentGenres,
         influencedByGenres,
+        relevance: data.relevance,
       }),
     [influencedByGenres, onSubmit, parentGenres]
   )
@@ -173,6 +179,42 @@ const GenreForm: FC<{
           </select>
           {errors.type && (
             <div className='text-sm text-red-600'>{errors.type.message}</div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='relevance'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.relevance && 'text-red-600'
+            )}
+          >
+            Relevance
+          </label>
+          <select
+            id='relevance'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5 capitalize',
+              errors.relevance && 'border-red-600 outline-red-600'
+            )}
+            {...register('relevance', {
+              setValueAs: (value: string) => Number.parseInt(value),
+            })}
+          >
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+            <option value={99} disabled className='hidden'>
+              Always
+            </option>
+          </select>
+          {errors.relevance && (
+            <div className='text-sm text-red-600'>
+              {errors.relevance.message}
+            </div>
           )}
         </div>
 

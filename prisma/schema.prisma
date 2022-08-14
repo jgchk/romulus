@@ -189,6 +189,7 @@ model Genre {
   startDate        String?
   endDate          String?
   akas             String[]
+  relevance        Int       @default(99)
 
   parentGenres Genre[] @relation("hierarchy")
   childGenres  Genre[] @relation("hierarchy")
@@ -213,6 +214,7 @@ model GenreHistory {
   startDate        String?
   endDate          String?
   akas             String[]
+  relevance        Int       @default(99)
 
   parentGenreIds       Int[]
   influencedByGenreIds Int[]

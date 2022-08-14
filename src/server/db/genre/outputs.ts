@@ -12,6 +12,7 @@ export const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   startDate: true,
   endDate: true,
   akas: true,
+  relevance: true,
   parentGenres: { select: { id: true, name: true } },
   childGenres: { select: { id: true, name: true } },
   influencedByGenres: { select: { id: true, name: true } },
