@@ -1,8 +1,9 @@
 import { trpc } from '../utils/trpc'
-import { useSession } from './auth'
 
-export const useAccountQuery = (id: number) =>
-  trpc.useQuery(['account.byId', { id }])
+export const useAccountQuery = (id?: number) =>
+  trpc.useQuery(['account.byId', { id: id ?? -1 }], {
+    enabled: id !== undefined,
+  })
 
 export const useAccountsQuery = () => {
   const utils = trpc.useContext()
@@ -17,17 +18,40 @@ export const useAccountsQuery = () => {
 
 export const useEditAccountMutation = () => {
   const utils = trpc.useContext()
-  const session = useSession()
   return trpc.useMutation(['account.edit'], {
-    onSuccess: async (data) => {
-      utils.setQueryData(['account.byId', { id: data.id }], data)
+    onMutate: async (input) => {
+      await utils.cancelQuery(['account.byId', { id: input.id }])
 
-      const accountId = session.data?.id
-      if (accountId === undefined) {
-        await utils.invalidateQueries(['auth.whoami'])
-      } else if (data.id === accountId) {
-        utils.setQueryData(['auth.whoami'], data)
+      const previousData = utils.getQueryData([
+        'account.byId',
+        { id: input.id },
+      ])
+
+      if (previousData) {
+        const newData = {
+          ...previousData,
+          genreRelevanceFilter:
+            input.data.genreRelevanceFilter ??
+            previousData.genreRelevanceFilter,
+        }
+
+        utils.setQueryData(['account.byId', { id: input.id }], newData)
       }
+
+      return { previousData }
+    },
+    onError: async (error, input, context) => {
+      if (context?.previousData) {
+        utils.setQueryData(
+          ['account.byId', { id: input.id }],
+          context.previousData
+        )
+      } else {
+        await utils.invalidateQueries(['account.byId', { id: input.id }])
+      }
+    },
+    onSettled: async (data, error, input) => {
+      await utils.invalidateQueries(['account.byId', { id: input.id }])
     },
   })
 }
