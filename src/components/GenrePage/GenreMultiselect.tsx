@@ -203,13 +203,13 @@ const Option: FC<{
   )
 }
 
-const SelectedGenre: FC<{ genre: SimpleGenre; onRemove: () => void }> = ({
+const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
   genre,
   onRemove,
 }) => (
   <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
     <div className='flex items-center px-2 py-0.5 text-sm font-medium'>
-      {genre.name}
+      {genre?.name ?? 'Loading...'}
     </div>
     <button
       className='border-l h-full px-1 border-gray-300 hover:bg-gray-300'
