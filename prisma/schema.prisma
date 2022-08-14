@@ -82,12 +82,6 @@ model Issue {
   updatedAt DateTime @updatedAt
 }
 
-model PhysicalObject {
-  id   Int    @id @default(autoincrement())
-  type String
-  // ... other fields, e.g. 
-}
-
 model IssueArtist {
   issue   Issue @relation(fields: [issueId], references: [id])
   issueId Int
