@@ -14,6 +14,7 @@
   "dependencies": {
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/modifiers": "^6.0.0",
+    "@popperjs/core": "^2.11.6",
     "@prisma/client": "^4.2.1",
     "@tanstack/react-table": "^8.5.11",
     "@trpc/client": "^9.27.0",
@@ -37,6 +38,7 @@
     "react-hot-toast": "^2.3.0",
     "react-icons": "^4.4.0",
     "react-markdown": "^8.0.3",
+    "react-popper": "^2.3.0",
     "react-query": "3",
     "string-similarity": "^4.0.4",
     "superjson": "^1.9.1",
