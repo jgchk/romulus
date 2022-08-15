@@ -67,7 +67,7 @@ const GenreMultiselect: FC<{
         .sort((a, b) =>
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         )
-        .slice(0, 8),
+        .slice(0, 100),
     [excludeIds, genresQuery.data, inputValue, selectedIds]
   )
 

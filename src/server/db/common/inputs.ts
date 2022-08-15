@@ -7,9 +7,18 @@ export const CrudOperationInput = z.union([
   z.literal(CrudOperation.DELETE),
 ])
 
+export const MIN_GENRE_RELEVANCE = 1
+export const MAX_GENRE_RELEVANCE = 7
+export const UNSET_GENRE_RELEVANCE = 99
+
 export const GenreRelevanceInput = z
   .number()
   .refine((val) => Number.isInteger(val), { message: 'Must be an integer' })
-  .refine((val) => (val >= 1 && val <= 5) || val === 99, {
-    message: 'Must be between 1 and 5 (inclusive)',
-  })
+  .refine(
+    (val) =>
+      (val >= MIN_GENRE_RELEVANCE && val <= MAX_GENRE_RELEVANCE) ||
+      val === UNSET_GENRE_RELEVANCE,
+    {
+      message: `Must be between ${MIN_GENRE_RELEVANCE} and ${MAX_GENRE_RELEVANCE} (inclusive)`,
+    }
+  )

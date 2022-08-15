@@ -54,7 +54,7 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
         </button>
       </div>
       {showSettings && (
-        <div className='border-b p-3'>
+        <div className='border-b p-4'>
           <GenreTreeSettings />
         </div>
       )}
