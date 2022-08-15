@@ -190,7 +190,15 @@ const GenreForm: FC<{
               errors.relevance && 'text-red-600'
             )}
           >
-            Relevance
+            Relevance{' '}
+            <a
+              href='https://discord.com/channels/940459362168746055/940459362797879318/1008571200609468576'
+              target='_blank'
+              rel='noreferrer'
+              className='text-blue-500 hover:underline text-xs'
+            >
+              (More Info)
+            </a>
           </label>
           <select
             id='relevance'
