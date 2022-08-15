@@ -6,6 +6,7 @@ import useIdMap from '../../hooks/useIdMap'
 import { SimpleGenre } from '../../server/db/genre/outputs'
 import { useSimpleGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
+import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
 
 const GenreMultiselect: FC<{
@@ -85,7 +86,6 @@ const GenreMultiselect: FC<{
       <Option
         key={item.id}
         genre={item}
-        options={options}
         onClick={() => {
           selectId(item.id)
           setInputValue('')
@@ -177,13 +177,9 @@ const GenreMultiselect: FC<{
 
 const Option: FC<{
   genre?: SimpleGenre
-  options: SimpleGenre[]
   onClick: () => void
-}> = ({ genre, options, onClick }) => {
-  const isOtherOptionWithSameName = useMemo(
-    () => options.some((g) => g.id !== genre?.id && g.name === genre?.name),
-    [genre?.id, genre?.name, options]
-  )
+}> = ({ genre, onClick }) => {
+  const { showTypeTags } = useGenreTreeSettings()
 
   return (
     <li className='group hover:bg-gray-100'>
@@ -193,7 +189,13 @@ const Option: FC<{
         onClick={() => onClick()}
       >
         {genre?.name ?? 'Loading...'}
-        {isOtherOptionWithSameName && genre?.type && genre?.type !== 'STYLE' && (
+        {genre?.subtitle && (
+          <>
+            {' '}
+            <span className='text-xs text-gray-600'>[{genre.subtitle}]</span>
+          </>
+        )}
+        {showTypeTags && genre?.type && genre?.type !== 'STYLE' && (
           <>
             {' '}
             <GenreTypeChip type={genre.type} />
@@ -207,20 +209,36 @@ const Option: FC<{
 const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
   genre,
   onRemove,
-}) => (
-  <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
-    <div className='flex items-center px-2 py-0.5 text-sm font-medium'>
-      {genre?.name ?? 'Loading...'}
+}) => {
+  const { showTypeTags } = useGenreTreeSettings()
+
+  return (
+    <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
+      <div className='px-2 py-0.5 text-sm font-medium'>
+        {genre?.name ?? 'Loading...'}
+        {genre?.subtitle && (
+          <>
+            {' '}
+            <span className='text-xs text-gray-500'>[{genre.subtitle}]</span>
+          </>
+        )}
+        {showTypeTags && genre && genre.type !== 'STYLE' && (
+          <>
+            {' '}
+            <GenreTypeChip type={genre.type} className='bg-gray-300' />
+          </>
+        )}
+      </div>
+      <button
+        className='border-l h-full px-1 border-gray-300 hover:bg-gray-300'
+        type='button'
+        onClick={() => onRemove()}
+        tabIndex={-1}
+      >
+        <RiCloseFill />
+      </button>
     </div>
-    <button
-      className='border-l h-full px-1 border-gray-300 hover:bg-gray-300'
-      type='button'
-      onClick={() => onRemove()}
-      tabIndex={-1}
-    >
-      <RiCloseFill />
-    </button>
-  </div>
-)
+  )
+}
 
 export default GenreMultiselect

@@ -48,7 +48,15 @@ const GenreViewData: FC<{
   return (
     <div className='flex-1 overflow-auto p-4'>
       <div className='flex items-center justify-between pb-4 border-b border-gray-100'>
-        <div className='text-2xl font-bold text-gray-600'>{genre.name}</div>
+        <div className='text-2xl font-bold text-gray-600'>
+          {genre.name}
+          {genre.subtitle && (
+            <>
+              {' '}
+              <span className='text-lg text-gray-500'>[{genre.subtitle}]</span>
+            </>
+          )}
+        </div>
         <Link
           href={{
             pathname: '/genres/[id]/history',

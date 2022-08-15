@@ -16,6 +16,7 @@ const DEFAULT_RELEVANCE = 3
 
 const GenreFormFields = {
   name: '',
+  subtitle: '',
   type: GenreType.STYLE as GenreType,
   akas: '',
   shortDescription: '',
@@ -31,6 +32,7 @@ export const isGenreFormField = (t: string): t is keyof GenreFormFields =>
 
 export type GenreFormData = {
   name: string
+  subtitle: string | null
   type: GenreType
   akas: string[]
   shortDescription: string | null
@@ -60,6 +62,7 @@ const GenreForm: FC<{
   } = useForm<GenreFormFields>({
     defaultValues: {
       name: genre?.name ?? '',
+      subtitle: genre?.subtitle ?? '',
       type: genre?.type ?? 'STYLE',
       akas: ifDefined(genre?.akas, (akas) => akas.join(', ')),
       shortDescription: genre?.shortDescription ?? '',
@@ -80,16 +83,15 @@ const GenreForm: FC<{
     (data: GenreFormFields) =>
       onSubmit({
         name: data.name,
+        subtitle: data.subtitle || null,
         type: data.type,
         akas: data.akas
           .split(',')
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
-        shortDescription:
-          data.shortDescription.length > 0 ? data.shortDescription : null,
-        longDescription:
-          data.longDescription.length > 0 ? data.longDescription : null,
-        notes: data.notes.length > 0 ? data.notes : null,
+        shortDescription: data.shortDescription || null,
+        longDescription: data.longDescription || null,
+        notes: data.notes || null,
         parentGenres,
         influencedByGenres,
         relevance: data.relevance,
@@ -127,6 +129,31 @@ const GenreForm: FC<{
           />
           {errors.name && (
             <div className='text-sm text-red-600'>{errors.name.message}</div>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor='subtitle'
+            className={clsx(
+              'block text-gray-700 text-sm',
+              errors.subtitle && 'text-red-600'
+            )}
+          >
+            Subtitle
+          </label>
+          <input
+            id='subtitle'
+            className={clsx(
+              'border rounded-sm p-1 px-2 mt-0.5',
+              errors.subtitle && 'border-red-600 outline-red-600'
+            )}
+            {...register('subtitle')}
+          />
+          {errors.subtitle && (
+            <div className='text-sm text-red-600'>
+              {errors.subtitle.message}
+            </div>
           )}
         </div>
 

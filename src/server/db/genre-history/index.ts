@@ -14,6 +14,7 @@ export const addGenreHistory = (
   prisma.genreHistory.create({
     data: {
       name: genre.name,
+      subtitle: genre.subtitle,
       type: genre.type,
       shortDescription: genre.shortDescription,
       longDescription: genre.longDescription,

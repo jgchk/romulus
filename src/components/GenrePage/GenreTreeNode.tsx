@@ -46,6 +46,8 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
 
   const { showTypeTags } = useGenreTreeSettings()
 
+  const isSelected = useMemo(() => selectedId === id, [id, selectedId])
+
   return (
     <li
       className={clsx(
@@ -79,10 +81,23 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
           <a
             className={clsx(
               'hover:font-bold',
-              selectedId === id ? 'text-blue-600 font-bold' : 'text-gray-600'
+              isSelected ? 'text-blue-600 font-bold' : 'text-gray-600'
             )}
           >
             {genre?.name ?? 'Loading...'}
+            {genre?.subtitle && (
+              <>
+                {' '}
+                <span
+                  className={clsx(
+                    'text-sm',
+                    isSelected ? 'text-blue-500' : 'text-gray-500'
+                  )}
+                >
+                  [{genre.subtitle}]
+                </span>
+              </>
+            )}
             {showTypeTags && genre && genre.type !== 'STYLE' && (
               <>
                 {' '}

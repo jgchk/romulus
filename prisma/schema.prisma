@@ -183,6 +183,7 @@ enum GenreType {
 model Genre {
   id               Int       @id @default(autoincrement())
   name             String
+  subtitle         String?
   type             GenreType @default(STYLE)
   shortDescription String?
   longDescription  String?
@@ -208,6 +209,7 @@ model Genre {
 model GenreHistory {
   id               Int       @id @default(autoincrement())
   name             String
+  subtitle         String?
   type             GenreType @default(STYLE)
   shortDescription String?
   longDescription  String?

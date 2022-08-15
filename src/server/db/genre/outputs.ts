@@ -5,6 +5,7 @@ export { GenreType } from '@prisma/client'
 export const defaultGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   id: true,
   name: true,
+  subtitle: true,
   type: true,
   shortDescription: true,
   longDescription: true,
@@ -27,6 +28,7 @@ export type DefaultGenre = Prisma.GenreGetPayload<{
 export const simpleGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   id: true,
   name: true,
+  subtitle: true,
   type: true,
   akas: true,
 })
@@ -37,6 +39,7 @@ export type SimpleGenre = Prisma.GenreGetPayload<{
 export const treeGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   id: true,
   name: true,
+  subtitle: true,
   type: true,
   akas: true,
   relevance: true,

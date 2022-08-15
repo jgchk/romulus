@@ -130,6 +130,12 @@ const SearchResult: FC<{ match: Match; clearFilter: Props['clearFilter'] }> = ({
         onClick={() => clearFilter()}
       >
         {genre.name}
+        {genre?.subtitle && (
+          <>
+            {' '}
+            <span className='text-sm text-gray-600'>[{genre.subtitle}]</span>
+          </>
+        )}
         {matchedAka && (
           <>
             {' '}

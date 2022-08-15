@@ -14,6 +14,7 @@ export const GenreCreate: FC = () => {
       mutate(
         {
           ...data,
+          subtitle: data.subtitle ?? undefined,
           shortDescription: data.shortDescription ?? undefined,
           longDescription: data.longDescription ?? undefined,
           notes: data.notes ?? undefined,

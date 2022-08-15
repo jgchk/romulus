@@ -21,6 +21,7 @@ export const GenreTypeInput = z.union([
 
 export const CreateGenreInput = z.object({
   name: z.string().trim().min(1),
+  subtitle: z.string().trim().min(1).optional(),
   type: GenreTypeInput,
   shortDescription: z.string().trim().min(1).optional(),
   longDescription: z.string().trim().min(1).optional(),
@@ -39,6 +40,7 @@ export const EditGenreInput = z.object({
   id: z.number(),
   data: z.object({
     name: z.string().trim().min(1).optional(),
+    subtitle: z.string().trim().min(1).optional().nullable(),
     type: GenreTypeInput.optional(),
     shortDescription: z.string().trim().min(1).optional().nullable(),
     longDescription: z.string().trim().min(1).optional().nullable(),
