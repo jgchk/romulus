@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
+import { getGenreRelevanceText } from './common'
 
 const GenreViewData: FC<{
   genre: DefaultGenre
@@ -83,7 +84,9 @@ const GenreViewData: FC<{
             <label className='block text-gray-500 text-sm' htmlFor='relevance'>
               Relevance
             </label>
-            <div id='relevance'>{genre.relevance}</div>
+            <div id='relevance'>
+              {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
+            </div>
           </div>
         )}
 

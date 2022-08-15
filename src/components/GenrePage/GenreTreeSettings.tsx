@@ -7,7 +7,7 @@ import {
   MIN_GENRE_RELEVANCE,
 } from '../../server/db/common/inputs'
 import Popover from '../common/Popover'
-import { useGenreTreeSettings } from './common'
+import { getGenreRelevanceText, useGenreTreeSettings } from './common'
 
 const GenreTreeSettings: FC = () => {
   const {
@@ -16,6 +16,46 @@ const GenreTreeSettings: FC = () => {
     genreRelevanceFilter,
     setGenreRelevanceFilter,
   } = useGenreTreeSettings()
+
+  return (
+    <div className='space-y-4'>
+      <div>
+        <label
+          className='text-gray-700 text-sm flex items-center space-x-1'
+          htmlFor='relevance'
+        >
+          <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
+        </label>
+        <select
+          id='relevance'
+          className='border rounded-sm p-1 px-2 mt-0.5 capitalize text-sm'
+          value={genreRelevanceFilter}
+          onChange={(e) =>
+            setGenreRelevanceFilter(Number.parseInt(e.target.value))
+          }
+        >
+          {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
+            <option key={r} value={r}>
+              {r} - {getGenreRelevanceText(r)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className='flex items-center space-x-2'>
+        <input
+          id='show-type-tags'
+          type='checkbox'
+          className='w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+          checked={showTypeTags}
+          onChange={(e) => setShowTypeTags(e.target.checked)}
+        />
+        <label className='text-gray-700 text-sm' htmlFor='show-type-tags'>
+          Show Genre Type Tags
+        </label>
+      </div>
+    </div>
+  )
 
   return (
     <table className='border-separate border-spacing-x-1 border-spacing-y-2'>
@@ -32,7 +72,7 @@ const GenreTreeSettings: FC = () => {
             >
               {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {r} - {getGenreRelevanceText(r)}
                 </option>
               ))}
             </select>

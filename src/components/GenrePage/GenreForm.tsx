@@ -15,6 +15,7 @@ import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 import Loader from '../common/Loader'
 import MarkdownEditor from '../common/MarkdownEditor'
+import { getGenreRelevanceText } from './common'
 import GenreMultiselect from './GenreMultiselect'
 
 const DEFAULT_RELEVANCE = 4
@@ -209,7 +210,7 @@ const GenreForm: FC<{
           >
             {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
               <option key={r} value={r}>
-                {r}
+                {r} - {getGenreRelevanceText(r)}
               </option>
             ))}
             <option value={99} disabled className='hidden'>
