@@ -1,9 +1,14 @@
 import { GenreType, Permission } from '@prisma/client'
 import clsx from 'clsx'
+import { range } from 'ramda'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
+import {
+  MAX_GENRE_RELEVANCE,
+  MIN_GENRE_RELEVANCE,
+} from '../../server/db/common/inputs'
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
@@ -12,7 +17,7 @@ import Loader from '../common/Loader'
 import MarkdownEditor from '../common/MarkdownEditor'
 import GenreMultiselect from './GenreMultiselect'
 
-const DEFAULT_RELEVANCE = 3
+const DEFAULT_RELEVANCE = 4
 
 const GenreFormFields = {
   name: '',
@@ -202,11 +207,11 @@ const GenreForm: FC<{
               setValueAs: (value: string) => Number.parseInt(value),
             })}
           >
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-            <option value={4}>4</option>
-            <option value={5}>5</option>
+            {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
             <option value={99} disabled className='hidden'>
               Unset
             </option>

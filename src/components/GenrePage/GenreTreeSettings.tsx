@@ -1,6 +1,11 @@
+import { range } from 'ramda'
 import { FC, useState } from 'react'
 import { IoMdInformationCircle } from 'react-icons/io'
 
+import {
+  MAX_GENRE_RELEVANCE,
+  MIN_GENRE_RELEVANCE,
+} from '../../server/db/common/inputs'
 import Popover from '../common/Popover'
 import { useGenreTreeSettings } from './common'
 
@@ -25,11 +30,11 @@ const GenreTreeSettings: FC = () => {
                 setGenreRelevanceFilter(Number.parseInt(e.target.value))
               }
             >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5</option>
+              {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
             </select>
           </td>
           <td>
