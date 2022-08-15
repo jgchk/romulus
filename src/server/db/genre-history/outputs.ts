@@ -4,6 +4,7 @@ export const defaultGenreHistorySelect =
   Prisma.validator<Prisma.GenreHistorySelect>()({
     id: true,
     name: true,
+    subtitle: true,
     type: true,
     shortDescription: true,
     longDescription: true,
