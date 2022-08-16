@@ -76,22 +76,17 @@ const getBaseUrl = () => {
     return ''
   }
 
-  const env = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV
-
-  if (env === 'production') {
-    return `https://www.romulus.lol`
+  // Digital Ocean
+  if (process.env.DIGITAL_OCEAN_URL) {
+    return `https://romulus.lol`
   }
 
+  // Vercel
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`
   }
-
   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  }
-
-  if (process.env.DIGITAL_OCEAN_URL) {
-    return process.env.DIGITAL_OCEAN_URL
   }
 
   return 'http://localhost:3000'
