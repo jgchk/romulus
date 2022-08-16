@@ -11,3 +11,7 @@ nextjs-routes.d.ts
 
 # env
 src/server/env.js
+
+# testing
+/coverage
+jest.config.js

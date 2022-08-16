@@ -3,11 +3,12 @@ import { compareAsc } from 'date-fns'
 import Link from 'next/link'
 import { uniqBy } from 'ramda'
 import { FC, useMemo } from 'react'
-import ReactMarkdown from 'react-markdown'
 
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
+import { copyTextToClipboard } from '../../utils/dom'
+import Romcode from '../common/Romcode'
 import { getGenreRelevanceText } from './common'
 
 const GenreViewData: FC<{
@@ -58,14 +59,13 @@ const GenreViewData: FC<{
             </>
           )}
         </div>
-        <Link
-          href={{
-            pathname: '/genres/[id]/history',
-            query: { id: genre.id.toString() },
-          }}
+
+        <button
+          onClick={() => copyTextToClipboard(`[Genre${genre.id}]`)}
+          className='text-gray-400 text-sm hover:underline'
         >
-          <a className='text-gray-400 text-sm hover:underline'>History</a>
-        </Link>
+          [Genre{genre.id}]
+        </button>
       </div>
 
       <div className='space-y-3 pt-4'>
@@ -158,9 +158,7 @@ const GenreViewData: FC<{
           </label>
           <div id='short-description'>
             {genre.shortDescription ? (
-              <ReactMarkdown className='prose prose-gray'>
-                {genre.shortDescription}
-              </ReactMarkdown>
+              <Romcode>{genre.shortDescription}</Romcode>
             ) : (
               <span>
                 Missing a short description.{' '}
@@ -192,9 +190,7 @@ const GenreViewData: FC<{
           </label>
           <div id='long-description'>
             {genre.longDescription ? (
-              <ReactMarkdown className='prose prose-gray'>
-                {genre.longDescription}
-              </ReactMarkdown>
+              <Romcode>{genre.longDescription}</Romcode>
             ) : (
               <span>
                 Missing a long description.{' '}
@@ -223,16 +219,24 @@ const GenreViewData: FC<{
               Notes
             </label>
             <div id='notes'>
-              <ReactMarkdown className='prose prose-gray'>
-                {genre.notes}
-              </ReactMarkdown>
+              <Romcode>{genre.notes}</Romcode>
             </div>
           </div>
         )}
 
         <div>
           <label className='block text-gray-500 text-sm' htmlFor='contributors'>
-            Contributors
+            Contributors{' '}
+            <Link
+              href={{
+                pathname: '/genres/[id]/history',
+                query: { id: genre.id.toString() },
+              }}
+            >
+              <a className='text-blue-500 hover:underline text-xs'>
+                (View History)
+              </a>
+            </Link>
           </label>
           <ul id='contributors' className='comma-list'>
             {contributors.map(({ id, username }) => (

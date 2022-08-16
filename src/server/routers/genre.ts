@@ -56,6 +56,24 @@ export const genreRouter = createRouter()
       return genre
     },
   })
+  .query('byId.simple', {
+    input: z.object({ id: z.number() }),
+    resolve: async ({ input: { id } }) => {
+      const genre = await prisma.genre.findUnique({
+        where: { id },
+        select: simpleGenreSelect,
+      })
+
+      if (!genre) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `No genre with id '${id}'`,
+        })
+      }
+
+      return genre
+    },
+  })
   // update
   .mutation('edit', {
     input: EditGenreInput,

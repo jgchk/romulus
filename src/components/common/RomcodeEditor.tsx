@@ -5,14 +5,15 @@ import {
   forwardRef,
   useState,
 } from 'react'
-import ReactMarkdown from 'react-markdown'
+
+import Romcode from './Romcode'
 
 enum Tab {
   EDIT,
   VIEW,
 }
 
-const MarkdownEditor = forwardRef<
+const RomcodeEditor = forwardRef<
   HTMLTextAreaElement,
   {
     id?: string
@@ -38,8 +39,8 @@ const MarkdownEditor = forwardRef<
         />
       )}
       {tab === Tab.VIEW && (
-        <div className='flex-1 overflow-auto prose prose-gray px-2 py-1'>
-          <ReactMarkdown>{value}</ReactMarkdown>
+        <div className='flex-1 overflow-auto px-2 py-1'>
+          <Romcode>{value}</Romcode>
         </div>
       )}
       <div className='border-t border-gray-200 flex'>
@@ -68,6 +69,6 @@ const MarkdownEditor = forwardRef<
   )
 })
 
-MarkdownEditor.displayName = 'MarkdownEditor'
+RomcodeEditor.displayName = 'RomcodeEditor'
 
-export default MarkdownEditor
+export default RomcodeEditor

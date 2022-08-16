@@ -15,7 +15,7 @@ import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
 import Loader from '../common/Loader'
-import MarkdownEditor from '../common/MarkdownEditor'
+import RomcodeEditor from '../common/RomcodeEditor'
 import { getGenreRelevanceText } from './common'
 import GenreMultiselect from './GenreMultiselect'
 
@@ -376,13 +376,12 @@ const GenreForm: FC<{
           >
             Short Description
           </label>
-          <textarea
-            id='short-description'
-            className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5 w-full',
-              errors.shortDescription && 'border-red-600 outline-red-600'
+          <Controller
+            name='shortDescription'
+            control={control}
+            render={({ field }) => (
+              <RomcodeEditor id='short-description' {...field} />
             )}
-            {...register('shortDescription')}
           />
           {errors.shortDescription && (
             <div className='text-sm text-red-600'>
@@ -399,21 +398,13 @@ const GenreForm: FC<{
               errors.longDescription && 'text-red-600'
             )}
           >
-            Long Description{' '}
-            <a
-              href='https://www.markdownguide.org/cheat-sheet'
-              target='_blank'
-              rel='noreferrer'
-              className='text-blue-500 hover:underline text-xs'
-            >
-              (Formatting Guide)
-            </a>
+            Long Description
           </label>
           <Controller
             name='longDescription'
             control={control}
             render={({ field }) => (
-              <MarkdownEditor id='long-description' {...field} />
+              <RomcodeEditor id='long-description' {...field} />
             )}
           />
           {errors.longDescription && (
@@ -436,7 +427,7 @@ const GenreForm: FC<{
           <Controller
             name='notes'
             control={control}
-            render={({ field }) => <MarkdownEditor id='notes' {...field} />}
+            render={({ field }) => <RomcodeEditor id='notes' {...field} />}
           />
           {errors.notes && (
             <div className='text-sm text-red-600'>{errors.notes.message}</div>

@@ -8,6 +8,7 @@ export const useGenresQuery = () => {
       utils.setQueryData(['genre.all.tree'], data)
       for (const genre of data) {
         utils.setQueryData(['genre.byId', { id: genre.id }], genre)
+        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
       }
     },
   })
@@ -18,20 +19,42 @@ export const useTreeGenresQuery = () => {
   return trpc.useQuery(['genre.all.tree'], {
     onSuccess: (data) => {
       utils.setQueryData(['genre.all.simple'], data)
+      for (const genre of data) {
+        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
+      }
     },
   })
 }
 
-export const useSimpleGenresQuery = () => trpc.useQuery(['genre.all.simple'])
+export const useSimpleGenresQuery = () => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genre.all.simple'], {
+    onSuccess: (data) => {
+      for (const genre of data) {
+        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
+      }
+    },
+  })
+}
 
-export const useGenreQuery = (id: number) =>
-  trpc.useQuery(['genre.byId', { id }])
+export const useGenreQuery = (id: number) => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genre.byId', { id }], {
+    onSuccess: (data) => {
+      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
+    },
+  })
+}
+
+export const useSimpleGenreQuery = (id: number) =>
+  trpc.useQuery(['genre.byId.simple', { id }])
 
 export const useAddGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.add'], {
     onSuccess: async (data) => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
+      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.all.simple']),
@@ -49,6 +72,7 @@ export const useEditGenreMutation = () => {
   return trpc.useMutation(['genre.edit'], {
     onSuccess: async (data) => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
+      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.all.simple']),
