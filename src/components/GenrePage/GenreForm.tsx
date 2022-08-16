@@ -301,7 +301,7 @@ const GenreForm: FC<{
           >
             Relevance{' '}
             <a
-              href='https://discord.com/channels/940459362168746055/940459362797879318/1008571200609468576'
+              href='https://discord.com/channels/940459362168746055/1008898978911375384/1008900089936351252'
               target='_blank'
               rel='noreferrer'
               className='text-blue-500 hover:underline text-xs'
