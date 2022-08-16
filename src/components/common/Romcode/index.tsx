@@ -1,6 +1,6 @@
 import { FC } from 'react'
 
-import { useRomcode } from './parser'
+import useRomcode from './useRomcode'
 
 const Romcode: FC<{ children: string }> = ({ children }) => {
   const reactNode = useRomcode(children)

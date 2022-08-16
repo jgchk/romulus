@@ -1,7 +1,6 @@
-import Link from 'next/link'
-import { FC, ReactNode, useMemo } from 'react'
+import { ReactNode } from 'react'
 
-import { useSimpleGenreQuery } from '../../../services/genres'
+import GenreLink from './GenreLink'
 
 type Root = { type: 'Root'; children: Paragraph[] }
 type Paragraph = { type: 'Paragraph'; children: (Text | GenreLink)[] }
@@ -34,7 +33,7 @@ const parseParagraph = (str: string): (Text | GenreLink)[] => {
   return nodes
 }
 
-const parser = (str: string): Root => {
+export const parser = (str: string): Root => {
   const paragraphs = str.split('\n')
   return {
     type: 'Root',
@@ -45,7 +44,7 @@ const parser = (str: string): Root => {
   }
 }
 
-const compiler = (root: Root): ReactNode => (
+export const compiler = (root: Root): ReactNode => (
   <>
     {root.children.map((paragraph, i) => (
       <p key={i}>
@@ -60,32 +59,3 @@ const compiler = (root: Root): ReactNode => (
     ))}
   </>
 )
-
-const GenreLink: FC<{ id: number }> = ({ id }) => {
-  const { data, error } = useSimpleGenreQuery(id)
-
-  const text = useMemo(() => {
-    if (data) {
-      return data.name
-    }
-
-    if (error) {
-      return 'Error'
-    }
-
-    return 'Loading'
-  }, [data, error])
-
-  return (
-    <Link href={{ pathname: '/genres/[id]', query: { id: id.toString() } }}>
-      <a>{text}</a>
-    </Link>
-  )
-}
-
-export const useRomcode = (data: string) =>
-  useMemo(() => {
-    const parsed = parser(data)
-    const compiled = compiler(parsed)
-    return compiled
-  }, [data])
