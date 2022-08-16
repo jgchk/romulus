@@ -184,7 +184,17 @@ const GenreForm: FC<{
         </div>
 
         <fieldset className='border border-solid p-3'>
-          <legend className='text-gray-700 text-sm'>AKAs</legend>
+          <legend className='text-gray-700 text-sm'>
+            AKAs{' '}
+            <a
+              href='https://discord.com/channels/940459362168746055/1008898978911375384/1008927823647473747'
+              target='_blank'
+              rel='noreferrer'
+              className='text-blue-500 hover:underline text-xs'
+            >
+              (More Info)
+            </a>
+          </legend>
 
           <div className='space-y-2 w-full'>
             <div className='w-full'>
