@@ -1,4 +1,4 @@
-import { CrudOperation, Genre } from '@prisma/client'
+import { CrudOperation, Genre, GenreAka } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
@@ -7,6 +7,7 @@ export const addGenreHistory = (
   genre: Omit<Genre, 'createdAt' | 'updatedAt'> & {
     parentGenres: { id: number }[]
     influencedByGenres: { id: number }[]
+    akas: GenreAka[]
   },
   operation: CrudOperation,
   accountId: number
@@ -21,7 +22,13 @@ export const addGenreHistory = (
       notes: genre.notes,
       startDate: genre.startDate,
       endDate: genre.endDate,
-      akas: genre.akas,
+      akas: {
+        create: genre.akas.map((aka) => ({
+          name: aka.name,
+          relevance: aka.relevance,
+          order: aka.order,
+        })),
+      },
       relevance: genre.relevance,
       parentGenreIds: genre.parentGenres.map((g) => g.id),
       influencedByGenreIds: genre.influencedByGenres.map((g) => g.id),
@@ -41,6 +48,7 @@ export const addGenreHistoryById = async (
   const updatedGenre = await prisma.genre.findUnique({
     where: { id },
     include: {
+      akas: true,
       parentGenres: { select: { id: true } },
       childGenres: { select: { id: true } },
       influencedByGenres: { select: { id: true } },

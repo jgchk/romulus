@@ -71,11 +71,12 @@ const HasData: FC<Props & { allGenres: SimpleGenre[] }> = ({
       let match: Match = { genre, weight: nameWeight }
 
       for (const aka of genre.akas) {
-        const akaWeight = getMatchWeight(aka, filter)
+        // TODO: incorporate aka relevance
+        const akaWeight = getMatchWeight(aka.name, filter)
         if (akaWeight > match.weight) {
           match = {
             genre,
-            matchedAka: aka,
+            matchedAka: aka.name,
             weight: akaWeight,
           }
         }

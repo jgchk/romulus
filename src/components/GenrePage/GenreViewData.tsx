@@ -74,7 +74,12 @@ const GenreViewData: FC<{
             <label className='block text-gray-500 text-sm' htmlFor='akas'>
               AKA
             </label>
-            <div id='akas'>{genre.akas.join(', ')}</div>
+            <div id='akas'>
+              {genre.akas
+                .sort((a, b) => b.relevance - a.relevance || a.order - b.order)
+                .map((aka) => aka.name)
+                .join(', ')}
+            </div>
           </div>
         )}
 

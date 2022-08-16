@@ -19,6 +19,26 @@ export const GenreTypeInput = z.union([
   z.literal(GenreType.TREND),
 ])
 
+export const MIN_GENRE_AKA_RELEVANCE = 1
+export const MAX_GENRE_AKA_RELEVANCE = 3
+
+export const GenreAkaRelevanceInput = z
+  .number()
+  .refine((val) => Number.isInteger(val), { message: 'Must be an integer' })
+  .refine(
+    (val) => val >= MIN_GENRE_AKA_RELEVANCE && val <= MAX_GENRE_AKA_RELEVANCE,
+    {
+      message: `Must be between ${MIN_GENRE_AKA_RELEVANCE} and ${MAX_GENRE_AKA_RELEVANCE} (inclusive)`,
+    }
+  )
+
+export const GenreAkaInput = z.object({
+  name: z.string().trim().min(1),
+  relevance: GenreAkaRelevanceInput,
+  order: z.number(),
+})
+export type GenreAkaInput = z.infer<typeof GenreAkaInput>
+
 export const CreateGenreInput = z.object({
   name: z.string().trim().min(1),
   subtitle: z.string().trim().min(1).optional(),
@@ -31,7 +51,7 @@ export const CreateGenreInput = z.object({
   parentGenres: z.number().array().optional(),
   influencedByGenres: z.number().array().optional(),
   notes: z.string().trim().min(1).optional(),
-  akas: z.string().trim().min(1).array(),
+  akas: GenreAkaInput.array(),
   relevance: GenreRelevanceInput,
 })
 export type CreateGenreInput = z.infer<typeof CreateGenreInput>
@@ -52,7 +72,7 @@ export const EditGenreInput = z.object({
     x: z.number().nullable().optional(),
     y: z.number().nullable().optional(),
     notes: z.string().trim().min(1).optional().nullable(),
-    akas: z.string().trim().min(1).array().optional(),
+    akas: GenreAkaInput.array().optional(),
     relevance: GenreRelevanceInput.optional(),
   }),
 })

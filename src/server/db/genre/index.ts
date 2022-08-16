@@ -16,6 +16,7 @@ export const createGenre = async (
   const genre = await prisma.genre.create({
     data: {
       ...input,
+      akas: { create: input.akas },
       parentGenres: input.parentGenres
         ? { connect: input.parentGenres.map((id) => ({ id })) }
         : undefined,
@@ -58,6 +59,7 @@ export const editGenre = async (
     where: { id },
     data: {
       ...data,
+      akas: data.akas ? { deleteMany: {}, create: data.akas } : undefined,
       parentGenres: data.parentGenres
         ? { set: data.parentGenres.map((id) => ({ id })) }
         : undefined,
@@ -80,9 +82,11 @@ export const deleteGenre = async (
   const genre = await prisma.genre.findUnique({
     where: { id },
     include: {
+      akas: true,
       parentGenres: { select: { id: true } },
       childGenres: {
         include: {
+          akas: true,
           parentGenres: { select: { id: true } },
           childGenres: { select: { id: true } },
           influencedByGenres: { select: { id: true } },
@@ -92,6 +96,7 @@ export const deleteGenre = async (
       influencedByGenres: { select: { id: true } },
       influencesGenres: {
         include: {
+          akas: true,
           parentGenres: { select: { id: true } },
           childGenres: { select: { id: true } },
           influencedByGenres: { select: { id: true } },
