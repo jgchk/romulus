@@ -76,18 +76,18 @@ const getBaseUrl = () => {
     return ''
   }
 
-  // // Digital Ocean
-  // if (process.env.DIGITAL_OCEAN_URL) {
-  //   return `https://romulus.lol`
-  // }
+  // Digital Ocean
+  if (process.env.DIGITAL_OCEAN_URL) {
+    return `https://romulus.lol`
+  }
 
-  // // Vercel
-  // if (process.env.VERCEL_URL) {
-  //   return `https://${process.env.VERCEL_URL}`
-  // }
-  // if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-  //   return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  // }
+  // Vercel
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  }
 
   return 'http://localhost:3000'
 }
