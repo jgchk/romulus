@@ -72,6 +72,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 }
 
 const getBaseUrl = () => {
+  if (isBrowser) {
+    return ''
+  }
+
   const env = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV
 
   if (env === 'production') {
@@ -87,7 +91,6 @@ const getBaseUrl = () => {
   }
 
   if (process.env.DIGITAL_OCEAN_URL) {
-    console.log('Digital Ocean URL', process.env.DIGITAL_OCEAN_URL)
     return process.env.DIGITAL_OCEAN_URL
   }
 
