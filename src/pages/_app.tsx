@@ -78,7 +78,7 @@ const getBaseUrl = () => {
 
   // Digital Ocean
   if (process.env.DIGITAL_OCEAN_URL) {
-    return `https://romulus.lol`
+    return `https://www.romulus.lol`
   }
 
   // Vercel
