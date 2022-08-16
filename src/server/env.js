@@ -19,9 +19,37 @@ const envSchema = z.object({
 const env = envSchema.safeParse(process.env)
 
 if (!env.success) {
+  const { _errors, ...originalErrors } = env.error.format()
+
+  const allErrors = { ...originalErrors }
+
+  if (_errors.length > 0) {
+    // @ts-ignore
+    allErrors.errors = _errors
+  }
+
+  for (const key of Object.keys(allErrors)) {
+    if (key === '_errors') continue
+
+    const formattedErrors = { value: process.env[key] }
+
+    // @ts-ignore
+    const errors = allErrors[key]._errors
+    if (errors.length === 1) {
+      // @ts-ignore
+      formattedErrors.error = errors[0]
+    } else {
+      // @ts-ignore
+      formattedErrors.errors = errors
+    }
+
+    // @ts-ignore
+    allErrors[key] = formattedErrors
+  }
+
   console.error(
     '❌ Invalid environment variables:',
-    JSON.stringify(env.error.format(), null, 4)
+    JSON.stringify(allErrors, null, 4)
   )
   process.exit(1)
 }
