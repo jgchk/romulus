@@ -87,7 +87,7 @@ const getBaseUrl = () => {
   }
 
   if (process.env.PUBLIC_URL) {
-    return `https://${process.env.PUBLIC_URL}`
+    return process.env.PUBLIC_URL
   }
 
   return 'http://localhost:3000'
