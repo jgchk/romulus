@@ -1,10 +1,10 @@
-import anyAscii from 'any-ascii'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import useIdMap from '../../hooks/useIdMap'
 import { SimpleGenre } from '../../server/db/genre/outputs'
 import { useSimpleGenresQuery } from '../../services/genres'
+import { toAscii } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
 import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
@@ -63,8 +63,8 @@ const GenreMultiselect: FC<{
           let name = genre.name
           if (genre.subtitle) name += ` [${genre.subtitle}]`
 
-          return anyAscii(name.toLowerCase()).includes(
-            anyAscii(inputValue.toLowerCase())
+          return toAscii(name.toLowerCase()).includes(
+            toAscii(inputValue.toLowerCase())
           )
         })
         .sort((a, b) =>

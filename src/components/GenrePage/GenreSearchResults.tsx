@@ -1,5 +1,4 @@
 import { Permission } from '@prisma/client'
-import anyAscii from 'any-ascii'
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
@@ -7,6 +6,7 @@ import { compareTwoStrings } from 'string-similarity'
 import { SimpleGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useSimpleGenresQuery } from '../../services/genres'
+import { toAscii } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
 import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
@@ -14,7 +14,7 @@ import GenreTypeChip from './GenreTypeChip'
 type Props = { filter: string; clearFilter: () => void }
 type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }
 
-const toFilterString = (s: string) => anyAscii(s.toLowerCase())
+const toFilterString = (s: string) => toAscii(s.toLowerCase())
 const getMatchWeight = (name: string, filter: string) => {
   const fName = toFilterString(name)
   const fFilter = toFilterString(filter)

@@ -24,7 +24,6 @@
     "@trpc/react": "^9.27.0",
     "@trpc/server": "^9.27.0",
     "add": "^2.0.6",
-    "any-ascii": "^0.3.1",
     "bcrypt": "^5.0.1",
     "clsx": "^1.2.1",
     "cookies": "^0.8.0",

@@ -1,10 +1,10 @@
-import anyAscii from 'any-ascii'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import useIdMap from '../../hooks/useIdMap'
 import { SimpleArtist } from '../../server/db/artist/output'
 import { useSimpleArtistsQuery } from '../../services/artists'
+import { toAscii } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
 
 const ArtistMultiselect: FC<{
@@ -58,8 +58,8 @@ const ArtistMultiselect: FC<{
           (artist) =>
             !(excludeIds ?? []).includes(artist.id) &&
             !selectedIds.includes(artist.id) &&
-            anyAscii(artist.name.toLowerCase()).includes(
-              anyAscii(inputValue.toLowerCase())
+            toAscii(artist.name.toLowerCase()).includes(
+              toAscii(inputValue.toLowerCase())
             )
         )
         .sort((a, b) =>
