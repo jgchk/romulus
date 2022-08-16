@@ -86,8 +86,9 @@ const getBaseUrl = () => {
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
   }
 
-  if (process.env.PUBLIC_URL) {
-    return process.env.PUBLIC_URL
+  if (process.env.DIGITAL_OCEAN_URL) {
+    console.log('Digital Ocean URL', process.env.DIGITAL_OCEAN_URL)
+    return process.env.DIGITAL_OCEAN_URL
   }
 
   return 'http://localhost:3000'
