@@ -37,3 +37,8 @@
 .tooltip[data-popper-placement^='right'] > .arrow {
   left: -4px;
 }
+
+.compact-prose p {
+  margin-top: 0;
+  margin-bottom: 0;
+}

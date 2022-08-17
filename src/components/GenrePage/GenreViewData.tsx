@@ -219,7 +219,7 @@ const GenreViewData: FC<{
               Notes
             </label>
             <div id='notes'>
-              <Romcode>{genre.notes}</Romcode>
+              <Romcode className='compact-prose'>{genre.notes}</Romcode>
             </div>
           </div>
         )}
