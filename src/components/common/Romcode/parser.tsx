@@ -34,7 +34,10 @@ const parseParagraph = (str: string): (Text | GenreLink)[] => {
 }
 
 export const parser = (str: string): Root => {
-  const paragraphs = str.split('\n')
+  const paragraphs = str
+    .split('\n')
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
   return {
     type: 'Root',
     children: paragraphs.map((paragraph) => ({
