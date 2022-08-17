@@ -7,9 +7,9 @@ import { TreeGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useTreeGenresQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
-import { useGenreTreeSettings } from './common'
 import { Descendants, Expanded, TreeContext } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
+import useGenreTreeSettings from './useGenreTreeSettings'
 
 const GenreTree: FC<{
   selectedGenreId?: number

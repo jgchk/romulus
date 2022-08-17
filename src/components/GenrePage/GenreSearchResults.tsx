@@ -8,8 +8,8 @@ import { useSession } from '../../services/auth'
 import { useSimpleGenresQuery } from '../../services/genres'
 import { toAscii } from '../../utils/string'
 import { CenteredLoader } from '../common/Loader'
-import { useGenreTreeSettings } from './common'
 import GenreTypeChip from './GenreTypeChip'
+import useGenreTreeSettings from './useGenreTreeSettings'
 
 type Props = { filter: string; clearFilter: () => void }
 type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }

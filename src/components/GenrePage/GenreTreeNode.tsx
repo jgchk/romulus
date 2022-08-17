@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
-import { useGenreTreeSettings } from './common'
+import GenreRelevanceChip from './GenreRelevanceChip'
 import { useTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
+import useGenreTreeSettings from './useGenreTreeSettings'
 
 const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
   const {
@@ -44,7 +45,7 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
     [genre?.childGenres]
   )
 
-  const { showTypeTags } = useGenreTreeSettings()
+  const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
 
   const isSelected = useMemo(() => selectedId === id, [id, selectedId])
 
@@ -102,6 +103,12 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
               <>
                 {' '}
                 <GenreTypeChip type={genre.type} />
+              </>
+            )}
+            {showRelevanceTags && genre && (
+              <>
+                {' '}
+                <GenreRelevanceChip relevance={genre.relevance} />
               </>
             )}
           </a>
