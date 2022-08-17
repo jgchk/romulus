@@ -38,18 +38,24 @@ const defaultColumns = [
   }),
   columnHelper.accessor('account', {
     header: 'Contributor',
-    cell: (props) => (
-      <Link
-        href={{
-          pathname: '/accounts/[id]',
-          query: { id: props.getValue().id.toString() },
-        }}
-      >
-        <a className='text-blue-500 hover:underline'>
-          {props.getValue().username}
-        </a>
-      </Link>
-    ),
+    cell: (props) => {
+      const account = props.getValue()
+
+      if (!account) {
+        return <div className='text-gray-500 line-through'>Deleted</div>
+      }
+
+      return (
+        <Link
+          href={{
+            pathname: '/accounts/[id]',
+            query: { id: account.id.toString() },
+          }}
+        >
+          <a className='text-blue-500 hover:underline'>{account.username}</a>
+        </Link>
+      )
+    },
   }),
   columnHelper.accessor('createdAt', {
     header: 'Date',

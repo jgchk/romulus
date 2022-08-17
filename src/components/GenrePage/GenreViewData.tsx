@@ -8,6 +8,7 @@ import { DefaultGenre } from '../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
 import { copyTextToClipboard } from '../../utils/dom'
+import { isNotNull } from '../../utils/types'
 import Romcode from '../common/Romcode'
 import { getGenreRelevanceText } from './common'
 
@@ -42,7 +43,7 @@ const GenreViewData: FC<{
     () =>
       uniqBy(
         (account) => account.id,
-        sortedHistory.map((h) => h.account)
+        sortedHistory.map((h) => h.account).filter(isNotNull)
       ),
     [sortedHistory]
   )
