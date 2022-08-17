@@ -4,8 +4,55 @@ import { TRPCError } from '@trpc/server'
 import { prisma } from '../../prisma'
 import { addGenreHistory } from '../genre-history'
 import { CreateGenreInput, EditGenreInput } from './inputs'
-import { DefaultGenre, defaultGenreSelect } from './outputs'
+import {
+  DefaultGenre,
+  defaultGenreSelect,
+  SimpleGenre,
+  simpleGenreSelect,
+  treeGenreSelect,
+} from './outputs'
 import { throwOnCycle } from './utils'
+
+export const getGenres = () =>
+  prisma.genre.findMany({ select: defaultGenreSelect })
+
+export const getSimpleGenres = () =>
+  prisma.genre.findMany({ select: simpleGenreSelect })
+
+export const getTreeGenres = () =>
+  prisma.genre.findMany({ select: treeGenreSelect })
+
+export const getGenre = async (id: number): Promise<DefaultGenre> => {
+  const genre = await prisma.genre.findUnique({
+    where: { id },
+    select: defaultGenreSelect,
+  })
+
+  if (!genre) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No genre with id '${id}'`,
+    })
+  }
+
+  return genre
+}
+
+export const getSimpleGenre = async (id: number): Promise<SimpleGenre> => {
+  const genre = await prisma.genre.findUnique({
+    where: { id },
+    select: simpleGenreSelect,
+  })
+
+  if (!genre) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No genre with id '${id}'`,
+    })
+  }
+
+  return genre
+}
 
 export const createGenre = async (
   input: CreateGenreInput,

@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiError } from 'next/dist/server/api-utils'
 import { NextRequest } from 'next/server'
 
+import { createAccount } from './db/account'
 import { prisma } from './prisma'
 import SessionManager from './session'
 
@@ -73,19 +74,9 @@ export default class AuthenticationManager {
   }
 
   async register(username: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 12)
-
     try {
-      const account = await prisma.account.create({
-        data: {
-          username,
-          password: hashedPassword,
-        },
-        select: { id: true },
-      })
-
+      const account = await createAccount({ username, password })
       const { token } = await this.sessionManager.createSession(account.id)
-
       return token
     } catch (error) {
       if (

@@ -208,7 +208,7 @@ model Genre {
 }
 
 model GenreAka {
-  genre   Genre @relation(fields: [genreId], references: [id])
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
   genreId Int
 
   name      String
@@ -242,12 +242,12 @@ model GenreHistory {
 
   createdAt DateTime      @default(now())
   operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
+  accountId Int?
+  account   Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
 }
 
 model GenreHistoryAka {
-  genre   GenreHistory @relation(fields: [genreId], references: [id])
+  genre   GenreHistory @relation(fields: [genreId], references: [id], onDelete: Cascade)
   genreId Int
 
   name      String
