@@ -1,13 +1,19 @@
 import clsx from 'clsx'
 import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react'
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
+import Loader from './Loader'
 
-const commonStyles = 'border-2 font-bold rounded-sm p-1 px-4'
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  loading?: boolean
+}
+
+const commonStyles =
+  'border-2 font-bold rounded-sm p-1 px-4 flex items-center justify-center'
 
 export const ButtonPrimary: FC<PropsWithChildren<ButtonProps>> = ({
   children,
   className,
+  loading,
   ...props
 }) => (
   <button
@@ -20,6 +26,7 @@ export const ButtonPrimary: FC<PropsWithChildren<ButtonProps>> = ({
     )}
     {...props}
   >
+    {loading && <Loader className='text-white mr-1' size={16} />}
     {children}
   </button>
 )
@@ -27,6 +34,7 @@ export const ButtonPrimary: FC<PropsWithChildren<ButtonProps>> = ({
 export const ButtonPrimaryRed: FC<PropsWithChildren<ButtonProps>> = ({
   children,
   className,
+  loading,
   ...props
 }) => (
   <button
@@ -39,6 +47,7 @@ export const ButtonPrimaryRed: FC<PropsWithChildren<ButtonProps>> = ({
     )}
     {...props}
   >
+    {loading && <Loader className='text-white mr-1' size={16} />}
     {children}
   </button>
 )
@@ -46,6 +55,7 @@ export const ButtonPrimaryRed: FC<PropsWithChildren<ButtonProps>> = ({
 export const ButtonSecondary: FC<ButtonProps> = ({
   children,
   className,
+  loading,
   ...props
 }) => (
   <button
@@ -58,6 +68,9 @@ export const ButtonSecondary: FC<ButtonProps> = ({
     )}
     {...props}
   >
+    {loading && (
+      <Loader className='text-blue-600 disabled:text-gray-600 mr-1' size={16} />
+    )}
     {children}
   </button>
 )
@@ -65,6 +78,7 @@ export const ButtonSecondary: FC<ButtonProps> = ({
 export const ButtonTertiary: FC<ButtonProps> = ({
   children,
   className,
+  loading,
   ...props
 }) => (
   <button
@@ -76,6 +90,7 @@ export const ButtonTertiary: FC<ButtonProps> = ({
     )}
     {...props}
   >
+    {loading && <Loader className='text-gray-600 mr-1' size={16} />}
     {children}
   </button>
 )
