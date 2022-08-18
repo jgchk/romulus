@@ -14,7 +14,7 @@ import {
   ButtonPrimaryRed,
   ButtonTertiary,
 } from '../common/Button'
-import Loader, { CenteredLoader } from '../common/Loader'
+import { CenteredLoader } from '../common/Loader'
 import GenreViewData from './GenreViewData'
 
 export const GenreView: FC<{
@@ -74,23 +74,15 @@ const HasData: FC<{ genre: DefaultGenre; history: DefaultGenreHistory[] }> = ({
               Are you sure?
             </div>
             <div className='flex p-1 space-x-1'>
-              {isDeleting ? (
-                <ButtonPrimary
-                  type='submit'
-                  className='flex-1 flex items-center justify-center space-x-2'
-                  disabled
-                >
-                  <Loader className='text-white' size={16} />
-                  <div>Deleting...</div>
-                </ButtonPrimary>
-              ) : (
-                <ButtonPrimaryRed
-                  className='flex-1'
-                  onClick={() => handleDelete()}
-                >
-                  Delete
-                </ButtonPrimaryRed>
-              )}
+              <ButtonPrimaryRed
+                type='submit'
+                className='flex-1 flex items-center justify-center space-x-2'
+                disabled={isDeleting}
+                loading={isDeleting}
+                onClick={() => handleDelete()}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </ButtonPrimaryRed>
               <ButtonTertiary
                 className='flex-1'
                 onClick={() => setConfirmDelete(false)}

@@ -30,7 +30,7 @@ const Login: NextPage = () => {
     setFocus,
   } = useForm<LoginFormFields>()
 
-  const { mutate } = useLoginMutation()
+  const { mutate, isLoading } = useLoginMutation()
   const onSubmit = useCallback(
     (data: LoginFormFields) => mutate(data),
     [mutate]
@@ -97,8 +97,13 @@ const Login: NextPage = () => {
           </div>
         </div>
 
-        <ButtonPrimary className='w-full mt-4' type='submit'>
-          Login
+        <ButtonPrimary
+          className='w-full mt-4'
+          type='submit'
+          disabled={isLoading}
+          loading={isLoading}
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
         </ButtonPrimary>
 
         <div className='mt-3 text-sm text-gray-700'>

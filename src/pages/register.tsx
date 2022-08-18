@@ -32,7 +32,7 @@ const Register: NextPage = () => {
     watch,
   } = useForm<RegisterFormFields>()
 
-  const { mutate } = useRegisterMutation()
+  const { mutate, isLoading } = useRegisterMutation()
   const onSubmit = useCallback(
     (data: RegisterFormFields) => mutate(data),
     [mutate]
@@ -129,8 +129,13 @@ const Register: NextPage = () => {
           </div>
         </div>
 
-        <ButtonPrimary className='w-full mt-4' type='submit'>
-          Register
+        <ButtonPrimary
+          className='w-full mt-4'
+          type='submit'
+          disabled={isLoading}
+          loading={isLoading}
+        >
+          {isLoading ? 'Registering...' : 'Register'}
         </ButtonPrimary>
 
         <div className='mt-3 text-sm text-gray-700'>

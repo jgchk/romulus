@@ -8,7 +8,6 @@ import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { ButtonPrimary } from '../common/Button'
-import Loader from '../common/Loader'
 
 type ArtistFormFields = {
   name: string
@@ -158,18 +157,17 @@ const ArtistForm: FC<{
         </div>
       </div>
 
-      {session.isLoggedIn &&
-        session.hasPermission(Permission.EDIT_ARTISTS) &&
-        (isSubmitting ? (
-          <ButtonPrimary className='mt-3' type='submit' disabled>
-            <Loader className='text-white' size={16} />
-            <div>Creating...</div>
-          </ButtonPrimary>
-        ) : (
-          <ButtonPrimary className='mt-3' type='submit'>
-            Create
-          </ButtonPrimary>
-        ))}
+      {session.isLoggedIn && session.hasPermission(Permission.EDIT_ARTISTS) && (
+        <ButtonPrimary
+          className='mt-3'
+          type='submit'
+          disabled={isSubmitting}
+          loading={isSubmitting}
+        >
+          {isSubmitting ? 'Creating...' : 'Create'}
+          Creating...
+        </ButtonPrimary>
+      )}
     </form>
   )
 }

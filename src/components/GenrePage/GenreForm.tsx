@@ -14,7 +14,6 @@ import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
-import Loader from '../common/Loader'
 import RomcodeEditor from '../common/RomcodeEditor'
 import { getGenreRelevanceText } from './common'
 import GenreMultiselect from './GenreMultiselect'
@@ -436,22 +435,16 @@ const GenreForm: FC<{
       </div>
 
       <div className='flex p-1 space-x-1 border-t'>
-        {session.isLoggedIn &&
-          session.hasPermission(Permission.EDIT_GENRES) &&
-          (isSubmitting ? (
-            <ButtonPrimary
-              type='submit'
-              className='flex-1 flex items-center justify-center space-x-2'
-              disabled
-            >
-              <Loader className='text-white' size={16} />
-              <div>Submitting...</div>
-            </ButtonPrimary>
-          ) : (
-            <ButtonPrimary type='submit' className='flex-1'>
-              Submit
-            </ButtonPrimary>
-          ))}
+        {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
+          <ButtonPrimary
+            type='submit'
+            className='flex-1 flex items-center justify-center space-x-2'
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </ButtonPrimary>
+        )}
         <ButtonTertiary
           type='button'
           className='flex-1'

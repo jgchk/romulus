@@ -9,7 +9,6 @@ import { AlbumObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { check, iso8601 } from '../../utils/validators'
 import { ButtonPrimary } from '../common/Button'
-import Loader from '../common/Loader'
 
 type ReleaseFormFields = {
   title: string
@@ -160,18 +159,16 @@ const ReleaseForm: FC<{
         </div>
       </div>
 
-      {session.isLoggedIn &&
-        session.hasPermission(Permission.EDIT_RELEASES) &&
-        (isSubmitting ? (
-          <ButtonPrimary className='mt-3' type='submit' disabled>
-            <Loader className='text-white' size={16} />
-            <div>Creating...</div>
-          </ButtonPrimary>
-        ) : (
-          <ButtonPrimary className='mt-3' type='submit'>
-            Create
-          </ButtonPrimary>
-        ))}
+      {session.isLoggedIn && session.hasPermission(Permission.EDIT_RELEASES) && (
+        <ButtonPrimary
+          className='mt-3'
+          type='submit'
+          disabled={isSubmitting}
+          loading={isSubmitting}
+        >
+          {isSubmitting ? 'Creating...' : 'Create'}
+        </ButtonPrimary>
+      )}
     </form>
   )
 }
