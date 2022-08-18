@@ -2,6 +2,7 @@ import { CrudOperation, Permission } from '@prisma/client'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { DefaultAccount } from '../../server/db/account/outputs'
 import { useAccountQuery, useAccountsQuery } from '../../services/accounts'
 import { useSession } from '../../services/auth'
@@ -16,9 +17,20 @@ import AccountGenreHistory from './AccountGenreHistory'
 
 const AccountPage: FC<{ id: number }> = ({ id }) => {
   const accountQuery = useAccountQuery(id)
+  const isDesktop = useBreakpoint('sm')
 
   if (accountQuery.data) {
-    return <HasData account={accountQuery.data} />
+    return isDesktop ? (
+      <div className='w-full h-full flex items-center justify-center bg-texture p-4 min-h-0'>
+        <div className='border p-4 shadow bg-white w-[500px] h-[600px]'>
+          <HasData account={accountQuery.data} />
+        </div>
+      </div>
+    ) : (
+      <div className='p-4 h-full'>
+        <HasData account={accountQuery.data} />
+      </div>
+    )
   }
 
   if (accountQuery.error) {
@@ -47,28 +59,27 @@ const HasData: FC<{
   )
 
   return (
-    <div className='w-full h-full flex items-center justify-center bg-texture'>
-      <div className='border p-4 shadow bg-white'>
-        <div className='text-xl font-bold'>{account.username}</div>
-        <div className='py-2'>
-          <div>
-            Genres created: {createdCountQuery.data?.count ?? 'Loading...'}
-          </div>
-          <div>
-            Genres edited: {editedCountQuery.data?.count ?? 'Loading...'}
-          </div>
-          <div>
-            Genres deleted: {deletedCountQuery.data?.count ?? 'Loading...'}
-          </div>
+    <div className='h-full max-h-full min-h-0 flex flex-col'>
+      <div className='text-xl font-bold'>{account.username}</div>
+
+      <div className='py-2'>
+        <div>
+          Genres created: {createdCountQuery.data?.count ?? 'Loading...'}
         </div>
-        <div className='h-[500px] overflow-auto'>
-          <AccountGenreHistory id={account.id} />
+        <div>Genres edited: {editedCountQuery.data?.count ?? 'Loading...'}</div>
+        <div>
+          Genres deleted: {deletedCountQuery.data?.count ?? 'Loading...'}
         </div>
-        {session.data?.id === account.id &&
-          session.hasPermission(Permission.MIGRATE_CONTRIBUTORS) && (
-            <CreateCreditForm />
-          )}
       </div>
+
+      <div className='flex-1 min-h-0 overflow-auto'>
+        <AccountGenreHistory id={account.id} />
+      </div>
+
+      {session.data?.id === account.id &&
+        session.hasPermission(Permission.MIGRATE_CONTRIBUTORS) && (
+          <CreateCreditForm />
+        )}
     </div>
   )
 }

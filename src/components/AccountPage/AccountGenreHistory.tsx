@@ -66,8 +66,8 @@ const AccountGenreHistory: FC<{ id: number }> = ({ id }) => {
     }
 
     return (
-      <>
-        <table>
+      <div className='flex flex-col items-center'>
+        <table className='w-full'>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -112,19 +112,17 @@ const AccountGenreHistory: FC<{ id: number }> = ({ id }) => {
             ))}
           </tfoot>
         </table>
-        <div className='w-full flex justify-center'>
-          <ButtonTertiary
-            onClick={() => void fetchNextPage()}
-            disabled={!hasNextPage || isFetchingNextPage}
-          >
-            {isFetchingNextPage
-              ? 'Loading more...'
-              : hasNextPage
-              ? 'Load More'
-              : 'Nothing more to load'}
-          </ButtonTertiary>
-        </div>
-      </>
+        <ButtonTertiary
+          onClick={() => void fetchNextPage()}
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage
+            ? 'Loading more...'
+            : hasNextPage
+            ? 'Load More'
+            : 'Nothing more to load'}
+        </ButtonTertiary>
+      </div>
     )
   }
 
