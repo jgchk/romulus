@@ -1,11 +1,8 @@
-import { CrudOperation, Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
 import { CrudOperationInput } from '../db/common/inputs'
-import { addGenreHistoryById } from '../db/genre-history'
 import { defaultGenreHistorySelect } from '../db/genre-history/outputs'
-import { requirePermission } from '../guards'
 import { prisma } from '../prisma'
 
 export const genreHistoryRouter = createRouter()
@@ -60,30 +57,5 @@ export const genreHistoryRouter = createRouter()
       const ids = new Set(genres.map((genre) => genre.treeGenreId))
 
       return { count: ids.size }
-    },
-  })
-  .mutation('giveCreateCredit', {
-    input: z.object({ genreId: z.number(), accountId: z.number() }),
-    resolve: async ({ ctx, input }) => {
-      requirePermission(ctx, Permission.MIGRATE_CONTRIBUTORS)
-
-      const createAction = await prisma.genreHistory.findFirst({
-        where: { treeGenreId: input.genreId, operation: CrudOperation.CREATE },
-        select: { id: true, account: { select: { username: true } } },
-      })
-
-      if (!createAction) {
-        return addGenreHistoryById(
-          input.genreId,
-          CrudOperation.CREATE,
-          input.accountId
-        )
-      }
-
-      await prisma.genreHistory.update({
-        where: { id: createAction.id },
-        data: { accountId: input.accountId },
-        select: null,
-      })
     },
   })

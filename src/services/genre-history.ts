@@ -14,16 +14,3 @@ export const useGenreHistoryCountByUserQuery = (
   id: number,
   operation: CrudOperation
 ) => trpc.useQuery(['genre.history.byUserId.count', { id, operation }])
-
-export const useGiveCreateCreditMutation = () => {
-  const utils = trpc.useContext()
-  return trpc.useMutation(['genre.history.giveCreateCredit'], {
-    onSuccess: async (data, { genreId }) => {
-      await Promise.all([
-        utils.invalidateQueries(['genre.history.byGenreId', { id: genreId }]),
-        utils.invalidateQueries(['genre.history.byUserId']),
-        utils.invalidateQueries(['genre.history.byUserId.count']),
-      ])
-    },
-  })
-}
