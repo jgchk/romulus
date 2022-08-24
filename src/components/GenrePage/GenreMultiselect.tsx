@@ -1,10 +1,10 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
+import useDebounce from '../../hooks/useDebounce'
 import useIdMap from '../../hooks/useIdMap'
 import { SimpleGenre } from '../../server/db/genre/outputs'
-import { useSimpleGenresQuery } from '../../services/genres'
-import { toAscii } from '../../utils/string'
+import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
@@ -16,6 +16,7 @@ const GenreMultiselect: FC<{
   onChange: (value: number[]) => void
 }> = ({ id, selectedIds, excludeIds, onChange }) => {
   const [inputValue, setInputValue] = useState('')
+  const [debouncedFilter] = useDebounce(inputValue, 200)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -50,28 +51,21 @@ const GenreMultiselect: FC<{
     return () => document.removeEventListener('click', listener)
   }, [])
 
-  const genresQuery = useSimpleGenresQuery()
-  const genreMap = useIdMap(genresQuery.data ?? [])
+  const genresQuery = useSimpleGenreSearchQuery(debouncedFilter)
+  const genreMap = useIdMap(
+    genresQuery.data?.map((match) => ({ ...match, id: match.genre.id })) ?? []
+  )
 
   const options = useMemo(
     () =>
       genresQuery.data
-        ?.filter((genre) => {
+        ?.filter(({ genre }) => {
           if (excludeIds && excludeIds.includes(genre.id)) return false
           if (selectedIds.includes(genre.id)) return false
-
-          let name = genre.name
-          if (genre.subtitle) name += ` [${genre.subtitle}]`
-
-          return toAscii(name.toLowerCase()).includes(
-            toAscii(inputValue.toLowerCase())
-          )
+          return true
         })
-        .sort((a, b) =>
-          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        )
         .slice(0, 100),
-    [excludeIds, genresQuery.data, inputValue, selectedIds]
+    [excludeIds, genresQuery.data, selectedIds]
   )
 
   const renderOptions = useCallback(() => {
@@ -87,10 +81,10 @@ const GenreMultiselect: FC<{
 
     return options.map((item) => (
       <Option
-        key={item.id}
-        genre={item}
+        key={item.genre.id}
+        match={item}
         onClick={() => {
-          selectId(item.id)
+          selectId(item.genre.id)
           setInputValue('')
         }}
       />
@@ -112,7 +106,7 @@ const GenreMultiselect: FC<{
           {selectedIds.map((id) => (
             <SelectedGenre
               key={id}
-              genre={genreMap.get(id)}
+              genre={genreMap.get(id)?.genre}
               onRemove={() => unselectId(id)}
             />
           ))}
@@ -135,7 +129,7 @@ const GenreMultiselect: FC<{
                 }
 
                 e.preventDefault()
-                selectId(topOption.id)
+                selectId(topOption.genre.id)
                 setInputValue('')
                 setOpen(false)
               } else if (
@@ -179,9 +173,9 @@ const GenreMultiselect: FC<{
 }
 
 const Option: FC<{
-  genre?: SimpleGenre
+  match?: Match
   onClick: () => void
-}> = ({ genre, onClick }) => {
+}> = ({ match, onClick }) => {
   const { showTypeTags } = useGenreTreeSettings()
 
   return (
@@ -191,17 +185,25 @@ const Option: FC<{
         type='button'
         onClick={() => onClick()}
       >
-        {genre?.name ?? 'Loading...'}
-        {genre?.subtitle && (
+        {match?.genre.name ?? 'Loading...'}
+        {match?.genre.subtitle && (
           <>
             {' '}
-            <span className='text-xs text-gray-600'>[{genre.subtitle}]</span>
+            <span className='text-xs text-gray-600'>
+              [{match.genre.subtitle}]
+            </span>
           </>
         )}
-        {showTypeTags && genre?.type && genre?.type !== 'STYLE' && (
+        {match?.matchedAka && (
           <>
             {' '}
-            <GenreTypeChip type={genre.type} />
+            <span className='text-xs'>({match.matchedAka})</span>
+          </>
+        )}
+        {showTypeTags && match?.genre.type && match?.genre.type !== 'STYLE' && (
+          <>
+            {' '}
+            <GenreTypeChip type={match?.genre.type} />
           </>
         )}
       </button>

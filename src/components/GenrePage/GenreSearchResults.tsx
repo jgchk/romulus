@@ -1,44 +1,21 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
-import { FC, useMemo } from 'react'
-import { compareTwoStrings } from 'string-similarity'
+import { FC } from 'react'
 
-import { SimpleGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
-import { useSimpleGenresQuery } from '../../services/genres'
-import { toAscii } from '../../utils/string'
+import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
-type Props = { filter: string; clearFilter: () => void }
-type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }
-
-const toFilterString = (s: string) => toAscii(s.toLowerCase())
-const getMatchWeight = (name: string, filter: string) => {
-  const fName = toFilterString(name)
-  const fFilter = toFilterString(filter)
-
-  if (fName.length < 2 || fFilter.length < 2) {
-    if (fName.startsWith(fFilter)) {
-      return 1
-    } else if (fName.includes(fFilter)) {
-      return 0.5
-    } else {
-      return 0
-    }
-  }
-
-  return compareTwoStrings(fName, fFilter)
-}
-
-const WEIGHT_THRESHOLD = 0.2
-
-const GenreSearchResults: FC<Props> = (props) => {
-  const genresQuery = useSimpleGenresQuery()
+const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
+  filter,
+  clearFilter,
+}) => {
+  const genresQuery = useSimpleGenreSearchQuery(filter)
 
   if (genresQuery.data) {
-    return <HasData {...props} allGenres={genresQuery.data} />
+    return <HasData matches={genresQuery.data} clearFilter={clearFilter} />
   }
 
   if (genresQuery.error) {
@@ -52,47 +29,11 @@ const GenreSearchResults: FC<Props> = (props) => {
   return <CenteredLoader />
 }
 
-const HasData: FC<Props & { allGenres: SimpleGenre[] }> = ({
-  filter,
+const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
+  matches,
   clearFilter,
-  allGenres,
 }) => {
   const session = useSession()
-
-  const matches = useMemo(() => {
-    const m: Match[] = []
-
-    for (const genre of allGenres) {
-      let name = genre.name
-      if (genre.subtitle) {
-        name += ` [${genre.subtitle}]`
-      }
-      const nameWeight = getMatchWeight(name, filter)
-      let match: Match = { genre, weight: nameWeight }
-
-      for (const aka of genre.akas) {
-        // TODO: incorporate aka relevance
-        const akaWeight = getMatchWeight(aka.name, filter)
-        if (akaWeight > match.weight) {
-          match = {
-            genre,
-            matchedAka: aka.name,
-            weight: akaWeight,
-          }
-        }
-      }
-
-      if (match.weight >= WEIGHT_THRESHOLD) {
-        m.push(match)
-      }
-    }
-
-    return m.sort(
-      (a, b) =>
-        b.weight - a.weight ||
-        a.genre.name.toLowerCase().localeCompare(b.genre.name.toLowerCase())
-    )
-  }, [allGenres, filter])
 
   return (
     <div className='p-4'>
@@ -120,7 +61,7 @@ const HasData: FC<Props & { allGenres: SimpleGenre[] }> = ({
   )
 }
 
-const SearchResult: FC<{ match: Match; clearFilter: Props['clearFilter'] }> = ({
+const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   match: { genre, matchedAka },
   clearFilter,
 }) => {

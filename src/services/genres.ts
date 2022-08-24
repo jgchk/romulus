@@ -1,3 +1,8 @@
+import { useCallback, useMemo } from 'react'
+import { compareTwoStrings } from 'string-similarity'
+
+import { SimpleGenre } from '../server/db/genre/outputs'
+import { toAscii } from '../utils/string'
 import { trpc } from '../utils/trpc'
 
 export const useGenresQuery = () => {
@@ -35,6 +40,75 @@ export const useSimpleGenresQuery = () => {
       }
     },
   })
+}
+
+export type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }
+const toFilterString = (s: string) => toAscii(s.toLowerCase())
+const getMatchWeight = (name: string, filter: string) => {
+  const fName = toFilterString(name)
+  const fFilter = toFilterString(filter)
+
+  if (fName.length < 2 || fFilter.length < 2) {
+    if (fName.startsWith(fFilter)) {
+      return 1
+    } else if (fName.includes(fFilter)) {
+      return 0.5
+    } else {
+      return 0
+    }
+  }
+
+  return compareTwoStrings(fName, fFilter)
+}
+const WEIGHT_THRESHOLD = 0.2
+export const useSimpleGenreSearchQuery = (filter: string) => {
+  const genresQuery = useSimpleGenresQuery()
+
+  const getMatches = useCallback((allGenres: SimpleGenre[], filter: string) => {
+    const m: Match[] = []
+
+    for (const genre of allGenres) {
+      let name = genre.name
+      if (genre.subtitle) {
+        name += ` [${genre.subtitle}]`
+      }
+      const nameWeight = getMatchWeight(name, filter)
+      let match: Match = { genre, weight: nameWeight }
+
+      for (const aka of genre.akas) {
+        // TODO: incorporate aka relevance
+        const akaWeight = getMatchWeight(aka.name, filter)
+        if (akaWeight > match.weight) {
+          match = {
+            genre,
+            matchedAka: aka.name,
+            weight: akaWeight,
+          }
+        }
+      }
+
+      if (match.weight >= WEIGHT_THRESHOLD) {
+        m.push(match)
+      }
+    }
+
+    return m.sort(
+      (a, b) =>
+        b.weight - a.weight ||
+        a.genre.name.toLowerCase().localeCompare(b.genre.name.toLowerCase())
+    )
+  }, [])
+
+  const output = useMemo(() => {
+    if (genresQuery.data) {
+      const matches = getMatches(genresQuery.data, filter)
+      return { ...genresQuery, data: matches }
+    } else {
+      return genresQuery
+    }
+  }, [filter, genresQuery, getMatches])
+
+  return output
 }
 
 export const useGenreQuery = (id: number) => {
