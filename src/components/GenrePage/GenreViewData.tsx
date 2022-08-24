@@ -12,12 +12,15 @@ import { isNotNull } from '../../utils/types'
 import Label from '../common/Label'
 import Romcode from '../common/Romcode'
 import { getGenreRelevanceText } from './common'
+import GenreTypeChip from './GenreTypeChip'
+import useGenreTreeSettings from './useGenreTreeSettings'
 
 const GenreViewData: FC<{
   genre: DefaultGenre
   history: DefaultGenreHistory[]
 }> = ({ genre, history }) => {
   const session = useSession()
+  const { showTypeTags } = useGenreTreeSettings()
 
   const sortedHistory = useMemo(
     () =>
@@ -103,7 +106,7 @@ const GenreViewData: FC<{
           <div>
             <Label htmlFor='parents'>Parents</Label>
             <ul id='parents' className='comma-list'>
-              {genre.parentGenres.map(({ id, name }) => (
+              {genre.parentGenres.map(({ id, name, type }) => (
                 <li key={id}>
                   <Link
                     href={{
@@ -113,6 +116,15 @@ const GenreViewData: FC<{
                   >
                     <a className='text-blue-500 hover:underline font-bold'>
                       {name}
+                      {showTypeTags && type !== 'STYLE' && (
+                        <>
+                          {' '}
+                          <GenreTypeChip
+                            type={type}
+                            className='bg-blue-100 text-blue-400'
+                          />
+                        </>
+                      )}
                     </a>
                   </Link>
                 </li>
@@ -125,7 +137,7 @@ const GenreViewData: FC<{
           <div>
             <Label htmlFor='influences'>Influences</Label>
             <ul id='influences' className='comma-list'>
-              {genre.influencedByGenres.map(({ id, name }) => (
+              {genre.influencedByGenres.map(({ id, name, type }) => (
                 <li key={id}>
                   <Link
                     href={{
@@ -133,7 +145,18 @@ const GenreViewData: FC<{
                       query: { id: id.toString() },
                     }}
                   >
-                    <a className='text-blue-500 hover:underline'>{name}</a>
+                    <a className='text-blue-500 hover:underline'>
+                      {name}
+                      {showTypeTags && type !== 'STYLE' && (
+                        <>
+                          {' '}
+                          <GenreTypeChip
+                            type={type}
+                            className='bg-blue-100 text-blue-400'
+                          />
+                        </>
+                      )}
+                    </a>
                   </Link>
                 </li>
               ))}
