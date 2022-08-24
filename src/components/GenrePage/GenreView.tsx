@@ -1,7 +1,7 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { DefaultGenre } from '../../server/db/genre/outputs'
@@ -23,15 +23,38 @@ export const GenreView: FC<{
   const genreQuery = useGenreQuery(id)
   const historyQuery = useGenreHistoryQuery(id)
 
+  const hasHistory = useMemo(
+    () => historyQuery.data && historyQuery.data.length > 0,
+    [historyQuery.data]
+  )
+
   if (genreQuery.data && historyQuery.data) {
     return <HasData genre={genreQuery.data} history={historyQuery.data} />
   }
 
   if (genreQuery.error) {
-    return <div>Error fetching genre :(</div>
+    return (
+      <div className='p-4 h-full flex flex-col items-center justify-center text-gray-700'>
+        <div>Error fetching genre :(</div>
+        {hasHistory && (
+          <Link
+            href={{
+              pathname: '/genres/[id]/history',
+              query: { id: id.toString() },
+            }}
+          >
+            <a className='block text-blue-500 hover:underline'>View history</a>
+          </Link>
+        )}
+      </div>
+    )
   }
   if (historyQuery.error) {
-    return <div>Error fetching genre history :(</div>
+    return (
+      <div className='p-4 h-full flex items-center justify-center text-gray-700'>
+        Error fetching genre history :(
+      </div>
+    )
   }
 
   return <CenteredLoader />
