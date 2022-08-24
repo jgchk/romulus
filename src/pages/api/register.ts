@@ -5,12 +5,13 @@ import AuthenticationManager, {
   setTokenCookie,
 } from '../../server/authentication'
 import { withExceptionFilter } from '../../server/middleware'
+import { nonemptyString } from '../../utils/validators'
 
 const authenticationManager = new AuthenticationManager()
 
 const RegisterRequest = z.object({
-  username: z.string().trim().min(1, 'Username cannot be empty'),
-  password: z.string().trim().min(1, 'Password cannot be empty'),
+  username: nonemptyString('Username is required'),
+  password: nonemptyString('Password is required'),
 })
 
 type RegisterRequest = z.infer<typeof RegisterRequest>

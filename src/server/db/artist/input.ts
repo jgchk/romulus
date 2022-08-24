@@ -1,18 +1,20 @@
 import { z } from 'zod'
 
+import { nonemptyString } from '../../../utils/validators'
+
 export const CreateArtistInput = z.object({
-  name: z.string().trim().min(1),
-  akas: z.string().trim().min(1).array(),
-  spotifyId: z.string().trim().min(1).optional(),
+  name: nonemptyString(),
+  akas: nonemptyString().array(),
+  spotifyId: nonemptyString().optional(),
 })
 export type CreateArtistInput = z.infer<typeof CreateArtistInput>
 
 export const EditArtistInput = z.object({
   id: z.number(),
   data: z.object({
-    name: z.string().trim().min(1).optional(),
-    akas: z.string().trim().min(1).array().optional(),
-    spotifyId: z.string().trim().min(1).optional().nullable(),
+    name: nonemptyString().optional(),
+    akas: nonemptyString().array().optional(),
+    spotifyId: nonemptyString().optional().nullable(),
   }),
 })
 export type EditArtistInput = z.infer<typeof EditArtistInput>

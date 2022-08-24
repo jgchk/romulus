@@ -1,14 +1,14 @@
 import { GenreType } from '@prisma/client'
 import { z } from 'zod'
 
-import { iso8601 } from '../../../utils/validators'
+import { iso8601, nonemptyString } from '../../../utils/validators'
 import { GenreRelevanceInput } from '../common/inputs'
 
 export const LocationIdInput = z.object({ id: z.number() })
 export const LocationInput = z.object({
-  city: z.string().trim().min(1).optional(),
-  region: z.string().trim().min(1).optional(),
-  country: z.string().trim().min(1),
+  city: nonemptyString().optional(),
+  region: nonemptyString().optional(),
+  country: nonemptyString(),
 })
 
 export const GenreTypeInput = z.union([
@@ -33,24 +33,24 @@ export const GenreAkaRelevanceInput = z
   )
 
 export const GenreAkaInput = z.object({
-  name: z.string().trim().min(1),
+  name: nonemptyString(),
   relevance: GenreAkaRelevanceInput,
   order: z.number(),
 })
 export type GenreAkaInput = z.infer<typeof GenreAkaInput>
 
 export const CreateGenreInput = z.object({
-  name: z.string().trim().min(1),
-  subtitle: z.string().trim().min(1).optional(),
+  name: nonemptyString(),
+  subtitle: nonemptyString().optional(),
   type: GenreTypeInput,
-  shortDescription: z.string().trim().min(1).optional(),
-  longDescription: z.string().trim().min(1).optional(),
+  shortDescription: nonemptyString().optional(),
+  longDescription: nonemptyString().optional(),
   locations: z.union([LocationIdInput, LocationInput]).array().optional(),
-  startDate: iso8601.optional(),
-  endDate: iso8601.optional(),
+  startDate: iso8601().optional(),
+  endDate: iso8601().optional(),
   parentGenres: z.number().array().optional(),
   influencedByGenres: z.number().array().optional(),
-  notes: z.string().trim().min(1).optional(),
+  notes: nonemptyString().optional(),
   akas: GenreAkaInput.array(),
   relevance: GenreRelevanceInput,
 })
@@ -59,19 +59,19 @@ export type CreateGenreInput = z.infer<typeof CreateGenreInput>
 export const EditGenreInput = z.object({
   id: z.number(),
   data: z.object({
-    name: z.string().trim().min(1).optional(),
-    subtitle: z.string().trim().min(1).optional().nullable(),
+    name: nonemptyString().optional(),
+    subtitle: nonemptyString().optional().nullable(),
     type: GenreTypeInput.optional(),
-    shortDescription: z.string().trim().min(1).optional().nullable(),
-    longDescription: z.string().trim().min(1).optional().nullable(),
+    shortDescription: nonemptyString().optional().nullable(),
+    longDescription: nonemptyString().optional().nullable(),
     locations: z.union([LocationIdInput, LocationInput]).array().optional(),
-    startDate: iso8601.optional(),
-    endDate: iso8601.optional(),
+    startDate: iso8601().optional(),
+    endDate: iso8601().optional(),
     parentGenres: z.number().array().optional(),
     influencedByGenres: z.number().array().optional(),
     x: z.number().nullable().optional(),
     y: z.number().nullable().optional(),
-    notes: z.string().trim().min(1).optional().nullable(),
+    notes: nonemptyString().optional().nullable(),
     akas: GenreAkaInput.array().optional(),
     relevance: GenreRelevanceInput.optional(),
   }),

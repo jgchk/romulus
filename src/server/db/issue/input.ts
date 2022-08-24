@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-import { iso8601 } from '../../../utils/validators'
+import { iso8601, nonemptyString } from '../../../utils/validators'
 
 export const CreateIssueInput = z.object({
-  title: z.string().trim().min(1),
+  title: nonemptyString(),
   artists: z.number().array(),
-  releaseDate: iso8601.optional(),
-  spotifyId: z.string().trim().min(1).optional(),
+  releaseDate: iso8601().optional(),
+  spotifyId: nonemptyString().optional(),
   releaseId: z.number(),
 })
 export type CreateIssueInput = z.infer<typeof CreateIssueInput>
@@ -14,10 +14,10 @@ export type CreateIssueInput = z.infer<typeof CreateIssueInput>
 export const EditIssueInput = z.object({
   id: z.number(),
   data: z.object({
-    title: z.string().trim().min(1).optional(),
+    title: nonemptyString().optional(),
     artists: z.number().array().optional(),
-    releaseDate: iso8601.optional().nullable(),
-    spotifyId: z.string().trim().min(1).optional().nullable(),
+    releaseDate: iso8601().optional().nullable(),
+    spotifyId: nonemptyString().optional().nullable(),
     releaseId: z.number().optional(),
   }),
 })

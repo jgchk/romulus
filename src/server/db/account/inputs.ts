@@ -1,10 +1,11 @@
 import { z } from 'zod'
 
+import { nonemptyString } from '../../../utils/validators'
 import { GenreRelevanceInput } from '../common/inputs'
 
 export const CreateAccountInput = z.object({
-  username: z.string().trim().min(1, 'Username cannot be empty'),
-  password: z.string().trim().min(1, 'Password cannot be empty'),
+  username: nonemptyString('Username is required'),
+  password: nonemptyString('Password is required'),
 })
 export type CreateAccountInput = z.infer<typeof CreateAccountInput>
 
