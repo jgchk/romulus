@@ -4,7 +4,11 @@ import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 import useDebounce from '../../hooks/useDebounce'
 import useIdMap from '../../hooks/useIdMap'
 import { SimpleGenre } from '../../server/db/genre/outputs'
-import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
+import {
+  Match,
+  useSimpleGenreSearchQuery,
+  useSimpleGenresQuery,
+} from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
@@ -51,21 +55,20 @@ const GenreMultiselect: FC<{
     return () => document.removeEventListener('click', listener)
   }, [])
 
-  const genresQuery = useSimpleGenreSearchQuery(debouncedFilter)
-  const genreMap = useIdMap(
-    genresQuery.data?.map((match) => ({ ...match, id: match.genre.id })) ?? []
-  )
+  const genresQuery = useSimpleGenresQuery()
+  const genreMap = useIdMap(genresQuery.data ?? [])
 
+  const genreSearchQuery = useSimpleGenreSearchQuery(debouncedFilter)
   const options = useMemo(
     () =>
-      genresQuery.data
+      genreSearchQuery.data
         ?.filter(({ genre }) => {
           if (excludeIds && excludeIds.includes(genre.id)) return false
           if (selectedIds.includes(genre.id)) return false
           return true
         })
         .slice(0, 100),
-    [excludeIds, genresQuery.data, selectedIds]
+    [excludeIds, genreSearchQuery.data, selectedIds]
   )
 
   const renderOptions = useCallback(() => {
@@ -106,7 +109,7 @@ const GenreMultiselect: FC<{
           {selectedIds.map((id) => (
             <SelectedGenre
               key={id}
-              genre={genreMap.get(id)?.genre}
+              genre={genreMap.get(id)}
               onRemove={() => unselectId(id)}
             />
           ))}
