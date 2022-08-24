@@ -14,6 +14,7 @@ import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { ifDefined } from '../../utils/types'
 import { ButtonPrimary, ButtonTertiary } from '../common/Button'
+import Label from '../common/Label'
 import RomcodeEditor from '../common/RomcodeEditor'
 import { getGenreRelevanceText } from './common'
 import GenreMultiselect from './GenreMultiselect'
@@ -135,15 +136,9 @@ const GenreForm: FC<{
     >
       <div className='space-y-3 w-full flex-1 overflow-auto p-4'>
         <div>
-          <label
-            htmlFor='name'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.name && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='name' error={errors.name}>
             Name
-          </label>
+          </Label>
           <input
             id='name'
             className={clsx(
@@ -158,15 +153,9 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='subtitle'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.subtitle && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='subtitle' error={errors.subtitle}>
             Subtitle
-          </label>
+          </Label>
           <input
             id='subtitle'
             className={clsx(
@@ -197,15 +186,9 @@ const GenreForm: FC<{
 
           <div className='space-y-2 w-full'>
             <div className='w-full'>
-              <label
-                htmlFor='primary-akas'
-                className={clsx(
-                  'block text-gray-700 text-sm',
-                  errors.primaryAkas && 'text-red-600'
-                )}
-              >
+              <Label htmlFor='primary-akas' error={errors.primaryAkas}>
                 Primary
-              </label>
+              </Label>
               <input
                 id='primary-akas'
                 className={clsx(
@@ -221,15 +204,9 @@ const GenreForm: FC<{
               )}
             </div>
             <div className='w-full'>
-              <label
-                htmlFor='secondary-akas'
-                className={clsx(
-                  'block text-gray-700 text-sm',
-                  errors.secondaryAkas && 'text-red-600'
-                )}
-              >
+              <Label htmlFor='secondary-akas' error={errors.secondaryAkas}>
                 Secondary
-              </label>
+              </Label>
               <input
                 id='secondary-akas'
                 className={clsx(
@@ -245,15 +222,9 @@ const GenreForm: FC<{
               )}
             </div>
             <div className='w-full'>
-              <label
-                htmlFor='tertiary-akas'
-                className={clsx(
-                  'block text-gray-700 text-sm',
-                  errors.tertiaryAkas && 'text-red-600'
-                )}
-              >
+              <Label htmlFor='tertiary-akas' error={errors.tertiaryAkas}>
                 Tertiary
-              </label>
+              </Label>
               <input
                 id='tertiary-akas'
                 className={clsx(
@@ -272,15 +243,9 @@ const GenreForm: FC<{
         </fieldset>
 
         <div>
-          <label
-            htmlFor='type'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.type && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='type' error={errors.type}>
             Type
-          </label>
+          </Label>
           <select
             id='type'
             className={clsx(
@@ -301,13 +266,7 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='relevance'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.relevance && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='relevance' error={errors.relevance}>
             Relevance{' '}
             <a
               href='https://discord.com/channels/940459362168746055/1008898978911375384/1008900089936351252'
@@ -317,7 +276,7 @@ const GenreForm: FC<{
             >
               (More Info)
             </a>
-          </label>
+          </Label>
           <select
             id='relevance'
             className={clsx(
@@ -345,7 +304,7 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label className='block text-gray-700 text-sm'>Parents</label>
+          <Label>Parents</Label>
           <GenreMultiselect
             excludeIds={[
               ...(genre !== undefined ? [genre.id] : []),
@@ -357,7 +316,7 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label className='block text-gray-700 text-sm'>Influences</label>
+          <Label>Influences</Label>
           <GenreMultiselect
             excludeIds={genre !== undefined ? [genre.id] : []}
             selectedIds={influencedByGenres}
@@ -366,15 +325,9 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='short-description'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.shortDescription && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='short-description' error={errors.shortDescription}>
             Short Description
-          </label>
+          </Label>
           <Controller
             name='shortDescription'
             control={control}
@@ -390,15 +343,9 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='long-description'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.longDescription && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='long-description' error={errors.longDescription}>
             Long Description
-          </label>
+          </Label>
           <Controller
             name='longDescription'
             control={control}
@@ -414,15 +361,9 @@ const GenreForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='notes'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.notes && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='notes' error={errors.notes}>
             Notes
-          </label>
+          </Label>
           <Controller
             name='notes'
             control={control}

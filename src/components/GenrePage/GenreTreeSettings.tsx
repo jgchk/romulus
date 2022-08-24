@@ -6,6 +6,7 @@ import {
   MAX_GENRE_RELEVANCE,
   MIN_GENRE_RELEVANCE,
 } from '../../server/db/common/inputs'
+import Label from '../common/Label'
 import Popover from '../common/Popover'
 import { getGenreRelevanceText } from './common'
 import useGenreTreeSettings from './useGenreTreeSettings'
@@ -23,12 +24,9 @@ const GenreTreeSettings: FC = () => {
   return (
     <div className='space-y-4'>
       <div>
-        <label
-          className='text-gray-700 text-sm flex items-center space-x-1'
-          htmlFor='relevance'
-        >
+        <Label htmlFor='relevance' display='flex' className='items-center'>
           <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
-        </label>
+        </Label>
         <select
           id='relevance'
           className='border rounded-sm p-1 px-2 mt-0.5 capitalize text-sm'
@@ -53,9 +51,7 @@ const GenreTreeSettings: FC = () => {
           checked={showTypeTags}
           onChange={(e) => setShowTypeTags(e.target.checked)}
         />
-        <label className='text-gray-700 text-sm' htmlFor='show-type-tags'>
-          Show Genre Type Tags
-        </label>
+        <Label htmlFor='show-type-tags'>Show Genre Type Tags</Label>
       </div>
 
       <div className='flex items-center space-x-2'>
@@ -66,9 +62,7 @@ const GenreTreeSettings: FC = () => {
           checked={showRelevanceTags}
           onChange={(e) => setShowRelevanceTags(e.target.checked)}
         />
-        <label className='text-gray-700 text-sm' htmlFor='show-relevance-tags'>
-          Show Genre Relevance Tags
-        </label>
+        <Label htmlFor='show-relevance-tags'>Show Genre Relevance Tags</Label>
       </div>
     </div>
   )

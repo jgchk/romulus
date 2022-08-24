@@ -6,6 +6,7 @@ import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { ButtonPrimary } from '../components/common/Button'
+import Label from '../components/common/Label'
 import { useLoginMutation, useSession } from '../services/auth'
 
 type LoginFormFields = {
@@ -46,15 +47,9 @@ const Login: NextPage = () => {
       >
         <div className='space-y-3'>
           <div>
-            <label
-              className={clsx(
-                'block text-gray-700 text-sm',
-                errors.username && 'text-red-600'
-              )}
-              htmlFor='username'
-            >
+            <Label htmlFor='username' error={errors.username}>
               Username
-            </label>
+            </Label>
             <input
               id='username'
               className={clsx(
@@ -71,15 +66,9 @@ const Login: NextPage = () => {
           </div>
 
           <div>
-            <label
-              className={clsx(
-                'block text-gray-700 text-sm',
-                errors.password && 'text-red-600'
-              )}
-              htmlFor='password'
-            >
+            <Label htmlFor='password' error={errors.password}>
               Password
-            </label>
+            </Label>
             <input
               id='password'
               type='password'

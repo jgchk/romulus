@@ -8,6 +8,7 @@ import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { ButtonPrimary } from '../common/Button'
+import Label from '../common/Label'
 
 type ArtistFormFields = {
   name: string
@@ -86,15 +87,9 @@ const ArtistForm: FC<{
     <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
       <div className='space-y-3'>
         <div>
-          <label
-            htmlFor='name'
-            className={clsx(
-              'block text-sm',
-              errors.name ? 'text-red-600' : 'text-gray-700'
-            )}
-          >
+          <Label htmlFor='name' error={errors.name}>
             Name
-          </label>
+          </Label>
           <input
             id='name'
             className={clsx(
@@ -109,15 +104,9 @@ const ArtistForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='akas'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.akas && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='akas' error={errors.akas}>
             AKAs
-          </label>
+          </Label>
           <input
             id='akas'
             className={clsx(
@@ -132,15 +121,9 @@ const ArtistForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='spotify-urls'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.spotifyUrls && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='spotify-urls' error={errors.spotifyUrls}>
             Spotify URLs
-          </label>
+          </Label>
           <input
             id='spotify-urls'
             className={clsx(

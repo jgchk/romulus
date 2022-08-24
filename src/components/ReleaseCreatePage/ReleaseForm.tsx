@@ -9,6 +9,7 @@ import { AlbumObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { check, iso8601 } from '../../utils/validators'
 import { ButtonPrimary } from '../common/Button'
+import Label from '../common/Label'
 
 type ReleaseFormFields = {
   title: string
@@ -83,15 +84,9 @@ const ReleaseForm: FC<{
     <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
       <div className='space-y-3'>
         <div>
-          <label
-            htmlFor='title'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.title && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='title' error={errors.title}>
             Title
-          </label>
+          </Label>
           <input
             id='title'
             className={clsx(
@@ -106,15 +101,9 @@ const ReleaseForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='release-date'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.releaseDate && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='release-date' error={errors.releaseDate}>
             Release Date
-          </label>
+          </Label>
           <input
             id='release-date'
             className={clsx(
@@ -134,15 +123,9 @@ const ReleaseForm: FC<{
         </div>
 
         <div>
-          <label
-            htmlFor='spotify-url'
-            className={clsx(
-              'block text-gray-700 text-sm',
-              errors.spotifyUrl && 'text-red-600'
-            )}
-          >
+          <Label htmlFor='spotify-url' error={errors.spotifyUrl}>
             Spotify URL
-          </label>
+          </Label>
           <input
             id='spotify-url'
             className={clsx(

@@ -6,6 +6,7 @@ import { spotifyAlbumRegex } from '../../server/services/spotify/regex'
 import { AlbumObject } from '../../server/services/spotify/types'
 import { useSpotifyAlbumQuery } from '../../services/spotify'
 import { ButtonPrimary } from '../common/Button'
+import Label from '../common/Label'
 
 type ImportFormFields = {
   url: string
@@ -63,9 +64,9 @@ const ImportForm: FC<{ onData: (data: AlbumObject) => void }> = ({
       onSubmit={(e) => void handleSubmit(onSubmit)(e)}
     >
       <div>
-        <label htmlFor='url' className='hidden'>
+        <Label htmlFor='url' className='hidden'>
           URL
-        </label>
+        </Label>
         <input
           id='url'
           placeholder='URL'

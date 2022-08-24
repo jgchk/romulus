@@ -8,6 +8,7 @@ import { DefaultArtist } from '../../server/db/artist/output'
 import { DefaultArtistHistory } from '../../server/db/artist-history/outputs'
 import { useArtistHistoryQuery } from '../../services/artist-history'
 import { useArtistQuery } from '../../services/artists'
+import Label from '../common/Label'
 import { CenteredLoader } from '../common/Loader'
 
 const ArtistPage: FC<{ id: number }> = ({ id }) => {
@@ -79,17 +80,13 @@ const HasData: FC<{
       <div className='space-y-3 pt-4'>
         {artist.akas.length > 0 && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='akas'>
-              AKA
-            </label>
+            <Label htmlFor='akas'>AKA</Label>
             <div id='akas'>{artist.akas.join(', ')}</div>
           </div>
         )}
 
         <div>
-          <label className='block text-gray-500 text-sm' htmlFor='contributors'>
-            Contributors
-          </label>
+          <Label htmlFor='contributors'>Contributors</Label>
           <ul id='contributors' className='comma-list'>
             {contributors.map(({ id, username }) => (
               <li key={id}>

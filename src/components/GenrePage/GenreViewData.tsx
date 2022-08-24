@@ -9,6 +9,7 @@ import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
 import { copyTextToClipboard } from '../../utils/dom'
 import { isNotNull } from '../../utils/types'
+import Label from '../common/Label'
 import Romcode from '../common/Romcode'
 import { getGenreRelevanceText } from './common'
 
@@ -72,9 +73,7 @@ const GenreViewData: FC<{
       <div className='space-y-3 pt-4'>
         {genre.akas.length > 0 && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='akas'>
-              AKA
-            </label>
+            <Label htmlFor='akas'>AKA</Label>
             <div id='akas'>
               {genre.akas
                 .sort((a, b) => b.relevance - a.relevance || a.order - b.order)
@@ -85,9 +84,7 @@ const GenreViewData: FC<{
         )}
 
         <div>
-          <label className='block text-gray-500 text-sm' htmlFor='type'>
-            Type
-          </label>
+          <Label htmlFor='type'>Type</Label>
           <div id='type' className='capitalize'>
             {genre.type.toLowerCase()}
           </div>
@@ -95,9 +92,7 @@ const GenreViewData: FC<{
 
         {genre.relevance !== 99 && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='relevance'>
-              Relevance
-            </label>
+            <Label htmlFor='relevance'>Relevance</Label>
             <div id='relevance'>
               {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
             </div>
@@ -106,9 +101,7 @@ const GenreViewData: FC<{
 
         {genre.parentGenres.length > 0 && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='parents'>
-              Parents
-            </label>
+            <Label htmlFor='parents'>Parents</Label>
             <ul id='parents' className='comma-list'>
               {genre.parentGenres.map(({ id, name }) => (
                 <li key={id}>
@@ -130,9 +123,7 @@ const GenreViewData: FC<{
 
         {genre.influencedByGenres.length > 0 && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='influences'>
-              Influences
-            </label>
+            <Label htmlFor='influences'>Influences</Label>
             <ul id='influences' className='comma-list'>
               {genre.influencedByGenres.map(({ id, name }) => (
                 <li key={id}>
@@ -151,12 +142,7 @@ const GenreViewData: FC<{
         )}
 
         <div>
-          <label
-            className='block text-gray-500 text-sm'
-            htmlFor='short-description'
-          >
-            Short Description
-          </label>
+          <Label htmlFor='short-description'>Short Description</Label>
           <div id='short-description'>
             {genre.shortDescription ? (
               <Romcode>{genre.shortDescription}</Romcode>
@@ -183,12 +169,7 @@ const GenreViewData: FC<{
         </div>
 
         <div>
-          <label
-            className='block text-gray-500 text-sm'
-            htmlFor='long-description'
-          >
-            Long Description
-          </label>
+          <Label htmlFor='long-description'>Long Description</Label>
           <div id='long-description'>
             {genre.longDescription ? (
               <Romcode>{genre.longDescription}</Romcode>
@@ -216,9 +197,7 @@ const GenreViewData: FC<{
 
         {genre.notes && (
           <div>
-            <label className='block text-gray-500 text-sm' htmlFor='notes'>
-              Notes
-            </label>
+            <Label htmlFor='notes'>Notes</Label>
             <div id='notes'>
               <Romcode className='compact-prose'>{genre.notes}</Romcode>
             </div>
@@ -226,7 +205,7 @@ const GenreViewData: FC<{
         )}
 
         <div>
-          <label className='block text-gray-500 text-sm' htmlFor='contributors'>
+          <Label htmlFor='contributors'>
             Contributors{' '}
             <Link
               href={{
@@ -238,7 +217,7 @@ const GenreViewData: FC<{
                 (View History)
               </a>
             </Link>
-          </label>
+          </Label>
           <ul id='contributors' className='comma-list'>
             {contributors.map(({ id, username }) => (
               <li key={id}>
