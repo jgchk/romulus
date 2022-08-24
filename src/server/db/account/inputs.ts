@@ -13,6 +13,8 @@ export const EditAccountInput = z.object({
   id: z.number(),
   data: z.object({
     genreRelevanceFilter: GenreRelevanceInput.optional(),
+    showTypeTags: z.boolean().optional(),
+    showRelevanceTags: z.boolean().optional(),
   }),
 })
 export type EditAccountInput = z.infer<typeof EditAccountInput>

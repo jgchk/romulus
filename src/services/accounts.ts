@@ -33,6 +33,9 @@ export const useEditAccountMutation = () => {
           genreRelevanceFilter:
             input.data.genreRelevanceFilter ??
             previousData.genreRelevanceFilter,
+          showTypeTags: input.data.showTypeTags ?? previousData.showTypeTags,
+          showRelevanceTags:
+            input.data.showRelevanceTags ?? previousData.showRelevanceTags,
         }
 
         utils.setQueryData(['account.byId', { id: input.id }], newData)

@@ -135,8 +135,10 @@ model Account {
   username String @unique
   password String
 
-  genreRelevanceFilter Int     @default(1)
   darkMode             Boolean @default(true)
+  genreRelevanceFilter Int     @default(1)
+  showTypeTags         Boolean @default(true)
+  showRelevanceTags    Boolean @default(false)
 
   permissions Permission[]
 

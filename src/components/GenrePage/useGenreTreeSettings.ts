@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 
-import useLocalStorage from '../../hooks/useLocalStorage'
 import { useEditAccountMutation } from '../../services/accounts'
 import { useSession } from '../../services/auth'
 
@@ -18,7 +17,7 @@ export const useGenreTreeSettings = () => {
     (value: number) => {
       const accountId = session.data?.id
       if (accountId === undefined) {
-        toast.error('You must be logged in to edit your account')
+        toast.error('You must be logged in to update this setting')
         return
       }
 
@@ -30,14 +29,44 @@ export const useGenreTreeSettings = () => {
     [editAccount, session.data?.id]
   )
 
-  const [showTypeTags, setShowTypeTags] = useLocalStorage(
-    'settings.genreTree.showTypeTags',
-    true
+  const showTypeTags = useMemo(
+    () => session.data?.showTypeTags ?? true,
+    [session.data?.showTypeTags]
+  )
+  const setShowTypeTags = useCallback(
+    (value: boolean) => {
+      const accountId = session.data?.id
+      if (accountId === undefined) {
+        toast.error('You must be logged in to update this setting')
+        return
+      }
+
+      return editAccount({
+        id: accountId,
+        data: { showTypeTags: value },
+      })
+    },
+    [editAccount, session.data?.id]
   )
 
-  const [showRelevanceTags, setShowRelevanceTags] = useLocalStorage(
-    'settings.genreTree.showRelevanceTags',
-    false
+  const showRelevanceTags = useMemo(
+    () => session.data?.showRelevanceTags ?? false,
+    [session.data?.showRelevanceTags]
+  )
+  const setShowRelevanceTags = useCallback(
+    (value: boolean) => {
+      const accountId = session.data?.id
+      if (accountId === undefined) {
+        toast.error('You must be logged in to update this setting')
+        return
+      }
+
+      return editAccount({
+        id: accountId,
+        data: { showRelevanceTags: value },
+      })
+    },
+    [editAccount, session.data?.id]
   )
 
   const data = useMemo(
