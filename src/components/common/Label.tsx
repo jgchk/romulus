@@ -1,22 +1,15 @@
-import clsx from 'clsx'
 import { FC, LabelHTMLAttributes } from 'react'
+
+import { twsx } from '../../utils/dom'
 
 export type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
   error?: unknown
-  display?: string
 }
 
-const Label: FC<LabelProps> = ({
-  children,
-  error,
-  className,
-  display,
-  ...props
-}) => (
+const Label: FC<LabelProps> = ({ children, error, className, ...props }) => (
   <label
-    className={clsx(
-      display ?? 'block',
-      'text-sm',
+    className={twsx(
+      'block text-sm',
       error ? 'text-red-600' : 'text-gray-700',
       className
     )}

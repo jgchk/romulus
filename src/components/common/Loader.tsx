@@ -1,5 +1,6 @@
-import clsx from 'clsx'
 import { FC } from 'react'
+
+import { twsx } from '../../utils/dom'
 
 const DEFAULT_SIZE = 24
 
@@ -7,7 +8,7 @@ type LoaderProps = { className?: string; size?: number }
 
 const Loader: FC<LoaderProps> = ({ className, size }) => (
   <svg
-    className={clsx('animate-spin text-blue-500', className)}
+    className={twsx('animate-spin text-blue-500', className)}
     style={{ width: size ?? DEFAULT_SIZE, height: size ?? DEFAULT_SIZE }}
     xmlns='http://www.w3.org/2000/svg'
     fill='none'

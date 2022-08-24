@@ -1,4 +1,6 @@
+import clsx, { ClassValue } from 'clsx'
 import toast from 'react-hot-toast'
+import { twMerge } from 'tailwind-merge'
 
 export const findAncestorNode = (
   start: Node,
@@ -67,3 +69,5 @@ export const copyTextToClipboard = (text: string, showToast = true) => {
     }
   )
 }
+
+export const twsx = (...inputs: ClassValue[]) => twMerge(clsx(inputs))

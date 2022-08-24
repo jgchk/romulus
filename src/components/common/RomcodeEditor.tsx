@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react'
 
+import { twsx } from '../../utils/dom'
 import Romcode from './Romcode'
 
 enum Tab {
@@ -22,11 +23,16 @@ const RomcodeEditor = forwardRef<
     onBlur: FocusEventHandler<HTMLTextAreaElement>
     className?: string
   }
->(({ id, value, onChange, onBlur }, ref) => {
+>(({ id, value, onChange, onBlur, className }, ref) => {
   const [tab, setTab] = useState<Tab>(Tab.EDIT)
 
   return (
-    <div className='flex flex-col h-72 overflow-auto resize-y border rounded-sm focus-within:outline outline-2'>
+    <div
+      className={twsx(
+        'flex flex-col h-72 overflow-auto resize-y border rounded-sm focus-within:outline outline-2',
+        className
+      )}
+    >
       {tab === Tab.EDIT && (
         <textarea
           ref={ref}

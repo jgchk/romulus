@@ -1,6 +1,6 @@
-import clsx from 'clsx'
 import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react'
 
+import { twsx } from '../../utils/dom'
 import Loader from './Loader'
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -17,7 +17,7 @@ export const ButtonPrimary: FC<PropsWithChildren<ButtonProps>> = ({
   ...props
 }) => (
   <button
-    className={clsx(
+    className={twsx(
       'border-transparent bg-blue-600 text-white',
       'hover:bg-blue-700',
       'disabled:bg-gray-600',
@@ -38,7 +38,7 @@ export const ButtonPrimaryRed: FC<PropsWithChildren<ButtonProps>> = ({
   ...props
 }) => (
   <button
-    className={clsx(
+    className={twsx(
       'border-transparent bg-red-600 text-white',
       'hover:bg-red-700',
       'disabled:bg-gray-600',
@@ -59,7 +59,7 @@ export const ButtonSecondary: FC<ButtonProps> = ({
   ...props
 }) => (
   <button
-    className={clsx(
+    className={twsx(
       'border-blue-600 text-blue-600 bg-white',
       'hover:bg-blue-200 hover:text-blue-700',
       'disabled:border-gray-600 disabled:text-gray-600 disabled:bg-transparent',
@@ -82,7 +82,7 @@ export const ButtonTertiary: FC<ButtonProps> = ({
   ...props
 }) => (
   <button
-    className={clsx(
+    className={twsx(
       'border-transparent text-gray-600',
       'hover:bg-gray-200 hover:text-gray-700',
       commonStyles,

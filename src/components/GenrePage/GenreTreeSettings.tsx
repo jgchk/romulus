@@ -24,7 +24,7 @@ const GenreTreeSettings: FC = () => {
   return (
     <div className='space-y-4'>
       <div>
-        <Label htmlFor='relevance' display='flex' className='items-center'>
+        <Label htmlFor='relevance' className='flex items-center'>
           <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
         </Label>
         <select
