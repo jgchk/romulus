@@ -1,7 +1,7 @@
 import { CrudOperation } from '@prisma/client'
+import clsx from 'clsx'
 import { FC } from 'react'
 
-import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { DefaultAccount } from '../../server/db/account/outputs'
 import { useAccountQuery } from '../../services/accounts'
 import { useGenreHistoryCountByUserQuery } from '../../services/genre-history'
@@ -10,18 +10,23 @@ import AccountGenreHistory from './AccountGenreHistory'
 
 const AccountPage: FC<{ id: number }> = ({ id }) => {
   const accountQuery = useAccountQuery(id)
-  const isDesktop = useBreakpoint('sm')
 
   if (accountQuery.data) {
-    return isDesktop ? (
-      <div className='w-full h-full flex items-center justify-center bg-texture p-4 min-h-0'>
-        <div className='border p-4 shadow bg-white w-[500px] h-[600px]'>
+    return (
+      <div
+        className={clsx(
+          'p-4 h-full min-h-0',
+          'sm:w-full sm:flex sm:items-center sm:justify-center sm:bg-texture'
+        )}
+      >
+        <div
+          className={clsx(
+            'h-full',
+            'sm:border sm:p-4 sm:shadow sm:bg-white sm:w-[500px] sm:h-[600px]'
+          )}
+        >
           <HasData account={accountQuery.data} />
         </div>
-      </div>
-    ) : (
-      <div className='p-4 h-full'>
-        <HasData account={accountQuery.data} />
       </div>
     )
   }

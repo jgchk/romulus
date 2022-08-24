@@ -1,7 +1,7 @@
+import clsx from 'clsx'
 import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
-import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { useSession } from '../../services/auth'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
@@ -31,8 +31,6 @@ export const genrePageState = {
 const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
   const session = useSession()
 
-  const isDesktop = useBreakpoint('md')
-
   const renderGenre = useCallback(() => {
     switch (state.type) {
       case 'default':
@@ -48,22 +46,37 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
     }
   }, [state])
 
-  if (!isDesktop) {
-    return state.type === 'default' ? (
-      <GenreNavigator selectedGenreId={state.id} />
-    ) : (
-      renderGenre()
-    )
-  }
-
   return (
-    <div className='bg-texture w-full h-full flex items-center'>
-      <div className='w-full h-full flex flex-col items-center p-4'>
-        <div className='flex-1 min-h-0 flex justify-center w-full space-x-4'>
-          <div className='flex-[1] min-w-[250px] max-w-[350px] border bg-white shadow-sm rounded-sm'>
+    <div className={clsx('w-full h-full flex items-center', 'md:bg-texture')}>
+      <div
+        className={clsx('w-full h-full flex flex-col items-center', 'md:p-4')}
+      >
+        <div
+          className={clsx(
+            'flex-1 min-h-0 flex justify-center w-full',
+            'md:space-x-4'
+          )}
+        >
+          <div
+            className={clsx(
+              'flex-[1] min-w-[250px] bg-white',
+              'md:max-w-[350px] md:border md:shadow-sm md:rounded-sm',
+              // default -> always show
+              // other -> hidden by default, show at md
+              state.type !== 'default' && 'hidden md:block'
+            )}
+          >
             <GenreNavigator selectedGenreId={state.id} />
           </div>
-          <div className='flex-[3] max-w-[800px] border bg-white shadow-sm rounded-sm'>
+          <div
+            className={clsx(
+              'flex-[3] bg-white',
+              'md:max-w-[800px] md:border md:shadow-sm md:rounded-sm',
+              // default -> hidden by default, show at md
+              // other -> always show
+              state.type === 'default' && 'hidden md:block'
+            )}
+          >
             {renderGenre()}
           </div>
         </div>
