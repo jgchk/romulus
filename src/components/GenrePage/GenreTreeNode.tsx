@@ -4,70 +4,50 @@ import { FC, useMemo } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import GenreRelevanceChip from './GenreRelevanceChip'
-import { useTreeContext } from './GenreTreeContext'
+import { Node, useTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
-const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
-  const {
-    selectedId,
-    genreMap,
-    expanded,
-    setExpanded,
-    descendants: allDescendants,
-  } = useTreeContext()
-
-  const genre = useMemo(() => genreMap.get(id), [genreMap, id])
-
-  const descendants = useMemo(
-    () => allDescendants.get(id),
-    [allDescendants, id]
-  )
+const GenreTreeNode: FC<{ node: Node }> = ({
+  node: { key, genre, descendants, children },
+}) => {
+  const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
+  const { selectedId, expanded, setExpanded } = useTreeContext()
 
   const isExpanded = useMemo(() => {
-    if (expanded[id] === 'expanded') return true
+    const value = expanded[key]
+
+    if (value === 'expanded') {
+      return true
+    }
 
     if (
-      expanded[id] === undefined &&
+      value === undefined &&
       selectedId !== undefined &&
       descendants?.includes(selectedId)
-    )
+    ) {
       return true
+    }
 
     return false
-  }, [descendants, expanded, id, selectedId])
-
-  const children = useMemo(
-    () =>
-      genre?.childGenres.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      ) ?? [],
-    [genre?.childGenres]
-  )
+  }, [descendants, expanded, key, selectedId])
 
   const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
 
   const isSelected = useMemo(() => selectedId === id, [id, selectedId])
 
   return (
-    <li
-      className={clsx(
-        genre && genre.parentGenres.length > 0 && 'ml-4 border-l',
-        genre &&
-          genre.parentGenres.some(({ id }) => selectedId === id) &&
-          'border-gray-400'
-      )}
-    >
+    <li className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}>
       <div className='ml-1 flex space-x-1'>
         <button
           className={clsx(
             'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
-            genre && genre.childGenres.length === 0 && 'invisible'
+            childGenres.length === 0 && 'invisible'
           )}
           onClick={() =>
             setExpanded({
               ...expanded,
-              [id]: isExpanded ? 'collapsed' : 'expanded',
+              [key]: isExpanded ? 'collapsed' : 'expanded',
             })
           }
         >
@@ -85,8 +65,8 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
               isSelected ? 'text-blue-600 font-bold' : 'text-gray-600'
             )}
           >
-            {genre?.name ?? 'Loading...'}
-            {genre?.subtitle && (
+            {name}
+            {subtitle && (
               <>
                 {' '}
                 <span
@@ -95,20 +75,20 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
                     isSelected ? 'text-blue-500' : 'text-gray-500'
                   )}
                 >
-                  [{genre.subtitle}]
+                  [{subtitle}]
                 </span>
               </>
             )}
-            {showTypeTags && genre && genre.type !== 'STYLE' && (
+            {showTypeTags && genre.type !== 'STYLE' && (
               <>
                 {' '}
                 <GenreTypeChip type={genre.type} />
               </>
             )}
-            {showRelevanceTags && genre && (
+            {showRelevanceTags && (
               <>
                 {' '}
-                <GenreRelevanceChip relevance={genre.relevance} />
+                <GenreRelevanceChip relevance={relevance} />
               </>
             )}
           </a>
@@ -116,8 +96,8 @@ const GenreTreeNode: FC<{ id: number }> = ({ id }) => {
       </div>
       {isExpanded && children.length > 0 && (
         <ul>
-          {children.map(({ id }) => (
-            <GenreTreeNode key={id} id={id} />
+          {children.map((node) => (
+            <GenreTreeNode key={node.key} node={node} />
           ))}
         </ul>
       )}

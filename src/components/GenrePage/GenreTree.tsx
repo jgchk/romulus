@@ -2,12 +2,12 @@ import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
-import useIdMap from '../../hooks/useIdMap'
 import { TreeGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useTreeGenresQuery } from '../../services/genres'
+import { isNotNull } from '../../utils/types'
 import { CenteredLoader } from '../common/Loader'
-import { Descendants, Expanded, TreeContext } from './GenreTreeContext'
+import { Expanded, Node, TreeContext } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
@@ -38,23 +38,22 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
   const [expanded, setExpanded] = useState<Expanded>({})
 
   const { genreRelevanceFilter } = useGenreTreeSettings()
-  const filteredGenres = useMemo(() => {
+
+  const nodes = useMemo(() => {
     const genreMap: Map<number, TreeGenre> = new Map(
       allGenres.map((genre) => [genre.id, genre])
     )
 
-    return allGenres
+    const relevanceFilteredGenres = allGenres
       .filter((genre) => genre.relevance >= genreRelevanceFilter)
       .map((genre) => {
         const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
           const parentGenre = genreMap.get(id)
-          if (!parentGenre) return false
-          return parentGenre.relevance >= genreRelevanceFilter
+          return parentGenre && parentGenre.relevance >= genreRelevanceFilter
         })
         const filteredChildGenres = genre.childGenres.filter(({ id }) => {
           const childGenre = genreMap.get(id)
-          if (!childGenre) return false
-          return childGenre.relevance >= genreRelevanceFilter
+          return childGenre && childGenre.relevance >= genreRelevanceFilter
         })
         return {
           ...genre,
@@ -62,10 +61,11 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
           childGenres: filteredChildGenres,
         }
       })
-  }, [allGenres, genreRelevanceFilter])
-  const genreMap = useIdMap(filteredGenres)
 
-  const descendants: Descendants = useMemo(() => {
+    const topLevelGenres = relevanceFilteredGenres.filter(
+      (genre) => genre.parentGenres.length === 0
+    )
+
     const getDescendants = (id: number): number[] => {
       const descendants: number[] = []
       const queue = [id]
@@ -83,23 +83,33 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
       return descendants
     }
 
-    return new Map(
-      [...genreMap.values()].map((genre) => [
-        genre.id,
-        getDescendants(genre.id),
-      ])
-    )
-  }, [genreMap])
+    const makeNode = (genre: TreeGenre, parentPath?: number[]): Node => {
+      const path = [...(parentPath ?? []), genre.id]
+      const key = path.join('-')
+      return {
+        path,
+        key,
+        genre,
+        children: genre.childGenres
+          .sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          )
+          .map(({ id }) => {
+            const childGenre = genreMap.get(id)
+            if (!childGenre) return null
+            return makeNode(childGenre, path)
+          })
+          .filter(isNotNull),
+        descendants: getDescendants(genre.id),
+      }
+    }
 
-  const topLevelGenres = useMemo(
-    () =>
-      [...genreMap.values()]
-        .filter((genre) => genre.parentGenres.length === 0)
-        .sort((a, b) =>
-          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        ),
-    [genreMap]
-  )
+    const nodes: Node[] = topLevelGenres
+      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+      .map((genre) => makeNode(genre))
+
+    return nodes
+  }, [allGenres, genreRelevanceFilter])
 
   const session = useSession()
 
@@ -107,18 +117,16 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
     <TreeContext.Provider
       value={{
         selectedId,
-        genreMap,
         expanded,
         setExpanded,
-        descendants,
       }}
     >
       <div className='w-full h-full flex flex-col'>
-        {topLevelGenres.length > 0 ? (
+        {nodes.length > 0 ? (
           <div className='flex-1 overflow-auto p-4'>
             <ul>
-              {topLevelGenres.map((genre) => (
-                <GenreTreeNode key={genre.id} id={genre.id} />
+              {nodes.map((node) => (
+                <GenreTreeNode key={node.key} node={node} />
               ))}
             </ul>
           </div>
