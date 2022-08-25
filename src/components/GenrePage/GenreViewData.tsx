@@ -176,10 +176,11 @@ const GenreViewData: FC<{
                   session.hasPermission(Permission.EDIT_GENRES) && (
                     <Link
                       href={{
-                        pathname: '/genres/[id]/edit',
+                        pathname: '/genres/[id]',
                         query: {
                           id: genre.id.toString(),
-                          autoFocus: 'shortDescription',
+                          view: 'edit',
+                          focus: 'shortDescription',
                         },
                       }}
                     >
@@ -203,10 +204,11 @@ const GenreViewData: FC<{
                   session.hasPermission(Permission.EDIT_GENRES) && (
                     <Link
                       href={{
-                        pathname: '/genres/[id]/edit',
+                        pathname: '/genres/[id]',
                         query: {
                           id: genre.id.toString(),
-                          autoFocus: 'longDescription',
+                          view: 'edit',
+                          focus: 'longDescription',
                         },
                       }}
                     >
@@ -232,8 +234,8 @@ const GenreViewData: FC<{
             Contributors{' '}
             <Link
               href={{
-                pathname: '/genres/[id]/history',
-                query: { id: genre.id.toString() },
+                pathname: '/genres/[id]',
+                query: { id: genre.id.toString(), view: 'history' },
               }}
             >
               <a className='text-blue-500 hover:underline text-xs'>

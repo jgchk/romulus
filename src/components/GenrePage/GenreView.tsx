@@ -39,8 +39,8 @@ export const GenreView: FC<{
         {hasHistory && (
           <Link
             href={{
-              pathname: '/genres/[id]/history',
-              query: { id: id.toString() },
+              pathname: '/genres/[id]',
+              query: { id: id.toString(), view: 'history' },
             }}
           >
             <a className='block text-blue-500 hover:underline'>View history</a>
@@ -118,8 +118,8 @@ const HasData: FC<{
           <div className='flex p-1 space-x-1 border-t'>
             <Link
               href={{
-                pathname: '/genres/[id]/edit',
-                query: { id: genre.id.toString() },
+                pathname: '/genres/[id]',
+                query: { id: genre.id.toString(), view: 'edit' },
               }}
             >
               <a className='flex-1'>

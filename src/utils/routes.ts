@@ -38,6 +38,15 @@ export const useIntRouteParam = (param: string) => {
   return value
 }
 
+export const useBoolRouteParam = (param: string) => {
+  const stringValue = useStringRouteParam(param)
+  const value = useMemo(
+    () => (stringValue === undefined ? undefined : stringValue === 'true'),
+    [stringValue]
+  )
+  return value
+}
+
 export const useCustomRouteParam = <T>(
   param: string,
   validator: (value: string) => value is string & T
