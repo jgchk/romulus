@@ -6,13 +6,15 @@ import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 import GenreRelevanceChip from './GenreRelevanceChip'
 import { Node, useTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
+import { useExpandedGenres } from './useExpandedGenres'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
 const GenreTreeNode: FC<{ node: Node }> = ({
   node: { key, genre, descendants, children },
 }) => {
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
-  const { selectedId, scrollTo, expanded, setExpanded } = useTreeContext()
+  const { selectedId, scrollTo } = useTreeContext()
+  const [expanded, setExpanded] = useExpandedGenres()
 
   const isExpanded = useMemo(() => {
     const value = expanded[key]

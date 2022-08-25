@@ -1,13 +1,13 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
-import { FC, useMemo, useState } from 'react'
+import { FC, useMemo } from 'react'
 
 import { TreeGenre } from '../../server/db/genre/outputs'
 import { useSession } from '../../services/auth'
 import { useTreeGenresQuery } from '../../services/genres'
 import { isNotNull } from '../../utils/types'
 import { CenteredLoader } from '../common/Loader'
-import { Expanded, Node, TreeContext } from './GenreTreeContext'
+import { Node, TreeContext } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
@@ -43,8 +43,6 @@ const Tree: FC<{
   selectedId?: number
   scrollTo?: number
 }> = ({ genres: allGenres, selectedId, scrollTo }) => {
-  const [expanded, setExpanded] = useState<Expanded>({})
-
   const { genreRelevanceFilter } = useGenreTreeSettings()
 
   const nodes = useMemo(() => {
@@ -126,8 +124,6 @@ const Tree: FC<{
       value={{
         selectedId,
         scrollTo,
-        expanded,
-        setExpanded,
       }}
     >
       <div className='w-full h-full flex flex-col'>
