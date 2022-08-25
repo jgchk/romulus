@@ -5,12 +5,7 @@ import { useEffect, useMemo } from 'react'
 
 import GenrePage, { GenrePageState } from '../../components/GenrePage'
 import { isGenreFormField } from '../../components/GenrePage/GenreForm'
-import {
-  fromQueryString,
-  toValidInt,
-  useCustomRouteParam,
-  useIntRouteParam,
-} from '../../utils/routes'
+import { useCustomRouteParam, useIntRouteParam } from '../../utils/routes'
 
 const Genre: NextPage = () => {
   const id = useIntRouteParam('id')
@@ -23,12 +18,7 @@ const Genre: NextPage = () => {
 
   const focus = useCustomRouteParam('focus', isGenreFormField)
 
-  const router = useRouter()
-  const scrollTo = useMemo(() => {
-    const hash = router.asPath.split('#')[1]
-    const parsedHash = fromQueryString(hash)
-    return toValidInt(parsedHash.get('scrollTo'))
-  }, [router.asPath])
+  const scrollTo = useIntRouteParam('scrollTo')
 
   const state: GenrePageState | undefined = useMemo(() => {
     if (id === undefined) {
@@ -42,6 +32,7 @@ const Genre: NextPage = () => {
     }
   }, [focus, id, scrollTo, view])
 
+  const router = useRouter()
   useEffect(() => {
     if (state === undefined) {
       void router.push({ pathname: '/genres' })

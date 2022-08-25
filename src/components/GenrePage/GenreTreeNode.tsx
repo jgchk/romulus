@@ -23,16 +23,16 @@ const GenreTreeNode: FC<{ node: Node }> = ({
       return true
     }
 
-    if (
-      value === undefined &&
-      selectedId !== undefined &&
-      descendants?.includes(selectedId)
-    ) {
+    if (scrollTo !== undefined && descendants.includes(scrollTo)) {
+      return true
+    }
+
+    if (selectedId !== undefined && descendants.includes(selectedId)) {
       return true
     }
 
     return false
-  }, [descendants, expanded, key, selectedId])
+  }, [descendants, expanded, key, scrollTo, selectedId])
 
   const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
 
