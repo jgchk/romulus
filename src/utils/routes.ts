@@ -1,6 +1,17 @@
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
+export const toQueryString = (
+  params:
+    | string
+    | string[][]
+    | Record<string, string>
+    | URLSearchParams
+    | undefined
+) => new URLSearchParams(params).toString()
+
+export const fromQueryString = (qs: string) => new URLSearchParams(qs)
+
 export const useStringRouteParam = (param: string) => {
   const router = useRouter()
 
@@ -13,18 +24,17 @@ export const useStringRouteParam = (param: string) => {
   return value
 }
 
+export const toValidInt = (val: string | null | undefined) => {
+  if (val === null || val === undefined) return
+
+  const intValue = Number.parseInt(val)
+  if (Number.isNaN(intValue)) return
+
+  return intValue
+}
 export const useIntRouteParam = (param: string) => {
   const stringValue = useStringRouteParam(param)
-
-  const value = useMemo(() => {
-    if (stringValue === undefined) return
-
-    const intValue = Number.parseInt(stringValue)
-    if (Number.isNaN(intValue)) return
-
-    return intValue
-  }, [stringValue])
-
+  const value = useMemo(() => toValidInt(stringValue), [stringValue])
   return value
 }
 

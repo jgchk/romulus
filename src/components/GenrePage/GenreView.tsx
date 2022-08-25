@@ -60,10 +60,10 @@ export const GenreView: FC<{
   return <CenteredLoader />
 }
 
-const HasData: FC<{ genre: DefaultGenre; history: DefaultGenreHistory[] }> = ({
-  genre,
-  history,
-}) => {
+const HasData: FC<{
+  genre: DefaultGenre
+  history: DefaultGenreHistory[]
+}> = ({ genre, history }) => {
   const session = useSession()
   const router = useRouter()
 

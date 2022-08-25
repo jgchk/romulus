@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { FC, useMemo } from 'react'
+import { FC, useEffect, useMemo, useRef } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import GenreRelevanceChip from './GenreRelevanceChip'
@@ -12,7 +12,7 @@ const GenreTreeNode: FC<{ node: Node }> = ({
   node: { key, genre, descendants, children },
 }) => {
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
-  const { selectedId, expanded, setExpanded } = useTreeContext()
+  const { selectedId, scrollTo, expanded, setExpanded } = useTreeContext()
 
   const isExpanded = useMemo(() => {
     const value = expanded[key]
@@ -36,8 +36,15 @@ const GenreTreeNode: FC<{ node: Node }> = ({
 
   const isSelected = useMemo(() => selectedId === id, [id, selectedId])
 
+  const ref = useRef<HTMLLIElement>(null)
+  useEffect(() => {
+    if (scrollTo === id && ref.current) {
+      ref.current.scrollIntoView()
+    }
+  }, [id, scrollTo])
+
   return (
-    <li className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}>
+    <li ref={ref} className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}>
       <div className='ml-1 flex space-x-1'>
         <button
           className={clsx(

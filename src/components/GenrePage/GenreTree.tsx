@@ -13,11 +13,18 @@ import useGenreTreeSettings from './useGenreTreeSettings'
 
 const GenreTree: FC<{
   selectedGenreId?: number
-}> = ({ selectedGenreId }) => {
+  scrollTo?: number
+}> = ({ selectedGenreId, scrollTo }) => {
   const genresQuery = useTreeGenresQuery()
 
   if (genresQuery.data) {
-    return <Tree genres={genresQuery.data} selectedId={selectedGenreId} />
+    return (
+      <Tree
+        genres={genresQuery.data}
+        selectedId={selectedGenreId}
+        scrollTo={scrollTo}
+      />
+    )
   }
 
   if (genresQuery.error) {
@@ -31,10 +38,11 @@ const GenreTree: FC<{
   return <CenteredLoader />
 }
 
-const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
-  genres: allGenres,
-  selectedId,
-}) => {
+const Tree: FC<{
+  genres: TreeGenre[]
+  selectedId?: number
+  scrollTo?: number
+}> = ({ genres: allGenres, selectedId, scrollTo }) => {
   const [expanded, setExpanded] = useState<Expanded>({})
 
   const { genreRelevanceFilter } = useGenreTreeSettings()
@@ -117,6 +125,7 @@ const Tree: FC<{ genres: TreeGenre[]; selectedId?: number }> = ({
     <TreeContext.Provider
       value={{
         selectedId,
+        scrollTo,
         expanded,
         setExpanded,
       }}

@@ -13,7 +13,7 @@ import GenreViewPlaceholder from './GenreViewPlaceholder'
 
 export type GenrePageState =
   | { type: 'default'; id?: undefined }
-  | { type: 'view'; id: number }
+  | { type: 'view'; id: number; scrollTo?: number }
   | { type: 'history'; id: number }
   | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
   | { type: 'create'; id?: undefined }
@@ -66,7 +66,10 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
               state.type !== 'default' && 'hidden md:block'
             )}
           >
-            <GenreNavigator selectedGenreId={state.id} />
+            <GenreNavigator
+              selectedGenreId={state.id}
+              scrollTo={'scrollTo' in state ? state.scrollTo : undefined}
+            />
           </div>
           <div
             className={clsx(

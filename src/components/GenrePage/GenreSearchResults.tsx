@@ -4,6 +4,7 @@ import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
 import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
+import { toQueryString } from '../../utils/routes'
 import { CenteredLoader } from '../common/Loader'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
@@ -69,7 +70,11 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
 
   return (
     <Link
-      href={{ pathname: '/genres/[id]', query: { id: genre.id.toString() } }}
+      href={{
+        pathname: '/genres/[id]',
+        query: { id: genre.id.toString() },
+        hash: toQueryString({ scrollTo: genre.id.toString() }),
+      }}
     >
       <a
         className='block text-gray-700 hover:font-bold'

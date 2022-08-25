@@ -10,8 +10,9 @@ import GenreSearchResults from './GenreSearchResults'
 import GenreTree from './GenreTree'
 import GenreTreeSettings from './GenreTreeSettings'
 
-const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
+const GenreNavigator: FC<{ selectedGenreId?: number; scrollTo?: number }> = ({
   selectedGenreId,
+  scrollTo,
 }) => {
   const session = useSession()
 
@@ -72,7 +73,7 @@ const GenreNavigator: FC<{ selectedGenreId?: number }> = ({
             clearFilter={clearFilter}
           />
         ) : (
-          <GenreTree selectedGenreId={selectedGenreId} />
+          <GenreTree selectedGenreId={selectedGenreId} scrollTo={scrollTo} />
         )}
       </div>
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
