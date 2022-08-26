@@ -292,9 +292,7 @@ const GenreForm: FC<{
                 {r} - {getGenreRelevanceText(r)}
               </option>
             ))}
-            <option value={99} disabled className='hidden'>
-              Unset
-            </option>
+            <option value={99}>Unset</option>
           </select>
           {errors.relevance && (
             <div className='text-sm text-red-600'>
