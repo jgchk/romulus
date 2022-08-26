@@ -1,3 +1,4 @@
+import { uniqBy } from 'ramda'
 import { useMemo } from 'react'
 
 import { TreeGenre } from '../../server/db/genre/outputs'
@@ -31,17 +32,69 @@ const makeTree = (genres: TreeGenre[], genreRelevanceFilter: number) => {
     genres.map((genre) => [genre.id, genre])
   )
 
-  const relevanceFilteredGenres = genres
+  const relevanceFilteredGenres: TreeGenre[] = genres
     .filter((genre) => genre.relevance >= genreRelevanceFilter)
     .map((genre) => {
-      const filteredParentGenres = genre.parentGenres.filter(({ id }) => {
-        const parentGenre = genreMap.get(id)
-        return parentGenre && parentGenre.relevance >= genreRelevanceFilter
-      })
-      const filteredChildGenres = genre.childGenres.filter(({ id }) => {
-        const childGenre = genreMap.get(id)
-        return childGenre && childGenre.relevance >= genreRelevanceFilter
-      })
+      const filteredParentGenres = [
+        ...new Set(
+          genre.parentGenres
+            .flatMap(({ id }) => {
+              const parentGenre = genreMap.get(id)
+              if (!parentGenre) return null
+              if (parentGenre.relevance >= genreRelevanceFilter) return id
+
+              const ancestors = []
+              const stack = [...parentGenre.parentGenres]
+              let curr = stack.pop()
+              while (curr !== undefined) {
+                const genre = genreMap.get(curr.id)
+                if (!genre) continue
+
+                if (genre.relevance >= genreRelevanceFilter) {
+                  ancestors.push(genre.id)
+                } else {
+                  stack.push(...genre.parentGenres)
+                }
+
+                curr = stack.pop()
+              }
+
+              return ancestors
+            })
+            .filter(isNotNull)
+        ),
+      ].map((id) => ({ id }))
+
+      const filteredChildGenres = uniqBy(
+        (g) => g.id,
+        genre.childGenres
+          .flatMap(({ id, name }) => {
+            const childGenre = genreMap.get(id)
+            if (!childGenre) return null
+            if (childGenre.relevance >= genreRelevanceFilter)
+              return { id, name }
+
+            const descendants = []
+            const stack = [...childGenre.childGenres]
+            let curr = stack.pop()
+            while (curr !== undefined) {
+              const genre = genreMap.get(curr.id)
+              if (!genre) continue
+
+              if (genre.relevance >= genreRelevanceFilter) {
+                descendants.push({ id: genre.id, name: genre.name })
+              } else {
+                stack.push(...genre.childGenres)
+              }
+
+              curr = stack.pop()
+            }
+
+            return descendants
+          })
+          .filter(isNotNull)
+      )
+
       return {
         ...genre,
         parentGenres: filteredParentGenres,
@@ -51,6 +104,10 @@ const makeTree = (genres: TreeGenre[], genreRelevanceFilter: number) => {
 
   const topLevelGenres = relevanceFilteredGenres.filter(
     (genre) => genre.parentGenres.length === 0
+  )
+
+  const relevanceFilteredGenreMap: Map<number, TreeGenre> = new Map(
+    relevanceFilteredGenres.map((genre) => [genre.id, genre])
   )
 
   const makeNode = (genre: TreeGenre, parentPath?: number[]): TreeNode => {
@@ -65,7 +122,7 @@ const makeTree = (genres: TreeGenre[], genreRelevanceFilter: number) => {
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         )
         .map(({ id }) => {
-          const childGenre = genreMap.get(id)
+          const childGenre = relevanceFilteredGenreMap.get(id)
           if (!childGenre) return null
           return makeNode(childGenre, path)
         })
