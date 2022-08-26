@@ -16,6 +16,7 @@ import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 type GenrePageContext = {
   view: GenrePageView
   selectedPath: number[] | undefined
+  setSelectedPath: (path: number[] | undefined) => void
   expanded: Expanded
   setExpanded: (key: ExpandedKey, value: ExpandedValue) => void
 }
@@ -34,6 +35,9 @@ type ExpandedValue = 'expanded' | 'collapsed'
 const GenrePageContext = createContext<GenrePageContext>({
   view: { type: 'default' },
   selectedPath: undefined,
+  setSelectedPath: () => {
+    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
+  },
   expanded: {},
   setExpanded: () => {
     throw new Error('GenrePageContext must be used inside a GenrePageProvider')
@@ -45,11 +49,10 @@ export const useGenrePageContext = () => useContext(GenrePageContext)
 export const GenrePageProvider: FC<
   PropsWithChildren<{
     id?: number
-    path?: number[]
     view?: string
     autoFocus?: keyof GenreFormFields
   }>
-> = ({ id, path, children, view: viewType, autoFocus }) => {
+> = ({ id, children, view: viewType, autoFocus }) => {
   const view: GenrePageView = useMemo(() => {
     if (viewType === 'edit' && id !== undefined) {
       return { type: 'edit', id, autoFocus }
@@ -65,6 +68,7 @@ export const GenrePageProvider: FC<
   }, [autoFocus, id, viewType])
 
   const treeQuery = useGenreTreeQuery()
+  const [path, setPath] = useState<number[]>()
   const selectedPath = useMemo(() => {
     if (path) {
       const isValid =
@@ -107,7 +111,13 @@ export const GenrePageProvider: FC<
 
   return (
     <GenrePageContext.Provider
-      value={{ view, selectedPath, expanded, setExpanded: setExpandedKV }}
+      value={{
+        view,
+        selectedPath,
+        setSelectedPath: setPath,
+        expanded,
+        setExpanded: setExpandedKV,
+      }}
     >
       {children}
     </GenrePageContext.Provider>

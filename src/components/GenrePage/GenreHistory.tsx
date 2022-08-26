@@ -103,10 +103,11 @@ const HasData: FC<{ history: DefaultGenreHistory[] }> = ({
       <div className='flex items-center pb-4 border-b border-gray-100'>
         {genre ? (
           <>
-            <GenreLink id={genre.id}>
-              <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
-                <IoMdArrowBack size={18} />
-              </a>
+            <GenreLink
+              id={genre.id}
+              className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'
+            >
+              <IoMdArrowBack size={18} />
             </GenreLink>
             <div className='text-2xl font-bold text-gray-600'>
               {genre.name}

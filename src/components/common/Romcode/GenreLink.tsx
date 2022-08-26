@@ -18,11 +18,7 @@ const RomcodeGenreLink: FC<{ id: number }> = ({ id }) => {
     return 'Loading'
   }, [data, error])
 
-  return (
-    <GenreLink id={id}>
-      <a>{text}</a>
-    </GenreLink>
-  )
+  return <GenreLink id={id}>{text}</GenreLink>
 }
 
 export default RomcodeGenreLink

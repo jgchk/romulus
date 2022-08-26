@@ -37,8 +37,12 @@ export const GenreView: FC<{
       <div className='p-4 h-full flex flex-col items-center justify-center text-gray-700'>
         <div>Error fetching genre :(</div>
         {hasHistory && (
-          <GenreLink id={id} view='history'>
-            <a className='block text-blue-500 hover:underline'>View history</a>
+          <GenreLink
+            id={id}
+            view='history'
+            className='block text-blue-500 hover:underline'
+          >
+            View history
           </GenreLink>
         )}
       </div>
@@ -111,10 +115,8 @@ const HasData: FC<{
           </div>
         ) : (
           <div className='flex p-1 space-x-1 border-t'>
-            <GenreLink id={genre.id} view='edit'>
-              <a className='flex-1'>
-                <ButtonPrimary className='w-full'>Edit</ButtonPrimary>
-              </a>
+            <GenreLink id={genre.id} view='edit' className='flex-1'>
+              <ButtonPrimary className='w-full'>Edit</ButtonPrimary>
             </GenreLink>
             <ButtonTertiary
               className='flex-1'

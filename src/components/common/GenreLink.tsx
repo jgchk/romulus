@@ -11,8 +11,23 @@ export const useGenreLinkHref = (
   view?: GenrePageView['type'],
   autoFocus?: keyof GenreFormFields
 ) => {
-  const { selectedPath } = useGenrePageContext()
+  const href: { pathname: '/genres'; query: Query } = useMemo(
+    () => ({
+      pathname: '/genres',
+      query: {
+        id: id.toString(),
+        ...(view ? { view } : {}),
+        ...(autoFocus ? { focus: autoFocus } : {}),
+      },
+    }),
+    [autoFocus, id, view]
+  )
 
+  return href
+}
+
+export const useGenreLinkPath = (id: number) => {
+  const { selectedPath } = useGenrePageContext()
   const genresMapQuery = useTreeGenresMapQuery()
 
   const path = useMemo(() => {
@@ -40,20 +55,7 @@ export const useGenreLinkHref = (
     }
   }, [genresMapQuery.data, id, selectedPath])
 
-  const href: { pathname: '/genres'; query: Query } = useMemo(
-    () => ({
-      pathname: '/genres',
-      query: {
-        id: id.toString(),
-        ...(path ? { path: path.join('-') } : {}),
-        ...(view ? { view } : {}),
-        ...(autoFocus ? { focus: autoFocus } : {}),
-      },
-    }),
-    [autoFocus, id, path, view]
-  )
-
-  return href
+  return path
 }
 
 const GenreLink: FC<
@@ -62,13 +64,20 @@ const GenreLink: FC<
       id: number
       view?: GenrePageView['type']
       autoFocus?: keyof GenreFormFields
+      className?: string
     }
   >
-> = ({ id, view, autoFocus, children, ...props }) => {
+> = ({ id, view, autoFocus, children, className, ...props }) => {
   const href = useGenreLinkHref(id, view, autoFocus)
+  const path = useGenreLinkPath(id)
+
+  const { setSelectedPath } = useGenrePageContext()
+
   return (
     <Link href={href} {...props}>
-      {children}
+      <a onClick={() => setSelectedPath(path)} className={className}>
+        {children}
+      </a>
     </Link>
   )
 }

@@ -109,19 +109,20 @@ const GenreViewData: FC<{
             <ul id='parents' className='comma-list'>
               {genre.parentGenres.map(({ id, name, type }) => (
                 <li key={id}>
-                  <GenreLink id={id}>
-                    <a className='text-blue-500 hover:underline font-bold'>
-                      {name}
-                      {showTypeTags && type !== 'STYLE' && (
-                        <>
-                          {' '}
-                          <GenreTypeChip
-                            type={type}
-                            className='bg-blue-100 text-blue-400'
-                          />
-                        </>
-                      )}
-                    </a>
+                  <GenreLink
+                    id={id}
+                    className='text-blue-500 hover:underline font-bold'
+                  >
+                    {name}
+                    {showTypeTags && type !== 'STYLE' && (
+                      <>
+                        {' '}
+                        <GenreTypeChip
+                          type={type}
+                          className='bg-blue-100 text-blue-400'
+                        />
+                      </>
+                    )}
                   </GenreLink>
                 </li>
               ))}
@@ -135,19 +136,17 @@ const GenreViewData: FC<{
             <ul id='influences' className='comma-list'>
               {genre.influencedByGenres.map(({ id, name, type }) => (
                 <li key={id}>
-                  <GenreLink id={id}>
-                    <a className='text-blue-500 hover:underline'>
-                      {name}
-                      {showTypeTags && type !== 'STYLE' && (
-                        <>
-                          {' '}
-                          <GenreTypeChip
-                            type={type}
-                            className='bg-blue-100 text-blue-400'
-                          />
-                        </>
-                      )}
-                    </a>
+                  <GenreLink id={id} className='text-blue-500 hover:underline'>
+                    {name}
+                    {showTypeTags && type !== 'STYLE' && (
+                      <>
+                        {' '}
+                        <GenreTypeChip
+                          type={type}
+                          className='bg-blue-100 text-blue-400'
+                        />
+                      </>
+                    )}
                   </GenreLink>
                 </li>
               ))}
@@ -169,8 +168,9 @@ const GenreViewData: FC<{
                       id={genre.id}
                       view='edit'
                       autoFocus='shortDescription'
+                      className='text-blue-500 hover:underline'
                     >
-                      <a className='text-blue-500 hover:underline'>Add one.</a>
+                      Add one.
                     </GenreLink>
                   )}
               </span>
@@ -192,8 +192,9 @@ const GenreViewData: FC<{
                       id={genre.id}
                       view='edit'
                       autoFocus='longDescription'
+                      className='text-blue-500 hover:underline'
                     >
-                      <a className='text-blue-500 hover:underline'>Add one.</a>
+                      Add one.
                     </GenreLink>
                   )}
               </span>
@@ -213,10 +214,12 @@ const GenreViewData: FC<{
         <div>
           <Label htmlFor='contributors'>
             Contributors{' '}
-            <GenreLink id={genre.id} view='history'>
-              <a className='text-blue-500 hover:underline text-xs'>
-                (View History)
-              </a>
+            <GenreLink
+              id={genre.id}
+              view='history'
+              className='text-blue-500 hover:underline text-xs'
+            >
+              (View History)
             </GenreLink>
           </Label>
           <ul id='contributors' className='comma-list'>
