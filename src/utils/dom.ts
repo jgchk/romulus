@@ -71,3 +71,31 @@ export const copyTextToClipboard = (text: string, showToast = true) => {
 }
 
 export const twsx = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
+
+export const isVisible = (ele: HTMLElement, container: HTMLElement) => {
+  const rect = ele.getBoundingClientRect()
+  const containerRect = container.getBoundingClientRect()
+
+  // if rect is above container
+  if (rect.top <= containerRect.top) {
+    // check that some of bottom intersects
+    return containerRect.top - rect.top <= rect.height
+  }
+
+  // check that some of top intersects
+  return rect.bottom - containerRect.bottom <= rect.height
+}
+
+export const isFullyVisible = (ele: HTMLElement, container: HTMLElement) => {
+  const rect = ele.getBoundingClientRect()
+  const containerRect = container.getBoundingClientRect()
+
+  // if rect is above container
+  if (rect.top <= containerRect.top) {
+    // check that some of bottom intersects
+    return containerRect.top - rect.top <= 0
+  }
+
+  // check that some of top intersects
+  return rect.bottom - containerRect.bottom <= 0
+}

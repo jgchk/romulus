@@ -1,11 +1,13 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { equals, startsWith } from 'ramda'
-import { FC, useMemo, useRef } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
+import { isFullyVisible } from '../../utils/dom'
 import { useGenrePageContext } from './context'
 import GenreRelevanceChip from './GenreRelevanceChip'
+import { useGenreTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
 import { useExpandedGenres } from './useExpandedGenres'
 import { TreeNode } from './useGenreTreeQuery'
@@ -40,15 +42,22 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
     [path, selectedPath]
   )
 
-  const ref = useRef<HTMLLIElement>(null)
-  // useEffect(() => {
-  //   if (scrollTo === id && ref.current) {
-  //     ref.current.scrollIntoView()
-  //   }
-  // }, [id, scrollTo])
+  const [ref, setRef] = useState<HTMLLIElement | null>(null)
+  const { treeEl } = useGenreTreeContext()
+  useEffect(() => {
+    if (isSelected && ref && treeEl) {
+      const visible = isFullyVisible(ref, treeEl)
+      if (!visible) {
+        ref.scrollIntoView()
+      }
+    }
+  }, [isSelected, ref, treeEl])
 
   return (
-    <li ref={ref} className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}>
+    <li
+      ref={setRef}
+      className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}
+    >
       <div className='ml-1 flex space-x-1'>
         <button
           className={clsx(

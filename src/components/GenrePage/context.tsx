@@ -74,13 +74,8 @@ export const GenrePageProvider: FC<
     }
   }, [path, treeQuery.data, view])
 
-  const value: GenrePageContext = useMemo(
-    () => ({ view, selectedPath }),
-    [selectedPath, view]
-  )
-
   return (
-    <GenrePageContext.Provider value={value}>
+    <GenrePageContext.Provider value={{ view, selectedPath }}>
       {children}
     </GenrePageContext.Provider>
   )

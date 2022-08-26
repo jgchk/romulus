@@ -1,9 +1,10 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
-import { FC } from 'react'
+import { FC, useState } from 'react'
 
 import { useSession } from '../../services/auth'
 import { CenteredLoader } from '../common/Loader'
+import { GenreTreeProvider } from './GenreTreeContext'
 import GenreTreeNode from './GenreTreeNode'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
@@ -27,34 +28,40 @@ const GenreTree: FC = () => {
 
 const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
   const session = useSession()
+  const [ref, setRef] = useState<HTMLDivElement | null>(null)
 
   return (
-    <div className='w-full h-full flex flex-col'>
-      {tree.length > 0 ? (
-        <div className='flex-1 overflow-auto p-4'>
-          <ul>
-            {tree.map((node) => (
-              <GenreTreeNode key={node.key} node={node} />
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
-          <div>No genres found.</div>
-          {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
-            <div>
-              <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
-                <a>
-                  <button className='text-blue-500 hover:underline'>
-                    Create one.
-                  </button>
-                </a>
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <GenreTreeProvider treeEl={ref}>
+      <div className='w-full h-full flex flex-col'>
+        {tree.length > 0 ? (
+          <div ref={setRef} className='flex-1 overflow-auto p-4'>
+            <ul>
+              {tree.map((node) => (
+                <GenreTreeNode key={node.key} node={node} />
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
+            <div>No genres found.</div>
+            {session.isLoggedIn &&
+              session.hasPermission(Permission.EDIT_GENRES) && (
+                <div>
+                  <Link
+                    href={{ pathname: '/genres', query: { view: 'create' } }}
+                  >
+                    <a>
+                      <button className='text-blue-500 hover:underline'>
+                        Create one.
+                      </button>
+                    </a>
+                  </Link>
+                </div>
+              )}
+          </div>
+        )}
+      </div>
+    </GenreTreeProvider>
   )
 }
 
