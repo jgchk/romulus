@@ -9,7 +9,6 @@ import { useGenrePageContext } from './context'
 import GenreRelevanceChip from './GenreRelevanceChip'
 import { useGenreTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
-import { useExpandedGenres } from './useExpandedGenres'
 import { TreeNode } from './useGenreTreeQuery'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
@@ -17,14 +16,11 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
   node: { key, path, genre, children },
 }) => {
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
-  const [expanded, setExpanded] = useExpandedGenres()
 
-  const { selectedPath } = useGenrePageContext()
+  const { selectedPath, expanded, setExpanded } = useGenrePageContext()
 
   const isExpanded = useMemo(() => {
-    const value = expanded[key]
-
-    if (value === 'expanded') {
+    if (expanded[key] === 'expanded') {
       return true
     }
 
@@ -65,10 +61,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
             childGenres.length === 0 && 'invisible'
           )}
           onClick={() =>
-            setExpanded({
-              ...expanded,
-              [key]: isExpanded ? 'collapsed' : 'expanded',
-            })
+            setExpanded(key, isExpanded ? 'collapsed' : 'expanded')
           }
         >
           {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}

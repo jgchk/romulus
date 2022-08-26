@@ -3,8 +3,10 @@ import {
   createContext,
   FC,
   PropsWithChildren,
+  useCallback,
   useContext,
   useMemo,
+  useState,
 } from 'react'
 
 import { GenreFormFields } from './GenreForm'
@@ -13,6 +15,8 @@ import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 type GenrePageContext = {
   view: GenrePageView
   selectedPath: number[] | undefined
+  expanded: Expanded
+  setExpanded: (key: ExpandedKey, value: ExpandedValue) => void
 }
 
 export type GenrePageView =
@@ -22,9 +26,17 @@ export type GenrePageView =
   | { type: 'history'; id: number }
   | { type: 'create' }
 
+type Expanded = Record<ExpandedKey, ExpandedValue | undefined>
+type ExpandedKey = string
+type ExpandedValue = 'expanded' | 'collapsed'
+
 const GenrePageContext = createContext<GenrePageContext>({
   view: { type: 'default' },
   selectedPath: undefined,
+  expanded: {},
+  setExpanded: () => {
+    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
+  },
 })
 
 export const useGenrePageContext = () => useContext(GenrePageContext)
@@ -74,8 +86,17 @@ export const GenrePageProvider: FC<
     }
   }, [path, treeQuery.data, view])
 
+  const [expanded, setExpanded] = useState<Expanded>({})
+  const setExpandedKV = useCallback(
+    (key: ExpandedKey, value: ExpandedValue) =>
+      setExpanded((e) => ({ ...e, [key]: value })),
+    []
+  )
+
   return (
-    <GenrePageContext.Provider value={{ view, selectedPath }}>
+    <GenrePageContext.Provider
+      value={{ view, selectedPath, expanded, setExpanded: setExpandedKV }}
+    >
       {children}
     </GenrePageContext.Provider>
   )

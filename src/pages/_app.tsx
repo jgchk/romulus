@@ -12,7 +12,6 @@ import {
 import superjson from 'superjson'
 
 import ErrorBoundary from '../components/ErrorBoundary'
-import { ExpandedGenresProvider } from '../components/GenrePage/useExpandedGenres'
 import Layout from '../components/Layout'
 import { AppRouter } from '../server/routers/_app'
 import { isBrowser } from '../utils/dom'
@@ -63,9 +62,7 @@ const MyApp: AppType = ({ Component, pageProps }) => (
     <QueryClientProvider client={queryClient}>
       <Layout>
         <ErrorBoundary>
-          <ExpandedGenresProvider>
-            <Component {...pageProps} />
-          </ExpandedGenresProvider>
+          <Component {...pageProps} />
         </ErrorBoundary>
       </Layout>
     </QueryClientProvider>
