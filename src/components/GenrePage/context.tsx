@@ -5,6 +5,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -92,6 +93,17 @@ export const GenrePageProvider: FC<
       setExpanded((e) => ({ ...e, [key]: value })),
     []
   )
+
+  useEffect(() => {
+    if (selectedPath) {
+      for (let i = 1; i < selectedPath.length; i++) {
+        const key = selectedPath.slice(0, i).join('-')
+        if (expanded[key] !== 'expanded') {
+          setExpandedKV(key, 'expanded')
+        }
+      }
+    }
+  }, [expanded, selectedPath, setExpandedKV])
 
   return (
     <GenrePageContext.Provider

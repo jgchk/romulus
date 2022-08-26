@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { equals, startsWith } from 'ramda'
+import { equals } from 'ramda'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
@@ -19,17 +19,10 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
 
   const { selectedPath, expanded, setExpanded } = useGenrePageContext()
 
-  const isExpanded = useMemo(() => {
-    if (expanded[key] === 'expanded') {
-      return true
-    }
-
-    if (selectedPath && startsWith(path, selectedPath.slice(0, -1))) {
-      return true
-    }
-
-    return false
-  }, [expanded, key, path, selectedPath])
+  const isExpanded = useMemo(
+    () => expanded[key] === 'expanded',
+    [expanded, key]
+  )
 
   const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
 
