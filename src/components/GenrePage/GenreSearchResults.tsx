@@ -5,6 +5,7 @@ import { FC } from 'react'
 import { useSession } from '../../services/auth'
 import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
+import { useGenrePageContext } from './context'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
@@ -70,12 +71,16 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   clearFilter,
 }) => {
   const { showTypeTags } = useGenreTreeSettings()
+  const { setSelectedPath } = useGenrePageContext()
 
   return (
     <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>
       <a
         className='block text-gray-700 hover:font-bold'
-        onClick={() => clearFilter()}
+        onClick={() => {
+          clearFilter()
+          setSelectedPath(undefined)
+        }}
       >
         {genre.name}
         {genre?.subtitle && (
