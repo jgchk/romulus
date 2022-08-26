@@ -104,7 +104,7 @@ const HasData: FC<{ history: DefaultGenreHistory[] }> = ({
           <>
             <Link
               href={{
-                pathname: '/genres/[id]',
+                pathname: '/genres',
                 query: { id: genre.id.toString() },
               }}
             >

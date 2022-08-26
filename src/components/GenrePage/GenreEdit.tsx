@@ -39,7 +39,7 @@ const HasData: FC<{
           onSuccess: async (data) => {
             toast.success(`Updated genre '${data.name}'`)
             await router.push({
-              pathname: '/genres/[id]',
+              pathname: '/genres',
               query: { id: data.id.toString() },
             })
           },
@@ -55,7 +55,7 @@ const HasData: FC<{
       onSubmit={(data) => handleEdit(data)}
       onClose={() =>
         void router.push({
-          pathname: '/genres/[id]',
+          pathname: '/genres',
           query: { id: genre.id.toString() },
         })
       }

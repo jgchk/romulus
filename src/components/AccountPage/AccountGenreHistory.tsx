@@ -22,7 +22,7 @@ const defaultColumns = [
     cell: (props) => (
       <Link
         href={{
-          pathname: '/genres/[id]',
+          pathname: '/genres',
           query: { id: props.row.original.treeGenreId.toString() },
         }}
       >

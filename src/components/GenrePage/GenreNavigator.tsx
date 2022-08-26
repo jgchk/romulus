@@ -1,19 +1,16 @@
 import { Permission } from '@prisma/client'
-import Link from 'next/link'
 import { FC, useCallback, useState } from 'react'
 import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../hooks/useDebounce'
 import { useSession } from '../../services/auth'
 import { ButtonSecondary, ButtonTertiary } from '../common/Button'
+import { useGenrePageContext } from './context'
 import GenreSearchResults from './GenreSearchResults'
 import GenreTree from './GenreTree'
 import GenreTreeSettings from './GenreTreeSettings'
 
-const GenreNavigator: FC<{ selectedGenreId?: number; scrollTo?: number }> = ({
-  selectedGenreId,
-  scrollTo,
-}) => {
+const GenreNavigator: FC = () => {
   const session = useSession()
 
   const [showSettings, setShowSettings] = useState(false)
@@ -24,6 +21,8 @@ const GenreNavigator: FC<{ selectedGenreId?: number; scrollTo?: number }> = ({
     setFilter('')
     setDebouncedFilter('')
   }, [setDebouncedFilter])
+
+  const { setView } = useGenrePageContext()
 
   return (
     <div className='w-full h-full flex flex-col'>
@@ -73,16 +72,17 @@ const GenreNavigator: FC<{ selectedGenreId?: number; scrollTo?: number }> = ({
             clearFilter={clearFilter}
           />
         ) : (
-          <GenreTree selectedGenreId={selectedGenreId} scrollTo={scrollTo} />
+          <GenreTree />
         )}
       </div>
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
         <div className='p-1 border-t'>
-          <Link href={{ pathname: '/genres/create' }}>
-            <a className='w-full'>
-              <ButtonSecondary className='w-full'>New Genre</ButtonSecondary>
-            </a>
-          </Link>
+          <ButtonSecondary
+            className='w-full'
+            onClick={() => setView({ type: 'create' })}
+          >
+            New Genre
+          </ButtonSecondary>
         </div>
       )}
     </div>

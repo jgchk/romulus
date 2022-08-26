@@ -19,7 +19,7 @@ const GenreLink: FC<{ id: number }> = ({ id }) => {
   }, [data, error])
 
   return (
-    <Link href={{ pathname: '/genres/[id]', query: { id: id.toString() } }}>
+    <Link href={{ pathname: '/genres', query: { id: id.toString() } }}>
       <a>{text}</a>
     </Link>
   )

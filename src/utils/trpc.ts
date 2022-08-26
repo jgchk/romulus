@@ -1,4 +1,4 @@
-import { createReactQueryHooks } from '@trpc/react'
+import { createReactQueryHooks, TRPCClientErrorLike } from '@trpc/react'
 import type {
   inferProcedureInput,
   inferProcedureOutput,
@@ -23,6 +23,8 @@ export type TMutation = keyof AppRouter['_def']['mutations']
  * Enum containing all api subscription paths
  */
 export type TSubscription = keyof AppRouter['_def']['subscriptions']
+
+export type TError = TRPCClientErrorLike<AppRouter>
 
 /**
  * This is a helper method to infer the output of a query resolver

@@ -39,7 +39,7 @@ export const GenreView: FC<{
         {hasHistory && (
           <Link
             href={{
-              pathname: '/genres/[id]',
+              pathname: '/genres',
               query: { id: id.toString(), view: 'history' },
             }}
           >
@@ -118,7 +118,7 @@ const HasData: FC<{
           <div className='flex p-1 space-x-1 border-t'>
             <Link
               href={{
-                pathname: '/genres/[id]',
+                pathname: '/genres',
                 query: { id: genre.id.toString(), view: 'edit' },
               }}
             >

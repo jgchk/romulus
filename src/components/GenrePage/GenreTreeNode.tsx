@@ -1,20 +1,23 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { FC, useEffect, useMemo, useRef } from 'react'
+import { equals, startsWith } from 'ramda'
+import { FC, useMemo, useRef } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
+import { useGenrePageContext } from './context'
 import GenreRelevanceChip from './GenreRelevanceChip'
-import { Node, useTreeContext } from './GenreTreeContext'
 import GenreTypeChip from './GenreTypeChip'
 import { useExpandedGenres } from './useExpandedGenres'
+import { TreeNode } from './useGenreTreeQuery'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
-const GenreTreeNode: FC<{ node: Node }> = ({
-  node: { key, genre, descendants, children },
+const GenreTreeNode: FC<{ node: TreeNode }> = ({
+  node: { key, path, genre, children },
 }) => {
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
-  const { selectedId, scrollTo } = useTreeContext()
   const [expanded, setExpanded] = useExpandedGenres()
+
+  const { selectedPath, setSelectedPath } = useGenrePageContext()
 
   const isExpanded = useMemo(() => {
     const value = expanded[key]
@@ -23,27 +26,26 @@ const GenreTreeNode: FC<{ node: Node }> = ({
       return true
     }
 
-    if (scrollTo !== undefined && descendants.includes(scrollTo)) {
-      return true
-    }
-
-    if (selectedId !== undefined && descendants.includes(selectedId)) {
+    if (selectedPath && startsWith(path, selectedPath.slice(0, -1))) {
       return true
     }
 
     return false
-  }, [descendants, expanded, key, scrollTo, selectedId])
+  }, [expanded, key, path, selectedPath])
 
   const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
 
-  const isSelected = useMemo(() => selectedId === id, [id, selectedId])
+  const isSelected = useMemo(
+    () => selectedPath && equals(selectedPath, path),
+    [path, selectedPath]
+  )
 
   const ref = useRef<HTMLLIElement>(null)
-  useEffect(() => {
-    if (scrollTo === id && ref.current) {
-      ref.current.scrollIntoView()
-    }
-  }, [id, scrollTo])
+  // useEffect(() => {
+  //   if (scrollTo === id && ref.current) {
+  //     ref.current.scrollIntoView()
+  //   }
+  // }, [id, scrollTo])
 
   return (
     <li ref={ref} className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}>
@@ -64,7 +66,7 @@ const GenreTreeNode: FC<{ node: Node }> = ({
         </button>
         <Link
           href={{
-            pathname: '/genres/[id]',
+            pathname: '/genres',
             query: { id: id.toString() },
           }}
         >
@@ -73,6 +75,7 @@ const GenreTreeNode: FC<{ node: Node }> = ({
               'hover:font-bold',
               isSelected ? 'text-blue-600 font-bold' : 'text-gray-600'
             )}
+            onClick={() => setSelectedPath(path)}
           >
             {name}
             {subtitle && (

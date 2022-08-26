@@ -110,7 +110,7 @@ const GenreViewData: FC<{
                 <li key={id}>
                   <Link
                     href={{
-                      pathname: '/genres/[id]',
+                      pathname: '/genres',
                       query: { id: id.toString() },
                     }}
                   >
@@ -141,7 +141,7 @@ const GenreViewData: FC<{
                 <li key={id}>
                   <Link
                     href={{
-                      pathname: '/genres/[id]',
+                      pathname: '/genres',
                       query: { id: id.toString() },
                     }}
                   >
@@ -176,7 +176,7 @@ const GenreViewData: FC<{
                   session.hasPermission(Permission.EDIT_GENRES) && (
                     <Link
                       href={{
-                        pathname: '/genres/[id]',
+                        pathname: '/genres',
                         query: {
                           id: genre.id.toString(),
                           view: 'edit',
@@ -204,7 +204,7 @@ const GenreViewData: FC<{
                   session.hasPermission(Permission.EDIT_GENRES) && (
                     <Link
                       href={{
-                        pathname: '/genres/[id]',
+                        pathname: '/genres',
                         query: {
                           id: genre.id.toString(),
                           view: 'edit',
@@ -234,7 +234,7 @@ const GenreViewData: FC<{
             Contributors{' '}
             <Link
               href={{
-                pathname: '/genres/[id]',
+                pathname: '/genres',
                 query: { id: genre.id.toString(), view: 'history' },
               }}
             >

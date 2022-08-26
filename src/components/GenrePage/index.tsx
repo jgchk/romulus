@@ -3,48 +3,32 @@ import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
 import { useSession } from '../../services/auth'
+import { useGenrePageContext } from './context'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
-import { GenreFormFields } from './GenreForm'
 import GenreHistory from './GenreHistory'
 import GenreNavigator from './GenreNavigator'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
 
-export type GenrePageState =
-  | { type: 'default'; id?: undefined }
-  | { type: 'view'; id: number; scrollTo?: number }
-  | { type: 'history'; id: number }
-  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
-  | { type: 'create'; id?: undefined }
-
-export const genrePageState = {
-  view: (id: number): GenrePageState => ({ type: 'view', id }),
-  edit: (id: number, autoFocus?: keyof GenreFormFields): GenrePageState => ({
-    type: 'edit',
-    id,
-    autoFocus,
-  }),
-  create: (): GenrePageState => ({ type: 'create' }),
-}
-
-const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
+const GenrePage: FC = () => {
   const session = useSession()
 
+  const { view } = useGenrePageContext()
   const renderGenre = useCallback(() => {
-    switch (state.type) {
+    switch (view.type) {
       case 'default':
         return <GenreViewPlaceholder />
       case 'view':
-        return <GenreView id={state.id} />
+        return <GenreView id={view.id} />
       case 'history':
-        return <GenreHistory id={state.id} />
+        return <GenreHistory id={view.id} />
       case 'edit':
-        return <GenreEdit id={state.id} autoFocus={state.autoFocus} />
+        return <GenreEdit id={view.id} autoFocus={view.autoFocus} />
       case 'create':
         return <GenreCreate />
     }
-  }, [state])
+  }, [view])
 
   return (
     <div className={clsx('w-full h-full flex items-center', 'md:bg-texture')}>
@@ -63,13 +47,10 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
               'md:max-w-[350px] md:border md:shadow-sm md:rounded-sm',
               // default -> always show
               // other -> hidden by default, show at md
-              state.type !== 'default' && 'hidden md:block'
+              view.type !== 'default' && 'hidden md:block'
             )}
           >
-            <GenreNavigator
-              selectedGenreId={state.id}
-              scrollTo={'scrollTo' in state ? state.scrollTo : undefined}
-            />
+            <GenreNavigator />
           </div>
           <div
             className={clsx(
@@ -77,7 +58,7 @@ const GenrePage: FC<{ state: GenrePageState }> = ({ state }) => {
               'md:max-w-[800px] md:border md:shadow-sm md:rounded-sm',
               // default -> hidden by default, show at md
               // other -> always show
-              state.type === 'default' && 'hidden md:block'
+              view.type === 'default' && 'hidden md:block'
             )}
           >
             {renderGenre()}
