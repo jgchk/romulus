@@ -69,14 +69,18 @@ export const GenrePageProvider: FC<
 
   const treeQuery = useGenreTreeQuery()
   const [path, setPath] = useState<number[]>()
-  const selectedPath = useMemo(() => {
+  const [selectedPath, setSelectedPath] = useState<number[]>()
+  useEffect(() => {
     if (path) {
       const isValid =
         !treeQuery.data ||
         findTree(treeQuery.data, (node) => equals(node.path, path))
 
       if (isValid) {
-        return path
+        if (!equals(path, selectedPath)) {
+          setSelectedPath(path)
+        }
+        return
       }
     }
 
@@ -86,15 +90,32 @@ export const GenrePageProvider: FC<
         (node) => node.genre.id === view.id
       )
       if (matchingNode) {
-        return matchingNode.path
+        if (!equals(matchingNode.path, selectedPath)) {
+          setSelectedPath(matchingNode.path)
+        }
+        return
       }
     }
-  }, [path, treeQuery.data, view])
+
+    if (selectedPath !== undefined) {
+      setSelectedPath(undefined)
+    }
+    return
+  }, [path, selectedPath, treeQuery.data, view])
 
   const [expanded, setExpanded] = useState<Expanded>({})
   const setExpandedKV = useCallback(
-    (key: ExpandedKey, value: ExpandedValue) =>
-      setExpanded((e) => ({ ...e, [key]: value })),
+    (
+      key: ExpandedKey,
+      value:
+        | ExpandedValue
+        | ((value: ExpandedValue | undefined) => ExpandedValue)
+    ) =>
+      setExpanded((e) => {
+        const oldValue = e[key]
+        const newValue = typeof value === 'function' ? value(oldValue) : value
+        return oldValue === newValue ? e : { ...e, [key]: newValue }
+      }),
     []
   )
 
@@ -102,12 +123,10 @@ export const GenrePageProvider: FC<
     if (selectedPath) {
       for (let i = 1; i < selectedPath.length; i++) {
         const key = selectedPath.slice(0, i).join('-')
-        if (expanded[key] !== 'expanded') {
-          setExpandedKV(key, 'expanded')
-        }
+        setExpandedKV(key, 'expanded')
       }
     }
-  }, [expanded, selectedPath, setExpandedKV])
+  }, [selectedPath, setExpandedKV])
 
   return (
     <GenrePageContext.Provider
