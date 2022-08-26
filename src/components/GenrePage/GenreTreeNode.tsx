@@ -17,7 +17,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
   const [expanded, setExpanded] = useExpandedGenres()
 
-  const { selectedPath, setSelectedPath } = useGenrePageContext()
+  const { selectedPath } = useGenrePageContext()
 
   const isExpanded = useMemo(() => {
     const value = expanded[key]
@@ -67,7 +67,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
         <Link
           href={{
             pathname: '/genres',
-            query: { id: id.toString() },
+            query: { id: id.toString(), path: key },
           }}
         >
           <a
@@ -75,7 +75,6 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
               'hover:font-bold',
               isSelected ? 'text-blue-600 font-bold' : 'text-gray-600'
             )}
-            onClick={() => setSelectedPath(path)}
           >
             {name}
             {subtitle && (

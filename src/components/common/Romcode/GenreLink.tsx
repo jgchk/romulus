@@ -1,9 +1,9 @@
-import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
 import { useSimpleGenreQuery } from '../../../services/genres'
+import GenreLink from '../GenreLink'
 
-const GenreLink: FC<{ id: number }> = ({ id }) => {
+const RomcodeGenreLink: FC<{ id: number }> = ({ id }) => {
   const { data, error } = useSimpleGenreQuery(id)
 
   const text = useMemo(() => {
@@ -19,10 +19,10 @@ const GenreLink: FC<{ id: number }> = ({ id }) => {
   }, [data, error])
 
   return (
-    <Link href={{ pathname: '/genres', query: { id: id.toString() } }}>
+    <GenreLink id={id}>
       <a>{text}</a>
-    </Link>
+    </GenreLink>
   )
 }
 
-export default GenreLink
+export default RomcodeGenreLink

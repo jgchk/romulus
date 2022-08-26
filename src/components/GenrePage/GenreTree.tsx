@@ -1,9 +1,9 @@
 import { Permission } from '@prisma/client'
+import Link from 'next/link'
 import { FC } from 'react'
 
 import { useSession } from '../../services/auth'
 import { CenteredLoader } from '../common/Loader'
-import { useGenrePageContext } from './context'
 import GenreTreeNode from './GenreTreeNode'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
@@ -28,8 +28,6 @@ const GenreTree: FC = () => {
 const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
   const session = useSession()
 
-  const { setView } = useGenrePageContext()
-
   return (
     <div className='w-full h-full flex flex-col'>
       {tree.length > 0 ? (
@@ -45,12 +43,13 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
           <div>No genres found.</div>
           {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
             <div>
-              <button
-                className='text-blue-500 hover:underline'
-                onClick={() => setView({ type: 'create' })}
-              >
-                Create one.
-              </button>
+              <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
+                <a>
+                  <button className='text-blue-500 hover:underline'>
+                    Create one.
+                  </button>
+                </a>
+              </Link>
             </div>
           )}
         </div>

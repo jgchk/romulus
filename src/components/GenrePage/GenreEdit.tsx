@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { useEditGenreMutation, useGenreQuery } from '../../services/genres'
+import { useGenreLinkHref } from '../common/GenreLink'
 import { CenteredLoader } from '../common/Loader'
 import GenreForm, { GenreFormData, GenreFormFields } from './GenreForm'
 
@@ -31,6 +32,7 @@ const HasData: FC<{
   const router = useRouter()
 
   const { mutate: editGenre, isLoading, isSuccess } = useEditGenreMutation()
+  const href = useGenreLinkHref(genre.id)
   const handleEdit = useCallback(
     (data: GenreFormData) =>
       editGenre(
@@ -38,14 +40,11 @@ const HasData: FC<{
         {
           onSuccess: async (data) => {
             toast.success(`Updated genre '${data.name}'`)
-            await router.push({
-              pathname: '/genres',
-              query: { id: data.id.toString() },
-            })
+            await router.push(href)
           },
         }
       ),
-    [editGenre, genre.id, router]
+    [editGenre, genre.id, href, router]
   )
 
   return (
@@ -53,12 +52,7 @@ const HasData: FC<{
       autoFocus={autoFocus}
       genre={genre}
       onSubmit={(data) => handleEdit(data)}
-      onClose={() =>
-        void router.push({
-          pathname: '/genres',
-          query: { id: genre.id.toString() },
-        })
-      }
+      onClose={() => void router.push(href)}
       isSubmitting={isLoading}
       isSubmitted={isSuccess}
     />

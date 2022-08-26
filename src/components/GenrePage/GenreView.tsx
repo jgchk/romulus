@@ -1,5 +1,4 @@
 import { Permission } from '@prisma/client'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -14,6 +13,7 @@ import {
   ButtonPrimaryRed,
   ButtonTertiary,
 } from '../common/Button'
+import GenreLink from '../common/GenreLink'
 import { CenteredLoader } from '../common/Loader'
 import GenreViewData from './GenreViewData'
 
@@ -37,14 +37,9 @@ export const GenreView: FC<{
       <div className='p-4 h-full flex flex-col items-center justify-center text-gray-700'>
         <div>Error fetching genre :(</div>
         {hasHistory && (
-          <Link
-            href={{
-              pathname: '/genres',
-              query: { id: id.toString(), view: 'history' },
-            }}
-          >
+          <GenreLink id={id} view='history'>
             <a className='block text-blue-500 hover:underline'>View history</a>
-          </Link>
+          </GenreLink>
         )}
       </div>
     )
@@ -116,16 +111,11 @@ const HasData: FC<{
           </div>
         ) : (
           <div className='flex p-1 space-x-1 border-t'>
-            <Link
-              href={{
-                pathname: '/genres',
-                query: { id: genre.id.toString(), view: 'edit' },
-              }}
-            >
+            <GenreLink id={genre.id} view='edit'>
               <a className='flex-1'>
                 <ButtonPrimary className='w-full'>Edit</ButtonPrimary>
               </a>
-            </Link>
+            </GenreLink>
             <ButtonTertiary
               className='flex-1'
               onClick={() => setConfirmDelete(true)}

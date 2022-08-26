@@ -1,11 +1,10 @@
+import { equals } from 'ramda'
 import {
   createContext,
   FC,
   PropsWithChildren,
   useContext,
-  useEffect,
   useMemo,
-  useState,
 } from 'react'
 
 import { GenreFormFields } from './GenreForm'
@@ -13,112 +12,70 @@ import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
 type GenrePageContext = {
   view: GenrePageView
-  setView: (view: GenrePageView) => void
-
   selectedPath: number[] | undefined
-  setSelectedPath: (path: number[] | undefined) => void
 }
 
 export type GenrePageView =
   | { type: 'default' }
   | { type: 'view'; id: number }
-  | { type: 'edit'; id: number; autoFocus: keyof GenreFormFields }
+  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
   | { type: 'history'; id: number }
   | { type: 'create' }
 
 const GenrePageContext = createContext<GenrePageContext>({
   view: { type: 'default' },
-  setView: () => {
-    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
-  },
-
   selectedPath: undefined,
-  setSelectedPath: () => {
-    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
-  },
 })
 
 export const useGenrePageContext = () => useContext(GenrePageContext)
 
-export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
-  id,
-  children,
-}) => {
-  const [view, setView] = useState<GenrePageView>(
-    id === undefined ? { type: 'default' } : { type: 'view', id }
-  )
-  useEffect(() => {
-    setView((view) => {
-      switch (view.type) {
-        case 'default': {
-          if (id !== undefined) {
-            return { type: 'view', id }
-          }
-          break
-        }
-        case 'view': {
-          if (id !== undefined) {
-            if (id !== view.id) {
-              return { ...view, id }
-            }
-          } else {
-            return { type: 'default' }
-          }
-          break
-        }
-        case 'edit': {
-          if (id !== undefined) {
-            if (id !== view.id) {
-              return { ...view, id }
-            }
-          } else {
-            return { type: 'default' }
-          }
-          break
-        }
-        case 'history': {
-          if (id !== undefined) {
-            if (id !== view.id) {
-              return { ...view, id }
-            }
-          } else {
-            return { type: 'default' }
-          }
-          break
-        }
-        case 'create': {
-          if (id !== undefined) {
-            return { type: 'view', id }
-          }
-          break
-        }
-      }
-      return view
-    })
-  }, [id])
-
-  const [selectedPath, setSelectedPath] = useState<number[] | undefined>()
+export const GenrePageProvider: FC<
+  PropsWithChildren<{
+    id?: number
+    path?: number[]
+    view?: string
+    autoFocus?: keyof GenreFormFields
+  }>
+> = ({ id, path, children, view: viewType, autoFocus }) => {
+  const view: GenrePageView = useMemo(() => {
+    if (viewType === 'edit' && id !== undefined) {
+      return { type: 'edit', id, autoFocus }
+    } else if (viewType === 'history' && id !== undefined) {
+      return { type: 'history', id }
+    } else if (viewType === 'create') {
+      return { type: 'create' }
+    } else if (id !== undefined) {
+      return { type: 'view', id }
+    } else {
+      return { type: 'default' }
+    }
+  }, [autoFocus, id, viewType])
 
   const treeQuery = useGenreTreeQuery()
-  useEffect(() => {
-    if ('id' in view && selectedPath === undefined && treeQuery.data) {
+  const selectedPath = useMemo(() => {
+    if (path) {
+      const isValid =
+        !treeQuery.data ||
+        findTree(treeQuery.data, (node) => equals(node.path, path))
+
+      if (isValid) {
+        return path
+      }
+    }
+
+    if (treeQuery.data && 'id' in view) {
       const matchingNode = findTree(
         treeQuery.data,
         (node) => node.genre.id === view.id
       )
       if (matchingNode) {
-        setSelectedPath(matchingNode.path)
+        return matchingNode.path
       }
     }
-  }, [id, selectedPath, treeQuery.data, view])
+  }, [path, treeQuery.data, view])
 
   const value: GenrePageContext = useMemo(
-    () => ({
-      view,
-      setView,
-      selectedPath,
-      setSelectedPath,
-    }),
+    () => ({ view, selectedPath }),
     [selectedPath, view]
   )
 
@@ -130,7 +87,7 @@ export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
 }
 
 const findTree = (tree: TreeNode[], fn: (node: TreeNode) => boolean) => {
-  const queue = tree
+  const queue = [...tree]
   let curr = queue.shift()
   while (curr !== undefined) {
     if (fn(curr)) {

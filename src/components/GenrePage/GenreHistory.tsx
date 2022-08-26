@@ -13,6 +13,7 @@ import { IoMdArrowBack } from 'react-icons/io'
 import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useGenreHistoryQuery } from '../../services/genre-history'
 import { capitalize } from '../../utils/string'
+import GenreLink from '../common/GenreLink'
 import { CenteredLoader } from '../common/Loader'
 
 const GenreHistory: FC<{ id: number }> = ({ id }) => {
@@ -102,16 +103,11 @@ const HasData: FC<{ history: DefaultGenreHistory[] }> = ({
       <div className='flex items-center pb-4 border-b border-gray-100'>
         {genre ? (
           <>
-            <Link
-              href={{
-                pathname: '/genres',
-                query: { id: genre.id.toString() },
-              }}
-            >
+            <GenreLink id={genre.id}>
               <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
                 <IoMdArrowBack size={18} />
               </a>
-            </Link>
+            </GenreLink>
             <div className='text-2xl font-bold text-gray-600'>
               {genre.name}
               {genre.subtitle && (

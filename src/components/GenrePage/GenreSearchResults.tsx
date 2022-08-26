@@ -5,7 +5,6 @@ import { FC } from 'react'
 import { useSession } from '../../services/auth'
 import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
 import { CenteredLoader } from '../common/Loader'
-import { useGenrePageContext } from './context'
 import GenreTypeChip from './GenreTypeChip'
 import useGenreTreeSettings from './useGenreTreeSettings'
 
@@ -36,8 +35,6 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
 }) => {
   const session = useSession()
 
-  const { setView } = useGenrePageContext()
-
   return (
     <div className='p-4'>
       {matches.length > 0 ? (
@@ -53,12 +50,13 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
           <div>No genres found.</div>
           {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
             <div>
-              <button
-                className='text-blue-500 hover:underline'
-                onClick={() => setView({ type: 'create' })}
-              >
-                Create one.
-              </button>
+              <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
+                <a>
+                  <button className='text-blue-500 hover:underline'>
+                    Create one.
+                  </button>
+                </a>
+              </Link>
             </div>
           )}
         </div>
@@ -74,12 +72,7 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   const { showTypeTags } = useGenreTreeSettings()
 
   return (
-    <Link
-      href={{
-        pathname: '/genres',
-        query: { id: genre.id.toString(), scrollTo: genre.id.toString() },
-      }}
-    >
+    <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>
       <a
         className='block text-gray-700 hover:font-bold'
         onClick={() => clearFilter()}

@@ -15,14 +15,14 @@ export type TreeNode = {
 const useGenreTreeQuery = () => {
   const genresQuery = useTreeGenresQuery()
   const { genreRelevanceFilter } = useGenreTreeSettings()
-  const treeQuery = {
-    ...genresQuery,
-    data: useMemo(
-      () =>
+  const treeQuery = useMemo(
+    () => ({
+      ...genresQuery,
+      data:
         genresQuery.data && makeTree(genresQuery.data, genreRelevanceFilter),
-      [genreRelevanceFilter, genresQuery.data]
-    ),
-  }
+    }),
+    [genreRelevanceFilter, genresQuery]
+  )
   return treeQuery
 }
 

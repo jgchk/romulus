@@ -9,6 +9,7 @@ import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useSession } from '../../services/auth'
 import { copyTextToClipboard } from '../../utils/dom'
 import { isNotNull } from '../../utils/types'
+import GenreLink from '../common/GenreLink'
 import Label from '../common/Label'
 import Romcode from '../common/Romcode'
 import { getGenreRelevanceText } from './common'
@@ -108,12 +109,7 @@ const GenreViewData: FC<{
             <ul id='parents' className='comma-list'>
               {genre.parentGenres.map(({ id, name, type }) => (
                 <li key={id}>
-                  <Link
-                    href={{
-                      pathname: '/genres',
-                      query: { id: id.toString() },
-                    }}
-                  >
+                  <GenreLink id={id}>
                     <a className='text-blue-500 hover:underline font-bold'>
                       {name}
                       {showTypeTags && type !== 'STYLE' && (
@@ -126,7 +122,7 @@ const GenreViewData: FC<{
                         </>
                       )}
                     </a>
-                  </Link>
+                  </GenreLink>
                 </li>
               ))}
             </ul>
@@ -139,12 +135,7 @@ const GenreViewData: FC<{
             <ul id='influences' className='comma-list'>
               {genre.influencedByGenres.map(({ id, name, type }) => (
                 <li key={id}>
-                  <Link
-                    href={{
-                      pathname: '/genres',
-                      query: { id: id.toString() },
-                    }}
-                  >
+                  <GenreLink id={id}>
                     <a className='text-blue-500 hover:underline'>
                       {name}
                       {showTypeTags && type !== 'STYLE' && (
@@ -157,7 +148,7 @@ const GenreViewData: FC<{
                         </>
                       )}
                     </a>
-                  </Link>
+                  </GenreLink>
                 </li>
               ))}
             </ul>
@@ -174,18 +165,13 @@ const GenreViewData: FC<{
                 Missing a short description.{' '}
                 {session.isLoggedIn &&
                   session.hasPermission(Permission.EDIT_GENRES) && (
-                    <Link
-                      href={{
-                        pathname: '/genres',
-                        query: {
-                          id: genre.id.toString(),
-                          view: 'edit',
-                          focus: 'shortDescription',
-                        },
-                      }}
+                    <GenreLink
+                      id={genre.id}
+                      view='edit'
+                      autoFocus='shortDescription'
                     >
                       <a className='text-blue-500 hover:underline'>Add one.</a>
-                    </Link>
+                    </GenreLink>
                   )}
               </span>
             )}
@@ -202,18 +188,13 @@ const GenreViewData: FC<{
                 Missing a long description.{' '}
                 {session.isLoggedIn &&
                   session.hasPermission(Permission.EDIT_GENRES) && (
-                    <Link
-                      href={{
-                        pathname: '/genres',
-                        query: {
-                          id: genre.id.toString(),
-                          view: 'edit',
-                          focus: 'longDescription',
-                        },
-                      }}
+                    <GenreLink
+                      id={genre.id}
+                      view='edit'
+                      autoFocus='longDescription'
                     >
                       <a className='text-blue-500 hover:underline'>Add one.</a>
-                    </Link>
+                    </GenreLink>
                   )}
               </span>
             )}
@@ -232,16 +213,11 @@ const GenreViewData: FC<{
         <div>
           <Label htmlFor='contributors'>
             Contributors{' '}
-            <Link
-              href={{
-                pathname: '/genres',
-                query: { id: genre.id.toString(), view: 'history' },
-              }}
-            >
+            <GenreLink id={genre.id} view='history'>
               <a className='text-blue-500 hover:underline text-xs'>
                 (View History)
               </a>
-            </Link>
+            </GenreLink>
           </Label>
           <ul id='contributors' className='comma-list'>
             {contributors.map(({ id, username }) => (
