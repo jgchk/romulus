@@ -1,13 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { Prisma } from '@prisma/client'
+import { withIronSessionApiRoute } from 'iron-session/next'
+import { ApiError } from 'next/dist/server/api-utils'
 import { z } from 'zod'
 
-import AuthenticationManager, {
-  setTokenCookie,
-} from '../../server/authentication'
-import { withExceptionFilter } from '../../server/middleware'
+import { createAccount } from '../../server/db/account'
+import { sessionConfig } from '../../server/session'
 import { nonemptyString } from '../../utils/validators'
-
-const authenticationManager = new AuthenticationManager()
 
 const RegisterRequest = z.object({
   username: nonemptyString('Username is required'),
@@ -16,27 +14,28 @@ const RegisterRequest = z.object({
 
 type RegisterRequest = z.infer<typeof RegisterRequest>
 
-type RegisterResponse = {
-  status: 'success'
-  token: string
-}
+export default withIronSessionApiRoute(async (req, res) => {
+  const registerRequest = RegisterRequest.parse(req.body)
 
-export default function registerHandler(
-  req: NextApiRequest,
-  res: NextApiResponse<RegisterResponse>
-) {
-  const handler = async () => {
-    const registerRequest = RegisterRequest.parse(req.body)
+  try {
+    const account = await createAccount(registerRequest)
 
-    const token = await authenticationManager.register(
-      registerRequest.username,
-      registerRequest.password
-    )
+    req.session.account = account
 
-    setTokenCookie(req, res, token)
+    await req.session.save()
 
-    res.status(200).json({ status: 'success', token })
+    res.send({ account })
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      throw new ApiError(
+        409,
+        'Could not create account. Username already exists.'
+      )
+    }
+
+    throw error
   }
-
-  return withExceptionFilter(req, res)(handler)
-}
+}, sessionConfig)
