@@ -23,16 +23,16 @@ const Navbar: FC = () => {
   )
 
   const renderSession = useCallback(() => {
-    if (session.isSuccess) {
-      return session.data ? (
+    if (session.account !== undefined) {
+      return session.account ? (
         <>
           <Link
             href={{
               pathname: '/accounts/[id]',
-              query: { id: session.data.id.toString() },
+              query: { id: session.account.id.toString() },
             }}
           >
-            <a>{session.data.username}</a>
+            <a>{session.account.username}</a>
           </Link>
           <button onClick={() => logout()}>Log out</button>
         </>
@@ -46,7 +46,7 @@ const Navbar: FC = () => {
     }
 
     return 'Loading...'
-  }, [logout, renderLoginLinks, session.data, session.error, session.isSuccess])
+  }, [logout, renderLoginLinks, session.account, session.error])
 
   return (
     <div className='flex justify-between p-2 px-4 border-b'>

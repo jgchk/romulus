@@ -10,12 +10,12 @@ export const useGenreNavigatorSettings = () => {
   const { mutate: editAccount } = useEditAccountMutation()
 
   const genreRelevanceFilter = useMemo(
-    () => session.data?.genreRelevanceFilter ?? 1,
-    [session.data?.genreRelevanceFilter]
+    () => session.account?.genreRelevanceFilter ?? 1,
+    [session.account?.genreRelevanceFilter]
   )
   const setGenreRelevanceFilter = useCallback(
     (value: number) => {
-      const accountId = session.data?.id
+      const accountId = session.account?.id
       if (accountId === undefined) {
         toast.error('You must be logged in to update this setting')
         return
@@ -26,16 +26,16 @@ export const useGenreNavigatorSettings = () => {
         data: { genreRelevanceFilter: value },
       })
     },
-    [editAccount, session.data?.id]
+    [editAccount, session.account?.id]
   )
 
   const showTypeTags = useMemo(
-    () => session.data?.showTypeTags ?? true,
-    [session.data?.showTypeTags]
+    () => session.account?.showTypeTags ?? true,
+    [session.account?.showTypeTags]
   )
   const setShowTypeTags = useCallback(
     (value: boolean) => {
-      const accountId = session.data?.id
+      const accountId = session.account?.id
       if (accountId === undefined) {
         toast.error('You must be logged in to update this setting')
         return
@@ -46,16 +46,16 @@ export const useGenreNavigatorSettings = () => {
         data: { showTypeTags: value },
       })
     },
-    [editAccount, session.data?.id]
+    [editAccount, session.account?.id]
   )
 
   const showRelevanceTags = useMemo(
-    () => session.data?.showRelevanceTags ?? false,
-    [session.data?.showRelevanceTags]
+    () => session.account?.showRelevanceTags ?? false,
+    [session.account?.showRelevanceTags]
   )
   const setShowRelevanceTags = useCallback(
     (value: boolean) => {
-      const accountId = session.data?.id
+      const accountId = session.account?.id
       if (accountId === undefined) {
         toast.error('You must be logged in to update this setting')
         return
@@ -66,7 +66,7 @@ export const useGenreNavigatorSettings = () => {
         data: { showRelevanceTags: value },
       })
     },
-    [editAccount, session.data?.id]
+    [editAccount, session.account?.id]
   )
 
   const data = useMemo(

@@ -8,8 +8,8 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   const session = useSession()
 
   const darkMode = useMemo(
-    () => session.data?.darkMode ?? true,
-    [session.data?.darkMode]
+    () => session.account?.darkMode ?? true,
+    [session.account?.darkMode]
   )
 
   useEffect(() => {

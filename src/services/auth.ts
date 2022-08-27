@@ -1,58 +1,34 @@
 import { Permission } from '@prisma/client'
-import { TRPCClientErrorLike } from '@trpc/client'
 import ky from 'ky'
 import { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-query'
 
-import { DefaultAccount } from '../server/db/account/outputs'
-import type { AppRouter } from '../server/routers/_app'
 import { trpc } from '../utils/trpc'
-import { useAccountQuery } from './accounts'
 
 export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
-export const useSession = (): {
-  data: DefaultAccount | null | undefined
-  error: TRPCClientErrorLike<AppRouter> | null
-  isSuccess: boolean
-  isLoggedIn: boolean | undefined
-  isLoggedOut: boolean | undefined
-  hasPermission: (permission: Permission) => boolean | undefined
-} => {
+export const useSession = () => {
   const whoamiQuery = useWhoamiQuery()
-  const accountQuery = useAccountQuery(whoamiQuery.data?.id)
 
   const isLoggedIn = useMemo(() => {
-    if (!accountQuery.isSuccess) return undefined
-    return accountQuery.data !== null
-  }, [accountQuery.data, accountQuery.isSuccess])
+    if (!whoamiQuery.isSuccess) return undefined
+    return whoamiQuery.data !== null
+  }, [whoamiQuery.data, whoamiQuery.isSuccess])
 
   const isLoggedOut = useMemo(() => {
-    if (!accountQuery.isSuccess) return undefined
-    return accountQuery.data === null
-  }, [accountQuery.data, accountQuery.isSuccess])
+    if (!whoamiQuery.isSuccess) return undefined
+    return whoamiQuery.data === null
+  }, [whoamiQuery.data, whoamiQuery.isSuccess])
 
   const hasPermission = useCallback(
     (permission: Permission) =>
-      accountQuery.data?.permissions.includes(permission),
-    [accountQuery.data?.permissions]
+      whoamiQuery.data?.permissions.includes(permission),
+    [whoamiQuery.data?.permissions]
   )
 
-  if (!whoamiQuery.data) {
-    return {
-      data: whoamiQuery.data,
-      error: whoamiQuery.error,
-      isSuccess: whoamiQuery.isSuccess,
-      isLoggedIn,
-      isLoggedOut,
-      hasPermission,
-    }
-  }
-
   return {
-    data: accountQuery.data,
-    error: accountQuery.error,
-    isSuccess: accountQuery.isSuccess,
+    account: whoamiQuery.data,
+    error: whoamiQuery.error,
     isLoggedIn,
     isLoggedOut,
     hasPermission,
