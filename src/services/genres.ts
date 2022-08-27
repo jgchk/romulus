@@ -1,7 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
 
-import { SimpleGenre, TreeGenre } from '../server/db/genre/outputs'
+import {
+  DefaultGenre,
+  SimpleGenre,
+  TreeGenre,
+} from '../server/db/genre/outputs'
 import { toAscii } from '../utils/string'
 import { trpc } from '../utils/trpc'
 
@@ -12,6 +16,23 @@ export const useGenresQuery = () => {
       utils.setQueryData(['genre.all.simple'], data)
       utils.setQueryData(['genre.all.tree'], data)
       for (const genre of data) {
+        utils.setQueryData(['genre.byId', { id: genre.id }], genre)
+        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
+      }
+    },
+  })
+}
+
+export const useGenresMapQuery = () => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genre.all'], {
+    select: (data: DefaultGenre[]): Map<number, DefaultGenre> =>
+      new Map(data.map((genre) => [genre.id, genre])),
+    onSuccess: (data) => {
+      const genres = [...data.values()]
+      utils.setQueryData(['genre.all.simple'], genres)
+      utils.setQueryData(['genre.all.tree'], genres)
+      for (const genre of genres) {
         utils.setQueryData(['genre.byId', { id: genre.id }], genre)
         utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
       }

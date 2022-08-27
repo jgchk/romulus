@@ -2,11 +2,12 @@ import { CrudOperation, Permission } from '@prisma/client'
 import { compareAsc } from 'date-fns'
 import Link from 'next/link'
 import { uniqBy } from 'ramda'
-import { FC, useMemo } from 'react'
+import { FC, useCallback, useMemo } from 'react'
 
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
 import { useSession } from '../../../../services/auth'
+import { useGenresMapQuery } from '../../../../services/genres'
 import { copyTextToClipboard } from '../../../../utils/dom'
 import { isNotNull } from '../../../../utils/types'
 import GenreLink from '../../../common/GenreLink'
@@ -14,14 +15,18 @@ import Label from '../../../common/Label'
 import Romcode from '../../../common/Romcode'
 import useGenreNavigatorSettings from '../../GenreNavigator/useGenreNavigatorSettings'
 import GenreTypeChip from '../../GenreTypeChip'
-import { getGenreRelevanceText } from '../../utils'
+import {
+  getFilteredInfluences,
+  getFilteredParentGenres,
+  getGenreRelevanceText,
+} from '../../utils'
 
 const GenreViewData: FC<{
   genre: DefaultGenre
   history: DefaultGenreHistory[]
 }> = ({ genre, history }) => {
   const session = useSession()
-  const { showTypeTags } = useGenreNavigatorSettings()
+  const { showTypeTags, genreRelevanceFilter } = useGenreNavigatorSettings()
 
   const sortedHistory = useMemo(
     () =>
@@ -52,6 +57,136 @@ const GenreViewData: FC<{
       ),
     [sortedHistory]
   )
+
+  const genreMapQuery = useGenresMapQuery()
+  const relationsQuery = useMemo(
+    () => ({
+      ...genreMapQuery,
+      data: genreMapQuery.data
+        ? {
+            parentGenres: getFilteredParentGenres(
+              genre,
+              genreRelevanceFilter,
+              genreMapQuery.data
+            ).sort((a, b) =>
+              a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            ),
+            influencedByGenres: getFilteredInfluences(
+              genre,
+              genreRelevanceFilter,
+              genreMapQuery.data
+            ).sort((a, b) =>
+              a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            ),
+          }
+        : undefined,
+    }),
+    [genre, genreMapQuery, genreRelevanceFilter]
+  )
+
+  const renderParentGenres = useCallback(() => {
+    if (relationsQuery.data) {
+      return (
+        relationsQuery.data.parentGenres.length > 0 && (
+          <div>
+            <Label htmlFor='parents'>Parents</Label>
+            <ul id='parents' className='comma-list'>
+              {relationsQuery.data.parentGenres.map(({ id, name, type }) => (
+                <li key={id}>
+                  <GenreLink
+                    id={id}
+                    className='text-blue-500 hover:underline font-bold'
+                  >
+                    {name}
+                    {showTypeTags && type !== 'STYLE' && (
+                      <>
+                        {' '}
+                        <GenreTypeChip
+                          type={type}
+                          className='bg-blue-100 text-blue-400'
+                        />
+                      </>
+                    )}
+                  </GenreLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      )
+    }
+
+    if (relationsQuery.error) {
+      return (
+        <div>
+          <Label htmlFor='parents'>Parents</Label>
+          <div id='parents' className='text-red-600'>
+            Error fetching parents
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        <Label htmlFor='parents'>Parents</Label>
+        <div id='parents'>Loading...</div>
+      </div>
+    )
+  }, [relationsQuery.data, relationsQuery.error, showTypeTags])
+
+  const renderInfluences = useCallback(() => {
+    if (relationsQuery.data) {
+      return (
+        relationsQuery.data.influencedByGenres.length > 0 && (
+          <div>
+            <Label htmlFor='influences'>Influences</Label>
+            <ul id='influences' className='comma-list'>
+              {relationsQuery.data.influencedByGenres.map(
+                ({ id, name, type }) => (
+                  <li key={id}>
+                    <GenreLink
+                      id={id}
+                      className='text-blue-500 hover:underline'
+                    >
+                      {name}
+                      {showTypeTags && type !== 'STYLE' && (
+                        <>
+                          {' '}
+                          <GenreTypeChip
+                            type={type}
+                            className='bg-blue-100 text-blue-400'
+                          />
+                        </>
+                      )}
+                    </GenreLink>
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        )
+      )
+    }
+
+    if (relationsQuery.error) {
+      return (
+        <div>
+          <Label htmlFor='influences'>Influences</Label>
+          <div id='influences' className='text-red-600'>
+            Error fetching influences
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        <Label htmlFor='influences'>Influences</Label>
+        <div id='influences'>Loading...</div>
+      </div>
+    )
+  }, [relationsQuery.data, relationsQuery.error, showTypeTags])
 
   return (
     <div className='flex-1 overflow-auto p-4'>
@@ -103,56 +238,8 @@ const GenreViewData: FC<{
           </div>
         )}
 
-        {genre.parentGenres.length > 0 && (
-          <div>
-            <Label htmlFor='parents'>Parents</Label>
-            <ul id='parents' className='comma-list'>
-              {genre.parentGenres.map(({ id, name, type }) => (
-                <li key={id}>
-                  <GenreLink
-                    id={id}
-                    className='text-blue-500 hover:underline font-bold'
-                  >
-                    {name}
-                    {showTypeTags && type !== 'STYLE' && (
-                      <>
-                        {' '}
-                        <GenreTypeChip
-                          type={type}
-                          className='bg-blue-100 text-blue-400'
-                        />
-                      </>
-                    )}
-                  </GenreLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {genre.influencedByGenres.length > 0 && (
-          <div>
-            <Label htmlFor='influences'>Influences</Label>
-            <ul id='influences' className='comma-list'>
-              {genre.influencedByGenres.map(({ id, name, type }) => (
-                <li key={id}>
-                  <GenreLink id={id} className='text-blue-500 hover:underline'>
-                    {name}
-                    {showTypeTags && type !== 'STYLE' && (
-                      <>
-                        {' '}
-                        <GenreTypeChip
-                          type={type}
-                          className='bg-blue-100 text-blue-400'
-                        />
-                      </>
-                    )}
-                  </GenreLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {renderParentGenres()}
+        {renderInfluences()}
 
         <div>
           <Label htmlFor='short-description'>Short Description</Label>
