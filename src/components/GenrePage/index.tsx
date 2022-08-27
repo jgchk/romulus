@@ -3,18 +3,24 @@ import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
 import { useSession } from '../../services/auth'
-import { useGenrePageContext } from './context'
 import GenreCreate from './GenreCreate'
 import GenreEdit from './GenreEdit'
+import { GenreFormFields } from './GenreForm'
 import GenreHistory from './GenreHistory'
 import GenreNavigator from './GenreNavigator'
 import GenreView from './GenreView'
 import GenreViewPlaceholder from './GenreViewPlaceholder'
 
-const GenrePage: FC = () => {
+export type GenrePageView =
+  | { type: 'default' }
+  | { type: 'view'; id: number }
+  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
+  | { type: 'history'; id: number }
+  | { type: 'create' }
+
+const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
   const session = useSession()
 
-  const { view } = useGenrePageContext()
   const renderGenre = useCallback(() => {
     switch (view.type) {
       case 'default':

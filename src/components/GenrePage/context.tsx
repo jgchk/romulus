@@ -6,34 +6,23 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react'
 
-import { GenreFormFields } from './GenreForm'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
 type GenrePageContext = {
-  view: GenrePageView
   selectedPath: number[] | undefined
   setSelectedPath: (path: number[] | undefined) => void
   expanded: Expanded
   setExpanded: (key: ExpandedKey, value: ExpandedValue) => void
 }
 
-export type GenrePageView =
-  | { type: 'default' }
-  | { type: 'view'; id: number }
-  | { type: 'edit'; id: number; autoFocus?: keyof GenreFormFields }
-  | { type: 'history'; id: number }
-  | { type: 'create' }
-
 type Expanded = Record<ExpandedKey, ExpandedValue | undefined>
 type ExpandedKey = string
 type ExpandedValue = 'expanded' | 'collapsed'
 
 const GenrePageContext = createContext<GenrePageContext>({
-  view: { type: 'default' },
   selectedPath: undefined,
   setSelectedPath: () => {
     throw new Error('GenrePageContext must be used inside a GenrePageProvider')
@@ -46,27 +35,10 @@ const GenrePageContext = createContext<GenrePageContext>({
 
 export const useGenrePageContext = () => useContext(GenrePageContext)
 
-export const GenrePageProvider: FC<
-  PropsWithChildren<{
-    id?: number
-    view?: string
-    autoFocus?: keyof GenreFormFields
-  }>
-> = ({ id, children, view: viewType, autoFocus }) => {
-  const view: GenrePageView = useMemo(() => {
-    if (viewType === 'edit' && id !== undefined) {
-      return { type: 'edit', id, autoFocus }
-    } else if (viewType === 'history' && id !== undefined) {
-      return { type: 'history', id }
-    } else if (viewType === 'create') {
-      return { type: 'create' }
-    } else if (id !== undefined) {
-      return { type: 'view', id }
-    } else {
-      return { type: 'default' }
-    }
-  }, [autoFocus, id, viewType])
-
+export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
+  id,
+  children,
+}) => {
   const treeQuery = useGenreTreeQuery()
   const [path, setPath] = useState<number[]>()
   const [selectedPath, setSelectedPath] = useState<number[]>()
@@ -84,10 +56,10 @@ export const GenrePageProvider: FC<
       }
     }
 
-    if (treeQuery.data && 'id' in view) {
+    if (treeQuery.data && id) {
       const matchingNode = findTree(
         treeQuery.data,
-        (node) => node.genre.id === view.id
+        (node) => node.genre.id === id
       )
       if (matchingNode) {
         if (!equals(matchingNode.path, selectedPath)) {
@@ -101,7 +73,7 @@ export const GenrePageProvider: FC<
       setSelectedPath(undefined)
     }
     return
-  }, [path, selectedPath, treeQuery.data, view])
+  }, [id, path, selectedPath, treeQuery.data])
 
   const [expanded, setExpanded] = useState<Expanded>({})
   const setExpandedKV = useCallback(
@@ -131,7 +103,6 @@ export const GenrePageProvider: FC<
   return (
     <GenrePageContext.Provider
       value={{
-        view,
         selectedPath,
         setSelectedPath: setPath,
         expanded,

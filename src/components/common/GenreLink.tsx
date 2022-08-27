@@ -3,7 +3,8 @@ import { Query } from 'nextjs-routes'
 import { FC, PropsWithChildren, useMemo } from 'react'
 
 import { useTreeGenresMapQuery } from '../../services/genres'
-import { GenrePageView, useGenrePageContext } from '../GenrePage/context'
+import { GenrePageView } from '../GenrePage'
+import { useGenrePageContext } from '../GenrePage/context'
 import { GenreFormFields } from '../GenrePage/GenreForm'
 
 export const useGenreLinkHref = (
