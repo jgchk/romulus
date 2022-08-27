@@ -4,13 +4,13 @@ import { equals } from 'ramda'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
-import { isFullyVisible } from '../../utils/dom'
-import { useGenrePageContext } from './context'
-import GenreRelevanceChip from './GenreRelevanceChip'
-import { useGenreTreeContext } from './GenreTreeContext'
-import GenreTypeChip from './GenreTypeChip'
+import { isFullyVisible } from '../../../../utils/dom'
+import GenreTypeChip from '../../GenreTypeChip'
+import useGenreNavigatorSettings from '../useGenreNavigatorSettings'
+import RelevanceChip from './RelevanceChip'
 import { TreeNode } from './useGenreTreeQuery'
-import useGenreTreeSettings from './useGenreTreeSettings'
+import { useGenreTreeRef } from './useGenreTreeRef'
+import { useGenreTreeState } from './useGenreTreeState'
 
 const GenreTreeNode: FC<{ node: TreeNode }> = ({
   node: { key, path, genre, children },
@@ -18,14 +18,14 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
 
   const { selectedPath, setSelectedPath, expanded, setExpanded } =
-    useGenrePageContext()
+    useGenreTreeState()
 
   const isExpanded = useMemo(
     () => expanded[key] === 'expanded',
     [expanded, key]
   )
 
-  const { showTypeTags, showRelevanceTags } = useGenreTreeSettings()
+  const { showTypeTags, showRelevanceTags } = useGenreNavigatorSettings()
 
   const isSelected = useMemo(
     () => selectedPath && equals(selectedPath, path),
@@ -33,15 +33,15 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
   )
 
   const [ref, setRef] = useState<HTMLLIElement | null>(null)
-  const { treeEl } = useGenreTreeContext()
+  const treeRef = useGenreTreeRef()
   useEffect(() => {
-    if (isSelected && ref && treeEl) {
-      const visible = isFullyVisible(ref, treeEl)
+    if (isSelected && ref && treeRef) {
+      const visible = isFullyVisible(ref, treeRef)
       if (!visible) {
         ref.scrollIntoView()
       }
     }
-  }, [isSelected, ref, treeEl])
+  }, [isSelected, ref, treeRef])
 
   return (
     <li
@@ -96,7 +96,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
             {showRelevanceTags && (
               <>
                 {' '}
-                <GenreRelevanceChip relevance={relevance} />
+                <RelevanceChip relevance={relevance} />
               </>
             )}
           </a>

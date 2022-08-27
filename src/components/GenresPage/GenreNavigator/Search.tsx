@@ -2,12 +2,12 @@ import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC } from 'react'
 
-import { useSession } from '../../services/auth'
-import { Match, useSimpleGenreSearchQuery } from '../../services/genres'
-import { CenteredLoader } from '../common/Loader'
-import { useGenrePageContext } from './context'
-import GenreTypeChip from './GenreTypeChip'
-import useGenreTreeSettings from './useGenreTreeSettings'
+import { useSession } from '../../../services/auth'
+import { Match, useSimpleGenreSearchQuery } from '../../../services/genres'
+import { CenteredLoader } from '../../common/Loader'
+import GenreTypeChip from '../GenreTypeChip'
+import { useGenreTreeState } from './Tree/useGenreTreeState'
+import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
 const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
   filter,
@@ -70,8 +70,8 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   match: { genre, matchedAka },
   clearFilter,
 }) => {
-  const { showTypeTags } = useGenreTreeSettings()
-  const { setSelectedPath } = useGenrePageContext()
+  const { showTypeTags } = useGenreNavigatorSettings()
+  const { setSelectedPath } = useGenreTreeState()
 
   return (
     <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>

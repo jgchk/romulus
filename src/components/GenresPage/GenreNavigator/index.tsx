@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { FC, useCallback, useState } from 'react'
 import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
-import useDebounce from '../../hooks/useDebounce'
-import { useSession } from '../../services/auth'
-import { ButtonSecondary, ButtonTertiary } from '../common/Button'
-import GenreSearchResults from './GenreSearchResults'
-import GenreTree from './GenreTree'
-import GenreTreeSettings from './GenreTreeSettings'
+import useDebounce from '../../../hooks/useDebounce'
+import { useSession } from '../../../services/auth'
+import { ButtonSecondary, ButtonTertiary } from '../../common/Button'
+import GenreSearchResults from './Search'
+import GenreNavigatorSettings from './Settings'
+import GenreTree from './Tree'
 
 const GenreNavigator: FC = () => {
   const session = useSession()
@@ -53,7 +53,7 @@ const GenreNavigator: FC = () => {
       </div>
       {showSettings && (
         <div className='border-b p-4'>
-          <GenreTreeSettings />
+          <GenreNavigatorSettings />
         </div>
       )}
       {debouncedFilter && (

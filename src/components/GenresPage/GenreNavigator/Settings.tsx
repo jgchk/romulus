@@ -5,13 +5,13 @@ import { IoMdInformationCircle } from 'react-icons/io'
 import {
   MAX_GENRE_RELEVANCE,
   MIN_GENRE_RELEVANCE,
-} from '../../server/db/common/inputs'
-import Label from '../common/Label'
-import Popover from '../common/Popover'
-import { getGenreRelevanceText } from './common'
-import useGenreTreeSettings from './useGenreTreeSettings'
+} from '../../../server/db/common/inputs'
+import Label from '../../common/Label'
+import Popover from '../../common/Popover'
+import { getGenreRelevanceText } from '../utils'
+import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
-const GenreTreeSettings: FC = () => {
+const GenreNavigatorSettings: FC = () => {
   const {
     showTypeTags,
     setShowTypeTags,
@@ -19,7 +19,7 @@ const GenreTreeSettings: FC = () => {
     setGenreRelevanceFilter,
     showRelevanceTags,
     setShowRelevanceTags,
-  } = useGenreTreeSettings()
+  } = useGenreNavigatorSettings()
 
   return (
     <div className='space-y-4'>
@@ -84,4 +84,4 @@ const GenreRelevanceHelpIcon: FC = () => {
   )
 }
 
-export default GenreTreeSettings
+export default GenreNavigatorSettings

@@ -3,9 +3,9 @@ import { Query } from 'nextjs-routes'
 import { FC, PropsWithChildren, useMemo } from 'react'
 
 import { useTreeGenresMapQuery } from '../../services/genres'
-import { GenrePageView } from '../GenrePage'
-import { useGenrePageContext } from '../GenrePage/context'
-import { GenreFormFields } from '../GenrePage/GenreForm'
+import { GenrePageView } from '../GenresPage'
+import { useGenreTreeState } from '../GenresPage/GenreNavigator/Tree/useGenreTreeState'
+import { GenreFormFields } from '../GenresPage/GenreView/Form'
 
 export const useGenreLinkHref = (
   id: number,
@@ -28,7 +28,7 @@ export const useGenreLinkHref = (
 }
 
 export const useGenreLinkPath = (id: number) => {
-  const { selectedPath } = useGenrePageContext()
+  const { selectedPath } = useGenreTreeState()
   const genresMapQuery = useTreeGenresMapQuery()
 
   const path = useMemo(() => {
@@ -72,7 +72,7 @@ const GenreLink: FC<
   const href = useGenreLinkHref(id, view, autoFocus)
   const path = useGenreLinkPath(id)
 
-  const { setSelectedPath } = useGenrePageContext()
+  const { setSelectedPath } = useGenreTreeState()
 
   return (
     <Link href={href} {...props}>

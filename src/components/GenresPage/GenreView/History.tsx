@@ -10,11 +10,11 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 
-import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
-import { useGenreHistoryQuery } from '../../services/genre-history'
-import { capitalize } from '../../utils/string'
-import GenreLink from '../common/GenreLink'
-import { CenteredLoader } from '../common/Loader'
+import { DefaultGenreHistory } from '../../../server/db/genre-history/outputs'
+import { useGenreHistoryQuery } from '../../../services/genre-history'
+import { capitalize } from '../../../utils/string'
+import GenreLink from '../../common/GenreLink'
+import { CenteredLoader } from '../../common/Loader'
 
 const GenreHistory: FC<{ id: number }> = ({ id }) => {
   const historyQuery = useGenreHistoryQuery(id)

@@ -11,7 +11,7 @@ import {
 
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
-type GenrePageContext = {
+type GenreTreeStateContext = {
   selectedPath: number[] | undefined
   setSelectedPath: (path: number[] | undefined) => void
   expanded: Expanded
@@ -22,20 +22,24 @@ type Expanded = Record<ExpandedKey, ExpandedValue | undefined>
 type ExpandedKey = string
 type ExpandedValue = 'expanded' | 'collapsed'
 
-const GenrePageContext = createContext<GenrePageContext>({
+const GenreTreeStateContext = createContext<GenreTreeStateContext>({
   selectedPath: undefined,
   setSelectedPath: () => {
-    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
+    throw new Error(
+      'GenreTreeStateContext must be used inside a GenreTreeStateProvider'
+    )
   },
   expanded: {},
   setExpanded: () => {
-    throw new Error('GenrePageContext must be used inside a GenrePageProvider')
+    throw new Error(
+      'GenreTreeStateContext must be used inside a GenreTreeStateProvider'
+    )
   },
 })
 
-export const useGenrePageContext = () => useContext(GenrePageContext)
+export const useGenreTreeState = () => useContext(GenreTreeStateContext)
 
-export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
+export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
   id,
   children,
 }) => {
@@ -101,7 +105,7 @@ export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
   }, [selectedPath, setExpandedKV])
 
   return (
-    <GenrePageContext.Provider
+    <GenreTreeStateContext.Provider
       value={{
         selectedPath,
         setSelectedPath: setPath,
@@ -110,7 +114,7 @@ export const GenrePageProvider: FC<PropsWithChildren<{ id?: number }>> = ({
       }}
     >
       {children}
-    </GenrePageContext.Provider>
+    </GenreTreeStateContext.Provider>
   )
 }
 

@@ -2,11 +2,11 @@ import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useState } from 'react'
 
-import { useSession } from '../../services/auth'
-import { CenteredLoader } from '../common/Loader'
-import { GenreTreeProvider } from './GenreTreeContext'
-import GenreTreeNode from './GenreTreeNode'
+import { useSession } from '../../../../services/auth'
+import { CenteredLoader } from '../../../common/Loader'
+import GenreTreeNode from './TreeNode'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
+import { GenreTreeRefProvider } from './useGenreTreeRef'
 
 const GenreTree: FC = () => {
   const treeQuery = useGenreTreeQuery()
@@ -31,7 +31,7 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
 
   return (
-    <GenreTreeProvider treeEl={ref}>
+    <GenreTreeRefProvider treeEl={ref}>
       <div className='w-full h-full flex flex-col'>
         {tree.length > 0 ? (
           <div ref={setRef} className='flex-1 overflow-auto p-4'>
@@ -61,7 +61,7 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
           </div>
         )}
       </div>
-    </GenreTreeProvider>
+    </GenreTreeRefProvider>
   )
 }
 

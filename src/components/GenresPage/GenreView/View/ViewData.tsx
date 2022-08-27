@@ -4,24 +4,24 @@ import Link from 'next/link'
 import { uniqBy } from 'ramda'
 import { FC, useMemo } from 'react'
 
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
-import { useSession } from '../../services/auth'
-import { copyTextToClipboard } from '../../utils/dom'
-import { isNotNull } from '../../utils/types'
-import GenreLink from '../common/GenreLink'
-import Label from '../common/Label'
-import Romcode from '../common/Romcode'
-import { getGenreRelevanceText } from './common'
-import GenreTypeChip from './GenreTypeChip'
-import useGenreTreeSettings from './useGenreTreeSettings'
+import { DefaultGenre } from '../../../../server/db/genre/outputs'
+import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
+import { useSession } from '../../../../services/auth'
+import { copyTextToClipboard } from '../../../../utils/dom'
+import { isNotNull } from '../../../../utils/types'
+import GenreLink from '../../../common/GenreLink'
+import Label from '../../../common/Label'
+import Romcode from '../../../common/Romcode'
+import useGenreNavigatorSettings from '../../GenreNavigator/useGenreNavigatorSettings'
+import GenreTypeChip from '../../GenreTypeChip'
+import { getGenreRelevanceText } from '../../utils'
 
 const GenreViewData: FC<{
   genre: DefaultGenre
   history: DefaultGenreHistory[]
 }> = ({ genre, history }) => {
   const session = useSession()
-  const { showTypeTags } = useGenreTreeSettings()
+  const { showTypeTags } = useGenreNavigatorSettings()
 
   const sortedHistory = useMemo(
     () =>

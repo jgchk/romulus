@@ -1,10 +1,10 @@
 import { uniqBy } from 'ramda'
 import { useMemo } from 'react'
 
-import { TreeGenre } from '../../server/db/genre/outputs'
-import { useTreeGenresQuery } from '../../services/genres'
-import { isNotNull } from '../../utils/types'
-import useGenreTreeSettings from './useGenreTreeSettings'
+import { TreeGenre } from '../../../../server/db/genre/outputs'
+import { useTreeGenresQuery } from '../../../../services/genres'
+import { isNotNull } from '../../../../utils/types'
+import useGenreNavigatorSettings from '../useGenreNavigatorSettings'
 
 export type TreeNode = {
   path: number[]
@@ -15,7 +15,7 @@ export type TreeNode = {
 
 const useGenreTreeQuery = () => {
   const genresQuery = useTreeGenresQuery()
-  const { genreRelevanceFilter } = useGenreTreeSettings()
+  const { genreRelevanceFilter } = useGenreNavigatorSettings()
   const treeQuery = useMemo(
     () => ({
       ...genresQuery,

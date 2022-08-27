@@ -2,11 +2,11 @@ import { useRouter } from 'next/router'
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { useEditGenreMutation, useGenreQuery } from '../../services/genres'
-import { useGenreLinkHref } from '../common/GenreLink'
-import { CenteredLoader } from '../common/Loader'
-import GenreForm, { GenreFormData, GenreFormFields } from './GenreForm'
+import { DefaultGenre } from '../../../server/db/genre/outputs'
+import { useEditGenreMutation, useGenreQuery } from '../../../services/genres'
+import { useGenreLinkHref } from '../../common/GenreLink'
+import { CenteredLoader } from '../../common/Loader'
+import GenreForm, { GenreFormData, GenreFormFields } from './Form'
 
 export const GenreEdit: FC<{
   id: number

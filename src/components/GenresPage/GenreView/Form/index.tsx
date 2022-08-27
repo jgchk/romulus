@@ -4,19 +4,19 @@ import { range } from 'ramda'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
+import useWarnOnUnsavedChanges from '../../../../hooks/useWarnOnUnsavedChanges'
 import {
   MAX_GENRE_RELEVANCE,
   MIN_GENRE_RELEVANCE,
-} from '../../server/db/common/inputs'
-import { GenreAkaInput } from '../../server/db/genre/inputs'
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { useSession } from '../../services/auth'
-import { ifDefined } from '../../utils/types'
-import { ButtonPrimary, ButtonTertiary } from '../common/Button'
-import Label from '../common/Label'
-import RomcodeEditor from '../common/RomcodeEditor'
-import { getGenreRelevanceText } from './common'
+} from '../../../../server/db/common/inputs'
+import { GenreAkaInput } from '../../../../server/db/genre/inputs'
+import { DefaultGenre } from '../../../../server/db/genre/outputs'
+import { useSession } from '../../../../services/auth'
+import { ifDefined } from '../../../../utils/types'
+import { ButtonPrimary, ButtonTertiary } from '../../../common/Button'
+import Label from '../../../common/Label'
+import RomcodeEditor from '../../../common/RomcodeEditor'
+import { getGenreRelevanceText } from '../../utils'
 import GenreMultiselect from './GenreMultiselect'
 
 const DEFAULT_RELEVANCE = 4

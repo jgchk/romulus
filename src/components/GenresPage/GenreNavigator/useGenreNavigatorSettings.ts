@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 
-import { useEditAccountMutation } from '../../services/accounts'
-import { useSession } from '../../services/auth'
+import { useEditAccountMutation } from '../../../services/accounts'
+import { useSession } from '../../../services/auth'
 
-export const useGenreTreeSettings = () => {
+export const useGenreNavigatorSettings = () => {
   const session = useSession()
 
   const { mutate: editAccount } = useEditAccountMutation()
@@ -91,4 +91,4 @@ export const useGenreTreeSettings = () => {
   return data
 }
 
-export default useGenreTreeSettings
+export default useGenreNavigatorSettings

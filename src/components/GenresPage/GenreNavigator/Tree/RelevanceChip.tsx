@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { FC, useMemo } from 'react'
 
-const GenreRelevanceChip: FC<{ relevance: number; className?: string }> = ({
+const RelevanceChip: FC<{ relevance: number; className?: string }> = ({
   relevance,
   className,
 }) => {
@@ -27,4 +27,4 @@ const GenreRelevanceChip: FC<{ relevance: number; className?: string }> = ({
   )
 }
 
-export default GenreRelevanceChip
+export default RelevanceChip

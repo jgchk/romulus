@@ -1,17 +1,17 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
-import useDebounce from '../../hooks/useDebounce'
-import useIdMap from '../../hooks/useIdMap'
-import { SimpleGenre } from '../../server/db/genre/outputs'
+import useDebounce from '../../../../hooks/useDebounce'
+import useIdMap from '../../../../hooks/useIdMap'
+import { SimpleGenre } from '../../../../server/db/genre/outputs'
 import {
   Match,
   useSimpleGenreSearchQuery,
   useSimpleGenresQuery,
-} from '../../services/genres'
-import { CenteredLoader } from '../common/Loader'
-import GenreTypeChip from './GenreTypeChip'
-import useGenreTreeSettings from './useGenreTreeSettings'
+} from '../../../../services/genres'
+import { CenteredLoader } from '../../../common/Loader'
+import useGenreNavigatorSettings from '../../GenreNavigator/useGenreNavigatorSettings'
+import GenreTypeChip from '../../GenreTypeChip'
 
 const GenreMultiselect: FC<{
   id?: string
@@ -179,7 +179,7 @@ const Option: FC<{
   match?: Match
   onClick: () => void
 }> = ({ match, onClick }) => {
-  const { showTypeTags } = useGenreTreeSettings()
+  const { showTypeTags } = useGenreNavigatorSettings()
 
   return (
     <li className='group hover:bg-gray-100'>
@@ -218,7 +218,7 @@ const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
   genre,
   onRemove,
 }) => {
-  const { showTypeTags } = useGenreTreeSettings()
+  const { showTypeTags } = useGenreNavigatorSettings()
 
   return (
     <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>

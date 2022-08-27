@@ -1,8 +1,8 @@
 import { FC, useMemo } from 'react'
 
-import GenrePage, { GenrePageView } from '../../components/GenrePage'
-import { GenrePageProvider } from '../../components/GenrePage/context'
-import { isGenreFormField } from '../../components/GenrePage/GenreForm'
+import GenrePage, { GenrePageView } from '../../components/GenresPage'
+import { GenreTreeStateProvider } from '../../components/GenresPage/GenreNavigator/Tree/useGenreTreeState'
+import { isGenreFormField } from '../../components/GenresPage/GenreView/Form'
 import {
   useCustomRouteParam,
   useIntRouteParam,
@@ -29,9 +29,9 @@ const Genres: FC = () => {
   }, [autoFocus, id, viewType])
 
   return (
-    <GenrePageProvider id={id}>
+    <GenreTreeStateProvider id={id}>
       <GenrePage view={view} />
-    </GenrePageProvider>
+    </GenreTreeStateProvider>
   )
 }
 

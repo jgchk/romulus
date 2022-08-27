@@ -3,13 +3,13 @@ import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
 import { useSession } from '../../services/auth'
-import GenreCreate from './GenreCreate'
-import GenreEdit from './GenreEdit'
-import { GenreFormFields } from './GenreForm'
-import GenreHistory from './GenreHistory'
 import GenreNavigator from './GenreNavigator'
-import GenreView from './GenreView'
-import GenreViewPlaceholder from './GenreViewPlaceholder'
+import GenreCreate from './GenreView/Create'
+import GenreViewPlaceholder from './GenreView/Default'
+import GenreEdit from './GenreView/Edit'
+import { GenreFormFields } from './GenreView/Form'
+import GenreHistory from './GenreView/History'
+import GenreView from './GenreView/View'
 
 export type GenrePageView =
   | { type: 'default' }

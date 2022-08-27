@@ -3,19 +3,22 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
-import { useSession } from '../../services/auth'
-import { useGenreHistoryQuery } from '../../services/genre-history'
-import { useDeleteGenreMutation, useGenreQuery } from '../../services/genres'
+import { DefaultGenre } from '../../../../server/db/genre/outputs'
+import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
+import { useSession } from '../../../../services/auth'
+import { useGenreHistoryQuery } from '../../../../services/genre-history'
+import {
+  useDeleteGenreMutation,
+  useGenreQuery,
+} from '../../../../services/genres'
 import {
   ButtonPrimary,
   ButtonPrimaryRed,
   ButtonTertiary,
-} from '../common/Button'
-import GenreLink from '../common/GenreLink'
-import { CenteredLoader } from '../common/Loader'
-import GenreViewData from './GenreViewData'
+} from '../../../common/Button'
+import GenreLink from '../../../common/GenreLink'
+import { CenteredLoader } from '../../../common/Loader'
+import GenreViewData from './ViewData'
 
 export const GenreView: FC<{
   id: number
