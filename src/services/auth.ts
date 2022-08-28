@@ -4,11 +4,13 @@ import { useCallback, useMemo } from 'react'
 import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
+import { useAccountQuery } from './accounts'
 
 export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
 
 export const useSession = () => {
   const whoamiQuery = useWhoamiQuery()
+  const accountQuery = useAccountQuery(whoamiQuery.data?.id)
 
   const isLoggedIn = useMemo(() => {
     if (!whoamiQuery.isSuccess) return undefined
@@ -22,13 +24,13 @@ export const useSession = () => {
 
   const hasPermission = useCallback(
     (permission: Permission) =>
-      whoamiQuery.data?.permissions.includes(permission),
-    [whoamiQuery.data?.permissions]
+      accountQuery.data?.permissions.includes(permission),
+    [accountQuery.data?.permissions]
   )
 
   return {
-    account: whoamiQuery.data,
-    error: whoamiQuery.error,
+    account: accountQuery.data,
+    error: accountQuery.error,
     isLoggedIn,
     isLoggedOut,
     hasPermission,

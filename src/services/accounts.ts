@@ -4,6 +4,7 @@ import { useSession } from './auth'
 export const useAccountQuery = (id?: number) =>
   trpc.useQuery(['account.byId', { id: id ?? -1 }], {
     enabled: id !== undefined,
+    staleTime: 60 * 1000,
   })
 
 export const useAccountsQuery = () => {
