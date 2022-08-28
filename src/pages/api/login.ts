@@ -3,7 +3,6 @@ import { withIronSessionApiRoute } from 'iron-session/next'
 import { ApiError } from 'next/dist/server/api-utils'
 import { z } from 'zod'
 
-import { defaultAccountSelect } from '../../server/db/account/outputs'
 import { prisma } from '../../server/prisma'
 import { sessionConfig } from '../../server/session'
 import { nonemptyString } from '../../utils/validators'
@@ -20,7 +19,7 @@ export default withIronSessionApiRoute(async (req, res) => {
 
   const account = await prisma.account.findUnique({
     where: { username: loginRequest.username },
-    select: { ...defaultAccountSelect, password: true },
+    select: { id: true, password: true },
   })
 
   if (
@@ -30,12 +29,9 @@ export default withIronSessionApiRoute(async (req, res) => {
     throw new ApiError(401, 'Invalid email or password')
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password, ...accountData } = account
-
-  req.session.account = accountData
+  req.session.accountId = account.id
 
   await req.session.save()
 
-  res.send({ account: accountData })
+  res.send({ accountId: account.id })
 }, sessionConfig)

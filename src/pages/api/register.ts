@@ -20,11 +20,11 @@ export default withIronSessionApiRoute(async (req, res) => {
   try {
     const account = await createAccount(registerRequest)
 
-    req.session.account = account
+    req.session.accountId = account.id
 
     await req.session.save()
 
-    res.send({ account })
+    res.send({ accountId: account.id })
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

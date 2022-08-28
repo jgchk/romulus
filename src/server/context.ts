@@ -1,13 +1,19 @@
 import * as trpcNext from '@trpc/server/adapters/next'
-import { IronSessionData } from 'iron-session'
+
+import { getAccountById } from './db/account'
+import { DefaultAccount } from './db/account/outputs'
 
 export type Context = {
-  account: IronSessionData['account'] | undefined
+  account: DefaultAccount | null
 }
 
-export function createContext(
+export async function createContext(
   opts: trpcNext.CreateNextContextOptions
-): Context {
-  const account = opts.req.session.account
+): Promise<Context> {
+  const accountId = opts.req.session.accountId
+
+  const account =
+    accountId !== undefined ? await getAccountById(accountId) : null
+
   return { account }
 }

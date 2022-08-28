@@ -1,7 +1,8 @@
-import { DefaultAccount } from '../src/server/db/account/outputs'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import IronSession from 'iron-session'
 
 declare module 'iron-session' {
   interface IronSessionData {
-    account?: DefaultAccount
+    accountId?: number
   }
 }
