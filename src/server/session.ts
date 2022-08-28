@@ -6,4 +6,5 @@ export const sessionConfig: IronSessionOptions = {
   cookieName: 'romulus-auth',
   password: env.AUTH_PASSWORD,
   cookieOptions: { secure: env.NODE_ENV === 'production' },
+  ttl: 0,
 }
