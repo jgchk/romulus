@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-export const CreateReleaseInput = z.object({})
+import { CreateOrConnect } from '../common/inputs'
+import { CreateIssueBaseInput } from '../issue/input'
+
+export const CreateReleaseInput = z.object({
+  issue: CreateOrConnect(CreateIssueBaseInput),
+})
 export type CreateReleaseInput = z.infer<typeof CreateReleaseInput>
 
 export const EditReleaseInput = z.object({

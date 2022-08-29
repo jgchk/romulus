@@ -21,6 +21,10 @@ export const releaseRouter = createRouter()
       return createRelease(input, account.id)
     },
   })
+  .query('all', {
+    resolve: async () =>
+      prisma.release.findMany({ select: defaultReleaseSelect }),
+  })
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: async ({ input: { id } }) => {

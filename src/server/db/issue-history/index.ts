@@ -1,10 +1,11 @@
-import { CrudOperation, Issue, IssueArtist } from '@prisma/client'
+import { CrudOperation, Issue, IssueArtist, IssueObject } from '@prisma/client'
 
 import { prisma } from '../../prisma'
 
 export const addIssueHistory = (
   issue: Omit<Issue, 'createdAt' | 'updatedAt'> & {
-    artists: IssueArtist[]
+    artists: Omit<IssueArtist, 'issueId'>[]
+    objects: Omit<IssueObject, 'issueId'>[]
   },
   operation: CrudOperation,
   accountId: number
@@ -12,13 +13,25 @@ export const addIssueHistory = (
   prisma.issueHistory.create({
     data: {
       title: issue.title,
-      artistIds: issue.artists
-        .sort((a, b) => a.order - b.order)
-        .map((artist) => artist.artistId),
       releaseDate: issue.releaseDate,
+      artists: {
+        create: issue.artists.map((artist) => ({
+          artistId: artist.artistId,
+          order: artist.order,
+        })),
+      },
+      objects: {
+        create: issue.objects.map((object) => ({
+          objectId: object.objectId,
+          order: object.order,
+        })),
+      },
+
       spotifyId: issue.spotifyId,
-      issueId: issue.id,
+
       releaseId: issue.releaseId,
+
+      issueId: issue.id,
       operation,
       accountId,
     },

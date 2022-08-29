@@ -23,7 +23,7 @@ model Artist {
   spotifyIds String[]
 
   issues IssueArtist[]
-  tracks Track[]
+  tracks TrackArtist[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,8 +36,7 @@ model ArtistHistory {
 
   spotifyIds String[]
 
-  artistId Int
-
+  artistId  Int
   createdAt DateTime      @default(now())
   operation CrudOperation
   accountId Int
@@ -45,9 +44,9 @@ model ArtistHistory {
 }
 
 model Release {
-  id Int @id @default(autoincrement())
+  id     Int     @id @default(autoincrement())
+  issues Issue[]
 
-  issues  Issue[]
   reviews Review[]
 
   createdAt DateTime @default(now())
@@ -58,7 +57,6 @@ model ReleaseHistory {
   id Int @id @default(autoincrement())
 
   releaseId Int
-
   createdAt DateTime      @default(now())
   operation CrudOperation
   accountId Int
@@ -68,8 +66,9 @@ model ReleaseHistory {
 model Issue {
   id          Int           @id @default(autoincrement())
   title       String
-  artists     IssueArtist[]
   releaseDate String?
+  artists     IssueArtist[]
+  objects     IssueObject[]
 
   spotifyId String?
 
@@ -80,6 +79,24 @@ model Issue {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model IssueHistory {
+  id          Int                  @id @default(autoincrement())
+  title       String
+  releaseDate String?
+  artists     IssueHistoryArtist[]
+  objects     IssueHistoryObject[]
+
+  spotifyId String?
+
+  releaseId Int
+
+  issueId   Int
+  createdAt DateTime      @default(now())
+  operation CrudOperation
+  accountId Int
+  account   Account       @relation(fields: [accountId], references: [id])
 }
 
 model IssueArtist {
@@ -94,33 +111,130 @@ model IssueArtist {
   @@id([issueId, artistId])
 }
 
-model IssueHistory {
-  id          Int     @id @default(autoincrement())
-  title       String
-  artistIds   Int[]
-  releaseDate String?
+model IssueHistoryArtist {
+  issueHistory   IssueHistory @relation(fields: [issueHistoryId], references: [id])
+  issueHistoryId Int
 
-  spotifyId String?
+  artistId Int
 
-  issueId   Int
-  releaseId Int
+  order Int
 
+  @@id([issueHistoryId, artistId])
+}
+
+model IssueObject {
+  issue   Issue @relation(fields: [issueId], references: [id])
+  issueId Int
+
+  object   Object @relation(fields: [objectId], references: [id])
+  objectId Int
+
+  order Int
+
+  @@id([issueId, objectId])
+}
+
+model IssueHistoryObject {
+  issueHistory   IssueHistory @relation(fields: [issueHistoryId], references: [id])
+  issueHistoryId Int
+
+  objectId Int
+
+  order Int
+
+  @@id([issueHistoryId, objectId])
+}
+
+model Object {
+  id     Int           @id @default(autoincrement())
+  name   String
+  tracks ObjectTrack[]
+
+  issues IssueObject[]
+}
+
+model ObjectHistory {
+  id     Int                  @id @default(autoincrement())
+  name   String
+  tracks ObjectHistoryTrack[]
+
+  objectId  Int
   createdAt DateTime      @default(now())
   operation CrudOperation
   accountId Int
   account   Account       @relation(fields: [accountId], references: [id])
 }
 
+model ObjectTrack {
+  object   Object @relation(fields: [objectId], references: [id])
+  objectId Int
+
+  track   Track @relation(fields: [trackId], references: [id])
+  trackId Int
+
+  order Int
+
+  @@id([objectId, trackId])
+}
+
+model ObjectHistoryTrack {
+  objectHistory   ObjectHistory @relation(fields: [objectHistoryId], references: [id])
+  objectHistoryId Int
+
+  trackId Int
+
+  order Int
+
+  @@id([objectHistoryId, trackId])
+}
+
 model Track {
-  id         Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   title      String
   durationMs Int
-  artists    Artist[]
+  artists    TrackArtist[]
 
+  objects ObjectTrack[]
   reviews Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model TrackHistory {
+  id         Int                  @id @default(autoincrement())
+  title      String
+  durationMs Int
+  artists    TrackHistoryArtist[]
+
+  trackId   Int
+  createdAt DateTime      @default(now())
+  operation CrudOperation
+  accountId Int
+  account   Account       @relation(fields: [accountId], references: [id])
+}
+
+model TrackArtist {
+  track   Track @relation(fields: [trackId], references: [id])
+  trackId Int
+
+  artist   Artist @relation(fields: [artistId], references: [id])
+  artistId Int
+
+  order Int
+
+  @@id([trackId, artistId])
+}
+
+model TrackHistoryArtist {
+  trackHistory   TrackHistory @relation(fields: [trackHistoryId], references: [id])
+  trackHistoryId Int
+
+  artistId Int
+
+  order Int
+
+  @@id([trackHistoryId, artistId])
 }
 
 enum Permission {
@@ -146,11 +260,13 @@ model Account {
   artistHistory  ArtistHistory[]
   releaseHistory ReleaseHistory[]
   issueHistory   IssueHistory[]
+  trackHistory   TrackHistory[]
 
   reviews Review[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+  ObjectHistory ObjectHistory[]
 }
 
 model Review {

@@ -2,7 +2,9 @@ import { CrudOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
+import { createArtist } from '../artist'
 import { addIssueHistory } from '../issue-history'
+import { createObject } from '../object'
 import { CreateIssueInput, EditIssueInput } from './input'
 import { DefaultIssue, defaultIssueSelect } from './output'
 
@@ -10,12 +12,37 @@ export const createIssue = async (
   input: CreateIssueInput,
   accountId: number
 ): Promise<DefaultIssue> => {
+  const artists = await Promise.all(
+    input.artists.map(async (artistInput) => {
+      if (artistInput.type === 'existing') {
+        return artistInput.id
+      } else {
+        const artist = await createArtist(artistInput.data, accountId)
+        return artist.id
+      }
+    })
+  )
+
+  const objects = await Promise.all(
+    input.objects.map(async (objectInput) => {
+      if (objectInput.type === 'existing') {
+        return objectInput.id
+      } else {
+        const object = await createObject(objectInput.data, accountId)
+        return object.id
+      }
+    })
+  )
+
   const issue = await prisma.issue.create({
     data: {
       ...input,
-      artists: input.artists
-        ? { create: input.artists.map((id, i) => ({ artistId: id, order: i })) }
-        : undefined,
+      artists: {
+        create: artists.map((artistId, i) => ({ artistId, order: i })),
+      },
+      objects: {
+        create: objects.map((objectId, i) => ({ objectId, order: i })),
+      },
     },
     select: defaultIssueSelect,
   })
