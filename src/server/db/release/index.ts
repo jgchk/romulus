@@ -6,6 +6,12 @@ import { addReleaseHistory } from '../release-history'
 import { CreateReleaseInput, EditReleaseInput } from './input'
 import { DefaultRelease, defaultReleaseSelect } from './output'
 
+export const getReleases = () =>
+  prisma.release.findMany({ select: defaultReleaseSelect })
+
+export const getRelease = (id: number) =>
+  prisma.release.findUnique({ where: { id }, select: defaultReleaseSelect })
+
 export const createRelease = async (
   input: CreateReleaseInput,
   accountId: number
