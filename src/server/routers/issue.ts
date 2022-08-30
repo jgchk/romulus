@@ -3,15 +3,19 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { createIssue, deleteIssue, editIssue } from '../db/issue'
+import {
+  createIssue,
+  deleteIssue,
+  editIssue,
+  getIssue,
+  getIssues,
+} from '../db/issue'
 import {
   CreateIssueInput,
   DeleteIssueInput,
   EditIssueInput,
 } from '../db/issue/input'
-import { defaultIssueSelect } from '../db/issue/output'
 import { requirePermission } from '../guards'
-import { prisma } from '../prisma'
 
 export const issueRouter = createRouter()
   .mutation('add', {
@@ -21,22 +25,22 @@ export const issueRouter = createRouter()
       return createIssue(input, account.id)
     },
   })
+  .query('all', {
+    resolve: () => getIssues(),
+  })
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: async ({ input: { id } }) => {
-      const release = await prisma.issue.findUnique({
-        where: { id },
-        select: defaultIssueSelect,
-      })
+      const issue = await getIssue(id)
 
-      if (!release) {
+      if (!issue) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `No issue with id '${id}'`,
         })
       }
 
-      return release
+      return issue
     },
   })
   .mutation('edit', {

@@ -8,6 +8,12 @@ import { createObject } from '../object'
 import { CreateIssueInput, EditIssueInput } from './input'
 import { DefaultIssue, defaultIssueSelect } from './output'
 
+export const getIssues = () =>
+  prisma.issue.findMany({ select: defaultIssueSelect })
+
+export const getIssue = (id: number) =>
+  prisma.issue.findUnique({ where: { id }, select: defaultIssueSelect })
+
 export const createIssue = async (
   input: CreateIssueInput,
   accountId: number
@@ -62,8 +68,7 @@ export const editIssue = async (
       ...data,
       artists: data.artists
         ? {
-            // TODO: verify if this works
-            disconnect: {},
+            deleteMany: {},
             create: data.artists.map((id, i) => ({ artistId: id, order: i })),
           }
         : undefined,
