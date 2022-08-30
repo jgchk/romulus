@@ -7,9 +7,11 @@ import { genreRouter } from './genre'
 import { genreHistoryRouter } from './genre-history'
 import { issueRouter } from './issue'
 import { issueHistoryRouter } from './issue-history'
+import { objectRouter } from './object'
 import { releaseRouter } from './release'
 import { releaseHistoryRouter } from './release-history'
 import { spotifyRouter } from './spotify'
+import { trackRouter } from './track'
 
 export const appRouter = createRouter()
   .merge('account.', accountRouter)
@@ -22,6 +24,8 @@ export const appRouter = createRouter()
   .merge('issue.history.', issueHistoryRouter)
   .merge('release.', releaseRouter)
   .merge('release.history.', releaseHistoryRouter)
+  .merge('object.', objectRouter)
+  .merge('track.', trackRouter)
   .merge('spotify.', spotifyRouter)
 
 export type AppRouter = typeof appRouter
