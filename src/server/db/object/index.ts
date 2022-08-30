@@ -93,6 +93,8 @@ export const deleteObject = async (
     })
   }
 
+  await prisma.object.delete({ where: { id } })
+
   await addObjectHistory(object, CrudOperation.DELETE, accountId)
 
   return { id }

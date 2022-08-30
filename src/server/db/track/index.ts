@@ -95,6 +95,8 @@ export const deleteTrack = async (
     })
   }
 
+  await prisma.track.delete({ where: { id } })
+
   await addTrackHistory(track, CrudOperation.DELETE, accountId)
 
   return { id }
