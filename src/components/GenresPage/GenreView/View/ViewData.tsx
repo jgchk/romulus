@@ -2,7 +2,7 @@ import { CrudOperation, Permission } from '@prisma/client'
 import { compareAsc } from 'date-fns'
 import Link from 'next/link'
 import { uniqBy } from 'ramda'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
@@ -27,6 +27,8 @@ const GenreViewData: FC<{
 }> = ({ genre, history }) => {
   const session = useSession()
   const { showTypeTags, genreRelevanceFilter } = useGenreNavigatorSettings()
+
+  const [showNotes, setShowNotes] = useState(false)
 
   const sortedHistory = useMemo(
     () =>
@@ -293,7 +295,24 @@ const GenreViewData: FC<{
           <div>
             <Label htmlFor='notes'>Notes</Label>
             <div id='notes'>
-              <Romcode className='compact-prose'>{genre.notes}</Romcode>
+              {showNotes ? (
+                <>
+                  <Romcode className='compact-prose'>{genre.notes}</Romcode>
+                  <button
+                    className='text-blue-500 hover:underline'
+                    onClick={() => setShowNotes(false)}
+                  >
+                    Hide notes
+                  </button>
+                </>
+              ) : (
+                <button
+                  className='text-blue-500 hover:underline'
+                  onClick={() => setShowNotes(true)}
+                >
+                  Show notes
+                </button>
+              )}
             </div>
           </div>
         )}
