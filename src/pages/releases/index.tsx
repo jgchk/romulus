@@ -5,11 +5,14 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { NextPage } from 'next'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 
 import { CenteredLoader } from '../../components/common/Loader'
 import { DefaultRelease } from '../../server/db/release/output'
-import { useReleasesQuery } from '../../services/releases'
+import {
+  useDeleteReleaseMutation,
+  useReleasesQuery,
+} from '../../services/releases'
 
 const Releases: NextPage = () => {
   const releasesQuery = useReleasesQuery()
@@ -27,20 +30,32 @@ const Releases: NextPage = () => {
 
 const columnHelper = createColumnHelper<DefaultRelease>()
 
-const defaultColumns = [
-  columnHelper.accessor('id', {
-    header: 'ID',
-  }),
-  columnHelper.accessor('issues', {
-    header: 'Issues',
-    cell: (props) => {
-      const issues = props.getValue()
-      return issues.map((issue) => issue.title).join(', ')
-    },
-  }),
-]
-
 const HasData: FC<{ releases: DefaultRelease[] }> = ({ releases }) => {
+  const { mutate: deleteRelease } = useDeleteReleaseMutation()
+
+  const defaultColumns = useMemo(
+    () => [
+      columnHelper.accessor('id', {
+        header: 'ID',
+      }),
+      columnHelper.accessor('issues', {
+        header: 'Issues',
+        cell: (props) => {
+          const issues = props.getValue()
+          return issues.map((issue) => issue.title).join(', ')
+        },
+      }),
+      columnHelper.display({
+        id: 'actions',
+        cell: (props) => {
+          const id = props.row.original.id
+          return <button onClick={() => deleteRelease({ id })}>Delete</button>
+        },
+      }),
+    ],
+    [deleteRelease]
+  )
+
   const table = useReactTable({
     data: releases,
     columns: defaultColumns,

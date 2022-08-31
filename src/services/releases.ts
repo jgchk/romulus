@@ -13,3 +13,16 @@ export const useAddReleaseMutation = () => {
     },
   })
 }
+
+export const useDeleteReleaseMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['release.delete'], {
+    onSuccess: async (data, { id }) => {
+      await Promise.all([
+        utils.invalidateQueries(['release.all']),
+        utils.invalidateQueries(['release.byId', { id }]),
+        utils.invalidateQueries(['release.history.byReleaseId', { id }]),
+      ])
+    },
+  })
+}

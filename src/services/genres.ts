@@ -198,12 +198,12 @@ export const useEditGenreMutation = () => {
 export const useDeleteGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['genre.delete'], {
-    onSuccess: async () => {
+    onSuccess: async (data, { id }) => {
       await Promise.all([
         utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.all.simple']),
         utils.invalidateQueries(['genre.all.tree']),
-        utils.invalidateQueries(['genre.history.byGenreId']),
+        utils.invalidateQueries(['genre.history.byGenreId', { id }]),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),
       ])

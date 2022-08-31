@@ -72,7 +72,7 @@ model Issue {
 
   spotifyId String?
 
-  release   Release @relation(fields: [releaseId], references: [id])
+  release   Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   releaseId Int
 
   reviews Review[]
