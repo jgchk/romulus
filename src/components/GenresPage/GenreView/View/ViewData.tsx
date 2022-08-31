@@ -7,7 +7,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
 import { useSession } from '../../../../services/auth'
-import { useGenresMapQuery } from '../../../../services/genres'
+import { useTreeGenresMapQuery } from '../../../../services/genres'
 import { copyTextToClipboard } from '../../../../utils/dom'
 import { isNotNull } from '../../../../utils/types'
 import GenreLink from '../../../common/GenreLink'
@@ -60,7 +60,7 @@ const GenreViewData: FC<{
     [sortedHistory]
   )
 
-  const genreMapQuery = useGenresMapQuery()
+  const genreMapQuery = useTreeGenresMapQuery()
   const relationsQuery = useMemo(
     () => ({
       ...genreMapQuery,

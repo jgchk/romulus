@@ -46,6 +46,7 @@ export const treeGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   relevance: true,
   parentGenres: { select: { id: true } },
   childGenres: { select: { id: true, name: true } },
+  influencedByGenres: { select: { id: true } },
 })
 export type TreeGenre = Prisma.GenreGetPayload<{
   select: typeof treeGenreSelect

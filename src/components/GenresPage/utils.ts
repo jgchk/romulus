@@ -1,6 +1,6 @@
 import { uniqBy } from 'ramda'
 
-import { DefaultGenre, TreeGenre } from '../../server/db/genre/outputs'
+import { TreeGenre } from '../../server/db/genre/outputs'
 import { isNotNull } from '../../utils/types'
 
 export const getGenreRelevanceText = (relevance: number) => {
@@ -92,7 +92,7 @@ export const getFilteredChildGenres = <T extends TreeGenre>(
       .filter(isNotNull)
   )
 
-export const getFilteredInfluences = <T extends DefaultGenre>(
+export const getFilteredInfluences = <T extends TreeGenre>(
   genre: T,
   genreRelevanceFilter: number,
   genreMap: Map<number, T>
