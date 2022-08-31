@@ -112,7 +112,9 @@ const ReleaseForm: FC<{
             )}
             {...register('releaseDate', {
               validate: (value) =>
-                check(iso8601(), value) || 'Must be a validate date',
+                value.length === 0 ||
+                check(iso8601(), value) ||
+                'Must be a validate date',
             })}
           />
           {errors.releaseDate && (

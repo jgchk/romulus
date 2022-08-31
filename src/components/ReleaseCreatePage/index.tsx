@@ -1,7 +1,6 @@
 import { FC, useCallback, useMemo, useState } from 'react'
 
 import { AlbumObject } from '../../server/services/spotify/types'
-import { useAddIssueMutation } from '../../services/issues'
 import { useAddReleaseMutation } from '../../services/releases'
 import { ButtonSecondary } from '../common/Button'
 import ImportForm from './ImportForm'
@@ -21,41 +20,29 @@ const ReleaseCreatePage: FC = () => {
     isLoading: isAddingRelease,
     isSuccess: isReleaseAdded,
   } = useAddReleaseMutation()
-  const {
-    mutate: addIssue,
-    isLoading: isAddingIssue,
-    isSuccess: isIssueAdded,
-  } = useAddIssueMutation()
 
   const handleCreate = useCallback(
     (data: ReleaseFormData) =>
       addRelease(
-        {},
         {
-          onSuccess: ({ id }) =>
-            addIssue(
-              {
-                ...data,
-                artists: [],
-                releaseDate: data.releaseDate ?? undefined,
-                spotifyId: data.spotifyId ?? undefined,
-                releaseId: id,
-              },
-              {
-                onSuccess: (issue) => {
-                  console.log({ issue })
-
-                  // TODO
-                  // void router.push({
-                  //   pathname: '/releases/[id]',
-                  //   query: { id: issue.releaseId },
-                  // })
-                },
-              }
-            ),
+          issue: {
+            type: 'new',
+            data: {
+              title: data.title,
+              releaseDate: data.releaseDate ?? undefined,
+              spotifyId: data.spotifyId ?? undefined,
+              artists: [],
+              objects: [],
+            },
+          },
+        },
+        {
+          onSuccess: (data) => {
+            console.log(data)
+          },
         }
       ),
-    [addIssue, addRelease]
+    [addRelease]
   )
 
   return (
@@ -82,8 +69,8 @@ const ReleaseCreatePage: FC = () => {
             <ReleaseForm
               importData={importData}
               onSubmit={(data) => handleCreate(data)}
-              isSubmitted={isReleaseAdded && isIssueAdded}
-              isSubmitting={isAddingRelease || isAddingIssue}
+              isSubmitted={isReleaseAdded}
+              isSubmitting={isAddingRelease}
             />
           </div>
         )}

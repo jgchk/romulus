@@ -2,6 +2,7 @@ import { CrudOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
+import { createIssue } from '../issue'
 import { addReleaseHistory } from '../release-history'
 import { CreateReleaseInput, EditReleaseInput } from './input'
 import { DefaultRelease, defaultReleaseSelect } from './output'
@@ -16,8 +17,19 @@ export const createRelease = async (
   input: CreateReleaseInput,
   accountId: number
 ): Promise<DefaultRelease> => {
-  const release = await prisma.release.create({
-    data: input,
+  const { id } = await prisma.release.create({
+    data: {},
+    select: { id: true },
+  })
+
+  const { id: issueId } =
+    input.issue.type === 'existing'
+      ? input.issue
+      : await createIssue({ ...input.issue.data, releaseId: id }, accountId)
+
+  const release = await prisma.release.update({
+    where: { id },
+    data: { issues: { connect: { id: issueId } } },
     select: defaultReleaseSelect,
   })
 
