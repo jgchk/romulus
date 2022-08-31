@@ -16,25 +16,25 @@ type GenreTreeStateContext = {
   setSelectedPath: (path: number[] | undefined) => void
   expanded: Expanded
   setExpanded: (key: ExpandedKey, value: ExpandedValue) => void
+  collapseAll: () => void
 }
 
 type Expanded = Record<ExpandedKey, ExpandedValue | undefined>
 type ExpandedKey = string
 type ExpandedValue = 'expanded' | 'collapsed'
 
+const fnPlaceholder = () => {
+  throw new Error(
+    'GenreTreeStateContext must be used inside a GenreTreeStateProvider'
+  )
+}
+
 const GenreTreeStateContext = createContext<GenreTreeStateContext>({
   selectedPath: undefined,
-  setSelectedPath: () => {
-    throw new Error(
-      'GenreTreeStateContext must be used inside a GenreTreeStateProvider'
-    )
-  },
+  setSelectedPath: fnPlaceholder,
   expanded: {},
-  setExpanded: () => {
-    throw new Error(
-      'GenreTreeStateContext must be used inside a GenreTreeStateProvider'
-    )
-  },
+  setExpanded: fnPlaceholder,
+  collapseAll: fnPlaceholder,
 })
 
 export const useGenreTreeState = () => useContext(GenreTreeStateContext)
@@ -94,6 +94,7 @@ export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
       }),
     []
   )
+  const collapseAll = useCallback(() => setExpanded({}), [])
 
   useEffect(() => {
     if (selectedPath) {
@@ -111,6 +112,7 @@ export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
         setSelectedPath: setPath,
         expanded,
         setExpanded: setExpandedKV,
+        collapseAll,
       }}
     >
       {children}

@@ -1,12 +1,14 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 
 import { useSession } from '../../../../services/auth'
+import { ButtonTertiary } from '../../../common/Button'
 import { CenteredLoader } from '../../../common/Loader'
 import GenreTreeNode from './TreeNode'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 import { GenreTreeRefProvider } from './useGenreTreeRef'
+import { useGenreTreeState } from './useGenreTreeState'
 
 const GenreTree: FC = () => {
   const treeQuery = useGenreTreeQuery()
@@ -29,6 +31,16 @@ const GenreTree: FC = () => {
 const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
   const session = useSession()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
+
+  const { expanded, collapseAll } = useGenreTreeState()
+
+  const isAnyTopLevelExpanded = useMemo(
+    () =>
+      Object.entries(expanded).some(
+        ([key, value]) => value === 'expanded' && !key.includes('-')
+      ),
+    [expanded]
+  )
 
   return (
     <GenreTreeRefProvider treeEl={ref}>
@@ -59,6 +71,11 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
                 </div>
               )}
           </div>
+        )}
+        {isAnyTopLevelExpanded && (
+          <ButtonTertiary onClick={() => collapseAll()}>
+            Collapse all
+          </ButtonTertiary>
         )}
       </div>
     </GenreTreeRefProvider>
