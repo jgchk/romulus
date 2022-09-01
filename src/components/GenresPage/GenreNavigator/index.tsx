@@ -5,7 +5,7 @@ import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../../hooks/useDebounce'
 import { useSession } from '../../../services/auth'
-import { ButtonSecondary, ButtonTertiary } from '../../common/Button'
+import Button from '../../common/Button'
 import GenreSearchResults from './Search'
 import GenreNavigatorSettings from './Settings'
 import GenreTree from './Tree'
@@ -58,9 +58,13 @@ const GenreNavigator: FC = () => {
       )}
       {debouncedFilter && (
         <div className='border-b flex justify-center'>
-          <ButtonTertiary className='w-full' onClick={() => clearFilter()}>
+          <Button
+            template='tertiary'
+            className='w-full'
+            onClick={() => clearFilter()}
+          >
             Back to Tree
-          </ButtonTertiary>
+          </Button>
         </div>
       )}
       <div className='flex-1 overflow-auto'>
@@ -77,7 +81,9 @@ const GenreNavigator: FC = () => {
         <div className='p-1 border-t'>
           <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
             <a className='w-full'>
-              <ButtonSecondary className='w-full'>New Genre</ButtonSecondary>
+              <Button template='secondary' className='w-full'>
+                New Genre
+              </Button>
             </a>
           </Link>
         </div>

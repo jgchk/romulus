@@ -2,7 +2,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 
 import { AlbumObject } from '../../server/services/spotify/types'
 import { useAddReleaseMutation } from '../../services/releases'
-import { ButtonSecondary } from '../common/Button'
+import Button from '../common/Button'
 import ImportForm from './ImportForm'
 import ReleaseForm, { ReleaseFormData } from './ReleaseForm'
 
@@ -57,9 +57,12 @@ const ReleaseCreatePage: FC = () => {
           {!showImportForm && (
             <>
               <div className='text-gray-700 my-3'>or</div>
-              <ButtonSecondary onClick={() => setEnterManually(true)}>
+              <Button
+                template='secondary'
+                onClick={() => setEnterManually(true)}
+              >
                 Enter Manually
-              </ButtonSecondary>
+              </Button>
             </>
           )}
         </div>

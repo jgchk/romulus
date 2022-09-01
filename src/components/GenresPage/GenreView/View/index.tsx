@@ -11,11 +11,7 @@ import {
   useDeleteGenreMutation,
   useGenreQuery,
 } from '../../../../services/genres'
-import {
-  ButtonPrimary,
-  ButtonPrimaryRed,
-  ButtonTertiary,
-} from '../../../common/Button'
+import Button from '../../../common/Button'
 import GenreLink from '../../../common/GenreLink'
 import { CenteredLoader } from '../../../common/Loader'
 import GenreViewData from './ViewData'
@@ -99,34 +95,36 @@ const HasData: FC<{
               Are you sure?
             </div>
             <div className='flex p-1 space-x-1'>
-              <ButtonPrimaryRed
+              <Button
+                template='danger'
                 type='submit'
-                className='flex-1 flex items-center justify-center space-x-2'
-                disabled={isDeleting}
+                className='flex-1'
                 loading={isDeleting}
                 onClick={() => handleDelete()}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}
-              </ButtonPrimaryRed>
-              <ButtonTertiary
+              </Button>
+              <Button
+                template='tertiary'
                 className='flex-1'
                 onClick={() => setConfirmDelete(false)}
               >
                 Cancel
-              </ButtonTertiary>
+              </Button>
             </div>
           </div>
         ) : (
           <div className='flex p-1 space-x-1 border-t'>
             <GenreLink id={genre.id} view='edit' className='flex-1'>
-              <ButtonPrimary className='w-full'>Edit</ButtonPrimary>
+              <Button className='w-full'>Edit</Button>
             </GenreLink>
-            <ButtonTertiary
+            <Button
+              template='tertiary'
               className='flex-1'
               onClick={() => setConfirmDelete(true)}
             >
               Delete
-            </ButtonTertiary>
+            </Button>
           </div>
         ))}
     </div>

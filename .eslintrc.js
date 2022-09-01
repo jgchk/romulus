@@ -15,6 +15,7 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:unicorn/recommended',
     'plugin:@next/next/recommended',
+    'plugin:storybook/recommended',
     'prettier',
   ],
   settings: {

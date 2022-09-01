@@ -13,7 +13,7 @@ import { GenreAkaInput } from '../../../../server/db/genre/inputs'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
 import { ifDefined } from '../../../../utils/types'
-import { ButtonPrimary, ButtonTertiary } from '../../../common/Button'
+import Button from '../../../common/Button'
 import Label from '../../../common/Label'
 import RomcodeEditor from '../../../common/RomcodeEditor'
 import { getGenreRelevanceText } from '../../utils'
@@ -375,22 +375,18 @@ const GenreForm: FC<{
 
       <div className='flex p-1 space-x-1 border-t'>
         {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
-          <ButtonPrimary
-            type='submit'
-            className='flex-1 flex items-center justify-center space-x-2'
-            disabled={isSubmitting}
-            loading={isSubmitting}
-          >
+          <Button type='submit' className='flex-1' loading={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit'}
-          </ButtonPrimary>
+          </Button>
         )}
-        <ButtonTertiary
+        <Button
+          template='tertiary'
           type='button'
           className='flex-1'
           onClick={() => onClose()}
         >
           Cancel
-        </ButtonTertiary>
+        </Button>
       </div>
     </form>
   )

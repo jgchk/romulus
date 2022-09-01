@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { ButtonPrimary } from '../components/common/Button'
+import Button from '../components/common/Button'
 import Label from '../components/common/Label'
 import { useRegisterMutation, useSession } from '../services/auth'
 
@@ -112,14 +112,9 @@ const Register: NextPage = () => {
           </div>
         </div>
 
-        <ButtonPrimary
-          className='w-full mt-4'
-          type='submit'
-          disabled={isLoading}
-          loading={isLoading}
-        >
+        <Button className='w-full mt-4' type='submit' loading={isLoading}>
           {isLoading ? 'Registering...' : 'Register'}
-        </ButtonPrimary>
+        </Button>
 
         <div className='mt-3 text-sm text-gray-700'>
           Already have an account?{' '}

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
 import { useSession } from '../../../../services/auth'
-import { ButtonTertiary } from '../../../common/Button'
+import Button from '../../../common/Button'
 import { CenteredLoader } from '../../../common/Loader'
 import GenreTreeNode from './TreeNode'
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
@@ -73,9 +73,9 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
           </div>
         )}
         {isAnyTopLevelExpanded && (
-          <ButtonTertiary onClick={() => collapseAll()}>
+          <Button template='tertiary' onClick={() => collapseAll()}>
             Collapse all
-          </ButtonTertiary>
+          </Button>
         )}
       </div>
     </GenreTreeRefProvider>

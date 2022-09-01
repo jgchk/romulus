@@ -11,7 +11,9 @@
     "start": "next start",
     "lint": "tsc && eslint .",
     "test": "jest --watch",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.5",
@@ -51,7 +53,17 @@
     "zod": "^3.18.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.13",
     "@next/eslint-plugin-next": "^12.2.5",
+    "@storybook/addon-actions": "^6.5.10",
+    "@storybook/addon-essentials": "^6.5.10",
+    "@storybook/addon-interactions": "^6.5.10",
+    "@storybook/addon-links": "^6.5.10",
+    "@storybook/addon-postcss": "^2.0.0",
+    "@storybook/builder-webpack5": "^6.5.10",
+    "@storybook/manager-webpack5": "^6.5.10",
+    "@storybook/react": "^6.5.10",
+    "@storybook/testing-library": "^0.0.13",
     "@tailwindcss/typography": "^0.5.4",
     "@types/bcrypt": "^5.0.0",
     "@types/cookies": "^0.7.7",
@@ -65,11 +77,13 @@
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "autoprefixer": "^10.4.8",
+    "babel-loader": "^8.2.5",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-storybook": "^0.6.4",
     "eslint-plugin-unicorn": "^43.0.2",
     "husky": ">=6",
     "jest": "^28.1.3",

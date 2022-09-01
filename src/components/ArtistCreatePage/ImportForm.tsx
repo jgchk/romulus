@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSpotifyArtistQuery } from '../../services/spotify'
-import { ButtonPrimary } from '../common/Button'
+import Button from '../common/Button'
 import Label from '../common/Label'
 
 type ImportFormFields = {
@@ -82,9 +82,9 @@ const ImportForm: FC<{ onData: (data: ArtistObject) => void }> = ({
         )}
       </div>
 
-      <ButtonPrimary type='submit' disabled={artistQuery.isLoading}>
+      <Button type='submit' loading={artistQuery.isLoading}>
         {artistQuery.isLoading ? 'Importing...' : 'Import'}
-      </ButtonPrimary>
+      </Button>
     </form>
   )
 }

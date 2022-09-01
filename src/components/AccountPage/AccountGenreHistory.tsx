@@ -11,7 +11,7 @@ import { FC, useMemo } from 'react'
 import { DefaultGenreHistory } from '../../server/db/genre-history/outputs'
 import { useGenreHistoryByUserQuery } from '../../services/genre-history'
 import { capitalize } from '../../utils/string'
-import { ButtonTertiary } from '../common/Button'
+import Button from '../common/Button'
 import { CenteredLoader } from '../common/Loader'
 
 const columnHelper = createColumnHelper<DefaultGenreHistory>()
@@ -112,16 +112,18 @@ const AccountGenreHistory: FC<{ id: number }> = ({ id }) => {
             ))}
           </tfoot>
         </table>
-        <ButtonTertiary
+        <Button
+          template='tertiary'
           onClick={() => void fetchNextPage()}
-          disabled={!hasNextPage || isFetchingNextPage}
+          disabled={!hasNextPage}
+          loading={isFetchingNextPage}
         >
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
             ? 'Load More'
             : 'Nothing more to load'}
-        </ButtonTertiary>
+        </Button>
       </div>
     )
   }

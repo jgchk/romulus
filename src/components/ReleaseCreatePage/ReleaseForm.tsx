@@ -8,7 +8,7 @@ import { spotifyAlbumRegex } from '../../server/services/spotify/regex'
 import { AlbumObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { check, iso8601 } from '../../utils/validators'
-import { ButtonPrimary } from '../common/Button'
+import Button from '../common/Button'
 import Label from '../common/Label'
 
 type ReleaseFormFields = {
@@ -145,14 +145,9 @@ const ReleaseForm: FC<{
       </div>
 
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_RELEASES) && (
-        <ButtonPrimary
-          className='mt-3'
-          type='submit'
-          disabled={isSubmitting}
-          loading={isSubmitting}
-        >
+        <Button className='mt-3' type='submit' loading={isSubmitting}>
           {isSubmitting ? 'Creating...' : 'Create'}
-        </ButtonPrimary>
+        </Button>
       )}
     </form>
   )

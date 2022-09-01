@@ -3,7 +3,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useAddArtistMutation } from '../../services/artists'
-import { ButtonSecondary } from '../common/Button'
+import Button from '../common/Button'
 import ArtistForm, { ArtistFormData } from './ArtistForm'
 import ImportForm from './ImportForm'
 
@@ -44,9 +44,12 @@ const ArtistCreatePage: FC = () => {
           {!showImportForm && (
             <>
               <div className='text-gray-700 my-3'>or</div>
-              <ButtonSecondary onClick={() => setEnterManually(true)}>
+              <Button
+                template='secondary'
+                onClick={() => setEnterManually(true)}
+              >
                 Enter Manually
-              </ButtonSecondary>
+              </Button>
             </>
           )}
         </div>

@@ -7,7 +7,7 @@ import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
 import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
-import { ButtonPrimary } from '../common/Button'
+import Button from '../common/Button'
 import Label from '../common/Label'
 
 type ArtistFormFields = {
@@ -141,15 +141,10 @@ const ArtistForm: FC<{
       </div>
 
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_ARTISTS) && (
-        <ButtonPrimary
-          className='mt-3'
-          type='submit'
-          disabled={isSubmitting}
-          loading={isSubmitting}
-        >
+        <Button className='mt-3' type='submit' loading={isSubmitting}>
           {isSubmitting ? 'Creating...' : 'Create'}
           Creating...
-        </ButtonPrimary>
+        </Button>
       )}
     </form>
   )
