@@ -1,8 +1,15 @@
 import { withIronSessionApiRoute } from 'iron-session/next'
+import { NextApiRequest, NextApiResponse } from 'next'
 
+import { withExceptionFilter } from '../../server/middleware'
 import { sessionConfig } from '../../server/session'
 
-export default withIronSessionApiRoute((req, res) => {
+const logoutRoute = (req: NextApiRequest, res: NextApiResponse) => {
   req.session.destroy()
   res.send({ accountId: null })
-}, sessionConfig)
+}
+
+export default withIronSessionApiRoute(
+  withExceptionFilter(logoutRoute),
+  sessionConfig
+)

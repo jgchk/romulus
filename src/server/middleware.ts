@@ -24,8 +24,8 @@ type ErrorResponse = {
 }
 
 export const withExceptionFilter =
-  (req: NextApiRequest, res: NextApiResponse) =>
-  async (handler: NextApiHandler) => {
+  (handler: NextApiHandler) =>
+  async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       await handler(req, res)
     } catch (error) {

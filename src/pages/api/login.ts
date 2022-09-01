@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt'
 import { withIronSessionApiRoute } from 'iron-session/next'
+import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiError } from 'next/dist/server/api-utils'
 import { z } from 'zod'
 
+import { withExceptionFilter } from '../../server/middleware'
 import { prisma } from '../../server/prisma'
 import { sessionConfig } from '../../server/session'
 import { nonemptyString } from '../../utils/validators'
@@ -14,7 +16,7 @@ const LoginRequest = z.object({
 
 type LoginRequest = z.infer<typeof LoginRequest>
 
-export default withIronSessionApiRoute(async (req, res) => {
+const loginRoute = async (req: NextApiRequest, res: NextApiResponse) => {
   const loginRequest = LoginRequest.parse(req.body)
 
   const account = await prisma.account.findUnique({
@@ -34,4 +36,9 @@ export default withIronSessionApiRoute(async (req, res) => {
   await req.session.save()
 
   res.send({ accountId: account.id })
-}, sessionConfig)
+}
+
+export default withIronSessionApiRoute(
+  withExceptionFilter(loginRoute),
+  sessionConfig
+)

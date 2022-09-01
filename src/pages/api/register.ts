@@ -1,9 +1,11 @@
 import { Prisma } from '@prisma/client'
 import { withIronSessionApiRoute } from 'iron-session/next'
+import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiError } from 'next/dist/server/api-utils'
 import { z } from 'zod'
 
 import { createAccount } from '../../server/db/account'
+import { withExceptionFilter } from '../../server/middleware'
 import { sessionConfig } from '../../server/session'
 import { nonemptyString } from '../../utils/validators'
 
@@ -14,7 +16,7 @@ const RegisterRequest = z.object({
 
 type RegisterRequest = z.infer<typeof RegisterRequest>
 
-export default withIronSessionApiRoute(async (req, res) => {
+const registerRoute = async (req: NextApiRequest, res: NextApiResponse) => {
   const registerRequest = RegisterRequest.parse(req.body)
 
   try {
@@ -38,4 +40,9 @@ export default withIronSessionApiRoute(async (req, res) => {
 
     throw error
   }
-}, sessionConfig)
+}
+
+export default withIronSessionApiRoute(
+  withExceptionFilter(registerRoute),
+  sessionConfig
+)
