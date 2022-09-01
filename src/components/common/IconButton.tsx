@@ -10,7 +10,10 @@ import { IconBaseProps } from 'react-icons'
 
 import { twsx } from '../../utils/dom'
 
-export type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type IconButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children'
+> & {
   children: ReactElement<IconBaseProps>
   size?: 'sm' | 'md' | 'lg'
 }
