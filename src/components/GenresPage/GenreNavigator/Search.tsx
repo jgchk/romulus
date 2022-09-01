@@ -52,11 +52,7 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
           {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
             <div>
               <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
-                <a>
-                  <button className='text-blue-500 hover:underline'>
-                    Create one.
-                  </button>
-                </a>
+                <a className='text-blue-500 hover:underline'>Create one.</a>
               </Link>
             </div>
           )}

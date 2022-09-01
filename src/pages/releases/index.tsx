@@ -7,6 +7,7 @@ import {
 import { NextPage } from 'next'
 import { FC, useMemo } from 'react'
 
+import Button from '../../components/common/Button'
 import { CenteredLoader } from '../../components/common/Loader'
 import { DefaultRelease } from '../../server/db/release/output'
 import {
@@ -49,7 +50,11 @@ const HasData: FC<{ releases: DefaultRelease[] }> = ({ releases }) => {
         id: 'actions',
         cell: (props) => {
           const id = props.row.original.id
-          return <button onClick={() => deleteRelease({ id })}>Delete</button>
+          return (
+            <Button template='danger' onClick={() => deleteRelease({ id })}>
+              Delete
+            </Button>
+          )
         },
       }),
     ],

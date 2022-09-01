@@ -6,6 +6,7 @@ import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
 import useDebounce from '../../../hooks/useDebounce'
 import { useSession } from '../../../services/auth'
 import Button from '../../common/Button'
+import IconButton from '../../common/IconButton'
 import GenreSearchResults from './Search'
 import GenreNavigatorSettings from './Settings'
 import GenreTree from './Tree'
@@ -34,22 +35,24 @@ const GenreNavigator: FC = () => {
           />
           {filter && (
             <div className='absolute right-1 top-0 h-full flex items-center'>
-              <button
-                className='p-1 hover:bg-gray-200 rounded-full text-gray-500'
+              <IconButton
+                size='sm'
+                className='text-gray-500'
                 onClick={() => clearFilter()}
               >
                 <RiCloseFill />
-              </button>
+              </IconButton>
             </div>
           )}
         </div>
-        <button
-          className='p-2 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500'
-          title='Settings'
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          <RiSettings3Fill />
-        </button>
+        <div className='h-full flex items-center'>
+          <IconButton
+            title='Settings'
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            <RiSettings3Fill />
+          </IconButton>
+        </div>
       </div>
       {showSettings && (
         <div className='border-b p-4'>

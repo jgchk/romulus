@@ -5,6 +5,7 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import { isFullyVisible } from '../../../../utils/dom'
+import IconButton from '../../../common/IconButton'
 import GenreTypeChip from '../../GenreTypeChip'
 import useGenreNavigatorSettings from '../useGenreNavigatorSettings'
 import RelevanceChip from './RelevanceChip'
@@ -49,9 +50,10 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
       className={clsx(parentGenres.length > 0 && 'ml-4 border-l')}
     >
       <div className='ml-1 flex space-x-1'>
-        <button
+        <IconButton
+          size='sm'
           className={clsx(
-            'p-1 hover:bg-blue-100 hover:text-blue-600 rounded-sm text-gray-500',
+            'text-gray-500',
             childGenres.length === 0 && 'invisible'
           )}
           onClick={() =>
@@ -59,7 +61,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
           }
         >
           {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
-        </button>
+        </IconButton>
         <Link
           href={{
             pathname: '/genres',
