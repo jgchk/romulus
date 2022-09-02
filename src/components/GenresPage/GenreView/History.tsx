@@ -53,7 +53,7 @@ const defaultColumns = [
             query: { id: account.id.toString() },
           }}
         >
-          <a className='text-blue-500 hover:underline'>{account.username}</a>
+          <a className='text-primary-500 hover:underline'>{account.username}</a>
         </Link>
       )
     },
@@ -100,12 +100,12 @@ const HasData: FC<{ history: DefaultGenreHistory[] }> = ({
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='flex items-center pb-4 border-b border-gray-100'>
+      <div className='flex items-center border-b border-gray-100 pb-4'>
         {genre ? (
           <>
             <GenreLink
               id={genre.id}
-              className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'
+              className='mr-1.5 rounded-full p-1.5 text-gray-600 hover:bg-primary-100 hover:text-primary-700'
             >
               <IoMdArrowBack size={18} />
             </GenreLink>
@@ -123,7 +123,7 @@ const HasData: FC<{ history: DefaultGenreHistory[] }> = ({
           </>
         ) : (
           <>
-            <span className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+            <span className='mr-1.5 rounded-full p-1.5 text-gray-600 hover:bg-primary-100 hover:text-primary-700'>
               <IoMdArrowBack size={18} />
             </span>
             <div className='text-2xl font-bold text-gray-600'>Loading...</div>

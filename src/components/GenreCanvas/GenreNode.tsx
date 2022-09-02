@@ -32,9 +32,9 @@ export const GenreNode: FC<{ genre: DefaultGenre }> = ({ genre }) => {
       style={style}
       {...listeners}
       {...attributes}
-      className='genre-node rounded border flex w-fit items-center shadow-sm bg-white'
+      className='flex w-fit items-center rounded border bg-white shadow-sm'
     >
-      <div className='flex items-center justify-center p-2 py-3 hover:bg-gray-100 cursor-pointer fill-gray-400'>
+      <div className='flex cursor-pointer items-center justify-center fill-gray-400 p-2 py-3 hover:bg-gray-100'>
         <DragHandleIcon />
       </div>
       <div className='px-2 pr-3 text-gray-700'>{genre.name}</div>

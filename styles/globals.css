@@ -24,19 +24,19 @@
   }
 
   .tooltip[data-popper-placement^='top'] > .arrow {
-    bottom: -4px;
+    bottom: -2px;
   }
 
   .tooltip[data-popper-placement^='bottom'] > .arrow {
-    top: -4px;
+    top: -2px;
   }
 
   .tooltip[data-popper-placement^='left'] > .arrow {
-    right: -4px;
+    right: -2px;
   }
 
   .tooltip[data-popper-placement^='right'] > .arrow {
-    left: -4px;
+    left: -2px;
   }
 
   .compact-prose p {

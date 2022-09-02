@@ -21,10 +21,10 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   }, [darkMode])
 
   return (
-    <div className='w-screen h-screen flex flex-col'>
+    <div className='flex h-screen w-screen flex-col'>
       <Navbar />
 
-      <div className='flex-1 min-h-0'>{children}</div>
+      <div className='min-h-0 flex-1'>{children}</div>
 
       <Toaster />
     </div>

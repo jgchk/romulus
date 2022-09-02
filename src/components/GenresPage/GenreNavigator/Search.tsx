@@ -21,7 +21,7 @@ const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
 
   if (genresQuery.error) {
     return (
-      <div className='w-full h-full flex items-center justify-center text-red-600'>
+      <div className='flex h-full w-full items-center justify-center text-error-600'>
         Error fetching results :(
       </div>
     )
@@ -47,12 +47,12 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
           />
         ))
       ) : (
-        <div className='w-full flex flex-col items-center justify-center text-gray-400'>
+        <div className='flex w-full flex-col items-center justify-center text-gray-400'>
           <div>No genres found.</div>
           {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
             <div>
               <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
-                <a className='text-blue-500 hover:underline'>Create one.</a>
+                <a className='text-primary-500 hover:underline'>Create one.</a>
               </Link>
             </div>
           )}

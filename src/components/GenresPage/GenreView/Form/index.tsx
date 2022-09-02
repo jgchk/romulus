@@ -132,9 +132,9 @@ const GenreForm: FC<{
   return (
     <form
       onSubmit={(e) => void handleSubmit(submitHandler)(e)}
-      className='flex flex-col h-full'
+      className='flex h-full flex-col'
     >
-      <div className='space-y-3 w-full flex-1 overflow-auto p-4'>
+      <div className='w-full flex-1 space-y-3 overflow-auto p-4'>
         <div>
           <Label htmlFor='name' error={errors.name}>
             Name
@@ -142,13 +142,13 @@ const GenreForm: FC<{
           <input
             id='name'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.name && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.name && 'border-error-600 outline-error-600'
             )}
             {...register('name', { required: 'Name is required' })}
           />
           {errors.name && (
-            <div className='text-sm text-red-600'>{errors.name.message}</div>
+            <div className='text-sm text-error-600'>{errors.name.message}</div>
           )}
         </div>
 
@@ -159,32 +159,32 @@ const GenreForm: FC<{
           <input
             id='subtitle'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.subtitle && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.subtitle && 'border-error-600 outline-error-600'
             )}
             {...register('subtitle')}
           />
           {errors.subtitle && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.subtitle.message}
             </div>
           )}
         </div>
 
         <fieldset className='border border-solid p-3'>
-          <legend className='text-gray-700 text-sm'>
+          <legend className='text-sm text-gray-700'>
             AKAs{' '}
             <a
               href='https://discord.com/channels/940459362168746055/1008898978911375384/1008927823647473747'
               target='_blank'
               rel='noreferrer'
-              className='text-blue-500 hover:underline text-xs'
+              className='text-xs text-primary-500 hover:underline'
             >
               (More Info)
             </a>
           </legend>
 
-          <div className='space-y-2 w-full'>
+          <div className='w-full space-y-2'>
             <div className='w-full'>
               <Label htmlFor='primary-akas' error={errors.primaryAkas}>
                 Primary
@@ -192,13 +192,13 @@ const GenreForm: FC<{
               <input
                 id='primary-akas'
                 className={clsx(
-                  'border rounded-sm p-1 px-2 mt-0.5 w-full',
-                  errors.primaryAkas && 'border-red-600 outline-red-600'
+                  'mt-0.5 w-full rounded-sm border p-1 px-2',
+                  errors.primaryAkas && 'border-error-600 outline-error-600'
                 )}
                 {...register('primaryAkas')}
               />
               {errors.primaryAkas && (
-                <div className='text-sm text-red-600'>
+                <div className='text-sm text-error-600'>
                   {errors.primaryAkas.message}
                 </div>
               )}
@@ -210,13 +210,13 @@ const GenreForm: FC<{
               <input
                 id='secondary-akas'
                 className={clsx(
-                  'border rounded-sm p-1 px-2 mt-0.5 w-full',
-                  errors.secondaryAkas && 'border-red-600 outline-red-600'
+                  'mt-0.5 w-full rounded-sm border p-1 px-2',
+                  errors.secondaryAkas && 'border-error-600 outline-error-600'
                 )}
                 {...register('secondaryAkas')}
               />
               {errors.secondaryAkas && (
-                <div className='text-sm text-red-600'>
+                <div className='text-sm text-error-600'>
                   {errors.secondaryAkas.message}
                 </div>
               )}
@@ -228,13 +228,13 @@ const GenreForm: FC<{
               <input
                 id='tertiary-akas'
                 className={clsx(
-                  'border rounded-sm p-1 px-2 mt-0.5 w-full',
-                  errors.tertiaryAkas && 'border-red-600 outline-red-600'
+                  'mt-0.5 w-full rounded-sm border p-1 px-2',
+                  errors.tertiaryAkas && 'border-error-600 outline-error-600'
                 )}
                 {...register('tertiaryAkas')}
               />
               {errors.tertiaryAkas && (
-                <div className='text-sm text-red-600'>
+                <div className='text-sm text-error-600'>
                   {errors.tertiaryAkas.message}
                 </div>
               )}
@@ -249,8 +249,8 @@ const GenreForm: FC<{
           <select
             id='type'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5 capitalize',
-              errors.type && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2 capitalize',
+              errors.type && 'border-error-600 outline-error-600'
             )}
             {...register('type')}
           >
@@ -261,7 +261,7 @@ const GenreForm: FC<{
             ))}
           </select>
           {errors.type && (
-            <div className='text-sm text-red-600'>{errors.type.message}</div>
+            <div className='text-sm text-error-600'>{errors.type.message}</div>
           )}
         </div>
 
@@ -272,7 +272,7 @@ const GenreForm: FC<{
               href='https://discord.com/channels/940459362168746055/1008898978911375384/1008900089936351252'
               target='_blank'
               rel='noreferrer'
-              className='text-blue-500 hover:underline text-xs'
+              className='text-xs text-primary-500 hover:underline'
             >
               (More Info)
             </a>
@@ -280,8 +280,8 @@ const GenreForm: FC<{
           <select
             id='relevance'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5 capitalize',
-              errors.relevance && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2 capitalize',
+              errors.relevance && 'border-error-600 outline-error-600'
             )}
             {...register('relevance', {
               setValueAs: (value: string) => Number.parseInt(value),
@@ -295,7 +295,7 @@ const GenreForm: FC<{
             <option value={99}>Unset</option>
           </select>
           {errors.relevance && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.relevance.message}
             </div>
           )}
@@ -334,7 +334,7 @@ const GenreForm: FC<{
             )}
           />
           {errors.shortDescription && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.shortDescription.message}
             </div>
           )}
@@ -352,7 +352,7 @@ const GenreForm: FC<{
             )}
           />
           {errors.longDescription && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.longDescription.message}
             </div>
           )}
@@ -368,12 +368,12 @@ const GenreForm: FC<{
             render={({ field }) => <RomcodeEditor id='notes' {...field} />}
           />
           {errors.notes && (
-            <div className='text-sm text-red-600'>{errors.notes.message}</div>
+            <div className='text-sm text-error-600'>{errors.notes.message}</div>
           )}
         </div>
       </div>
 
-      <div className='flex p-1 space-x-1 border-t'>
+      <div className='flex space-x-1 border-t p-1'>
         {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
           <Button type='submit' className='flex-1' loading={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit'}

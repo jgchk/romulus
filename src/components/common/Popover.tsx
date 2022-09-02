@@ -37,14 +37,14 @@ const Popover: FC<
 
   return createPortal(
     <div
-      className='tooltip bg-black text-white shadow-lg px-2 py-1 text-sm'
+      className='tooltip bg-black px-2 py-1 text-sm text-white shadow-lg'
       ref={setPopperElement}
       style={styles.popper}
       {...attributes.popper}
     >
       {children}
       <div
-        className='arrow w-2 h-2 before:absolute before:w-2 before:h-2 before:bg-black before:rotate-45'
+        className='arrow h-2 w-2 before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-black'
         ref={setArrowElement}
         style={styles.arrow}
       />

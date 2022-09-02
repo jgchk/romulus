@@ -26,11 +26,13 @@ class ErrorBoundary extends Component<Props, State> {
 
     if (error) {
       return (
-        <div className='w-full h-full flex justify-center p-10'>
+        <div className='flex h-full w-full justify-center p-10'>
           <div>
             <div className='text-2xl font-bold'>Something went wrong :(</div>
             <div className='mt-2'>
-              <code className='text-red-600 font-bold'>{error.toString()}</code>
+              <code className='font-bold text-error-600'>
+                {error.toString()}
+              </code>
             </div>
             {error.stack && (
               <details className='mt-2 text-gray-500'>

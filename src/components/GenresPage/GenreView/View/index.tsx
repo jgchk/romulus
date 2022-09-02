@@ -33,13 +33,13 @@ export const GenreView: FC<{
 
   if (genreQuery.error) {
     return (
-      <div className='p-4 h-full flex flex-col items-center justify-center text-gray-700'>
+      <div className='flex h-full flex-col items-center justify-center p-4 text-gray-700'>
         <div>Error fetching genre :(</div>
         {hasHistory && (
           <GenreLink
             id={id}
             view='history'
-            className='block text-blue-500 hover:underline'
+            className='block text-primary-500 hover:underline'
           >
             View history
           </GenreLink>
@@ -49,7 +49,7 @@ export const GenreView: FC<{
   }
   if (historyQuery.error) {
     return (
-      <div className='p-4 h-full flex items-center justify-center text-gray-700'>
+      <div className='flex h-full items-center justify-center p-4 text-gray-700'>
         Error fetching genre history :(
       </div>
     )
@@ -84,17 +84,17 @@ const HasData: FC<{
   )
 
   return (
-    <div className='flex flex-col h-full'>
+    <div className='flex h-full flex-col'>
       <GenreViewData genre={genre} history={history} />
 
       {session.isLoggedIn &&
         session.hasPermission(Permission.EDIT_GENRES) &&
         (confirmDelete ? (
           <div className='border-t'>
-            <div className='flex justify-center mt-1 text-gray-800'>
+            <div className='mt-1 flex justify-center text-gray-800'>
               Are you sure?
             </div>
-            <div className='flex p-1 space-x-1'>
+            <div className='flex space-x-1 p-1'>
               <Button
                 template='danger'
                 type='submit'
@@ -114,7 +114,7 @@ const HasData: FC<{
             </div>
           </div>
         ) : (
-          <div className='flex p-1 space-x-1 border-t'>
+          <div className='flex space-x-1 border-t p-1'>
             <GenreLink id={genre.id} view='edit' className='flex-1'>
               <Button className='w-full'>Edit</Button>
             </GenreLink>

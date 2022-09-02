@@ -18,7 +18,7 @@ const GenreTypeChip: FC<{ type: GenreType; className?: string }> = ({
   return (
     <span
       className={clsx(
-        'text-xs font-bold px-1 py-0.5 rounded-full bg-gray-200 text-gray-500',
+        'rounded-full bg-gray-200 px-1 py-0.5 text-xs font-bold text-gray-500',
         className
       )}
       title={title}

@@ -10,7 +10,7 @@ const Label: FC<LabelProps> = ({ children, error, className, ...props }) => (
   <label
     className={twsx(
       'block text-sm',
-      error ? 'text-red-600' : 'text-gray-700',
+      error ? 'text-error-600' : 'text-gray-700',
       className
     )}
     {...props}

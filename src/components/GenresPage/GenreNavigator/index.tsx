@@ -24,17 +24,17 @@ const GenreNavigator: FC = () => {
   }, [setDebouncedFilter])
 
   return (
-    <div className='w-full h-full flex flex-col'>
-      <div className='p-4 flex space-x-1 border-b'>
-        <div className='flex-1 relative'>
+    <div className='flex h-full w-full flex-col'>
+      <div className='flex space-x-1 border-b p-4'>
+        <div className='relative flex-1'>
           <input
-            className='border rounded-sm p-1 px-2 pr-7 w-full'
+            className='w-full rounded-sm border p-1 px-2 pr-7'
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder='Filter...'
           />
           {filter && (
-            <div className='absolute right-1 top-0 h-full flex items-center'>
+            <div className='absolute right-1 top-0 flex h-full items-center'>
               <IconButton
                 size='sm'
                 className='text-gray-500'
@@ -45,7 +45,7 @@ const GenreNavigator: FC = () => {
             </div>
           )}
         </div>
-        <div className='h-full flex items-center'>
+        <div className='flex h-full items-center'>
           <IconButton
             title='Settings'
             onClick={() => setShowSettings(!showSettings)}
@@ -60,7 +60,7 @@ const GenreNavigator: FC = () => {
         </div>
       )}
       {debouncedFilter && (
-        <div className='border-b flex justify-center'>
+        <div className='flex justify-center border-b'>
           <Button
             template='tertiary'
             className='w-full'
@@ -81,7 +81,7 @@ const GenreNavigator: FC = () => {
         )}
       </div>
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
-        <div className='p-1 border-t'>
+        <div className='border-t p-1'>
           <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
             <a className='w-full'>
               <Button template='secondary' className='w-full'>

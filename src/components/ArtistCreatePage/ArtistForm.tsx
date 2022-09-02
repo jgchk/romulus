@@ -93,13 +93,13 @@ const ArtistForm: FC<{
           <input
             id='name'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.name && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.name && 'border-error-600 outline-error-600'
             )}
             {...register('name', { required: 'Name is required' })}
           />
           {errors.name && (
-            <div className='text-sm text-red-600'>{errors.name.message}</div>
+            <div className='text-sm text-error-600'>{errors.name.message}</div>
           )}
         </div>
 
@@ -110,13 +110,13 @@ const ArtistForm: FC<{
           <input
             id='akas'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.akas && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.akas && 'border-error-600 outline-error-600'
             )}
             {...register('akas')}
           />
           {errors.akas && (
-            <div className='text-sm text-red-600'>{errors.akas.message}</div>
+            <div className='text-sm text-error-600'>{errors.akas.message}</div>
           )}
         </div>
 
@@ -127,13 +127,13 @@ const ArtistForm: FC<{
           <input
             id='spotify-urls'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.spotifyUrls && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.spotifyUrls && 'border-error-600 outline-error-600'
             )}
             {...register('spotifyUrls')}
           />
           {errors.spotifyUrls && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.spotifyUrls.message}
             </div>
           )}

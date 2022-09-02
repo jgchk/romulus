@@ -33,17 +33,17 @@ const ArtistCreatePage: FC = () => {
   )
 
   return (
-    <div className='h-full bg-texture flex items-center justify-center'>
+    <div className='bg-texture flex h-full items-center justify-center'>
       <div>
         <div className='flex flex-col items-center'>
-          <div className='border p-4 shadow-sm bg-white flex flex-col items-center'>
-            <div className='text-gray-700 mb-3'>Import from Spotify</div>
+          <div className='flex flex-col items-center border bg-white p-4 shadow-sm'>
+            <div className='mb-3 text-gray-700'>Import from Spotify</div>
             <ImportForm onData={(data) => setImportData(data)} />
           </div>
 
           {!showImportForm && (
             <>
-              <div className='text-gray-700 my-3'>or</div>
+              <div className='my-3 text-gray-700'>or</div>
               <Button
                 template='secondary'
                 onClick={() => setEnterManually(true)}
@@ -55,7 +55,7 @@ const ArtistCreatePage: FC = () => {
         </div>
 
         {showImportForm && (
-          <div className='border p-4 shadow-sm bg-white mt-4'>
+          <div className='mt-4 border bg-white p-4 shadow-sm'>
             <ArtistForm
               importData={importData}
               onSubmit={(data) => handleCreate(data)}

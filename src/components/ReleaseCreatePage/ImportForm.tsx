@@ -72,13 +72,13 @@ const ImportForm: FC<{ onData: (data: AlbumObject) => void }> = ({
           placeholder='URL'
           autoComplete='off'
           className={clsx(
-            'border rounded-sm p-1 px-2 mt-0.5',
-            errors.url && 'border-red-600 outline-red-600'
+            'mt-0.5 rounded-sm border p-1 px-2',
+            errors.url && 'border-error-600 outline-error-600'
           )}
           {...register('url', { required: 'URL is required' })}
         />
         {errors.url && (
-          <div className='text-sm text-red-600'>{errors.url.message}</div>
+          <div className='text-sm text-error-600'>{errors.url.message}</div>
         )}
       </div>
 

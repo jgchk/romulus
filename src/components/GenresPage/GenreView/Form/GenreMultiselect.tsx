@@ -98,9 +98,9 @@ const GenreMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex bg-white border focus-within:outline outline-1 focus-within:border-black rounded-sm'>
+      <div className='flex rounded-sm border bg-white outline-1 focus-within:border-black focus-within:outline'>
         <div
-          className='flex-1 flex flex-wrap gap-1 w-full p-1'
+          className='flex w-full flex-1 flex-wrap gap-1 p-1'
           onClick={() => {
             setOpen(!open)
             inputRef.current?.focus()
@@ -148,7 +148,7 @@ const GenreMultiselect: FC<{
           />
         </div>
         <button
-          className='px-1 border-l text-gray-400 border-gray-200 hover:bg-gray-100'
+          className='border-l border-gray-200 px-1 text-gray-400 hover:bg-gray-100'
           type='button'
           onClick={() => {
             setOpen(!open)
@@ -165,7 +165,7 @@ const GenreMultiselect: FC<{
       </div>
       {open && (
         <ul
-          className='absolute z-10 w-full bg-white border shadow-sm max-h-64 overflow-auto'
+          className='absolute z-10 max-h-64 w-full overflow-auto border bg-white shadow-sm'
           style={{ top: 'calc(100% - 1px)' }}
         >
           {renderOptions()}
@@ -184,7 +184,7 @@ const Option: FC<{
   return (
     <li className='group hover:bg-gray-100'>
       <button
-        className='w-full text-left text-sm text-gray-700 px-2 py-1 border-b border-gray-200 group-last:border-0'
+        className='w-full border-b border-gray-200 px-2 py-1 text-left text-sm text-gray-700 group-last:border-0'
         type='button'
         onClick={() => onClick()}
       >
@@ -221,7 +221,7 @@ const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
   const { showTypeTags } = useGenreNavigatorSettings()
 
   return (
-    <div className='flex border border-gray-400 bg-gray-200 text-gray-600 rounded-sm'>
+    <div className='flex rounded-sm border border-gray-400 bg-gray-200 text-gray-600'>
       <div className='px-2 py-0.5 text-sm font-medium'>
         {genre?.name ?? 'Loading...'}
         {genre?.subtitle && (
@@ -238,7 +238,7 @@ const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
         )}
       </div>
       <button
-        className='border-l h-full px-1 border-gray-300 hover:bg-gray-300'
+        className='h-full border-l border-gray-300 px-1 hover:bg-gray-300'
         type='button'
         onClick={() => onRemove()}
         tabIndex={-1}

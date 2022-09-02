@@ -16,7 +16,7 @@ const RelevanceChip: FC<{ relevance: number; className?: string }> = ({
   return (
     <span
       className={clsx(
-        'text-xs font-bold px-1 py-0.5 rounded-full',
+        'rounded-full px-1 py-0.5 text-xs font-bold',
         color,
         className
       )}

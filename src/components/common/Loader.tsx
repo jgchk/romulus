@@ -8,7 +8,7 @@ type LoaderProps = { className?: string; size?: number }
 
 const Loader: FC<LoaderProps> = ({ className, size }) => (
   <svg
-    className={twsx('animate-spin text-blue-500', className)}
+    className={twsx('animate-spin text-primary-500', className)}
     style={{ width: size ?? DEFAULT_SIZE, height: size ?? DEFAULT_SIZE }}
     xmlns='http://www.w3.org/2000/svg'
     fill='none'
@@ -31,7 +31,7 @@ const Loader: FC<LoaderProps> = ({ className, size }) => (
 )
 
 export const CenteredLoader: FC<LoaderProps> = (props) => (
-  <div className='w-full h-full flex items-center justify-center'>
+  <div className='flex h-full w-full items-center justify-center'>
     <Loader {...props} />
   </div>
 )

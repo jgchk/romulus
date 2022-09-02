@@ -47,8 +47,8 @@ const IconButton: FC<IconButtonProps> = ({
   return (
     <button
       className={twsx(
-        'p-1 rounded bg-transparent hover:bg-neutral-200 active:bg-neutral-300 text-primary-500 border border-transparent focus:border-secondary-500 outline-none',
-        disabled && 'pointer-events-none text-neutral-400',
+        'p-1 rounded bg-transparent hover:bg-gray-200 active:bg-gray-300 text-primary-500 border border-transparent focus:border-secondary-500 outline-none transition',
+        disabled && 'pointer-events-none text-gray-400',
         className
       )}
       disabled={disabled}

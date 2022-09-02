@@ -65,7 +65,7 @@ const HasData: FC<{
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='flex items-center justify-between pb-4 border-b border-gray-100'>
+      <div className='flex items-center justify-between border-b border-gray-100 pb-4'>
         <div className='text-2xl font-bold text-gray-600'>{artist.name}</div>
         <Link
           href={{
@@ -73,7 +73,7 @@ const HasData: FC<{
             query: { id: artist.id.toString() },
           }}
         >
-          <a className='text-gray-400 text-sm hover:underline'>History</a>
+          <a className='text-sm text-gray-400 hover:underline'>History</a>
         </Link>
       </div>
 
@@ -96,7 +96,7 @@ const HasData: FC<{
                     query: { id: id.toString() },
                   }}
                 >
-                  <a className='text-blue-500 hover:underline'>{username}</a>
+                  <a className='text-primary-500 hover:underline'>{username}</a>
                 </Link>
               </li>
             ))}

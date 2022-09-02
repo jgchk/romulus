@@ -49,7 +49,7 @@ const Navbar: FC = () => {
   }, [logout, renderLoginLinks, session.account, session.error])
 
   return (
-    <div className='flex justify-between p-2 px-4 border-b'>
+    <div className='flex justify-between border-b p-2 px-4'>
       <div className='flex space-x-2'>
         <Link href={{ pathname: '/genres' }}>
           <a>Genres</a>

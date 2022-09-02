@@ -45,7 +45,7 @@ const defaultColumns = [
           query: { id: props.getValue().id.toString() },
         }}
       >
-        <a className='text-blue-500 hover:underline'>
+        <a className='text-primary-500 hover:underline'>
           {props.getValue().username}
         </a>
       </Link>
@@ -66,7 +66,7 @@ const HasData: FC<{ history: DefaultArtistHistory[] }> = ({ history }) => {
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='flex items-center pb-4 border-b border-gray-100'>
+      <div className='flex items-center border-b border-gray-100 pb-4'>
         {artist ? (
           <>
             <Link
@@ -75,7 +75,7 @@ const HasData: FC<{ history: DefaultArtistHistory[] }> = ({ history }) => {
                 query: { id: artist.id.toString() },
               }}
             >
-              <a className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+              <a className='mr-1.5 rounded-full p-1.5 text-gray-600 hover:bg-primary-100 hover:text-primary-700'>
                 <IoMdArrowBack size={18} />
               </a>
             </Link>
@@ -85,7 +85,7 @@ const HasData: FC<{ history: DefaultArtistHistory[] }> = ({ history }) => {
           </>
         ) : (
           <>
-            <span className='p-1.5 mr-1.5 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-full'>
+            <span className='mr-1.5 rounded-full p-1.5 text-gray-600 hover:bg-primary-100 hover:text-primary-700'>
               <IoMdArrowBack size={18} />
             </span>
             <div className='text-2xl font-bold text-gray-600'>Loading...</div>

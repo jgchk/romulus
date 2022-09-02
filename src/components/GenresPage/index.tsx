@@ -37,20 +37,20 @@ const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
   }, [view])
 
   return (
-    <div className={clsx('w-full h-full flex items-center', 'md:bg-texture')}>
+    <div className={clsx('flex h-full w-full items-center', 'md:bg-texture')}>
       <div
-        className={clsx('w-full h-full flex flex-col items-center', 'md:p-4')}
+        className={clsx('flex h-full w-full flex-col items-center', 'md:p-4')}
       >
         <div
           className={clsx(
-            'flex-1 min-h-0 flex justify-center w-full',
+            'flex min-h-0 w-full flex-1 justify-center',
             'md:space-x-4'
           )}
         >
           <div
             className={clsx(
-              'flex-[1] min-w-[250px] bg-white',
-              'md:max-w-[350px] md:border md:shadow-sm md:rounded-sm',
+              'min-w-[250px] flex-[1] bg-white',
+              'md:max-w-[350px] md:rounded-sm md:border md:shadow-sm',
               // default -> always show
               // other -> hidden by default, show at md
               view.type !== 'default' && 'hidden md:block'
@@ -61,7 +61,7 @@ const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
           <div
             className={clsx(
               'flex-[3] bg-white',
-              'md:max-w-[800px] md:border md:shadow-sm md:rounded-sm',
+              'md:max-w-[800px] md:rounded-sm md:border md:shadow-sm',
               // default -> hidden by default, show at md
               // other -> always show
               view.type === 'default' && 'hidden md:block'
@@ -74,7 +74,7 @@ const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
         {session.isLoggedOut && (
           <div className='mt-4 text-gray-700'>
             <Link href={{ pathname: '/login' }}>
-              <a className='text-blue-500 hover:underline'>Log in</a>
+              <a className='text-primary-500 hover:underline'>Log in</a>
             </Link>{' '}
             to create and edit genres.
           </div>

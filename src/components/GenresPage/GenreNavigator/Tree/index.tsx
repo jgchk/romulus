@@ -19,7 +19,7 @@ const GenreTree: FC = () => {
 
   if (treeQuery.error) {
     return (
-      <div className='w-full h-full flex items-center justify-center text-red-600'>
+      <div className='flex h-full w-full items-center justify-center text-error-600'>
         Error fetching genres :(
       </div>
     )
@@ -44,7 +44,7 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
 
   return (
     <GenreTreeRefProvider treeEl={ref}>
-      <div className='w-full h-full flex flex-col'>
+      <div className='flex h-full w-full flex-col'>
         {tree.length > 0 ? (
           <div ref={setRef} className='flex-1 overflow-auto p-4'>
             <ul>
@@ -54,7 +54,7 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
             </ul>
           </div>
         ) : (
-          <div className='flex-1 w-full flex flex-col items-center justify-center text-gray-400'>
+          <div className='flex w-full flex-1 flex-col items-center justify-center text-gray-400'>
             <div>No genres found.</div>
             {session.isLoggedIn &&
               session.hasPermission(Permission.EDIT_GENRES) && (
@@ -62,7 +62,9 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
                   <Link
                     href={{ pathname: '/genres', query: { view: 'create' } }}
                   >
-                    <a className='text-blue-500 hover:underline'>Create one.</a>
+                    <a className='text-primary-500 hover:underline'>
+                      Create one.
+                    </a>
                   </Link>
                 </div>
               )}

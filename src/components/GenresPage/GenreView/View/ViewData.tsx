@@ -97,7 +97,7 @@ const GenreViewData: FC<{
                 <li key={id}>
                   <GenreLink
                     id={id}
-                    className='text-blue-500 hover:underline font-bold'
+                    className='font-bold text-primary-500 hover:underline'
                   >
                     {name}
                     {showTypeTags && type !== 'STYLE' && (
@@ -105,7 +105,7 @@ const GenreViewData: FC<{
                         {' '}
                         <GenreTypeChip
                           type={type}
-                          className='bg-blue-100 text-blue-400'
+                          className='bg-primary-100 text-primary-400'
                         />
                       </>
                     )}
@@ -122,7 +122,7 @@ const GenreViewData: FC<{
       return (
         <div>
           <Label htmlFor='parents'>Parents</Label>
-          <div id='parents' className='text-red-600'>
+          <div id='parents' className='text-error-600'>
             Error fetching parents
           </div>
         </div>
@@ -149,7 +149,7 @@ const GenreViewData: FC<{
                   <li key={id}>
                     <GenreLink
                       id={id}
-                      className='text-blue-500 hover:underline'
+                      className='text-primary-500 hover:underline'
                     >
                       {name}
                       {showTypeTags && type !== 'STYLE' && (
@@ -157,7 +157,7 @@ const GenreViewData: FC<{
                           {' '}
                           <GenreTypeChip
                             type={type}
-                            className='bg-blue-100 text-blue-400'
+                            className='bg-primary-100 text-primary-400'
                           />
                         </>
                       )}
@@ -175,7 +175,7 @@ const GenreViewData: FC<{
       return (
         <div>
           <Label htmlFor='influences'>Influences</Label>
-          <div id='influences' className='text-red-600'>
+          <div id='influences' className='text-error-600'>
             Error fetching influences
           </div>
         </div>
@@ -192,7 +192,7 @@ const GenreViewData: FC<{
 
   return (
     <div className='flex-1 overflow-auto p-4'>
-      <div className='flex items-center justify-between pb-4 border-b border-gray-100'>
+      <div className='flex items-center justify-between border-b border-gray-100 pb-4'>
         <div className='text-2xl font-bold text-gray-600'>
           {genre.name}
           {genre.subtitle && (
@@ -205,7 +205,7 @@ const GenreViewData: FC<{
 
         <button
           onClick={() => copyTextToClipboard(`[Genre${genre.id}]`)}
-          className='text-gray-400 text-sm hover:underline'
+          className='text-sm text-gray-400 hover:underline'
         >
           [Genre{genre.id}]
         </button>
@@ -257,7 +257,7 @@ const GenreViewData: FC<{
                       id={genre.id}
                       view='edit'
                       autoFocus='shortDescription'
-                      className='text-blue-500 hover:underline'
+                      className='text-primary-500 hover:underline'
                     >
                       Add one.
                     </GenreLink>
@@ -281,7 +281,7 @@ const GenreViewData: FC<{
                       id={genre.id}
                       view='edit'
                       autoFocus='longDescription'
-                      className='text-blue-500 hover:underline'
+                      className='text-primary-500 hover:underline'
                     >
                       Add one.
                     </GenreLink>
@@ -299,7 +299,7 @@ const GenreViewData: FC<{
                 <>
                   <Romcode className='compact-prose'>{genre.notes}</Romcode>
                   <button
-                    className='text-blue-500 hover:underline'
+                    className='text-primary-500 hover:underline'
                     onClick={() => setShowNotes(false)}
                   >
                     Hide notes
@@ -307,7 +307,7 @@ const GenreViewData: FC<{
                 </>
               ) : (
                 <button
-                  className='text-blue-500 hover:underline'
+                  className='text-primary-500 hover:underline'
                   onClick={() => setShowNotes(true)}
                 >
                   Show notes
@@ -323,7 +323,7 @@ const GenreViewData: FC<{
             <GenreLink
               id={genre.id}
               view='history'
-              className='text-blue-500 hover:underline text-xs'
+              className='text-xs text-primary-500 hover:underline'
             >
               (View History)
             </GenreLink>
@@ -337,7 +337,7 @@ const GenreViewData: FC<{
                     query: { id: id.toString() },
                   }}
                 >
-                  <a className='text-blue-500 hover:underline'>{username}</a>
+                  <a className='text-primary-500 hover:underline'>{username}</a>
                 </Link>
               </li>
             ))}

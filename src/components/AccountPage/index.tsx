@@ -15,14 +15,14 @@ const AccountPage: FC<{ id: number }> = ({ id }) => {
     return (
       <div
         className={clsx(
-          'p-4 h-full min-h-0',
-          'sm:w-full sm:flex sm:items-center sm:justify-center sm:bg-texture'
+          'h-full min-h-0 p-4',
+          'sm:bg-texture sm:flex sm:w-full sm:items-center sm:justify-center'
         )}
       >
         <div
           className={clsx(
             'h-full',
-            'sm:border sm:p-4 sm:shadow sm:bg-white sm:w-[500px] sm:h-[600px]'
+            'sm:h-[600px] sm:w-[500px] sm:border sm:bg-white sm:p-4 sm:shadow'
           )}
         >
           <HasData account={accountQuery.data} />
@@ -55,7 +55,7 @@ const HasData: FC<{
   )
 
   return (
-    <div className='h-full max-h-full min-h-0 flex flex-col'>
+    <div className='flex h-full max-h-full min-h-0 flex-col'>
       <div className='text-xl font-bold'>{account.username}</div>
 
       <div className='py-2'>
@@ -68,7 +68,7 @@ const HasData: FC<{
         </div>
       </div>
 
-      <div className='flex-1 min-h-0 overflow-auto'>
+      <div className='min-h-0 flex-1 overflow-auto'>
         <AccountGenreHistory id={account.id} />
       </div>
     </div>

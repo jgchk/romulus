@@ -42,9 +42,9 @@ const Register: NextPage = () => {
   useEffect(() => setFocus('username'), [setFocus])
 
   return (
-    <div className='w-full h-full flex items-center justify-center bg-texture'>
+    <div className='bg-texture flex h-full w-full items-center justify-center'>
       <form
-        className='border p-4 shadow bg-white'
+        className='border bg-white p-4 shadow'
         onSubmit={(e) => void handleSubmit(onSubmit)(e)}
       >
         <div className='space-y-3'>
@@ -55,13 +55,13 @@ const Register: NextPage = () => {
             <input
               id='username'
               className={clsx(
-                'border rounded-sm p-1 px-2 mt-0.5',
-                errors.username && 'border-red-600 outline-red-600'
+                'mt-0.5 rounded-sm border p-1 px-2',
+                errors.username && 'border-error-600 outline-error-600'
               )}
               {...register('username', { required: 'Username is required' })}
             />
             {errors.username && (
-              <div className='text-sm text-red-600'>
+              <div className='text-sm text-error-600'>
                 {errors.username.message}
               </div>
             )}
@@ -75,13 +75,13 @@ const Register: NextPage = () => {
               id='password'
               type='password'
               className={clsx(
-                'border rounded-sm p-1 px-2 mt-0.5',
-                errors.password && 'border-red-600 outline-red-600'
+                'mt-0.5 rounded-sm border p-1 px-2',
+                errors.password && 'border-error-600 outline-error-600'
               )}
               {...register('password', { required: 'Password is required' })}
             />
             {errors.password && (
-              <div className='text-sm text-red-600'>
+              <div className='text-sm text-error-600'>
                 {errors.password.message}
               </div>
             )}
@@ -95,8 +95,8 @@ const Register: NextPage = () => {
               type='password'
               id='confirm-password'
               className={clsx(
-                'border rounded-sm p-1 px-2 mt-0.5',
-                errors.confirmPassword && 'border-red-600 outline-red-600'
+                'mt-0.5 rounded-sm border p-1 px-2',
+                errors.confirmPassword && 'border-error-600 outline-error-600'
               )}
               {...register('confirmPassword', {
                 required: 'Password confirmation is required',
@@ -105,21 +105,21 @@ const Register: NextPage = () => {
               })}
             />
             {errors.confirmPassword && (
-              <div className='text-sm text-red-600'>
+              <div className='text-sm text-error-600'>
                 {errors.confirmPassword.message}
               </div>
             )}
           </div>
         </div>
 
-        <Button className='w-full mt-4' type='submit' loading={isLoading}>
+        <Button className='mt-4 w-full' type='submit' loading={isLoading}>
           {isLoading ? 'Registering...' : 'Register'}
         </Button>
 
         <div className='mt-3 text-sm text-gray-700'>
           Already have an account?{' '}
           <Link href={{ pathname: '/login' }}>
-            <a className='text-blue-500 hover:underline'>Log in.</a>
+            <a className='text-primary-500 hover:underline'>Log in.</a>
           </Link>
         </div>
       </form>

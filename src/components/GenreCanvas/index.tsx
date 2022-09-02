@@ -110,7 +110,7 @@ const GenreCanvas: FC<{
       }}
     >
       <CanvasContextProvider activeId={activeId} activeGenre={activeGenre}>
-        <div className='w-full h-full flex'>
+        <div className='flex h-full w-full'>
           <Canvas genres={positionedGenres} />
           <Sidebar genres={unpositionedGenres} />
         </div>

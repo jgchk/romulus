@@ -8,7 +8,7 @@ const Canvas: FC<{ genres: PositionedGenre[] }> = ({ genres }) => {
   const { setNodeRef } = useDroppable({ id: CANVAS_ID })
 
   return (
-    <div className='flex-1 bg-texture relative' ref={setNodeRef}>
+    <div className='bg-texture relative flex-1' ref={setNodeRef}>
       {genres.map((genre) => (
         <GenreNode key={genre.id} genre={genre} />
       ))}

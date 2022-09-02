@@ -90,13 +90,13 @@ const ReleaseForm: FC<{
           <input
             id='title'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.title && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.title && 'border-error-600 outline-error-600'
             )}
             {...register('title', { required: 'Title is required' })}
           />
           {errors.title && (
-            <div className='text-sm text-red-600'>{errors.title.message}</div>
+            <div className='text-sm text-error-600'>{errors.title.message}</div>
           )}
         </div>
 
@@ -107,8 +107,8 @@ const ReleaseForm: FC<{
           <input
             id='release-date'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.releaseDate && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.releaseDate && 'border-error-600 outline-error-600'
             )}
             {...register('releaseDate', {
               validate: (value) =>
@@ -118,7 +118,7 @@ const ReleaseForm: FC<{
             })}
           />
           {errors.releaseDate && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.releaseDate.message}
             </div>
           )}
@@ -131,13 +131,13 @@ const ReleaseForm: FC<{
           <input
             id='spotify-url'
             className={clsx(
-              'border rounded-sm p-1 px-2 mt-0.5',
-              errors.spotifyUrl && 'border-red-600 outline-red-600'
+              'mt-0.5 rounded-sm border p-1 px-2',
+              errors.spotifyUrl && 'border-error-600 outline-error-600'
             )}
             {...register('spotifyUrl')}
           />
           {errors.spotifyUrl && (
-            <div className='text-sm text-red-600'>
+            <div className='text-sm text-error-600'>
               {errors.spotifyUrl.message}
             </div>
           )}

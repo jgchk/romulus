@@ -11,7 +11,7 @@ const Sidebar: FC<{ genres: DefaultGenre[] }> = ({ genres }) => {
 
   return (
     <div
-      className={clsx('w-1/6 border-l shadow-sm p-4', isOver && 'bg-gray-100')}
+      className={clsx('w-1/6 border-l p-4 shadow-sm', isOver && 'bg-gray-100')}
       ref={setNodeRef}
     >
       {genres.map((genre) => (

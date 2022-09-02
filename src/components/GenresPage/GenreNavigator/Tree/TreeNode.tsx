@@ -72,7 +72,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
             onClick={() => setSelectedPath(path)}
             className={clsx(
               'hover:font-bold',
-              isSelected ? 'text-blue-600 font-bold' : 'text-gray-600'
+              isSelected ? 'font-bold text-primary-600' : 'text-gray-600'
             )}
           >
             {name}
@@ -82,7 +82,7 @@ const GenreTreeNode: FC<{ node: TreeNode }> = ({
                 <span
                   className={clsx(
                     'text-sm',
-                    isSelected ? 'text-blue-500' : 'text-gray-500'
+                    isSelected ? 'text-primary-500' : 'text-gray-500'
                   )}
                 >
                   [{subtitle}]

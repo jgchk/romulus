@@ -5,12 +5,14 @@ module.exports = {
   darkMode: 'class',
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {
-      colors: {
-        primary: colors.blue,
-        secondary: colors.orange,
-        error: colors.red,
-      },
+    colors: {
+      primary: colors.blue,
+      secondary: colors.orange,
+      error: colors.red,
+      gray: colors.gray,
+      black: colors.black,
+      white: colors.white,
+      transparent: colors.transparent,
     },
   },
   plugins: [require('@tailwindcss/typography')],

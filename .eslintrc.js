@@ -16,6 +16,7 @@ module.exports = {
     'plugin:unicorn/recommended',
     'plugin:@next/next/recommended',
     'plugin:storybook/recommended',
+    'plugin:tailwindcss/recommended',
     'prettier',
   ],
   settings: {
@@ -35,5 +36,13 @@ module.exports = {
 
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
+
+    'tailwindcss/no-custom-classname': [
+      'warn',
+      {
+        callees: ['clsx', 'twsx'],
+        whitelist: ['text-inherit'],
+      },
+    ],
   },
 }

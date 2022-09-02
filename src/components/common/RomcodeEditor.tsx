@@ -49,10 +49,10 @@ const RomcodeEditor = forwardRef<
           <Romcode>{value}</Romcode>
         </div>
       )}
-      <div className='border-t border-gray-200 flex'>
+      <div className='flex border-t border-gray-200'>
         <button
           className={clsx(
-            'border-r border-gray-200 px-2 py-1 uppercase text-xs text-gray-400 hover:bg-gray-100',
+            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 hover:bg-gray-100',
             tab === Tab.EDIT ? 'font-bold' : 'font-medium'
           )}
           type='button'
@@ -62,7 +62,7 @@ const RomcodeEditor = forwardRef<
         </button>
         <button
           className={clsx(
-            'border-r border-gray-200 px-2 py-1 uppercase text-xs text-gray-400 hover:bg-gray-100',
+            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 hover:bg-gray-100',
             tab === Tab.VIEW ? 'font-bold' : 'font-medium'
           )}
           type='button'
