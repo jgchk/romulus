@@ -6,9 +6,10 @@ import Tooltip from './Tooltip'
 
 export type InputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'value'
+  'value' | 'onChange'
 > & {
   value?: string
+  onChange?: (value: string) => void
   showClear?: boolean
 }
 
@@ -16,6 +17,7 @@ const Input: FC<InputProps> = ({
   className,
   showClear = false,
   value,
+  onChange,
   ...props
 }) => {
   const isClearVisible = useMemo(
@@ -27,6 +29,7 @@ const Input: FC<InputProps> = ({
     <div className='relative'>
       <input
         value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         className={twsx(
           'w-full rounded border border-gray-500 bg-gray-100 p-1.5 text-sm leading-3 text-gray-800 placeholder:italic placeholder:text-gray-700 hover:bg-gray-200 active:bg-gray-300 focus:border-secondary-500 outline-none transition disabled:border-dashed disabled:pointer-events-none',
           isClearVisible && 'pr-7',
@@ -37,7 +40,10 @@ const Input: FC<InputProps> = ({
       {isClearVisible && (
         <div className='absolute top-0 right-1 flex h-full items-center'>
           <Tooltip tip='Clear'>
-            <button className='rounded-full p-1 text-gray-500 transition hover:bg-gray-200 hover:text-gray-600'>
+            <button
+              className='rounded-full p-1 text-gray-500 transition hover:bg-gray-200 hover:text-gray-600'
+              onClick={() => onChange?.('')}
+            >
               <RiCloseFill />
             </button>
           </Tooltip>

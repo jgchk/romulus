@@ -10,13 +10,7 @@ export default {
 
 const Template: ComponentStory<typeof InputComponent> = (args) => {
   const [value, setValue] = useState('')
-  return (
-    <InputComponent
-      {...args}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-    />
-  )
+  return <InputComponent {...args} value={value} onChange={setValue} />
 }
 
 export const Input = Template.bind({})
