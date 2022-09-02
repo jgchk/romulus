@@ -102,17 +102,9 @@ export default withTRPC<AppRouter>({
         mutationCache,
         defaultOptions,
       },
-      headers: isBrowser
-        ? undefined
-        : () => {
-            const cookieStr = ctx?.req?.headers.cookie
-
-            if (cookieStr) {
-              return { Cookie: cookieStr }
-            }
-
-            return {}
-          },
+      headers: {
+        cookie: ctx?.req?.headers.cookie,
+      },
     }
   },
   ssr: true,
