@@ -1,12 +1,12 @@
-import clsx from 'clsx'
 import { FC, useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSpotifyArtistQuery } from '../../services/spotify'
 import Button from '../common/Button'
-import Label from '../common/Label'
+import Input from '../common/Input'
+import InputGroup from '../common/InputGroup'
 
 type ImportFormFields = {
   url: string
@@ -16,8 +16,8 @@ const ImportForm: FC<{ onData: (data: ArtistObject) => void }> = ({
   onData,
 }) => {
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
     setFocus,
     setError,
@@ -63,24 +63,16 @@ const ImportForm: FC<{ onData: (data: ArtistObject) => void }> = ({
       className='flex items-center space-x-1'
       onSubmit={(e) => void handleSubmit(onSubmit)(e)}
     >
-      <div>
-        <Label htmlFor='url' className='hidden'>
-          URL
-        </Label>
-        <input
-          id='url'
-          placeholder='URL'
-          autoComplete='off'
-          className={clsx(
-            'rounded-sm border p-1 px-2',
-            errors.url && 'border-error-600 outline-error-600'
+      <InputGroup id='url' label='URL' error={errors.url}>
+        <Controller
+          name='url'
+          control={control}
+          rules={{ required: 'URL is required' }}
+          render={({ field }) => (
+            <Input type='url' autoComplete='off' {...field} />
           )}
-          {...register('url', { required: 'URL is required' })}
         />
-        {errors.url && (
-          <div className='text-sm text-error-600'>{errors.url.message}</div>
-        )}
-      </div>
+      </InputGroup>
 
       <Button type='submit' loading={artistQuery.isLoading}>
         {artistQuery.isLoading ? 'Importing...' : 'Import'}

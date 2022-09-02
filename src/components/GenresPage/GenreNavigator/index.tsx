@@ -1,12 +1,13 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useCallback, useState } from 'react'
-import { RiCloseFill, RiSettings3Fill } from 'react-icons/ri'
+import { RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../../hooks/useDebounce'
 import { useSession } from '../../../services/auth'
 import Button from '../../common/Button'
 import IconButton from '../../common/IconButton'
+import Input from '../../common/Input'
 import GenreSearchResults from './Search'
 import GenreNavigatorSettings from './Settings'
 import GenreTree from './Tree'
@@ -27,23 +28,12 @@ const GenreNavigator: FC = () => {
     <div className='flex h-full w-full flex-col'>
       <div className='flex space-x-1 border-b p-4'>
         <div className='relative flex-1'>
-          <input
-            className='w-full rounded-sm border p-1 px-2 pr-7'
+          <Input
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={setFilter}
             placeholder='Filter...'
+            showClear
           />
-          {filter && (
-            <div className='absolute right-1 top-0 flex h-full items-center'>
-              <IconButton
-                size='sm'
-                className='text-gray-500'
-                onClick={() => clearFilter()}
-              >
-                <RiCloseFill />
-              </IconButton>
-            </div>
-          )}
         </div>
         <div className='flex h-full items-center'>
           <IconButton
