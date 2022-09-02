@@ -18,7 +18,10 @@ Input.args = {
   placeholder: 'Input',
   disabled: false,
   showClear: false,
+  error: '',
 }
 Input.argTypes = {
+  error: { control: 'text' },
   value: { control: null, table: { disable: true } },
+  onChange: { control: null, table: { disable: true } },
 }

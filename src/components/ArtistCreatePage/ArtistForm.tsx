@@ -1,14 +1,14 @@
 import { Permission } from '@prisma/client'
-import clsx from 'clsx'
 import { FC, useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
 import { spotifyArtistRegex } from '../../server/services/spotify/regex'
 import { ArtistObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import Button from '../common/Button'
-import Label from '../common/Label'
+import Input from '../common/Input'
+import InputGroup from '../common/InputGroup'
 
 type ArtistFormFields = {
   name: string
@@ -31,8 +31,8 @@ const ArtistForm: FC<{
   const session = useSession()
 
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors, dirtyFields },
     getValues,
     setValue,
@@ -86,58 +86,34 @@ const ArtistForm: FC<{
   return (
     <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
       <div className='space-y-3'>
-        <div>
-          <Label htmlFor='name' error={errors.name}>
-            Name
-          </Label>
-          <input
-            id='name'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.name && 'border-error-600 outline-error-600'
-            )}
-            {...register('name', { required: 'Name is required' })}
+        <InputGroup id='name' label='Name' error={errors.name}>
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: 'Name is required' }}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.name && (
-            <div className='text-sm text-error-600'>{errors.name.message}</div>
-          )}
-        </div>
+        </InputGroup>
 
-        <div>
-          <Label htmlFor='akas' error={errors.akas}>
-            AKAs
-          </Label>
-          <input
-            id='akas'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.akas && 'border-error-600 outline-error-600'
-            )}
-            {...register('akas')}
+        <InputGroup id='akas' label='AKAs' error={errors.akas}>
+          <Controller
+            name='akas'
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.akas && (
-            <div className='text-sm text-error-600'>{errors.akas.message}</div>
-          )}
-        </div>
+        </InputGroup>
 
-        <div>
-          <Label htmlFor='spotify-urls' error={errors.spotifyUrls}>
-            Spotify URLs
-          </Label>
-          <input
-            id='spotify-urls'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.spotifyUrls && 'border-error-600 outline-error-600'
-            )}
-            {...register('spotifyUrls')}
+        <InputGroup
+          id='spotify-urls'
+          label='Spotify URLs'
+          error={errors.spotifyUrls}
+        >
+          <Controller
+            name='spotifyUrls'
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.spotifyUrls && (
-            <div className='text-sm text-error-600'>
-              {errors.spotifyUrls.message}
-            </div>
-          )}
-        </div>
+        </InputGroup>
       </div>
 
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_ARTISTS) && (

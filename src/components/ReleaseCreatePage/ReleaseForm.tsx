@@ -1,7 +1,6 @@
 import { Permission } from '@prisma/client'
-import clsx from 'clsx'
 import { FC, useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import useWarnOnUnsavedChanges from '../../hooks/useWarnOnUnsavedChanges'
 import { spotifyAlbumRegex } from '../../server/services/spotify/regex'
@@ -9,7 +8,8 @@ import { AlbumObject } from '../../server/services/spotify/types'
 import { useSession } from '../../services/auth'
 import { check, iso8601 } from '../../utils/validators'
 import Button from '../common/Button'
-import Label from '../common/Label'
+import Input from '../common/Input'
+import InputGroup from '../common/InputGroup'
 
 type ReleaseFormFields = {
   title: string
@@ -33,8 +33,8 @@ const ReleaseForm: FC<{
   const session = useSession()
 
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors, dirtyFields },
     getValues,
     setValue,
@@ -83,65 +83,44 @@ const ReleaseForm: FC<{
   return (
     <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
       <div className='space-y-3'>
-        <div>
-          <Label htmlFor='title' error={errors.title}>
-            Title
-          </Label>
-          <input
-            id='title'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.title && 'border-error-600 outline-error-600'
-            )}
-            {...register('title', { required: 'Title is required' })}
+        <InputGroup id='title' label='Title' error={errors.title}>
+          <Controller
+            name='title'
+            control={control}
+            rules={{ required: 'Title is required' }}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.title && (
-            <div className='text-sm text-error-600'>{errors.title.message}</div>
-          )}
-        </div>
+        </InputGroup>
 
-        <div>
-          <Label htmlFor='release-date' error={errors.releaseDate}>
-            Release Date
-          </Label>
-          <input
-            id='release-date'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.releaseDate && 'border-error-600 outline-error-600'
-            )}
-            {...register('releaseDate', {
+        <InputGroup
+          id='release-date'
+          label='Release Date'
+          error={errors.releaseDate}
+        >
+          <Controller
+            name='releaseDate'
+            control={control}
+            rules={{
               validate: (value) =>
                 value.length === 0 ||
                 check(iso8601(), value) ||
                 'Must be a validate date',
-            })}
+            }}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.releaseDate && (
-            <div className='text-sm text-error-600'>
-              {errors.releaseDate.message}
-            </div>
-          )}
-        </div>
+        </InputGroup>
 
-        <div>
-          <Label htmlFor='spotify-url' error={errors.spotifyUrl}>
-            Spotify URL
-          </Label>
-          <input
-            id='spotify-url'
-            className={clsx(
-              'mt-0.5 rounded-sm border p-1 px-2',
-              errors.spotifyUrl && 'border-error-600 outline-error-600'
-            )}
-            {...register('spotifyUrl')}
+        <InputGroup
+          id='spotify-url'
+          label='Spotify URL'
+          error={errors.spotifyUrl}
+        >
+          <Controller
+            name='spotifyUrl'
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
-          {errors.spotifyUrl && (
-            <div className='text-sm text-error-600'>
-              {errors.spotifyUrl.message}
-            </div>
-          )}
-        </div>
+        </InputGroup>
       </div>
 
       {session.isLoggedIn && session.hasPermission(Permission.EDIT_RELEASES) && (

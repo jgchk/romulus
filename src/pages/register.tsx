@@ -1,12 +1,12 @@
-import clsx from 'clsx'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import Button from '../components/common/Button'
-import Label from '../components/common/Label'
+import Input from '../components/common/Input'
+import InputGroup from '../components/common/InputGroup'
 import { useRegisterMutation, useSession } from '../services/auth'
 
 type RegisterFormFields = {
@@ -26,8 +26,8 @@ const Register: NextPage = () => {
   }, [router, session.isLoggedIn])
 
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
     setFocus,
     watch,
@@ -48,68 +48,40 @@ const Register: NextPage = () => {
         onSubmit={(e) => void handleSubmit(onSubmit)(e)}
       >
         <div className='space-y-3'>
-          <div>
-            <Label htmlFor='username' error={errors.username}>
-              Username
-            </Label>
-            <input
-              id='username'
-              className={clsx(
-                'mt-0.5 rounded-sm border p-1 px-2',
-                errors.username && 'border-error-600 outline-error-600'
-              )}
-              {...register('username', { required: 'Username is required' })}
+          <InputGroup id='username' label='Username' error={errors.username}>
+            <Controller
+              name='username'
+              control={control}
+              rules={{ required: 'Username is required' }}
+              render={({ field }) => <Input {...field} />}
             />
-            {errors.username && (
-              <div className='text-sm text-error-600'>
-                {errors.username.message}
-              </div>
-            )}
-          </div>
+          </InputGroup>
 
-          <div>
-            <Label htmlFor='password' error={errors.password}>
-              Password
-            </Label>
-            <input
-              id='password'
-              type='password'
-              className={clsx(
-                'mt-0.5 rounded-sm border p-1 px-2',
-                errors.password && 'border-error-600 outline-error-600'
-              )}
-              {...register('password', { required: 'Password is required' })}
+          <InputGroup id='password' label='Password' error={errors.password}>
+            <Controller
+              name='password'
+              control={control}
+              rules={{ required: 'Password is required' }}
+              render={({ field }) => <Input type='password' {...field} />}
             />
-            {errors.password && (
-              <div className='text-sm text-error-600'>
-                {errors.password.message}
-              </div>
-            )}
-          </div>
+          </InputGroup>
 
-          <div>
-            <Label htmlFor='confirm-password' error={errors.confirmPassword}>
-              Confirm Password
-            </Label>
-            <input
-              type='password'
-              id='confirm-password'
-              className={clsx(
-                'mt-0.5 rounded-sm border p-1 px-2',
-                errors.confirmPassword && 'border-error-600 outline-error-600'
-              )}
-              {...register('confirmPassword', {
+          <InputGroup
+            id='confirm-password'
+            label='Confirm Password'
+            error={errors.confirmPassword}
+          >
+            <Controller
+              name='confirmPassword'
+              control={control}
+              rules={{
                 required: 'Password confirmation is required',
                 validate: (value) =>
                   watch('password') === value || 'Passwords do not match',
-              })}
+              }}
+              render={({ field }) => <Input type='password' {...field} />}
             />
-            {errors.confirmPassword && (
-              <div className='text-sm text-error-600'>
-                {errors.confirmPassword.message}
-              </div>
-            )}
-          </div>
+          </InputGroup>
         </div>
 
         <Button className='mt-4 w-full' type='submit' loading={isLoading}>
