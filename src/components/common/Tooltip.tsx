@@ -55,7 +55,7 @@ const Tooltip: FC<
           leave='transition-opacity'
           leaveFrom='opacity-100'
           leaveTo='opacity-0'
-          className='tooltip rounded-sm bg-gray-900 px-1.5 py-1 text-xs font-medium text-gray-100 shadow'
+          className='tooltip rounded bg-gray-900 px-1.5 py-1 text-xs font-medium text-gray-100 shadow'
           ref={setPopperElement}
           style={styles.popper}
           {...attributes.popper}
