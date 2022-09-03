@@ -19,7 +19,7 @@ const Button: FC<PropsWithChildren<ButtonProps>> = ({
   return (
     <button
       className={twsx(
-        'flex items-center justify-center font-semibold text-sm py-1 px-3 rounded outline-none transition',
+        'flex h-8 items-center justify-center font-semibold text-sm py-1 px-3 rounded outline-none transition',
         (disabled || loading) && 'pointer-events-none',
         template === 'primary' &&
           (disabled

@@ -1,5 +1,5 @@
 import { range } from 'ramda'
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { IoMdInformationCircle } from 'react-icons/io'
 
 import {
@@ -8,6 +8,7 @@ import {
 } from '../../../server/db/common/inputs'
 import Label from '../../common/Label'
 import Popover from '../../common/Popover'
+import Select from '../../common/Select'
 import { getGenreRelevanceText } from '../utils'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
@@ -21,26 +22,31 @@ const GenreNavigatorSettings: FC = () => {
     setShowRelevanceTags,
   } = useGenreNavigatorSettings()
 
+  const relevanceOptions = useMemo(
+    () =>
+      range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => ({
+        key: r,
+        label: `${r} - ${getGenreRelevanceText(r)}`,
+      })),
+    []
+  )
+  const selectedRelevanceOption = useMemo(
+    () => relevanceOptions.find((ro) => ro.key === genreRelevanceFilter),
+    [genreRelevanceFilter, relevanceOptions]
+  )
+
   return (
     <div className='space-y-4'>
       <div>
         <Label htmlFor='relevance' className='flex items-center'>
           <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
         </Label>
-        <select
+        <Select
           id='relevance'
-          className='mt-0.5 rounded-sm border p-1 px-2 text-sm capitalize'
-          value={genreRelevanceFilter}
-          onChange={(e) =>
-            setGenreRelevanceFilter(Number.parseInt(e.target.value))
-          }
-        >
-          {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
-            <option key={r} value={r}>
-              {r} - {getGenreRelevanceText(r)}
-            </option>
-          ))}
-        </select>
+          value={selectedRelevanceOption}
+          options={relevanceOptions}
+          onChange={(v) => setGenreRelevanceFilter(v.key)}
+        />
       </div>
 
       <div className='flex items-center space-x-2'>

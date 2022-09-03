@@ -1,5 +1,6 @@
 import { GenreAka, GenreType, Permission } from '@prisma/client'
 import { range } from 'ramda'
+import { useMemo } from 'react'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -11,11 +12,13 @@ import {
 import { GenreAkaInput } from '../../../../server/db/genre/inputs'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
+import { capitalize } from '../../../../utils/string'
 import { ifDefined } from '../../../../utils/types'
 import Button from '../../../common/Button'
 import Input from '../../../common/Input'
 import InputGroup from '../../../common/InputGroup'
 import RomcodeEditor from '../../../common/RomcodeEditor'
+import Select from '../../../common/Select'
 import { getGenreRelevanceText } from '../../utils'
 import GenreMultiselect from './GenreMultiselect'
 
@@ -78,7 +81,6 @@ const GenreForm: FC<{
 
   const {
     control,
-    register,
     handleSubmit,
     formState: { errors, dirtyFields },
     setFocus,
@@ -102,6 +104,26 @@ const GenreForm: FC<{
   )
   const [influencedByGenres, setInfluencedByGenres] = useState<number[]>(
     genre?.influencedByGenres.map((genre) => genre.id) ?? []
+  )
+
+  const typeOptions = useMemo(
+    () =>
+      Object.values(GenreType).map((type) => ({
+        key: type,
+        label: capitalize(type),
+      })),
+    []
+  )
+
+  const relevanceOptions = useMemo(
+    () => [
+      ...range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => ({
+        key: r,
+        label: `${r} - ${getGenreRelevanceText(r)}`,
+      })),
+      { key: 99, label: 'Unset' },
+    ],
+    []
   )
 
   const submitHandler = useCallback(
@@ -203,17 +225,18 @@ const GenreForm: FC<{
         </fieldset>
 
         <InputGroup id='type' label='Type' error={errors.type}>
-          <select
-            id='type'
-            className='mt-0.5 rounded-sm border p-1 px-2 capitalize'
-            {...register('type')}
-          >
-            {Object.values(GenreType).map((type) => (
-              <option key={type} value={type}>
-                {type.toLowerCase()}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name='type'
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                options={typeOptions}
+                value={typeOptions.find((to) => to.key === field.value)}
+                onChange={(v) => field.onChange(v.key)}
+              />
+            )}
+          />
         </InputGroup>
 
         <InputGroup
@@ -233,20 +256,18 @@ const GenreForm: FC<{
           }
           error={errors.type}
         >
-          <select
-            id='relevance'
-            className='mt-0.5 rounded-sm border p-1 px-2 capitalize'
-            {...register('relevance', {
-              setValueAs: (value: string) => Number.parseInt(value),
-            })}
-          >
-            {range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => (
-              <option key={r} value={r}>
-                {r} - {getGenreRelevanceText(r)}
-              </option>
-            ))}
-            <option value={99}>Unset</option>
-          </select>
+          <Controller
+            name='relevance'
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                options={relevanceOptions}
+                value={relevanceOptions.find((to) => to.key === field.value)}
+                onChange={(v) => field.onChange(v.key)}
+              />
+            )}
+          />
         </InputGroup>
 
         <InputGroup id='parents' label='Parents'>
