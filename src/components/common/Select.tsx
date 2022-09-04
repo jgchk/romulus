@@ -11,7 +11,11 @@ import { forwardRef } from 'react'
 import { useMemo } from 'react'
 import { useEffect } from 'react'
 import { Key } from 'react'
-import { RiArrowDownSLine, RiErrorWarningLine } from 'react-icons/ri'
+import {
+  RiArrowDownSLine,
+  RiArrowUpSLine,
+  RiErrorWarningLine,
+} from 'react-icons/ri'
 
 import { twsx } from '../../utils/dom'
 import { useInputGroupContext } from './InputGroup'
@@ -62,60 +66,64 @@ const Select = <T extends Option>(
 
   return (
     <Listbox value={value} onChange={onChange}>
-      <Listbox.Button
-        id={id}
-        ref={internalRef}
-        className={twsx(
-          'relative h-8 flex w-full items-center rounded border border-gray-500 bg-gray-100 p-1.5 text-start text-sm text-gray-800 outline-none transition hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300 disabled:pointer-events-none disabled:border-dashed',
-          value === undefined && 'italic text-gray-700'
-        )}
-      >
+      {({ open }) => (
         <>
-          <span className='overflow-hidden text-ellipsis'>
-            {value?.label ?? placeholder}
-          </span>
-          <div className='flex-1' />
-          {error && (
-            <RiErrorWarningLine
-              className='ml-1 shrink-0 text-error-500'
-              size={18}
-            />
-          )}
-          <RiArrowDownSLine
-            size={18}
-            className='ml-1 shrink-0 text-primary-500'
-          />
-        </>
-      </Listbox.Button>
-      <Listbox.Options className='rounded bg-white p-1 outline-none'>
-        {options.map((option, i) => (
-          <Listbox.Option
-            key={option.key ?? option.id ?? i}
-            value={option}
-            as={Fragment}
-          >
-            {({ active, selected }) => (
-              <li
-                className={twsx(
-                  'cursor-pointer rounded p-1 text-sm text-gray-800 hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300 border border-transparent',
-                  selected && 'border-primary-500',
-                  active && 'border-secondary-500'
-                )}
-              >
-                {option.label}
-              </li>
+          <Listbox.Button
+            id={id}
+            ref={internalRef}
+            className={twsx(
+              'h-8 flex w-full items-center rounded border border-gray-500 bg-gray-100 p-1.5 text-start text-sm text-gray-800 outline-none transition hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300 disabled:pointer-events-none disabled:border-dashed',
+              value === undefined && 'italic text-gray-700'
             )}
-          </Listbox.Option>
-        ))}
-      </Listbox.Options>
+          >
+            <>
+              <span className='overflow-hidden text-ellipsis'>
+                {value?.label ?? placeholder}
+              </span>
+              <div className='flex-1' />
+              {error && (
+                <RiErrorWarningLine
+                  className='ml-1 shrink-0 text-error-500'
+                  size={18}
+                />
+              )}
+              {(open ? RiArrowUpSLine : RiArrowDownSLine)({
+                size: 18,
+                className: 'ml-1 shrink-0 text-primary-500',
+              })}
+            </>
+          </Listbox.Button>
+          {open && (
+            <Listbox.Options static className='rounded p-1 outline-none'>
+              {options.map((option, i) => (
+                <Listbox.Option
+                  key={option.key ?? option.id ?? i}
+                  value={option}
+                  as={Fragment}
+                >
+                  {({ active, selected }) => (
+                    <li
+                      className={twsx(
+                        'cursor-pointer rounded p-1 text-sm text-gray-800 hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300 border border-transparent',
+                        selected && 'border-primary-500',
+                        active && 'border-secondary-500'
+                      )}
+                    >
+                      {option.label}
+                    </li>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          )}
+        </>
+      )}
     </Listbox>
   )
 }
 
-Select.displayName = 'Select'
-
 const Wrapper = forwardRef(Select) as <T extends Option>(
-  p: SelectProps<T> & { ref?: ForwardedRef<HTMLDivElement> }
+  props: SelectProps<T> & { ref?: ForwardedRef<HTMLDivElement> }
 ) => ReactElement
 
 export default Wrapper
