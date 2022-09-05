@@ -109,6 +109,7 @@ const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
           {options && options.length > page * PER_PAGE && (
             <div className='flex w-full justify-center'>
               <Button
+                type='button'
                 template='secondary'
                 onClick={() => setPage((p) => p + 1)}
               >
