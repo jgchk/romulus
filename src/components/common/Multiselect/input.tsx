@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { FC, useEffect, useMemo } from 'react'
 
 import { useInputGroupContext } from '../InputGroup'
 import { useMultiselectContext } from './context'
@@ -13,6 +13,7 @@ const MultiselectInput: FC<MultiselectInputProps> = ({
   placeholder,
 }) => {
   const {
+    open,
     setOpen,
     options,
     selected,
@@ -26,6 +27,12 @@ const MultiselectInput: FC<MultiselectInputProps> = ({
   const { id: contextId } = useInputGroupContext()
   const id = useMemo(() => propsId ?? contextId, [contextId, propsId])
 
+  useEffect(() => {
+    if (query.length > 0) {
+      setOpen(true)
+    }
+  }, [query.length, setOpen])
+
   return (
     <input
       ref={setInputRef}
@@ -37,8 +44,12 @@ const MultiselectInput: FC<MultiselectInputProps> = ({
       onChange={(e) => onQueryChange(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === 'Tab' || e.key === 'Enter') {
+          if (!open && query.length === 0) {
+            return
+          }
+
           const topOption = options?.[0]
-          if ((query.length === 0 && !open) || topOption === undefined) {
+          if (topOption === undefined) {
             setOpen(false)
             return
           }
@@ -54,6 +65,9 @@ const MultiselectInput: FC<MultiselectInputProps> = ({
         ) {
           e.preventDefault()
           unselect(selected[selected.length - 1])
+        } else if (e.key === 'Escape') {
+          e.preventDefault()
+          setOpen(false)
         }
       }}
     />
