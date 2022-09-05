@@ -1,7 +1,8 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta, Story } from '@storybook/react'
 import { range } from 'ramda'
-import { useMemo, useState } from 'react'
+import { ComponentProps, useMemo, useState } from 'react'
 
+import Button from '../components/common/Button'
 import M from '../components/common/Multiselect'
 import { HasId } from '../components/common/Multiselect/context'
 
@@ -10,7 +11,10 @@ export default {
   component: M,
 } as ComponentMeta<typeof M>
 
-const Template: ComponentStory<typeof M> = (args) => {
+const Template: Story<ComponentProps<typeof M> & { numOptions: number }> = ({
+  numOptions,
+  ...args
+}) => {
   const all: HasId[] = range(1, 100).map((id) => ({ id }))
 
   const [selected, setSelected] = useState<HasId[]>([])
@@ -22,6 +26,8 @@ const Template: ComponentStory<typeof M> = (args) => {
       (i) => i.id.toString().startsWith(query) && !selectedIds.has(i.id)
     )
   }, [all, query, selected])
+
+  const [page, setPage] = useState(1)
 
   return (
     <M
@@ -41,15 +47,24 @@ const Template: ComponentStory<typeof M> = (args) => {
         <M.Input />
       </M.Box>
       <M.Options>
-        {options.map((option) => (
+        {options.slice(0, page * numOptions).map((option) => (
           <M.Option key={option.id} item={option}>
             {option.id}
           </M.Option>
         ))}
+        {options.length > page * numOptions && (
+          <div className='flex w-full justify-center'>
+            <Button template='secondary' onClick={() => setPage((p) => p + 1)}>
+              Load More
+            </Button>
+          </div>
+        )}
       </M.Options>
     </M>
   )
 }
 
 export const Multiselect = Template.bind({})
-Multiselect.args = {}
+Multiselect.args = {
+  numOptions: 100,
+}
