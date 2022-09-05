@@ -8,7 +8,7 @@ const RelevanceChip: FC<{ relevance: number; className?: string }> = ({
   const [text, color, title] = useMemo(
     () =>
       relevance === 99
-        ? ['?', 'bg-red-200 text-red-500', 'Missing Relevance']
+        ? ['?', 'bg-error-200 text-error-500', 'Missing Relevance']
         : [relevance, 'bg-gray-200 text-gray-500'],
     [relevance]
   )
