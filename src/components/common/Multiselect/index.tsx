@@ -14,7 +14,7 @@ import MultiselectOptions from './options'
 import MultiselectSelected from './selected'
 
 type MultiselectProps<T> = {
-  options: T[]
+  options: T[] | undefined
   value: T[]
   onChange: (value: T[]) => void
   query: string

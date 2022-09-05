@@ -1,252 +1,127 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
+import { forwardRef, useMemo, useState } from 'react'
 
 import useDebounce from '../../../../hooks/useDebounce'
 import useIdMap from '../../../../hooks/useIdMap'
-import { SimpleGenre } from '../../../../server/db/genre/outputs'
 import {
-  Match,
   useSimpleGenreSearchQuery,
   useSimpleGenresQuery,
 } from '../../../../services/genres'
-import { CenteredLoader } from '../../../common/Loader'
+import Button from '../../../common/Button'
+import M from '../../../common/Multiselect'
 import useGenreNavigatorSettings from '../../GenreNavigator/useGenreNavigatorSettings'
 import GenreTypeChip from '../../GenreTypeChip'
 
-const GenreMultiselect: FC<{
+const PER_PAGE = 100
+
+export type GenreMultiselectProps = {
   id?: string
   selectedIds: number[]
   excludeIds?: number[]
   onChange: (value: number[]) => void
-}> = ({ id, selectedIds, excludeIds, onChange }) => {
-  const [inputValue, setInputValue] = useState('')
-  const [debouncedFilter] = useDebounce(inputValue, 200)
-  const [open, setOpen] = useState(false)
+}
 
-  useEffect(() => {
-    if (inputValue.length > 0) {
-      setOpen(true)
-    }
-  }, [inputValue.length])
+const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
+  ({ id, selectedIds, excludeIds, onChange }, ref) => {
+    const [query, setQuery] = useState('')
+    const [debouncedQuery] = useDebounce(query, 200)
 
-  const selectId = useCallback(
-    (id: number) => onChange([...selectedIds, id]),
-    [onChange, selectedIds]
-  )
+    const allGenres = useSimpleGenresQuery()
+    const genreMap = useIdMap(allGenres.data ?? [])
 
-  const unselectId = useCallback(
-    (id: number) =>
-      onChange(selectedIds.filter((selectedId) => selectedId !== id)),
-    [onChange, selectedIds]
-  )
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const listener = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        e.target &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('click', listener)
-    return () => document.removeEventListener('click', listener)
-  }, [])
-
-  const genresQuery = useSimpleGenresQuery()
-  const genreMap = useIdMap(genresQuery.data ?? [])
-
-  const genreSearchQuery = useSimpleGenreSearchQuery(debouncedFilter)
-  const options = useMemo(
-    () =>
-      genreSearchQuery.data
-        ?.filter(({ genre }) => {
+    const genreSearchQuery = useSimpleGenreSearchQuery(debouncedQuery)
+    const options = useMemo(
+      () =>
+        genreSearchQuery.data?.filter(({ genre }) => {
           if (excludeIds && excludeIds.includes(genre.id)) return false
           if (selectedIds.includes(genre.id)) return false
           return true
-        })
-        .slice(0, 100),
-    [excludeIds, genreSearchQuery.data, selectedIds]
-  )
+        }),
+      [excludeIds, genreSearchQuery.data, selectedIds]
+    )
 
-  const renderOptions = useCallback(() => {
-    if (!options) {
-      return <CenteredLoader className='m-2' />
-    }
+    const [page, setPage] = useState(1)
 
-    if (options.length === 0) {
-      return (
-        <div className='px-2 py-1 text-sm text-gray-700'>No genres found</div>
-      )
-    }
+    const { showTypeTags } = useGenreNavigatorSettings()
 
-    return options.map((item) => (
-      <Option
-        key={item.genre.id}
-        match={item}
-        onClick={() => {
-          selectId(item.genre.id)
-          setInputValue('')
-        }}
-      />
-    ))
-  }, [options, selectId])
-
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  return (
-    <div className='relative' ref={containerRef}>
-      <div className='flex rounded-sm border bg-white outline-1 focus-within:border-black focus-within:outline'>
-        <div
-          className='flex w-full flex-1 flex-wrap gap-1 p-1'
-          onClick={() => {
-            setOpen(!open)
-            inputRef.current?.focus()
-          }}
-        >
-          {selectedIds.map((id) => (
-            <SelectedGenre
-              key={id}
-              genre={genreMap.get(id)}
-              onRemove={() => unselectId(id)}
-            />
+    return (
+      <M
+        query={query}
+        onQueryChange={setQuery}
+        options={options}
+        value={selectedIds.map((id) => ({ id }))}
+        onChange={(s) => onChange(s.map(({ id }) => id))}
+        ref={ref}
+      >
+        <M.Box>
+          {selectedIds.map((id) => {
+            const genre = genreMap.get(id)
+            return (
+              <M.Selected key={id} item={genre ?? { id }}>
+                {genre?.name ?? 'Loading...'}
+                {genre?.subtitle && (
+                  <>
+                    {' '}
+                    <span className='text-xs text-gray-500'>
+                      [{genre.subtitle}]
+                    </span>
+                  </>
+                )}
+                {showTypeTags && genre && genre.type !== 'STYLE' && (
+                  <>
+                    {' '}
+                    <GenreTypeChip
+                      type={genre.type}
+                      className='bg-gray-300 text-2xs group-hover:bg-error-400 group-hover:text-error-700'
+                    />
+                  </>
+                )}
+              </M.Selected>
+            )
+          })}
+          <M.Input id={id} />
+        </M.Box>
+        <M.Options>
+          {options?.slice(0, page * PER_PAGE).map((match) => (
+            <M.Option key={match.id} item={match}>
+              {match.genre.name}
+              {match.genre.subtitle && (
+                <>
+                  {' '}
+                  <span className='text-xs text-gray-600'>
+                    [{match.genre.subtitle}]
+                  </span>
+                </>
+              )}
+              {match.matchedAka && (
+                <>
+                  {' '}
+                  <span className='text-xs'>({match.matchedAka})</span>
+                </>
+              )}
+              {showTypeTags && match.genre.type !== 'STYLE' && (
+                <>
+                  {' '}
+                  <GenreTypeChip className='text-xs' type={match?.genre.type} />
+                </>
+              )}
+            </M.Option>
           ))}
-          <input
-            ref={inputRef}
-            id={id}
-            className='flex-1 border border-transparent focus:outline-none'
-            placeholder='Search...'
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Tab' || e.key === 'Enter') {
-                const topOption = options?.[0]
-                if (
-                  (inputValue.length === 0 && !open) ||
-                  topOption === undefined
-                ) {
-                  setOpen(false)
-                  return
-                }
-
-                e.preventDefault()
-                selectId(topOption.genre.id)
-                setInputValue('')
-                setOpen(false)
-              } else if (
-                e.key === 'Backspace' &&
-                inputValue.length === 0 &&
-                selectedIds.length > 0
-              ) {
-                e.preventDefault()
-                unselectId(selectedIds[selectedIds.length - 1])
-              }
-            }}
-            autoComplete='off'
-          />
-        </div>
-        <button
-          className='border-l border-gray-200 px-1 text-gray-400 hover:bg-gray-100'
-          type='button'
-          onClick={() => {
-            setOpen(!open)
-            inputRef.current?.focus()
-          }}
-          tabIndex={-1}
-        >
-          {open ? (
-            <RiArrowUpSLine className='pointer-events-none' />
-          ) : (
-            <RiArrowDownSLine className='pointer-events-none' />
+          {options && options.length > page * PER_PAGE && (
+            <div className='flex w-full justify-center'>
+              <Button
+                template='secondary'
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Load More
+              </Button>
+            </div>
           )}
-        </button>
-      </div>
-      {open && (
-        <ul
-          className='absolute z-10 max-h-64 w-full overflow-auto border bg-white shadow-sm'
-          style={{ top: 'calc(100% - 1px)' }}
-        >
-          {renderOptions()}
-        </ul>
-      )}
-    </div>
-  )
-}
+        </M.Options>
+      </M>
+    )
+  }
+)
 
-const Option: FC<{
-  match?: Match
-  onClick: () => void
-}> = ({ match, onClick }) => {
-  const { showTypeTags } = useGenreNavigatorSettings()
-
-  return (
-    <li className='group hover:bg-gray-100'>
-      <button
-        className='w-full border-b border-gray-200 px-2 py-1 text-left text-sm text-gray-700 group-last:border-0'
-        type='button'
-        onClick={() => onClick()}
-      >
-        {match?.genre.name ?? 'Loading...'}
-        {match?.genre.subtitle && (
-          <>
-            {' '}
-            <span className='text-xs text-gray-600'>
-              [{match.genre.subtitle}]
-            </span>
-          </>
-        )}
-        {match?.matchedAka && (
-          <>
-            {' '}
-            <span className='text-xs'>({match.matchedAka})</span>
-          </>
-        )}
-        {showTypeTags && match?.genre.type && match?.genre.type !== 'STYLE' && (
-          <>
-            {' '}
-            <GenreTypeChip type={match?.genre.type} />
-          </>
-        )}
-      </button>
-    </li>
-  )
-}
-
-const SelectedGenre: FC<{ genre?: SimpleGenre; onRemove: () => void }> = ({
-  genre,
-  onRemove,
-}) => {
-  const { showTypeTags } = useGenreNavigatorSettings()
-
-  return (
-    <div className='flex rounded-sm border border-gray-400 bg-gray-200 text-gray-600'>
-      <div className='px-2 py-0.5 text-sm font-medium'>
-        {genre?.name ?? 'Loading...'}
-        {genre?.subtitle && (
-          <>
-            {' '}
-            <span className='text-xs text-gray-500'>[{genre.subtitle}]</span>
-          </>
-        )}
-        {showTypeTags && genre && genre.type !== 'STYLE' && (
-          <>
-            {' '}
-            <GenreTypeChip type={genre.type} className='bg-gray-300' />
-          </>
-        )}
-      </div>
-      <button
-        className='h-full border-l border-gray-300 px-1 hover:bg-gray-300'
-        type='button'
-        onClick={() => onRemove()}
-        tabIndex={-1}
-      >
-        <RiCloseFill />
-      </button>
-    </div>
-  )
-}
+GenreMultiselect.displayName = 'GenreMultiselect'
 
 export default GenreMultiselect

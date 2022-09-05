@@ -1,5 +1,6 @@
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 
+import { useInputGroupContext } from '../InputGroup'
 import { useMultiselectContext } from './context'
 
 export type MultiselectInputProps = {
@@ -7,7 +8,10 @@ export type MultiselectInputProps = {
   placeholder?: string
 }
 
-const MultiselectInput: FC<MultiselectInputProps> = ({ id, placeholder }) => {
+const MultiselectInput: FC<MultiselectInputProps> = ({
+  id: propsId,
+  placeholder,
+}) => {
   const {
     setOpen,
     options,
@@ -18,6 +22,9 @@ const MultiselectInput: FC<MultiselectInputProps> = ({ id, placeholder }) => {
     query,
     onQueryChange,
   } = useMultiselectContext()
+
+  const { id: contextId } = useInputGroupContext()
+  const id = useMemo(() => propsId ?? contextId, [contextId, propsId])
 
   return (
     <input

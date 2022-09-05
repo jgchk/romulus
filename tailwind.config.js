@@ -14,6 +14,11 @@ module.exports = {
       white: colors.white,
       transparent: colors.transparent,
     },
+    extend: {
+      fontSize: {
+        '2xs': '.625rem',
+      },
+    },
   },
   plugins: [require('@tailwindcss/typography')],
 }

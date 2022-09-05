@@ -1,7 +1,7 @@
-import clsx from 'clsx'
 import { FC, useMemo } from 'react'
 
 import { GenreType } from '../../server/db/genre/outputs'
+import { twsx } from '../../utils/dom'
 import { capitalize } from '../../utils/string'
 
 const GenreTypeChip: FC<{ type: GenreType; className?: string }> = ({
@@ -17,7 +17,7 @@ const GenreTypeChip: FC<{ type: GenreType; className?: string }> = ({
 
   return (
     <span
-      className={clsx(
+      className={twsx(
         'rounded-full bg-gray-200 px-1 py-0.5 text-xs font-bold text-gray-500',
         className
       )}

@@ -78,7 +78,12 @@ export const useSimpleGenresQuery = () => {
   })
 }
 
-export type Match = { genre: SimpleGenre; matchedAka?: string; weight: number }
+export type Match = {
+  id: number
+  genre: SimpleGenre
+  matchedAka?: string
+  weight: number
+}
 const toFilterString = (s: string) => toAscii(s.toLowerCase())
 const getMatchWeight = (name: string, filter: string) => {
   const fName = toFilterString(name)
@@ -109,13 +114,14 @@ export const useSimpleGenreSearchQuery = (filter: string) => {
         name += ` [${genre.subtitle}]`
       }
       const nameWeight = getMatchWeight(name, filter)
-      let match: Match = { genre, weight: nameWeight }
+      let match: Match = { id: genre.id, genre, weight: nameWeight }
 
       for (const aka of genre.akas) {
         // TODO: incorporate aka relevance
         const akaWeight = getMatchWeight(aka.name, filter)
         if (akaWeight > match.weight) {
           match = {
+            id: genre.id,
             genre,
             matchedAka: aka.name,
             weight: akaWeight,

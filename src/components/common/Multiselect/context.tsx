@@ -16,7 +16,7 @@ type MultiselectContext = {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 
-  options: HasId[]
+  options: HasId[] | undefined
   selected: HasId[]
 
   onChange: (value: HasId[]) => void
