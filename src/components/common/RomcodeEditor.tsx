@@ -29,7 +29,7 @@ const RomcodeEditor = forwardRef<
   return (
     <div
       className={twsx(
-        'flex flex-col h-72 overflow-auto resize-y border rounded-sm focus-within:outline outline-2',
+        'group flex flex-col h-72 overflow-auto resize-y rounded border border-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-within:border-secondary-500 transition text-sm text-gray-800',
         className
       )}
     >
@@ -37,7 +37,7 @@ const RomcodeEditor = forwardRef<
         <textarea
           ref={ref}
           id={id}
-          className='flex-1 resize-none px-2 py-1 focus:outline-none'
+          className='flex-1 resize-none bg-transparent p-1.5 focus:outline-none'
           value={value}
           onChange={onChange}
           onBlur={onBlur}
@@ -49,10 +49,10 @@ const RomcodeEditor = forwardRef<
           <Romcode>{value}</Romcode>
         </div>
       )}
-      <div className='flex border-t border-gray-200'>
+      <div className='flex border-t border-gray-200 transition group-hover:border-gray-300 group-active:border-gray-400'>
         <button
           className={clsx(
-            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 hover:bg-gray-100',
+            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-100 group-hover:border-gray-300 group-hover:text-gray-500 group-active:border-gray-400 group-active:text-gray-600',
             tab === Tab.EDIT ? 'font-bold' : 'font-medium'
           )}
           type='button'
@@ -62,7 +62,7 @@ const RomcodeEditor = forwardRef<
         </button>
         <button
           className={clsx(
-            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 hover:bg-gray-100',
+            'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-100 group-hover:border-gray-300 group-hover:text-gray-500 group-active:border-gray-400 group-active:text-gray-600',
             tab === Tab.VIEW ? 'font-bold' : 'font-medium'
           )}
           type='button'
