@@ -24,7 +24,10 @@ export const findAncestorElement = (
   return current
 }
 
-export const isBrowser = typeof window !== 'undefined'
+export const isBrowser =
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.documentElement
 
 const fallbackCopyTextToClipboard = (text: string) => {
   const textArea = document.createElement('textarea')
@@ -98,4 +101,13 @@ export const isFullyVisible = (ele: HTMLElement, container: HTMLElement) => {
 
   // check that some of top intersects
   return rect.bottom - containerRect.bottom <= 0
+}
+
+export const unfocus = () => {
+  const docSel = document.getSelection()
+  if (docSel) {
+    docSel.empty()
+  } else {
+    window.getSelection()?.removeAllRanges()
+  }
 }

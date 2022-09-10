@@ -5,6 +5,7 @@ import { RiSettings3Fill } from 'react-icons/ri'
 
 import useDebounce from '../../../hooks/useDebounce'
 import { useSession } from '../../../services/auth'
+import { twsx } from '../../../utils/dom'
 import Button from '../../common/Button'
 import IconButton from '../../common/IconButton'
 import Input from '../../common/Input'
@@ -12,7 +13,7 @@ import GenreSearchResults from './Search'
 import GenreNavigatorSettings from './Settings'
 import GenreTree from './Tree'
 
-const GenreNavigator: FC = () => {
+const GenreNavigator: FC<{ className?: string }> = ({ className }) => {
   const session = useSession()
 
   const [showSettings, setShowSettings] = useState(false)
@@ -25,8 +26,8 @@ const GenreNavigator: FC = () => {
   }, [setDebouncedFilter])
 
   return (
-    <div className='flex h-full w-full flex-col'>
-      <div className='flex space-x-1 border-b p-4'>
+    <div className={twsx('flex h-full w-full flex-col', className)}>
+      <div className='flex space-x-1 border-b border-gray-100 p-4'>
         <div className='relative flex-1'>
           <Input
             value={filter}

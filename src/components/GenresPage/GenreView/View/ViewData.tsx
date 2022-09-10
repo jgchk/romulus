@@ -191,8 +191,8 @@ const GenreViewData: FC<{
   }, [relationsQuery.data, relationsQuery.error, showTypeTags])
 
   return (
-    <div className='flex-1 overflow-auto p-4'>
-      <div className='flex items-center justify-between border-b border-gray-100 pb-4'>
+    <div className='flex-1 overflow-auto'>
+      <div className='flex items-center justify-between border-b border-gray-100 p-4'>
         <div className='text-2xl font-bold text-gray-600'>
           {genre.name}
           {genre.subtitle && (
@@ -211,7 +211,7 @@ const GenreViewData: FC<{
         </button>
       </div>
 
-      <div className='space-y-3 pt-4'>
+      <div className='space-y-3 p-4'>
         {genre.akas.length > 0 && (
           <div>
             <Label htmlFor='akas'>AKA</Label>

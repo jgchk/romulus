@@ -1,8 +1,6 @@
-import clsx from 'clsx'
-import Link from 'next/link'
 import { FC, useCallback } from 'react'
 
-import { useSession } from '../../services/auth'
+import SplitPane from '../common/SplitPane'
 import GenreNavigator from './GenreNavigator'
 import GenreCreate from './GenreView/Create'
 import GenreViewPlaceholder from './GenreView/Default'
@@ -19,8 +17,6 @@ export type GenrePageView =
   | { type: 'create' }
 
 const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
-  const session = useSession()
-
   const renderGenre = useCallback(() => {
     switch (view.type) {
       case 'default':
@@ -37,50 +33,21 @@ const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
   }, [view])
 
   return (
-    <div className={clsx('flex h-full w-full items-center', 'md:bg-texture')}>
-      <div
-        className={clsx('flex h-full w-full flex-col items-center', 'md:p-4')}
+    <>
+      <SplitPane
+        defaultSize={300}
+        minSize={200}
+        className='hidden h-full md:flex'
       >
-        <div
-          className={clsx(
-            'flex min-h-0 w-full flex-1 justify-center',
-            'md:space-x-4'
-          )}
-        >
-          <div
-            className={clsx(
-              'min-w-[250px] flex-[1] bg-white',
-              'md:max-w-[350px] md:rounded-sm md:border md:shadow-sm',
-              // default -> always show
-              // other -> hidden by default, show at md
-              view.type !== 'default' && 'hidden md:block'
-            )}
-          >
-            <GenreNavigator />
-          </div>
-          <div
-            className={clsx(
-              'flex-[3] bg-white',
-              'md:max-w-[800px] md:rounded-sm md:border md:shadow-sm',
-              // default -> hidden by default, show at md
-              // other -> always show
-              view.type === 'default' && 'hidden md:block'
-            )}
-          >
-            {renderGenre()}
-          </div>
-        </div>
+        <GenreNavigator />
+        {renderGenre()}
+      </SplitPane>
 
-        {session.isLoggedOut && (
-          <div className='mt-4 text-gray-700'>
-            <Link href={{ pathname: '/login' }}>
-              <a className='text-primary-500 hover:underline'>Log in</a>
-            </Link>{' '}
-            to create and edit genres.
-          </div>
-        )}
-      </div>
-    </div>
+      {view.type === 'default' && <GenreNavigator className='md:hidden' />}
+      {view.type !== 'default' && (
+        <div className='h-full md:hidden'>{renderGenre()}</div>
+      )}
+    </>
   )
 }
 
