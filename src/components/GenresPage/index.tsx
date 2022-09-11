@@ -1,5 +1,6 @@
 import { FC, useCallback } from 'react'
 
+import useWindowSize from '../../hooks/useWindowSize'
 import SplitPane from '../common/SplitPane'
 import GenreNavigator from './GenreNavigator'
 import GenreCreate from './GenreView/Create'
@@ -32,11 +33,14 @@ const GenrePage: FC<{ view: GenrePageView }> = ({ view }) => {
     }
   }, [view])
 
+  const { width } = useWindowSize()
+
   return (
     <>
       <SplitPane
         defaultSize={300}
         minSize={200}
+        maxSize={width - 300}
         className='hidden h-full md:flex'
       >
         <GenreNavigator />

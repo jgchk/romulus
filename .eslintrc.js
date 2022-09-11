@@ -33,6 +33,10 @@ module.exports = {
     'unicorn/no-array-callback-reference': 'off',
 
     'react/prop-types': 'off',
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      { additionalHooks: '(useIsomorphicLayoutEffect)' },
+    ],
 
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
