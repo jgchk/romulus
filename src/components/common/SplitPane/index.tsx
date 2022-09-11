@@ -9,26 +9,27 @@ import {
 } from 'react'
 
 import useEventListener from '../../../hooks/useEventListener'
+import useLocalStorage from '../../../hooks/useLocalStorage'
 import { isBrowser, twsx, unfocus } from '../../../utils/dom'
 
 type PartialTouchEvent = { touches: { [index: number]: { clientX: number } } }
 
 const SplitPane: FC<{
   children: [ReactElement, ReactElement]
+  defaultSize?: number
   minSize?: number
   maxSize?: number
-  defaultSize?: number
   className?: string
 }> = ({ children, minSize = 50, maxSize, defaultSize, className }) => {
   const [active, setActive] = useState(false)
   const [pos, setPos] = useState(0)
-  const [pane1Size, setPane1Size] = useState(() =>
+  const [size, setSize] = useLocalStorage(
+    'settings.genreTree.size',
     getDefaultSize(defaultSize, minSize, maxSize)
   )
 
   const splitPaneRef = useRef<HTMLDivElement>(null)
   const pane1Ref = useRef<HTMLDivElement>(null)
-  const pane2Ref = useRef<HTMLDivElement>(null)
 
   const handleTouchStart = useCallback((e: PartialTouchEvent) => {
     unfocus()
@@ -45,26 +46,16 @@ const SplitPane: FC<{
   const handleTouchMove = useCallback(
     (e: PartialTouchEvent) => {
       if (!active) return
-      console.log(e.touches[0].clientX)
 
       unfocus()
 
       const node = pane1Ref.current
-      const node2 = pane2Ref.current
 
-      if (!node || !node2) return
+      if (!node) return
 
       const { width } = node.getBoundingClientRect()
       const current = e.touches[0].clientX
-      const size = width
       const posDelta = pos - current
-      let sizeDelta = posDelta
-
-      const pane1Order = Number.parseInt(window.getComputedStyle(node).order)
-      const pane2Order = Number.parseInt(window.getComputedStyle(node2).order)
-      if (pane1Order > pane2Order) {
-        sizeDelta = -sizeDelta
-      }
 
       let newMaxSize = maxSize
       if (maxSize !== undefined && maxSize <= 0 && splitPaneRef.current) {
@@ -72,7 +63,7 @@ const SplitPane: FC<{
           splitPaneRef.current.getBoundingClientRect().width + maxSize
       }
 
-      let newSize = size - sizeDelta
+      let newSize = width - posDelta
       const newPos = pos - posDelta
 
       if (newSize < minSize) {
@@ -83,9 +74,9 @@ const SplitPane: FC<{
         setPos(newPos)
       }
 
-      setPane1Size(newSize)
+      setSize(newSize)
     },
-    [active, maxSize, minSize, pos]
+    [active, maxSize, minSize, pos, setSize]
   )
 
   const handleMouseDown = useCallback(
@@ -110,7 +101,7 @@ const SplitPane: FC<{
 
   return (
     <div ref={splitPaneRef} className={twsx('flex', className)}>
-      <Pane ref={pane1Ref} size={pane1Size}>
+      <Pane ref={pane1Ref} size={size}>
         {children[0]}
       </Pane>
       <div
@@ -129,7 +120,7 @@ const SplitPane: FC<{
           )}
         />
       </div>
-      <Pane ref={pane2Ref}>{children[1]}</Pane>
+      <Pane>{children[1]}</Pane>
     </div>
   )
 }

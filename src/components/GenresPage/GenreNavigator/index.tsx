@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FC, useCallback, useState } from 'react'
 import { RiSettings3Fill } from 'react-icons/ri'
 
-import useDebounce from '../../../hooks/useDebounce'
+import useDebouncedState from '../../../hooks/useDebouncedState'
 import { useSession } from '../../../services/auth'
 import { twsx } from '../../../utils/dom'
 import Button from '../../common/Button'
@@ -18,7 +18,7 @@ const GenreNavigator: FC<{ className?: string }> = ({ className }) => {
 
   const [showSettings, setShowSettings] = useState(false)
   const [filter, setFilter] = useState('')
-  const [debouncedFilter, setDebouncedFilter] = useDebounce(filter, 200)
+  const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 200)
 
   const clearFilter = useCallback(() => {
     setFilter('')

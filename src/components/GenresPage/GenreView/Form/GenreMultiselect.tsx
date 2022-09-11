@@ -1,6 +1,6 @@
 import { forwardRef, useMemo, useState } from 'react'
 
-import useDebounce from '../../../../hooks/useDebounce'
+import useDebouncedState from '../../../../hooks/useDebouncedState'
 import useIdMap from '../../../../hooks/useIdMap'
 import {
   useSimpleGenreSearchQuery,
@@ -23,7 +23,7 @@ export type GenreMultiselectProps = {
 const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
   ({ id, selectedIds, excludeIds, onChange }, ref) => {
     const [query, setQuery] = useState('')
-    const [debouncedQuery] = useDebounce(query, 200)
+    const [debouncedQuery] = useDebouncedState(query, 200)
 
     const allGenres = useSimpleGenresQuery()
     const genreMap = useIdMap(allGenres.data ?? [])

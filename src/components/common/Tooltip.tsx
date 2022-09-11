@@ -3,7 +3,7 @@ import { FC, PropsWithChildren, ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePopper } from 'react-popper'
 
-import useDebounce from '../../hooks/useDebounce'
+import useDebouncedState from '../../hooks/useDebouncedState'
 
 const Tooltip: FC<
   PropsWithChildren<{ className?: string; tip: ReactNode }>
@@ -26,7 +26,7 @@ const Tooltip: FC<
   })
 
   const [show, setShow] = useState(false)
-  const [showDebounced] = useDebounce(show, 500)
+  const [showDebounced] = useDebouncedState(show, 500)
 
   useEffect(() => {
     if (!referenceElement) return

@@ -17,7 +17,10 @@ declare global {
 
 type SetValue<T> = Dispatch<SetStateAction<T>>
 
-function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
+function useLocalStorage<T>(
+  key: string,
+  initialValue: T
+): [T, SetValue<T>, () => T] {
   // Get from local storage then
   // parse stored json or return initialValue
   const readValue = useCallback((): T => {
@@ -88,7 +91,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
   // See: useLocalStorage()
   useEventListener('local-storage', handleStorageChange)
 
-  return [storedValue, setValue]
+  return [storedValue, setValue, readValue]
 }
 
 export default useLocalStorage
