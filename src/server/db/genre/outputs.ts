@@ -32,6 +32,7 @@ export const simpleGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
   subtitle: true,
   type: true,
   akas: true,
+  relevance: true,
 })
 export type SimpleGenre = Prisma.GenreGetPayload<{
   select: typeof simpleGenreSelect

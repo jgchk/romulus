@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { compareTwoStrings } from 'string-similarity'
 
+import useGenreNavigatorSettings from '../components/GenresPage/GenreNavigator/useGenreNavigatorSettings'
 import {
   DefaultGenre,
   SimpleGenre,
@@ -104,6 +105,7 @@ const getMatchWeight = (name: string, filter: string) => {
 const WEIGHT_THRESHOLD = 0.2
 export const useSimpleGenreSearchQuery = (filter: string) => {
   const genresQuery = useSimpleGenresQuery()
+  const { genreRelevanceFilter } = useGenreNavigatorSettings()
 
   const getMatches = useCallback((allGenres: SimpleGenre[], filter: string) => {
     const m: Match[] = []
@@ -143,12 +145,17 @@ export const useSimpleGenreSearchQuery = (filter: string) => {
 
   const output = useMemo(() => {
     if (genresQuery.data) {
-      const matches = getMatches(genresQuery.data, filter)
+      const matches = getMatches(
+        genresQuery.data.filter(
+          (genre) => genre.relevance >= genreRelevanceFilter
+        ),
+        filter
+      )
       return { ...genresQuery, data: matches }
     } else {
       return genresQuery
     }
-  }, [filter, genresQuery, getMatches])
+  }, [filter, genreRelevanceFilter, genresQuery, getMatches])
 
   return output
 }
