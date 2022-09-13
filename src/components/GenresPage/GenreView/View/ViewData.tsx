@@ -20,6 +20,7 @@ import {
   getFilteredParentGenres,
   getGenreRelevanceText,
 } from '../../utils'
+import RelevanceVoteForm from './RelevanceVoteForm'
 
 const GenreViewData: FC<{
   genre: DefaultGenre
@@ -29,6 +30,7 @@ const GenreViewData: FC<{
   const { showTypeTags, genreRelevanceFilter } = useGenreNavigatorSettings()
 
   const [showNotes, setShowNotes] = useState(false)
+  const [isVoting, setVoting] = useState(false)
 
   const sortedHistory = useMemo(
     () =>
@@ -233,9 +235,26 @@ const GenreViewData: FC<{
 
         {genre.relevance !== 99 && (
           <div>
-            <Label htmlFor='relevance'>Relevance</Label>
+            <Label htmlFor='relevance'>
+              Relevance{' '}
+              <button
+                className='text-xs text-primary-500 hover:underline'
+                onClick={() => setVoting(!isVoting)}
+              >
+                ({isVoting ? 'Cancel' : 'Vote'})
+              </button>
+            </Label>
             <div id='relevance'>
-              {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
+              {isVoting ? (
+                <RelevanceVoteForm
+                  genreId={genre.id}
+                  onClose={() => setVoting(false)}
+                />
+              ) : (
+                <>
+                  {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
+                </>
+              )}
             </div>
           </div>
         )}

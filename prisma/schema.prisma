@@ -259,14 +259,16 @@ model Account {
   genreHistory   GenreHistory[]
   artistHistory  ArtistHistory[]
   releaseHistory ReleaseHistory[]
+  objectHistory  ObjectHistory[]
   issueHistory   IssueHistory[]
   trackHistory   TrackHistory[]
 
   reviews Review[]
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @default(now()) @updatedAt
-  ObjectHistory ObjectHistory[]
+  relevanceVotes GenreRelevanceVote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Review {
@@ -321,6 +323,8 @@ model Genre {
   x Int?
   y Int?
 
+  relevanceVotes GenreRelevanceVote[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -373,4 +377,19 @@ model GenreHistoryAka {
   order     Int
 
   @@id([genreId, name])
+}
+
+model GenreRelevanceVote {
+  genreId Int
+  genre   Genre @relation(fields: [genreId], references: [id])
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
+
+  relevance Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([genreId, accountId])
 }

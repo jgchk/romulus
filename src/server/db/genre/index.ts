@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
 import { addGenreHistory } from '../genre-history'
+import { setGenreRelevanceVote } from '../genre-relevance'
 import { CreateGenreInput, EditGenreInput } from './inputs'
 import {
   DefaultGenre,
@@ -55,7 +56,7 @@ export const getSimpleGenre = async (id: number): Promise<SimpleGenre> => {
 }
 
 export const createGenre = async (
-  input: CreateGenreInput,
+  { relevance, ...input }: CreateGenreInput,
   accountId: number
 ): Promise<DefaultGenre> => {
   await throwOnCycle(input)
@@ -76,11 +77,13 @@ export const createGenre = async (
 
   await addGenreHistory(genre, CrudOperation.CREATE, accountId)
 
+  await setGenreRelevanceVote({ genreId: genre.id, relevance }, accountId)
+
   return genre
 }
 
 export const editGenre = async (
-  { id, data }: EditGenreInput,
+  { id, data: { relevance, ...data } }: EditGenreInput,
   accountId: number
 ): Promise<DefaultGenre> => {
   let name = data.name
@@ -118,6 +121,10 @@ export const editGenre = async (
   })
 
   await addGenreHistory(genre, CrudOperation.UPDATE, accountId)
+
+  if (relevance !== undefined) {
+    await setGenreRelevanceVote({ genreId: genre.id, relevance }, accountId)
+  }
 
   return genre
 }

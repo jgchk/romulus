@@ -5,6 +5,7 @@ import { artistHistoryRouter } from './artist-history'
 import { authRouter } from './auth'
 import { genreRouter } from './genre'
 import { genreHistoryRouter } from './genre-history'
+import { genreRelevanceRouter } from './genre-relevance'
 import { issueRouter } from './issue'
 import { issueHistoryRouter } from './issue-history'
 import { objectRouter } from './object'
@@ -20,6 +21,7 @@ export const appRouter = createRouter()
   .merge('artist.history.', artistHistoryRouter)
   .merge('genre.', genreRouter)
   .merge('genre.history.', genreHistoryRouter)
+  .merge('genre.relevance.', genreRelevanceRouter)
   .merge('release.', releaseRouter)
   .merge('release.history.', releaseHistoryRouter)
   .merge('issue.', issueRouter)

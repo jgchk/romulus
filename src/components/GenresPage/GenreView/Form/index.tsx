@@ -8,6 +8,7 @@ import useWarnOnUnsavedChanges from '../../../../hooks/useWarnOnUnsavedChanges'
 import {
   MAX_GENRE_RELEVANCE,
   MIN_GENRE_RELEVANCE,
+  UNSET_GENRE_RELEVANCE,
 } from '../../../../server/db/common/inputs'
 import { GenreAkaInput } from '../../../../server/db/genre/inputs'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
@@ -121,7 +122,7 @@ const GenreForm: FC<{
         key: r,
         label: `${r} - ${getGenreRelevanceText(r)}`,
       })),
-      { key: 99, label: 'Unset' },
+      { key: UNSET_GENRE_RELEVANCE, label: 'Unset' },
     ],
     []
   )
@@ -254,7 +255,7 @@ const GenreForm: FC<{
               </a>
             </>
           }
-          error={errors.type}
+          error={errors.relevance}
         >
           <Controller
             name='relevance'
