@@ -196,7 +196,7 @@ const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
         </tfoot>
       </table>
 
-      <div className='flex items-center space-x-2'>
+      <div className='flex flex-wrap items-center space-x-2'>
         <IconButton
           onClick={() => table.setPageIndex(0)}
           disabled={!table.getCanPreviousPage()}
@@ -241,7 +241,7 @@ const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
             className='w-16 rounded border p-1'
           />
         </span>
-        <div className='relative self-stretch'>
+        <div className='relative w-24 self-stretch'>
           <div className='absolute' style={{ width: 'max-content' }}>
             <Select
               value={pageOptions.find(
