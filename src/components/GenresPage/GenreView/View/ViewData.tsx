@@ -233,29 +233,41 @@ const GenreViewData: FC<{
           </div>
         </div>
 
-        {genre.relevance !== 99 && (
-          <div>
-            <Label htmlFor='relevance'>
-              Relevance{' '}
-              <button
-                className='text-xs text-primary-500 hover:underline'
-                onClick={() => setVoting(!isVoting)}
-              >
-                ({isVoting ? 'Cancel' : 'Vote'})
-              </button>
-            </Label>
-            <div id='relevance'>
-              {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
-            </div>
-            {isVoting && (
-              <RelevanceVoteForm
-                genreId={genre.id}
-                className='mt-1'
-                onClose={() => setVoting(false)}
-              />
+        <div>
+          <Label htmlFor='relevance'>
+            Relevance{' '}
+            <button
+              className='text-xs text-primary-500 hover:underline'
+              onClick={() => setVoting(!isVoting)}
+            >
+              ({isVoting ? 'Cancel' : 'Vote'})
+            </button>
+          </Label>
+          <div id='relevance'>
+            {genre.relevance !== 99 ? (
+              <>
+                {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
+              </>
+            ) : (
+              <>
+                None set.{' '}
+                <button
+                  className='text-primary-500 hover:underline'
+                  onClick={() => setVoting(true)}
+                >
+                  Vote.
+                </button>
+              </>
             )}
           </div>
-        )}
+          {isVoting && (
+            <RelevanceVoteForm
+              genreId={genre.id}
+              className='mt-1'
+              onClose={() => setVoting(false)}
+            />
+          )}
+        </div>
 
         {renderParentGenres()}
         {renderInfluences()}
