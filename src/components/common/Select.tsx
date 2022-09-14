@@ -123,7 +123,7 @@ const Select = <T extends Option>(
 }
 
 const Wrapper = forwardRef(Select) as <T extends Option>(
-  props: SelectProps<T> & { ref?: ForwardedRef<HTMLDivElement> }
+  props: SelectProps<T> & { ref?: ForwardedRef<HTMLButtonElement> }
 ) => ReactElement
 
 export default Wrapper

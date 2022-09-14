@@ -1,29 +1,28 @@
-import { range } from 'ramda'
-import { FC, useCallback, useEffect, useMemo } from 'react'
+import { FC, useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import {
-  MAX_GENRE_RELEVANCE,
-  MIN_GENRE_RELEVANCE,
-  UNSET_GENRE_RELEVANCE,
-} from '../../../../server/db/common/inputs'
+import { UNSET_GENRE_RELEVANCE } from '../../../../server/db/common/inputs'
 import {
   useDeleteGenreRelevanceVoteMutation,
   useGenreRelevanceVoteMutation,
   useGenreRelevanceVoteQuery,
 } from '../../../../services/genre-relevance'
+import { twsx } from '../../../../utils/dom'
+import Button from '../../../common/Button'
 import InputGroup from '../../../common/InputGroup'
-import Select from '../../../common/Select'
-import { getGenreRelevanceText } from '../../utils'
+import Label from '../../../common/Label'
+import RelevanceSelect from '../../RelevanceSelect'
+import RelevanceVoteGraph from './RelevanceVoteGraph'
 
 type RelevanceVoteFormFields = {
   relevance: number
 }
 
-const RelevanceVoteForm: FC<{ genreId: number; onClose: () => void }> = ({
-  genreId,
-  onClose,
-}) => {
+const RelevanceVoteForm: FC<{
+  genreId: number
+  className?: string
+  onClose?: () => void
+}> = ({ genreId, className, onClose }) => {
   const {
     control,
     handleSubmit,
@@ -34,20 +33,18 @@ const RelevanceVoteForm: FC<{ genreId: number; onClose: () => void }> = ({
     defaultValues: { relevance: UNSET_GENRE_RELEVANCE },
   })
 
-  const { mutate: vote } = useGenreRelevanceVoteMutation()
-  const { mutate: deleteVote } = useDeleteGenreRelevanceVoteMutation()
+  const { mutate: vote, isLoading: isVoting } = useGenreRelevanceVoteMutation()
+  const { mutate: deleteVote, isLoading: isDeletingVote } =
+    useDeleteGenreRelevanceVoteMutation()
   const submitHandler = useCallback(
     (data: RelevanceVoteFormFields) => {
       if (data.relevance === UNSET_GENRE_RELEVANCE) {
-        return deleteVote({ genreId }, { onSuccess: () => onClose() })
+        return deleteVote({ genreId })
       }
 
-      vote(
-        { relevance: data.relevance, genreId },
-        { onSuccess: () => onClose() }
-      )
+      vote({ relevance: data.relevance, genreId })
     },
-    [deleteVote, genreId, onClose, vote]
+    [deleteVote, genreId, vote]
   )
 
   useEffect(() => setFocus('relevance'), [setFocus])
@@ -62,35 +59,44 @@ const RelevanceVoteForm: FC<{ genreId: number; onClose: () => void }> = ({
     }
   }, [data, dirtyFields.relevance, setValue])
 
-  const relevanceOptions = useMemo(
-    () => [
-      ...range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => ({
-        key: r,
-        label: `${r} - ${getGenreRelevanceText(r)}`,
-      })),
-      { key: UNSET_GENRE_RELEVANCE, label: 'Unset' },
-    ],
-    []
-  )
-
   return (
-    <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
-      <InputGroup id='relevance' error={errors.relevance}>
-        <Controller
-          name='relevance'
-          control={control}
-          render={({ field }) => (
-            <Select
-              {...field}
-              options={relevanceOptions}
-              value={relevanceOptions.find((to) => to.key === field.value)}
-              onChange={(v) => field.onChange(v.key)}
-            />
-          )}
-        />
-      </InputGroup>
-      <button type='submit'>Vote</button>
-    </form>
+    <div
+      className={twsx(
+        'rounded border border-gray-300 bg-gray-50 p-4',
+        className
+      )}
+    >
+      <form onSubmit={(e) => void handleSubmit(submitHandler)(e)}>
+        <InputGroup label='Your Vote' id='relevance' error={errors.relevance}>
+          <Controller
+            name='relevance'
+            control={control}
+            render={({ field }) => (
+              <div className='flex max-w-sm space-x-1'>
+                <div className='flex-1'>
+                  <RelevanceSelect {...field} />
+                </div>
+                <Button
+                  template='primary'
+                  type='submit'
+                  loading={isVoting || isDeletingVote}
+                >
+                  Vote
+                </Button>
+                <Button template='tertiary' type='button' onClick={onClose}>
+                  Cancel
+                </Button>
+              </div>
+            )}
+          />
+        </InputGroup>
+      </form>
+
+      <div className='mt-4 max-w-sm space-y-0.5'>
+        <Label>Results</Label>
+        <RelevanceVoteGraph genreId={genreId} />
+      </div>
+    </div>
   )
 }
 

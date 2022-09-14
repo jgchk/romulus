@@ -245,17 +245,15 @@ const GenreViewData: FC<{
               </button>
             </Label>
             <div id='relevance'>
-              {isVoting ? (
-                <RelevanceVoteForm
-                  genreId={genre.id}
-                  onClose={() => setVoting(false)}
-                />
-              ) : (
-                <>
-                  {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
-                </>
-              )}
+              {genre.relevance} - {getGenreRelevanceText(genre.relevance)}
             </div>
+            {isVoting && (
+              <RelevanceVoteForm
+                genreId={genre.id}
+                className='mt-1'
+                onClose={() => setVoting(false)}
+              />
+            )}
           </div>
         )}
 

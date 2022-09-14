@@ -1,15 +1,9 @@
 import { GenreAka, GenreType, Permission } from '@prisma/client'
-import { range } from 'ramda'
 import { useMemo } from 'react'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import useWarnOnUnsavedChanges from '../../../../hooks/useWarnOnUnsavedChanges'
-import {
-  MAX_GENRE_RELEVANCE,
-  MIN_GENRE_RELEVANCE,
-  UNSET_GENRE_RELEVANCE,
-} from '../../../../server/db/common/inputs'
 import { GenreAkaInput } from '../../../../server/db/genre/inputs'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
@@ -20,7 +14,7 @@ import Input from '../../../common/Input'
 import InputGroup from '../../../common/InputGroup'
 import RomcodeEditor from '../../../common/RomcodeEditor'
 import Select from '../../../common/Select'
-import { getGenreRelevanceText } from '../../utils'
+import RelevanceSelect from '../../RelevanceSelect'
 import GenreMultiselect from './GenreMultiselect'
 
 const DEFAULT_RELEVANCE = 4
@@ -113,17 +107,6 @@ const GenreForm: FC<{
         key: type,
         label: capitalize(type),
       })),
-    []
-  )
-
-  const relevanceOptions = useMemo(
-    () => [
-      ...range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => ({
-        key: r,
-        label: `${r} - ${getGenreRelevanceText(r)}`,
-      })),
-      { key: UNSET_GENRE_RELEVANCE, label: 'Unset' },
-    ],
     []
   )
 
@@ -260,14 +243,7 @@ const GenreForm: FC<{
           <Controller
             name='relevance'
             control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={relevanceOptions}
-                value={relevanceOptions.find((to) => to.key === field.value)}
-                onChange={(v) => field.onChange(v.key)}
-              />
-            )}
+            render={({ field }) => <RelevanceSelect {...field} />}
           />
         </InputGroup>
 

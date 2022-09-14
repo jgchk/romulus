@@ -1,15 +1,10 @@
-import { range } from 'ramda'
-import { FC, useMemo, useState } from 'react'
+import { FC, useState } from 'react'
 import { IoMdInformationCircle } from 'react-icons/io'
 
-import {
-  MAX_GENRE_RELEVANCE,
-  MIN_GENRE_RELEVANCE,
-} from '../../../server/db/common/inputs'
+import InputGroup from '../../common/InputGroup'
 import Label from '../../common/Label'
 import Popover from '../../common/Popover'
-import Select from '../../common/Select'
-import { getGenreRelevanceText } from '../utils'
+import RelevanceSelect from '../RelevanceSelect'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
 const GenreNavigatorSettings: FC = () => {
@@ -22,32 +17,21 @@ const GenreNavigatorSettings: FC = () => {
     setShowRelevanceTags,
   } = useGenreNavigatorSettings()
 
-  const relevanceOptions = useMemo(
-    () =>
-      range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1).map((r) => ({
-        key: r,
-        label: `${r} - ${getGenreRelevanceText(r)}`,
-      })),
-    []
-  )
-  const selectedRelevanceOption = useMemo(
-    () => relevanceOptions.find((ro) => ro.key === genreRelevanceFilter),
-    [genreRelevanceFilter, relevanceOptions]
-  )
-
   return (
     <div className='space-y-4'>
-      <div>
-        <Label htmlFor='relevance' className='flex items-center'>
-          <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
-        </Label>
-        <Select
-          id='relevance'
-          value={selectedRelevanceOption}
-          options={relevanceOptions}
-          onChange={(v) => setGenreRelevanceFilter(v.key)}
+      <InputGroup
+        id='relevance'
+        label={
+          <div className='flex items-center'>
+            <span>Genre Relevance Filter</span> <GenreRelevanceHelpIcon />
+          </div>
+        }
+      >
+        <RelevanceSelect
+          value={genreRelevanceFilter}
+          onChange={(v) => setGenreRelevanceFilter(v)}
         />
-      </div>
+      </InputGroup>
 
       <div className='flex items-center space-x-2'>
         <input
