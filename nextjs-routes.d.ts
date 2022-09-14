@@ -17,6 +17,7 @@ declare module "nextjs-routes" {
     | { pathname: "/genres/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/genres/canvas"; query?: Query | undefined }
     | { pathname: "/genres"; query?: Query | undefined }
+    | { pathname: "/genres/table"; query?: Query | undefined }
     | { pathname: "/"; query?: Query | undefined }
     | { pathname: "/login"; query?: Query | undefined }
     | { pathname: "/register"; query?: Query | undefined }
