@@ -1,17 +1,15 @@
 import { CrudOperation } from '@prisma/client'
 import {
   createColumnHelper,
-  ExpandedState,
   flexRender,
   getCoreRowModel,
-  getExpandedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { compareAsc, format } from 'date-fns'
 import Link from 'next/link'
 import { equals, isEmpty } from 'ramda'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
@@ -22,6 +20,7 @@ import GenreLink from '../../common/GenreLink'
 import IconButton from '../../common/IconButton'
 import Label from '../../common/Label'
 import { CenteredLoader } from '../../common/Loader'
+import Tooltip from '../../common/Tooltip'
 import GenreTypeChip from '../GenreTypeChip'
 
 const GenreHistory: FC<{ id: number }> = ({ id }) => {
@@ -131,11 +130,15 @@ const Table: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => {
           const id = props.row.id
           const isExpanded = !!expanded[id]
           return (
-            <IconButton
-              onClick={() => setExpanded((e) => ({ ...e, [id]: !isExpanded }))}
-            >
-              {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
-            </IconButton>
+            <Tooltip tip={`${isExpanded ? 'Hide' : 'Show'} Changes`}>
+              <IconButton
+                onClick={() =>
+                  setExpanded((e) => ({ ...e, [id]: !isExpanded }))
+                }
+              >
+                {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
+              </IconButton>
+            </Tooltip>
           )
         },
       }),
