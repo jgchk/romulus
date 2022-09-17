@@ -308,9 +308,6 @@ model Genre {
   shortDescription String?
   longDescription  String?
   notes            String?
-  startDate        String?
-  endDate          String?
-  oldAkas          String[]   @map("akas")
   akas             GenreAka[]
   relevance        Int        @default(99)
 
@@ -319,9 +316,6 @@ model Genre {
 
   influencedByGenres Genre[] @relation("influence")
   influencesGenres   Genre[] @relation("influence")
-
-  x Int?
-  y Int?
 
   relevanceVotes GenreRelevanceVote[]
 
@@ -348,17 +342,10 @@ model GenreHistory {
   shortDescription String?
   longDescription  String?
   notes            String?
-  startDate        String?
-  endDate          String?
-  oldAkas          String[]          @map("akas")
   akas             GenreHistoryAka[]
-  relevance        Int               @default(99)
 
   parentGenreIds       Int[]
   influencedByGenreIds Int[]
-
-  x Int?
-  y Int?
 
   treeGenreId Int
 

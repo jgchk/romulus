@@ -20,8 +20,6 @@ export const addGenreHistory = (
       shortDescription: genre.shortDescription,
       longDescription: genre.longDescription,
       notes: genre.notes,
-      startDate: genre.startDate,
-      endDate: genre.endDate,
       akas: {
         create: genre.akas.map((aka) => ({
           name: aka.name,
@@ -29,11 +27,8 @@ export const addGenreHistory = (
           order: aka.order,
         })),
       },
-      relevance: genre.relevance,
       parentGenreIds: genre.parentGenres.map((g) => g.id),
       influencedByGenreIds: genre.influencedByGenres.map((g) => g.id),
-      x: genre.x,
-      y: genre.y,
       treeGenreId: genre.id,
       operation,
       accountId,

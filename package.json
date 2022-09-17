@@ -16,8 +16,6 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.0.5",
-    "@dnd-kit/modifiers": "^6.0.0",
     "@headlessui/react": "^1.6.6",
     "@next/bundle-analyzer": "^12.2.5",
     "@popperjs/core": "^2.11.6",

@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { usePopper } from 'react-popper'
 
 import useDebouncedState from '../../hooks/useDebouncedState'
+import { isBrowser } from '../../utils/dom'
 
 const Tooltip: FC<
   PropsWithChildren<{ className?: string; tip: ReactNode }>
@@ -46,29 +47,31 @@ const Tooltip: FC<
   return (
     <div className={className} ref={setReferenceElement}>
       {children}
-      {createPortal(
-        <Transition
-          show={showDebounced}
-          enter='transition-opacity'
-          enterFrom='opacity-0'
-          enterTo='opacity-100'
-          leave='transition-opacity'
-          leaveFrom='opacity-100'
-          leaveTo='opacity-0'
-          className='tooltip rounded bg-gray-900 px-1.5 py-1 text-xs font-medium text-gray-100 shadow'
-          ref={setPopperElement}
-          style={styles.popper}
-          {...attributes.popper}
-        >
-          {tip}
-          <div
-            className='arrow h-1 w-1 before:absolute before:h-1 before:w-1 before:rotate-45 before:bg-gray-900'
-            ref={setArrowElement}
-            style={styles.arrow}
-          />
-        </Transition>,
-        document.body
-      )}
+      {isBrowser
+        ? createPortal(
+            <Transition
+              show={showDebounced}
+              enter='transition-opacity'
+              enterFrom='opacity-0'
+              enterTo='opacity-100'
+              leave='transition-opacity'
+              leaveFrom='opacity-100'
+              leaveTo='opacity-0'
+              className='tooltip rounded bg-gray-900 px-1.5 py-1 text-xs font-medium text-gray-100 shadow'
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+            >
+              {tip}
+              <div
+                className='arrow h-1 w-1 before:absolute before:h-1 before:w-1 before:rotate-45 before:bg-gray-900'
+                ref={setArrowElement}
+                style={styles.arrow}
+              />
+            </Transition>,
+            document.body
+          )
+        : null}
     </div>
   )
 }
