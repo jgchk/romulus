@@ -192,7 +192,7 @@ const Table: FC<{ history: DefaultGenreHistory[] }> = ({ history }) => {
               <th
                 key={header.id}
                 className='p-1 px-2 text-left'
-                style={{ width: header.id === 'expand' ? 0 : '33%' }}
+                style={{ width: header.id === 'expand' ? 0 : undefined }}
               >
                 {header.isPlaceholder
                   ? null
