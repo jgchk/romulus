@@ -7,6 +7,8 @@ import { Controller, useForm } from 'react-hook-form'
 import Button from '../components/common/Button'
 import Input from '../components/common/Input'
 import InputGroup from '../components/common/InputGroup'
+import useDebouncedState from '../hooks/useDebouncedState'
+import { useAccountByUsernameQuery } from '../services/accounts'
 import { useRegisterMutation, useSession } from '../services/auth'
 
 type RegisterFormFields = {
@@ -30,6 +32,7 @@ const Register: NextPage = () => {
     control,
     formState: { errors },
     setFocus,
+    setError,
     watch,
   } = useForm<RegisterFormFields>()
 
@@ -40,6 +43,14 @@ const Register: NextPage = () => {
   )
 
   useEffect(() => setFocus('username'), [setFocus])
+
+  const [debouncedUsername] = useDebouncedState(watch('username'), 200)
+  const accountQuery = useAccountByUsernameQuery(debouncedUsername)
+  useEffect(() => {
+    if (accountQuery.data?.username) {
+      setError('username', { type: 'validate', message: 'Username is taken' })
+    }
+  }, [accountQuery.data?.username, setError])
 
   return (
     <div className='bg-texture flex h-full w-full items-center justify-center'>

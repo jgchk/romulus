@@ -7,12 +7,19 @@ export const useAccountQuery = (id?: number) =>
     staleTime: 60 * 1000,
   })
 
+export const useAccountByUsernameQuery = (username: string) =>
+  trpc.useQuery(['account.byUsername', { username }])
+
 export const useAccountsQuery = () => {
   const utils = trpc.useContext()
   return trpc.useQuery(['account.all'], {
     onSuccess: (data) => {
       for (const account of data) {
         utils.setQueryData(['account.byId', { id: account.id }], account)
+        utils.setQueryData(
+          ['account.byUsername', { username: account.username }],
+          account
+        )
       }
     },
   })

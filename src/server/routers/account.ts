@@ -2,7 +2,11 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { editAccount } from '../db/account'
+import {
+  editAccount,
+  getAccountById,
+  getAccountByUsername,
+} from '../db/account'
 import { EditAccountInput } from '../db/account/inputs'
 import { defaultAccountSelect } from '../db/account/outputs'
 import { requireLogin } from '../guards'
@@ -12,10 +16,7 @@ export const accountRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: async ({ input: { id } }) => {
-      const account = await prisma.account.findUnique({
-        where: { id },
-        select: defaultAccountSelect,
-      })
+      const account = await getAccountById(id)
 
       if (!account) {
         throw new TRPCError({
@@ -26,6 +27,10 @@ export const accountRouter = createRouter()
 
       return account
     },
+  })
+  .query('byUsername', {
+    input: z.object({ username: z.string() }),
+    resolve: async ({ input: { username } }) => getAccountByUsername(username),
   })
   .mutation('edit', {
     input: EditAccountInput,

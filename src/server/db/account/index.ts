@@ -7,6 +7,12 @@ import { defaultAccountSelect } from './outputs'
 export const getAccountById = (id: number) =>
   prisma.account.findUnique({ where: { id }, select: defaultAccountSelect })
 
+export const getAccountByUsername = (username: string) =>
+  prisma.account.findUnique({
+    where: { username },
+    select: defaultAccountSelect,
+  })
+
 export const createAccount = async (input: CreateAccountInput) => {
   const hashedPassword = await bcrypt.hash(input.password, 12)
 
