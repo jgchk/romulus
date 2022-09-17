@@ -9,6 +9,11 @@ module.exports = {
       primary: colors.blue,
       secondary: colors.orange,
       error: colors.red,
+
+      green: colors.green,
+      yellow: colors.yellow,
+      red: colors.red,
+
       gray: colors.gray,
       black: colors.black,
       white: colors.white,
