@@ -12,7 +12,7 @@ import {
   simpleGenreSelect,
   treeGenreSelect,
 } from './outputs'
-import { throwOnCycle } from './utils'
+import { didChange, throwOnCycle } from './utils'
 
 export const getGenres = () =>
   prisma.genre.findMany({ select: defaultGenreSelect })
@@ -105,6 +105,20 @@ export const editGenre = async (
 
   await throwOnCycle({ id, ...data, name })
 
+  if (relevance !== undefined) {
+    await setGenreRelevanceVote({ genreId: id, relevance }, accountId)
+  }
+
+  const lastHistory = await prisma.genreHistory.findFirst({
+    where: { treeGenreId: id },
+    orderBy: { createdAt: 'desc' },
+    include: { akas: true },
+  })
+
+  if (lastHistory && !didChange(data, lastHistory)) {
+    return getGenre(id)
+  }
+
   const genre = await prisma.genre.update({
     where: { id },
     data: {
@@ -121,10 +135,6 @@ export const editGenre = async (
   })
 
   await addGenreHistory(genre, CrudOperation.UPDATE, accountId)
-
-  if (relevance !== undefined) {
-    await setGenreRelevanceVote({ genreId: genre.id, relevance }, accountId)
-  }
 
   return genre
 }

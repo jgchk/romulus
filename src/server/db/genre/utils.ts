@@ -1,6 +1,9 @@
+import { GenreHistory, GenreHistoryAka } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
+import { equals, uniq } from 'ramda'
 
 import { prisma } from '../../prisma'
+import { EditGenreInput } from './inputs'
 
 type BasicGenre = {
   id: number
@@ -100,4 +103,73 @@ export const throwOnCycle = async (data: {
       message: `Cycle detected in genre tree:\n${cycle}`,
     })
   }
+}
+
+export const didChange = (
+  update: Omit<EditGenreInput['data'], 'relevance'>,
+  history: GenreHistory & { akas: GenreHistoryAka[] }
+) => {
+  if (update.name !== undefined && update.name !== history.name) {
+    return true
+  }
+
+  if (update.subtitle !== undefined && update.subtitle !== history.subtitle) {
+    return true
+  }
+
+  if (update.type !== undefined && update.type !== history.type) {
+    return true
+  }
+
+  if (
+    update.shortDescription !== undefined &&
+    update.shortDescription !== history.shortDescription
+  ) {
+    return true
+  }
+
+  if (
+    update.longDescription !== undefined &&
+    update.longDescription !== history.longDescription
+  ) {
+    return true
+  }
+
+  if (
+    update.parentGenres !== undefined &&
+    !equals(new Set(update.parentGenres), new Set(history.parentGenreIds))
+  ) {
+    return true
+  }
+
+  if (
+    update.influencedByGenres !== undefined &&
+    !equals(
+      new Set(update.influencedByGenres),
+      new Set(history.influencedByGenreIds)
+    )
+  ) {
+    return true
+  }
+
+  if (update.notes !== undefined && update.notes !== history.notes) {
+    return true
+  }
+
+  if (
+    update.akas !== undefined &&
+    !equals(new Set(uniq(update.akas)), new Set(history.akas))
+  ) {
+    const historyAkas = history.akas.map((aka) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { genreId, ...akaData } = aka
+      return akaData
+    })
+
+    if (!equals(new Set(uniq(update.akas)), new Set(uniq(historyAkas)))) {
+      return true
+    }
+  }
+
+  return false
 }

@@ -1,7 +1,7 @@
 import { GenreType } from '@prisma/client'
 import { z } from 'zod'
 
-import { iso8601, nonemptyString } from '../../../utils/validators'
+import { nonemptyString } from '../../../utils/validators'
 import { GenreRelevanceInput } from '../common/inputs'
 
 export const LocationIdInput = z.object({ id: z.number() })
@@ -45,9 +45,6 @@ export const CreateGenreInput = z.object({
   type: GenreTypeInput,
   shortDescription: nonemptyString().optional(),
   longDescription: nonemptyString().optional(),
-  locations: z.union([LocationIdInput, LocationInput]).array().optional(),
-  startDate: iso8601().optional(),
-  endDate: iso8601().optional(),
   parentGenres: z.number().array().optional(),
   influencedByGenres: z.number().array().optional(),
   notes: nonemptyString().optional(),
@@ -64,13 +61,8 @@ export const EditGenreInput = z.object({
     type: GenreTypeInput.optional(),
     shortDescription: nonemptyString().optional().nullable(),
     longDescription: nonemptyString().optional().nullable(),
-    locations: z.union([LocationIdInput, LocationInput]).array().optional(),
-    startDate: iso8601().optional(),
-    endDate: iso8601().optional(),
     parentGenres: z.number().array().optional(),
     influencedByGenres: z.number().array().optional(),
-    x: z.number().nullable().optional(),
-    y: z.number().nullable().optional(),
     notes: nonemptyString().optional().nullable(),
     akas: GenreAkaInput.array().optional(),
     relevance: GenreRelevanceInput.optional(),
