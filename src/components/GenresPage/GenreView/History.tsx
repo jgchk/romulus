@@ -372,13 +372,32 @@ const Diff: FC<{
             {lastHistory.parentGenreIds.length > 0 && (
               <div>
                 <Label>Parents</Label>
-                <div>{lastHistory.parentGenreIds}</div>
+                <div>
+                  <ul className='comma-list'>
+                    {lastHistory.parentGenreIds.map((id) => (
+                      <li
+                        key={id}
+                        className='font-bold text-primary-500 hover:underline'
+                      >
+                        <GenreLink id={id} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
             {lastHistory.influencedByGenreIds.length > 0 && (
               <div>
                 <Label>Influences</Label>
-                <div>{lastHistory.influencedByGenreIds}</div>
+                <div>
+                  <ul className='comma-list'>
+                    {lastHistory.influencedByGenreIds.map((id) => (
+                      <li key={id} className='text-primary-500 hover:underline'>
+                        <GenreLink id={id} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>
@@ -478,7 +497,18 @@ const Diff: FC<{
               )}
             >
               <Label>Parents</Label>
-              <div>{thisHistory.parentGenreIds}</div>
+              <div>
+                <ul className='comma-list'>
+                  {thisHistory.parentGenreIds.map((id) => (
+                    <li
+                      key={id}
+                      className='font-bold text-primary-500 hover:underline'
+                    >
+                      <GenreLink id={id} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
           {(thisHistory.influencedByGenreIds.length > 0 ||
@@ -490,7 +520,15 @@ const Diff: FC<{
               )}
             >
               <Label>Influences</Label>
-              <div>{thisHistory.influencedByGenreIds}</div>
+              <div>
+                <ul className='comma-list'>
+                  {thisHistory.influencedByGenreIds.map((id) => (
+                    <li key={id} className='text-primary-500 hover:underline'>
+                      <GenreLink id={id} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>

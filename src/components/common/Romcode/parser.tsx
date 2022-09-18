@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react'
 
-import RenderGenreLink from './GenreLink'
+import RenderGenreLink from '../GenreLink'
 import { GenreLink, Link, Node, Root, Text } from './types'
 import { visit } from './visit'
 
