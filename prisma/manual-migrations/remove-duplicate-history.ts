@@ -1,6 +1,6 @@
 import { GenreHistory, GenreHistoryAka } from '@prisma/client'
 import dotenv from 'dotenv'
-import { equals } from 'ramda'
+import { equals, uniq } from 'ramda'
 
 dotenv.config({ path: '.env.local' })
 
@@ -66,14 +66,52 @@ const main = async () => {
 }
 
 const didChange = (a: FullGenreHistory, b: FullGenreHistory) => {
-  const aData = getChangeableData(a)
-  const bData = getChangeableData(b)
-  return !equals(aData, bData)
+  if (a.name !== b.name) {
+    return true
+  }
+
+  if (a.subtitle !== b.subtitle) {
+    return true
+  }
+
+  if (a.type !== b.type) {
+    return true
+  }
+
+  if (a.shortDescription !== b.shortDescription) {
+    return true
+  }
+
+  if (a.longDescription !== b.longDescription) {
+    return true
+  }
+
+  if (a.notes !== b.notes) {
+    return true
+  }
+
+  if (!equals(new Set(a.parentGenreIds), new Set(b.parentGenreIds))) {
+    return true
+  }
+
+  if (
+    !equals(new Set(a.influencedByGenreIds), new Set(b.influencedByGenreIds))
+  ) {
+    return true
+  }
+
+  const aAkas = a.akas.map(getChangeableAkaData)
+  const bAkas = b.akas.map(getChangeableAkaData)
+  if (!equals(new Set(uniq(aAkas)), new Set(uniq(bAkas)))) {
+    return true
+  }
+
+  return false
 }
 
-const getChangeableData = (history: FullGenreHistory) => {
+const getChangeableAkaData = (aka: GenreHistoryAka) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id, createdAt, operation, accountId, ...data } = history
+  const { genreId, ...data } = aka
   return data
 }
 
