@@ -1,4 +1,4 @@
-import { CrudOperation } from '@prisma/client'
+import { CrudOperation, GenreHistoryAka } from '@prisma/client'
 import {
   createColumnHelper,
   flexRender,
@@ -8,7 +8,7 @@ import {
 import clsx from 'clsx'
 import { compareAsc, format } from 'date-fns'
 import Link from 'next/link'
-import { equals, isEmpty } from 'ramda'
+import { equals, isEmpty, uniq } from 'ramda'
 import { FC, useCallback, useMemo, useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
@@ -288,9 +288,20 @@ const Diff: FC<{
       shortDescription: getAction((h) => h.shortDescription),
       longDescription: getAction((h) => h.longDescription),
       notes: getAction((h) => h.notes),
-      akas: getAction((h) => h.akas),
-      parentGenreIds: getAction((h) => h.parentGenreIds),
-      influencedByGenreIds: getAction((h) => h.influencedByGenreIds),
+      akas: getAction(
+        (h) =>
+          new Set(
+            uniq(
+              h.akas.map((aka) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { genreId, ...data } = aka
+                return data
+              })
+            )
+          )
+      ),
+      parentGenreIds: getAction((h) => new Set(h.parentGenreIds)),
+      influencedByGenreIds: getAction((h) => new Set(h.influencedByGenreIds)),
     }),
     [getAction]
   )
@@ -355,7 +366,7 @@ const Diff: FC<{
             {lastHistory.akas.length > 0 && (
               <div>
                 <Label>AKAs</Label>
-                <div>{JSON.stringify(lastHistory.akas)}</div>
+                <AKAs akas={lastHistory.akas} />
               </div>
             )}
             {lastHistory.parentGenreIds.length > 0 && (
@@ -455,7 +466,7 @@ const Diff: FC<{
               className={clsx('rounded p-1 px-2', getActionClass(changed.akas))}
             >
               <Label>AKAs</Label>
-              <div>{JSON.stringify(thisHistory.akas)}</div>
+              <AKAs akas={thisHistory.akas} />
             </div>
           )}
           {(thisHistory.parentGenreIds.length > 0 ||
@@ -487,5 +498,14 @@ const Diff: FC<{
     </div>
   )
 }
+
+const AKAs: FC<{ akas: GenreHistoryAka[] }> = ({ akas }) => (
+  <div>
+    {akas
+      .sort((a, b) => b.relevance - a.relevance || a.order - b.order)
+      .map((aka) => aka.name)
+      .join(', ')}
+  </div>
+)
 
 export default GenreHistory
