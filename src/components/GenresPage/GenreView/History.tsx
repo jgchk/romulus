@@ -266,7 +266,10 @@ const Diff: FC<{
       const thisValue = fn(thisHistory)
 
       if (!lastHistory) {
-        return thisValue && !isEmpty(thisValue) ? 'create' : null
+        return thisValue &&
+          (thisValue instanceof Set ? thisValue.size > 0 : !isEmpty(thisValue))
+          ? 'create'
+          : null
       }
 
       const lastValue = fn(lastHistory)
@@ -275,7 +278,10 @@ const Diff: FC<{
         return null
       }
 
-      return thisValue && !isEmpty(thisValue) ? 'update' : 'delete'
+      return thisValue &&
+        (thisValue instanceof Set ? thisValue.size > 0 : !isEmpty(thisValue))
+        ? 'update'
+        : 'delete'
     },
     [lastHistory, thisHistory]
   )
