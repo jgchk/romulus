@@ -368,10 +368,10 @@ model GenreHistoryAka {
 
 model GenreRelevanceVote {
   genreId Int
-  genre   Genre @relation(fields: [genreId], references: [id])
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
   accountId Int
-  account   Account @relation(fields: [accountId], references: [id])
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   relevance Int
 
