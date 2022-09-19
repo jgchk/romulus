@@ -8,7 +8,7 @@ import {
 import clsx from 'clsx'
 import { compareAsc, format } from 'date-fns'
 import Link from 'next/link'
-import { equals, isEmpty, uniq } from 'ramda'
+import { equals, uniq } from 'ramda'
 import { FC, useCallback, useMemo, useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
@@ -16,6 +16,7 @@ import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 import { DefaultGenreHistory } from '../../../server/db/genre-history/outputs'
 import { useGenreHistoryQuery } from '../../../services/genre-history'
 import { capitalize } from '../../../utils/string'
+import { isEmpty } from '../../../utils/types'
 import GenreLink from '../../common/GenreLink'
 import IconButton from '../../common/IconButton'
 import Label from '../../common/Label'
@@ -264,25 +265,27 @@ const Diff: FC<{
 }> = ({ lastHistory, thisHistory }) => {
   const getAction = useCallback(
     <T,>(fn: (hist: DefaultGenreHistory) => T): DiffAction => {
+      if (thisHistory.operation === CrudOperation.DELETE) {
+        return 'delete'
+      }
+
       const thisValue = fn(thisHistory)
 
       if (!lastHistory) {
-        return thisValue &&
-          (thisValue instanceof Set ? thisValue.size > 0 : !isEmpty(thisValue))
-          ? 'create'
-          : null
+        return isEmpty(thisValue) ? null : 'create'
       }
 
       const lastValue = fn(lastHistory)
+
+      if (isEmpty(lastValue) && !isEmpty(thisValue)) {
+        return 'create'
+      }
 
       if (equals(lastValue, thisValue)) {
         return null
       }
 
-      return thisValue &&
-        (thisValue instanceof Set ? thisValue.size > 0 : !isEmpty(thisValue))
-        ? 'update'
-        : 'delete'
+      return isEmpty(thisValue) ? 'delete' : 'update'
     },
     [lastHistory, thisHistory]
   )
@@ -420,126 +423,160 @@ const Diff: FC<{
         </div>
       )}
 
-      <div className='flex-1 rounded border border-gray-300 bg-gray-100'>
-        <div className='border-b border-gray-200 p-2 px-3 text-sm font-bold uppercase tracking-wide text-gray-500'>
-          After
+      {thisHistory.operation === CrudOperation.DELETE ? (
+        <div className='flex flex-1 flex-col rounded border border-red-300 bg-red-100'>
+          <div className='border-b border-red-200 p-2 px-3 text-sm font-bold uppercase tracking-wide text-red-500'>
+            After
+          </div>
+          <div className='flex flex-1 items-center justify-center text-sm text-red-500'>
+            Deleted
+          </div>
         </div>
-        <div className='space-y-1 p-1'>
-          {(thisHistory.name || changed.name) && (
-            <div
-              className={clsx('rounded p-1 px-2', getActionClass(changed.name))}
-            >
-              <Label>Name</Label>
-              <div>{thisHistory.name}</div>
-            </div>
+      ) : (
+        <div
+          className={clsx(
+            'flex-1 rounded border',
+            thisHistory.operation === CrudOperation.CREATE
+              ? 'border-green-300 bg-green-100'
+              : 'border-gray-300 bg-gray-100'
           )}
-          {(thisHistory.subtitle || changed.subtitle) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.subtitle)
-              )}
-            >
-              <Label>Subtitle</Label>
-              <div>{thisHistory.subtitle}</div>
-            </div>
-          )}
-          {(thisHistory.type || changed.type) && (
-            <div
-              className={clsx('rounded p-1 px-2', getActionClass(changed.type))}
-            >
-              <Label>Type</Label>
-              <div>
-                <GenreTypeChip type={thisHistory.type} />
+        >
+          <div
+            className={clsx(
+              'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide',
+              thisHistory.operation === CrudOperation.CREATE
+                ? 'border-green-200 text-green-500'
+                : 'border-gray-200 text-gray-500'
+            )}
+          >
+            After
+          </div>
+          <div className='space-y-1 p-1'>
+            {(thisHistory.name || changed.name) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.name)
+                )}
+              >
+                <Label>Name</Label>
+                <div>{thisHistory.name}</div>
               </div>
-            </div>
-          )}
-          {(thisHistory.shortDescription || changed.shortDescription) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.shortDescription)
-              )}
-            >
-              <Label>Short Description</Label>
-              <Romcode>{thisHistory.shortDescription ?? ''}</Romcode>
-            </div>
-          )}
-          {(thisHistory.longDescription || changed.longDescription) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.longDescription)
-              )}
-            >
-              <Label>Long Description</Label>
-              <Romcode>{thisHistory.longDescription ?? ''}</Romcode>
-            </div>
-          )}
-          {(thisHistory.notes || changed.notes) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.notes)
-              )}
-            >
-              <Label>Notes</Label>
-              <Romcode>{thisHistory.notes ?? ''}</Romcode>
-            </div>
-          )}
-          {(thisHistory.akas.length > 0 || changed.akas) && (
-            <div
-              className={clsx('rounded p-1 px-2', getActionClass(changed.akas))}
-            >
-              <Label>AKAs</Label>
-              <AKAs akas={thisHistory.akas} />
-            </div>
-          )}
-          {(thisHistory.parentGenreIds.length > 0 ||
-            changed.parentGenreIds) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.parentGenreIds)
-              )}
-            >
-              <Label>Parents</Label>
-              <div>
-                <ul className='comma-list'>
-                  {thisHistory.parentGenreIds.map((id) => (
-                    <li
-                      key={id}
-                      className='font-bold text-primary-500 hover:underline'
-                    >
-                      <GenreLink id={id} />
-                    </li>
-                  ))}
-                </ul>
+            )}
+            {(thisHistory.subtitle || changed.subtitle) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.subtitle)
+                )}
+              >
+                <Label>Subtitle</Label>
+                <div>{thisHistory.subtitle}</div>
               </div>
-            </div>
-          )}
-          {(thisHistory.influencedByGenreIds.length > 0 ||
-            changed.influencedByGenreIds) && (
-            <div
-              className={clsx(
-                'rounded p-1 px-2',
-                getActionClass(changed.influencedByGenreIds)
-              )}
-            >
-              <Label>Influences</Label>
-              <div>
-                <ul className='comma-list'>
-                  {thisHistory.influencedByGenreIds.map((id) => (
-                    <li key={id} className='text-primary-500 hover:underline'>
-                      <GenreLink id={id} />
-                    </li>
-                  ))}
-                </ul>
+            )}
+            {(thisHistory.type || changed.type) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.type)
+                )}
+              >
+                <Label>Type</Label>
+                <div>
+                  <GenreTypeChip type={thisHistory.type} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {(thisHistory.shortDescription || changed.shortDescription) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.shortDescription)
+                )}
+              >
+                <Label>Short Description</Label>
+                <Romcode>{thisHistory.shortDescription ?? ''}</Romcode>
+              </div>
+            )}
+            {(thisHistory.longDescription || changed.longDescription) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.longDescription)
+                )}
+              >
+                <Label>Long Description</Label>
+                <Romcode>{thisHistory.longDescription ?? ''}</Romcode>
+              </div>
+            )}
+            {(thisHistory.notes || changed.notes) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.notes)
+                )}
+              >
+                <Label>Notes</Label>
+                <Romcode>{thisHistory.notes ?? ''}</Romcode>
+              </div>
+            )}
+            {(thisHistory.akas.length > 0 || changed.akas) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.akas)
+                )}
+              >
+                <Label>AKAs</Label>
+                <AKAs akas={thisHistory.akas} />
+              </div>
+            )}
+            {(thisHistory.parentGenreIds.length > 0 ||
+              changed.parentGenreIds) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.parentGenreIds)
+                )}
+              >
+                <Label>Parents</Label>
+                <div>
+                  <ul className='comma-list'>
+                    {thisHistory.parentGenreIds.map((id) => (
+                      <li
+                        key={id}
+                        className='font-bold text-primary-500 hover:underline'
+                      >
+                        <GenreLink id={id} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+            {(thisHistory.influencedByGenreIds.length > 0 ||
+              changed.influencedByGenreIds) && (
+              <div
+                className={clsx(
+                  'rounded p-1 px-2',
+                  getActionClass(changed.influencedByGenreIds)
+                )}
+              >
+                <Label>Influences</Label>
+                <div>
+                  <ul className='comma-list'>
+                    {thisHistory.influencedByGenreIds.map((id) => (
+                      <li key={id} className='text-primary-500 hover:underline'>
+                        <GenreLink id={id} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
