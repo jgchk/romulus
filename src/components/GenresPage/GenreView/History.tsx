@@ -20,6 +20,7 @@ import GenreLink from '../../common/GenreLink'
 import IconButton from '../../common/IconButton'
 import Label from '../../common/Label'
 import { CenteredLoader } from '../../common/Loader'
+import Romcode from '../../common/Romcode'
 import Tooltip from '../../common/Tooltip'
 import GenreTypeChip from '../GenreTypeChip'
 
@@ -354,19 +355,19 @@ const Diff: FC<{
             {lastHistory.shortDescription && (
               <div>
                 <Label>Short Description</Label>
-                <div>{lastHistory.shortDescription}</div>
+                <Romcode>{lastHistory.shortDescription}</Romcode>
               </div>
             )}
             {lastHistory.longDescription && (
               <div>
                 <Label>Long Description</Label>
-                <div>{lastHistory.longDescription}</div>
+                <Romcode>{lastHistory.longDescription}</Romcode>
               </div>
             )}
             {lastHistory.notes && (
               <div>
                 <Label>Notes</Label>
-                <div>{lastHistory.notes}</div>
+                <Romcode>{lastHistory.notes}</Romcode>
               </div>
             )}
             {lastHistory.akas.length > 0 && (
@@ -461,7 +462,7 @@ const Diff: FC<{
               )}
             >
               <Label>Short Description</Label>
-              <div>{thisHistory.shortDescription}</div>
+              <Romcode>{thisHistory.shortDescription ?? ''}</Romcode>
             </div>
           )}
           {(thisHistory.longDescription || changed.longDescription) && (
@@ -472,7 +473,7 @@ const Diff: FC<{
               )}
             >
               <Label>Long Description</Label>
-              <div>{thisHistory.longDescription}</div>
+              <Romcode>{thisHistory.longDescription ?? ''}</Romcode>
             </div>
           )}
           {(thisHistory.notes || changed.notes) && (
@@ -483,7 +484,7 @@ const Diff: FC<{
               )}
             >
               <Label>Notes</Label>
-              <div>{thisHistory.notes}</div>
+              <Romcode>{thisHistory.notes ?? ''}</Romcode>
             </div>
           )}
           {(thisHistory.akas.length > 0 || changed.akas) && (
