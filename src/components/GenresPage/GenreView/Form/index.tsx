@@ -74,6 +74,8 @@ const GenreForm: FC<{
 }> = ({ genre, onSubmit, onClose, autoFocus, isSubmitting, isSubmitted }) => {
   const session = useSession()
 
+  const [isConfirming, setConfirming] = useState(false)
+
   const {
     control,
     handleSubmit,
@@ -134,6 +136,71 @@ const GenreForm: FC<{
   useEffect(() => setFocus(autoFocus ?? 'name'), [autoFocus, setFocus])
 
   useWarnOnUnsavedChanges({ dirtyFields, isSubmitted, isSubmitting })
+
+  const renderButtons = useCallback(() => {
+    const CancelButton = (
+      <Button
+        template='tertiary'
+        type='button'
+        className='flex-1'
+        onClick={() => onClose()}
+      >
+        Cancel
+      </Button>
+    )
+
+    const SubmitButton = (
+      <Button type='submit' className='flex-1' loading={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </Button>
+    )
+
+    if (!session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES)) {
+      return <div className='flex space-x-1 border-t p-1'>{CancelButton}</div>
+    }
+
+    // confirm when submitting top-level genres
+    if (parentGenres.length === 0) {
+      return isConfirming ? (
+        <div className='border-t'>
+          <div className='mt-1 flex justify-center text-gray-800'>
+            <span>
+              You are submitting a <b>top-level genre</b>. Are you sure?
+            </span>
+          </div>
+          <div className='flex space-x-1 p-1'>
+            <Button
+              template='tertiary'
+              type='button'
+              className='flex-1'
+              onClick={() => setConfirming(false)}
+            >
+              Cancel
+            </Button>
+            {SubmitButton}
+          </div>
+        </div>
+      ) : (
+        <div className='flex space-x-1 border-t p-1'>
+          <Button
+            type='button'
+            className='flex-1'
+            onClick={() => setConfirming(true)}
+          >
+            Submit
+          </Button>
+          {CancelButton}
+        </div>
+      )
+    }
+
+    return (
+      <div className='flex space-x-1 border-t p-1'>
+        {SubmitButton}
+        {CancelButton}
+      </div>
+    )
+  }, [isConfirming, isSubmitting, onClose, parentGenres.length, session])
 
   return (
     <form
@@ -303,21 +370,7 @@ const GenreForm: FC<{
         </InputGroup>
       </div>
 
-      <div className='flex space-x-1 border-t p-1'>
-        {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
-          <Button type='submit' className='flex-1' loading={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </Button>
-        )}
-        <Button
-          template='tertiary'
-          type='button'
-          className='flex-1'
-          onClick={() => onClose()}
-        >
-          Cancel
-        </Button>
-      </div>
+      {renderButtons()}
     </form>
   )
 }
