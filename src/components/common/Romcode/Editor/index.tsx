@@ -83,6 +83,28 @@ const RomcodeEditor = forwardRef<
     onChange(updatedValue)
   }, [onChange, value])
 
+  const handleItalic = useCallback(() => {
+    const ta = internalRef.current
+    if (!ta) return
+
+    const startPos = ta.selectionStart
+    const endPos = ta.selectionEnd
+
+    const updatedValue =
+      value.slice(0, startPos) +
+      '*' +
+      value.slice(startPos, endPos) +
+      '*' +
+      value.slice(endPos)
+
+    ta.value = updatedValue
+    ta.focus()
+    ta.selectionStart = endPos + 2
+    ta.selectionEnd = endPos + 2
+
+    onChange(updatedValue)
+  }, [onChange, value])
+
   return (
     <>
       <div
@@ -94,8 +116,13 @@ const RomcodeEditor = forwardRef<
         {tab === Tab.EDIT && (
           <div className='flex flex-1 flex-col'>
             <div className='space-x-2 border-b border-gray-200'>
-              <button onClick={() => handleBold()}>Bold</button>
-              <button onClick={() => setShowGenreDialog(true)}>
+              <button type='button' onClick={() => handleBold()}>
+                Bold
+              </button>
+              <button type='button' onClick={() => handleItalic()}>
+                Italic
+              </button>
+              <button type='button' onClick={() => setShowGenreDialog(true)}>
                 Insert genre
               </button>
             </div>
