@@ -51,7 +51,7 @@ const GenreNavigator: FC<{ className?: string }> = ({ className }) => {
         </div>
       )}
       {debouncedFilter && (
-        <div className='flex justify-center border-b'>
+        <div className='flex justify-center border-b border-gray-100'>
           <Button
             template='tertiary'
             className='w-full'
