@@ -64,7 +64,6 @@
     "@storybook/manager-webpack5": "^6.5.10",
     "@storybook/react": "^6.5.10",
     "@storybook/testing-library": "^0.0.13",
-    "@tailwindcss/typography": "^0.5.4",
     "@types/bcrypt": "^5.0.0",
     "@types/cookies": "^0.7.7",
     "@types/jest": "^28.1.7",

@@ -19,7 +19,7 @@ const RenderNode: FC<{ node: Node }> = ({ node }) => {
     }
     case 'Paragraph': {
       return (
-        <p>
+        <p className='mb-3 leading-relaxed text-gray-700 last:mb-0'>
           {node.children.map((node, i) => (
             <RenderNode key={i} node={node} />
           ))}
@@ -49,10 +49,14 @@ const RenderNode: FC<{ node: Node }> = ({ node }) => {
     }
     case 'Link': {
       // TODO: convert to <Link /> if it's a romulus link
-      return <a href={node.href}>{node.href}</a>
+      return (
+        <a href={node.href} className='underline'>
+          {node.href}
+        </a>
+      )
     }
     case 'GenreLink': {
-      return <RenderGenreLink id={node.id} />
+      return <RenderGenreLink id={node.id} className='underline' />
     }
   }
 }

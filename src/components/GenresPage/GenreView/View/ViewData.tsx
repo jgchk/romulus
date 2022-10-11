@@ -327,7 +327,7 @@ const GenreViewData: FC<{
             <div id='notes'>
               {showNotes ? (
                 <>
-                  <Romcode className='compact-prose'>{genre.notes}</Romcode>
+                  <Romcode>{genre.notes}</Romcode>
                   <button
                     className='text-primary-500 hover:underline'
                     onClick={() => setShowNotes(false)}
