@@ -1,4 +1,4 @@
-import { Bold, GenreLink, Link, Root, Text } from './types'
+import { Bold, GenreLink, Italic, Link, Root, Text } from './types'
 import { visit } from './visit'
 
 const linkPlugin = (root: Root) => {
@@ -88,7 +88,76 @@ const boldPlugin = (root: Root) => {
       }
 
       const text = match[1]
-      nodes.push({ type: 'Bold', text })
+      nodes.push({ type: 'Bold', children: [{ type: 'Text', text }] })
+      currIndex = matchIndex + match[0].length
+    }
+
+    if (currIndex < node.text.length) {
+      const text = node.text.slice(currIndex)
+      nodes.push({ type: 'Text', text })
+    }
+
+    parent.children.splice(index, 1, ...nodes)
+  })
+}
+
+const italicPlugin = (root: Root) => {
+  const ITALIC_REGEX = /\*([^*]+)\*/g
+
+  return visit(root, (node, index, parent) => {
+    if (node.type !== 'Text') return
+    if (index === undefined) return
+    if (parent === undefined) return
+
+    const allMatches = node.text.matchAll(ITALIC_REGEX)
+
+    let currIndex = 0
+    const nodes: (Text | Italic)[] = []
+    for (const match of allMatches) {
+      const matchIndex = match.index ?? 0
+      if (matchIndex !== 0) {
+        const text = node.text.slice(currIndex, matchIndex)
+        nodes.push({ type: 'Text', text })
+      }
+
+      const text = match[1]
+      nodes.push({ type: 'Italic', children: [{ type: 'Text', text }] })
+      currIndex = matchIndex + match[0].length
+    }
+
+    if (currIndex < node.text.length) {
+      const text = node.text.slice(currIndex)
+      nodes.push({ type: 'Text', text })
+    }
+
+    parent.children.splice(index, 1, ...nodes)
+  })
+}
+
+const boldItalicPlugin = (root: Root) => {
+  const BOLD_ITALIC_REGEX = /\*{3}([^*]+)\*{3}/g
+
+  return visit(root, (node, index, parent) => {
+    if (node.type !== 'Text') return
+    if (index === undefined) return
+    if (parent === undefined) return
+
+    const allMatches = node.text.matchAll(BOLD_ITALIC_REGEX)
+
+    let currIndex = 0
+    const nodes: (Text | Italic)[] = []
+    for (const match of allMatches) {
+      const matchIndex = match.index ?? 0
+      if (matchIndex !== 0) {
+        const text = node.text.slice(currIndex, matchIndex)
+        nodes.push({ type: 'Text', text })
+      }
+
+      const text = match[1]
+      nodes.push({
+        type: 'Italic',
+        children: [{ type: 'Bold', children: [{ type: 'Text', text }] }],
+      })
       currIndex = matchIndex + match[0].length
     }
 
@@ -114,9 +183,12 @@ export const parser = (str: string): Root => {
       children: [{ type: 'Text', text }],
     })),
   }
+
+  boldItalicPlugin(root)
+  boldPlugin(root)
+  italicPlugin(root)
   linkPlugin(root)
   genreLinkPlugin(root)
-  boldPlugin(root)
 
   return root
 }

@@ -30,7 +30,22 @@ const RenderNode: FC<{ node: Node }> = ({ node }) => {
       return <>{node.text}</>
     }
     case 'Bold': {
-      return <b>{node.text}</b>
+      return (
+        <strong>
+          {node.children.map((node, i) => (
+            <RenderNode key={i} node={node} />
+          ))}
+        </strong>
+      )
+    }
+    case 'Italic': {
+      return (
+        <em>
+          {node.children.map((node, i) => (
+            <RenderNode key={i} node={node} />
+          ))}
+        </em>
+      )
     }
     case 'Link': {
       // TODO: convert to <Link /> if it's a romulus link

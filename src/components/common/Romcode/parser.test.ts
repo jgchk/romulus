@@ -205,27 +205,123 @@ describe('parser', () => {
 
       const boldNode = paragraphNode.children[0]
       assert(boldNode.type === 'Bold')
-      assert(boldNode.text === innerText)
-    })
+      expect(boldNode.children.length).toEqual(1)
 
-    test('parses extra asterisks', () => {
+      const textNode = boldNode.children[0]
+      assert(textNode.type === 'Text')
+      expect(textNode.text).toEqual(innerText)
+    })
+  })
+
+  describe('italic', () => {
+    test('parses single italic item', () => {
       const innerText = 'yuh'
-      const text = `**${innerText}***`
+      const text = `*${innerText}*`
       const res = parser(text)
 
       expect(res.children.length).toEqual(1)
 
       const paragraphNode = res.children[0]
       assert(paragraphNode.type === 'Paragraph')
-      expect(paragraphNode.children.length).toEqual(2)
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const italicNode = paragraphNode.children[0]
+      assert(italicNode.type === 'Italic')
+      expect(italicNode.children.length).toEqual(1)
+
+      const textNode = italicNode.children[0]
+      assert(textNode.type === 'Text')
+      expect(textNode.text).toEqual(innerText)
+    })
+  })
+
+  describe('combinations', () => {
+    test('parses bold & italic combo', () => {
+      const innerText = 'yuh'
+      const text = `***${innerText}***`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const italicNode = paragraphNode.children[0]
+      assert(italicNode.type === 'Italic')
+      expect(italicNode.children.length).toEqual(1)
+
+      const boldNode = italicNode.children[0]
+      assert(boldNode.type === 'Bold')
+      expect(boldNode.children.length).toEqual(1)
+
+      const textNode = boldNode.children[0]
+      assert(textNode.type === 'Text')
+      expect(textNode.text).toEqual(innerText)
+    })
+
+    test('parses bold genre link', () => {
+      const id = 1
+      const text = `**[Genre${id}]**`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
 
       const boldNode = paragraphNode.children[0]
       assert(boldNode.type === 'Bold')
-      assert(boldNode.text === innerText)
+      expect(boldNode.children.length).toEqual(1)
 
-      const textNode = paragraphNode.children[1]
-      assert(textNode.type === 'Text')
-      assert(textNode.text === '*')
+      const linkNode = boldNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+    })
+
+    test('parses italic genre link', () => {
+      const id = 1
+      const text = `*[Genre${id}]*`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const italicNode = paragraphNode.children[0]
+      assert(italicNode.type === 'Italic')
+      expect(italicNode.children.length).toEqual(1)
+
+      const linkNode = italicNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+    })
+
+    test('parses bold & italic genre link', () => {
+      const id = 1
+      const text = `***[Genre${id}]***`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const italicNode = paragraphNode.children[0]
+      assert(italicNode.type === 'Italic')
+      expect(italicNode.children.length).toEqual(1)
+
+      const boldNode = italicNode.children[0]
+      assert(boldNode.type === 'Bold')
+      expect(boldNode.children.length).toEqual(1)
+
+      const linkNode = boldNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
     })
   })
 })
