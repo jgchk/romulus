@@ -9,6 +9,7 @@ import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs
 import { useSession } from '../../../../services/auth'
 import { useTreeGenresMapQuery } from '../../../../services/genres'
 import { copyTextToClipboard } from '../../../../utils/dom'
+import { makeGenreTag } from '../../../../utils/genres'
 import { isNotNull } from '../../../../utils/types'
 import GenreLink from '../../../common/GenreLink'
 import Label from '../../../common/Label'
@@ -206,7 +207,7 @@ const GenreViewData: FC<{
         </div>
 
         <button
-          onClick={() => copyTextToClipboard(`[Genre${genre.id}]`)}
+          onClick={() => copyTextToClipboard(makeGenreTag(genre.id))}
           className='text-sm text-gray-400 hover:underline'
         >
           [Genre{genre.id}]

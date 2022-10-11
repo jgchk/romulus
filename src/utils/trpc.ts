@@ -6,6 +6,7 @@ import type {
 } from '@trpc/server'
 
 import type { AppRouter } from '../server/routers/_app'
+import { isBrowser } from './dom'
 
 export const trpc = createReactQueryHooks<AppRouter>()
 
@@ -76,3 +77,24 @@ export type InferAsyncSubscriptionOutput<TRouteKey extends TSubscription> =
  */
 export type InferSubscriptionInput<TRouteKey extends TSubscription> =
   inferProcedureInput<AppRouter['_def']['subscriptions'][TRouteKey]>
+
+export const getBaseTrpcUrl = () => {
+  if (isBrowser) {
+    return ''
+  }
+
+  // Digital Ocean
+  if (process.env.DIGITAL_OCEAN_URL) {
+    return `https://www.romulus.lol`
+  }
+
+  // Vercel
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  }
+
+  return 'http://localhost:3000'
+}

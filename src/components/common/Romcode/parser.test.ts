@@ -190,4 +190,42 @@ describe('parser', () => {
       expect(link2Node.id).toEqual(id2)
     })
   })
+
+  describe('bold', () => {
+    test('parses single bold item', () => {
+      const innerText = 'yuh'
+      const text = `**${innerText}**`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const boldNode = paragraphNode.children[0]
+      assert(boldNode.type === 'Bold')
+      assert(boldNode.text === innerText)
+    })
+
+    test('parses extra asterisks', () => {
+      const innerText = 'yuh'
+      const text = `**${innerText}***`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(2)
+
+      const boldNode = paragraphNode.children[0]
+      assert(boldNode.type === 'Bold')
+      assert(boldNode.text === innerText)
+
+      const textNode = paragraphNode.children[1]
+      assert(textNode.type === 'Text')
+      assert(textNode.text === '*')
+    })
+  })
 })

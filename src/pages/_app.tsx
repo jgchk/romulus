@@ -14,8 +14,8 @@ import superjson from 'superjson'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Layout from '../components/Layout'
 import { AppRouter } from '../server/routers/_app'
-import { isBrowser } from '../utils/dom'
 import { showErrorToast } from '../utils/error'
+import { getBaseTrpcUrl } from '../utils/trpc'
 
 const queryCache = new QueryCache({
   onError: (error, query) => {
@@ -69,43 +69,18 @@ const MyApp: AppType = ({ Component, pageProps }) => (
   </ErrorBoundary>
 )
 
-const getBaseUrl = () => {
-  if (isBrowser) {
-    return ''
-  }
-
-  // Digital Ocean
-  if (process.env.DIGITAL_OCEAN_URL) {
-    return `https://www.romulus.lol`
-  }
-
-  // Vercel
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  }
-
-  return 'http://localhost:3000'
-}
-
 export default withTRPC<AppRouter>({
-  config({ ctx }) {
-    const url = `${getBaseUrl()}/api/trpc`
-
-    return {
-      url,
-      transformer: superjson,
-      queryClientConfig: {
-        queryCache,
-        mutationCache,
-        defaultOptions,
-      },
-      headers: {
-        cookie: ctx?.req?.headers.cookie,
-      },
-    }
-  },
+  config: ({ ctx }) => ({
+    url: `${getBaseTrpcUrl()}/api/trpc`,
+    transformer: superjson,
+    queryClientConfig: {
+      queryCache,
+      mutationCache,
+      defaultOptions,
+    },
+    headers: {
+      cookie: ctx?.req?.headers.cookie,
+    },
+  }),
   ssr: true,
 })(MyApp)

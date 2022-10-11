@@ -1,7 +1,4 @@
-import { FC, ReactNode } from 'react'
-
-import RenderGenreLink from '../GenreLink'
-import { GenreLink, Link, Node, Root, Text } from './types'
+import { Bold, GenreLink, Link, Root, Text } from './types'
 import { visit } from './visit'
 
 const linkPlugin = (root: Root) => {
@@ -70,6 +67,40 @@ const genreLinkPlugin = (root: Root) => {
   })
 }
 
+// TODO: allow bolding any child
+const boldPlugin = (root: Root) => {
+  const BOLD_REGEX = /\*\*([^*]+)\*\*/g
+
+  return visit(root, (node, index, parent) => {
+    if (node.type !== 'Text') return
+    if (index === undefined) return
+    if (parent === undefined) return
+
+    const allMatches = node.text.matchAll(BOLD_REGEX)
+
+    let currIndex = 0
+    const nodes: (Text | Bold)[] = []
+    for (const match of allMatches) {
+      const matchIndex = match.index ?? 0
+      if (matchIndex !== 0) {
+        const text = node.text.slice(currIndex, matchIndex)
+        nodes.push({ type: 'Text', text })
+      }
+
+      const text = match[1]
+      nodes.push({ type: 'Bold', text })
+      currIndex = matchIndex + match[0].length
+    }
+
+    if (currIndex < node.text.length) {
+      const text = node.text.slice(currIndex)
+      nodes.push({ type: 'Text', text })
+    }
+
+    parent.children.splice(index, 1, ...nodes)
+  })
+}
+
 export const parser = (str: string): Root => {
   const paragraphs = str
     .split('\n')
@@ -83,44 +114,9 @@ export const parser = (str: string): Root => {
       children: [{ type: 'Text', text }],
     })),
   }
-
   linkPlugin(root)
   genreLinkPlugin(root)
+  boldPlugin(root)
 
   return root
-}
-
-export const compiler = (root: Root): ReactNode => <RenderNode node={root} />
-
-const RenderNode: FC<{ node: Node }> = ({ node }) => {
-  switch (node.type) {
-    case 'Root': {
-      return (
-        <>
-          {node.children.map((node, i) => (
-            <RenderNode key={i} node={node} />
-          ))}
-        </>
-      )
-    }
-    case 'Paragraph': {
-      return (
-        <p>
-          {node.children.map((node, i) => (
-            <RenderNode key={i} node={node} />
-          ))}
-        </p>
-      )
-    }
-    case 'Text': {
-      return <>{node.text}</>
-    }
-    case 'Link': {
-      // TODO: convert to <Link /> if it's a romulus link
-      return <a href={node.href}>{node.href}</a>
-    }
-    case 'GenreLink': {
-      return <RenderGenreLink id={node.id} />
-    }
-  }
 }
