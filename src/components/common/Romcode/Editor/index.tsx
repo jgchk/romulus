@@ -32,7 +32,9 @@ const RomcodeEditor = forwardRef<
   }
 >(({ id, value, onChange, onBlur, className }, ref) => {
   const [tab, setTab] = useState<Tab>(Tab.EDIT)
-  const [showGenreDialog, setShowGenreDialog] = useState(false)
+  const [showGenreDialog, setShowGenreDialog] = useState<boolean | string>(
+    false
+  )
 
   const internalRef = useRef<HTMLTextAreaElement>(null)
   useImperativeHandle<HTMLTextAreaElement | null, HTMLTextAreaElement | null>(
@@ -132,7 +134,17 @@ const RomcodeEditor = forwardRef<
               <Tooltip tip='Insert genre link'>
                 <IconButton
                   type='button'
-                  onClick={() => setShowGenreDialog(true)}
+                  onClick={() => {
+                    const ta = internalRef.current
+                    if (!ta) {
+                      return setShowGenreDialog(true)
+                    }
+
+                    const startPos = ta.selectionStart
+                    const endPos = ta.selectionEnd
+                    const selectedText = value.slice(startPos, endPos)
+                    setShowGenreDialog(selectedText || true)
+                  }}
                 >
                   <RiLink />
                 </IconButton>
@@ -182,6 +194,11 @@ const RomcodeEditor = forwardRef<
 
       {showGenreDialog && (
         <GenreSearchDialog
+          initialFilter={
+            typeof showGenreDialog === 'string' && showGenreDialog.length > 0
+              ? showGenreDialog
+              : undefined
+          }
           onClickOutside={() => setShowGenreDialog(false)}
           onClickClose={() => setShowGenreDialog(false)}
           onSelect={(match) => {

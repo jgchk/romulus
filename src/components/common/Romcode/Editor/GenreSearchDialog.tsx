@@ -13,11 +13,12 @@ import { CenteredLoader } from '../../Loader'
 import Tooltip from '../../Tooltip'
 
 const GenreSearchDialog: FC<{
+  initialFilter?: string
   onClickOutside: () => void
   onClickClose: () => void
   onSelect: (match: Match) => void
-}> = ({ onClickOutside, onClickClose, onSelect }) => {
-  const [filter, setFilter] = useState('')
+}> = ({ initialFilter, onClickOutside, onClickClose, onSelect }) => {
+  const [filter, setFilter] = useState(initialFilter ?? '')
   const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 250)
 
   const [page, setPage] = useState(1)
