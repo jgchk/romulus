@@ -35,7 +35,7 @@ const linkPlugin = (root: Root) => {
 }
 
 const genreLinkPlugin = (root: Root) => {
-  const GENRE_LINK_REGEX = /\[Genre(\d+)(?:,(.*))?]/g
+  const GENRE_LINK_REGEX = /\[Genre(\d+)(?:,([^\]]*))?]/g
 
   return visit(root, (node, index, parent) => {
     if (node.type !== 'Text') return

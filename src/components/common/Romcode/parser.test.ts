@@ -246,6 +246,24 @@ describe('parser', () => {
       expect(linkNode.id).toEqual(id)
       expect(linkNode.text).toEqual(aka)
     })
+
+    test('parses multiple name overrides', () => {
+      const id = 1
+      const aka = 'yah'
+      const text = `[Genre${id},${aka}] [Genre5]`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(3)
+
+      const linkNode = paragraphNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+      expect(linkNode.text).toEqual(aka)
+    })
   })
 
   describe('bold', () => {
