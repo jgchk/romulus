@@ -161,6 +161,7 @@ describe('parser', () => {
       const linkNode = paragraphNode.children[0]
       assert(linkNode.type === 'GenreLink')
       expect(linkNode.id).toEqual(id)
+      expect(linkNode.text).toBeUndefined()
     })
 
     test('parses multiple genre links', () => {
@@ -180,6 +181,7 @@ describe('parser', () => {
       const link1Node = paragraphNode.children[0]
       assert(link1Node.type === 'GenreLink')
       expect(link1Node.id).toEqual(id1)
+      expect(link1Node.text).toBeUndefined()
 
       const textNode = paragraphNode.children[1]
       assert(textNode.type === 'Text')
@@ -188,6 +190,61 @@ describe('parser', () => {
       const link2Node = paragraphNode.children[2]
       assert(link2Node.type === 'GenreLink')
       expect(link2Node.id).toEqual(id2)
+      expect(link2Node.text).toBeUndefined()
+    })
+
+    test('parses name overrides', () => {
+      const id = 1
+      const aka = 'yah'
+      const text = `[Genre${id},${aka}]`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const linkNode = paragraphNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+      expect(linkNode.text).toEqual(aka)
+    })
+
+    test('parses name overrides with surrounding whitespace', () => {
+      const id = 1
+      const aka = 'yah'
+      const text = `[Genre${id}, ${aka}]`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const linkNode = paragraphNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+      expect(linkNode.text).toEqual(aka)
+    })
+
+    test('parses name overrides with commas', () => {
+      const id = 1
+      const aka = 'yah,yah'
+      const text = `[Genre${id},${aka}]`
+      const res = parser(text)
+
+      expect(res.children.length).toEqual(1)
+
+      const paragraphNode = res.children[0]
+      assert(paragraphNode.type === 'Paragraph')
+      expect(paragraphNode.children.length).toEqual(1)
+
+      const linkNode = paragraphNode.children[0]
+      assert(linkNode.type === 'GenreLink')
+      expect(linkNode.id).toEqual(id)
+      expect(linkNode.text).toEqual(aka)
     })
   })
 

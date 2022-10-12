@@ -56,7 +56,11 @@ const RenderNode: FC<{ node: Node }> = ({ node }) => {
       )
     }
     case 'GenreLink': {
-      return <RenderGenreLink id={node.id} className='underline' />
+      return (
+        <RenderGenreLink id={node.id} className='underline'>
+          {node.text}
+        </RenderGenreLink>
+      )
     }
   }
 }

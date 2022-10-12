@@ -17,5 +17,5 @@ export type Italic = {
   children: (Text | Bold | Italic | GenreLink)[]
 }
 
-export type GenreLink = { type: 'GenreLink'; id: number }
+export type GenreLink = { type: 'GenreLink'; id: number; text?: string }
 export type Link = { type: 'Link'; href: string }

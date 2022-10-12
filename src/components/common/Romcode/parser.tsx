@@ -35,7 +35,7 @@ const linkPlugin = (root: Root) => {
 }
 
 const genreLinkPlugin = (root: Root) => {
-  const GENRE_LINK_REGEX = /\[Genre(\d+)]/g
+  const GENRE_LINK_REGEX = /\[Genre(\d+)(?:,(.*))?]/g
 
   return visit(root, (node, index, parent) => {
     if (node.type !== 'Text') return
@@ -54,7 +54,8 @@ const genreLinkPlugin = (root: Root) => {
       }
 
       const id = Number.parseInt(match[1])
-      nodes.push({ type: 'GenreLink', id })
+      const text = match[2]?.trim() || undefined
+      nodes.push({ type: 'GenreLink', id, text })
       currIndex = matchIndex + match[0].length
     }
 
