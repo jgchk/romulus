@@ -144,7 +144,10 @@ const SearchResult: FC<{ match: Match; onClick: () => void }> = ({
   const { showTypeTags } = useGenreNavigatorSettings()
 
   return (
-    <button className='block text-gray-700 hover:font-bold' onClick={onClick}>
+    <button
+      className='block text-left text-gray-700 hover:font-bold'
+      onClick={onClick}
+    >
       {genre.name}
       {genre?.subtitle && (
         <>
