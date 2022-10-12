@@ -7,9 +7,12 @@ import {
   useRef,
   useState,
 } from 'react'
+import { RiBold, RiItalic, RiLink } from 'react-icons/ri'
 
 import { twsx } from '../../../../utils/dom'
 import { makeGenreTag } from '../../../../utils/genres'
+import IconButton from '../../IconButton'
+import Tooltip from '../../Tooltip'
 import Romcode from '..'
 import GenreSearchDialog from './GenreSearchDialog'
 
@@ -109,28 +112,37 @@ const RomcodeEditor = forwardRef<
     <>
       <div
         className={twsx(
-          'flex group flex-col h-72 overflow-auto resize-y rounded border border-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-within:border-secondary-500 transition text-sm text-gray-800',
+          'flex flex-col h-72 overflow-auto resize-y rounded border border-gray-500 bg-gray-100 focus-within:border-secondary-500 transition text-sm text-gray-800',
           className
         )}
       >
         {tab === Tab.EDIT && (
           <div className='flex flex-1 flex-col'>
-            <div className='space-x-2 border-b border-gray-200'>
-              <button type='button' onClick={() => handleBold()}>
-                Bold
-              </button>
-              <button type='button' onClick={() => handleItalic()}>
-                Italic
-              </button>
-              <button type='button' onClick={() => setShowGenreDialog(true)}>
-                Insert genre
-              </button>
+            <div className='flex border-b border-gray-200 bg-gray-50'>
+              <Tooltip tip='Bold'>
+                <IconButton type='button' onClick={() => handleBold()}>
+                  <RiBold />
+                </IconButton>
+              </Tooltip>
+              <Tooltip tip='Italic'>
+                <IconButton type='button' onClick={() => handleItalic()}>
+                  <RiItalic />
+                </IconButton>
+              </Tooltip>
+              <Tooltip tip='Insert genre link'>
+                <IconButton
+                  type='button'
+                  onClick={() => setShowGenreDialog(true)}
+                >
+                  <RiLink />
+                </IconButton>
+              </Tooltip>
             </div>
 
             <textarea
               ref={internalRef}
               id={id}
-              className='flex-1 resize-none bg-transparent p-1.5 focus:outline-none'
+              className='flex-1 resize-none bg-transparent p-1.5 transition hover:bg-gray-200 focus:outline-none active:bg-gray-300'
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onBlur={onBlur}
@@ -144,10 +156,10 @@ const RomcodeEditor = forwardRef<
           </div>
         )}
 
-        <div className='flex border-t border-gray-200 transition group-hover:border-gray-300 group-active:border-gray-400'>
+        <div className='flex border-t border-gray-200 bg-gray-50'>
           <button
             className={clsx(
-              'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-100 group-hover:border-gray-300 group-hover:text-gray-500 group-active:border-gray-400 group-active:text-gray-600',
+              'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-200 active:bg-gray-300',
               tab === Tab.EDIT ? 'font-bold' : 'font-medium'
             )}
             type='button'
@@ -157,7 +169,7 @@ const RomcodeEditor = forwardRef<
           </button>
           <button
             className={clsx(
-              'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-100 group-hover:border-gray-300 group-hover:text-gray-500 group-active:border-gray-400 group-active:text-gray-600',
+              'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-200 active:bg-gray-300',
               tab === Tab.VIEW ? 'font-bold' : 'font-medium'
             )}
             type='button'
