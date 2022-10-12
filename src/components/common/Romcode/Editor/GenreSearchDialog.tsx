@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { RiCloseLine, RiSearchLine } from 'react-icons/ri'
 
 import useDebouncedState from '../../../../hooks/useDebouncedState'
 import { Match, useSimpleGenreSearchQuery } from '../../../../services/genres'
@@ -6,15 +7,18 @@ import useGenreNavigatorSettings from '../../../GenresPage/GenreNavigator/useGen
 import GenreTypeChip from '../../../GenresPage/GenreTypeChip'
 import Button from '../../Button'
 import Dialog from '../../Dialog'
+import IconButton from '../../IconButton'
 import Input from '../../Input'
 import { CenteredLoader } from '../../Loader'
+import Tooltip from '../../Tooltip'
 
 const GenreSearchDialog: FC<{
   onClickOutside: () => void
+  onClickClose: () => void
   onSelect: (match: Match) => void
-}> = ({ onClickOutside, onSelect }) => {
+}> = ({ onClickOutside, onClickClose, onSelect }) => {
   const [filter, setFilter] = useState('')
-  const [debouncedFilter] = useDebouncedState(filter, 250)
+  const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 250)
 
   const [page, setPage] = useState(1)
 
@@ -56,7 +60,30 @@ const GenreSearchDialog: FC<{
   return (
     <Dialog onClickOutside={onClickOutside}>
       <div className='flex h-96 max-h-screen w-96 flex-col space-y-2 bg-white p-4'>
-        <Input ref={setRef} value={filter} onChange={setFilter} />
+        <div className='flex items-center space-x-1'>
+          <Input
+            className='flex-1'
+            ref={setRef}
+            value={filter}
+            onChange={setFilter}
+          />
+          <Tooltip tip='Search'>
+            <IconButton
+              type='button'
+              onClick={() => {
+                setDebouncedFilter(filter)
+                void genresQuery.refetch()
+              }}
+            >
+              <RiSearchLine />
+            </IconButton>
+          </Tooltip>
+          <Tooltip tip='Close'>
+            <IconButton type='button' onClick={() => onClickClose()}>
+              <RiCloseLine />
+            </IconButton>
+          </Tooltip>
+        </div>
         {renderResults()}
       </div>
     </Dialog>

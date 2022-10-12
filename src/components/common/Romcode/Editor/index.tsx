@@ -183,6 +183,7 @@ const RomcodeEditor = forwardRef<
       {showGenreDialog && (
         <GenreSearchDialog
           onClickOutside={() => setShowGenreDialog(false)}
+          onClickClose={() => setShowGenreDialog(false)}
           onSelect={(match) => {
             handleInsertGenreTag(match.id)
             setShowGenreDialog(false)

@@ -12,7 +12,7 @@ const Dialog: FC<PropsWithChildren<{ onClickOutside?: () => void }>> = ({
       onClick={(e) => {
         if (
           !ref.current ||
-          !(e.target instanceof HTMLElement) ||
+          !(e.target instanceof Node) ||
           !ref.current.contains(e.target)
         ) {
           return onClickOutside?.()
