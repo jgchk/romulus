@@ -9,6 +9,7 @@ import {
 import { IconBaseProps } from 'react-icons'
 
 import { twsx } from '../../utils/dom'
+import Loader from './Loader'
 
 export type IconButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -16,11 +17,13 @@ export type IconButtonProps = Omit<
 > & {
   children: ReactElement<IconBaseProps>
   size?: 'sm' | 'md' | 'lg'
+  loading?: boolean
 }
 
 const IconButton: FC<IconButtonProps> = ({
   children,
   size = 'md',
+  loading,
   className,
   disabled,
   ...props
@@ -54,7 +57,7 @@ const IconButton: FC<IconButtonProps> = ({
       disabled={disabled}
       {...props}
     >
-      {icon}
+      {loading ? <Loader size={iconSize} /> : icon}
     </button>
   )
 }

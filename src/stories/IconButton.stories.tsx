@@ -9,11 +9,13 @@ export default {
 } as ComponentMeta<typeof IconButtonComponent>
 
 const Template: ComponentStory<typeof IconButtonComponent> = (args) => (
-  <IconButtonComponent {...args} />
+  <IconButtonComponent {...args}>
+    <Ri24HoursFill />
+  </IconButtonComponent>
 )
 
 export const IconButton = Template.bind({})
 IconButton.args = {
   disabled: false,
-  children: <Ri24HoursFill />,
+  loading: false,
 }
