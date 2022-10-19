@@ -9,80 +9,48 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useMemo, useState } from 'react'
 import { RiSortAsc, RiSortDesc } from 'react-icons/ri'
 
 import { CenteredLoader } from '../../components/common/Loader'
 import Paginator from '../../components/common/Paginator'
-import RelevanceChip from '../../components/GenresPage/GenreNavigator/Tree/RelevanceChip'
-import GenreTypeChip from '../../components/GenresPage/GenreTypeChip'
-import { DefaultGenre } from '../../server/db/genre/outputs'
-import { useGenresQuery } from '../../services/genres'
+import { DefaultPerson } from '../../server/db/person/outputs'
+import { usePeopleQuery } from '../../services/people'
 import { useIntRouteParam } from '../../utils/routes'
 
-const GenresTable: FC = () => {
-  const genresQuery = useGenresQuery()
+const PeopleTable: FC = () => {
+  const peopleQuery = usePeopleQuery()
 
   const page = useIntRouteParam('page')
   const size = useIntRouteParam('size')
 
-  if (genresQuery.data) {
-    return <HasData genres={genresQuery.data} page={page} size={size} />
+  if (peopleQuery.data) {
+    return <HasData people={peopleQuery.data} page={page} size={size} />
   }
 
-  if (genresQuery.error) {
-    return <div>Error fetching genres :(</div>
+  if (peopleQuery.error) {
+    return <div>Error fetching people :(</div>
   }
 
   return <CenteredLoader />
 }
 
-const columnHelper = createColumnHelper<DefaultGenre>()
+const columnHelper = createColumnHelper<DefaultPerson>()
 
 const defaultColumns = [
-  columnHelper.accessor('name', {
-    header: 'Name',
-    cell: (props) => {
-      const genre = props.row.original
-
-      return (
-        <Link
-          href={{ pathname: '/genres', query: { id: genre.id.toString() } }}
-        >
-          <a className='block text-gray-700 hover:font-bold'>
-            {genre.name}
-            {genre?.subtitle && (
-              <>
-                {' '}
-                <span className='text-sm text-gray-600'>
-                  [{genre.subtitle}]
-                </span>
-              </>
-            )}
-          </a>
-        </Link>
-      )
-    },
-  }),
-  columnHelper.accessor('type', {
-    header: 'Type',
-    cell: (props) => <GenreTypeChip type={props.getValue()} />,
-  }),
-  columnHelper.accessor('relevance', {
-    header: 'Relevance',
-    cell: (props) => <RelevanceChip relevance={props.getValue()} />,
-  }),
+  columnHelper.accessor('firstName', { header: 'First Name' }),
+  columnHelper.accessor('middleName', { header: 'Middle Name' }),
+  columnHelper.accessor('lastName', { header: 'Last Name' }),
 ]
 
-const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
-  genres,
-  page = 0,
-  size: rawSize = 30,
-}) => {
+const HasData: FC<{
+  people: DefaultPerson[]
+  page?: number
+  size?: number
+}> = ({ people, page = 0, size: rawSize = 30 }) => {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'name', desc: false },
+    { id: 'lastName', desc: false },
   ])
 
   const size = useMemo(() => Math.min(rawSize, 100), [rawSize])
@@ -95,7 +63,7 @@ const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
   const router = useRouter()
 
   const table = useReactTable({
-    data: genres,
+    data: people,
     columns: defaultColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -182,4 +150,4 @@ const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
   )
 }
 
-export default GenresTable
+export default PeopleTable

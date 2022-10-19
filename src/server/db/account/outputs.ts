@@ -9,7 +9,6 @@ export const defaultAccountSelect = Prisma.validator<Prisma.AccountSelect>()({
   showTypeTags: true,
   showRelevanceTags: true,
 })
-
 export type DefaultAccount = Prisma.AccountGetPayload<{
   select: typeof defaultAccountSelect
 }>

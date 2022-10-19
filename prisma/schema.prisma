@@ -15,228 +15,6 @@ enum CrudOperation {
   @@map("GenreOperation")
 }
 
-model Artist {
-  id   Int      @id @default(autoincrement())
-  name String
-  akas String[]
-
-  spotifyIds String[]
-
-  issues IssueArtist[]
-  tracks TrackArtist[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ArtistHistory {
-  id   Int      @id @default(autoincrement())
-  name String
-  akas String[]
-
-  spotifyIds String[]
-
-  artistId  Int
-  createdAt DateTime      @default(now())
-  operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
-}
-
-model Release {
-  id     Int     @id @default(autoincrement())
-  issues Issue[]
-
-  reviews Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ReleaseHistory {
-  id Int @id @default(autoincrement())
-
-  releaseId Int
-  createdAt DateTime      @default(now())
-  operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
-}
-
-model Issue {
-  id          Int           @id @default(autoincrement())
-  title       String
-  releaseDate String?
-  artists     IssueArtist[]
-  objects     IssueObject[]
-
-  spotifyId String?
-
-  release   Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
-  releaseId Int
-
-  reviews Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model IssueHistory {
-  id          Int                  @id @default(autoincrement())
-  title       String
-  releaseDate String?
-  artists     IssueHistoryArtist[]
-  objects     IssueHistoryObject[]
-
-  spotifyId String?
-
-  releaseId Int
-
-  issueId   Int
-  createdAt DateTime      @default(now())
-  operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
-}
-
-model IssueArtist {
-  issue   Issue @relation(fields: [issueId], references: [id])
-  issueId Int
-
-  artist   Artist @relation(fields: [artistId], references: [id])
-  artistId Int
-
-  order Int
-
-  @@id([issueId, artistId])
-}
-
-model IssueHistoryArtist {
-  issueHistory   IssueHistory @relation(fields: [issueHistoryId], references: [id])
-  issueHistoryId Int
-
-  artistId Int
-
-  order Int
-
-  @@id([issueHistoryId, artistId])
-}
-
-model IssueObject {
-  issue   Issue @relation(fields: [issueId], references: [id])
-  issueId Int
-
-  object   Object @relation(fields: [objectId], references: [id])
-  objectId Int
-
-  order Int
-
-  @@id([issueId, objectId])
-}
-
-model IssueHistoryObject {
-  issueHistory   IssueHistory @relation(fields: [issueHistoryId], references: [id])
-  issueHistoryId Int
-
-  objectId Int
-
-  order Int
-
-  @@id([issueHistoryId, objectId])
-}
-
-model Object {
-  id     Int           @id @default(autoincrement())
-  name   String
-  tracks ObjectTrack[]
-
-  issues IssueObject[]
-}
-
-model ObjectHistory {
-  id     Int                  @id @default(autoincrement())
-  name   String
-  tracks ObjectHistoryTrack[]
-
-  objectId  Int
-  createdAt DateTime      @default(now())
-  operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
-}
-
-model ObjectTrack {
-  object   Object @relation(fields: [objectId], references: [id])
-  objectId Int
-
-  track   Track @relation(fields: [trackId], references: [id])
-  trackId Int
-
-  order Int
-
-  @@id([objectId, trackId])
-}
-
-model ObjectHistoryTrack {
-  objectHistory   ObjectHistory @relation(fields: [objectHistoryId], references: [id])
-  objectHistoryId Int
-
-  trackId Int
-
-  order Int
-
-  @@id([objectHistoryId, trackId])
-}
-
-model Track {
-  id         Int           @id @default(autoincrement())
-  title      String
-  durationMs Int
-  artists    TrackArtist[]
-
-  objects ObjectTrack[]
-  reviews Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model TrackHistory {
-  id         Int                  @id @default(autoincrement())
-  title      String
-  durationMs Int
-  artists    TrackHistoryArtist[]
-
-  trackId   Int
-  createdAt DateTime      @default(now())
-  operation CrudOperation
-  accountId Int
-  account   Account       @relation(fields: [accountId], references: [id])
-}
-
-model TrackArtist {
-  track   Track @relation(fields: [trackId], references: [id])
-  trackId Int
-
-  artist   Artist @relation(fields: [artistId], references: [id])
-  artistId Int
-
-  order Int
-
-  @@id([trackId, artistId])
-}
-
-model TrackHistoryArtist {
-  trackHistory   TrackHistory @relation(fields: [trackHistoryId], references: [id])
-  trackHistoryId Int
-
-  artistId Int
-
-  order Int
-
-  @@id([trackHistoryId, artistId])
-}
-
 enum Permission {
   EDIT_GENRES
   EDIT_ARTISTS
@@ -256,40 +34,12 @@ model Account {
 
   permissions Permission[]
 
-  genreHistory   GenreHistory[]
-  artistHistory  ArtistHistory[]
-  releaseHistory ReleaseHistory[]
-  objectHistory  ObjectHistory[]
-  issueHistory   IssueHistory[]
-  trackHistory   TrackHistory[]
-
-  reviews Review[]
+  genreHistory GenreHistory[]
 
   relevanceVotes GenreRelevanceVote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-}
-
-model Review {
-  id     Int  @id @default(autoincrement())
-  rating Int?
-  review Int?
-
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId Int
-
-  release   Release? @relation(fields: [releaseId], references: [id])
-  releaseId Int?
-
-  issue   Issue? @relation(fields: [issueId], references: [id])
-  issueId Int?
-
-  track   Track? @relation(fields: [trackId], references: [id])
-  trackId Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 enum GenreType {
@@ -379,4 +129,93 @@ model GenreRelevanceVote {
   updatedAt DateTime @updatedAt
 
   @@id([genreId, accountId])
+}
+
+model Unit {
+  id       Int         @id @default(autoincrement())
+  issues   UnitIssue[]
+  concepts Concept[]
+}
+
+model UnitIssue {
+  id     Int  @id @default(autoincrement())
+  unit   Unit @relation(fields: [unitId], references: [id])
+  unitId Int
+}
+
+model ConceptType {
+  id       Int       @id @default(autoincrement())
+  name     String
+  concepts Concept[]
+}
+
+model Concept {
+  id      Int             @id @default(autoincrement())
+  type    ConceptType     @relation(fields: [typeId], references: [id])
+  typeId  Int
+  units   Unit[]
+  issues  ConceptIssue[]
+  bundles ConceptBundle[]
+}
+
+model ConceptIssue {
+  id        Int     @id @default(autoincrement())
+  concept   Concept @relation(fields: [conceptId], references: [id])
+  conceptId Int
+}
+
+model ConceptBundle {
+  id       Int                  @id @default(autoincrement())
+  concepts Concept[]
+  issues   ConceptBundleIssue[]
+}
+
+model ConceptBundleIssue {
+  id              Int           @id @default(autoincrement())
+  conceptBundle   ConceptBundle @relation(fields: [conceptBundleId], references: [id])
+  conceptBundleId Int
+}
+
+model ItemType {
+  id    Int    @id @default(autoincrement())
+  name  String
+  items Item[]
+}
+
+model Item {
+  id      Int          @id @default(autoincrement())
+  type    ItemType     @relation(fields: [typeId], references: [id])
+  typeId  Int
+  bundles ItemBundle[]
+}
+
+model ItemBundle {
+  id    Int    @id @default(autoincrement())
+  items Item[]
+}
+
+model Artist {
+  id      Int      @id @default(autoincrement())
+  name    String?
+  members Member[]
+}
+
+model Member {
+  id Int @id @default(autoincrement())
+
+  person   Person @relation(fields: [personId], references: [id])
+  personId Int
+
+  artist   Artist @relation(fields: [artistId], references: [id])
+  artistId Int
+
+  name String?
+}
+
+model Person {
+  id         Int      @id @default(autoincrement())
+  memberOf   Member[]
+  firstName  String?
+  middleName String?
+  lastName   String?
 }

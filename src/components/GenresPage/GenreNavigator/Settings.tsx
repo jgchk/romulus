@@ -1,9 +1,9 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import { IoMdInformationCircle } from 'react-icons/io'
 
 import InputGroup from '../../common/InputGroup'
 import Label from '../../common/Label'
-import Popover from '../../common/Popover'
+import Tooltip from '../../common/Tooltip'
 import RelevanceSelect from '../RelevanceSelect'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
@@ -58,20 +58,14 @@ const GenreNavigatorSettings: FC = () => {
   )
 }
 
-const GenreRelevanceHelpIcon: FC = () => {
-  const [el, setEl] = useState<HTMLDivElement | null>(null)
-
-  return (
-    <>
-      <div ref={setEl} className='p-1'>
-        <IoMdInformationCircle size={16} className='text-primary-500' />
-      </div>
-
-      <Popover referenceElement={el}>
-        Any genres with a relevance below this value will not be shown
-      </Popover>
-    </>
-  )
-}
+const GenreRelevanceHelpIcon: FC = () => (
+  <Tooltip
+    tip='Any genres with a relevance below this value will not be shown'
+    className='p-1'
+    delay={0}
+  >
+    <IoMdInformationCircle size={16} className='text-primary-500' />
+  </Tooltip>
+)
 
 export default GenreNavigatorSettings
