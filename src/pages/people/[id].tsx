@@ -5,7 +5,7 @@ import { FC, useEffect, useMemo } from 'react'
 import { CenteredLoader } from '../../components/common/Loader'
 import { DefaultPerson } from '../../server/db/person/outputs'
 import { usePersonQuery } from '../../services/people'
-import { toNameString } from '../../utils/people'
+import { toPersonNameString } from '../../utils/people'
 import { useIntRouteParam } from '../../utils/routes'
 
 const Person: FC = () => {
@@ -40,7 +40,7 @@ const PersonPage: FC<{ id: number }> = ({ id }) => {
 }
 
 const HasData: FC<{ person: DefaultPerson }> = ({ person }) => {
-  const name = useMemo(() => toNameString(person), [person])
+  const name = useMemo(() => toPersonNameString(person), [person])
 
   return <div>{name}</div>
 }

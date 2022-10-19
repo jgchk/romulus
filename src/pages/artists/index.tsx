@@ -18,37 +18,41 @@ import IconButton from '../../components/common/IconButton'
 import { CenteredLoader } from '../../components/common/Loader'
 import Paginator from '../../components/common/Paginator'
 import Tooltip from '../../components/common/Tooltip'
-import { DefaultPerson } from '../../server/db/person/outputs'
-import { useDeletePersonMutation, usePeopleQuery } from '../../services/people'
+import { DefaultArtist } from '../../server/db/artist/outputs'
+import {
+  useArtistsQuery,
+  useDeleteArtistMutation,
+} from '../../services/artists'
+import { toMemberNameString } from '../../utils/artists'
 import { toPersonNameString } from '../../utils/people'
 import { useIntRouteParam } from '../../utils/routes'
 
-const PeopleTable: FC = () => {
-  const peopleQuery = usePeopleQuery()
+const ArtistsTable: FC = () => {
+  const artistsQuery = useArtistsQuery()
 
   const page = useIntRouteParam('page')
   const size = useIntRouteParam('size')
 
-  if (peopleQuery.data) {
-    return <HasData people={peopleQuery.data} page={page} size={size} />
+  if (artistsQuery.data) {
+    return <HasData artists={artistsQuery.data} page={page} size={size} />
   }
 
-  if (peopleQuery.error) {
-    return <div>Error fetching people :(</div>
+  if (artistsQuery.error) {
+    return <div>Error fetching artists :(</div>
   }
 
   return <CenteredLoader />
 }
 
-const columnHelper = createColumnHelper<DefaultPerson>()
+const columnHelper = createColumnHelper<DefaultArtist>()
 
 const HasData: FC<{
-  people: DefaultPerson[]
+  artists: DefaultArtist[]
   page?: number
   size?: number
-}> = ({ people, page = 0, size: rawSize = 30 }) => {
+}> = ({ artists, page = 0, size: rawSize = 30 }) => {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'lastName', desc: false },
+    { id: 'name', desc: false },
   ])
 
   const size = useMemo(() => Math.min(rawSize, 100), [rawSize])
@@ -62,14 +66,23 @@ const HasData: FC<{
 
   const defaultColumns = useMemo(
     () => [
-      columnHelper.accessor('firstName', { header: 'First Name' }),
-      columnHelper.accessor('middleName', { header: 'Middle Name' }),
-      columnHelper.accessor('lastName', { header: 'Last Name' }),
+      columnHelper.accessor('name', { header: 'Name' }),
+      columnHelper.accessor('members', {
+        header: 'Members',
+        cell: (props) => {
+          const members = props.getValue()
+          return members.map((member) => toMemberNameString(member)).join(', ')
+        },
+      }),
       columnHelper.display({
         id: 'buttons',
         cell: (props) => {
           const id = props.row.original.id
-          const name = toPersonNameString(props.row.original)
+          const name =
+            props.row.original.name ||
+            props.row.original.members
+              .map((member) => member.name || toPersonNameString(member.person))
+              .join(', ')
           return <DeleteButton id={id} name={name} />
         },
       }),
@@ -78,7 +91,7 @@ const HasData: FC<{
   )
 
   const table = useReactTable({
-    data: people,
+    data: artists,
     columns: defaultColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -166,7 +179,7 @@ const HasData: FC<{
 }
 
 const DeleteButton: FC<{ id: number; name: string }> = ({ id, name }) => {
-  const { mutate, isLoading } = useDeletePersonMutation()
+  const { mutate, isLoading } = useDeleteArtistMutation()
 
   const handleClick = useCallback(
     () =>
@@ -174,7 +187,7 @@ const DeleteButton: FC<{ id: number; name: string }> = ({ id, name }) => {
         { id },
         {
           onSuccess: () => {
-            toast.success(`Deleted person '${name}'`)
+            toast.success(`Deleted artist '${name}'`)
           },
         }
       ),
@@ -190,4 +203,4 @@ const DeleteButton: FC<{ id: number; name: string }> = ({ id, name }) => {
   )
 }
 
-export default PeopleTable
+export default ArtistsTable

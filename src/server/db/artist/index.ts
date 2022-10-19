@@ -25,7 +25,17 @@ export const getArtist = async (id: number) => {
 
 export const createArtist = async (input: CreateArtistInput) => {
   const artist = await prisma.artist.create({
-    data: input,
+    data: {
+      name: input.name,
+      members: input.members
+        ? {
+            create: input.members.map((member) => ({
+              personId: member.personId,
+              name: member.name,
+            })),
+          }
+        : undefined,
+    },
     select: defaultArtistSelect,
   })
 
@@ -37,7 +47,18 @@ export const createArtist = async (input: CreateArtistInput) => {
 export const editArtist = async ({ id, data }: EditArtistInput) => {
   const artist = await prisma.artist.update({
     where: { id },
-    data,
+    data: {
+      name: data.name,
+      members: data.members
+        ? {
+            deleteMany: {},
+            create: data.members.map((member) => ({
+              personId: member.personId,
+              name: member.name,
+            })),
+          }
+        : undefined,
+    },
     select: defaultArtistSelect,
   })
 

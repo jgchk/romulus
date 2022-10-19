@@ -2,7 +2,13 @@ import { Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import { createArtist, deleteArtist, editArtist, getArtist } from '../db/artist'
+import {
+  createArtist,
+  deleteArtist,
+  editArtist,
+  getArtist,
+  getArtists,
+} from '../db/artist'
 import { CreateArtistInput, EditArtistInput } from '../db/artist/inputs'
 import { requirePermission } from '../guards'
 
@@ -14,6 +20,7 @@ export const artistRouter = createRouter()
       return createArtist(input)
     },
   })
+  .query('all', { resolve: () => getArtists() })
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input: { id } }) => getArtist(id),

@@ -1,10 +1,13 @@
+import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import InputGroup from '../../components/common/InputGroup'
 import { useAddPersonMutation } from '../../services/people'
+import { toPersonNameString } from '../../utils/people'
 
 type CreatePersonFormFields = {
   firstName: string
@@ -14,6 +17,7 @@ type CreatePersonFormFields = {
 
 const CreatePerson: FC = () => {
   // TODO: navigate to people index & show error notification when no EDIT_ARTIST permission
+  const router = useRouter()
 
   const {
     handleSubmit,
@@ -30,9 +34,17 @@ const CreatePerson: FC = () => {
         middleName: data.middleName || undefined,
         lastName: data.lastName || undefined,
       }
-      return mutate(processedData)
+      return mutate(processedData, {
+        onSuccess: (data) => {
+          toast.success(`Created person '${toPersonNameString(data)}'`)
+          void router.push({
+            pathname: '/people/[id]',
+            query: { id: data.id.toString() },
+          })
+        },
+      })
     },
-    [mutate]
+    [mutate, router]
   )
 
   useEffect(() => setFocus('firstName'), [setFocus])

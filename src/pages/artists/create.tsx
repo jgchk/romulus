@@ -1,5 +1,7 @@
+import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
@@ -7,7 +9,8 @@ import InputGroup from '../../components/common/InputGroup'
 import Select, { SelectProps } from '../../components/common/Select'
 import { useAddArtistMutation } from '../../services/artists'
 import { usePeopleQuery } from '../../services/people'
-import { toNameString } from '../../utils/people'
+import { toArtistNameString } from '../../utils/artists'
+import { toPersonNameString } from '../../utils/people'
 
 type CreateArtistFormFields = {
   name?: string
@@ -21,6 +24,7 @@ type MemberFormFields = {
 
 const CreateArtist: FC = () => {
   // TODO: navigate to artists index & show error notification when no EDIT_ARTIST permission
+  const router = useRouter()
 
   const {
     handleSubmit,
@@ -47,9 +51,17 @@ const CreateArtist: FC = () => {
             name: member.name ?? undefined,
           })),
       }
-      return mutate(processedData)
+      return mutate(processedData, {
+        onSuccess: (data) => {
+          toast.success(`Created artist '${toArtistNameString(data)}'`)
+          void router.push({
+            pathname: '/artists/[id]',
+            query: { id: data.id.toString() },
+          })
+        },
+      })
     },
-    [mutate]
+    [mutate, router]
   )
 
   useEffect(() => setFocus('name'), [setFocus])
@@ -145,7 +157,7 @@ const PersonSelect: FC<
       { key: -1, label: 'None', data: { id: undefined } },
       ...(peopleQuery.data?.map((person) => ({
         key: person.id,
-        label: toNameString(person),
+        label: toPersonNameString(person),
         data: person,
       })) ?? []),
     ],

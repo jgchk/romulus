@@ -10,7 +10,9 @@ declare module "nextjs-routes" {
     | { pathname: "/api/logout"; query?: Query | undefined }
     | { pathname: "/api/register"; query?: Query | undefined }
     | { pathname: "/api/trpc/[trpc]"; query: Query<{ "trpc": string }> }
+    | { pathname: "/artists/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/artists/create"; query?: Query | undefined }
+    | { pathname: "/artists"; query?: Query | undefined }
     | { pathname: "/genres/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/genres"; query?: Query | undefined }
     | { pathname: "/genres/table"; query?: Query | undefined }
