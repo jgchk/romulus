@@ -37,7 +37,7 @@ const MultiselectInput: FC<MultiselectInputProps> = ({
     <input
       ref={setInputRef}
       id={id}
-      className='flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:italic placeholder:text-gray-700'
+      className='w-full bg-transparent text-sm text-gray-800 outline-none placeholder:italic placeholder:text-gray-700'
       placeholder={placeholder}
       autoComplete='off'
       value={query}

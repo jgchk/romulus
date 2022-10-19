@@ -12,7 +12,7 @@ import {
 
 export type HasId = { id: Key }
 
-type MultiselectContext = {
+export type MultiselectContext = {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 
@@ -36,7 +36,7 @@ const placeholderFn = () => {
   )
 }
 
-const MultiselectContext = createContext<MultiselectContext>({
+export const MultiselectContext = createContext<MultiselectContext>({
   open: false,
   setOpen: placeholderFn,
 

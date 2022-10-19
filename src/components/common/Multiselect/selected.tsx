@@ -16,7 +16,7 @@ const MultiselectSelected = <T extends HasId>({
   return (
     <button
       type='button'
-      className='group flex items-center space-x-1 overflow-hidden rounded-full border border-gray-400 bg-gray-200 py-0.5 pl-2 pr-1 text-xs font-medium text-gray-600 hover:border-error-700 hover:bg-error-300 hover:text-error-800'
+      className='group flex items-center whitespace-nowrap rounded-full border border-gray-400 bg-gray-200 py-0.5 pl-2 pr-1 text-xs font-medium text-gray-600 hover:border-error-700 hover:bg-error-300 hover:text-error-800'
       onClick={(e) => {
         unselect(item)
         e.stopPropagation()
@@ -25,7 +25,7 @@ const MultiselectSelected = <T extends HasId>({
       <span>{children}</span>
       <RiCloseFill
         size={12}
-        className='text-gray-500 group-hover:text-error-700'
+        className='ml-1 text-gray-500 group-hover:text-error-700'
       />
     </button>
   )

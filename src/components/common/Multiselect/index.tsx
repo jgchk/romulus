@@ -3,11 +3,17 @@ import {
   forwardRef,
   PropsWithChildren,
   ReactElement,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
 } from 'react'
 
 import useForwardedRef from '../../../hooks/useForwardedRef'
+import { twsx } from '../../../utils/dom'
+import Popover from '../Popover'
 import MultiselectBox from './box'
-import { HasId, MultiselectProvider } from './context'
+import { HasId, MultiselectContext } from './context'
 import MultiselectInput from './input'
 import MultiselectOption from './option'
 import MultiselectOptions from './options'
@@ -19,6 +25,8 @@ type MultiselectProps<T> = {
   onChange: (value: T[]) => void
   query: string
   onQueryChange: (query: string) => void
+  children: [ReactNode, ReactNode]
+  className?: string
 }
 
 const Multiselect = <T extends HasId>(
@@ -29,24 +37,58 @@ const Multiselect = <T extends HasId>(
     onChange,
     query,
     onQueryChange,
+    className,
   }: PropsWithChildren<MultiselectProps<T>>,
   ref: ForwardedRef<HTMLInputElement>
 ) => {
   const innerRef = useForwardedRef(ref)
-  return (
-    <MultiselectProvider
-      options={options}
-      selected={value}
-      onChange={onChange as (value: HasId[]) => void}
-      inputRef={innerRef.current}
-      setInputRef={(val) => {
+  const select = useCallback(
+    (item: T) => onChange([...value, item]),
+    [onChange, value]
+  )
+
+  const unselect = useCallback(
+    (item: T) => onChange(value.filter((i) => i.id !== item.id)),
+    [onChange, value]
+  )
+
+  const [open, setOpen] = useState(false)
+
+  const contextValue: MultiselectContext = useMemo(
+    () => ({
+      open,
+      setOpen,
+      options,
+      selected: value,
+      onChange: onChange as (value: HasId[]) => void,
+      select: select as (item: HasId) => void,
+      unselect: unselect as (item: HasId) => void,
+      inputRef: innerRef.current,
+      setInputRef: (val) => {
         innerRef.current = val
-      }}
-      query={query}
-      onQueryChange={onQueryChange}
-    >
-      {children}
-    </MultiselectProvider>
+      },
+      query,
+      onQueryChange,
+    }),
+    [
+      innerRef,
+      onChange,
+      onQueryChange,
+      open,
+      options,
+      query,
+      select,
+      unselect,
+      value,
+    ]
+  )
+
+  return (
+    <MultiselectContext.Provider value={contextValue}>
+      <Popover show={open}>
+        <div className={twsx('relative', className)}>{children}</div>
+      </Popover>
+    </MultiselectContext.Provider>
   )
 }
 

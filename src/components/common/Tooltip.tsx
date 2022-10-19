@@ -7,8 +7,8 @@ import useDebouncedState from '../../hooks/useDebouncedState'
 import { isBrowser } from '../../utils/dom'
 
 const Tooltip: FC<
-  PropsWithChildren<{ className?: string; tip: ReactNode }>
-> = ({ className, tip, children }) => {
+  PropsWithChildren<{ className?: string; tip: ReactNode; delay?: number }>
+> = ({ className, tip, children, delay = 500 }) => {
   const [referenceElement, setReferenceElement] =
     useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
@@ -27,7 +27,7 @@ const Tooltip: FC<
   })
 
   const [show, setShow] = useState(false)
-  const [showDebounced] = useDebouncedState(show, 500)
+  const [showDebounced] = useDebouncedState(show, delay)
 
   useEffect(() => {
     if (!referenceElement) return

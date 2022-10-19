@@ -19,7 +19,7 @@ const MultiselectOption = <T extends HasId>({
 
   return (
     <li
-      className='cursor-pointer rounded border border-transparent p-1 text-sm text-gray-800 hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300'
+      className='cursor-pointer rounded border border-transparent p-1 px-1.5 text-sm text-gray-800 hover:bg-gray-200 focus:border-secondary-500 active:bg-gray-300'
       onClick={() => handleClick()}
     >
       {children}
