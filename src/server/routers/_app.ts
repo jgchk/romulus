@@ -6,6 +6,7 @@ import { conceptRouter } from './concept'
 import { genreRouter } from './genre'
 import { genreHistoryRouter } from './genre-history'
 import { genreRelevanceRouter } from './genre-relevance'
+import { itemRouter } from './item'
 import { personRouter } from './person'
 import { unitRouter } from './unit'
 
@@ -19,5 +20,6 @@ export const appRouter = createRouter()
   .merge('person.', personRouter)
   .merge('unit.', unitRouter)
   .merge('concept.', conceptRouter)
+  .merge('item.', itemRouter)
 
 export type AppRouter = typeof appRouter
