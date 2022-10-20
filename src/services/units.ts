@@ -32,7 +32,7 @@ export const useDeleteUnitMutation = () => {
     onSuccess: (data) =>
       Promise.all([
         utils.invalidateQueries(['unit.all']),
-        utils.invalidateQueries(['person.byId', { id: data.id }]),
+        utils.invalidateQueries(['unit.byId', { id: data.id }]),
       ]),
   })
 }
