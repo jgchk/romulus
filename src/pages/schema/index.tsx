@@ -89,18 +89,6 @@ type SchemaField = {
 
 type FieldType = 'string' | 'number'
 
-type ObjectInstance = {
-  id: number
-  schemaObjectId: SchemaObjectId
-  fields: FieldInstance[]
-}
-
-type FieldInstance = {
-  id: number
-  schemaFieldId: SchemaFieldId
-  value: any
-}
-
 const SchemaBuilder: FC = () => {
   const objects = useSchemaStore((state) => Object.values(state.objects))
   const addObject = useSchemaStore((state) => state.addObject)

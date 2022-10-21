@@ -131,49 +131,42 @@ model GenreRelevanceVote {
   @@id([genreId, accountId])
 }
 
-model Unit {
-  id       Int         @id @default(autoincrement())
-  issues   UnitIssue[]
-  concepts Concept[]
+model Song {
+  id       Int    @id @default(autoincrement())
+  title    String
+  duration Int?
+
+  // children
+  issues SongIssue[]
+
+  // parents
+  releases Release[]
 }
 
-model UnitIssue {
+model SongIssue {
   id     Int  @id @default(autoincrement())
-  unit   Unit @relation(fields: [unitId], references: [id])
-  unitId Int
+  song   Song @relation(fields: [songId], references: [id])
+  songId Int
 }
 
-model ConceptType {
+model ReleaseType {
   id       Int       @id @default(autoincrement())
   name     String
-  concepts Concept[]
+  releases Release[]
 }
 
-model Concept {
-  id      Int             @id @default(autoincrement())
-  type    ConceptType     @relation(fields: [typeId], references: [id])
-  typeId  Int
-  units   Unit[]
-  issues  ConceptIssue[]
-  bundles ConceptBundle[]
+model Release {
+  id     Int            @id @default(autoincrement())
+  type   ReleaseType    @relation(fields: [typeId], references: [id])
+  typeId Int
+  units  Song[]
+  issues ReleaseIssue[]
 }
 
-model ConceptIssue {
+model ReleaseIssue {
   id        Int     @id @default(autoincrement())
-  concept   Concept @relation(fields: [conceptId], references: [id])
-  conceptId Int
-}
-
-model ConceptBundle {
-  id       Int                  @id @default(autoincrement())
-  concepts Concept[]
-  issues   ConceptBundleIssue[]
-}
-
-model ConceptBundleIssue {
-  id              Int           @id @default(autoincrement())
-  conceptBundle   ConceptBundle @relation(fields: [conceptBundleId], references: [id])
-  conceptBundleId Int
+  release   Release @relation(fields: [releaseId], references: [id])
+  releaseId Int
 }
 
 model ItemType {
@@ -183,15 +176,9 @@ model ItemType {
 }
 
 model Item {
-  id      Int          @id @default(autoincrement())
-  type    ItemType     @relation(fields: [typeId], references: [id])
-  typeId  Int
-  bundles ItemBundle[]
-}
-
-model ItemBundle {
-  id    Int    @id @default(autoincrement())
-  items Item[]
+  id     Int      @id @default(autoincrement())
+  type   ItemType @relation(fields: [typeId], references: [id])
+  typeId Int
 }
 
 model Artist {

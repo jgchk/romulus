@@ -21,7 +21,11 @@ declare module "nextjs-routes" {
     | { pathname: "/people/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/people/create"; query?: Query | undefined }
     | { pathname: "/people"; query?: Query | undefined }
-    | { pathname: "/register"; query?: Query | undefined };
+    | { pathname: "/register"; query?: Query | undefined }
+    | { pathname: "/schema"; query?: Query | undefined }
+    | { pathname: "/songs/[id]"; query: Query<{ "id": string }> }
+    | { pathname: "/songs/create"; query?: Query | undefined }
+    | { pathname: "/songs"; query?: Query | undefined };
 
   type Query<Params = {}> = Params & { [key: string]: string | string[] | undefined };
 }

@@ -2,40 +2,34 @@ import { Permission } from '@prisma/client'
 import { z } from 'zod'
 
 import { createRouter } from '../createRouter'
-import {
-  createConcept,
-  deleteConcept,
-  editConcept,
-  getConcept,
-  getConcepts,
-} from '../db/concept'
-import { CreateConceptInput, EditConceptInput } from '../db/concept/inputs'
+import { createSong, deleteSong, editSong, getSong, getSongs } from '../db/song'
+import { CreateSongInput, EditSongInput } from '../db/song/inputs'
 import { requirePermission } from '../guards'
 
-export const conceptRouter = createRouter()
+export const songRouter = createRouter()
   .mutation('add', {
-    input: CreateConceptInput,
+    input: CreateSongInput,
     resolve: async ({ input, ctx }) => {
       requirePermission(ctx, Permission.EDIT_RELEASES)
-      return createConcept(input)
+      return createSong(input)
     },
   })
-  .query('all', { resolve: () => getConcepts() })
+  .query('all', { resolve: () => getSongs() })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: ({ input: { id } }) => getConcept(id),
+    resolve: ({ input: { id } }) => getSong(id),
   })
   .mutation('edit', {
-    input: EditConceptInput,
+    input: EditSongInput,
     resolve: async ({ input, ctx }) => {
       requirePermission(ctx, Permission.EDIT_RELEASES)
-      return editConcept(input)
+      return editSong(input)
     },
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),
     resolve: async ({ input: { id }, ctx }) => {
       requirePermission(ctx, Permission.EDIT_RELEASES)
-      return deleteConcept(id)
+      return deleteSong(id)
     },
   })
