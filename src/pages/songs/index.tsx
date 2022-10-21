@@ -47,7 +47,7 @@ const HasData: FC<{
   size?: number
 }> = ({ songs, page = 0, size: rawSize = 30 }) => {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'name', desc: false },
+    { id: 'title', desc: false },
   ])
 
   const size = useMemo(() => Math.min(rawSize, 100), [rawSize])
