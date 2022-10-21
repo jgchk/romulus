@@ -159,7 +159,7 @@ model Release {
   id     Int            @id @default(autoincrement())
   type   ReleaseType    @relation(fields: [typeId], references: [id])
   typeId Int
-  units  Song[]
+  songs  Song[]
   issues ReleaseIssue[]
 }
 

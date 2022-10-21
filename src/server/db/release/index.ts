@@ -27,7 +27,7 @@ export const createRelease = async (input: CreateReleaseInput) => {
   const release = await prisma.release.create({
     data: {
       typeId: input.typeId,
-      units: { connect: input.unitIds.map((unitId) => ({ id: unitId })) },
+      songs: { connect: input.songIds.map((id) => ({ id })) },
     },
     select: defaultReleaseSelect,
   })
@@ -42,8 +42,8 @@ export const editRelease = async ({ id, data }: EditReleaseInput) => {
     where: { id },
     data: {
       typeId: data.typeId,
-      units: data.unitIds
-        ? { set: data.unitIds.map((unitId) => ({ id: unitId })) }
+      songs: data.songIds
+        ? { set: data.songIds.map((id) => ({ id })) }
         : undefined,
     },
     select: defaultReleaseSelect,
