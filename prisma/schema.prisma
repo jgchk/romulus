@@ -19,6 +19,7 @@ enum Permission {
   EDIT_GENRES
   EDIT_ARTISTS
   EDIT_RELEASES
+  EDIT_RELEASE_TYPES
   MIGRATE_CONTRIBUTORS
 }
 
@@ -50,16 +51,84 @@ enum GenreType {
   SCENE
 }
 
+model Location {
+  id          Int          @id @default(autoincrement())
+  sprachbunds Sprachbund[]
+}
+
+model LanguageFamily {
+  id             Int              @id @default(autoincrement())
+  name           String
+  parentFamilies LanguageFamily[] @relation("hierarchy")
+  childFamilies  LanguageFamily[] @relation("hierarchy")
+  languages      Language[]
+}
+
+model Language {
+  id          Int              @id @default(autoincrement())
+  name        LangString[]     @relation("name")
+  constructed Boolean
+  families    LanguageFamily[]
+  // parent      Language         @relation("hierarchy")
+  // child       Language?         @relation("hierarchy", fields: [languageId], references: [id])
+  // languageId Int?
+
+  // verify which one is parent and which is child
+  influencedBy LanguageInfluence[] @relation("languageInfluence")
+  influences   LanguageInfluence[]
+
+  influencesSprachbunds SprachbundInfluence[] @relation("sprachbundInfluence")
+
+  strings LangString[]
+}
+
+model LanguageInfluence {
+  parentLanguage Language @relation("languageInfluence", fields: [parentId], references: [id])
+  childLanguage  Language @relation(fields: [childId], references: [id])
+  parentId       Int
+  childId        Int
+  rank           Int
+
+  @@id([parentId, childId])
+}
+
+model Sprachbund {
+  id           Int                   @id @default(autoincrement())
+  locations    Location[]
+  influencedBy SprachbundInfluence[]
+}
+
+model SprachbundInfluence {
+  parentLanguage  Language   @relation("sprachbundInfluence", fields: [parentId], references: [id])
+  childSprachbund Sprachbund @relation(fields: [childId], references: [id])
+  parentId        Int
+  childId         Int
+  rank            Int
+
+  @@id([parentId, childId])
+}
+
+model LangString {
+  id         Int      @id @default(autoincrement())
+  language   Language @relation(fields: [languageId], references: [id])
+  languageId Int
+  value      String
+
+  genres    Genre[]
+  languages Language[] @relation("name")
+  songs     Song[]
+}
+
 model Genre {
-  id               Int        @id @default(autoincrement())
-  name             String
+  id               Int          @id @default(autoincrement())
+  name             LangString[]
   subtitle         String?
-  type             GenreType  @default(STYLE)
+  type             GenreType    @default(STYLE)
   shortDescription String?
   longDescription  String?
   notes            String?
   akas             GenreAka[]
-  relevance        Int        @default(99)
+  relevance        Int          @default(99)
 
   parentGenres Genre[] @relation("hierarchy")
   childGenres  Genre[] @relation("hierarchy")
@@ -132,15 +201,15 @@ model GenreRelevanceVote {
 }
 
 model Song {
-  id       Int    @id @default(autoincrement())
-  title    String
+  id       Int          @id @default(autoincrement())
+  title    LangString[]
   duration Int?
 
   // children
   issues SongIssue[]
 
   // parents
-  releases Release[]
+  releases ReleaseTrack[]
 }
 
 model SongIssue {
@@ -157,10 +226,24 @@ model ReleaseType {
 
 model Release {
   id     Int            @id @default(autoincrement())
+  title  String
   type   ReleaseType    @relation(fields: [typeId], references: [id])
   typeId Int
-  songs  Song[]
+  tracks ReleaseTrack[]
   issues ReleaseIssue[]
+}
+
+model ReleaseTrack {
+  id        Int     @id @default(autoincrement())
+  release   Release @relation(fields: [releaseId], references: [id])
+  releaseId Int
+  song      Song    @relation(fields: [songId], references: [id])
+  songId    Int
+
+  orderNum   Int
+  displayNum String?
+
+  @@unique([releaseId, songId])
 }
 
 model ReleaseIssue {
@@ -205,4 +288,35 @@ model Person {
   firstName  String?
   middleName String?
   lastName   String?
+}
+
+model SchemaObject {
+  id        Int              @id @default(autoincrement())
+  name      String
+  fields    SchemaField[]
+  instances ObjectInstance[]
+}
+
+model SchemaField {
+  id       Int     @id @default(autoincrement())
+  name     String
+  type     String
+  array    Boolean
+  nullable Boolean
+
+  objects   SchemaObject[]
+  instances FieldInstance[]
+}
+
+model ObjectInstance {
+  id             Int          @id @default(autoincrement())
+  schemaObject   SchemaObject @relation(fields: [schemaObjectId], references: [id])
+  schemaObjectId Int
+}
+
+model FieldInstance {
+  id            Int         @id @default(autoincrement())
+  schemaField   SchemaField @relation(fields: [schemaFieldId], references: [id])
+  schemaFieldId Int
+  value         Json
 }
