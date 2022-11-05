@@ -136,6 +136,8 @@ model Genre {
 
   relevanceVotes GenreRelevanceVote[]
 
+  mediaTypes MediaType[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -163,6 +165,8 @@ model GenreHistory {
 
   parentGenreIds       Int[]
   influencedByGenreIds Int[]
+
+  mediaTypeIds Int[] @default([])
 
   treeGenreId Int
 
@@ -217,9 +221,10 @@ model SongIssue {
 }
 
 model ReleaseType {
-  id       Int       @id @default(autoincrement())
-  name     String
-  releases Release[]
+  id         Int         @id @default(autoincrement())
+  name       String
+  releases   Release[]
+  mediaTypes MediaType[]
 }
 
 model Release {
@@ -317,4 +322,21 @@ model FieldInstance {
   schemaField   SchemaField @relation(fields: [schemaFieldId], references: [id])
   schemaFieldId Int
   value         Json
+}
+
+model MediaType {
+  id         Int         @id @default(autoincrement())
+  parents    MediaType[] @relation("hierarchy")
+  children   MediaType[] @relation("hierarchy")
+  coreSenses Sense[]     @relation("core")
+  auxSenses  Sense[]     @relation("aux")
+
+  genres       Genre[]
+  releaseTypes ReleaseType[]
+}
+
+model Sense {
+  id        Int         @id @default(autoincrement())
+  coreTypes MediaType[] @relation("core")
+  auxTypes  MediaType[] @relation("aux")
 }
