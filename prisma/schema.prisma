@@ -326,6 +326,7 @@ model FieldInstance {
 
 model MediaType {
   id         Int         @id @default(autoincrement())
+  name       String
   parents    MediaType[] @relation("hierarchy")
   children   MediaType[] @relation("hierarchy")
   coreSenses Sense[]     @relation("core")

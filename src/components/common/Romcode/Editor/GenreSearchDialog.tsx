@@ -2,7 +2,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { RiCloseLine, RiSearchLine } from 'react-icons/ri'
 
 import useDebouncedState from '../../../../hooks/useDebouncedState'
-import { Match, useSimpleGenreSearchQuery } from '../../../../services/genres'
+import {
+  GenreMatch,
+  useSimpleGenreSearchQuery,
+} from '../../../../services/genres'
 import useGenreNavigatorSettings from '../../../GenresPage/GenreNavigator/useGenreNavigatorSettings'
 import GenreTypeChip from '../../../GenresPage/GenreTypeChip'
 import Button from '../../Button'
@@ -16,7 +19,7 @@ const GenreSearchDialog: FC<{
   initialFilter?: string
   onClickOutside: () => void
   onClickClose: () => void
-  onSelect: (match: Match) => void
+  onSelect: (match: GenreMatch) => void
 }> = ({ initialFilter, onClickOutside, onClickClose, onSelect }) => {
   const [filter, setFilter] = useState(initialFilter ?? '')
   const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 250)
@@ -92,10 +95,10 @@ const GenreSearchDialog: FC<{
 }
 
 const HasData: FC<{
-  matches: Match[]
+  matches: GenreMatch[]
   page: number
   onNextPage: () => void
-  onSelect: (match: Match) => void
+  onSelect: (match: GenreMatch) => void
 }> = ({ matches, page, onNextPage, onSelect }) => {
   const numVisibleMatches = useMemo(() => page * 100, [page])
 
@@ -137,7 +140,7 @@ const HasData: FC<{
   )
 }
 
-const SearchResult: FC<{ match: Match; onClick: () => void }> = ({
+const SearchResult: FC<{ match: GenreMatch; onClick: () => void }> = ({
   match: { genre, matchedAka },
   onClick,
 }) => {

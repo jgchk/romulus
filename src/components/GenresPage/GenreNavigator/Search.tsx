@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FC } from 'react'
 
 import { useSession } from '../../../services/auth'
-import { Match, useSimpleGenreSearchQuery } from '../../../services/genres'
+import { GenreMatch, useSimpleGenreSearchQuery } from '../../../services/genres'
 import { CenteredLoader } from '../../common/Loader'
 import GenreTypeChip from '../GenreTypeChip'
 import { useGenreTreeState } from './Tree/useGenreTreeState'
@@ -30,7 +30,7 @@ const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
   return <CenteredLoader />
 }
 
-const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
+const HasData: FC<{ matches: GenreMatch[]; clearFilter: () => void }> = ({
   matches,
   clearFilter,
 }) => {
@@ -62,7 +62,7 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
   )
 }
 
-const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
+const SearchResult: FC<{ match: GenreMatch; clearFilter: () => void }> = ({
   match: { genre, matchedAka },
   clearFilter,
 }) => {
