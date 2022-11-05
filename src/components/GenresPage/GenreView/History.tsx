@@ -8,10 +8,10 @@ import {
 import clsx from 'clsx'
 import { compareAsc, format } from 'date-fns'
 import Link from 'next/link'
-import { equals, uniq } from 'ramda'
 import { FC, useCallback, useMemo, useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
+import { equals, uniq } from 'remeda'
 
 import { DefaultGenreHistory } from '../../../server/db/genre-history/outputs'
 import { useGenreHistoryQuery } from '../../../services/genre-history'

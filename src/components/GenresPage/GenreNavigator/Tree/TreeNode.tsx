@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { equals } from 'ramda'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
+import { equals } from 'remeda'
 
 import { isFullyVisible } from '../../../../utils/dom'
 import IconButton from '../../../common/IconButton'

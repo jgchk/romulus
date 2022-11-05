@@ -22,6 +22,12 @@ declare module "nextjs-routes" {
     | { pathname: "/people/create"; query?: Query | undefined }
     | { pathname: "/people"; query?: Query | undefined }
     | { pathname: "/register"; query?: Query | undefined }
+    | { pathname: "/release-types/[id]"; query: Query<{ "id": string }> }
+    | { pathname: "/release-types/create"; query?: Query | undefined }
+    | { pathname: "/release-types"; query?: Query | undefined }
+    | { pathname: "/releases/[id]"; query: Query<{ "id": string }> }
+    | { pathname: "/releases/create"; query?: Query | undefined }
+    | { pathname: "/releases"; query?: Query | undefined }
     | { pathname: "/schema"; query?: Query | undefined }
     | { pathname: "/songs/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/songs/create"; query?: Query | undefined }

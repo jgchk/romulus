@@ -1,5 +1,5 @@
-import { range } from 'ramda'
 import { forwardRef, useMemo } from 'react'
+import { range } from 'remeda'
 
 import {
   MAX_GENRE_RELEVANCE,

@@ -1,5 +1,4 @@
-import { median } from 'ramda'
-
+import { median } from '../../../utils/math'
 import { prisma } from '../../prisma'
 import { getByGenreId } from '.'
 

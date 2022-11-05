@@ -1,6 +1,6 @@
 import { ComponentMeta, Story } from '@storybook/react'
-import { range } from 'ramda'
 import { ComponentProps, useMemo, useState } from 'react'
+import { range } from 'remeda'
 
 import Button from '../components/common/Button'
 import M from '../components/common/Multiselect'

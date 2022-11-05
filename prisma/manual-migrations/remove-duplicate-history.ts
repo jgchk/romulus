@@ -1,6 +1,6 @@
 import { GenreHistory, GenreHistoryAka } from '@prisma/client'
 import dotenv from 'dotenv'
-import { equals, uniq } from 'ramda'
+import { equals, uniq } from 'remeda'
 
 dotenv.config({ path: '.env.local' })
 

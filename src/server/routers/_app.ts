@@ -8,6 +8,7 @@ import { genreRelevanceRouter } from './genre-relevance'
 import { itemRouter } from './item'
 import { personRouter } from './person'
 import { releaseRouter } from './release'
+import { releaseTypeRouter } from './release-type'
 import { songRouter } from './song'
 
 export const appRouter = createRouter()
@@ -20,6 +21,7 @@ export const appRouter = createRouter()
   .merge('person.', personRouter)
   .merge('song.', songRouter)
   .merge('release.', releaseRouter)
+  .merge('release.type.', releaseTypeRouter)
   .merge('item.', itemRouter)
 
 export type AppRouter = typeof appRouter

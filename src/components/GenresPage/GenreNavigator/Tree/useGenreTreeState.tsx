@@ -1,4 +1,3 @@
-import { equals } from 'ramda'
 import {
   createContext,
   FC,
@@ -8,6 +7,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { equals } from 'remeda'
 
 import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 

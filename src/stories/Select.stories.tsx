@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
-import { range } from 'ramda'
 import { useState } from 'react'
+import { range } from 'remeda'
 
 import SelectComponent, { Option } from '../components/common/Select'
 

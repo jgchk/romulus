@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { countBy, range } from 'ramda'
+import { countBy } from 'ramda'
 import { FC, useCallback, useMemo } from 'react'
+import { range } from 'remeda'
 
 import {
   MAX_GENRE_RELEVANCE,

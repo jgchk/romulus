@@ -1,5 +1,5 @@
-import { uniq } from 'ramda'
 import { useMemo } from 'react'
+import { uniq } from 'remeda'
 
 const useTablePaginationOptions = (size: number) => {
   const pageOptions = useMemo(() => {

@@ -1,6 +1,6 @@
 import { GenreHistory, GenreHistoryAka } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
-import { equals, uniq } from 'ramda'
+import { equals, uniq } from 'remeda'
 
 import { prisma } from '../../prisma'
 import { EditGenreInput } from './inputs'

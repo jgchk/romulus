@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server'
 import { prisma } from '../../prisma'
 import { CreateReleaseInput, EditReleaseInput } from './inputs'
 import { defaultReleaseSelect } from './outputs'
+import { makeTrackDbInput } from './utils'
 
 export const getReleases = () =>
   prisma.release.findMany({ select: defaultReleaseSelect })
@@ -25,10 +26,7 @@ export const getRelease = async (id: number) => {
 
 export const createRelease = async (input: CreateReleaseInput) => {
   const release = await prisma.release.create({
-    data: {
-      typeId: input.typeId,
-      songs: { connect: input.songIds.map((id) => ({ id })) },
-    },
+    data: { ...input, tracks: { create: makeTrackDbInput(input.tracks) } },
     select: defaultReleaseSelect,
   })
 
@@ -41,10 +39,11 @@ export const editRelease = async ({ id, data }: EditReleaseInput) => {
   const release = await prisma.release.update({
     where: { id },
     data: {
-      typeId: data.typeId,
-      songs: data.songIds
-        ? { set: data.songIds.map((id) => ({ id })) }
-        : undefined,
+      ...data,
+      tracks:
+        data.tracks !== undefined
+          ? { deleteMany: {}, create: makeTrackDbInput(data.tracks) }
+          : undefined,
     },
     select: defaultReleaseSelect,
   })

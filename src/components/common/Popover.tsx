@@ -1,10 +1,10 @@
 import { Transition } from '@headlessui/react'
-import { SetStateAction } from 'jotai'
 import {
   createContext,
   Dispatch,
   FC,
   PropsWithChildren,
+  SetStateAction,
   useContext,
   useMemo,
   useState,

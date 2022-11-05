@@ -1,4 +1,4 @@
-import { uniqBy } from 'ramda'
+import { uniqBy } from 'remeda'
 
 import { TreeGenre } from '../../server/db/genre/outputs'
 import { isNotNull } from '../../utils/types'
@@ -30,7 +30,6 @@ export const getFilteredParentGenres = <T extends TreeGenre>(
   genreMap: Map<number, T>
 ) =>
   uniqBy(
-    (g) => g.id,
     genre.parentGenres
       .flatMap(({ id }) => {
         const parentGenre = genreMap.get(id)
@@ -55,7 +54,8 @@ export const getFilteredParentGenres = <T extends TreeGenre>(
 
         return ancestors
       })
-      .filter(isNotNull)
+      .filter(isNotNull),
+    (g) => g.id
   )
 
 export const getFilteredChildGenres = <T extends TreeGenre>(
@@ -64,7 +64,6 @@ export const getFilteredChildGenres = <T extends TreeGenre>(
   genreMap: Map<number, T>
 ) =>
   uniqBy(
-    (g) => g.id,
     genre.childGenres
       .flatMap(({ id, name }) => {
         const childGenre = genreMap.get(id)
@@ -89,7 +88,8 @@ export const getFilteredChildGenres = <T extends TreeGenre>(
 
         return descendants
       })
-      .filter(isNotNull)
+      .filter(isNotNull),
+    (g) => g.id
   )
 
 export const getFilteredInfluences = <T extends TreeGenre>(
@@ -98,7 +98,6 @@ export const getFilteredInfluences = <T extends TreeGenre>(
   genreMap: Map<number, T>
 ) =>
   uniqBy(
-    (g) => g.id,
     genre.influencedByGenres
       .flatMap(({ id }) => {
         const influence = genreMap.get(id)
@@ -123,5 +122,6 @@ export const getFilteredInfluences = <T extends TreeGenre>(
 
         return ancestors
       })
-      .filter(isNotNull)
+      .filter(isNotNull),
+    (g) => g.id
   )

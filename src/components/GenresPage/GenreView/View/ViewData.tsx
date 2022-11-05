@@ -1,8 +1,8 @@
 import { CrudOperation, Permission } from '@prisma/client'
 import { compareAsc } from 'date-fns'
 import Link from 'next/link'
-import { uniqBy } from 'ramda'
 import { FC, useCallback, useMemo, useState } from 'react'
+import { uniqBy } from 'remeda'
 
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { DefaultGenreHistory } from '../../../../server/db/genre-history/outputs'
@@ -57,8 +57,8 @@ const GenreViewData: FC<{
   const contributors = useMemo(
     () =>
       uniqBy(
-        (account) => account.id,
-        sortedHistory.map((h) => h.account).filter(isNotNull)
+        sortedHistory.map((h) => h.account).filter(isNotNull),
+        (account) => account.id
       ),
     [sortedHistory]
   )

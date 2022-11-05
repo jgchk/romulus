@@ -114,14 +114,12 @@ model LangString {
   languageId Int
   value      String
 
-  genres    Genre[]
   languages Language[] @relation("name")
-  songs     Song[]
 }
 
 model Genre {
   id               Int          @id @default(autoincrement())
-  name             LangString[]
+  name             String
   subtitle         String?
   type             GenreType    @default(STYLE)
   shortDescription String?
@@ -202,7 +200,7 @@ model GenreRelevanceVote {
 
 model Song {
   id       Int          @id @default(autoincrement())
-  title    LangString[]
+  title    String
   duration Int?
 
   // children
