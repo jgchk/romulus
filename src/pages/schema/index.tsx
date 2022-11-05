@@ -1,10 +1,12 @@
 import { FC, useCallback, useMemo } from 'react'
+import toast from 'react-hot-toast'
 import create from 'zustand'
 
 import Button from '../../components/common/Button'
 import Checkbox from '../../components/common/Checkbox'
 import Input from '../../components/common/Input'
 import Select from '../../components/common/Select'
+import { useAddSchemaMutation } from '../../services/schema'
 
 let currId = 0
 const getId = () => currId++
@@ -48,7 +50,7 @@ const useSchemaStore = create<SchemaStore>()((set) => ({
           _type: 'field',
           id: fieldId,
           name: '',
-          type: 'string',
+          type: 0,
           array: false,
           nullable: false,
         },
@@ -82,19 +84,37 @@ type SchemaField = {
   _type: 'field'
   id: SchemaFieldId
   name: string
-  type: FieldType | SchemaObjectId
+  type: number | SchemaObjectId
   array: boolean
   nullable: boolean
 }
 
-type FieldType = 'string' | 'number'
-
 const SchemaBuilder: FC = () => {
   const objects = useSchemaStore((state) => Object.values(state.objects))
+  const fields = useSchemaStore((state) => state.fields)
   const addObject = useSchemaStore((state) => state.addObject)
+
+  const { mutate, isLoading } = useAddSchemaMutation()
+  const handleCreate = useCallback(() => {
+    const apiData = objects.map((object) => ({
+      ...object,
+      fields: object.fields.map((id) => fields[id]),
+    }))
+
+    mutate(
+      { objects: apiData },
+      {
+        onSuccess: () => {
+          toast.success('Created schema!')
+        },
+      }
+    )
+  }, [fields, mutate, objects])
 
   return (
     <div>
+      <Button onClick={handleCreate}>Create</Button>
+      {isLoading && <div>Loading...</div>}
       <Button onClick={() => addObject()}>Add Object</Button>
 
       {objects.map((object) => (
@@ -168,31 +188,32 @@ const FieldNode: FC<{ id: SchemaFieldId }> = ({ id }) => {
 }
 
 const FieldTypeSelect: FC<{
-  value?: FieldType | SchemaObjectId
-  onChange: (value: FieldType | SchemaObjectId) => void
+  value?: number | SchemaObjectId
+  onChange: (value: number | SchemaObjectId) => void
 }> = ({ value, onChange }) => {
   const objects = useSchemaStore((state) => Object.values(state.objects))
 
   const fieldTypeOptions: {
-    id: string
+    id: number
     label: string
-    value: FieldType
+    value: number
   }[] = useMemo(
     () => [
-      { id: 'string', label: 'String', value: 'string' },
-      { id: 'number', label: 'Number', value: 'number' },
+      { id: 0, label: 'String', value: 0 },
+      { id: 1, label: 'Integer', value: 1 },
+      { id: 2, label: 'Decimal', value: 2 },
     ],
     []
   )
 
   const objectOptions: {
-    id: string
+    id: number
     label: string
     value: SchemaObjectId
   }[] = useMemo(
     () =>
       objects.map((object) => ({
-        id: object.id.toString(),
+        id: object.id,
         label: object.name || `Unnamed Object ${object.id}`,
         value: object.id,
       })),
@@ -200,9 +221,9 @@ const FieldTypeSelect: FC<{
   )
 
   const options: {
-    id: string
+    id: number
     label: string
-    value: FieldType | SchemaObjectId
+    value: number | SchemaObjectId
   }[] = useMemo(
     () => [...fieldTypeOptions, ...objectOptions],
     [fieldTypeOptions, objectOptions]

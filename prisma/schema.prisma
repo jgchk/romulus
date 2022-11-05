@@ -118,15 +118,15 @@ model LangString {
 }
 
 model Genre {
-  id               Int          @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   name             String
   subtitle         String?
-  type             GenreType    @default(STYLE)
+  type             GenreType  @default(STYLE)
   shortDescription String?
   longDescription  String?
   notes            String?
   akas             GenreAka[]
-  relevance        Int          @default(99)
+  relevance        Int        @default(99)
 
   parentGenres Genre[] @relation("hierarchy")
   childGenres  Genre[] @relation("hierarchy")
@@ -199,7 +199,7 @@ model GenreRelevanceVote {
 }
 
 model Song {
-  id       Int          @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   title    String
   duration Int?
 
@@ -298,7 +298,7 @@ model SchemaObject {
 model SchemaField {
   id       Int     @id @default(autoincrement())
   name     String
-  type     String
+  type     Int
   array    Boolean
   nullable Boolean
 

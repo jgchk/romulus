@@ -9,6 +9,7 @@ import { itemRouter } from './item'
 import { personRouter } from './person'
 import { releaseRouter } from './release'
 import { releaseTypeRouter } from './release-type'
+import { schemaRouter } from './schema'
 import { songRouter } from './song'
 
 export const appRouter = createRouter()
@@ -23,5 +24,6 @@ export const appRouter = createRouter()
   .merge('release.', releaseRouter)
   .merge('release.type.', releaseTypeRouter)
   .merge('item.', itemRouter)
+  .merge('schema.', schemaRouter)
 
 export type AppRouter = typeof appRouter

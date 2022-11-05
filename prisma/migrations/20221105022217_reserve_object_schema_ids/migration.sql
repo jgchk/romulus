@@ -1,0 +1,1 @@
+ALTER SEQUENCE "SchemaObject_id_seq" RESTART WITH 255;
