@@ -338,6 +338,7 @@ model MediaType {
 
 model Sense {
   id        Int         @id @default(autoincrement())
+  name      String
   coreTypes MediaType[] @relation("core")
   auxTypes  MediaType[] @relation("aux")
 }

@@ -7,6 +7,7 @@ import Button from '../common/Button'
 import Input from '../common/Input'
 import InputGroup from '../common/InputGroup'
 import MediaTypeMultiselect from './MediaTypesMultiselect'
+import SensesMultiselect from './SensesMultiselect'
 
 type CreateMediaTypeFormFields = {
   name: string
@@ -24,9 +25,12 @@ const CreateMediaType: FC = () => {
     control,
     formState: { errors },
     setFocus,
+    getValues,
   } = useForm<CreateMediaTypeFormFields>({
     defaultValues: { name: '', parents: [], coreSenses: [], auxSenses: [] },
   })
+
+  useEffect(() => console.log({ errors }), [errors])
 
   const { mutate, isLoading } = useAddMediaTypeMutation()
   const onSubmit = useCallback(
@@ -66,6 +70,42 @@ const CreateMediaType: FC = () => {
           control={control}
           render={({ field }) => (
             <MediaTypeMultiselect selectedIds={field.value} {...field} />
+          )}
+        />
+      </InputGroup>
+
+      <InputGroup id='coreSenses' label='Core Senses' error={errors.coreSenses}>
+        <Controller
+          name='coreSenses'
+          control={control}
+          rules={{
+            validate: {
+              unique: (v) =>
+                getValues('auxSenses').every((s) => !v.includes(s)) ||
+                // FIXME: make this friendlier - tell the user which sense is duplicated
+                'Senses cannot be both core and auxiliary',
+            },
+          }}
+          render={({ field }) => (
+            <SensesMultiselect selectedIds={field.value} {...field} />
+          )}
+        />
+      </InputGroup>
+
+      <InputGroup id='auxSenses' label='Aux Senses' error={errors.coreSenses}>
+        <Controller
+          name='auxSenses'
+          control={control}
+          rules={{
+            validate: {
+              unique: (v) =>
+                getValues('coreSenses').every((s) => !v.includes(s)) ||
+                // FIXME: make this friendlier - tell the user which sense is duplicated
+                'Senses cannot be both core and auxiliary',
+            },
+          }}
+          render={({ field }) => (
+            <SensesMultiselect selectedIds={field.value} {...field} />
           )}
         />
       </InputGroup>

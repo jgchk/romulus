@@ -30,6 +30,7 @@ declare module "nextjs-routes" {
     | { pathname: "/releases/create"; query?: Query | undefined }
     | { pathname: "/releases"; query?: Query | undefined }
     | { pathname: "/schema"; query?: Query | undefined }
+    | { pathname: "/senses/create"; query?: Query | undefined }
     | { pathname: "/songs/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/songs/create"; query?: Query | undefined }
     | { pathname: "/songs"; query?: Query | undefined };

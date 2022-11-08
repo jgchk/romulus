@@ -4,7 +4,8 @@ import { prisma } from '../../prisma'
 import { CreateMediaTypeInput } from './inputs'
 import { defaultMediaTypeSelect } from './outputs'
 
-export const getMediaTypes = async () => prisma.mediaType.findMany({})
+export const getMediaTypes = async () =>
+  prisma.mediaType.findMany({ select: defaultMediaTypeSelect })
 
 export const getMediaType = async (id: number) => {
   const mediaType = await prisma.mediaType.findUnique({
