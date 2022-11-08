@@ -1,7 +1,0 @@
-Stopped in the middle of creating the Create Media Type page
-- Need to create SenseMultiselect
-- Add multiselect to Create Media Type form for primary and auxiliary senses
-
-Next steps
-- Figure out how custom type form will be incorporated in the media type creation flow
-   - Will it be on the same page, included in the same submission? Or created separately?
