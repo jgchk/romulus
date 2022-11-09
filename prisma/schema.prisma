@@ -202,71 +202,6 @@ model GenreRelevanceVote {
   @@id([genreId, accountId])
 }
 
-model Song {
-  id       Int    @id @default(autoincrement())
-  title    String
-  duration Int?
-
-  // children
-  issues SongIssue[]
-
-  // parents
-  releases ReleaseTrack[]
-}
-
-model SongIssue {
-  id     Int  @id @default(autoincrement())
-  song   Song @relation(fields: [songId], references: [id])
-  songId Int
-}
-
-model ReleaseType {
-  id         Int         @id @default(autoincrement())
-  name       String
-  releases   Release[]
-  mediaTypes MediaType[]
-}
-
-model Release {
-  id     Int            @id @default(autoincrement())
-  title  String
-  type   ReleaseType    @relation(fields: [typeId], references: [id])
-  typeId Int
-  tracks ReleaseTrack[]
-  issues ReleaseIssue[]
-}
-
-model ReleaseTrack {
-  id        Int     @id @default(autoincrement())
-  release   Release @relation(fields: [releaseId], references: [id])
-  releaseId Int
-  song      Song    @relation(fields: [songId], references: [id])
-  songId    Int
-
-  orderNum   Int
-  displayNum String?
-
-  @@unique([releaseId, songId])
-}
-
-model ReleaseIssue {
-  id        Int     @id @default(autoincrement())
-  release   Release @relation(fields: [releaseId], references: [id])
-  releaseId Int
-}
-
-model ItemType {
-  id    Int    @id @default(autoincrement())
-  name  String
-  items Item[]
-}
-
-model Item {
-  id     Int      @id @default(autoincrement())
-  type   ItemType @relation(fields: [typeId], references: [id])
-  typeId Int
-}
-
 model Artist {
   id      Int      @id @default(autoincrement())
   name    String?
@@ -341,4 +276,10 @@ model Sense {
   name      String
   coreTypes MediaType[] @relation("core")
   auxTypes  MediaType[] @relation("aux")
+}
+
+model ReleaseType {
+  id         Int         @id @default(autoincrement())
+  name       String
+  mediaTypes MediaType[]
 }

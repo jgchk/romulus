@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -18,7 +19,7 @@ type CreateMediaTypeFormFields = {
 
 const CreateMediaType: FC = () => {
   // TODO: navigate to media type index & show error notification when no EDIT_RELEASE_TYPE permission
-  // const router = useRouter()
+  const router = useRouter()
 
   const {
     handleSubmit,
@@ -41,14 +42,11 @@ const CreateMediaType: FC = () => {
       return mutate(processedData, {
         onSuccess: (data) => {
           toast.success(`Created media type '${data.name}'`)
-          // void router.push({
-          //   pathname: '/media-types/[id]',
-          //   query: { id: data.id.toString() },
-          // })
+          void router.push({ pathname: '/media-types' })
         },
       })
     },
-    [mutate]
+    [mutate, router]
   )
 
   useEffect(() => setFocus('name'), [setFocus])

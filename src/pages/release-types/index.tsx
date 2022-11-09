@@ -9,11 +9,13 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { RiDeleteBinLine, RiSortAsc, RiSortDesc } from 'react-icons/ri'
 
+import Button from '../../components/common/Button'
 import IconButton from '../../components/common/IconButton'
 import { CenteredLoader } from '../../components/common/Loader'
 import Paginator from '../../components/common/Paginator'
@@ -101,6 +103,12 @@ const HasData: FC<{
 
   return (
     <div className='p-4'>
+      <Link href={{ pathname: '/release-types/create' }}>
+        <a>
+          <Button>New Release Type</Button>
+        </a>
+      </Link>
+
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

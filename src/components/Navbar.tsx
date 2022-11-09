@@ -51,11 +51,17 @@ const Navbar: FC = () => {
   return (
     <div className='flex justify-between border-b border-gray-300 p-2 px-4'>
       <div className='flex space-x-2'>
-        <Link href={{ pathname: '/genres' }}>
-          <a>Tree</a>
+        <Link href={{ pathname: '/senses' }}>
+          <a>Senses</a>
         </Link>
-        <Link href={{ pathname: '/genres/table' }}>
-          <a>Table</a>
+        <Link href={{ pathname: '/media-types' }}>
+          <a>Media Types</a>
+        </Link>
+        <Link href={{ pathname: '/release-types' }}>
+          <a>Release Types</a>
+        </Link>
+        <Link href={{ pathname: '/genres' }}>
+          <a>Genres</a>
         </Link>
       </div>
 

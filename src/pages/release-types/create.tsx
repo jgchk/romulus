@@ -32,10 +32,7 @@ const CreateReleaseType: FC = () => {
       return mutate(processedData, {
         onSuccess: (data) => {
           toast.success(`Created release type '${data.name}'`)
-          void router.push({
-            pathname: '/release-types/[id]',
-            query: { id: data.id.toString() },
-          })
+          void router.push({ pathname: '/release-types' })
         },
       })
     },

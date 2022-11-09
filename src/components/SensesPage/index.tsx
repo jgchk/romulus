@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -13,7 +14,7 @@ type CreateSenseFormFields = {
 
 const CreateSense: FC = () => {
   // TODO: navigate to sense index & show error notification when no EDIT_RELEASE_TYPE permission
-  // const router = useRouter()
+  const router = useRouter()
 
   const {
     handleSubmit,
@@ -33,14 +34,11 @@ const CreateSense: FC = () => {
       return mutate(processedData, {
         onSuccess: (data) => {
           toast.success(`Created sense '${data.name}'`)
-          // void router.push({
-          //   pathname: '/media-types/[id]',
-          //   query: { id: data.id.toString() },
-          // })
+          void router.push({ pathname: '/senses' })
         },
       })
     },
-    [mutate]
+    [mutate, router]
   )
 
   useEffect(() => setFocus('name'), [setFocus])

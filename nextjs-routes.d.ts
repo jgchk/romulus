@@ -19,6 +19,7 @@ declare module "nextjs-routes" {
     | { pathname: "/"; query?: Query | undefined }
     | { pathname: "/login"; query?: Query | undefined }
     | { pathname: "/media-types/create"; query?: Query | undefined }
+    | { pathname: "/media-types"; query?: Query | undefined }
     | { pathname: "/people/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/people/create"; query?: Query | undefined }
     | { pathname: "/people"; query?: Query | undefined }
@@ -26,14 +27,9 @@ declare module "nextjs-routes" {
     | { pathname: "/release-types/[id]"; query: Query<{ "id": string }> }
     | { pathname: "/release-types/create"; query?: Query | undefined }
     | { pathname: "/release-types"; query?: Query | undefined }
-    | { pathname: "/releases/[id]"; query: Query<{ "id": string }> }
-    | { pathname: "/releases/create"; query?: Query | undefined }
-    | { pathname: "/releases"; query?: Query | undefined }
     | { pathname: "/schema"; query?: Query | undefined }
     | { pathname: "/senses/create"; query?: Query | undefined }
-    | { pathname: "/songs/[id]"; query: Query<{ "id": string }> }
-    | { pathname: "/songs/create"; query?: Query | undefined }
-    | { pathname: "/songs"; query?: Query | undefined };
+    | { pathname: "/senses"; query?: Query | undefined };
 
   type Query<Params = {}> = Params & { [key: string]: string | string[] | undefined };
 }
