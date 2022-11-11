@@ -53,8 +53,6 @@ const HasData: FC<{
   page?: number
   size?: number
 }> = ({ releaseTypes, page = 0, size: rawSize = 30 }) => {
-  console.log(releaseTypes)
-
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'schemaObject_name', desc: false },
   ])
@@ -95,7 +93,6 @@ const HasData: FC<{
     },
     onSortingChange: setSorting,
     onPaginationChange: (p) => {
-      console.log('ayoooo', p)
       const pa = typeof p === 'function' ? p(pagination) : p
       setPagination(p)
       void router.push({
