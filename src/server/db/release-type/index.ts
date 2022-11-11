@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 
 import { prisma } from '../../prisma'
-import { CreateReleaseTypeInput, EditReleaseTypeInput } from './inputs'
+import { CreateReleaseTypeInput } from './inputs'
 import { defaultReleaseTypeSelect } from './outputs'
 
 export const getReleaseTypes = () =>
@@ -25,19 +25,21 @@ export const getReleaseType = async (id: number) => {
 
 export const createReleaseType = async (input: CreateReleaseTypeInput) => {
   const releaseType = await prisma.releaseType.create({
-    data: input,
-    select: defaultReleaseTypeSelect,
-  })
-
-  // TODO: release type history
-
-  return releaseType
-}
-
-export const editReleaseType = async ({ id, data }: EditReleaseTypeInput) => {
-  const releaseType = await prisma.releaseType.update({
-    where: { id },
-    data,
+    data: {
+      schemaObject: {
+        create: {
+          name: input.schema.name,
+          fields: {
+            create: input.schema.fields.map((field) => ({
+              name: field.name,
+              type: field.type,
+              array: field.array,
+              nullable: field.nullable,
+            })),
+          },
+        },
+      },
+    },
     select: defaultReleaseTypeSelect,
   })
 

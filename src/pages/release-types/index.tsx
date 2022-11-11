@@ -53,8 +53,10 @@ const HasData: FC<{
   page?: number
   size?: number
 }> = ({ releaseTypes, page = 0, size: rawSize = 30 }) => {
+  console.log(releaseTypes)
+
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'name', desc: false },
+    { id: 'schemaObject_name', desc: false },
   ])
 
   const size = useMemo(() => Math.min(rawSize, 100), [rawSize])
@@ -68,12 +70,12 @@ const HasData: FC<{
 
   const defaultColumns = useMemo(
     () => [
-      columnHelper.accessor('name', { header: 'Name' }),
+      columnHelper.accessor('schemaObject.name', { header: 'Name' }),
       columnHelper.display({
         id: 'buttons',
         cell: (props) => {
           const id = props.row.original.id
-          const name = props.row.original.name
+          const name = props.row.original.schemaObject.name
           return <DeleteButton id={id} name={name} />
         },
       }),
@@ -93,6 +95,7 @@ const HasData: FC<{
     },
     onSortingChange: setSorting,
     onPaginationChange: (p) => {
+      console.log('ayoooo', p)
       const pa = typeof p === 'function' ? p(pagination) : p
       setPagination(p)
       void router.push({

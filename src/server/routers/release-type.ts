@@ -5,14 +5,10 @@ import { createRouter } from '../createRouter'
 import {
   createReleaseType,
   deleteReleaseType,
-  editReleaseType,
   getReleaseType,
   getReleaseTypes,
 } from '../db/release-type'
-import {
-  CreateReleaseTypeInput,
-  EditReleaseTypeInput,
-} from '../db/release-type/inputs'
+import { CreateReleaseTypeInput } from '../db/release-type/inputs'
 import { requirePermission } from '../guards'
 
 export const releaseTypeRouter = createRouter()
@@ -27,13 +23,6 @@ export const releaseTypeRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input: { id } }) => getReleaseType(id),
-  })
-  .mutation('edit', {
-    input: EditReleaseTypeInput,
-    resolve: async ({ input, ctx }) => {
-      requirePermission(ctx, Permission.EDIT_RELEASE_TYPES)
-      return editReleaseType(input)
-    },
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

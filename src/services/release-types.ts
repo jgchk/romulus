@@ -16,17 +16,6 @@ export const useAddReleaseTypeMutation = () => {
   })
 }
 
-export const useEditReleaseTypeMutation = () => {
-  const utils = trpc.useContext()
-  return trpc.useMutation(['release.type.edit'], {
-    onSuccess: (data) =>
-      Promise.all([
-        utils.invalidateQueries(['release.type.all']),
-        utils.setQueryData(['release.type.byId', { id: data.id }], data),
-      ]),
-  })
-}
-
 export const useDeleteReleaseTypeMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['release.type.delete'], {

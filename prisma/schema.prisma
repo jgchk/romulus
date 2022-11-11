@@ -233,6 +233,8 @@ model SchemaObject {
   name      String
   fields    SchemaField[]
   instances ObjectInstance[]
+
+  releaseTypes ReleaseType[]
 }
 
 model SchemaField {
@@ -279,7 +281,8 @@ model Sense {
 }
 
 model ReleaseType {
-  id         Int         @id @default(autoincrement())
-  name       String
-  mediaTypes MediaType[]
+  id             Int          @id @default(autoincrement())
+  mediaTypes     MediaType[]
+  schemaObject   SchemaObject @relation(fields: [schemaObjectId], references: [id])
+  schemaObjectId Int
 }

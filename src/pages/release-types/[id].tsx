@@ -39,7 +39,7 @@ const ReleaseTypePage: FC<{ id: number }> = ({ id }) => {
 }
 
 const HasData: FC<{ releaseType: DefaultReleaseType }> = ({ releaseType }) => {
-  return <div>{releaseType.name}</div>
+  return <div>{releaseType.schemaObject.name}</div>
 }
 
 export default ReleaseType
