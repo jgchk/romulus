@@ -13,9 +13,12 @@ const MultiselectOptions: FC<PropsWithChildren> = ({ children }) => {
     if (!ref) return
 
     const handler = (e: MouseEvent) => {
-      if (!e.target || !(e.target instanceof Node)) return
+      if (!e.target || !(e.target instanceof Element)) return
 
-      if (!ref.contains(e.target)) {
+      if (
+        !ref.contains(e.target) &&
+        !e.target.classList.contains('multiselect-option')
+      ) {
         setOpen(false)
       }
     }

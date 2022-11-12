@@ -41,12 +41,6 @@ module.exports = {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
 
-    'tailwindcss/no-custom-classname': [
-      'warn',
-      {
-        callees: ['clsx', 'twsx'],
-        whitelist: ['text-inherit'],
-      },
-    ],
+    'tailwindcss/no-custom-classname': 'off',
   },
 }
