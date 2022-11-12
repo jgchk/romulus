@@ -3,9 +3,11 @@ import {
   createContext,
   Dispatch,
   FC,
+  forwardRef,
   PropsWithChildren,
   SetStateAction,
   useContext,
+  useImperativeHandle,
   useMemo,
   useState,
 } from 'react'
@@ -57,14 +59,19 @@ const PopoverTarget: FC<PropsWithChildren<{ className?: string }>> = ({
   )
 }
 
-const PopoverContent: FC<PropsWithChildren<{ className?: string }>> = ({
-  children,
-  className,
-}) => {
+const PopoverContent = forwardRef<
+  HTMLDivElement,
+  PropsWithChildren<{ className?: string }>
+>(({ children, className }, forwardedRef) => {
   const { show, referenceElement } = useContext(PopoverContext)
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
     null
+  )
+
+  useImperativeHandle<HTMLDivElement | null, HTMLDivElement | null>(
+    forwardedRef,
+    () => popperElement
   )
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
@@ -88,7 +95,8 @@ const PopoverContent: FC<PropsWithChildren<{ className?: string }>> = ({
       {children}
     </Transition>
   )
-}
+})
+PopoverContent.displayName = 'PopoverContent'
 
 const Wrapper = PopoverParent as unknown as typeof PopoverParent & {
   Target: typeof PopoverTarget

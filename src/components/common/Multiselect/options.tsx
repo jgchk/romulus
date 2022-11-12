@@ -1,14 +1,33 @@
-import { FC, PropsWithChildren } from 'react'
+import { FC, PropsWithChildren, useEffect, useState } from 'react'
 
 import { CenteredLoader } from '../Loader'
 import Popover from '../Popover'
 import { useMultiselectContext } from './context'
 
 const MultiselectOptions: FC<PropsWithChildren> = ({ children }) => {
-  const { options } = useMultiselectContext()
+  const { options, setOpen } = useMultiselectContext()
+
+  // close options menu when user clicks outside
+  const [ref, setRef] = useState<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!ref) return
+
+    const handler = (e: MouseEvent) => {
+      if (!e.target || !(e.target instanceof Node)) return
+
+      if (!ref.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('click', handler)
+    return () => {
+      document.removeEventListener('click', handler)
+    }
+  }, [ref, setOpen])
 
   return (
-    <Popover.Content className='w-full'>
+    <Popover.Content className='w-full' ref={setRef}>
       <ul className='max-h-64 w-full overflow-auto rounded border border-gray-500 bg-gray-100 p-1 shadow outline-none'>
         {options ? (
           options.length > 0 ? (
