@@ -26,6 +26,7 @@ export const getReleaseType = async (id: number) => {
 export const createReleaseType = async (input: CreateReleaseTypeInput) => {
   const releaseType = await prisma.releaseType.create({
     data: {
+      mediaTypes: { connect: input.mediaTypes.map((id) => ({ id })) },
       schemaObject: {
         create: {
           name: input.schema.name,

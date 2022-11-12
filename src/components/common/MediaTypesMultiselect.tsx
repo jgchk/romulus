@@ -6,8 +6,8 @@ import {
   useMediaTypeSearchQuery,
   useMediaTypesQuery,
 } from '../../services/media-types'
-import Button from '../common/Button'
-import M from '../common/Multiselect'
+import Button from './Button'
+import M from './Multiselect'
 
 const PER_PAGE = 100
 

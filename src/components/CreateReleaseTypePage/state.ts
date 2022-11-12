@@ -6,6 +6,9 @@ type FormStore = {
   object: SchemaObject
   setObject: (object: SchemaObject) => void
 
+  mediaTypes: number[]
+  setMediaTypes: (mediaTypes: number[]) => void
+
   fields: Record<number, SchemaField>
   addField: () => void
   setField: (field: SchemaField) => void
@@ -29,6 +32,9 @@ export type SchemaField = {
 export const useSchemaStore = create<FormStore>()((set) => ({
   object: { _type: 'object', id: uniqueId(), name: '', fields: [] },
   setObject: (object) => set((state) => ({ ...state, object })),
+
+  mediaTypes: [],
+  setMediaTypes: (mediaTypes) => set((state) => ({ ...state, mediaTypes })),
 
   fields: {},
   addField: () => {

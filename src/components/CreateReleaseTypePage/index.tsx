@@ -1,23 +1,45 @@
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { CreateReleaseTypeInput } from '../../server/db/release-type/inputs'
 import { useAddReleaseTypeMutation } from '../../services/release-types'
+import { isNonEmpty } from '../../utils/array'
 import Button from '../common/Button'
 import Checkbox from '../common/Checkbox'
 import Input from '../common/Input'
+import InputGroup from '../common/InputGroup'
+import MediaTypeMultiselect from '../common/MediaTypesMultiselect'
 import Select from '../common/Select'
 import { SchemaField, SchemaObject, useSchemaStore } from './state'
+
+type Errors = {
+  mediaTypes?: string
+  objectName?: string
+}
 
 const CreateReleaseType: FC = () => {
   // TODO: navigate to people index & show error notification when no EDIT_RELEASE_TYPE permission
   const router = useRouter()
 
+  const [errors, setErrors] = useState<Errors>({})
+
   const { mutate, isLoading } = useAddReleaseTypeMutation()
   const onSubmit = useCallback(() => {
     const data = useSchemaStore.getState()
+
+    if (!isNonEmpty(data.mediaTypes)) {
+      return setErrors({ mediaTypes: 'Must select at least one media type' })
+    }
+
+    if (data.object.name.length === 0) {
+      return setErrors({ objectName: 'Name is required' })
+    }
+
+    setErrors({})
+
     const processedData: CreateReleaseTypeInput = {
+      mediaTypes: data.mediaTypes,
       schema: {
         name: data.object.name,
         fields: Object.values(data.fields).map((field) => ({
@@ -36,6 +58,9 @@ const CreateReleaseType: FC = () => {
     })
   }, [mutate, router])
 
+  const mediaTypes = useSchemaStore((state) => state.mediaTypes)
+  const setMediaTypes = useSchemaStore((state) => state.setMediaTypes)
+
   return (
     <form
       onSubmit={(e) => {
@@ -43,6 +68,18 @@ const CreateReleaseType: FC = () => {
         onSubmit()
       }}
     >
+      <InputGroup
+        id='media-types'
+        label='Media Types'
+        required
+        error={errors.mediaTypes}
+      >
+        <MediaTypeMultiselect
+          selectedIds={mediaTypes}
+          onChange={setMediaTypes}
+        />
+      </InputGroup>
+
       <ObjectNode />
 
       <Button type='submit' loading={isLoading}>

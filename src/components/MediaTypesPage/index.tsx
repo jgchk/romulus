@@ -7,7 +7,7 @@ import { useAddMediaTypeMutation } from '../../services/media-types'
 import Button from '../common/Button'
 import Input from '../common/Input'
 import InputGroup from '../common/InputGroup'
-import MediaTypeMultiselect from './MediaTypesMultiselect'
+import MediaTypeMultiselect from '../common/MediaTypesMultiselect'
 import SensesMultiselect from './SensesMultiselect'
 
 type CreateMediaTypeFormFields = {
@@ -30,8 +30,6 @@ const CreateMediaType: FC = () => {
   } = useForm<CreateMediaTypeFormFields>({
     defaultValues: { name: '', parents: [], coreSenses: [], auxSenses: [] },
   })
-
-  useEffect(() => console.log({ errors }), [errors])
 
   const { mutate, isLoading } = useAddMediaTypeMutation()
   const onSubmit = useCallback(
