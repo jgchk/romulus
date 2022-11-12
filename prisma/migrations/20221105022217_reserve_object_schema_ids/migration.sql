@@ -1,1 +1,1 @@
-ALTER SEQUENCE "SchemaObject_id_seq" RESTART WITH 255;
+ALTER SEQUENCE "ReleaseType_id_seq" RESTART WITH 256;

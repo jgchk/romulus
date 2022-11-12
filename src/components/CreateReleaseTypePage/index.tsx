@@ -3,7 +3,10 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { CreateReleaseTypeInput } from '../../server/db/release-type/inputs'
-import { useAddReleaseTypeMutation } from '../../services/release-types'
+import {
+  useAddReleaseTypeMutation,
+  useFieldTypesQuery,
+} from '../../services/release-types'
 import { isNonEmpty } from '../../utils/array'
 import Button from '../common/Button'
 import Checkbox from '../common/Checkbox'
@@ -160,17 +163,20 @@ const FieldTypeSelect: FC<{
   value?: number
   onChange: (value: number) => void
 }> = ({ value, onChange }) => {
+  const fieldTypesQuery = useFieldTypesQuery()
+
   const fieldTypeOptions: {
     id: number
     label: string
     value: number
   }[] = useMemo(
-    () => [
-      { id: 0, label: 'String', value: 0 },
-      { id: 1, label: 'Integer', value: 1 },
-      { id: 2, label: 'Decimal', value: 2 },
-    ],
-    []
+    () =>
+      fieldTypesQuery.data?.map(({ id, name }) => ({
+        id,
+        label: name,
+        value: id,
+      })) ?? [],
+    [fieldTypesQuery.data]
   )
 
   const selectedOption = useMemo(

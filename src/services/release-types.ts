@@ -11,6 +11,7 @@ export const useAddReleaseTypeMutation = () => {
     onSuccess: (data) =>
       Promise.all([
         utils.invalidateQueries(['release.type.all']),
+        utils.invalidateQueries(['release.type.fieldTypes']),
         utils.setQueryData(['release.type.byId', { id: data.id }], data),
       ]),
   })
@@ -22,7 +23,11 @@ export const useDeleteReleaseTypeMutation = () => {
     onSuccess: (data) =>
       Promise.all([
         utils.invalidateQueries(['release.type.all']),
+        utils.invalidateQueries(['release.type.fieldTypes']),
         utils.invalidateQueries(['release.type.byId', { id: data.id }]),
       ]),
   })
 }
+
+export const useFieldTypesQuery = () =>
+  trpc.useQuery(['release.type.fieldTypes'])

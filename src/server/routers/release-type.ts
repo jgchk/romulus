@@ -31,3 +31,18 @@ export const releaseTypeRouter = createRouter()
       return deleteReleaseType(id)
     },
   })
+  .query('fieldTypes', {
+    resolve: async () => {
+      const releaseTypes = await getReleaseTypes()
+      return [
+        { id: 0, name: 'String' },
+        { id: 1, name: 'Integer' },
+        { id: 2, name: 'Decimal' },
+        { id: 3, name: 'Artist' },
+        ...releaseTypes.map((rt) => ({
+          id: rt.id,
+          name: rt.schemaObject.name,
+        })),
+      ]
+    },
+  })
