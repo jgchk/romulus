@@ -2,6 +2,7 @@ import { FC, PropsWithChildren, useEffect, useMemo } from 'react'
 import { Toaster } from 'react-hot-toast'
 
 import { useSession } from '../services/auth'
+import ClientOnly from './common/ClientOnly'
 import Navbar from './Navbar'
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
@@ -26,7 +27,9 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
       <div className='min-h-0 flex-1 overflow-auto'>{children}</div>
 
-      <Toaster />
+      <ClientOnly>
+        <Toaster />
+      </ClientOnly>
     </div>
   )
 }

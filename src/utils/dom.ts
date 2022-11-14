@@ -1,4 +1,5 @@
 import clsx, { ClassValue } from 'clsx'
+import { MouseEvent as ReactMouseEvent } from 'react'
 import toast from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'
 
@@ -110,4 +111,14 @@ export const unfocus = () => {
   } else {
     window.getSelection()?.removeAllRanges()
   }
+}
+
+export const getRelativeMousePosition = (e: ReactMouseEvent) => {
+  if (!(e.target instanceof Element)) return
+
+  const targetPos = e.target.getBoundingClientRect()
+  const x = e.pageX - targetPos.x
+  const y = e.pageY - targetPos.y
+
+  return { x, y }
 }

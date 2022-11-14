@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { FC, useEffect } from 'react'
 
 import { CenteredLoader } from '../../components/common/Loader'
-import { DefaultReleaseType } from '../../server/db/release-type/outputs'
+import PageDesigner from '../../components/PageDesigner'
 import { useReleaseTypeQuery } from '../../services/release-types'
 import { useIntRouteParam } from '../../utils/routes'
 
@@ -28,7 +28,7 @@ const ReleaseTypePage: FC<{ id: number }> = ({ id }) => {
   const releaseTypeQuery = useReleaseTypeQuery(id)
 
   if (releaseTypeQuery.data) {
-    return <HasData releaseType={releaseTypeQuery.data} />
+    return <PageDesigner releaseType={releaseTypeQuery.data} />
   }
 
   if (releaseTypeQuery.error) {
@@ -36,10 +36,6 @@ const ReleaseTypePage: FC<{ id: number }> = ({ id }) => {
   }
 
   return <CenteredLoader />
-}
-
-const HasData: FC<{ releaseType: DefaultReleaseType }> = ({ releaseType }) => {
-  return <div>{releaseType.schemaObject.name}</div>
 }
 
 export default ReleaseType
