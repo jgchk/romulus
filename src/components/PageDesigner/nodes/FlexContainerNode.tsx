@@ -200,6 +200,3 @@ const FlexContainerNode: FC<{
 }
 
 export default FlexContainerNode
-
-// POMO
-// resizing multiple flex resizers

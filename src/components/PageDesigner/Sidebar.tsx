@@ -56,6 +56,3 @@ const Flex: FC<{ id: number; node: FlexContainer }> = ({ id, node }) => {
 }
 
 export default Sidebar
-
-// POMO
-// setting up resize control for flex children
