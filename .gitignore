@@ -41,3 +41,5 @@ yarn-error.log*
 backup.sh
 restore.sh
 prisma/backups/
+
+hashpass.js
