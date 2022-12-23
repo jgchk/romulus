@@ -35,9 +35,8 @@ type PartialTouchEvent = {
 
 const FlexContainerNode: FC<{
   id: number
-}> = ({ id }) => {
-  const node = usePageStore((state) => state.nodes[id])
-
+  node: FlexContainer
+}> = ({ id, node }) => {
   const editNode = usePageStore((state) => state.editNode)
 
   const selectedId = usePageStore((state) => state.selectedId)
@@ -164,7 +163,7 @@ const FlexContainerNode: FC<{
       />
       {node.children.flatMap((child, i) => {
         const nodeEl = (
-          <div key={child.id} style={{ flex: child.flex }}>
+          <div key={child.id} style={{ flex: child.flex }} className='z-10'>
             <DesignerNode id={child.id} />
           </div>
         )

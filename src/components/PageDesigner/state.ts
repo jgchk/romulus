@@ -23,6 +23,8 @@ export const usePageStore = create<PageStore>((set) => ({
     return id
   },
   editNode: (id, node) =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     set((state) => ({
       nodes: { ...state.nodes, [id]: { ...state.nodes[id], ...node } },
     })),

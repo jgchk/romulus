@@ -6,7 +6,9 @@ import SplitPane from '../common/SplitPane'
 import DesignerNode from './nodes'
 import Sidebar from './Sidebar'
 
-const PageDesigner: FC<{ releaseType: DefaultReleaseType }> = () => {
+const PageDesigner: FC<{ releaseType: DefaultReleaseType }> = ({
+  releaseType,
+}) => {
   const { width } = useWindowSize()
 
   return (
@@ -17,7 +19,7 @@ const PageDesigner: FC<{ releaseType: DefaultReleaseType }> = () => {
       className='hidden h-full md:flex'
     >
       <div>
-        <Sidebar />
+        <Sidebar releaseType={releaseType} />
       </div>
       <div className='flex h-full w-full items-center justify-center bg-gray-100'>
         <div className='h-[506.25px] w-[900px] bg-white'>
