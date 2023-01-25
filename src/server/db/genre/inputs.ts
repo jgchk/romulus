@@ -4,6 +4,12 @@ import { z } from 'zod'
 import { nonemptyString } from '../../../utils/validators'
 import { GenreRelevanceInput } from '../common/inputs'
 
+export type Sort = z.infer<typeof Sort>
+export const Sort = z.object({
+  id: z.string(),
+  desc: z.boolean(),
+})
+
 export const LocationIdInput = z.object({ id: z.number() })
 export const LocationInput = z.object({
   city: nonemptyString().optional(),

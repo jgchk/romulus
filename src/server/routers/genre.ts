@@ -8,6 +8,7 @@ import {
   editGenre,
   getGenre,
   getGenres,
+  getPaginatedGenres,
   getSimpleGenre,
   getTopLevelTreeGenres,
   getTreeGenreChildren,
@@ -18,6 +19,7 @@ import {
   CreateGenreInput,
   DeleteGenreInput,
   EditGenreInput,
+  Sort,
 } from '../db/genre/inputs'
 import { requirePermission } from '../guards'
 
@@ -33,6 +35,11 @@ export const genreRouter = createRouter()
   // read
   .query('all', {
     resolve: () => getGenres(),
+  })
+  .query('paginated', {
+    input: z.object({ page: z.number(), size: z.number(), sort: Sort.array() }),
+    resolve: ({ input: { page, size, sort } }) =>
+      getPaginatedGenres(page, size > 100 ? 100 : size, sort),
   })
   .query('tree.topLevel', {
     resolve: () => getTopLevelTreeGenres(),

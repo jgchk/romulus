@@ -2,8 +2,6 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   PaginationState,
   SortingState,
   useReactTable,
@@ -11,25 +9,54 @@ import {
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useMemo, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import { RiSortAsc, RiSortDesc } from 'react-icons/ri'
 
 import { CenteredLoader } from '../../components/common/Loader'
 import Paginator from '../../components/common/Paginator'
 import RelevanceChip from '../../components/GenresPage/GenreNavigator/Tree/RelevanceChip'
 import GenreTypeChip from '../../components/GenresPage/GenreTypeChip'
+import { Sort } from '../../server/db/genre/inputs'
 import { DefaultGenre } from '../../server/db/genre/outputs'
-import { useGenresQuery } from '../../services/genres'
+import { usePaginatedGenresQuery } from '../../services/genres'
 import { useIntRouteParam } from '../../utils/routes'
 
 const GenresTable: FC = () => {
-  const genresQuery = useGenresQuery()
-
   const page = useIntRouteParam('page')
   const size = useIntRouteParam('size')
 
+  const router = useRouter()
+  const sort = useMemo(() => {
+    const rawValue = router.query['sort']
+    if (rawValue === undefined) return undefined
+
+    const value = Array.isArray(rawValue)
+      ? rawValue.map((v) => JSON.parse(v) as unknown)
+      : (JSON.parse(rawValue) as unknown)
+
+    const result = Sort.safeParse(value)
+    if (result.success) {
+      return [result.data]
+    } else {
+      const resultArray = Sort.array().safeParse(value)
+      if (resultArray.success) {
+        return resultArray.data
+      }
+    }
+  }, [router.query])
+  useEffect(() => console.log(sort), [sort])
+
+  const genresQuery = usePaginatedGenresQuery(page, size, sort)
+
   if (genresQuery.data) {
-    return <HasData genres={genresQuery.data} page={page} size={size} />
+    return (
+      <HasData
+        genres={genresQuery.data}
+        page={page}
+        size={size}
+        sorting={sort}
+      />
+    )
   }
 
   if (genresQuery.error) {
@@ -76,14 +103,15 @@ const defaultColumns = [
   }),
 ]
 
-const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
-  genres,
-  page = 0,
-  size: rawSize = 30,
-}) => {
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: 'name', desc: false },
-  ])
+const HasData: FC<{
+  genres: DefaultGenre[]
+  page?: number
+  size?: number
+  sorting?: SortingState
+}> = ({ genres, page = 0, size: rawSize = 30, sorting }) => {
+  // const [sorting, setSorting] = useState<SortingState>([
+  //   { id: 'name', desc: false },
+  // ])
 
   const size = useMemo(() => Math.min(rawSize, 100), [rawSize])
 
@@ -98,18 +126,30 @@ const HasData: FC<{ genres: DefaultGenre[]; page?: number; size?: number }> = ({
     data: genres,
     columns: defaultColumns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
       pagination,
     },
-    onSortingChange: setSorting,
+    onSortingChange: (s) => {
+      const sa = typeof s === 'function' ? s(sorting ?? []) : s
+      console.log({ sorting, sa })
+      void router.push({
+        query: {
+          page: pagination.pageIndex.toString(),
+          size: pagination.pageSize.toString(),
+          sort: JSON.stringify(sa),
+        },
+      })
+    },
     onPaginationChange: (p) => {
       const pa = typeof p === 'function' ? p(pagination) : p
       setPagination(p)
       void router.push({
-        query: { page: pa.pageIndex.toString(), size: pa.pageSize.toString() },
+        query: {
+          page: pa.pageIndex.toString(),
+          size: pa.pageSize.toString(),
+          sort: JSON.stringify(sorting),
+        },
       })
     },
   })

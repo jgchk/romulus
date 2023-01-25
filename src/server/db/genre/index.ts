@@ -6,7 +6,7 @@ import { toAscii } from '../../../utils/string'
 import { prisma } from '../../prisma'
 import { addGenreHistory } from '../genre-history'
 import { setGenreRelevanceVote } from '../genre-relevance'
-import { CreateGenreInput, EditGenreInput } from './inputs'
+import { CreateGenreInput, EditGenreInput, Sort } from './inputs'
 import {
   DefaultGenre,
   defaultGenreSelect,
@@ -26,6 +26,22 @@ export const getSimpleGenres = () =>
 
 export const getTreeGenres = () =>
   prisma.genre.findMany({ select: treeGenreSelect })
+
+export const getPaginatedGenres = (
+  page: number,
+  size: number,
+  sort: Sort[]
+) => {
+  const skip = page * size
+  return prisma.genre.findMany({
+    skip,
+    take: size,
+    orderBy: Object.fromEntries(
+      sort.map((s) => [s.id, s.desc ? 'desc' : 'asc'])
+    ),
+    select: defaultGenreSelect,
+  })
+}
 
 export const getTopLevelTreeGenres = () =>
   prisma.genre.findMany({

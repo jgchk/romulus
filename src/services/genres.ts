@@ -1,15 +1,14 @@
+import { Sort } from '../server/db/genre/inputs'
 import { DefaultGenre, TreeStructure } from '../server/db/genre/outputs'
 import { trpc } from '../utils/trpc'
 
-export const useGenresQuery = () => {
-  const utils = trpc.useContext()
-  return trpc.useQuery(['genre.all'], {
-    onSuccess: (data) => {
-      for (const genre of data) {
-        utils.setQueryData(['genre.byId', { id: genre.id }], genre)
-        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
-      }
-    },
+export const usePaginatedGenresQuery = (
+  page = 0,
+  size = 30,
+  sort: Sort[] = []
+) => {
+  return trpc.useQuery(['genre.paginated', { page, size, sort }], {
+    keepPreviousData: true,
   })
 }
 
