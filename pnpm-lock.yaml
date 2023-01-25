@@ -78,6 +78,7 @@ specifiers:
   validator: ^13.7.0
   yarn: ^1.22.19
   zod: ^3.18.0
+  zustand: ^4.3.2
 
 dependencies:
   '@headlessui/react': 1.6.6_biqbaboplfbrettd7655fr4n2y
@@ -115,6 +116,7 @@ dependencies:
   validator: 13.7.0
   yarn: 1.22.19
   zod: 3.18.0
+  zustand: 4.3.2_react@18.2.0
 
 devDependencies:
   '@babel/core': 7.19.3
@@ -19583,6 +19585,25 @@ packages:
       {
         integrity: sha512-gwTm8RfUCe8l9rDwN5r2A17DkAa8Ez4Yl4yXqc5VqeGaXaJahzYYXbTwvhroZi0SNBqTwh/bKm2N0mpCzuw4bA==,
       }
+    dev: false
+
+  /zustand/4.3.2_react@18.2.0:
+    resolution:
+      {
+        integrity: sha512-rd4haDmlwMTVWVqwvgy00ny8rtti/klRoZjFbL/MAcDnmD5qSw/RZc+Vddstdv90M5Lv6RPgWvm1Hivyn0QgJw==,
+      }
+    engines: { node: '>=12.7.0' }
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /zwitch/1.0.5:

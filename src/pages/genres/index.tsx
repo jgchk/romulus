@@ -1,7 +1,10 @@
-import { FC, useMemo } from 'react'
+import { FC, useEffect, useMemo } from 'react'
 
 import GenrePage, { GenrePageView } from '../../components/GenresPage'
-import { GenreTreeStateProvider } from '../../components/GenresPage/GenreNavigator/Tree/useGenreTreeState'
+import {
+  useNearbyPath,
+  useTreeState,
+} from '../../components/GenresPage/GenreNavigator/Tree/state'
 import { isGenreFormField } from '../../components/GenresPage/GenreView/Form'
 import {
   useCustomRouteParam,
@@ -28,11 +31,17 @@ const Genres: FC = () => {
     }
   }, [autoFocus, id, viewType])
 
-  return (
-    <GenreTreeStateProvider>
-      <GenrePage view={view} />
-    </GenreTreeStateProvider>
-  )
+  const selectedPath = useTreeState((state) => state.selectedPath)
+  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
+  const nearbyPath = useNearbyPath(id, selectedPath)
+
+  useEffect(() => {
+    if (nearbyPath) {
+      setSelectedPath(nearbyPath)
+    }
+  })
+
+  return <GenrePage view={view} />
 }
 
 export default Genres

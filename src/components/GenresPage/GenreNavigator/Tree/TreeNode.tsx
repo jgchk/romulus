@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { equals } from 'ramda'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import { TreeGenre } from '../../../../server/db/genre/outputs'
@@ -11,32 +11,24 @@ import IconButton from '../../../common/IconButton'
 import GenreTypeChip from '../../GenreTypeChip'
 import useGenreNavigatorSettings from '../useGenreNavigatorSettings'
 import RelevanceChip from './RelevanceChip'
+import { useTreeState } from './state'
 import { useGenreTreeRef } from './useGenreTreeRef'
-import { useGenreTreeState } from './useGenreTreeState'
 
 const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
   genre,
   path,
 }) => {
   const { id, childGenres, parentGenres, name, subtitle, relevance } = genre
-  const key = useMemo(() => path.join('-'), [path])
 
   const childrenQuery = useTreeGenreChildrenQuery(id)
 
-  const { selectedPath, setSelectedPath, expanded, setExpanded } =
-    useGenreTreeState()
-
-  const isExpanded = useMemo(
-    () => expanded[key] === 'expanded',
-    [expanded, key]
+  const setExpanded = useTreeState((state) => state.setExpanded)
+  const isExpanded = useTreeState((state) => state.getExpanded(path))
+  const isSelected = useTreeState(
+    (state) => state.selectedPath && equals(state.selectedPath, path)
   )
 
   const { showTypeTags, showRelevanceTags } = useGenreNavigatorSettings()
-
-  const isSelected = useMemo(
-    () => selectedPath && equals(selectedPath, path),
-    [path, selectedPath]
-  )
 
   const [ref, setRef] = useState<HTMLLIElement | null>(null)
   const treeRef = useGenreTreeRef()
@@ -61,9 +53,7 @@ const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
             'text-gray-500',
             childGenres.length === 0 && 'invisible'
           )}
-          onClick={() =>
-            setExpanded(key, isExpanded ? 'collapsed' : 'expanded')
-          }
+          onClick={() => setExpanded(path, !isExpanded)}
         >
           {isExpanded ? <RiArrowDownSLine /> : <RiArrowRightSLine />}
         </IconButton>
@@ -74,7 +64,6 @@ const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
           }}
         >
           <a
-            onClick={() => setSelectedPath(path)}
             className={clsx(
               'hover:font-bold',
               isSelected ? 'font-bold text-primary-600' : 'text-gray-600'

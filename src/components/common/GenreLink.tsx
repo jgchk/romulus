@@ -2,12 +2,8 @@ import Link, { LinkProps } from 'next/link'
 import { Query } from 'nextjs-routes'
 import { FC, ReactNode, useMemo } from 'react'
 
-import {
-  useSimpleGenreQuery,
-  useTreeStructureMapQuery,
-} from '../../services/genres'
+import { useSimpleGenreQuery } from '../../services/genres'
 import { GenrePageView } from '../GenresPage'
-import { useGenreTreeState } from '../GenresPage/GenreNavigator/Tree/useGenreTreeState'
 import { GenreFormFields } from '../GenresPage/GenreView/Form'
 
 export const useGenreLinkHref = (
@@ -30,38 +26,6 @@ export const useGenreLinkHref = (
   return href
 }
 
-export const useGenreLinkPath = (id: number) => {
-  const { selectedPath } = useGenreTreeState()
-  const genresMapQuery = useTreeStructureMapQuery()
-
-  const path = useMemo(() => {
-    if (!selectedPath) return
-
-    const idIndex = selectedPath.lastIndexOf(id)
-    if (idIndex !== -1) {
-      return [...selectedPath.slice(0, idIndex), id]
-    }
-
-    const genresMap = genresMapQuery.data
-    if (!genresMap) return
-
-    const queue = [...selectedPath]
-    let currId = queue.pop()
-    while (currId !== undefined) {
-      const genre = genresMap.get(currId)
-      if (!genre) continue
-
-      if (genre.childGenres.some((g) => g.id === id)) {
-        return [...queue, currId, id]
-      }
-
-      currId = queue.pop()
-    }
-  }, [genresMapQuery.data, id, selectedPath])
-
-  return path
-}
-
 const GenreLink: FC<
   Omit<LinkProps, 'href'> & {
     id: number
@@ -72,15 +36,10 @@ const GenreLink: FC<
   }
 > = ({ id, view, autoFocus, children, className, ...props }) => {
   const href = useGenreLinkHref(id, view, autoFocus)
-  const path = useGenreLinkPath(id)
-
-  const { setSelectedPath } = useGenreTreeState()
 
   return (
     <Link href={href} {...props}>
-      <a onClick={() => setSelectedPath(path)} className={className}>
-        {children ?? <Name id={id} />}
-      </a>
+      <a className={className}>{children ?? <Name id={id} />}</a>
     </Link>
   )
 }

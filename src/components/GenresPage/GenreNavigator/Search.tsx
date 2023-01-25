@@ -7,7 +7,6 @@ import { useSession } from '../../../services/auth'
 import { useSimpleGenreSearchQuery } from '../../../services/genres'
 import { CenteredLoader } from '../../common/Loader'
 import GenreTypeChip from '../GenreTypeChip'
-import { useGenreTreeState } from './Tree/useGenreTreeState'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
 const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
@@ -68,16 +67,12 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   clearFilter,
 }) => {
   const { showTypeTags } = useGenreNavigatorSettings()
-  const { setSelectedPath } = useGenreTreeState()
 
   return (
     <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>
       <a
         className='block text-gray-700 hover:font-bold'
-        onClick={() => {
-          clearFilter()
-          setSelectedPath(undefined)
-        }}
+        onClick={() => clearFilter()}
       >
         {genre.name}
         {genre?.subtitle && (

@@ -9,7 +9,7 @@ import {
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { RiSortAsc, RiSortDesc } from 'react-icons/ri'
 
 import { CenteredLoader } from '../../components/common/Loader'
@@ -44,7 +44,6 @@ const GenresTable: FC = () => {
       }
     }
   }, [router.query])
-  useEffect(() => console.log(sort), [sort])
 
   const genresQuery = usePaginatedGenresQuery(page, size, sort)
 
@@ -132,7 +131,6 @@ const HasData: FC<{
     },
     onSortingChange: (s) => {
       const sa = typeof s === 'function' ? s(sorting ?? []) : s
-      console.log({ sorting, sa })
       void router.push({
         query: {
           page: pagination.pageIndex.toString(),

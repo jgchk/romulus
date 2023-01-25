@@ -1,15 +1,15 @@
 import { Permission } from '@prisma/client'
 import Link from 'next/link'
-import { FC, useMemo, useState } from 'react'
+import { FC, useState } from 'react'
 
 import { TreeGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
 import { useTopLevelTreeGenresQuery } from '../../../../services/genres'
 import Button from '../../../common/Button'
 import { CenteredLoader } from '../../../common/Loader'
+import { useTreeState } from './state'
 import GenreTreeNode from './TreeNode'
 import { GenreTreeRefProvider } from './useGenreTreeRef'
-import { useGenreTreeState } from './useGenreTreeState'
 
 const GenreTree: FC = () => {
   const topLevelGenresQuery = useTopLevelTreeGenresQuery()
@@ -33,15 +33,13 @@ const Tree: FC<{ topLevelGenres: TreeGenre[] }> = ({ topLevelGenres }) => {
   const session = useSession()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
 
-  const { expanded, collapseAll } = useGenreTreeState()
-
-  const isAnyTopLevelExpanded = useMemo(
-    () =>
-      Object.entries(expanded).some(
-        ([key, value]) => value === 'expanded' && !key.includes('-')
-      ),
-    [expanded]
+  const isAnyTopLevelExpanded = useTreeState((state) =>
+    Object.entries(state.expanded).some(
+      ([key, value]) => value && !key.includes('-')
+    )
   )
+
+  const collapseAll = useTreeState((state) => state.collapseAll)
 
   return (
     <GenreTreeRefProvider treeEl={ref}>
