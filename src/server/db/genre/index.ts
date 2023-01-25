@@ -18,15 +18,6 @@ import {
 } from './outputs'
 import { didChange, throwOnCycle } from './utils'
 
-export const getGenres = () =>
-  prisma.genre.findMany({ select: defaultGenreSelect })
-
-export const getSimpleGenres = () =>
-  prisma.genre.findMany({ select: simpleGenreSelect })
-
-export const getTreeGenres = () =>
-  prisma.genre.findMany({ select: treeGenreSelect })
-
 export const getPaginatedGenres = (
   page: number,
   size: number,
@@ -59,7 +50,7 @@ export const getTreeStructure = () =>
   prisma.genre.findMany({ select: treeStructureSelect })
 
 export const searchSimpleGenres = async (query: string) => {
-  const allGenres = await getSimpleGenres()
+  const allGenres = await prisma.genre.findMany({ select: simpleGenreSelect })
 
   const m: Match[] = []
 
