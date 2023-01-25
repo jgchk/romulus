@@ -47,3 +47,10 @@ export const treeGenreSelect = Prisma.validator<Prisma.GenreSelect>()({
 export type TreeGenre = Prisma.GenreGetPayload<{
   select: typeof treeGenreSelect
 }>
+
+export type Match = {
+  id: number
+  genre: SimpleGenre
+  matchedAka?: string
+  weight: number
+}

@@ -9,10 +9,10 @@ import {
   getGenre,
   getGenres,
   getSimpleGenre,
-  getSimpleGenres,
   getTopLevelTreeGenres,
   getTreeGenreChildren,
   getTreeGenres,
+  searchSimpleGenres,
 } from '../db/genre'
 import {
   CreateGenreInput,
@@ -34,9 +34,6 @@ export const genreRouter = createRouter()
   .query('all', {
     resolve: () => getGenres(),
   })
-  .query('all.simple', {
-    resolve: () => getSimpleGenres(),
-  })
   .query('all.tree', {
     resolve: () => getTreeGenres(),
   })
@@ -54,6 +51,10 @@ export const genreRouter = createRouter()
   .query('byId.simple', {
     input: z.object({ id: z.number() }),
     resolve: ({ input: { id } }) => getSimpleGenre(id),
+  })
+  .query('search.simple', {
+    input: z.object({ query: z.string() }),
+    resolve: ({ input: { query } }) => searchSimpleGenres(query),
   })
   // update
   .mutation('edit', {

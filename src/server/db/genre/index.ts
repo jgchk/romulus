@@ -1,6 +1,8 @@
 import { CrudOperation } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
+import { compareTwoStrings } from 'string-similarity'
 
+import { toAscii } from '../../../utils/string'
 import { prisma } from '../../prisma'
 import { addGenreHistory } from '../genre-history'
 import { setGenreRelevanceVote } from '../genre-relevance'
@@ -8,6 +10,7 @@ import { CreateGenreInput, EditGenreInput } from './inputs'
 import {
   DefaultGenre,
   defaultGenreSelect,
+  Match,
   SimpleGenre,
   simpleGenreSelect,
   treeGenreSelect,
@@ -34,6 +37,63 @@ export const getTreeGenreChildren = (genreId: number) =>
     where: { parentGenres: { some: { id: genreId } } },
     select: treeGenreSelect,
   })
+
+export const searchSimpleGenres = async (query: string) => {
+  const allGenres = await getSimpleGenres()
+
+  const m: Match[] = []
+
+  for (const genre of allGenres) {
+    let name = genre.name
+    if (genre.subtitle) {
+      name += ` [${genre.subtitle}]`
+    }
+    const nameWeight = getMatchWeight(name, query)
+    let match: Match = { id: genre.id, genre, weight: nameWeight }
+
+    for (const aka of genre.akas) {
+      // TODO: incorporate aka relevance
+      const akaWeight = getMatchWeight(aka.name, query)
+      if (akaWeight > match.weight) {
+        match = {
+          id: genre.id,
+          genre,
+          matchedAka: aka.name,
+          weight: akaWeight,
+        }
+      }
+    }
+
+    if (match.weight >= WEIGHT_THRESHOLD) {
+      m.push(match)
+    }
+  }
+
+  return m.sort(
+    (a, b) =>
+      b.weight - a.weight ||
+      a.genre.name.toLowerCase().localeCompare(b.genre.name.toLowerCase())
+  )
+}
+
+const WEIGHT_THRESHOLD = 0.2
+const toFilterString = (s: string) => toAscii(s.toLowerCase())
+const getMatchWeight = (name: string, filter: string) => {
+  const fName = toFilterString(name)
+  const fFilter = toFilterString(filter)
+
+  if (fName.length < 2 || fFilter.length < 2) {
+    if (fName.startsWith(fFilter)) {
+      return 1
+    } else if (fName.includes(fFilter)) {
+      return 0.5
+    } else {
+      return 0
+    }
+  }
+
+  return compareTwoStrings(fName, fFilter)
+}
 
 export const getGenre = async (id: number): Promise<DefaultGenre> => {
   const genre = await prisma.genre.findUnique({

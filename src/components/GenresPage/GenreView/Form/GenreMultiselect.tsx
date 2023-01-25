@@ -1,10 +1,9 @@
-import { forwardRef, useMemo, useState } from 'react'
+import { FC, forwardRef, useMemo, useState } from 'react'
 
 import useDebouncedState from '../../../../hooks/useDebouncedState'
-import useIdMap from '../../../../hooks/useIdMap'
 import {
+  useSimpleGenreQuery,
   useSimpleGenreSearchQuery,
-  useSimpleGenresQuery,
 } from '../../../../services/genres'
 import Button from '../../../common/Button'
 import M from '../../../common/Multiselect'
@@ -24,9 +23,6 @@ const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
   ({ id, selectedIds, excludeIds, onChange }, ref) => {
     const [query, setQuery] = useState('')
     const [debouncedQuery] = useDebouncedState(query, 200)
-
-    const allGenres = useSimpleGenresQuery()
-    const genreMap = useIdMap(allGenres.data ?? [])
 
     const genreSearchQuery = useSimpleGenreSearchQuery(debouncedQuery)
     const options = useMemo(
@@ -53,31 +49,9 @@ const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
         ref={ref}
       >
         <M.Box>
-          {selectedIds.map((id) => {
-            const genre = genreMap.get(id)
-            return (
-              <M.Selected key={id} item={genre ?? { id }}>
-                {genre?.name ?? 'Loading...'}
-                {genre?.subtitle && (
-                  <>
-                    {' '}
-                    <span className='text-xs text-gray-500'>
-                      [{genre.subtitle}]
-                    </span>
-                  </>
-                )}
-                {showTypeTags && genre && genre.type !== 'STYLE' && (
-                  <>
-                    {' '}
-                    <GenreTypeChip
-                      type={genre.type}
-                      className='bg-gray-300 text-2xs group-hover:bg-error-400 group-hover:text-error-700'
-                    />
-                  </>
-                )}
-              </M.Selected>
-            )
-          })}
+          {selectedIds.map((id) => (
+            <Selected key={id} id={id} />
+          ))}
           <M.Input id={id} />
         </M.Box>
         <M.Options>
@@ -126,3 +100,31 @@ const GenreMultiselect = forwardRef<HTMLInputElement, GenreMultiselectProps>(
 GenreMultiselect.displayName = 'GenreMultiselect'
 
 export default GenreMultiselect
+
+const Selected: FC<{ id: number }> = ({ id }) => {
+  const { showTypeTags } = useGenreNavigatorSettings()
+
+  const genreQuery = useSimpleGenreQuery(id)
+  const genre = useMemo(() => genreQuery.data, [genreQuery.data])
+
+  return (
+    <M.Selected item={genre ?? { id }}>
+      {genre?.name ?? 'Loading...'}
+      {genre?.subtitle && (
+        <>
+          {' '}
+          <span className='text-xs text-gray-500'>[{genre.subtitle}]</span>
+        </>
+      )}
+      {showTypeTags && genre && genre.type !== 'STYLE' && (
+        <>
+          {' '}
+          <GenreTypeChip
+            type={genre.type}
+            className='bg-gray-300 text-2xs group-hover:bg-error-400 group-hover:text-error-700'
+          />
+        </>
+      )}
+    </M.Selected>
+  )
+}

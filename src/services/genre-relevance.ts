@@ -19,7 +19,6 @@ export const useGenreRelevanceVoteMutation = () => {
         utils.invalidateQueries(['genre.byId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
         utils.invalidateQueries(['genre.all']),
-        utils.invalidateQueries(['genre.all.simple']),
         utils.invalidateQueries(['genre.all.tree']),
       ])
     },
@@ -39,18 +38,8 @@ export const useDeleteGenreRelevanceVoteMutation = () => {
         utils.invalidateQueries(['genre.byId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
         utils.invalidateQueries(['genre.all']),
-        utils.invalidateQueries(['genre.all.simple']),
         utils.invalidateQueries(['genre.all.tree']),
       ])
     },
   })
 }
-
-/*
- * WHERE WE LEFT OFF:
- *   We have voting mostly implemented. Really the last steps are:
- *
- *   1. Add interface to view votes (your own and others)
- *   2. Push to server and run manual migration
- *   3. Remove relevance from history
- */
