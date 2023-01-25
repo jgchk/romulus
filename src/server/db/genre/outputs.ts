@@ -48,6 +48,14 @@ export type TreeGenre = Prisma.GenreGetPayload<{
   select: typeof treeGenreSelect
 }>
 
+export const treeStructureSelect = Prisma.validator<Prisma.GenreSelect>()({
+  id: true,
+  childGenres: { select: { id: true } },
+})
+export type TreeStructure = Prisma.GenreGetPayload<{
+  select: typeof treeStructureSelect
+}>
+
 export type Match = {
   id: number
   genre: SimpleGenre

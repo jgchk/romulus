@@ -29,7 +29,7 @@ const Genres: FC = () => {
   }, [autoFocus, id, viewType])
 
   return (
-    <GenreTreeStateProvider id={id}>
+    <GenreTreeStateProvider>
       <GenrePage view={view} />
     </GenreTreeStateProvider>
   )

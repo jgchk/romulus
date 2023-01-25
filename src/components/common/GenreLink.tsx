@@ -4,7 +4,7 @@ import { FC, ReactNode, useMemo } from 'react'
 
 import {
   useSimpleGenreQuery,
-  useTreeGenresMapQuery,
+  useTreeStructureMapQuery,
 } from '../../services/genres'
 import { GenrePageView } from '../GenresPage'
 import { useGenreTreeState } from '../GenresPage/GenreNavigator/Tree/useGenreTreeState'
@@ -32,7 +32,7 @@ export const useGenreLinkHref = (
 
 export const useGenreLinkPath = (id: number) => {
   const { selectedPath } = useGenreTreeState()
-  const genresMapQuery = useTreeGenresMapQuery()
+  const genresMapQuery = useTreeStructureMapQuery()
 
   const path = useMemo(() => {
     if (!selectedPath) return

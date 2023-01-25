@@ -1,4 +1,3 @@
-import { equals } from 'ramda'
 import {
   createContext,
   FC,
@@ -8,8 +7,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-
-import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 
 type GenreTreeStateContext = {
   selectedPath: number[] | undefined
@@ -39,45 +36,8 @@ const GenreTreeStateContext = createContext<GenreTreeStateContext>({
 
 export const useGenreTreeState = () => useContext(GenreTreeStateContext)
 
-export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
-  id,
-  children,
-}) => {
-  const treeQuery = useGenreTreeQuery()
-  const [path, setPath] = useState<number[]>()
+export const GenreTreeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const [selectedPath, setSelectedPath] = useState<number[]>()
-  useEffect(() => {
-    if (path) {
-      const isValid =
-        !treeQuery.data ||
-        findTree(treeQuery.data, (node) => equals(node.path, path))
-
-      if (isValid) {
-        if (!equals(path, selectedPath)) {
-          setSelectedPath(path)
-        }
-        return
-      }
-    }
-
-    if (treeQuery.data && id) {
-      const matchingNode = findTree(
-        treeQuery.data,
-        (node) => node.genre.id === id
-      )
-      if (matchingNode) {
-        if (!equals(matchingNode.path, selectedPath)) {
-          setSelectedPath(matchingNode.path)
-        }
-        return
-      }
-    }
-
-    if (selectedPath !== undefined) {
-      setSelectedPath(undefined)
-    }
-    return
-  }, [id, path, selectedPath, treeQuery.data])
 
   const [expanded, setExpanded] = useState<Expanded>({})
   const setExpandedKV = useCallback(
@@ -109,7 +69,7 @@ export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
     <GenreTreeStateContext.Provider
       value={{
         selectedPath,
-        setSelectedPath: setPath,
+        setSelectedPath: setSelectedPath,
         expanded,
         setExpanded: setExpandedKV,
         collapseAll,
@@ -118,17 +78,4 @@ export const GenreTreeStateProvider: FC<PropsWithChildren<{ id?: number }>> = ({
       {children}
     </GenreTreeStateContext.Provider>
   )
-}
-
-const findTree = (tree: TreeNode[], fn: (node: TreeNode) => boolean) => {
-  const queue = [...tree]
-  let curr = queue.shift()
-  while (curr !== undefined) {
-    if (fn(curr)) {
-      return curr
-    } else {
-      queue.push(...curr.children)
-      curr = queue.shift()
-    }
-  }
 }

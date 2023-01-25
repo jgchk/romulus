@@ -11,7 +11,7 @@ import {
   getSimpleGenre,
   getTopLevelTreeGenres,
   getTreeGenreChildren,
-  getTreeGenres,
+  getTreeStructure,
   searchSimpleGenres,
 } from '../db/genre'
 import {
@@ -34,15 +34,15 @@ export const genreRouter = createRouter()
   .query('all', {
     resolve: () => getGenres(),
   })
-  .query('all.tree', {
-    resolve: () => getTreeGenres(),
-  })
   .query('tree.topLevel', {
     resolve: () => getTopLevelTreeGenres(),
   })
   .query('tree.children', {
     input: z.object({ id: z.number() }),
     resolve: ({ input: { id } }) => getTreeGenreChildren(id),
+  })
+  .query('tree.structure', {
+    resolve: () => getTreeStructure(),
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
