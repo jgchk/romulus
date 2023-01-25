@@ -2,22 +2,23 @@ import { Permission } from '@prisma/client'
 import Link from 'next/link'
 import { FC, useMemo, useState } from 'react'
 
+import { TreeGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
+import { useTopLevelTreeGenresQuery } from '../../../../services/genres'
 import Button from '../../../common/Button'
 import { CenteredLoader } from '../../../common/Loader'
 import GenreTreeNode from './TreeNode'
-import useGenreTreeQuery, { TreeNode } from './useGenreTreeQuery'
 import { GenreTreeRefProvider } from './useGenreTreeRef'
 import { useGenreTreeState } from './useGenreTreeState'
 
 const GenreTree: FC = () => {
-  const treeQuery = useGenreTreeQuery()
+  const topLevelGenresQuery = useTopLevelTreeGenresQuery()
 
-  if (treeQuery.data) {
-    return <Tree tree={treeQuery.data} />
+  if (topLevelGenresQuery.data) {
+    return <Tree topLevelGenres={topLevelGenresQuery.data} />
   }
 
-  if (treeQuery.error) {
+  if (topLevelGenresQuery.error) {
     return (
       <div className='flex h-full w-full items-center justify-center text-error-600'>
         Error fetching genres :(
@@ -28,7 +29,7 @@ const GenreTree: FC = () => {
   return <CenteredLoader />
 }
 
-const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
+const Tree: FC<{ topLevelGenres: TreeGenre[] }> = ({ topLevelGenres }) => {
   const session = useSession()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
 
@@ -45,11 +46,11 @@ const Tree: FC<{ tree: TreeNode[] }> = ({ tree }) => {
   return (
     <GenreTreeRefProvider treeEl={ref}>
       <div className='flex h-full w-full flex-col'>
-        {tree.length > 0 ? (
+        {topLevelGenres.length > 0 ? (
           <div ref={setRef} className='flex-1 overflow-auto p-4'>
             <ul>
-              {tree.map((node) => (
-                <GenreTreeNode key={node.key} node={node} />
+              {topLevelGenres.map((genre) => (
+                <GenreTreeNode key={genre.id} genre={genre} path={[genre.id]} />
               ))}
             </ul>
           </div>

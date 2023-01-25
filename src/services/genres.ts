@@ -41,6 +41,14 @@ export const useGenresMapQuery = () => {
   })
 }
 
+export const useTopLevelTreeGenresQuery = () => {
+  return trpc.useQuery(['genre.tree.topLevel'])
+}
+
+export const useTreeGenreChildrenQuery = (genreId: number) => {
+  return trpc.useQuery(['genre.tree.children', { id: genreId }])
+}
+
 export const useTreeGenresQuery = () => {
   const utils = trpc.useContext()
   return trpc.useQuery(['genre.all.tree'], {

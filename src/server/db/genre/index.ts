@@ -23,6 +23,18 @@ export const getSimpleGenres = () =>
 export const getTreeGenres = () =>
   prisma.genre.findMany({ select: treeGenreSelect })
 
+export const getTopLevelTreeGenres = () =>
+  prisma.genre.findMany({
+    where: { parentGenres: { none: {} } },
+    select: treeGenreSelect,
+  })
+
+export const getTreeGenreChildren = (genreId: number) =>
+  prisma.genre.findMany({
+    where: { parentGenres: { some: { id: genreId } } },
+    select: treeGenreSelect,
+  })
+
 export const getGenre = async (id: number): Promise<DefaultGenre> => {
   const genre = await prisma.genre.findUnique({
     where: { id },
