@@ -1,5 +1,5 @@
 import { Sort } from '../server/db/genre/inputs'
-import { DefaultGenre, TreeStructure } from '../server/db/genre/outputs'
+import { TreeStructure } from '../server/db/genre/outputs'
 import { trpc } from '../utils/trpc'
 
 export const usePaginatedGenresQuery = (
@@ -9,21 +9,6 @@ export const usePaginatedGenresQuery = (
 ) => {
   return trpc.useQuery(['genre.paginated', { page, size, sort }], {
     keepPreviousData: true,
-  })
-}
-
-export const useGenresMapQuery = () => {
-  const utils = trpc.useContext()
-  return trpc.useQuery(['genre.all'], {
-    select: (data: DefaultGenre[]): Map<number, DefaultGenre> =>
-      new Map(data.map((genre) => [genre.id, genre])),
-    onSuccess: (data) => {
-      const genres = [...data.values()]
-      for (const genre of genres) {
-        utils.setQueryData(['genre.byId', { id: genre.id }], genre)
-        utils.setQueryData(['genre.byId.simple', { id: genre.id }], genre)
-      }
-    },
   })
 }
 
@@ -75,7 +60,6 @@ export const useAddGenreMutation = () => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
       utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
       await Promise.all([
-        utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),
@@ -91,7 +75,6 @@ export const useEditGenreMutation = () => {
       utils.setQueryData(['genre.byId', { id: data.id }], data)
       utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
       await Promise.all([
-        utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.history.byGenreId']),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),
@@ -105,7 +88,6 @@ export const useDeleteGenreMutation = () => {
   return trpc.useMutation(['genre.delete'], {
     onSuccess: async (data, { id }) => {
       await Promise.all([
-        utils.invalidateQueries(['genre.all']),
         utils.invalidateQueries(['genre.history.byGenreId', { id }]),
         utils.invalidateQueries(['genre.history.byUserId']),
         utils.invalidateQueries(['genre.history.byUserId.count']),

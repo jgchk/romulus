@@ -7,7 +7,6 @@ import {
   deleteGenre,
   editGenre,
   getGenre,
-  getGenres,
   getPaginatedGenres,
   getSimpleGenre,
   getTopLevelTreeGenres,
@@ -33,9 +32,6 @@ export const genreRouter = createRouter()
     },
   })
   // read
-  .query('all', {
-    resolve: () => getGenres(),
-  })
   .query('paginated', {
     input: z.object({ page: z.number(), size: z.number(), sort: Sort.array() }),
     resolve: ({ input: { page, size, sort } }) =>

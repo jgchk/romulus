@@ -18,7 +18,6 @@ export const useGenreRelevanceVoteMutation = () => {
         utils.invalidateQueries(['genre.relevance.byGenreId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
-        utils.invalidateQueries(['genre.all']),
       ])
     },
   })
@@ -36,7 +35,6 @@ export const useDeleteGenreRelevanceVoteMutation = () => {
         utils.invalidateQueries(['genre.relevance.byGenreId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId', { id: genreId }]),
         utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
-        utils.invalidateQueries(['genre.all']),
       ])
     },
   })
