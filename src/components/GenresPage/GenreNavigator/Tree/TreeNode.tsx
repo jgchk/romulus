@@ -106,9 +106,13 @@ const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
               return <GenreTreeNode key={p.join('-')} genre={node} path={p} />
             })
           ) : childrenQuery.error ? (
-            <li>Error fetching children</li>
+            <li className='ml-4 border-l pl-[34px] text-error-600'>
+              Error fetching children
+            </li>
           ) : (
-            <li>Loading...</li>
+            <li className='ml-4 border-l pl-[34px] text-gray-600'>
+              Loading...
+            </li>
           )}
         </ul>
       )}
