@@ -37,12 +37,14 @@ export const getPaginatedGenres = (
 export const getTopLevelTreeGenres = () =>
   prisma.genre.findMany({
     where: { parentGenres: { none: {} } },
+    orderBy: { name: 'asc' },
     select: treeGenreSelect,
   })
 
 export const getTreeGenreChildren = (genreId: number) =>
   prisma.genre.findMany({
     where: { parentGenres: { some: { id: genreId } } },
+    orderBy: { name: 'asc' },
     select: treeGenreSelect,
   })
 
