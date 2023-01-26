@@ -7,7 +7,6 @@ import { useSession } from '../../../services/auth'
 import { useSimpleGenreSearchQuery } from '../../../services/genres'
 import { CenteredLoader } from '../../common/Loader'
 import GenreTypeChip from '../GenreTypeChip'
-import { useTreeState } from './Tree/state'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
 const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
