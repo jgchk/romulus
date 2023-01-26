@@ -71,16 +71,12 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   clearFilter,
 }) => {
   const { showTypeTags } = useGenreNavigatorSettings()
-  const setSelectedId = useTreeState((state) => state.setSelectedId)
 
   return (
     <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>
       <a
         className='block text-gray-700 hover:font-bold'
-        onClick={() => {
-          clearFilter()
-          setSelectedId(genre.id)
-        }}
+        onClick={() => clearFilter()}
       >
         {genre.name}
         {genre?.subtitle && (
