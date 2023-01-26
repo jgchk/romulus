@@ -29,6 +29,8 @@ const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
   )
 
   const { showTypeTags, showRelevanceTags } = useGenreNavigatorSettings()
+  const setSelectedId = useTreeState((state) => state.setSelectedId)
+  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
 
   const [ref, setRef] = useState<HTMLLIElement | null>(null)
   const treeRef = useGenreTreeRef()
@@ -64,6 +66,10 @@ const GenreTreeNode: FC<{ genre: TreeGenre; path: number[] }> = ({
           }}
         >
           <a
+            onClick={() => {
+              setSelectedId(id)
+              setSelectedPath(path)
+            }}
             className={clsx(
               'hover:font-bold',
               isSelected ? 'font-bold text-primary-600' : 'text-gray-600'

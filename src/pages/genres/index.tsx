@@ -31,9 +31,11 @@ const Genres: FC = () => {
     }
   }, [autoFocus, id, viewType])
 
-  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
-  const newPath = usePathUpdater(id)
+  const setSelectedId = useTreeState((state) => state.setSelectedId)
+  useEffect(() => setSelectedId(id), [id, setSelectedId])
 
+  const newPath = usePathUpdater()
+  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
   useEffect(() => {
     if (newPath) {
       setSelectedPath(newPath.path)

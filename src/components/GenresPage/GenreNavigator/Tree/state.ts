@@ -2,10 +2,14 @@ import { equals } from 'ramda'
 import { useCallback, useMemo } from 'react'
 import { create } from 'zustand'
 
+import { TreeStructure } from '../../../../server/db/genre/outputs'
 import { useTreeStructureMapQuery } from '../../../../services/genres'
 import { treeBfs } from '../../../../utils/genres'
 
 interface TreeState {
+  selectedId: number | undefined
+  setSelectedId: (id: number | undefined) => void
+
   selectedPath: number[] | undefined
   setSelectedPath: (path: number[] | undefined) => void
 
@@ -17,6 +21,9 @@ interface TreeState {
 }
 
 export const useTreeState = create<TreeState>()((set, get) => ({
+  selectedId: undefined,
+  setSelectedId: (id) => set({ selectedId: id }),
+
   selectedPath: undefined,
   setSelectedPath: (selectedPath) => {
     set((state) => {
@@ -56,21 +63,32 @@ export const useTreeState = create<TreeState>()((set, get) => ({
 
 const search = treeBfs
 type Source = 'ancestor' | 'pre-expanded' | 'new'
-export const usePathUpdater = (
-  id: number | undefined
-): { path: number[]; source: Source } | undefined => {
+export const usePathUpdater = ():
+  | { path: number[]; source: Source }
+  | undefined => {
   const treeStructureQuery = useTreeStructureMapQuery()
+  const id = useTreeState((state) => state.selectedId)
   const selectedPath = useTreeState((state) => state.selectedPath)
   const expanded = useTreeState((state) => state.expanded)
 
-  const getExpandedPathToId = useCallback(
-    (id: number) => {
-      if (!treeStructureQuery.data) return
+  type TreeMap = Map<number, TreeStructure>
 
+  const isPathValid = useCallback(
+    (id: number, path: number[], tree: TreeMap) => {
+      const existingNode = search(
+        tree,
+        (node) => node.id === id && equals(node.path, path)
+      )
+
+      return existingNode !== undefined
+    },
+    []
+  )
+
+  const getExpandedPathToId = useCallback(
+    (id: number, tree: TreeMap) => {
       const parents =
-        treeStructureQuery.data
-          .get(id)
-          ?.parentGenres.map((parent) => parent.id) ?? []
+        tree.get(id)?.parentGenres.map((parent) => parent.id) ?? []
 
       for (const path_ of expanded) {
         const path = path_.split('-').map((x) => Number.parseInt(x))
@@ -83,11 +101,14 @@ export const usePathUpdater = (
         }
       }
     },
-    [expanded, treeStructureQuery.data]
+    [expanded]
   )
 
   const getNewPath = useCallback(
-    (id: number): { path: number[]; source: Source } | undefined => {
+    (
+      id: number,
+      tree: TreeMap
+    ): { path: number[]; source: Source } | undefined => {
       // try to use an ancestor path
       if (selectedPath) {
         const indexOfId = selectedPath.indexOf(id)
@@ -105,42 +126,32 @@ export const usePathUpdater = (
       }
 
       // otherwise, get a pre-expanded path to this id
-      const preExpandedPath = getExpandedPathToId(id)
+      const preExpandedPath = getExpandedPathToId(id, tree)
       if (preExpandedPath) {
         return { path: preExpandedPath, source: 'pre-expanded' }
       }
 
       // otherwise, search for a brand new path
-      if (treeStructureQuery.data) {
-        const node = search(treeStructureQuery.data, (node) => node.id === id)
-        if (node) {
-          return { path: node.path, source: 'new' }
-        }
+      const node = search(tree, (node) => node.id === id)
+      if (node) {
+        return { path: node.path, source: 'new' }
       }
     },
-    [getExpandedPathToId, selectedPath, treeStructureQuery.data]
+    [getExpandedPathToId, selectedPath]
   )
 
   const p = useMemo(() => {
-    if (!id) {
+    if (!id || !treeStructureQuery.data) {
       return
     }
 
     if (selectedPath) {
-      if (treeStructureQuery.data) {
-        const pathExists = search(
-          treeStructureQuery.data,
-          (node) => node.id === id && equals(node.path, selectedPath)
-        )
-
-        return pathExists ? undefined : getNewPath(id)
-      } else {
-        return getNewPath(id)
-      }
+      const pathValid = isPathValid(id, selectedPath, treeStructureQuery.data)
+      return pathValid ? undefined : getNewPath(id, treeStructureQuery.data)
     } else {
-      return getNewPath(id)
+      return getNewPath(id, treeStructureQuery.data)
     }
-  }, [getNewPath, id, selectedPath, treeStructureQuery.data])
+  }, [getNewPath, id, isPathValid, selectedPath, treeStructureQuery.data])
 
   return p
 }

@@ -7,6 +7,7 @@ import { useSession } from '../../../services/auth'
 import { useSimpleGenreSearchQuery } from '../../../services/genres'
 import { CenteredLoader } from '../../common/Loader'
 import GenreTypeChip from '../GenreTypeChip'
+import { useTreeState } from './Tree/state'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
 const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
@@ -49,13 +50,16 @@ const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
       ) : (
         <div className='flex w-full flex-col items-center justify-center text-gray-400'>
           <div>No genres found.</div>
-          {session.isLoggedIn && session.hasPermission(Permission.EDIT_GENRES) && (
-            <div>
-              <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
-                <a className='text-primary-500 hover:underline'>Create one.</a>
-              </Link>
-            </div>
-          )}
+          {session.isLoggedIn &&
+            session.hasPermission(Permission.EDIT_GENRES) && (
+              <div>
+                <Link href={{ pathname: '/genres', query: { view: 'create' } }}>
+                  <a className='text-primary-500 hover:underline'>
+                    Create one.
+                  </a>
+                </Link>
+              </div>
+            )}
         </div>
       )}
     </div>
@@ -67,12 +71,18 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   clearFilter,
 }) => {
   const { showTypeTags } = useGenreNavigatorSettings()
+  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
+  const setSelectedId = useTreeState((state) => state.setSelectedId)
 
   return (
     <Link href={{ pathname: '/genres', query: { id: genre.id.toString() } }}>
       <a
         className='block text-gray-700 hover:font-bold'
-        onClick={() => clearFilter()}
+        onClick={() => {
+          clearFilter()
+          setSelectedId(genre.id)
+          setSelectedPath(undefined)
+        }}
       >
         {genre.name}
         {genre?.subtitle && (

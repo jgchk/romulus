@@ -22,21 +22,18 @@ export const treeDfs = (
   while (currentNode !== undefined) {
     const { id, path } = currentNode
 
-    const currentGenre = tree.get(id)
-    if (!currentGenre) {
-      currentNode = queue.shift()
-      continue
-    }
-
     if (fn(currentNode)) {
       return currentNode
     } else {
-      queue.push(
-        ...currentGenre.childGenres.map((g) => ({
-          id: g.id,
-          path: [...path, g.id],
-        }))
-      )
+      const currentGenre = tree.get(id)
+      if (currentGenre) {
+        queue.push(
+          ...currentGenre.childGenres.map((g) => ({
+            id: g.id,
+            path: [...path, g.id],
+          }))
+        )
+      }
       currentNode = queue.shift()
     }
   }
@@ -57,21 +54,18 @@ export const treeBfs = (
   while (currentNode !== undefined) {
     const { id, path } = currentNode
 
-    const currentGenre = tree.get(id)
-    if (!currentGenre) {
-      currentNode = stack.pop()
-      continue
-    }
-
     if (fn(currentNode)) {
       return currentNode
     } else {
-      stack.push(
-        ...currentGenre.childGenres.map((g) => ({
-          id: g.id,
-          path: [...path, g.id],
-        }))
-      )
+      const currentGenre = tree.get(id)
+      if (currentGenre) {
+        stack.push(
+          ...currentGenre.childGenres.map((g) => ({
+            id: g.id,
+            path: [...path, g.id],
+          }))
+        )
+      }
       currentNode = stack.pop()
     }
   }
