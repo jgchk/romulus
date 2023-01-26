@@ -1,3 +1,4 @@
+import { equals } from 'ramda'
 import { useMemo } from 'react'
 import { create } from 'zustand'
 
@@ -61,6 +62,17 @@ export const useNearbyPath = (
     }
 
     if (selectedPath) {
+      if (treeStructureQuery.data) {
+        const pathExists = search(treeStructureQuery.data, (node) =>
+          equals(node.path, selectedPath)
+        )
+
+        if (!pathExists) {
+          const node = search(treeStructureQuery.data, (node) => node.id === id)
+          return node?.path
+        }
+      }
+
       const indexOfId = selectedPath.indexOf(id)
 
       // if our path already points to this id, return nothing

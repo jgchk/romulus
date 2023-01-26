@@ -40,17 +40,7 @@ export const useTreeStructureMapQuery = () => {
 }
 
 export const useSimpleGenreSearchQuery = (query: string) => {
-  const utils = trpc.useContext()
-  return trpc.genre.searchSimple.useQuery(
-    { query },
-    {
-      onSuccess: (data) => {
-        for (const match of data) {
-          utils.genre.byIdSimple.setData({ id: match.genre.id }, match.genre)
-        }
-      },
-    }
-  )
+  return trpc.genre.searchSimple.useQuery({ query })
 }
 
 export const useGenreQuery = (id: number) => {
@@ -77,6 +67,7 @@ export const useAddGenreMutation = () => {
       await Promise.all([
         utils.genre.paginated.invalidate(),
         utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.children.invalidate(),
         utils.genre.tree.structure.invalidate(),
         utils.genre.searchSimple.invalidate(),
         utils.genre.history.byGenreId.invalidate(),
@@ -96,6 +87,7 @@ export const useEditGenreMutation = () => {
       await Promise.all([
         utils.genre.paginated.invalidate(),
         utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.children.invalidate(),
         utils.genre.tree.structure.invalidate(),
         utils.genre.searchSimple.invalidate(),
         utils.genre.history.byGenreId.invalidate(),
@@ -113,6 +105,7 @@ export const useDeleteGenreMutation = () => {
       await Promise.all([
         utils.genre.paginated.invalidate(),
         utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.children.invalidate(),
         utils.genre.tree.structure.invalidate(),
         utils.genre.searchSimple.invalidate(),
         utils.genre.history.byGenreId.invalidate({ id }),

@@ -14,6 +14,7 @@ export const useGenreRelevanceVoteMutation = () => {
       await Promise.all([
         utils.genre.paginated.invalidate(),
         utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.children.invalidate(),
         utils.genre.searchSimple.invalidate(),
         utils.genre.relevance.byGenreId.invalidate({ id: genreId }),
         utils.genre.byId.invalidate({ id: genreId }),
@@ -31,6 +32,7 @@ export const useDeleteGenreRelevanceVoteMutation = () => {
       await Promise.all([
         utils.genre.paginated.invalidate(),
         utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.children.invalidate(),
         utils.genre.searchSimple.invalidate(),
         utils.genre.relevance.byGenreId.invalidate({ id: genreId }),
         utils.genre.byId.invalidate({ id: genreId }),
