@@ -71,7 +71,6 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
   clearFilter,
 }) => {
   const { showTypeTags } = useGenreNavigatorSettings()
-  const setSelectedPath = useTreeState((state) => state.setSelectedPath)
   const setSelectedId = useTreeState((state) => state.setSelectedId)
 
   return (
@@ -81,7 +80,6 @@ const SearchResult: FC<{ match: Match; clearFilter: () => void }> = ({
         onClick={() => {
           clearFilter()
           setSelectedId(genre.id)
-          setSelectedPath(undefined)
         }}
       >
         {genre.name}
