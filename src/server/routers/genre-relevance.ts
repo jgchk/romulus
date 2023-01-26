@@ -1,7 +1,6 @@
 import { Permission } from '@prisma/client'
 import { z } from 'zod'
 
-import { createRouter } from '../createRouter'
 import {
   deleteGenreRelevanceVote,
   getByGenreId,
@@ -13,30 +12,28 @@ import {
   GenreRelevanceVoteInput,
 } from '../db/genre-relevance/inputs'
 import { requireLogin, requirePermission } from '../guards'
+import { publicProcedure, router } from '../trpc'
 
-export const genreRelevanceRouter = createRouter()
-  .query('byGenreId', {
-    input: z.object({ id: z.number() }),
-    resolve: async ({ input: { id } }) => getByGenreId(id),
-  })
-  .query('byGenreIdForAccount', {
-    input: z.object({ id: z.number() }),
-    resolve: async ({ input, ctx }) => {
+export const genreRelevanceRouter = router({
+  byGenreId: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => getByGenreId(id)),
+  byGenreIdForAccount: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
       return getByGenreIdForAccount(input.id, account.id)
-    },
-  })
-  .mutation('vote', {
-    input: GenreRelevanceVoteInput,
-    resolve: async ({ input, ctx }) => {
+    }),
+  vote: publicProcedure
+    .input(GenreRelevanceVoteInput)
+    .mutation(async ({ input, ctx }) => {
       const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
       return setGenreRelevanceVote(input, account.id)
-    },
-  })
-  .mutation('delete', {
-    input: DeleteGenreRelevanceVoteInput,
-    resolve: async ({ input, ctx }) => {
+    }),
+  delete: publicProcedure
+    .input(DeleteGenreRelevanceVoteInput)
+    .mutation(async ({ input, ctx }) => {
       const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
       return deleteGenreRelevanceVote(input, account.id)
-    },
-  })
+    }),
+})

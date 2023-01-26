@@ -1,39 +1,38 @@
 import { trpc } from '../utils/trpc'
 
-export const useArtistsQuery = () => trpc.useQuery(['artist.all'])
+export const useArtistsQuery = () => trpc.artist.all.useQuery()
 
-export const useArtistQuery = (id: number) =>
-  trpc.useQuery(['artist.byId', { id }])
+export const useArtistQuery = (id: number) => trpc.artist.byId.useQuery({ id })
 
 export const useAddArtistMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['artist.add'], {
+  return trpc.artist.add.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['artist.all']),
-        utils.setQueryData(['artist.byId', { id: data.id }], data),
+        utils.artist.all.invalidate(),
+        utils.artist.byId.setData({ id: data.id }, data),
       ]),
   })
 }
 
 export const useEditArtistMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['artist.edit'], {
+  return trpc.artist.edit.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['artist.all']),
-        utils.setQueryData(['artist.byId', { id: data.id }], data),
+        utils.artist.all.invalidate(),
+        utils.artist.byId.setData({ id: data.id }, data),
       ]),
   })
 }
 
 export const useDeleteArtistMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['artist.delete'], {
+  return trpc.artist.delete.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['artist.all']),
-        utils.invalidateQueries(['artist.byId', { id: data.id }]),
+        utils.artist.all.invalidate(),
+        utils.artist.byId.invalidate({ id: data.id }),
       ]),
   })
 }

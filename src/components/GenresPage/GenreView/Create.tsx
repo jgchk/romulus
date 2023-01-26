@@ -20,9 +20,9 @@ export const GenreCreate: FC = () => {
           notes: data.notes ?? undefined,
         },
         {
-          onSuccess: async (data) => {
+          onSuccess: (data) => {
             toast.success(`Created genre '${data.name}'`)
-            await router.push({
+            void router.push({
               pathname: '/genres',
               query: { id: data.id.toString() },
             })

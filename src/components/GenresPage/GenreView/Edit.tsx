@@ -38,9 +38,9 @@ const HasData: FC<{
       editGenre(
         { id: genre.id, data },
         {
-          onSuccess: async (data) => {
+          onSuccess: (data) => {
             toast.success(`Updated genre '${data.name}'`)
-            await router.push(href)
+            void router.push(href)
           },
         }
       ),

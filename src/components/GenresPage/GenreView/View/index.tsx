@@ -74,9 +74,9 @@ const HasData: FC<{
       deleteGenre(
         { id: genre.id },
         {
-          onSuccess: async () => {
+          onSuccess: () => {
             toast.success(`Deleted genre '${genre.name}'`)
-            await router.push({ pathname: '/genres' })
+            void router.push({ pathname: '/genres' })
           },
         }
       ),

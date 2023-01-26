@@ -1,12 +1,12 @@
 import { Permission } from '@prisma/client'
+import { useMutation } from '@tanstack/react-query'
 import ky from 'ky'
 import { useCallback, useMemo } from 'react'
-import { useMutation } from 'react-query'
 
 import { trpc } from '../utils/trpc'
 import { useAccountQuery } from './accounts'
 
-export const useWhoamiQuery = () => trpc.useQuery(['auth.whoami'])
+export const useWhoamiQuery = () => trpc.auth.whoami.useQuery()
 
 export const useSession = () => {
   const whoamiQuery = useWhoamiQuery()
@@ -44,7 +44,7 @@ export const useLoginMutation = () => {
       ky.post('/api/login', { json: { username, password } }),
     {
       onSuccess: async () => {
-        await utils.invalidateQueries(['auth.whoami'])
+        await utils.auth.whoami.invalidate()
       },
     }
   )
@@ -57,7 +57,7 @@ export const useRegisterMutation = () => {
       ky.post('/api/register', { json: { username, password } }),
     {
       onSuccess: async () => {
-        await utils.invalidateQueries(['auth.whoami'])
+        await utils.auth.whoami.invalidate()
       },
     }
   )
@@ -67,7 +67,7 @@ export const useLogoutMutation = () => {
   const utils = trpc.useContext()
   return useMutation(() => ky.post('/api/logout'), {
     onSuccess: async () => {
-      await utils.invalidateQueries(['auth.whoami'])
+      await utils.auth.whoami.invalidate()
     },
   })
 }

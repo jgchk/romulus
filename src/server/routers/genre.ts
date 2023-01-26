@@ -1,7 +1,6 @@
 import { Permission } from '@prisma/client'
 import { z } from 'zod'
 
-import { createRouter } from '../createRouter'
 import {
   createGenre,
   deleteGenre,
@@ -21,57 +20,52 @@ import {
   Sort,
 } from '../db/genre/inputs'
 import { requirePermission } from '../guards'
+import { publicProcedure, router } from '../trpc'
+import { genreHistoryRouter } from './genre-history'
+import { genreRelevanceRouter } from './genre-relevance'
 
-export const genreRouter = createRouter()
-  // create
-  .mutation('add', {
-    input: CreateGenreInput,
-    resolve: async ({ input, ctx }) => {
+const genreTreeRouter = router({
+  topLevel: publicProcedure.query(() => getTopLevelTreeGenres()),
+  children: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => getTreeGenreChildren(id)),
+  structure: publicProcedure.query(() => getTreeStructure()),
+})
+
+export const genreRouter = router({
+  history: genreHistoryRouter,
+  relevance: genreRelevanceRouter,
+  add: publicProcedure
+    .input(CreateGenreInput)
+    .mutation(async ({ input, ctx }) => {
       const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
       return createGenre(input, account.id)
-    },
-  })
-  // read
-  .query('paginated', {
-    input: z.object({ page: z.number(), size: z.number(), sort: Sort.array() }),
-    resolve: ({ input: { page, size, sort } }) =>
-      getPaginatedGenres(page, size > 100 ? 100 : size, sort),
-  })
-  .query('tree.topLevel', {
-    resolve: () => getTopLevelTreeGenres(),
-  })
-  .query('tree.children', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input: { id } }) => getTreeGenreChildren(id),
-  })
-  .query('tree.structure', {
-    resolve: () => getTreeStructure(),
-  })
-  .query('byId', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input: { id } }) => getGenre(id),
-  })
-  .query('byId.simple', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input: { id } }) => getSimpleGenre(id),
-  })
-  .query('search.simple', {
-    input: z.object({ query: z.string() }),
-    resolve: ({ input: { query } }) => searchSimpleGenres(query),
-  })
-  // update
-  .mutation('edit', {
-    input: EditGenreInput,
-    resolve: async ({ input, ctx }) => {
+    }),
+  paginated: publicProcedure
+    .input(z.object({ page: z.number(), size: z.number(), sort: Sort.array() }))
+    .query(async ({ input: { page, size, sort } }) =>
+      getPaginatedGenres(page, size > 100 ? 100 : size, sort)
+    ),
+  tree: genreTreeRouter,
+  byId: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => getGenre(id)),
+  byIdSimple: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => getSimpleGenre(id)),
+  searchSimple: publicProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ input: { query } }) => searchSimpleGenres(query)),
+  edit: publicProcedure
+    .input(EditGenreInput)
+    .mutation(async ({ input, ctx }) => {
       const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
       return editGenre(input, account.id)
-    },
-  })
-  // delete
-  .mutation('delete', {
-    input: DeleteGenreInput,
-    resolve: async ({ input: { id }, ctx }) => {
+    }),
+  delete: publicProcedure
+    .input(DeleteGenreInput)
+    .mutation(async ({ input: { id }, ctx }) => {
       const { account } = requirePermission(ctx, Permission.EDIT_GENRES)
       return deleteGenre(id, account.id)
-    },
-  })
+    }),
+})

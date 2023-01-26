@@ -8,25 +8,31 @@ export const usePaginatedGenresQuery = (
   size = 30,
   sort: Sort[] = []
 ) => {
-  return trpc.useQuery(['genre.paginated', { page, size, sort }], {
-    keepPreviousData: true,
-  })
+  return trpc.genre.paginated.useQuery(
+    { page, size, sort },
+    {
+      keepPreviousData: true,
+    }
+  )
 }
 
 export const useTopLevelTreeGenresQuery = () => {
-  return trpc.useQuery(['genre.tree.topLevel'], {
+  return trpc.genre.tree.topLevel.useQuery(undefined, {
     staleTime: ONE_MINUTE,
   })
 }
 
 export const useTreeGenreChildrenQuery = (genreId: number) => {
-  return trpc.useQuery(['genre.tree.children', { id: genreId }], {
-    staleTime: ONE_MINUTE,
-  })
+  return trpc.genre.tree.children.useQuery(
+    { id: genreId },
+    {
+      staleTime: ONE_MINUTE,
+    }
+  )
 }
 
 export const useTreeStructureMapQuery = () => {
-  return trpc.useQuery(['genre.tree.structure'], {
+  return trpc.genre.tree.structure.useQuery(undefined, {
     select: (data: TreeStructure[]): Map<number, TreeStructure> =>
       new Map(data.map((genre) => [genre.id, genre])),
     staleTime: ONE_MINUTE,
@@ -35,44 +41,47 @@ export const useTreeStructureMapQuery = () => {
 
 export const useSimpleGenreSearchQuery = (query: string) => {
   const utils = trpc.useContext()
-  return trpc.useQuery(['genre.search.simple', { query }], {
-    onSuccess: (data) => {
-      for (const match of data) {
-        utils.setQueryData(
-          ['genre.byId.simple', { id: match.genre.id }],
-          match.genre
-        )
-      }
-    },
-  })
+  return trpc.genre.searchSimple.useQuery(
+    { query },
+    {
+      onSuccess: (data) => {
+        for (const match of data) {
+          utils.genre.byIdSimple.setData({ id: match.genre.id }, match.genre)
+        }
+      },
+    }
+  )
 }
 
 export const useGenreQuery = (id: number) => {
   const utils = trpc.useContext()
-  return trpc.useQuery(['genre.byId', { id }], {
-    onSuccess: (data) => {
-      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
-    },
-  })
+  return trpc.genre.byId.useQuery(
+    { id },
+    {
+      onSuccess: (data) => {
+        utils.genre.byIdSimple.setData({ id: data.id }, data)
+      },
+    }
+  )
 }
 
 export const useSimpleGenreQuery = (id: number) =>
-  trpc.useQuery(['genre.byId.simple', { id }])
+  trpc.genre.byIdSimple.useQuery({ id })
 
 export const useAddGenreMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['genre.add'], {
+  return trpc.genre.add.useMutation({
     onSuccess: async (data) => {
-      utils.setQueryData(['genre.byId', { id: data.id }], data)
-      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
+      utils.genre.byId.setData({ id: data.id }, data)
+      utils.genre.byIdSimple.setData({ id: data.id }, data)
       await Promise.all([
-        utils.invalidateQueries(['genre.paginated']),
-        utils.invalidateQueries(['genre.tree.topLevel']),
-        utils.invalidateQueries(['genre.tree.structure']),
-        utils.invalidateQueries(['genre.search.simple']),
-        utils.invalidateQueries(['genre.history.byGenreId']),
-        utils.invalidateQueries(['genre.history.byUserId']),
-        utils.invalidateQueries(['genre.history.byUserId.count']),
+        utils.genre.paginated.invalidate(),
+        utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.structure.invalidate(),
+        utils.genre.searchSimple.invalidate(),
+        utils.genre.history.byGenreId.invalidate(),
+        utils.genre.history.byUserId.invalidate(),
+        utils.genre.history.userCount.invalidate(),
       ])
     },
   })
@@ -80,18 +89,18 @@ export const useAddGenreMutation = () => {
 
 export const useEditGenreMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['genre.edit'], {
+  return trpc.genre.edit.useMutation({
     onSuccess: async (data) => {
-      utils.setQueryData(['genre.byId', { id: data.id }], data)
-      utils.setQueryData(['genre.byId.simple', { id: data.id }], data)
+      utils.genre.byId.setData({ id: data.id }, data)
+      utils.genre.byIdSimple.setData({ id: data.id }, data)
       await Promise.all([
-        utils.invalidateQueries(['genre.paginated']),
-        utils.invalidateQueries(['genre.tree.topLevel']),
-        utils.invalidateQueries(['genre.tree.structure']),
-        utils.invalidateQueries(['genre.search.simple']),
-        utils.invalidateQueries(['genre.history.byGenreId']),
-        utils.invalidateQueries(['genre.history.byUserId']),
-        utils.invalidateQueries(['genre.history.byUserId.count']),
+        utils.genre.paginated.invalidate(),
+        utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.structure.invalidate(),
+        utils.genre.searchSimple.invalidate(),
+        utils.genre.history.byGenreId.invalidate(),
+        utils.genre.history.byUserId.invalidate(),
+        utils.genre.history.userCount.invalidate(),
       ])
     },
   })
@@ -99,16 +108,16 @@ export const useEditGenreMutation = () => {
 
 export const useDeleteGenreMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['genre.delete'], {
+  return trpc.genre.delete.useMutation({
     onSuccess: async (data, { id }) => {
       await Promise.all([
-        utils.invalidateQueries(['genre.paginated']),
-        utils.invalidateQueries(['genre.tree.topLevel']),
-        utils.invalidateQueries(['genre.tree.structure']),
-        utils.invalidateQueries(['genre.search.simple']),
-        utils.invalidateQueries(['genre.history.byGenreId', { id }]),
-        utils.invalidateQueries(['genre.history.byUserId']),
-        utils.invalidateQueries(['genre.history.byUserId.count']),
+        utils.genre.paginated.invalidate(),
+        utils.genre.tree.topLevel.invalidate(),
+        utils.genre.tree.structure.invalidate(),
+        utils.genre.searchSimple.invalidate(),
+        utils.genre.history.byGenreId.invalidate({ id }),
+        utils.genre.history.byUserId.invalidate(),
+        utils.genre.history.userCount.invalidate(),
       ])
     },
   })

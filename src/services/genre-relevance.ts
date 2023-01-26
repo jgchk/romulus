@@ -1,26 +1,23 @@
 import { trpc } from '../utils/trpc'
 
 export const useGenreRelevanceVotesQuery = (genreId: number) =>
-  trpc.useQuery(['genre.relevance.byGenreId', { id: genreId }])
+  trpc.genre.relevance.byGenreId.useQuery({ id: genreId })
 
 export const useGenreRelevanceVoteQuery = (genreId: number) =>
-  trpc.useQuery(['genre.relevance.byGenreIdForAccount', { id: genreId }])
+  trpc.genre.relevance.byGenreIdForAccount.useQuery({ id: genreId })
 
 export const useGenreRelevanceVoteMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation('genre.relevance.vote', {
+  return trpc.genre.relevance.vote.useMutation({
     onSuccess: async (data, { genreId }) => {
-      utils.setQueryData(
-        ['genre.relevance.byGenreIdForAccount', { id: genreId }],
-        data
-      )
+      utils.genre.relevance.byGenreIdForAccount.setData({ id: genreId }, data)
       await Promise.all([
-        utils.invalidateQueries(['genre.paginated']),
-        utils.invalidateQueries(['genre.tree.topLevel']),
-        utils.invalidateQueries(['genre.search.simple']),
-        utils.invalidateQueries(['genre.relevance.byGenreId', { id: genreId }]),
-        utils.invalidateQueries(['genre.byId', { id: genreId }]),
-        utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
+        utils.genre.paginated.invalidate(),
+        utils.genre.tree.topLevel.invalidate(),
+        utils.genre.searchSimple.invalidate(),
+        utils.genre.relevance.byGenreId.invalidate({ id: genreId }),
+        utils.genre.byId.invalidate({ id: genreId }),
+        utils.genre.byIdSimple.invalidate({ id: genreId }),
       ])
     },
   })
@@ -28,19 +25,16 @@ export const useGenreRelevanceVoteMutation = () => {
 
 export const useDeleteGenreRelevanceVoteMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation('genre.relevance.delete', {
+  return trpc.genre.relevance.delete.useMutation({
     onSuccess: async (data, { genreId }) => {
-      utils.setQueryData(
-        ['genre.relevance.byGenreIdForAccount', { id: genreId }],
-        null
-      )
+      utils.genre.relevance.byGenreIdForAccount.setData({ id: genreId }, null)
       await Promise.all([
-        utils.invalidateQueries(['genre.paginated']),
-        utils.invalidateQueries(['genre.tree.topLevel']),
-        utils.invalidateQueries(['genre.search.simple']),
-        utils.invalidateQueries(['genre.relevance.byGenreId', { id: genreId }]),
-        utils.invalidateQueries(['genre.byId', { id: genreId }]),
-        utils.invalidateQueries(['genre.byId.simple', { id: genreId }]),
+        utils.genre.paginated.invalidate(),
+        utils.genre.tree.topLevel.invalidate(),
+        utils.genre.searchSimple.invalidate(),
+        utils.genre.relevance.byGenreId.invalidate({ id: genreId }),
+        utils.genre.byId.invalidate({ id: genreId }),
+        utils.genre.byIdSimple.invalidate({ id: genreId }),
       ])
     },
   })

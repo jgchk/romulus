@@ -1,39 +1,38 @@
 import { trpc } from '../utils/trpc'
 
-export const usePeopleQuery = () => trpc.useQuery(['person.all'])
+export const usePeopleQuery = () => trpc.person.all.useQuery()
 
-export const usePersonQuery = (id: number) =>
-  trpc.useQuery(['person.byId', { id }])
+export const usePersonQuery = (id: number) => trpc.person.byId.useQuery({ id })
 
 export const useAddPersonMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['person.add'], {
+  return trpc.person.add.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['person.all']),
-        utils.setQueryData(['person.byId', { id: data.id }], data),
+        utils.person.all.invalidate(),
+        utils.person.byId.setData({ id: data.id }, data),
       ]),
   })
 }
 
 export const useEditPersonMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['person.edit'], {
+  return trpc.person.edit.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['person.all']),
-        utils.setQueryData(['person.byId', { id: data.id }], data),
+        utils.person.all.invalidate(),
+        utils.person.byId.setData({ id: data.id }, data),
       ]),
   })
 }
 
 export const useDeletePersonMutation = () => {
   const utils = trpc.useContext()
-  return trpc.useMutation(['person.delete'], {
+  return trpc.person.delete.useMutation({
     onSuccess: (data) =>
       Promise.all([
-        utils.invalidateQueries(['person.all']),
-        utils.invalidateQueries(['person.byId', { id: data.id }]),
+        utils.person.all.invalidate(),
+        utils.person.byId.invalidate({ id: data.id }),
       ]),
   })
 }

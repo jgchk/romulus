@@ -1,7 +1,6 @@
 import { Permission } from '@prisma/client'
 import { z } from 'zod'
 
-import { createRouter } from '../createRouter'
 import {
   createArtist,
   deleteArtist,
@@ -11,31 +10,29 @@ import {
 } from '../db/artist'
 import { CreateArtistInput, EditArtistInput } from '../db/artist/inputs'
 import { requirePermission } from '../guards'
+import { publicProcedure, router } from '../trpc'
 
-export const artistRouter = createRouter()
-  .mutation('add', {
-    input: CreateArtistInput,
-    resolve: async ({ input, ctx }) => {
+export const artistRouter = router({
+  add: publicProcedure
+    .input(CreateArtistInput)
+    .mutation(async ({ input, ctx }) => {
       requirePermission(ctx, Permission.EDIT_ARTISTS)
       return createArtist(input)
-    },
-  })
-  .query('all', { resolve: () => getArtists() })
-  .query('byId', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input: { id } }) => getArtist(id),
-  })
-  .mutation('edit', {
-    input: EditArtistInput,
-    resolve: async ({ input, ctx }) => {
+    }),
+  all: publicProcedure.query(() => getArtists()),
+  byId: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => getArtist(id)),
+  edit: publicProcedure
+    .input(EditArtistInput)
+    .mutation(async ({ input, ctx }) => {
       requirePermission(ctx, Permission.EDIT_ARTISTS)
       return editArtist(input)
-    },
-  })
-  .mutation('delete', {
-    input: z.object({ id: z.number() }),
-    resolve: async ({ input: { id }, ctx }) => {
+    }),
+  delete: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input: { id }, ctx }) => {
       requirePermission(ctx, Permission.EDIT_ARTISTS)
       return deleteArtist(id)
-    },
-  })
+    }),
+})

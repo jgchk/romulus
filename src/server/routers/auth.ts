@@ -1,5 +1,5 @@
-import { createRouter } from '../createRouter'
+import { publicProcedure, router } from '../trpc'
 
-export const authRouter = createRouter().query('whoami', {
-  resolve: ({ ctx: { account } }) => account ?? null,
+export const authRouter = router({
+  whoami: publicProcedure.query(({ ctx: { account } }) => account ?? null),
 })

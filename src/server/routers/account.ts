@@ -1,7 +1,6 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-import { createRouter } from '../createRouter'
 import {
   editAccount,
   getAccountById,
@@ -11,11 +10,12 @@ import { EditAccountInput } from '../db/account/inputs'
 import { defaultAccountSelect } from '../db/account/outputs'
 import { requireLogin } from '../guards'
 import { prisma } from '../prisma'
+import { publicProcedure, router } from '../trpc'
 
-export const accountRouter = createRouter()
-  .query('byId', {
-    input: z.object({ id: z.number() }),
-    resolve: async ({ input: { id } }) => {
+export const accountRouter = router({
+  byId: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input: { id } }) => {
       const account = await getAccountById(id)
 
       if (!account) {
@@ -26,15 +26,13 @@ export const accountRouter = createRouter()
       }
 
       return account
-    },
-  })
-  .query('byUsername', {
-    input: z.object({ username: z.string() }),
-    resolve: async ({ input: { username } }) => getAccountByUsername(username),
-  })
-  .mutation('edit', {
-    input: EditAccountInput,
-    resolve: async ({ input, ctx }) => {
+    }),
+  byUsername: publicProcedure
+    .input(z.object({ username: z.string() }))
+    .query(async ({ input: { username } }) => getAccountByUsername(username)),
+  edit: publicProcedure
+    .input(EditAccountInput)
+    .mutation(async ({ input, ctx }) => {
       const { account } = requireLogin(ctx)
       if (input.id !== account.id) {
         throw new TRPCError({
@@ -43,8 +41,8 @@ export const accountRouter = createRouter()
         })
       }
       return editAccount(input)
-    },
-  })
-  .query('all', {
-    resolve: () => prisma.account.findMany({ select: defaultAccountSelect }),
-  })
+    }),
+  all: publicProcedure.query(() =>
+    prisma.account.findMany({ select: defaultAccountSelect })
+  ),
+})
