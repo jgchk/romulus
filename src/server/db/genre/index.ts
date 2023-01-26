@@ -82,11 +82,13 @@ export const searchSimpleGenres = async (query: string) => {
     }
   }
 
-  return m.sort(
-    (a, b) =>
-      b.weight - a.weight ||
-      a.genre.name.toLowerCase().localeCompare(b.genre.name.toLowerCase())
-  )
+  return m
+    .sort(
+      (a, b) =>
+        b.weight - a.weight ||
+        a.genre.name.toLowerCase().localeCompare(b.genre.name.toLowerCase())
+    )
+    .slice(0, 100)
 }
 
 const WEIGHT_THRESHOLD = 0.2
