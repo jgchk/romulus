@@ -34,9 +34,7 @@ const Tree: FC<{ topLevelGenres: TreeGenre[] }> = ({ topLevelGenres }) => {
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
 
   const isAnyTopLevelExpanded = useTreeState((state) =>
-    Object.entries(state.expanded).some(
-      ([key, value]) => value && !key.includes('-')
-    )
+    [...state.expanded].some((key) => !key.includes('-'))
   )
 
   const collapseAll = useTreeState((state) => state.collapseAll)
