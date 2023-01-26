@@ -18,7 +18,7 @@ const GenreNavigator: FC<{ className?: string }> = ({ className }) => {
 
   const [showSettings, setShowSettings] = useState(false)
   const [filter, setFilter] = useState('')
-  const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 200)
+  const [debouncedFilter, setDebouncedFilter] = useDebouncedState(filter, 500)
 
   const clearFilter = useCallback(() => {
     setFilter('')
@@ -34,6 +34,12 @@ const GenreNavigator: FC<{ className?: string }> = ({ className }) => {
             onChange={setFilter}
             placeholder='Filter...'
             showClear
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setFilter(e.currentTarget.value)
+                setDebouncedFilter(e.currentTarget.value)
+              }
+            }}
           />
         </div>
         <div className='flex h-full items-center'>
