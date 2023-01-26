@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo } from 'react'
 
 import GenrePage, { GenrePageView } from '../../components/GenresPage'
 import {
-  useNearbyPath,
+  usePathUpdater,
   useTreeState,
 } from '../../components/GenresPage/GenreNavigator/Tree/state'
 import { isGenreFormField } from '../../components/GenresPage/GenreView/Form'
@@ -31,15 +31,14 @@ const Genres: FC = () => {
     }
   }, [autoFocus, id, viewType])
 
-  const selectedPath = useTreeState((state) => state.selectedPath)
   const setSelectedPath = useTreeState((state) => state.setSelectedPath)
-  const nearbyPath = useNearbyPath(id, selectedPath)
+  const newPath = usePathUpdater(id)
 
   useEffect(() => {
-    if (nearbyPath) {
-      setSelectedPath(nearbyPath)
+    if (newPath) {
+      setSelectedPath(newPath.path)
     }
-  })
+  }, [newPath, setSelectedPath])
 
   return <GenrePage view={view} />
 }
