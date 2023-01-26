@@ -13,6 +13,7 @@ export type InputProps = Omit<
   value?: string
   onChange?: (value: string) => void
   showClear?: boolean
+  onClear?: () => void
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -23,6 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       showClear = false,
       value,
       onChange,
+      onClear,
       error: propsError,
       ...props
     },
@@ -62,7 +64,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   <Tooltip tip='Clear' className='flex items-center'>
                     <button
                       className='rounded-full p-1 text-gray-500 transition hover:bg-gray-300 hover:text-gray-600'
-                      onClick={() => onChange?.('')}
+                      onClick={() => {
+                        onChange?.('')
+                        onClear?.()
+                      }}
                     >
                       <RiCloseFill />
                     </button>

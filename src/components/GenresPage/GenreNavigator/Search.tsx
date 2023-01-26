@@ -7,16 +7,15 @@ import { useSession } from '../../../services/auth'
 import { useSimpleGenreSearchQuery } from '../../../services/genres'
 import { CenteredLoader } from '../../common/Loader'
 import GenreTypeChip from '../GenreTypeChip'
+import { useSearchState } from './search-state'
 import useGenreNavigatorSettings from './useGenreNavigatorSettings'
 
-const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
-  filter,
-  clearFilter,
-}) => {
+const GenreSearchResults: FC = () => {
+  const filter = useSearchState((state) => state.debouncedFilter)
   const genresQuery = useSimpleGenreSearchQuery(filter)
 
   if (genresQuery.data) {
-    return <HasData matches={genresQuery.data} clearFilter={clearFilter} />
+    return <HasData matches={genresQuery.data} />
   }
 
   if (genresQuery.error) {
@@ -30,11 +29,9 @@ const GenreSearchResults: FC<{ filter: string; clearFilter: () => void }> = ({
   return <CenteredLoader />
 }
 
-const HasData: FC<{ matches: Match[]; clearFilter: () => void }> = ({
-  matches,
-  clearFilter,
-}) => {
+const HasData: FC<{ matches: Match[] }> = ({ matches }) => {
   const session = useSession()
+  const clearFilter = useSearchState((state) => state.clearFilter)
 
   return (
     <div className='p-4'>
