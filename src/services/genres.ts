@@ -19,6 +19,9 @@ export const usePaginatedGenresQuery = (
 export const useTopLevelTreeGenresQuery = () => {
   return trpc.genre.tree.topLevel.useQuery(undefined, {
     staleTime: ONE_MINUTE,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    showToast: false,
   })
 }
 
@@ -27,6 +30,9 @@ export const useTreeGenreChildrenQuery = (genreId: number) => {
     { id: genreId },
     {
       staleTime: ONE_MINUTE,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      showToast: false,
     }
   )
 }
