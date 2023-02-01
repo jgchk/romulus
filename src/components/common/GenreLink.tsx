@@ -122,7 +122,7 @@ const DeletedLinkWrapper: FC<
   if (historyQuery.data) {
     return genre ? (
       <Link href={historyHref} {...props}>
-        <a className={className}>{children ?? genre.name}</a>
+        <a className={className}>{children ?? `${genre.name} (Deleted)`}</a>
       </Link>
     ) : (
       <Link href={defaultHref} {...props}>
