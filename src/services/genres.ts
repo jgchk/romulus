@@ -61,8 +61,18 @@ export const useGenreQuery = (id: number) => {
   )
 }
 
-export const useSimpleGenreQuery = (id: number) =>
-  trpc.genre.byIdSimple.useQuery({ id })
+export const useSimpleGenreQuery = (
+  id: number,
+  options: { showToast?: boolean } = {}
+) =>
+  trpc.genre.byIdSimple.useQuery(
+    { id },
+    {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      showToast: options.showToast,
+    }
+  )
 
 export const useAddGenreMutation = () => {
   const utils = trpc.useContext()
