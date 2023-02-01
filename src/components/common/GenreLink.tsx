@@ -40,29 +40,52 @@ const GenreLink: FC<
 > = ({ id, view, autoFocus, children, className, ...props }) => {
   const href = useGenreLinkHref(id, view, autoFocus)
 
-  return (
-    <Link href={href} {...props}>
-      <a className={className}>{children ?? <Name id={id} />}</a>
-    </Link>
-  )
-}
-
-const Name: FC<{ id: number }> = ({ id }) => {
   const genreQuery = useSimpleGenreQuery(id, { showToast: false })
 
   if (genreQuery.data) {
-    return <>{genreQuery.data.name}</>
+    return (
+      <Link href={href} {...props}>
+        <a className={className}>{children ?? genreQuery.data.name}</a>
+      </Link>
+    )
   }
 
   if (genreQuery.error) {
     const isMissing = genreQuery.error.message.startsWith('No genre with id')
-    return isMissing ? <DeletedName id={id} /> : <>Error</>
+    return isMissing ? (
+      <DeletedLinkWrapper
+        id={id}
+        autoFocus={autoFocus}
+        className={className}
+        defaultHref={href}
+      >
+        {children}
+      </DeletedLinkWrapper>
+    ) : (
+      <Link href={href} {...props}>
+        <a className={className}>{children ?? 'Error'}</a>
+      </Link>
+    )
   }
 
-  return <>Loading</>
+  return (
+    <Link href={href} {...props}>
+      <a className={className}>{children ?? 'Loading...'}</a>
+    </Link>
+  )
 }
 
-const DeletedName: FC<{ id: number }> = ({ id }) => {
+const DeletedLinkWrapper: FC<
+  Omit<LinkProps, 'href'> & {
+    id: number
+    autoFocus?: keyof GenreFormFields
+    className?: string
+    children?: ReactNode
+    defaultHref: LinkProps['href']
+  }
+> = ({ id, autoFocus, children, className, defaultHref, ...props }) => {
+  const historyHref = useGenreLinkHref(id, 'history', autoFocus)
+
   const historyQuery = useGenreHistoryQuery(id)
 
   const history = useMemo(
@@ -97,14 +120,30 @@ const DeletedName: FC<{ id: number }> = ({ id }) => {
   }, [history])
 
   if (historyQuery.data) {
-    return genre ? <>{genre.name}</> : <>Deleted</>
+    return genre ? (
+      <Link href={historyHref} {...props}>
+        <a className={className}>{children ?? genre.name}</a>
+      </Link>
+    ) : (
+      <Link href={defaultHref} {...props}>
+        <a className={className}>{children ?? 'Deleted'}</a>
+      </Link>
+    )
   }
 
   if (historyQuery.error) {
-    return <>Error</>
+    return (
+      <Link href={defaultHref} {...props}>
+        <a className={className}>{children ?? 'Error'}</a>
+      </Link>
+    )
   }
 
-  return <>Loading</>
+  return (
+    <Link href={defaultHref} {...props}>
+      <a className={className}>{children ?? 'Loading...'}</a>
+    </Link>
+  )
 }
 
 export default GenreLink
