@@ -74,6 +74,7 @@ export const trpcNext = createTRPCNext<AppRouter, SSRContext>({
     links: [
       httpBatchLink({
         url: `${getBaseTrpcUrl()}/api/trpc`,
+        maxURLLength: 2083,
         headers() {
           if (ctx?.req) {
             // To use SSR properly, you need to forward the client's headers to the server
