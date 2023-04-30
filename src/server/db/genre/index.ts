@@ -164,7 +164,9 @@ export const createGenre = async (
 
   await addGenreHistory(genre, CrudOperation.CREATE, accountId)
 
-  await setGenreRelevanceVote({ genreId: genre.id, relevance }, accountId)
+  if (relevance !== undefined) {
+    await setGenreRelevanceVote({ genreId: genre.id, relevance }, accountId)
+  }
 
   return genre
 }

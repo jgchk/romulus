@@ -17,7 +17,7 @@ import Select from '../../../common/Select'
 import RelevanceSelect from '../../RelevanceSelect'
 import GenreMultiselect from './GenreMultiselect'
 
-const DEFAULT_RELEVANCE = 4
+const DEFAULT_RELEVANCE = undefined
 
 const GenreFormFields = {
   name: '',
@@ -29,7 +29,7 @@ const GenreFormFields = {
   shortDescription: '',
   longDescription: '',
   notes: '',
-  relevance: DEFAULT_RELEVANCE,
+  relevance: DEFAULT_RELEVANCE as number | undefined,
 }
 
 export type GenreFormFields = typeof GenreFormFields
@@ -47,7 +47,7 @@ export type GenreFormData = {
   notes: string | null
   parentGenres: number[]
   influencedByGenres: number[]
-  relevance: number
+  relevance: number | undefined
 }
 
 const joinAkas = (akas: GenreAka[], relevance: number): string =>

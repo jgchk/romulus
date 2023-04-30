@@ -55,7 +55,7 @@ export const CreateGenreInput = z.object({
   influencedByGenres: z.number().array().optional(),
   notes: nonemptyString().optional(),
   akas: GenreAkaInput.array(),
-  relevance: GenreRelevanceInput,
+  relevance: GenreRelevanceInput.optional(),
 })
 export type CreateGenreInput = z.infer<typeof CreateGenreInput>
 
