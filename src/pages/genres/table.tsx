@@ -14,11 +14,13 @@ import { RiSortAsc, RiSortDesc } from 'react-icons/ri'
 
 import { CenteredLoader } from '../../components/common/Loader'
 import Paginator from '../../components/common/Paginator'
+import Tooltip from '../../components/common/Tooltip'
 import RelevanceChip from '../../components/GenresPage/GenreNavigator/Tree/RelevanceChip'
 import GenreTypeChip from '../../components/GenresPage/GenreTypeChip'
 import { Sort } from '../../server/db/genre/inputs'
 import { DefaultGenre } from '../../server/db/genre/outputs'
 import { usePaginatedGenresQuery } from '../../services/genres'
+import { getTimeSinceShort, toPrettyDate } from '../../utils/datetime'
 import { useIntRouteParam } from '../../utils/routes'
 
 const GenresTable: FC = () => {
@@ -28,7 +30,7 @@ const GenresTable: FC = () => {
   const router = useRouter()
   const sort = useMemo(() => {
     const rawValue = router.query['sort']
-    if (rawValue === undefined) return undefined
+    if (rawValue === undefined || rawValue === '') return undefined
 
     const value = Array.isArray(rawValue)
       ? rawValue.map((v) => JSON.parse(v) as unknown)
@@ -99,6 +101,16 @@ const defaultColumns = [
   columnHelper.accessor('relevance', {
     header: 'Relevance',
     cell: (props) => <RelevanceChip relevance={props.getValue()} />,
+  }),
+  columnHelper.accessor('updatedAt', {
+    header: 'Last Updated',
+    cell: (props) => (
+      <div>
+        <Tooltip tip={toPrettyDate(props.getValue())} className='w-fit'>
+          {getTimeSinceShort(props.getValue())}
+        </Tooltip>
+      </div>
+    ),
   }),
 ]
 
