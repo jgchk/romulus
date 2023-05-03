@@ -18,20 +18,27 @@ import {
 } from './outputs'
 import { didChange, throwOnCycle } from './utils'
 
-export const getPaginatedGenres = (
+export const getPaginatedGenres = async (
   page: number,
   size: number,
   sort: Sort[]
 ) => {
   const skip = page * size
-  return prisma.genre.findMany({
-    skip,
-    take: size,
-    orderBy: Object.fromEntries(
-      sort.map((s) => [s.id, s.desc ? 'desc' : 'asc'])
-    ),
-    select: defaultGenreSelect,
-  })
+  const result = await prisma.$transaction([
+    prisma.genre.count(),
+    prisma.genre.findMany({
+      skip,
+      take: size,
+      orderBy: Object.fromEntries(
+        sort.map((s) => [s.id, s.desc ? 'desc' : 'asc'])
+      ),
+      select: defaultGenreSelect,
+    }),
+  ])
+  return {
+    results: result[1],
+    total: result[0],
+  }
 }
 
 export const getTopLevelTreeGenres = () =>

@@ -52,7 +52,8 @@ const GenresTable: FC = () => {
   if (genresQuery.data) {
     return (
       <HasData
-        genres={genresQuery.data}
+        genres={genresQuery.data.results}
+        total={genresQuery.data.total}
         page={page}
         size={size}
         sorting={sort}
@@ -116,10 +117,11 @@ const defaultColumns = [
 
 const HasData: FC<{
   genres: DefaultGenre[]
+  total: number
   page?: number
   size?: number
   sorting?: SortingState
-}> = ({ genres, page = 0, size: rawSize = 30, sorting }) => {
+}> = ({ genres, total, page = 0, size: rawSize = 30, sorting }) => {
   // const [sorting, setSorting] = useState<SortingState>([
   //   { id: 'name', desc: false },
   // ])
@@ -137,6 +139,8 @@ const HasData: FC<{
     data: genres,
     columns: defaultColumns,
     getCoreRowModel: getCoreRowModel(),
+    pageCount: Math.ceil(total / size),
+    manualPagination: true,
     state: {
       sorting,
       pagination,
