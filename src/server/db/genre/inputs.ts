@@ -1,4 +1,4 @@
-import { nonemptyString } from '../../../utils/validators'
+import { nonemptyString, unionOfLiterals } from '../../../utils/validators'
 import { GenreRelevanceInput } from '../common/inputs'
 import { GenreType } from '@prisma/client'
 import { z } from 'zod'
@@ -16,19 +16,7 @@ export const LocationInput = z.object({
   country: nonemptyString(),
 })
 
-export const GenreTypeInput = z.union([
-  z.literal(GenreType.MOVEMENT),
-  z.literal(GenreType.META),
-  z.literal(GenreType.STYLE),
-  z.literal(GenreType.SCENE),
-  z.literal(GenreType.TREND),
-  z.literal(GenreType.PERIOD),
-  z.literal(GenreType.CATEGORY),
-  z.literal(GenreType.MEDIATYPE),
-  z.literal(GenreType.SENSE),
-  z.literal(GenreType.OBJECT),
-  z.literal(GenreType.TEMPORARY),
-])
+export const GenreTypeInput = unionOfLiterals(Object.values(GenreType))
 
 export const MIN_GENRE_AKA_RELEVANCE = 1
 export const MAX_GENRE_AKA_RELEVANCE = 3
