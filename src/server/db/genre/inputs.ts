@@ -25,6 +25,8 @@ export const GenreTypeInput = z.union([
   z.literal(GenreType.PERIOD),
   z.literal(GenreType.CATEGORY),
   z.literal(GenreType.MEDIATYPE),
+  z.literal(GenreType.SENSE),
+  z.literal(GenreType.OBJECT),
   z.literal(GenreType.TEMPORARY),
 ])
 

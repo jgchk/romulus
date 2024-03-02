@@ -52,6 +52,8 @@ enum GenreType {
   PERIOD
   CATEGORY
   MEDIATYPE
+  SENSE
+  OBJECT
   TEMPORARY
 }
 
