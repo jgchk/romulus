@@ -22,6 +22,10 @@ export const GenreTypeInput = z.union([
   z.literal(GenreType.STYLE),
   z.literal(GenreType.SCENE),
   z.literal(GenreType.TREND),
+  z.literal(GenreType.PERIOD),
+  z.literal(GenreType.CATEGORY),
+  z.literal(GenreType.MEDIATYPE),
+  z.literal(GenreType.TEMPORARY),
 ])
 
 export const MIN_GENRE_AKA_RELEVANCE = 1

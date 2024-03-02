@@ -2,7 +2,7 @@ import useWarnOnUnsavedChanges from '../../../../hooks/useWarnOnUnsavedChanges'
 import { GenreAkaInput } from '../../../../server/db/genre/inputs'
 import { DefaultGenre } from '../../../../server/db/genre/outputs'
 import { useSession } from '../../../../services/auth'
-import { capitalize } from '../../../../utils/string'
+import { GenreTypeNames } from '../../../../utils/genres'
 import { ifDefined } from '../../../../utils/types'
 import Button from '../../../common/Button'
 import Input from '../../../common/Input'
@@ -106,7 +106,7 @@ const GenreForm: FC<{
     () =>
       Object.values(GenreType).map((type) => ({
         key: type,
-        label: capitalize(type),
+        label: GenreTypeNames[type],
       })),
     [],
   )

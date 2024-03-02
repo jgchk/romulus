@@ -49,6 +49,10 @@ enum GenreType {
   STYLE
   TREND
   SCENE
+  PERIOD
+  CATEGORY
+  MEDIATYPE
+  TEMPORARY
 }
 
 model Genre {

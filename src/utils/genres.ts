@@ -1,3 +1,27 @@
+export const GenreTypeNames = {
+	[GenreType.MOVEMENT]: "Movement",
+	[GenreType.META]: "Meta",
+	[GenreType.STYLE]: "Style",
+	[GenreType.TREND]: "Trend",
+	[GenreType.SCENE]: "Scene",
+	[GenreType.PERIOD]: "Period",
+	[GenreType.CATEGORY]: "Category",
+	[GenreType.MEDIATYPE]: "Media Type",
+	[GenreType.TEMPORARY]: "Temporary"
+}
+
+export const GenreTypeChipNames = {
+	[GenreType.MOVEMENT]: "Mvmt",
+	[GenreType.META]: "Meta",
+	[GenreType.STYLE]: "Style",
+	[GenreType.TREND]: "Trend",
+	[GenreType.SCENE]: "Scene",
+	[GenreType.PERIOD]: "Period",
+	[GenreType.CATEGORY]: "Cat",
+	[GenreType.MEDIATYPE]: "Media",
+	[GenreType.TEMPORARY]: "Temp"
+}
+
 export const makeGenreTag = (id: number) => `[Genre${id}]`
 
 export type TreeStructureNode = {
