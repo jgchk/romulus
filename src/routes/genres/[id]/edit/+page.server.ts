@@ -14,28 +14,10 @@ import {
   genreParents,
   genres,
 } from '$lib/server/db/schema'
-import { createGenreHistoryEntry } from '$lib/server/db/utils'
-import { GENRE_TYPES } from '$lib/types/genres'
+import { createGenreHistoryEntry, detectCycle, genreSchema } from '$lib/server/db/utils'
 import { pick } from '$lib/utils/object'
-import { nullableString } from '$lib/utils/validators'
 
 import type { PageServerLoad } from './$types'
-
-const schema = z.object({
-  name: z.string().min(1),
-  shortDescription: nullableString,
-  longDescription: nullableString,
-  notes: nullableString,
-  type: z.enum(GENRE_TYPES),
-  subtitle: nullableString,
-
-  primaryAkas: nullableString,
-  secondaryAkas: nullableString,
-  tertiaryAkas: nullableString,
-
-  parents: z.number().int().array(),
-  influencedBy: z.number().int().array(),
-})
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
@@ -95,7 +77,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     influencedBy: influencedBy.map((influencer) => influencer.influencerId),
   }
 
-  const form = await superValidate(data, zod(schema))
+  const form = await superValidate(data, zod(genreSchema))
   return { form }
 }
 
@@ -112,7 +94,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const form = await superValidate(request, zod(schema))
+    const form = await superValidate(request, zod(genreSchema))
 
     if (!form.valid) {
       return fail(400, { form })
@@ -237,90 +219,10 @@ export const actions: Actions = {
   },
 }
 
-type CycleGenre = { id: number; name: string; parents: number[] }
-
-async function detectCycle(data: {
-  id?: number
-  name: string
-  parents?: number[]
-  children?: number[]
-}) {
-  let allGenres = await db.query.genres
-    .findMany({
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        parents: {
-          columns: { parentId: true },
-        },
-      },
-    })
-    .then((genres) =>
-      genres.map((genre) => ({
-        ...genre,
-        parents: genre.parents.map((parent) => parent.parentId),
-      })),
-    )
-
-  // if the user has made any updates to parent/child genres,
-  // temporarily apply those updates before checking for cycles
-  const id = data.id ?? -1
-  if (!allGenres.some((genre) => genre.id === id)) {
-    allGenres.push({
-      id,
-      name: data.name,
-      parents: data.parents ?? [],
-    })
-  }
-
-  if (data.parents) {
-    const parents = data.parents
-    allGenres = allGenres.map((genre) => (genre.id === data.id ? { ...genre, parents } : genre))
-  }
-  if (data.children) {
-    const children = data.children
-    allGenres = allGenres.map((genre) =>
-      children.includes(genre.id) ? { ...genre, parentGenres: [...genre.parents, id] } : genre,
-    )
-  }
-
-  const allGenresMap = new Map(allGenres.map((genre) => [genre.id, genre]))
-
-  for (const genre of allGenres) {
-    const cycle = detectCycleInner(genre.id, [], allGenresMap)
-    if (cycle) {
-      const formattedCycle = cycle.map((id) => allGenresMap.get(id)!.name).join(' → ')
-      return formattedCycle
-    }
-  }
-}
-
-function detectCycleInner(
-  id: number,
-  stack: number[],
-  allGenresMap: Map<number, CycleGenre>,
-): number[] | false {
-  if (stack.includes(id)) {
-    return [...stack, id]
-  }
-
-  const genre = allGenresMap.get(id)
-  if (!genre) return false
-
-  for (const parentId of genre.parents) {
-    const cycle = detectCycleInner(parentId, [...stack, id], allGenresMap)
-    if (cycle) {
-      return cycle
-    }
-  }
-
-  return false
-}
-
 function didChange(
-  data: z.infer<typeof schema> & { akas: Omit<InferInsertModel<typeof genreAkas>, 'genreId'>[] },
+  data: z.infer<typeof genreSchema> & {
+    akas: Omit<InferInsertModel<typeof genreAkas>, 'genreId'>[]
+  },
   history: InferSelectModel<typeof genreHistory> & {
     akas: Omit<InferSelectModel<typeof genreHistoryAkas>, 'genreId'>[]
   },

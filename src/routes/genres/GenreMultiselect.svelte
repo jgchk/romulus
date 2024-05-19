@@ -4,7 +4,7 @@
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import type { Option } from '$lib/atoms/Select'
 
-  import type { TreeGenre } from '../../GenreNavigator/GenreTree/state'
+  import type { TreeGenre } from './GenreNavigator/GenreTree/state'
 
   type Opt = Option<{ value: number }>
 
