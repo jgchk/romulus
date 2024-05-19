@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from '$app/environment'
   import Card from '$lib/atoms/Card.svelte'
   import SplitPane from '$lib/atoms/SplitPane.svelte'
 
@@ -8,15 +9,21 @@
   export let data: LayoutData
 
   let windowWidth = 0
+
+  let leftPaneSize = data.leftPaneSize ?? 300
+  $: if (browser) {
+    document.cookie = `genres.leftPaneSize=${leftPaneSize}; path=/; max-age=31536000`
+  }
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
 
 <SplitPane
-  defaultSize={300}
+  defaultSize={leftPaneSize}
   minSize={200}
   maxSize={windowWidth - 300}
   class="hidden h-full pt-0 md:flex"
+  on:resize={(e) => (leftPaneSize = e.detail)}
 >
   <svelte:fragment slot="left">
     <GenreNavigator genres={data.streamed.genres} />

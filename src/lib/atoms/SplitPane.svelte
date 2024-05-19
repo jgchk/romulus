@@ -3,6 +3,8 @@
 </script>
 
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+
   import { tw, unfocus } from '$lib/utils/dom'
 
   let class_: string | undefined = undefined
@@ -20,6 +22,8 @@
   let containerRef: HTMLElement | undefined
   let leftRef: HTMLElement | undefined
   let rightRef: HTMLElement | undefined
+
+  const dispatch = createEventDispatcher<{ resize: number }>()
 
   function handleTouchStart(e: PartialTouchEvent) {
     unfocus()
@@ -59,6 +63,7 @@
     }
 
     leftSize = newSize
+    dispatch('resize', newSize)
   }
 
   function handleMouseDown(e: MouseEvent) {
