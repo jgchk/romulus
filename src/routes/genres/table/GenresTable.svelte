@@ -134,7 +134,7 @@
             return
           }
 
-          void goto(withPage($page.url.searchParams, value))
+          void goto(withPage($page.url.searchParams, value), { keepFocus: true })
         }}
       />
     </div>
