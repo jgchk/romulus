@@ -10,8 +10,8 @@ const config = {
       sans: ['InterVariable', 'Noto Emoji', ...defaults.fontFamily.sans],
     },
     colors: {
-      primary: colors.amber,
-      secondary: colors.sky,
+      primary: colors.blue,
+      secondary: colors.orange,
       gray: colors.stone,
 
       success: colors.green,
