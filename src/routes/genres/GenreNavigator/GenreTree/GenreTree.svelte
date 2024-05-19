@@ -34,7 +34,7 @@
 
 <div class="flex h-full w-full flex-col">
   {#if topLevelGenres.length > 0}
-    <div bind:this={ref} class="flex-1 overflow-auto p-4 pl-1">
+    <div bind:this={ref} class="flex-1 overflow-auto p-2 pl-1">
       <ul>
         {#each topLevelGenres as genre (genre.id)}
           <GenreTreeNode id={genre.id} path={[genre.id]} treeRef={ref} />
@@ -53,8 +53,8 @@
   {/if}
 
   {#if isAnyTopLevelExpanded}
-    <div class="w-full p-1">
-      <Button class="w-full" kind="text" on:click={() => treeState.collapseAll()}>
+    <div class="w-full border-t border-gray-200 transition dark:border-gray-800">
+      <Button class="w-full rounded-none" kind="text" on:click={() => treeState.collapseAll()}>
         Collapse All
       </Button>
     </div>
