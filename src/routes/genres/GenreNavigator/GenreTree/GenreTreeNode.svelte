@@ -50,7 +50,7 @@
       <a
         href="/genres/{id}"
         class={cn(
-          'block truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
+          'group block flex-1 truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
           isSelected ? 'text-primary-500' : 'text-gray-400 hover:text-white',
         )}
         on:click={() => {
@@ -63,8 +63,10 @@
           {' '}
           <span
             class={cn(
-              'text-sm transition',
-              isSelected ? 'text-primary-500 dark:text-primary-700' : 'text-gray-500',
+              'text-[0.8rem]',
+              isSelected
+                ? 'text-primary-500 dark:text-primary-700'
+                : 'text-gray-500 group-hover:text-gray-400',
             )}
           >
             [{genre.subtitle}]

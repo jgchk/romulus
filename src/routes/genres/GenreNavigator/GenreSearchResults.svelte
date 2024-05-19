@@ -20,17 +20,19 @@
     <VirtualList items={matches} let:item={match}>
       <a
         href="/genres/{match.genre.id}"
-        class="block text-gray-700 hover:font-bold dark:text-gray-300"
+        class="group block truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] text-gray-400 hover:border-opacity-[0.03] hover:bg-gray-800 hover:text-white"
         on:click={() => searchStore.clearFilter()}
       >
         {match.genre.name}
         {#if match.genre.subtitle}
           {' '}
-          <span class="text-sm text-gray-600">[{match.genre.subtitle}]</span>
+          <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
+            >[{match.genre.subtitle}]</span
+          >
         {/if}
         {#if match.matchedAka}
           {' '}
-          <span class="text-sm">({match.matchedAka})</span>
+          <span class="text-[0.8rem]">({match.matchedAka})</span>
         {/if}
         {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
           {' '}
