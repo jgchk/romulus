@@ -1,0 +1,11 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "semi": false,
+
+  "tailwindFunctions": ["cn", "tw"],
+
+  "plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+
+  "overrides": [{ "files": "*.svelte", "options": { "parser": "svelte" } }]
+}

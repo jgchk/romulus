@@ -1,0 +1,1164 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "ItemBundle": {
+      "name": "ItemBundle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Genre": {
+      "name": "Genre",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shortDescription": {
+          "name": "shortDescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longDescription": {
+          "name": "longDescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "GenreType",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'STYLE'"
+        },
+        "relevance": {
+          "name": "relevance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 99
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "GenreHistory": {
+      "name": "GenreHistory",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "GenreType",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'STYLE'"
+        },
+        "shortDescription": {
+          "name": "shortDescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longDescription": {
+          "name": "longDescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parentGenreIds": {
+          "name": "parentGenreIds",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "influencedByGenreIds": {
+          "name": "influencedByGenreIds",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "treeGenreId": {
+          "name": "treeGenreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "operation": {
+          "name": "operation",
+          "type": "GenreOperation",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "GenreHistory_accountId_fkey": {
+          "name": "GenreHistory_accountId_fkey",
+          "tableFrom": "GenreHistory",
+          "tableTo": "Account",
+          "schemaTo": "public",
+          "columnsFrom": ["accountId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Account": {
+      "name": "Account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "darkMode": {
+          "name": "darkMode",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "permissions": {
+          "name": "permissions",
+          "type": "Permission\"[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "genreRelevanceFilter": {
+          "name": "genreRelevanceFilter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "showRelevanceTags": {
+          "name": "showRelevanceTags",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "showTypeTags": {
+          "name": "showTypeTags",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {
+        "Account_username_key": {
+          "name": "Account_username_key",
+          "columns": ["username"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ItemType": {
+      "name": "ItemType",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Artist": {
+      "name": "Artist",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ConceptBundle": {
+      "name": "ConceptBundle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Concept": {
+      "name": "Concept",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeId": {
+          "name": "typeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Concept_typeId_fkey": {
+          "name": "Concept_typeId_fkey",
+          "tableFrom": "Concept",
+          "tableTo": "ConceptType",
+          "schemaTo": "public",
+          "columnsFrom": ["typeId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ConceptIssue": {
+      "name": "ConceptIssue",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "conceptId": {
+          "name": "conceptId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ConceptIssue_conceptId_fkey": {
+          "name": "ConceptIssue_conceptId_fkey",
+          "tableFrom": "ConceptIssue",
+          "tableTo": "Concept",
+          "schemaTo": "public",
+          "columnsFrom": ["conceptId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ConceptType": {
+      "name": "ConceptType",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Item": {
+      "name": "Item",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeId": {
+          "name": "typeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Item_typeId_fkey": {
+          "name": "Item_typeId_fkey",
+          "tableFrom": "Item",
+          "tableTo": "ItemType",
+          "schemaTo": "public",
+          "columnsFrom": ["typeId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Unit": {
+      "name": "Unit",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_ConceptToConceptBundle": {
+      "name": "_ConceptToConceptBundle",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_ConceptToConceptBundle_AB_unique": {
+          "name": "_ConceptToConceptBundle_AB_unique",
+          "columns": ["A", "B"],
+          "isUnique": true
+        },
+        "_ConceptToConceptBundle_B_index": {
+          "name": "_ConceptToConceptBundle_B_index",
+          "columns": ["B"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_ConceptToConceptBundle_A_fkey": {
+          "name": "_ConceptToConceptBundle_A_fkey",
+          "tableFrom": "_ConceptToConceptBundle",
+          "tableTo": "Concept",
+          "schemaTo": "public",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "_ConceptToConceptBundle_B_fkey": {
+          "name": "_ConceptToConceptBundle_B_fkey",
+          "tableFrom": "_ConceptToConceptBundle",
+          "tableTo": "ConceptBundle",
+          "schemaTo": "public",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_ConceptToUnit": {
+      "name": "_ConceptToUnit",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_ConceptToUnit_AB_unique": {
+          "name": "_ConceptToUnit_AB_unique",
+          "columns": ["A", "B"],
+          "isUnique": true
+        },
+        "_ConceptToUnit_B_index": {
+          "name": "_ConceptToUnit_B_index",
+          "columns": ["B"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_ConceptToUnit_A_fkey": {
+          "name": "_ConceptToUnit_A_fkey",
+          "tableFrom": "_ConceptToUnit",
+          "tableTo": "Concept",
+          "schemaTo": "public",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "_ConceptToUnit_B_fkey": {
+          "name": "_ConceptToUnit_B_fkey",
+          "tableFrom": "_ConceptToUnit",
+          "tableTo": "Unit",
+          "schemaTo": "public",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_ItemToItemBundle": {
+      "name": "_ItemToItemBundle",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_ItemToItemBundle_AB_unique": {
+          "name": "_ItemToItemBundle_AB_unique",
+          "columns": ["A", "B"],
+          "isUnique": true
+        },
+        "_ItemToItemBundle_B_index": {
+          "name": "_ItemToItemBundle_B_index",
+          "columns": ["B"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_ItemToItemBundle_A_fkey": {
+          "name": "_ItemToItemBundle_A_fkey",
+          "tableFrom": "_ItemToItemBundle",
+          "tableTo": "Item",
+          "schemaTo": "public",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "_ItemToItemBundle_B_fkey": {
+          "name": "_ItemToItemBundle_B_fkey",
+          "tableFrom": "_ItemToItemBundle",
+          "tableTo": "ItemBundle",
+          "schemaTo": "public",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_hierarchy": {
+      "name": "_hierarchy",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_hierarchy_AB_unique": {
+          "name": "_hierarchy_AB_unique",
+          "columns": ["A", "B"],
+          "isUnique": true
+        },
+        "_hierarchy_B_index": {
+          "name": "_hierarchy_B_index",
+          "columns": ["B"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_hierarchy_A_fkey": {
+          "name": "_hierarchy_A_fkey",
+          "tableFrom": "_hierarchy",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "_hierarchy_B_fkey": {
+          "name": "_hierarchy_B_fkey",
+          "tableFrom": "_hierarchy",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_prisma_migrations": {
+      "name": "_prisma_migrations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "checksum": {
+          "name": "checksum",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "migration_name": {
+          "name": "migration_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logs": {
+          "name": "logs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rolled_back_at": {
+          "name": "rolled_back_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "applied_steps_count": {
+          "name": "applied_steps_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ConceptBundleIssue": {
+      "name": "ConceptBundleIssue",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "conceptBundleId": {
+          "name": "conceptBundleId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ConceptBundleIssue_conceptBundleId_fkey": {
+          "name": "ConceptBundleIssue_conceptBundleId_fkey",
+          "tableFrom": "ConceptBundleIssue",
+          "tableTo": "ConceptBundle",
+          "schemaTo": "public",
+          "columnsFrom": ["conceptBundleId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Member": {
+      "name": "Member",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "personId": {
+          "name": "personId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "artistId": {
+          "name": "artistId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Member_artistId_fkey": {
+          "name": "Member_artistId_fkey",
+          "tableFrom": "Member",
+          "tableTo": "Artist",
+          "schemaTo": "public",
+          "columnsFrom": ["artistId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "Member_personId_fkey": {
+          "name": "Member_personId_fkey",
+          "tableFrom": "Member",
+          "tableTo": "Person",
+          "schemaTo": "public",
+          "columnsFrom": ["personId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Person": {
+      "name": "Person",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "firstName": {
+          "name": "firstName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "middleName": {
+          "name": "middleName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lastName": {
+          "name": "lastName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "UnitIssue": {
+      "name": "UnitIssue",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "unitId": {
+          "name": "unitId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "UnitIssue_unitId_fkey": {
+          "name": "UnitIssue_unitId_fkey",
+          "tableFrom": "UnitIssue",
+          "tableTo": "Unit",
+          "schemaTo": "public",
+          "columnsFrom": ["unitId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "_influence": {
+      "name": "_influence",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_influence_AB_unique": {
+          "name": "_influence_AB_unique",
+          "columns": ["A", "B"],
+          "isUnique": true
+        },
+        "_influence_B_index": {
+          "name": "_influence_B_index",
+          "columns": ["B"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_influence_A_fkey": {
+          "name": "_influence_A_fkey",
+          "tableFrom": "_influence",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "_influence_B_fkey": {
+          "name": "_influence_B_fkey",
+          "tableFrom": "_influence",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "GenreHistoryAka": {
+      "name": "GenreHistoryAka",
+      "schema": "",
+      "columns": {
+        "genreId": {
+          "name": "genreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "relevance": {
+          "name": "relevance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "GenreHistoryAka_genreId_fkey": {
+          "name": "GenreHistoryAka_genreId_fkey",
+          "tableFrom": "GenreHistoryAka",
+          "tableTo": "GenreHistory",
+          "schemaTo": "public",
+          "columnsFrom": ["genreId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "GenreHistoryAka_pkey": {
+          "name": "GenreHistoryAka_pkey",
+          "columns": ["genreId", "name"]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "GenreAka": {
+      "name": "GenreAka",
+      "schema": "",
+      "columns": {
+        "genreId": {
+          "name": "genreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "relevance": {
+          "name": "relevance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "GenreAka_genreId_fkey": {
+          "name": "GenreAka_genreId_fkey",
+          "tableFrom": "GenreAka",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["genreId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "GenreAka_pkey": {
+          "name": "GenreAka_pkey",
+          "columns": ["genreId", "name"]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "GenreRelevanceVote": {
+      "name": "GenreRelevanceVote",
+      "schema": "",
+      "columns": {
+        "genreId": {
+          "name": "genreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "relevance": {
+          "name": "relevance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "GenreRelevanceVote_accountId_fkey": {
+          "name": "GenreRelevanceVote_accountId_fkey",
+          "tableFrom": "GenreRelevanceVote",
+          "tableTo": "Account",
+          "schemaTo": "public",
+          "columnsFrom": ["accountId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "GenreRelevanceVote_genreId_fkey": {
+          "name": "GenreRelevanceVote_genreId_fkey",
+          "tableFrom": "GenreRelevanceVote",
+          "tableTo": "Genre",
+          "schemaTo": "public",
+          "columnsFrom": ["genreId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "GenreRelevanceVote_pkey": {
+          "name": "GenreRelevanceVote_pkey",
+          "columns": ["genreId", "accountId"]
+        }
+      },
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {
+    "GenreOperation": {
+      "name": "GenreOperation",
+      "values": {
+        "DELETE": "DELETE",
+        "UPDATE": "UPDATE",
+        "CREATE": "CREATE"
+      }
+    },
+    "GenreType": {
+      "name": "GenreType",
+      "values": {
+        "TREND": "TREND",
+        "SCENE": "SCENE",
+        "STYLE": "STYLE",
+        "META": "META",
+        "MOVEMENT": "MOVEMENT"
+      }
+    },
+    "Permission": {
+      "name": "Permission",
+      "values": {
+        "EDIT_RELEASES": "EDIT_RELEASES",
+        "EDIT_ARTISTS": "EDIT_ARTISTS",
+        "MIGRATE_CONTRIBUTORS": "MIGRATE_CONTRIBUTORS",
+        "EDIT_GENRES": "EDIT_GENRES"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
