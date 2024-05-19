@@ -48,7 +48,7 @@
       </IconButton>
 
       <a
-        href={`/genres/${id}`}
+        href="/genres/{id}"
         class={cn(
           'block truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
           isSelected ? 'text-primary-500' : 'text-gray-400 hover:text-white',

@@ -19,7 +19,7 @@
   {#if matches.length > 0}
     <VirtualList items={matches} let:item={match}>
       <a
-        href={`/genres/${match.genre.id}`}
+        href="/genres/{match.genre.id}"
         class="block text-gray-700 hover:font-bold dark:text-gray-300"
         on:click={() => searchStore.clearFilter()}
       >
