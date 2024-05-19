@@ -5,4 +5,4 @@
   export let data: PageData
 </script>
 
-<GenreForm data={data.form} autoFocus={data.autoFocus} genres={data.streamed.genres} />
+<GenreForm data={data.form} autoFocus={data.autoFocus} genres={data.streamed.genres} id={data.id} />

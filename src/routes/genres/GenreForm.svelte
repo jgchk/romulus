@@ -14,6 +14,7 @@
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
 
+  export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>
   export let autoFocus: GenreFormField = 'name'
   export let genres: Promise<TreeGenre[]>
@@ -198,6 +199,8 @@
 
   <div class="flex gap-1 border-t border-gray-800 p-1">
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton kind="text" href="/genres">Cancel</LinkButton>
+    <LinkButton kind="text" href={id !== undefined ? `/genres/${id}` : '/genres'}>
+      Cancel
+    </LinkButton>
   </div>
 </form>
