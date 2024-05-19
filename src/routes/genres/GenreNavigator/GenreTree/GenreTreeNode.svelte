@@ -37,17 +37,22 @@
       genre.parents.length > 0 && 'ml-4 border-l border-gray-200 transition dark:border-gray-800',
     )}
   >
-    <div class="flex pl-1">
+    <div class="flex">
       <IconButton
         size="sm"
         tooltip={isExpanded ? 'Collapse' : 'Expand'}
-        class={cn('text-gray-500', genre.children.length === 0 && 'invisible')}
+        class={cn('ml-1 flex-shrink-0 text-gray-500', genre.children.length === 0 && 'invisible')}
         on:click={() => treeState.setExpanded(path, !isExpanded)}
       >
         <ChevronRightIcon class={cn('transition', isExpanded && 'rotate-90')} />
       </IconButton>
+
       <a
         href={`/genres/${id}`}
+        class={cn(
+          'block truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
+          isSelected ? 'text-primary-500' : 'text-gray-400 hover:text-white',
+        )}
         on:click={() => {
           treeState.setSelectedId(id)
           treeState.setSelectedPath(path)
@@ -75,6 +80,7 @@
         {/if}
       </a>
     </div>
+
     {#if isExpanded && genre.children.length > 0}
       <ul transition:slide|local={{ axis: 'y' }}>
         {#each genre.children as childId (childId)}
