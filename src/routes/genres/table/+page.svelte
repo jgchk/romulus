@@ -1,10 +1,14 @@
 <script lang="ts">
   import Loader from '$lib/atoms/Loader.svelte'
 
+  import { treeState } from '../GenreNavigator/GenreTree/state'
   import type { PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
   export let data: PageData
+
+  treeState.setSelectedId(undefined)
+  treeState.setSelectedPath(undefined)
 </script>
 
 {#await data.streamed.genres}
