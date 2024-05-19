@@ -143,7 +143,7 @@
   }
 
   const [popoverReference, popoverElement] = createPopoverActions({
-    middleware: [offset(4), autoPlacement()],
+    middleware: [offset(4), autoPlacement({ allowedPlacements: ['bottom-start', 'top-start'] })],
   })
 </script>
 
