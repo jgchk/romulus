@@ -3,6 +3,7 @@
   import type { User } from 'lucia'
 
   import { enhance } from '$app/forms'
+  import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import Card from '$lib/atoms/Card.svelte'
   import { user, userSettings } from '$lib/contexts/user'
@@ -37,7 +38,12 @@
 </button>
 
 {#if open}
-  <div class="relative z-10" transition:slide|local={{ axis: 'y' }} use:popoverElement>
+  <div
+    class="relative z-10"
+    transition:slide|local={{ axis: 'y' }}
+    use:popoverElement
+    use:clickOutside={() => (open = false)}
+  >
     <Card class="overflow-hidden shadow">
       <a
         class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
