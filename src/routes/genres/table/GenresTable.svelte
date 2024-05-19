@@ -86,21 +86,7 @@
         {#each visibleGenres as genre (genre.id)}
           <tr>
             <td class="p-1 px-2">
-              <GenreLink
-                id={genre.id}
-                name={genre.name}
-                subtitle={genre.subtitle}
-                type={genre.type}
-              />
-              <a class="hover:font-bold" href="/genres/{genre.id}">
-                {genre.name}
-                {#if genre.subtitle}
-                  {' '}
-                  <span class="text-sm text-gray-500 transition">
-                    [{genre.subtitle}]
-                  </span>
-                {/if}
-              </a>
+              <GenreLink id={genre.id} name={genre.name} subtitle={genre.subtitle} />
             </td>
             <td class="p-1 px-2"><GenreTypeChip type={genre.type} /></td>
             <td class="p-1 px-2"><RelevanceChip relevance={genre.relevance} /></td>
