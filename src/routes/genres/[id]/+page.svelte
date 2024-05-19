@@ -210,7 +210,7 @@
     {/if}
   </div>
 
-  <div class="flex gap-1 border-t border-gray-200 p-1.5 dark:border-gray-800">
+  <div class="flex gap-1 border-t border-gray-200 p-1 dark:border-gray-800">
     <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
     <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
     <div class="flex-1" />

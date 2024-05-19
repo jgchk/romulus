@@ -196,7 +196,7 @@
     </InputGroup>
   </div>
 
-  <div class="flex gap-1 border-t border-gray-800 p-1.5">
+  <div class="flex gap-1 border-t border-gray-800 p-1">
     <Button type="submit" loading={$delayed}>Save</Button>
     <LinkButton kind="text" href="/genres">Cancel</LinkButton>
   </div>
