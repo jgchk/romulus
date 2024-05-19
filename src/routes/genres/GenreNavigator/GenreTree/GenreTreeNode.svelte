@@ -23,10 +23,14 @@
 
   let ref: HTMLElement | undefined
   $: if (isSelected && ref && treeRef && browser) {
-    const visible = isFullyVisible(ref, treeRef)
-    if (!visible) {
-      ref.scrollIntoView()
-    }
+    const ref_ = ref
+    const treeRef_ = treeRef
+    setTimeout(() => {
+      const visible = isFullyVisible(ref_, treeRef_)
+      if (!visible) {
+        ref_.scrollIntoView()
+      }
+    }, 250)
   }
 </script>
 
