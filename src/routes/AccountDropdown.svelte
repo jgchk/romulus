@@ -24,6 +24,12 @@
   })
 </script>
 
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === 'Escape') open = false
+  }}
+/>
+
 <button
   use:popoverReference
   class="group/account-button h-full w-full"
