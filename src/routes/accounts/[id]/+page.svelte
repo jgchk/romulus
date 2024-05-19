@@ -1,5 +1,7 @@
 <script lang="ts">
   import Card from '$lib/atoms/Card.svelte'
+  import { toPrettyDate } from '$lib/utils/datetime'
+  import { capitalize } from '$lib/utils/string'
 
   import type { PageData } from './$types'
 
@@ -17,7 +19,30 @@
         <div>Genres deleted: {data.numDeleted}</div>
       </div>
 
-      <div class="min-h-0 flex-1 overflow-auto">TODO</div>
+      <div class="min-h-0 flex-1 overflow-auto">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th class="p-1 px-2 text-left">Genre</th>
+              <th class="p-1 px-2 text-left">Change</th>
+              <th class="p-1 px-2 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each data.history as entry (entry.id)}
+              <tr>
+                <td class="p-1 px-2"
+                  ><a href="/genres/{entry.treeGenreId}" class="text-primary-500 hover:underline"
+                    >{entry.name}</a
+                  ></td
+                >
+                <td class="p-1 px-2">{capitalize(entry.operation)}</td>
+                <td class="p-1 px-2">{toPrettyDate(entry.createdAt)}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
   </Card>
 </div>

@@ -25,8 +25,11 @@ export const load: PageServerLoad = async ({ params }) => {
   const history = await db.query.genreHistory.findMany({
     where: (genreHistory, { eq }) => eq(genreHistory.accountId, id),
     columns: {
-      treeGenreId: true,
+      id: true,
+      name: true,
       operation: true,
+      createdAt: true,
+      treeGenreId: true,
     },
   })
 
@@ -40,5 +43,5 @@ export const load: PageServerLoad = async ({ params }) => {
     history.filter((h) => h.operation === 'DELETE').map((h) => h.treeGenreId),
   ).size
 
-  return { account, numCreated, numUpdated, numDeleted }
+  return { account, numCreated, numUpdated, numDeleted, history }
 }
