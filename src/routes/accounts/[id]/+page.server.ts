@@ -27,6 +27,8 @@ export const load: PageServerLoad = async ({ params }) => {
     columns: {
       id: true,
       name: true,
+      type: true,
+      subtitle: true,
       operation: true,
       createdAt: true,
       treeGenreId: true,

@@ -1,5 +1,6 @@
 <script lang="ts">
   import Card from '$lib/atoms/Card.svelte'
+  import GenreLink from '$lib/components/GenreLink.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
 
@@ -31,11 +32,14 @@
           <tbody>
             {#each data.history as entry (entry.id)}
               <tr>
-                <td class="p-1 px-2"
-                  ><a href="/genres/{entry.treeGenreId}" class="text-primary-500 hover:underline"
-                    >{entry.name}</a
-                  ></td
-                >
+                <td class="p-1 px-2">
+                  <GenreLink
+                    id={entry.treeGenreId}
+                    name={entry.name}
+                    type={entry.type}
+                    subtitle={entry.subtitle}
+                  />
+                </td>
                 <td class="p-1 px-2">{capitalize(entry.operation)}</td>
                 <td class="p-1 px-2">{toPrettyDate(entry.createdAt)}</td>
               </tr>

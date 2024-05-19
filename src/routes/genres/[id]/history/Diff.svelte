@@ -29,6 +29,7 @@
 
   import Label from '$lib/atoms/Label.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
+  import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { slide } from '$lib/transitions/slide'
@@ -158,23 +159,14 @@
                     {@const genre = genres.find((g) => g.id === id)}
                     <li class="block">
                       {#if genre}
-                        <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                          {genre.name}
-                          {#if genre.type !== 'STYLE'}
-                            {' '}
-                            <GenreTypeChip
-                              type={genre.type}
-                              class="bg-primary-100 text-primary-400"
-                            />
-                          {/if}
-                        </a>
+                        <GenreLink
+                          {id}
+                          name={genre.name}
+                          type={genre.type}
+                          subtitle={genre.subtitle}
+                        />
                       {:else}
-                        <a
-                          href="/genres/{id}"
-                          class="font-bold text-gray-500 line-through hover:underline"
-                        >
-                          Deleted
-                        </a>
+                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
                       {/if}
                     </li>
                   {/each}
@@ -191,23 +183,14 @@
                     {@const genre = genres.find((g) => g.id === id)}
                     <li class="block">
                       {#if genre}
-                        <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                          {genre.name}
-                          {#if genre.type !== 'STYLE'}
-                            {' '}
-                            <GenreTypeChip
-                              type={genre.type}
-                              class="bg-primary-100 text-primary-400"
-                            />
-                          {/if}
-                        </a>
+                        <GenreLink
+                          {id}
+                          name={genre.name}
+                          type={genre.type}
+                          subtitle={genre.subtitle}
+                        />
                       {:else}
-                        <a
-                          href="/genres/{id}"
-                          class="font-bold text-gray-500 line-through hover:underline"
-                        >
-                          Deleted
-                        </a>
+                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
                       {/if}
                     </li>
                   {/each}
@@ -310,23 +293,14 @@
                     {@const genre = genres.find((g) => g.id === id)}
                     <li class="block">
                       {#if genre}
-                        <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                          {genre.name}
-                          {#if genre.type !== 'STYLE'}
-                            {' '}
-                            <GenreTypeChip
-                              type={genre.type}
-                              class="bg-primary-100 text-primary-400"
-                            />
-                          {/if}
-                        </a>
+                        <GenreLink
+                          {id}
+                          name={genre.name}
+                          type={genre.type}
+                          subtitle={genre.subtitle}
+                        />
                       {:else}
-                        <a
-                          href="/genres/{id}"
-                          class="font-bold text-gray-500 line-through hover:underline"
-                        >
-                          Deleted
-                        </a>
+                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
                       {/if}
                     </li>
                   {/each}
@@ -343,23 +317,14 @@
                     {@const genre = genres.find((g) => g.id === id)}
                     <li class="block">
                       {#if genre}
-                        <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                          {genre.name}
-                          {#if genre.type !== 'STYLE'}
-                            {' '}
-                            <GenreTypeChip
-                              type={genre.type}
-                              class="bg-primary-100 text-primary-400"
-                            />
-                          {/if}
-                        </a>
+                        <GenreLink
+                          {id}
+                          name={genre.name}
+                          type={genre.type}
+                          subtitle={genre.subtitle}
+                        />
                       {:else}
-                        <a
-                          href="/genres/{id}"
-                          class="font-bold text-gray-500 line-through hover:underline"
-                        >
-                          Deleted
-                        </a>
+                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
                       {/if}
                     </li>
                   {/each}

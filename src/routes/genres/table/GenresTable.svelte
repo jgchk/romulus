@@ -4,6 +4,7 @@
   import { tooltip } from '$lib/actions/tooltip'
   import Input from '$lib/atoms/Input.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
+  import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import ChevronLeftFilledIcon from '$lib/icons/ChevronLeftFilledIcon.svelte'
   import ChevronRightFilledIcon from '$lib/icons/ChevronRightFilledIcon.svelte'
@@ -85,6 +86,12 @@
         {#each visibleGenres as genre (genre.id)}
           <tr>
             <td class="p-1 px-2">
+              <GenreLink
+                id={genre.id}
+                name={genre.name}
+                subtitle={genre.subtitle}
+                type={genre.type}
+              />
               <a class="hover:font-bold" href="/genres/{genre.id}">
                 {genre.name}
                 {#if genre.subtitle}

@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         columns: {},
         with: {
           parent: {
-            columns: { id: true, name: true, type: true },
+            columns: { id: true, name: true, type: true, subtitle: true },
           },
         },
       },
@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         columns: {},
         with: {
           influencer: {
-            columns: { id: true, name: true, type: true },
+            columns: { id: true, name: true, type: true, subtitle: true },
           },
         },
       },

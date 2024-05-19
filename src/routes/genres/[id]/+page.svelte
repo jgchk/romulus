@@ -4,7 +4,7 @@
   import Dialog from '$lib/atoms/Dialog.svelte'
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
-  import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
+  import GenreLink from '$lib/components/GenreLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { user } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
@@ -88,15 +88,14 @@
         <Label for="parents">Parents</Label>
         <div>
           <ul id="parents" class="comma-list">
-            {#each data.genre.parents as { id, name, type } (id)}
+            {#each data.genre.parents as genre (genre.id)}
               <li class="block">
-                <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                  {name}
-                  {#if type !== 'STYLE'}
-                    {' '}
-                    <GenreTypeChip {type} class="bg-primary-100 text-primary-400" />
-                  {/if}
-                </a>
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                />
               </li>
             {/each}
           </ul>
@@ -109,15 +108,14 @@
         <Label for="influences">Influences</Label>
         <div>
           <ul id="influences" class="comma-list">
-            {#each data.genre.influencedBy as { id, name, type } (id)}
+            {#each data.genre.influencedBy as genre (genre.id)}
               <li class="block">
-                <a href="/genres/{id}" class="font-bold text-primary-500 hover:underline">
-                  {name}
-                  {#if type !== 'STYLE'}
-                    {' '}
-                    <GenreTypeChip {type} class="bg-primary-100 text-primary-400" />
-                  {/if}
-                </a>
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                />
               </li>
             {/each}
           </ul>
