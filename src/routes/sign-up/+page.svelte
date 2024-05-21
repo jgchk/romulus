@@ -38,7 +38,18 @@
     />
   </InputGroup>
 
-  <Button type="submit" loading={$delayed}>Sign in</Button>
+  <InputGroup errors={$errors.confirmPassword}>
+    <Label for="confirm-password">Confirm password</Label>
+    <Input
+      type="password"
+      id="confirm-password"
+      name="confirmPassword"
+      bind:value={$form.confirmPassword}
+      {...$constraints.confirmPassword}
+    />
+  </InputGroup>
+
+  <Button type="submit" loading={$delayed}>Sign up</Button>
 
   <ErrorText errors={$errors._errors} />
 </form>

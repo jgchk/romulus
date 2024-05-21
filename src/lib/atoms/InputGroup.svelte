@@ -25,7 +25,5 @@
   )}
 >
   <slot />
-  {#if errors && errors.length > 0}
-    <ErrorText>{errors.join(', ')}</ErrorText>
-  {/if}
+  <ErrorText {errors} />
 </div>

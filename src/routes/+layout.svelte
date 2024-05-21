@@ -40,20 +40,20 @@
     </Card>
 
     <Card
-      class="flex p-1 text-sm font-bold tracking-wide text-gray-600 transition dark:text-gray-300"
+      class="flex gap-1 p-1 text-sm font-bold tracking-wide text-gray-600 transition dark:text-gray-300"
     >
       {#if data.user}
         <AccountDropdown account={data.user} />
       {:else}
         <a
-          href="/register"
-          class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
-          >Register</a
+          href="/sign-in"
+          class="h-full rounded border border-transparent bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
+          >Sign in</a
         >
         <a
-          href="/sign-in"
-          class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
-          >Sign in</a
+          href="/sign-up"
+          class="h-full rounded border border-gray-700 border-opacity-25 bg-gray-800 px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-700"
+          >Sign up</a
         >
       {/if}
     </Card>
