@@ -1,6 +1,6 @@
 import { type Actions, redirect } from '@sveltejs/kit'
 import { eq } from 'drizzle-orm'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
@@ -43,18 +43,12 @@ export const actions: Actions = {
       // spend some time to "waste" some time
       // this makes brute forcing harder
       await hashPassword(form.data.password)
-      return fail(401, {
-        form,
-        message: 'Incorrect username or password',
-      })
+      return setError(form, 'Incorrect username or password')
     }
 
     const validPassword = await checkPassword(form.data.password, account.password)
     if (!validPassword) {
-      return fail(401, {
-        form,
-        message: 'Incorrect username or password',
-      })
+      return setError(form, 'Incorrect username or password')
     }
 
     const session = await lucia.createSession(account.id, {})
@@ -64,6 +58,6 @@ export const actions: Actions = {
       ...sessionCookie.attributes,
     })
 
-    redirect(302, '/')
+    redirect(302, '/genres')
   },
 }

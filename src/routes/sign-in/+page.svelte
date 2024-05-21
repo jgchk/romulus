@@ -2,6 +2,7 @@
   import { superForm } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
+  import ErrorText from '$lib/atoms/ErrorText.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
@@ -38,4 +39,8 @@
   </InputGroup>
 
   <Button type="submit" loading={$delayed}>Sign in</Button>
+
+  {#if $errors._errors}
+    <ErrorText>{$errors._errors}</ErrorText>
+  {/if}
 </form>

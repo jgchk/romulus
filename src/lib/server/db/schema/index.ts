@@ -88,7 +88,10 @@ export const sessions = pgTable('Session', {
   id: text('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
-    .references(() => accounts.id),
+    .references(() => accounts.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
   expiresAt: timestamp('expires_at', {
     withTimezone: true,
     mode: 'date',

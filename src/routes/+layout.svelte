@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../app.css'
 
+  import { onMount } from 'svelte'
+
   import Card from '$lib/atoms/Card.svelte'
   import Toaster from '$lib/atoms/Toast/Toaster.svelte'
   import { user } from '$lib/contexts/user'
@@ -11,6 +13,13 @@
   export let data: LayoutData
 
   $: $user = data.user
+
+  // Used to indicate when hydration is complete for Playwright tests
+  // See: https://github.com/microsoft/playwright/issues/19858#issuecomment-1377088645
+  // and: https://spin.atomicobject.com/hydration-sveltekit-tests/
+  onMount(() => {
+    document.body.classList.add('started')
+  })
 </script>
 
 <div class="flex h-full w-full flex-col gap-1 bg-gray-800 p-2 text-white">

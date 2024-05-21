@@ -9,6 +9,14 @@ services:
     ports:
       - 5432:5432
 
+  postgres-test:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5433:5432
+
   adminer:
     image: adminer
     restart: always
