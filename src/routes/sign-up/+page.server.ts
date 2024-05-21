@@ -1,5 +1,6 @@
 import { type Actions, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import Postgres from 'postgres'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
@@ -37,13 +38,25 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const [account] = await db
-      .insert(accounts)
-      .values({
-        username: form.data.username,
-        password: await hashPassword(form.data.password),
-      })
-      .returning()
+    let account
+    try {
+      ;[account] = await db
+        .insert(accounts)
+        .values({
+          username: form.data.username,
+          password: await hashPassword(form.data.password),
+        })
+        .returning()
+    } catch (error) {
+      if (
+        error instanceof Postgres.PostgresError &&
+        error.code === '23505' &&
+        error.constraint_name === 'Account_username_unique'
+      ) {
+        return setError(form, 'username', 'Username is already taken')
+      }
+      throw error
+    }
 
     const session = await lucia.createSession(account.id, {})
     const sessionCookie = lucia.createSessionCookie(session.id)

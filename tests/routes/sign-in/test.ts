@@ -57,6 +57,15 @@ test('should tab between username, password, and submit fields', async ({ page, 
   await expect(signInPage.submitButton).toBeFocused()
 })
 
+test('password input should be masked', async ({ signInPage }) => {
+  await expect(signInPage.passwordInput).toHaveAttribute('type', 'password')
+})
+
+test('username and password inputs should be required', async ({ signInPage }) => {
+  await expect(signInPage.usernameInput).toHaveAttribute('required')
+  await expect(signInPage.passwordInput).toHaveAttribute('required')
+})
+
 test('attempting to log in with a nonexistent username shows error message', async ({
   signInPage,
 }) => {
@@ -83,14 +92,4 @@ test('attempting to log in with valid credentials redirects to the genres page',
   await signInPage.passwordInput.fill(TEST_ACCOUNT.password)
   await signInPage.submitButton.click()
   await expect(page).toHaveURL('/genres')
-})
-
-test('password input should be masked', async ({ signInPage }) => {
-  const inputType = await signInPage.passwordInput.getAttribute('type')
-  expect(inputType).toBe('password')
-})
-
-test('username and password inputs should be required', async ({ signInPage }) => {
-  await expect(signInPage.usernameInput).toHaveAttribute('required')
-  await expect(signInPage.passwordInput).toHaveAttribute('required')
 })
