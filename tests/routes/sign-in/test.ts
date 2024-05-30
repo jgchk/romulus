@@ -1,37 +1,11 @@
-import { expect, type Locator, type Page } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { eq } from 'drizzle-orm'
 
 import { hashPassword } from '$lib/server/auth'
 import { db } from '$lib/server/db'
 import { accounts } from '$lib/server/db/schema'
 
-import { test as base } from '../../fixtures'
-
-class SignInPage {
-  readonly usernameInput: Locator
-  readonly passwordInput: Locator
-  readonly submitButton: Locator
-  readonly formError: Locator
-
-  constructor(readonly page: Page) {
-    this.usernameInput = this.page.getByLabel('Username')
-    this.passwordInput = this.page.getByLabel('Password')
-    this.submitButton = this.page.getByRole('button', { name: 'Sign in' })
-    this.formError = this.page.getByRole('alert')
-  }
-
-  async goto() {
-    await this.page.goto('/sign-in')
-  }
-}
-
-const test = base.extend<{ signInPage: SignInPage }>({
-  signInPage: async ({ page }, use) => {
-    const signInPage = new SignInPage(page)
-    await signInPage.goto()
-    await use(signInPage)
-  },
-})
+import { test } from '../../fixtures'
 
 const TEST_ACCOUNT = {
   username: 'test-username',
@@ -47,6 +21,10 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   await db.delete(accounts).where(eq(accounts.username, TEST_ACCOUNT.username))
+})
+
+test.beforeEach(async ({ signInPage }) => {
+  await signInPage.goto()
 })
 
 test('should tab between username, password, and submit fields', async ({ page, signInPage }) => {
