@@ -3,7 +3,6 @@ import { createAccounts, deleteAccounts } from 'utils'
 
 import { test } from '../../fixtures'
 import { CreateGenrePage } from '../../fixtures/pages/genre-create'
-import { GenresPage } from '../../fixtures/pages/genres'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genres',
@@ -32,10 +31,7 @@ test.describe('when user is logged in', () => {
 
     test.beforeEach(async ({ signInPage }) => {
       await signInPage.goto()
-      await signInPage.usernameInput.fill(TEST_ACCOUNT.username)
-      await signInPage.passwordInput.fill(TEST_ACCOUNT.password)
-      await signInPage.submitButton.click()
-      await signInPage.page.waitForURL(GenresPage.url)
+      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
     })
 
     test.describe('when there are no existing genres', () => {
@@ -56,10 +52,7 @@ test.describe('when user is logged in', () => {
 
     test.beforeEach(async ({ signInPage }) => {
       await signInPage.goto()
-      await signInPage.usernameInput.fill(TEST_ACCOUNT.username)
-      await signInPage.passwordInput.fill(TEST_ACCOUNT.password)
-      await signInPage.submitButton.click()
-      await signInPage.page.waitForURL(GenresPage.url)
+      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
     })
 
     test.describe('when there are no existing genres', () => {

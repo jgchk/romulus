@@ -18,4 +18,10 @@ export class SignInPage {
   async goto() {
     await this.page.goto(SignInPage.url)
   }
+
+  async signIn(username: string, password: string) {
+    await this.usernameInput.fill(username)
+    await this.passwordInput.fill(password)
+    await this.submitButton.click()
+  }
 }
