@@ -8,13 +8,13 @@ import { accounts } from '$lib/server/db/schema'
 import { test } from '../../fixtures'
 
 const EXISTING_ACCOUNT = {
-  username: 'existing-username',
-  password: 'existing-password',
+  username: 'existing-username-sign-up',
+  password: 'existing-password-sign-up',
 }
 
 const NEW_ACCOUNT = {
-  username: 'test-username',
-  password: 'test-password',
+  username: 'test-username-sign-up',
+  password: 'test-password-sign-up',
 }
 
 test.beforeAll(async () => {

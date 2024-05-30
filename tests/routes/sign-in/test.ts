@@ -8,8 +8,8 @@ import { accounts } from '$lib/server/db/schema'
 import { test } from '../../fixtures'
 
 const TEST_ACCOUNT = {
-  username: 'test-username',
-  password: 'test-password',
+  username: 'test-username-sign-in',
+  password: 'test-password-sign-in',
 }
 
 test.beforeAll(async () => {
