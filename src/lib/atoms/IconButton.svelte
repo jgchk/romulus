@@ -28,6 +28,7 @@
     class_,
   )}
   use:tooltipAction={{ content: tooltip }}
+  aria-label={tooltip}
 >
   <div
     class={cn(
