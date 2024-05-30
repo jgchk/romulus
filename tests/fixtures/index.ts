@@ -1,5 +1,11 @@
 import { test as base } from '@playwright/test'
+import { inArray } from 'drizzle-orm'
 
+import { hashPassword } from '$lib/server/auth'
+import { db } from '$lib/server/db'
+import { accounts } from '$lib/server/db/schema'
+
+import { CreateGenrePage } from './pages/genre-create'
 import { GenresPage } from './pages/genres'
 import { SignInPage } from './pages/sign-in'
 import { SignUpPage } from './pages/sign-up'
@@ -30,7 +36,45 @@ export const test = base
       await use(page)
     },
   })
-  .extend<{ genresPage: GenresPage; signInPage: SignInPage; signUpPage: SignUpPage }>({
+  .extend<{ accounts: { username: string; password: string }[]; insertAccounts: void }>({
+    accounts: [[], { option: true }],
+
+    insertAccounts: [
+      async ({ accounts: accountsList }, use) => {
+        if (accountsList.length === 0) {
+          await use()
+          return
+        }
+
+        const hashedAccounts = await Promise.all(
+          accountsList.map(async (account) => ({
+            username: account.username,
+            password: await hashPassword(account.password),
+          })),
+        )
+
+        const accountIds = await db
+          .insert(accounts)
+          .values(hashedAccounts)
+          .returning({ id: accounts.id })
+          .then((res) => res.map((account) => account.id))
+
+        await use()
+
+        await db.delete(accounts).where(inArray(accounts.id, accountIds))
+      },
+      { auto: true },
+    ],
+  })
+  .extend<{
+    createGenrePage: CreateGenrePage
+    genresPage: GenresPage
+    signInPage: SignInPage
+    signUpPage: SignUpPage
+  }>({
+    createGenrePage: async ({ page }, use) => {
+      await use(new CreateGenrePage(page))
+    },
     genresPage: async ({ page }, use) => {
       await use(new GenresPage(page))
     },

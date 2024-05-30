@@ -32,7 +32,7 @@
   let ref: HTMLElement | undefined
 </script>
 
-<div class="flex h-full w-full flex-col">
+<nav aria-label="Genre Tree" class="flex h-full w-full flex-col">
   {#if topLevelGenres.length > 0}
     <div bind:this={ref} class="flex-1 overflow-auto p-2 pl-1">
       <ul>
@@ -46,7 +46,7 @@
       <div>No genres found.</div>
       {#if $user && $user.permissions?.includes('EDIT_GENRES')}
         <div>
-          <a href="/genres?view=create" class="text-primary-500 hover:underline">Create one.</a>
+          <a href="/genres/create" class="text-primary-500 hover:underline">Create one.</a>
         </div>
       {/if}
     </div>
@@ -59,4 +59,4 @@
       </Button>
     </div>
   {/if}
-</div>
+</nav>

@@ -45,7 +45,7 @@
       <div>No genres found.</div>
       {#if $user && $user.permissions?.includes('EDIT_GENRES')}
         <div>
-          <a href="/genres?view=create" class="text-primary-500 hover:underline">Create one.</a>
+          <a href="/genres/create" class="text-primary-500 hover:underline">Create one.</a>
         </div>
       {/if}
     </div>

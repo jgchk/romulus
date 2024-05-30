@@ -1,11 +1,12 @@
 import { expect } from '@playwright/test'
-import { eq } from 'drizzle-orm'
+import { inArray } from 'drizzle-orm'
 
 import { hashPassword } from '$lib/server/auth'
 import { db } from '$lib/server/db'
 import { accounts } from '$lib/server/db/schema'
 
 import { test } from '../../fixtures'
+import { GenresPage } from '../../fixtures/pages/genres'
 
 const EXISTING_ACCOUNT = {
   username: 'existing-username-sign-up',
@@ -25,7 +26,9 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  await db.delete(accounts).where(eq(accounts.username, EXISTING_ACCOUNT.username))
+  await db
+    .delete(accounts)
+    .where(inArray(accounts.username, [EXISTING_ACCOUNT.username, NEW_ACCOUNT.username]))
 })
 
 test.beforeEach(async ({ signUpPage }) => {
@@ -33,15 +36,14 @@ test.beforeEach(async ({ signUpPage }) => {
 })
 
 test('should tab between username, password, confirm password, and submit fields', async ({
-  page,
   signUpPage,
 }) => {
   await expect(signUpPage.usernameInput).toBeFocused()
-  await page.keyboard.press('Tab')
+  await signUpPage.page.keyboard.press('Tab')
   await expect(signUpPage.passwordInput).toBeFocused()
-  await page.keyboard.press('Tab')
+  await signUpPage.page.keyboard.press('Tab')
   await expect(signUpPage.confirmPasswordInput).toBeFocused()
-  await page.keyboard.press('Tab')
+  await signUpPage.page.keyboard.press('Tab')
   await expect(signUpPage.submitButton).toBeFocused()
 })
 
@@ -82,10 +84,10 @@ test('should require between 8 and 72 characters for password', async ({ signUpP
   await expect(signUpPage.passwordInput).toHaveAttribute('maxlength', '72')
 })
 
-test('should redirect to genres page after successful sign up', async ({ page, signUpPage }) => {
+test('should redirect to genres page after successful sign up', async ({ signUpPage }) => {
   await signUpPage.usernameInput.fill(NEW_ACCOUNT.username)
   await signUpPage.passwordInput.fill(NEW_ACCOUNT.password)
   await signUpPage.confirmPasswordInput.fill(NEW_ACCOUNT.password)
   await signUpPage.submitButton.click()
-  await expect(page).toHaveURL('/genres')
+  await expect(signUpPage.page).toHaveURL(GenresPage.url)
 })

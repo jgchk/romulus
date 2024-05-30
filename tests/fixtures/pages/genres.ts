@@ -1,19 +1,29 @@
 import { Locator, Page } from '@playwright/test'
 
 export class GenresPage {
-  readonly usernameInput: Locator
-  readonly passwordInput: Locator
-  readonly submitButton: Locator
-  readonly formError: Locator
+  static readonly url = '/genres'
+
+  readonly navigator: {
+    tree: {
+      emptyState: Locator
+      createGenreLink: Locator
+    }
+  }
 
   constructor(readonly page: Page) {
-    this.usernameInput = this.page.getByLabel('Username')
-    this.passwordInput = this.page.getByLabel('Password')
-    this.submitButton = this.page.getByRole('button', { name: 'Sign in' })
-    this.formError = this.page.getByRole('alert')
+    this.navigator = {
+      tree: {
+        emptyState: this.page
+          .getByLabel('Genre Tree')
+          .locator(this.page.getByText('No genres found')),
+        createGenreLink: this.page
+          .getByLabel('Genre Tree')
+          .locator(this.page.getByRole('link', { name: 'Create one.' })),
+      },
+    }
   }
 
   async goto() {
-    await this.page.goto('/genres')
+    await this.page.goto(GenresPage.url)
   }
 }

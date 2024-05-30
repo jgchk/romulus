@@ -1,6 +1,8 @@
 import { Locator, Page } from '@playwright/test'
 
 export class SignUpPage {
+  static readonly url = '/sign-up'
+
   readonly usernameInput: Locator
   readonly passwordInput: Locator
   readonly confirmPasswordInput: Locator
@@ -16,6 +18,6 @@ export class SignUpPage {
   }
 
   async goto() {
-    await this.page.goto('/sign-up')
+    await this.page.goto(SignUpPage.url)
   }
 }
