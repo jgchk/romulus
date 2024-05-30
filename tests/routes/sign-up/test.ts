@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test'
-import { createAccounts, deleteAccounts } from 'utils'
 
 import { test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
+import { createAccounts, deleteAccounts } from '../../utils'
 
 const EXISTING_ACCOUNT = {
   username: 'existing-username-sign-up',
