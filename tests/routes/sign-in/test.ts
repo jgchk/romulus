@@ -1,9 +1,5 @@
 import { expect } from '@playwright/test'
-import { eq } from 'drizzle-orm'
-
-import { hashPassword } from '$lib/server/auth'
-import { db } from '$lib/server/db'
-import { accounts } from '$lib/server/db/schema'
+import { createAccounts, deleteAccounts } from 'utils'
 
 import { test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
@@ -14,14 +10,11 @@ const TEST_ACCOUNT = {
 }
 
 test.beforeAll(async () => {
-  await db.insert(accounts).values({
-    username: TEST_ACCOUNT.username,
-    password: await hashPassword(TEST_ACCOUNT.password),
-  })
+  await createAccounts([TEST_ACCOUNT])
 })
 
 test.afterAll(async () => {
-  await db.delete(accounts).where(eq(accounts.username, TEST_ACCOUNT.username))
+  await deleteAccounts([TEST_ACCOUNT.username])
 })
 
 test.beforeEach(async ({ signInPage }) => {
