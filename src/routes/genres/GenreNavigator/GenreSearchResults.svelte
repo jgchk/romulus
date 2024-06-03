@@ -15,7 +15,7 @@
   $: matches = searchGenres(genres, $searchStore.debouncedFilter)
 </script>
 
-<div class="h-full overflow-auto p-4">
+<div aria-label="Genre Search Results" class="h-full overflow-auto p-4">
   {#if matches.length > 0}
     <VirtualList items={matches} let:item={match}>
       <a

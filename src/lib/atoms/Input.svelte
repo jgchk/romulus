@@ -18,9 +18,11 @@
   export let minlength: number | undefined = undefined
   export let maxlength: number | undefined = undefined
   export let autocomplete: string | undefined = 'off'
+  export let layer: 700 | 800 = 800
+  export let ariaLabel: string | undefined = undefined
+
   let class_: string | undefined = undefined
   export { class_ as class }
-  export let layer: 700 | 800 = 800
 
   let propErrors: string[] | undefined = undefined
   export { propErrors as errors }
@@ -67,6 +69,7 @@
   {maxlength}
   {autocomplete}
   data-invalid={errors}
+  aria-label={ariaLabel}
   class={tw(
     'rounded px-2 py-1 text-white transition-all',
     layer === 700 && 'bg-gray-600',

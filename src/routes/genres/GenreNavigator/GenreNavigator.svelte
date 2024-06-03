@@ -21,13 +21,16 @@
 </script>
 
 <Card class="flex h-full w-full flex-col">
-  <div class="flex space-x-1 border-b border-gray-200 p-4 transition dark:border-gray-800">
+  <div
+    class="flex items-center space-x-1 border-b border-gray-200 p-4 transition dark:border-gray-800"
+  >
     <div class="relative flex-1">
       <Input
+        ariaLabel="Search Genres"
         class="w-full"
         value={$searchStore.filter}
         on:input={(e) => searchStore.setFilter(e.currentTarget.value)}
-        placeholder="Filter..."
+        placeholder="Search genres..."
         on:keydown={(e) => {
           if (e.key === 'Enter') {
             searchStore.setFilterImmediately(e.currentTarget.value)
@@ -35,11 +38,11 @@
         }}
       />
     </div>
-    <div class="flex h-full items-center">
-      <IconButton tooltip="Settings" on:click={() => (showSettings = !showSettings)}>
+    {#if $user}
+      <IconButton tooltip="Genre Settings" on:click={() => (showSettings = !showSettings)}>
         <SettingsIcon />
       </IconButton>
-    </div>
+    {/if}
   </div>
 
   {#if showSettings}
