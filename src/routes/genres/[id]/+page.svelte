@@ -214,7 +214,9 @@
     <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
     <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
     <div class="flex-1" />
-    <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
+    {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+      <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
+    {/if}
   </div>
 </div>
 
