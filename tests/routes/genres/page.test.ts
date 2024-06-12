@@ -141,27 +141,44 @@ test.describe('Genre Tree', () => {
         ).not.toBeVisible()
       })
 
-      test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
-        await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).link.click()
-        await genrePage.delete()
-        await expect(genresPage.navigator.tree.genres).toHaveCount(0)
+      test.describe('when logged in', () => {
+        test.beforeAll(async () => {
+          await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+        })
+
+        test.afterAll(async () => {
+          await deleteAccounts([TEST_ACCOUNT.username])
+        })
+
+        test.beforeEach(async ({ signInPage }) => {
+          await signInPage.goto()
+          await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+          await signInPage.page.waitForURL(GenresPage.url)
+        })
+
+        test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
+          await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).link.click()
+          await genrePage.delete()
+          await expect(genresPage.navigator.tree.genres).toHaveCount(0)
+          await expect(genresPage.navigator.tree.emptyState).toBeVisible()
+        })
       })
     })
   })
 
   test.describe('when there are 2 parent-child genres', () => {
-    let parentGenre: CreatedGenre
-    let childGenre: CreatedGenre
-
-    test.beforeAll(async () => {
-      ;[parentGenre, childGenre] = await createGenres(parentChildGenre)
-    })
-
-    test.afterAll(async () => {
-      await deleteGenres()
-    })
-
     test.describe('the parent genre link', () => {
+      let parentGenre: CreatedGenre
+      let childGenre: CreatedGenre
+
+      test.beforeAll(async () => {
+        ;[parentGenre, childGenre] = await createGenres(parentChildGenre)
+      })
+
+      test.afterAll(async () => {
+        await deleteGenres()
+      })
+
       test('should render', async ({ genresPage }) => {
         await expect(genresPage.navigator.tree.genres).toHaveCount(1)
       })
@@ -179,15 +196,45 @@ test.describe('Genre Tree', () => {
         await expect(genresPage.navigator.tree.genres).toHaveCount(1)
       })
 
-      test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
-        await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).link.click()
-        await genrePage.delete()
-        await expect(genresPage.navigator.tree.genres).toHaveCount(1)
-        await expect(genresPage.navigator.tree.genres).toHaveText(parentChildGenre[0].name)
+      test.describe('when logged in', () => {
+        test.beforeAll(async () => {
+          await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+        })
+
+        test.afterAll(async () => {
+          await deleteAccounts([TEST_ACCOUNT.username])
+        })
+
+        test.beforeEach(async ({ signInPage }) => {
+          await signInPage.goto()
+          await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+          await signInPage.page.waitForURL(GenresPage.url)
+        })
+
+        test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
+          await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).link.click()
+          await genrePage.delete()
+          await expect(genresPage.navigator.tree.genres).toHaveCount(1)
+          await expect(genresPage.navigator.tree.genres).toContainText(parentChildGenre[1].name)
+          await expect(
+            new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton,
+          ).not.toBeVisible()
+        })
       })
     })
 
     test.describe('the child genre link', () => {
+      let parentGenre: CreatedGenre
+      let childGenre: CreatedGenre
+
+      test.beforeAll(async () => {
+        ;[parentGenre, childGenre] = await createGenres(parentChildGenre)
+      })
+
+      test.afterAll(async () => {
+        await deleteGenres()
+      })
+
       test.beforeEach(async ({ genresPage }) => {
         await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
       })
@@ -206,6 +253,33 @@ test.describe('Genre Tree', () => {
         await expect(
           new GenreTreeGenre(genresPage.navigator.tree.genres.nth(1)).expandButton,
         ).not.toBeVisible()
+      })
+
+      test.describe('when logged in', () => {
+        test.beforeAll(async () => {
+          await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+        })
+
+        test.afterAll(async () => {
+          await deleteAccounts([TEST_ACCOUNT.username])
+        })
+
+        test.beforeEach(async ({ signInPage, genresPage }) => {
+          await signInPage.goto()
+          await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+          await signInPage.page.waitForURL(GenresPage.url)
+          await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
+        })
+
+        test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
+          await new GenreTreeGenre(genresPage.navigator.tree.genres.nth(1)).link.click()
+          await genrePage.delete()
+          await expect(genresPage.navigator.tree.genres).toHaveCount(1)
+          await expect(genresPage.navigator.tree.genres).toContainText(parentChildGenre[0].name)
+          await expect(
+            new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton,
+          ).not.toBeVisible()
+        })
       })
     })
   })
