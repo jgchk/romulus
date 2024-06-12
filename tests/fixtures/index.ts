@@ -4,6 +4,7 @@ import { CreateGenrePage } from './pages/genre-create'
 import { GenresPage } from './pages/genres'
 import { SignInPage } from './pages/sign-in'
 import { SignUpPage } from './pages/sign-up'
+import { GenreDetailsPage } from './pages/genre-details'
 
 export const test = base
   .extend({
@@ -34,6 +35,7 @@ export const test = base
   .extend<{
     createGenrePage: CreateGenrePage
     genresPage: GenresPage
+    genrePage: GenreDetailsPage
     signInPage: SignInPage
     signUpPage: SignUpPage
   }>({
@@ -42,6 +44,9 @@ export const test = base
     },
     genresPage: async ({ page }, use) => {
       await use(new GenresPage(page))
+    },
+    genrePage: async ({ page }, use) => {
+      await use(new GenreDetailsPage(page))
     },
     signInPage: async ({ page }, use) => {
       await use(new SignInPage(page))

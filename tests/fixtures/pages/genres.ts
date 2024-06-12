@@ -8,7 +8,7 @@ export class GenresPage {
     tree: {
       emptyState: Locator
       createGenreLink: Locator
-      genreLinks: Locator
+      genres: Locator
     }
     search: {
       input: Locator
@@ -27,7 +27,7 @@ export class GenresPage {
         createGenreLink: this.page
           .getByLabel('Genre Tree')
           .locator(this.page.getByRole('link', { name: 'Create one.' })),
-        genreLinks: this.page.getByLabel('Genre Tree').locator('.genre-tree-link'),
+        genres: this.page.getByLabel('Genre Tree').locator('.genre-tree-node'),
       },
       search: {
         input: this.page.getByLabel('Search Genres'),
@@ -43,5 +43,17 @@ export class GenresPage {
 
   async goto() {
     await this.page.goto(GenresPage.url)
+  }
+}
+
+export class GenreTreeGenre {
+  link: Locator
+  expandButton: Locator
+  collapseButton: Locator
+
+  constructor (readonly element: Locator) {
+    this.link = element.getByRole('link')
+    this.expandButton = element.getByRole('button', { name: 'Expand' })
+    this.collapseButton = element.getByRole('button', { name: 'Collapse' })
   }
 }

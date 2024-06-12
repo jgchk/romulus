@@ -38,6 +38,7 @@
   <li
     bind:this={ref}
     class={cn(
+      'genre-tree-node',
       genre.parents.length > 0 && 'ml-4 border-l border-gray-200 transition dark:border-gray-800',
     )}
   >
@@ -54,7 +55,7 @@
       <a
         href="/genres/{id}"
         class={cn(
-          'genre-tree-link group block flex-1 truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
+          'group block flex-1 truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
           isSelected ? 'text-primary-500' : 'text-gray-400 hover:text-white',
         )}
         on:click={() => {
