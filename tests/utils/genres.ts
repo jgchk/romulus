@@ -6,18 +6,22 @@ export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'>
   parents?: string[]
 }
 
-export const singleGenre: InsertTestGenre = {
+export const singleGenreWithSubtitle: InsertTestGenre = {
   name: 'Genre',
   subtitle: 'Subtitle',
 }
 
+export const singleGenreWithoutSubtitle: InsertTestGenre = {
+  name: 'Genre',
+}
+
 export const parentChildGenre: InsertTestGenre[] = [
-  { name: 'Parent', subtitle: 'Subtitle' },
-  { name: 'Child', subtitle: 'Subtitle', parents: ['Parent'] },
+  { name: 'Parent' },
+  { name: 'Child', parents: ['Parent'] },
 ]
 
 export const parentChildGrandchildGenre: InsertTestGenre[] = [
-  { name: 'Parent', subtitle: 'Subtitle' },
-  { name: 'Child', subtitle: 'Subtitle', parents: ['Parent'] },
-  { name: 'Grandchild', subtitle: 'Subtitle', parents: ['Child'] },
+  { name: 'Parent' },
+  { name: 'Child', parents: ['Parent'] },
+  { name: 'Grandchild', parents: ['Child'] },
 ]
