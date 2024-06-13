@@ -15,3 +15,9 @@ export const parentChildGenre: InsertTestGenre[] = [
   { name: 'Parent', subtitle: 'Subtitle' },
   { name: 'Child', subtitle: 'Subtitle', parents: ['Parent'] },
 ]
+
+export const parentChildGrandchildGenre: InsertTestGenre[] = [
+  { name: 'Parent', subtitle: 'Subtitle' },
+  { name: 'Child', subtitle: 'Subtitle', parents: ['Parent'] },
+  { name: 'Grandchild', subtitle: 'Subtitle', parents: ['Child'] },
+]

@@ -11,7 +11,7 @@ import {
   deleteAccounts,
   deleteGenres,
 } from '../../utils'
-import { parentChildGenre, singleGenre } from '../../utils/genres'
+import { parentChildGenre, parentChildGrandchildGenre, singleGenre } from '../../utils/genres'
 
 // tree
 // - 0 genres:
@@ -19,11 +19,18 @@ import { parentChildGenre, singleGenre } from '../../utils/genres'
 // - 1 genre:
 //   x should show genre link, be clickable, and not be expandable
 //   x deleting a genre should remove it from the tree
+//   - should show subtitle when included
+//   - should not show subtitle when excluded
+//   - should show type chip when enabled
+//   - should not show type chip when disabled
+//   - should show relevance chip when enabled
+//   - should not show relevance chip when disabled
+//   - should show both when both enabled
 // - 2 genres:
 //   x should show parent-child relationship (expandable, contractable)
 //   x deleting a genre should remove it from the tree
 // - 3 genres:
-//   - deleting the middle genre should move the leaf genre under the parent genre
+//   x deleting the middle genre should move the leaf genre under the parent genre
 //
 // search
 // - 0 genres:
@@ -268,10 +275,10 @@ test.describe('Genre Tree', () => {
           await signInPage.goto()
           await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
           await signInPage.page.waitForURL(GenresPage.url)
-          await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
         })
 
         test('should be removed upon deletion', async ({ genresPage, genrePage }) => {
+          await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
           await new GenreTreeGenre(genresPage.navigator.tree.genres.nth(1)).link.click()
           await genrePage.delete()
           await expect(genresPage.navigator.tree.genres).toHaveCount(1)
@@ -280,6 +287,60 @@ test.describe('Genre Tree', () => {
             new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton,
           ).not.toBeVisible()
         })
+      })
+    })
+  })
+
+  test.describe('when there are 3 parent-child-grandchild genres', () => {
+    let parentGenre: CreatedGenre
+    let childGenre: CreatedGenre
+    let grandchildGenre: CreatedGenre
+
+    test.beforeAll(async () => {
+      ;[parentGenre, childGenre, grandchildGenre] = await createGenres(parentChildGrandchildGenre)
+    })
+
+    test.afterAll(async () => {
+      await deleteGenres()
+    })
+
+    test('parent and child genres should be expandable', async ({ genresPage }) => {
+      await expect(genresPage.navigator.tree.genres).toHaveCount(1)
+      await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
+      await expect(genresPage.navigator.tree.genres).toHaveCount(2)
+      await new GenreTreeGenre(genresPage.navigator.tree.genres.nth(1)).expandButton.click()
+      await expect(genresPage.navigator.tree.genres).toHaveCount(3)
+    })
+
+    test.describe('when logged in', () => {
+      test.beforeAll(async () => {
+        await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+      })
+
+      test.afterAll(async () => {
+        await deleteAccounts([TEST_ACCOUNT.username])
+      })
+
+      test.beforeEach(async ({ signInPage, genresPage }) => {
+        await signInPage.goto()
+        await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+        await signInPage.page.waitForURL(GenresPage.url)
+      })
+
+      test('delete the middle genre should move the leaf genre under the parent genre', async ({
+        genresPage,
+        genrePage,
+      }) => {
+        await new GenreTreeGenre(genresPage.navigator.tree.genres.first()).expandButton.click()
+        await new GenreTreeGenre(genresPage.navigator.tree.genres.nth(1)).link.click()
+        await genrePage.delete()
+        await expect(genresPage.navigator.tree.genres).toHaveCount(2)
+        await expect(genresPage.navigator.tree.genres.first()).toContainText(
+          parentChildGrandchildGenre[0].name,
+        )
+        await expect(genresPage.navigator.tree.genres.nth(1)).toContainText(
+          parentChildGrandchildGenre[2].name,
+        )
       })
     })
   })
