@@ -15,13 +15,13 @@ import { parentChildGenre, singleGenre } from '../../utils/genres'
 
 // tree
 // - 0 genres:
-//   - should show empty state
+//   x should show empty state
 // - 1 genre:
-//   - should show genre link, be clickable, and not be expandable
-//   - deleting a genre should remove it from the tree
+//   x should show genre link, be clickable, and not be expandable
+//   x deleting a genre should remove it from the tree
 // - 2 genres:
-//   - should show parent-child relationship (expandable, contractable)
-//   - deleting a genre should remove it from the tree
+//   x should show parent-child relationship (expandable, contractable)
+//   x deleting a genre should remove it from the tree
 // - 3 genres:
 //   - deleting the middle genre should move the leaf genre under the parent genre
 //
