@@ -47,6 +47,11 @@
         class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
         >Latest</a
       >
+      <a
+        href="/genres/random"
+        class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
+        >Random</a
+      >
     </Card>
 
     <Card
