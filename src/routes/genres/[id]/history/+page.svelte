@@ -63,6 +63,8 @@
                     <a href="/accounts/{entry.account.id}" class="text-primary-500 hover:underline"
                       >{entry.account.username}</a
                     >
+                  {:else}
+                    <div class="text-gray-500 line-through">Deleted</div>
                   {/if}
                 </td>
                 <td class="p-1 px-2">{toPrettyDate(entry.createdAt)}</td>
