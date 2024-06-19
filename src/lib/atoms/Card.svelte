@@ -7,7 +7,7 @@
 
 <div
   class={tw(
-    'relative rounded-lg border border-white border-opacity-10 bg-gray-100 transition dark:bg-gray-900',
+    'relative rounded-lg border border-black border-opacity-10 bg-gray-100 transition dark:border-white dark:border-opacity-10 dark:bg-gray-900',
     class_,
   )}
 >

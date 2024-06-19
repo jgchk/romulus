@@ -8,6 +8,6 @@
   export { class_ as class }
 </script>
 
-<label class={tw('text-sm text-gray-400', class_)} for={for_}>
+<label class={tw('text-sm text-gray-600 transition dark:text-gray-400', class_)} for={for_}>
   <slot />
 </label>

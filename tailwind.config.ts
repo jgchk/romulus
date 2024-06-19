@@ -3,6 +3,7 @@ import colors from 'tailwindcss/colors'
 import defaults from 'tailwindcss/defaultTheme'
 
 const config = {
+  darkMode: 'selector',
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     fontFamily: {

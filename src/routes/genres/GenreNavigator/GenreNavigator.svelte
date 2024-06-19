@@ -3,6 +3,7 @@
   import Card from '$lib/atoms/Card.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
+  import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { user } from '$lib/contexts/user'
   import SettingsIcon from '$lib/icons/SettingsIcon.svelte'
@@ -78,9 +79,7 @@
 
   {#if $user && $user.permissions?.includes('EDIT_GENRES')}
     <div class="border-t border-gray-200 p-1 transition dark:border-gray-800">
-      <a href="/genres/create" class="w-full">
-        <Button kind="outline" class="w-full">New Genre</Button>
-      </a>
+      <LinkButton class="w-full" kind="outline" href="/genres/create">New Genre</LinkButton>
     </div>
   {/if}
 </Card>

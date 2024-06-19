@@ -39,7 +39,10 @@
     class="flex h-full items-center gap-1 rounded px-2 pr-1 transition group-hover/account-button:bg-gray-200 dark:group-hover/account-button:bg-gray-800"
   >
     <div>{account.username}</div>
-    <ChevronDownIcon size={18} class="relative top-px text-gray-500 dark:text-gray-400" />
+    <ChevronDownIcon
+      size={18}
+      class="relative top-px text-gray-500 transition dark:text-gray-400"
+    />
   </div>
 </button>
 

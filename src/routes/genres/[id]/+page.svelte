@@ -10,6 +10,7 @@
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText } from '$lib/types/genres'
 
+  import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
   import GenrePageHeader from './GenrePageHeader.svelte'
   import RelevanceVoteForm from './RelevanceVoteForm.svelte'
@@ -67,7 +68,7 @@
       </div>
       {#if isVoting}
         <div
-          class="mt-1 rounded border border-gray-300 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+          class="mt-1 rounded border border-gray-300 bg-gray-50 p-4 transition dark:border-gray-700 dark:bg-gray-900"
           transition:slide|local={{ axis: 'y' }}
         >
           <RelevanceVoteForm
@@ -210,14 +211,14 @@
     {/if}
   </div>
 
-  <div class="flex gap-1 border-t border-gray-200 p-1 dark:border-gray-800">
+  <Footer>
     <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
     <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
     <div class="flex-1" />
     {#if $user && $user.permissions?.includes('EDIT_GENRES')}
       <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
     {/if}
-  </div>
+  </Footer>
 </div>
 
 {#if isDeleting}

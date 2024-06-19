@@ -100,10 +100,10 @@
 {:then genres}
   <div class="flex gap-3" transition:slide|local={{ axis: 'y' }}>
     {#if previousHistory}
-      <div class={cn('flex-1 rounded border', DEFAULT_CARD)}>
+      <div class={cn('flex-1 rounded border transition', DEFAULT_CARD)}>
         <div
           class={cn(
-            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide text-gray-500',
+            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide text-gray-500 transition',
             DEFAULT_BORDER,
           )}
         >
@@ -201,10 +201,10 @@
         </div>
       </div>
     {:else}
-      <div class={cn('flex flex-1 flex-col rounded border', DEFAULT_CARD)}>
+      <div class={cn('flex flex-1 flex-col rounded border transition', DEFAULT_CARD)}>
         <div
           class={cn(
-            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide text-gray-500',
+            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide text-gray-500 transition',
             DEFAULT_BORDER,
           )}
         >
@@ -218,7 +218,7 @@
       <div class={cn('flex flex-1 flex-col rounded border', DELETE_CARD)}>
         <div
           class={cn(
-            'text-red-500 border-b p-2 px-3 text-sm font-bold uppercase tracking-wide',
+            'text-red-500 border-b p-2 px-3 text-sm font-bold uppercase tracking-wide transition',
             DELETE_BORDER,
           )}
         >
@@ -229,13 +229,13 @@
     {:else}
       <div
         class={cn(
-          'flex-1 rounded border',
+          'flex-1 rounded border transition',
           currentHistory.operation === 'CREATE' ? CREATE_CARD : DEFAULT_CARD,
         )}
       >
         <div
           class={cn(
-            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide',
+            'border-b p-2 px-3 text-sm font-bold uppercase tracking-wide transition',
             currentHistory.operation === 'CREATE'
               ? cn('text-green-500', CREATE_BORDER)
               : cn('text-gray-500', DEFAULT_BORDER),
@@ -244,42 +244,44 @@
           After
         </div>
         <div class="space-y-1 p-1">
-          <div class={cn('rounded p-1 px-2', getActionClass(changed.name))}>
+          <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.name))}>
             <Label>Name</Label>
             <div>{currentHistory.name}</div>
           </div>
           {#if currentHistory.subtitle}
-            <div class={cn('rounded p-1 px-2', getActionClass(changed.subtitle))}>
+            <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.subtitle))}>
               <Label>Subtitle</Label>
               <div>{currentHistory.subtitle}</div>
             </div>
           {/if}
-          <div class={cn('rounded p-1 px-2', getActionClass(changed.type))}>
+          <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.type))}>
             <Label>Type</Label>
             <div>
               <GenreTypeChip type={currentHistory.type} />
             </div>
           </div>
           {#if currentHistory.shortDescription}
-            <div class={cn('rounded p-1 px-2', getActionClass(changed.shortDescription))}>
+            <div
+              class={cn('rounded p-1 px-2 transition', getActionClass(changed.shortDescription))}
+            >
               <Label>Short Description</Label>
               <Romcode data={currentHistory.shortDescription ?? ''} {genres} />
             </div>
           {/if}
           {#if currentHistory.longDescription}
-            <div class={cn('rounded p-1 px-2', getActionClass(changed.longDescription))}>
+            <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.longDescription))}>
               <Label>Long Description</Label>
               <Romcode data={currentHistory.longDescription ?? ''} {genres} />
             </div>
           {/if}
           {#if currentHistory.notes}
-            <div class={cn('rounded p-1 px-2', getActionClass(changed.notes))}>
+            <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.notes))}>
               <Label>Notes</Label>
               <Romcode data={currentHistory.notes ?? ''} {genres} />
             </div>
           {/if}
           {#if currentHistory.akas.length}
-            <div class={cn('rounded p-1 px-2', getActionClass(changed.akas))}>
+            <div class={cn('rounded p-1 px-2 transition', getActionClass(changed.akas))}>
               <Label>AKAs</Label>
               <div>{currentHistory.akas.join(', ')}</div>
             </div>
@@ -287,7 +289,9 @@
           {#if currentHistory.parentGenreIds?.length}
             <div>
               <Label>Parents</Label>
-              <div class={cn('rounded p-1 px-2', getActionClass(changed.parentGenreIds))}>
+              <div
+                class={cn('rounded p-1 px-2 transition', getActionClass(changed.parentGenreIds))}
+              >
                 <ul class="comma-list">
                   {#each currentHistory.parentGenreIds as id (id)}
                     {@const genre = genres.find((g) => g.id === id)}
@@ -311,7 +315,12 @@
           {#if currentHistory.influencedByGenreIds?.length}
             <div>
               <Label>Influences</Label>
-              <div class={cn('rounded p-1 px-2', getActionClass(changed.influencedByGenreIds))}>
+              <div
+                class={cn(
+                  'rounded p-1 px-2 transition',
+                  getActionClass(changed.influencedByGenreIds),
+                )}
+              >
                 <ul class="comma-list">
                   {#each currentHistory.influencedByGenreIds as id (id)}
                     {@const genre = genres.find((g) => g.id === id)}

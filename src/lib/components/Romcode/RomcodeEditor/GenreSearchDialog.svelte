@@ -45,7 +45,7 @@
     <VirtualList items={results} let:item={match} height="300px">
       <button
         type="button"
-        class="block text-left text-gray-700 hover:font-bold dark:text-gray-400"
+        class="block text-left text-gray-700 transition hover:font-bold dark:text-gray-400"
         on:click={() => dispatch('select', match.genre)}
       >
         {match.genre.name}

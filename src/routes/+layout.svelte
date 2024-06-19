@@ -9,6 +9,7 @@
 
   import type { LayoutData } from './$types'
   import AccountDropdown from './AccountDropdown.svelte'
+  import DarkModeApplier from './DarkModeApplier.svelte'
 
   export let data: LayoutData
 
@@ -22,7 +23,11 @@
   })
 </script>
 
-<div class="flex h-full w-full flex-col gap-1 bg-gray-800 p-2 text-white">
+<DarkModeApplier />
+
+<div
+  class="flex h-full w-full flex-col gap-1 bg-gray-200 p-2 text-black transition dark:bg-gray-800 dark:text-white"
+>
   <nav class="flex justify-between">
     <Card
       class="flex p-1 text-sm font-bold tracking-wide text-gray-600 transition dark:text-gray-300"

@@ -9,6 +9,7 @@
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
   import type { GenreSchema } from '$lib/server/db/utils'
 
+  import Footer from './Footer.svelte'
   import type { GenreFormField } from './GenreForm'
   import GenreMultiselect from './GenreMultiselect.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
@@ -50,7 +51,7 @@
     <fieldset
       class="rounded border border-solid border-gray-200 p-3 transition dark:border-gray-800"
     >
-      <legend class="text-sm text-gray-700 transition dark:text-gray-300">
+      <legend class="text-sm text-gray-600 transition dark:text-gray-400">
         AKAs{' '}
         <a
           href="https://discord.com/channels/940459362168746055/1008898978911375384/1008927823647473747"
@@ -197,10 +198,10 @@
     </InputGroup>
   </div>
 
-  <div class="flex gap-1 border-t border-gray-800 p-1">
+  <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
     <LinkButton kind="text" href={id !== undefined ? `/genres/${id}` : '/genres'}>
       Cancel
     </LinkButton>
-  </div>
+  </Footer>
 </form>

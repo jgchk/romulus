@@ -51,7 +51,7 @@
   <div class="flex items-center">
     <div
       use:tooltip={{ content: getGenreRelevanceText(relevance) }}
-      class="flex h-6 w-4 cursor-default items-center border-r border-gray-300 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300"
+      class="flex h-6 w-4 cursor-default items-center border-r border-gray-300 text-sm text-gray-700 transition dark:border-gray-700 dark:text-gray-300"
     >
       {relevance}
     </div>
@@ -60,7 +60,9 @@
       <div class={cn('h-5 rounded-r', getColor(relevance))} style="width: {percentage * 100}%" />
     {/if}
 
-    <div class="ml-2 cursor-default text-sm font-medium text-gray-600 dark:text-gray-400">
+    <div
+      class="ml-2 cursor-default text-sm font-medium text-gray-600 transition dark:text-gray-400"
+    >
       {count}
     </div>
   </div>

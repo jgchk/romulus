@@ -11,7 +11,7 @@
     <svelte:self node={child} {genres} />
   {/each}
 {:else if node.type === 'Paragraph'}
-  <p class="mb-3 leading-relaxed text-gray-700 last:mb-0 dark:text-gray-300">
+  <p class="mb-3 leading-relaxed text-gray-700 transition last:mb-0 dark:text-gray-300">
     {#each node.children as child}
       <svelte:self node={child} {genres} />
     {/each}

@@ -152,10 +152,10 @@
     }
   }}
 >
-  <div class="focus-within:outline-auto flex rounded bg-gray-700">
+  <div class="focus-within:outline-auto flex rounded bg-gray-200 transition dark:bg-gray-700">
     <input
       {id}
-      class="w-0 flex-1 bg-transparent py-1 pl-2 text-white outline-none"
+      class="w-0 flex-1 bg-transparent py-1 pl-2 text-black outline-none transition dark:text-white"
       {disabled}
       {placeholder}
       type="text"
@@ -195,7 +195,7 @@
   {#if open}
     <div
       role="listbox"
-      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded bg-gray-700 shadow"
+      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded bg-gray-200 text-black shadow transition dark:bg-gray-700 dark:text-white"
       transition:slide|local={{ axis: 'y' }}
       tabindex="-1"
       on:keydown={handleKeyDown}
@@ -203,14 +203,16 @@
     >
       <div tabindex="-1">
         {#if filteredOptions.length === 0}
-          <div class="select-none px-2 py-1 text-gray-300">No results</div>
+          <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
+            No results
+          </div>
         {:else}
           {#each filteredOptions as option, i}
             <button
               type="button"
               class={cn(
-                'block w-full px-2 py-1 text-left hover:bg-gray-600',
-                focusedIndex === i && 'bg-gray-600',
+                'block w-full px-2 py-1 text-left transition hover:bg-gray-300 dark:hover:bg-gray-600',
+                focusedIndex === i && 'bg-gray-300 dark:bg-gray-600',
               )}
               tabindex="-1"
               on:click={() => {
@@ -227,8 +229,8 @@
           <button
             type="button"
             class={cn(
-              'block w-full px-2 py-1 text-left hover:bg-gray-600',
-              focusedIndex === filteredOptions.length && 'bg-gray-600',
+              'block w-full px-2 py-1 text-left transition hover:bg-gray-300 dark:hover:bg-gray-600',
+              focusedIndex === filteredOptions.length && 'bg-gray-300 dark:bg-gray-600',
             )}
             tabindex="-1"
             on:click={() => handleLoadMore()}
@@ -239,7 +241,7 @@
         {/if}
       </div>
       <div
-        class="pointer-events-none absolute left-0 top-0 h-full w-full rounded border border-white opacity-5"
+        class="pointer-events-none absolute left-0 top-0 h-full w-full rounded border border-black opacity-5 transition dark:border-white"
       />
     </div>
   {/if}

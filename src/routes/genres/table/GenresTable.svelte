@@ -120,7 +120,7 @@
       Page <span class="font-bold">{data.page} of {totalPages}</span>
     </div>
 
-    <div class="ml-3 border-l border-gray-200 pl-3 dark:border-gray-800">
+    <div class="ml-3 border-l border-gray-200 pl-3 transition dark:border-gray-800">
       <span>Go to page:</span>
       <Input
         type="number"

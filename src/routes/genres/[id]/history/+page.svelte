@@ -6,6 +6,7 @@
   import { cn } from '$lib/utils/dom'
   import { capitalize } from '$lib/utils/string'
 
+  import Footer from '../../Footer.svelte'
   import GenrePageHeader from '../GenrePageHeader.svelte'
   import type { PageData } from './$types'
   import Diff from './Diff.svelte'
@@ -84,7 +85,7 @@
     </div>
   {/if}
 
-  <div class="flex gap-1 border-t border-gray-200 p-1 dark:border-gray-800">
+  <Footer>
     <LinkButton kind="outline" href="/genres/{data.id}">Back to genre page</LinkButton>
-  </div>
+  </Footer>
 </div>

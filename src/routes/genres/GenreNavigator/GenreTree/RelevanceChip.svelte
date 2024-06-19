@@ -13,7 +13,7 @@
     text="?"
     tooltip="Missing Relevance"
     class={tw(
-      'genre-relevance-chip bg-error-200 text-error-500 dark:bg-error-800 dark:bg-opacity-25 dark:text-error-600',
+      'genre-relevance-chip bg-error-200 text-error-500 transition dark:bg-error-800 dark:bg-opacity-25 dark:text-error-600',
       class_,
     )}
   />

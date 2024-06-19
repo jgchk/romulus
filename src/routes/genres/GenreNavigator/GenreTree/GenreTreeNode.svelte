@@ -54,8 +54,10 @@
       <a
         href="/genres/{id}"
         class={cn(
-          'group block flex-1 truncate rounded border border-white border-opacity-0 px-1.5 text-[0.93rem] hover:border-opacity-[0.03] hover:bg-gray-800',
-          isSelected ? 'text-primary-500' : 'text-gray-400 hover:text-white',
+          'group block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] transition hover:border-opacity-[0.03] hover:bg-gray-200 dark:border-white dark:border-opacity-0 dark:hover:bg-gray-800',
+          isSelected
+            ? 'text-primary-500'
+            : 'text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white',
         )}
         on:click={() => {
           treeState.setSelectedId(id)
@@ -67,7 +69,7 @@
           {' '}
           <span
             class={cn(
-              'genre-tree-node__subtitle text-[0.8rem]',
+              'genre-tree-node__subtitle text-[0.8rem] transition',
               isSelected
                 ? 'text-primary-500 dark:text-primary-700'
                 : 'text-gray-500 group-hover:text-gray-400',
