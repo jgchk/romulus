@@ -31,7 +31,7 @@
     {/each}
   </em>
 {:else if node.type === 'Link'}
-  <a href={node.href} class="underline">
+  <a href={node.href} target="_blank" rel="noopener noreferrer" class="underline">
     {node.href}
   </a>
 {:else if node.type === 'GenreLink'}
