@@ -1,6 +1,6 @@
 <script lang="ts">
   import Chip from '$lib/atoms/Chip.svelte'
-  import { tw } from '$lib/utils/dom'
+  import { cn, tw } from '$lib/utils/dom'
 
   export let relevance: number
 
@@ -13,10 +13,10 @@
     text="?"
     tooltip="Missing Relevance"
     class={tw(
-      'bg-error-200 text-error-500 dark:bg-error-800 dark:bg-opacity-25 dark:text-error-600',
+      'genre-relevance-chip bg-error-200 text-error-500 dark:bg-error-800 dark:bg-opacity-25 dark:text-error-600',
       class_,
     )}
   />
 {:else}
-  <Chip text={relevance.toString()} class={class_} />
+  <Chip text={relevance.toString()} class={cn('genre-relevance-chip', class_)} />
 {/if}

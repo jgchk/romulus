@@ -1,34 +1,25 @@
 import type { Locator, Page } from '@playwright/test'
 
+import { GenreTree } from '../elements/genre-tree'
+
 export class GenresPage {
   static readonly url = '/genres'
 
   readonly navigator: {
     settingsButton: Locator
-    tree: {
-      emptyState: Locator
-      createGenreLink: Locator
-      genres: Locator
-    }
+    tree: GenreTree
     search: {
       input: Locator
       emptyState: Locator
       createGenreLink: Locator
     }
+    createGenreButton: Locator
   }
 
   constructor(readonly page: Page) {
     this.navigator = {
       settingsButton: this.page.getByLabel('Genre Settings'),
-      tree: {
-        emptyState: this.page
-          .getByLabel('Genre Tree')
-          .locator(this.page.getByText('No genres found')),
-        createGenreLink: this.page
-          .getByLabel('Genre Tree')
-          .locator(this.page.getByRole('link', { name: 'Create one.' })),
-        genres: this.page.getByLabel('Genre Tree').locator('.genre-tree-node'),
-      },
+      tree: new GenreTree(this.page),
       search: {
         input: this.page.getByLabel('Search Genres'),
         emptyState: this.page
@@ -38,22 +29,11 @@ export class GenresPage {
           .getByLabel('Genre Search Results')
           .locator(this.page.getByRole('link', { name: 'Create one.' })),
       },
+      createGenreButton: this.page.getByRole('button', { name: 'New Genre' }),
     }
   }
 
   async goto() {
     await this.page.goto(GenresPage.url)
-  }
-}
-
-export class GenreTreeGenre {
-  link: Locator
-  expandButton: Locator
-  collapseButton: Locator
-
-  constructor (readonly element: Locator) {
-    this.link = element.getByRole('link')
-    this.expandButton = element.getByRole('button', { name: 'Expand' })
-    this.collapseButton = element.getByRole('button', { name: 'Collapse' })
   }
 }

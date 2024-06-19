@@ -38,11 +38,10 @@
   <li
     bind:this={ref}
     class={cn(
-      'genre-tree-node',
       genre.parents.length > 0 && 'ml-4 border-l border-gray-200 transition dark:border-gray-800',
     )}
   >
-    <div class="flex">
+    <div class="genre-tree-node flex">
       <IconButton
         size="sm"
         tooltip={isExpanded ? 'Collapse' : 'Expand'}
@@ -63,12 +62,12 @@
           treeState.setSelectedPath(path)
         }}
       >
-        {genre.name}
+        <span class="genre-tree-node__name">{genre.name}</span>
         {#if genre.subtitle}
           {' '}
           <span
             class={cn(
-              'text-[0.8rem]',
+              'genre-tree-node__subtitle text-[0.8rem]',
               isSelected
                 ? 'text-primary-500 dark:text-primary-700'
                 : 'text-gray-500 group-hover:text-gray-400',
