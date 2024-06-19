@@ -17,7 +17,14 @@
 
   const dispatch = createEventDispatcher<{ close: undefined }>()
 
-  const { form, errors, constraints, delayed, enhance } = superForm(voteForm, { dataType: 'json' })
+  const { form, errors, constraints, delayed, enhance } = superForm(voteForm, {
+    dataType: 'json',
+    onUpdate: ({ result }) => {
+      if (result.type === 'success') {
+        dispatch('close')
+      }
+    },
+  })
 </script>
 
 <form method="POST" action="?/relevance" use:enhance class={class_}>
