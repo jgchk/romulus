@@ -32,7 +32,7 @@
 
   <div
     class={tw(
-      'relative flex max-h-full w-full max-w-md flex-col rounded-lg border border-gray-700 bg-gray-800 shadow-lg',
+      'relative flex max-h-full w-full max-w-md flex-col rounded-lg border border-gray-200 bg-gray-100 shadow-lg dark:border-gray-700 dark:bg-gray-800',
       class_,
     )}
     transition:scale={{ start: 0.95, duration: 125 }}
