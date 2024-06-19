@@ -97,7 +97,7 @@ export const actions: Actions = {
           akas,
         },
         accountId: user.id,
-        operation: 'UPDATE',
+        operation: 'CREATE',
         db: tx,
       })
 
