@@ -20,7 +20,7 @@ export const load: LayoutServerLoad = async () => {
         },
       },
     },
-    limit: 25,
+    limit: 100,
   })
 
   return { genreHistory }
