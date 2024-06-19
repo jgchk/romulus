@@ -20,7 +20,10 @@
   export let autoFocus: GenreFormField = 'name'
   export let genres: Promise<TreeGenre[]>
 
-  const { form, errors, constraints, delayed, enhance } = superForm(data, { dataType: 'json' })
+  const { form, errors, constraints, delayed, enhance } = superForm(data, {
+    dataType: 'json',
+    taintedMessage: true,
+  })
 </script>
 
 <form method="POST" use:enhance class="flex h-full flex-col">
