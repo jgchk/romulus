@@ -14,6 +14,7 @@
   import GenreMultiselect from './GenreMultiselect.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
+  import { toast } from '$lib/atoms/Toast/toast'
 
   export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>
@@ -23,7 +24,11 @@
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
-    scrollToError: true,
+    onUpdated: ({ form }) => {
+      if (!form.valid) {
+        toast.error('The form has errors. Please correct them before submitting.')
+      }
+    },
   })
 </script>
 
