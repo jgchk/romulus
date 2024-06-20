@@ -117,20 +117,41 @@
     <InputGroup errors={$errors.parents?._errors}>
       <Label for="parents">Parents</Label>
       {#await genres}
-        <GenreMultiselect id="parents" value={[]} genres={[]} disabled />
+        <GenreMultiselect
+          id="parents"
+          value={[]}
+          exclude={id !== undefined ? [id] : []}
+          genres={[]}
+          disabled
+          {...$constraints.parents}
+        />
       {:then genres}
-        <GenreMultiselect id="parents" bind:value={$form.parents} {genres} />
+        <GenreMultiselect
+          id="parents"
+          bind:value={$form.parents}
+          exclude={id !== undefined ? [id] : []}
+          {genres}
+          {...$constraints.parents}
+        />
       {/await}
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
       <Label for="influenced-by">Influenced By</Label>
       {#await genres}
-        <GenreMultiselect id="influenced-by" value={[]} genres={[]} disabled />
+        <GenreMultiselect
+          id="influenced-by"
+          value={[]}
+          exclude={id !== undefined ? [id] : []}
+          genres={[]}
+          disabled
+          {...$constraints.influencedBy}
+        />
       {:then genres}
         <GenreMultiselect
           id="influenced-by"
           bind:value={$form.influencedBy}
+          exclude={id !== undefined ? [id] : []}
           {genres}
           {...$constraints.influencedBy}
         />

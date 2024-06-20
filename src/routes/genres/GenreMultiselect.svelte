@@ -12,10 +12,14 @@
   interface $$Props extends Omit<ComponentProps<Multiselect<Opt>>, 'value' | 'options'> {
     value: number[]
     genres: TreeGenre[]
+    exclude?: number[]
   }
 
   export let value: $$Props['value']
   export let genres: $$Props['genres']
+  export let exclude: $$Props['exclude'] = []
+
+  $: excludeSet = new Set(exclude)
 
   $: values = value.map(
     (id): Opt => ({
@@ -23,10 +27,12 @@
       label: genres.find((genre) => genre.id === id)?.name ?? 'Unknown',
     }),
   )
-  $: options = genres.map((genre) => ({
-    value: genre.id,
-    label: genre.name,
-  }))
+  $: options = genres
+    .filter((genre) => !excludeSet.has(genre.id))
+    .map((genre) => ({
+      value: genre.id,
+      label: genre.name,
+    }))
 
   const dispatch = createEventDispatcher<{
     change: { value: number[] }
