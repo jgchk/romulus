@@ -170,7 +170,7 @@ export const actions: Actions = {
 
     await db.transaction(async (tx) => {
       // update genre
-      await tx
+      const [updatedGenre] = await tx
         .update(genres)
         .set({
           name: form.data.name,
@@ -182,6 +182,7 @@ export const actions: Actions = {
           updatedAt: new Date(),
         })
         .where(eq(genres.id, id))
+        .returning()
 
       // update akas
       await tx.delete(genreAkas).where(eq(genreAkas.genreId, id))
@@ -208,7 +209,12 @@ export const actions: Actions = {
       }
 
       await createGenreHistoryEntry({
-        genre: currentGenre,
+        genre: {
+          ...updatedGenre,
+          parents: form.data.parents.map((parentId) => ({ parentId })),
+          influencedBy: form.data.influencedBy.map((influencerId) => ({ influencerId })),
+          akas,
+        },
         accountId: user.id,
         operation: 'UPDATE',
         db: tx,
