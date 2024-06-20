@@ -131,6 +131,10 @@ export const actions: Actions = {
       return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
     }
 
+    if (form.data.influencedBy.includes(id)) {
+      return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+    }
+
     const lastHistory = await db.query.genreHistory.findFirst({
       where: eq(genreHistory.treeGenreId, id),
       orderBy: desc(genreHistory.createdAt),
