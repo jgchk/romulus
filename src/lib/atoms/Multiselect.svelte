@@ -46,13 +46,15 @@
 
   $: isValueSelected = (value: Value) => selectedValues.has(value)
 
-  $: filteredOptions = virtual
-    ? options
-    : sortBy(
-        options,
-        (option) => option.label.toLowerCase(),
-        (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
-      )
+  $: filteredOptions = (
+    virtual
+      ? options
+      : sortBy(
+          options,
+          (option) => option.label.toLowerCase(),
+          (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
+        )
+  ).filter((option) => !isValueSelected(option.value))
 
   $: lastIndex = hasMore ? filteredOptions.length : filteredOptions.length - 1
 
