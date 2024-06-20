@@ -65,6 +65,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
           },
         },
       },
+      influences: {
+        columns: {},
+        with: {
+          influenced: {
+            columns: { id: true, name: true, type: true, subtitle: true },
+          },
+        },
+      },
     },
   })
 

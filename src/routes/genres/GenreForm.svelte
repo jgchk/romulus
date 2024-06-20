@@ -23,6 +23,7 @@
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
+    scrollToError: true,
   })
 </script>
 
@@ -118,12 +119,12 @@
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
-      <Label for="influences">Influences</Label>
+      <Label for="influenced-by">Influenced By</Label>
       {#await genres}
-        <GenreMultiselect id="influences" value={[]} genres={[]} disabled />
+        <GenreMultiselect id="influenced-by" value={[]} genres={[]} disabled />
       {:then genres}
         <GenreMultiselect
-          id="influences"
+          id="influenced-by"
           bind:value={$form.influencedBy}
           {genres}
           {...$constraints.influencedBy}

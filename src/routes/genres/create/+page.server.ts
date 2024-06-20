@@ -1,5 +1,5 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { db } from '$lib/server/db'
@@ -32,7 +32,7 @@ export const actions: Actions = {
 
     const cycle = await detectCycle({ name: form.data.name, parents: form.data.parents })
     if (cycle) {
-      return fail(400, { form, errors: { parents: `Cycle detected: ${cycle}` } })
+      return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
     }
 
     const genre = await db.transaction(async (tx) => {

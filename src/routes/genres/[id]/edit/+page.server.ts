@@ -1,7 +1,7 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { asc, desc, eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm'
 import { equals } from 'ramda'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
@@ -128,7 +128,7 @@ export const actions: Actions = {
 
     const cycle = await detectCycle({ id, name: form.data.name, parents: form.data.parents })
     if (cycle) {
-      return fail(400, { form, errors: { parents: `Cycle detected: ${cycle}` } })
+      return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
     }
 
     const lastHistory = await db.query.genreHistory.findFirst({

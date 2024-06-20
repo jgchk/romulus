@@ -106,9 +106,9 @@
 
     {#if data.genre.influencedBy.length > 0}
       <div>
-        <Label for="influences">Influences</Label>
+        <Label for="influenced-by">Influenced By</Label>
         <div>
-          <ul id="influences" class="comma-list">
+          <ul id="influenced-by" class="comma-list">
             {#each data.genre.influencedBy as genre (genre.id)}
               <li class="block">
                 <GenreLink
