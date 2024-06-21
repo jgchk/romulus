@@ -5,13 +5,21 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { db } from '$lib/server/db'
-import { genreAkas, genreParents, genreRelevanceVotes, genres } from '$lib/server/db/schema'
+import {
+  genreAkas,
+  genreHistory,
+  genreParents,
+  genreRelevanceVotes,
+  genres,
+} from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/db/utils'
 import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { median } from '$lib/utils/math'
 
 import type { PageServerLoad } from './$types'
+import { uniq } from 'ramda'
+import { isNotNull } from '$lib/utils/types'
 
 const relevanceVoteSchema = z.object({
   relevanceVote: genreRelevance,
@@ -73,6 +81,15 @@ export const load: PageServerLoad = async ({ params, locals }) => {
           },
         },
       },
+      history: {
+        columns: {},
+        orderBy: [asc(genreHistory.createdAt)],
+        with: {
+          account: {
+            columns: { id: true, username: true },
+          },
+        },
+      },
     },
   })
 
@@ -98,7 +115,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
-  const { akas, parents, children, influencedBy, ...rest } = maybeGenre
+  const { akas, parents, children, influencedBy, history, ...rest } = maybeGenre
   const genre = {
     ...rest,
     akas: akas.map((aka) => aka.name),
@@ -109,9 +126,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       .sort((a, b) => a.name.localeCompare(b.name)),
   }
 
+  const contributors = uniq(history.map((item) => item.account).filter(isNotNull))
+
   const relevanceVoteForm = await superValidate({ relevanceVote }, zod(relevanceVoteSchema))
 
-  return { genre, relevanceVotes, relevanceVoteForm }
+  return { genre, relevanceVotes, relevanceVoteForm, contributors }
 }
 
 export const actions: Actions = {

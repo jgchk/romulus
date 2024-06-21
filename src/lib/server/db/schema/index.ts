@@ -42,6 +42,7 @@ export const genresRelations = relations(genres, ({ many }) => ({
   children: many(genreParents, { relationName: 'parents' }),
   influencedBy: many(genreInfluences, { relationName: 'influenced' }),
   influences: many(genreInfluences, { relationName: 'influencers' }),
+  history: many(genreHistory),
 }))
 
 export const genreHistory = pgTable('GenreHistory', {
@@ -64,6 +65,10 @@ export const genreHistory = pgTable('GenreHistory', {
 })
 
 export const genreHistoryRelations = relations(genreHistory, ({ many, one }) => ({
+  genre: one(genres, {
+    fields: [genreHistory.treeGenreId],
+    references: [genres.id],
+  }),
   akas: many(genreHistoryAkas),
   account: one(accounts, {
     fields: [genreHistory.accountId],

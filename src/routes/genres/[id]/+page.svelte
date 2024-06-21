@@ -209,6 +209,23 @@
         </div>
       </div>
     {/if}
+
+    {#if data.contributors.length}
+      <div>
+        <Label for="contributors">Contributors</Label>
+        <div id="contributors">
+          <ul class="comma-list">
+            {#each data.contributors as contributor}
+              <li class="block">
+                <a class="text-primary-500 hover:underline" href="/accounts/{contributor.id}"
+                  >{contributor.username}</a
+                >
+              </li>
+            {/each}
+          </ul>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <Footer>
