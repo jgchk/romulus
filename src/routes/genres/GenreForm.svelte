@@ -15,6 +15,7 @@
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
+  import { tooltip } from '$lib/actions/tooltip'
 
   export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>
@@ -60,21 +61,17 @@
     <fieldset
       class="rounded border border-solid border-gray-200 p-3 transition dark:border-gray-800"
     >
-      <legend class="text-sm text-gray-600 transition dark:text-gray-400">
-        AKAs{' '}
-        <a
-          href="https://discord.com/channels/940459362168746055/1008898978911375384/1008927823647473747"
-          target="_blank"
-          rel="noreferrer"
-          class="text-xs text-primary-500 hover:underline"
-        >
-          (More Info)
-        </a>
-      </legend>
+      <legend class="text-sm text-gray-600 transition dark:text-gray-400"> AKAs </legend>
 
       <div class="w-full space-y-2">
         <InputGroup errors={$errors.primaryAkas}>
-          <Label for="primary-akas">Primary</Label>
+          <Label for="primary-akas"
+            >Primary <span
+              class="cursor-help text-primary-500"
+              use:tooltip={{ content: 'Used about as much as the main genre name itself.' }}
+              >(?)</span
+            ></Label
+          >
           <Input
             id="primary-akas"
             name="primary-akas"
@@ -85,7 +82,15 @@
           />
         </InputGroup>
         <InputGroup errors={$errors.secondaryAkas}>
-          <Label for="secondary-akas">Secondary</Label>
+          <Label for="secondary-akas"
+            >Secondary <span
+              class="cursor-help text-primary-500"
+              use:tooltip={{
+                content:
+                  'Used less than the main genre name, but most people familiar with the genre will still know what it refers to.',
+              }}>(?)</span
+            ></Label
+          >
           <Input
             id="secondary-akas"
             name="secondary-akas"
@@ -96,7 +101,15 @@
           />
         </InputGroup>
         <InputGroup errors={$errors.tertiaryAkas}>
-          <Label for="tertiary-akas">Tertiary</Label>
+          <Label for="tertiary-akas"
+            >Tertiary <span
+              class="cursor-help text-primary-500"
+              use:tooltip={{
+                content:
+                  'Rarely used. Many people familiar with the genre will not know what it refers to.',
+              }}>(?)</span
+            ></Label
+          >
           <Input
             id="tertiary-akas"
             name="tertiary-akas"
