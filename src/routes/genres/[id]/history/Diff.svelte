@@ -36,6 +36,7 @@
   import { cn } from '$lib/utils/dom'
 
   import type { PageData } from './$types'
+  import CommaList from '$lib/atoms/CommaList.svelte'
 
   export let genres: PageData['streamed']['genres']
   export let previousHistory: PageData['genreHistory'][number] | undefined
@@ -154,23 +155,18 @@
             <div>
               <Label>Parents</Label>
               <div>
-                <ul class="comma-list">
-                  {#each previousHistory.parentGenreIds as id (id)}
-                    {@const genre = genres.find((g) => g.id === id)}
-                    <li class="block">
-                      {#if genre}
-                        <GenreLink
-                          {id}
-                          name={genre.name}
-                          type={genre.type}
-                          subtitle={genre.subtitle}
-                        />
-                      {:else}
-                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
-                      {/if}
-                    </li>
-                  {/each}
-                </ul>
+                <CommaList
+                  items={previousHistory.parentGenreIds}
+                  let:item={id}
+                  class="text-gray-600 transition dark:text-gray-400"
+                >
+                  {@const genre = genres.find((g) => g.id === id)}
+                  {#if genre}
+                    <GenreLink {id} name={genre.name} type={genre.type} subtitle={genre.subtitle} />
+                  {:else}
+                    <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
+                  {/if}
+                </CommaList>
               </div>
             </div>
           {/if}
@@ -178,23 +174,18 @@
             <div>
               <Label>Influences</Label>
               <div>
-                <ul class="comma-list">
-                  {#each previousHistory.influencedByGenreIds as id (id)}
-                    {@const genre = genres.find((g) => g.id === id)}
-                    <li class="block">
-                      {#if genre}
-                        <GenreLink
-                          {id}
-                          name={genre.name}
-                          type={genre.type}
-                          subtitle={genre.subtitle}
-                        />
-                      {:else}
-                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
-                      {/if}
-                    </li>
-                  {/each}
-                </ul>
+                <CommaList
+                  items={previousHistory.influencedByGenreIds}
+                  let:item={id}
+                  class="text-gray-600 transition dark:text-gray-400"
+                >
+                  {@const genre = genres.find((g) => g.id === id)}
+                  {#if genre}
+                    <GenreLink {id} name={genre.name} type={genre.type} subtitle={genre.subtitle} />
+                  {:else}
+                    <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
+                  {/if}
+                </CommaList>
               </div>
             </div>
           {/if}
@@ -292,23 +283,18 @@
               <div
                 class={cn('rounded p-1 px-2 transition', getActionClass(changed.parentGenreIds))}
               >
-                <ul class="comma-list">
-                  {#each currentHistory.parentGenreIds as id (id)}
-                    {@const genre = genres.find((g) => g.id === id)}
-                    <li class="block">
-                      {#if genre}
-                        <GenreLink
-                          {id}
-                          name={genre.name}
-                          type={genre.type}
-                          subtitle={genre.subtitle}
-                        />
-                      {:else}
-                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
-                      {/if}
-                    </li>
-                  {/each}
-                </ul>
+                <CommaList
+                  items={currentHistory.parentGenreIds}
+                  let:item={id}
+                  class="text-gray-600 transition dark:text-gray-400"
+                >
+                  {@const genre = genres.find((g) => g.id === id)}
+                  {#if genre}
+                    <GenreLink {id} name={genre.name} type={genre.type} subtitle={genre.subtitle} />
+                  {:else}
+                    <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
+                  {/if}
+                </CommaList>
               </div>
             </div>
           {/if}
@@ -321,23 +307,18 @@
                   getActionClass(changed.influencedByGenreIds),
                 )}
               >
-                <ul class="comma-list">
-                  {#each currentHistory.influencedByGenreIds as id (id)}
-                    {@const genre = genres.find((g) => g.id === id)}
-                    <li class="block">
-                      {#if genre}
-                        <GenreLink
-                          {id}
-                          name={genre.name}
-                          type={genre.type}
-                          subtitle={genre.subtitle}
-                        />
-                      {:else}
-                        <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
-                      {/if}
-                    </li>
-                  {/each}
-                </ul>
+                <CommaList
+                  items={currentHistory.influencedByGenreIds}
+                  let:item={id}
+                  class="text-gray-600 transition dark:text-gray-400"
+                >
+                  {@const genre = genres.find((g) => g.id === id)}
+                  {#if genre}
+                    <GenreLink {id} name={genre.name} type={genre.type} subtitle={genre.subtitle} />
+                  {:else}
+                    <GenreLink {id} name="Deleted" class="text-gray-500 line-through" />
+                  {/if}
+                </CommaList>
               </div>
             </div>
           {/if}

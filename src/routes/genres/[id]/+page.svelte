@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
+  import CommaList from '$lib/atoms/CommaList.svelte'
   import Dialog from '$lib/atoms/Dialog.svelte'
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
@@ -29,22 +30,22 @@
   <div class="flex-1 space-y-3 p-4">
     {#if data.genre.akas.length > 0}
       <div>
-        <Label for="akas">AKA</Label>
-        <div id="akas">
+        <Label>AKA</Label>
+        <div>
           {data.genre.akas.join(', ')}
         </div>
       </div>
     {/if}
 
     <div>
-      <Label for="type">Type</Label>
-      <div id="type" class="capitalize">
+      <Label>Type</Label>
+      <div class="capitalize">
         {GenreTypeNames[data.genre.type]}
       </div>
     </div>
 
     <div>
-      <Label for="relevance">
+      <Label>
         Relevance
         {#if $user && $user.permissions?.includes('EDIT_GENRES')}
           {' '}
@@ -56,7 +57,7 @@
           </button>
         {/if}
       </Label>
-      <div id="relevance">
+      <div>
         {#if data.genre.relevance === 99}
           None set.{' '}
           <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
@@ -86,47 +87,47 @@
 
     {#if data.genre.parents.length > 0}
       <div>
-        <Label for="parents">Parents</Label>
+        <Label>Parents</Label>
         <div>
-          <ul id="parents" class="comma-list">
-            {#each data.genre.parents as genre (genre.id)}
-              <li class="block">
-                <GenreLink
-                  id={genre.id}
-                  name={genre.name}
-                  type={genre.type}
-                  subtitle={genre.subtitle}
-                />
-              </li>
-            {/each}
-          </ul>
+          <CommaList
+            items={data.genre.parents}
+            let:item={genre}
+            class="text-gray-600 transition dark:text-gray-400"
+          >
+            <GenreLink
+              id={genre.id}
+              name={genre.name}
+              type={genre.type}
+              subtitle={genre.subtitle}
+            />
+          </CommaList>
         </div>
       </div>
     {/if}
 
     {#if data.genre.influencedBy.length > 0}
       <div>
-        <Label for="influenced-by">Influenced By</Label>
+        <Label>Influenced By</Label>
         <div>
-          <ul id="influenced-by" class="comma-list">
-            {#each data.genre.influencedBy as genre (genre.id)}
-              <li class="block">
-                <GenreLink
-                  id={genre.id}
-                  name={genre.name}
-                  type={genre.type}
-                  subtitle={genre.subtitle}
-                />
-              </li>
-            {/each}
-          </ul>
+          <CommaList
+            items={data.genre.influencedBy}
+            let:item={genre}
+            class="text-gray-600 transition dark:text-gray-400"
+          >
+            <GenreLink
+              id={genre.id}
+              name={genre.name}
+              type={genre.type}
+              subtitle={genre.subtitle}
+            />
+          </CommaList>
         </div>
       </div>
     {/if}
 
     <div>
-      <Label for="short-description">Short Description</Label>
-      <div id="short-description">
+      <Label>Short Description</Label>
+      <div>
         {#if data.genre.shortDescription}
           {#await data.streamed.genres}
             <div class="w-[75%] space-y-2 pt-1">
@@ -154,8 +155,8 @@
     </div>
 
     <div>
-      <Label for="long-description">Long Description</Label>
-      <div id="long-description">
+      <Label>Long Description</Label>
+      <div>
         {#if data.genre.longDescription}
           {#await data.streamed.genres}
             <div class="w-[75%] space-y-2 pt-1">
@@ -184,8 +185,8 @@
 
     {#if data.genre.notes}
       <div>
-        <Label for="notes">Notes</Label>
-        <div id="notes">
+        <Label>Notes</Label>
+        <div>
           {#if showNotes}
             {#await data.streamed.genres}
               <div class="w-[75%] space-y-2 pt-1">
@@ -212,17 +213,17 @@
 
     {#if data.contributors.length}
       <div>
-        <Label for="contributors">Contributors</Label>
-        <div id="contributors">
-          <ul class="comma-list">
-            {#each data.contributors as contributor}
-              <li class="block">
-                <a class="text-primary-500 hover:underline" href="/accounts/{contributor.id}"
-                  >{contributor.username}</a
-                >
-              </li>
-            {/each}
-          </ul>
+        <Label>Contributors</Label>
+        <div>
+          <CommaList
+            items={data.contributors}
+            let:item
+            class="text-gray-600 transition dark:text-gray-400"
+          >
+            <a class="text-primary-500 hover:underline" href="/accounts/{item.id}"
+              >{item.username}</a
+            >
+          </CommaList>
         </div>
       </div>
     {/if}
