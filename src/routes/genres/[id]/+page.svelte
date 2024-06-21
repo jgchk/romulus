@@ -27,7 +27,7 @@
 <div class="flex h-full w-full flex-col">
   <GenrePageHeader id={data.genre.id} name={data.genre.name} subtitle={data.genre.subtitle} />
 
-  <div class="flex-1 space-y-3 p-4">
+  <div class="flex-1 space-y-3 overflow-auto p-4">
     {#if data.genre.akas.length > 0}
       <div>
         <Label>AKA</Label>
