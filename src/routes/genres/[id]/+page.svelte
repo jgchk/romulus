@@ -125,6 +125,26 @@
       </div>
     {/if}
 
+    {#if data.genre.influences.length > 0}
+      <div>
+        <Label>Influenced</Label>
+        <div>
+          <CommaList
+            items={data.genre.influences}
+            let:item={genre}
+            class="text-gray-600 transition dark:text-gray-400"
+          >
+            <GenreLink
+              id={genre.id}
+              name={genre.name}
+              type={genre.type}
+              subtitle={genre.subtitle}
+            />
+          </CommaList>
+        </div>
+      </div>
+    {/if}
+
     <div>
       <Label>Short Description</Label>
       <div>
