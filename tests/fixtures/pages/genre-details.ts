@@ -43,6 +43,5 @@ export class GenreDetailsPage {
     await this.voteInput.fill(`${relevance} - `)
     await this.voteInput.press('Enter')
     await this.submitVoteButton.click()
-    await this.cancelVoteButton.click()
   }
 }

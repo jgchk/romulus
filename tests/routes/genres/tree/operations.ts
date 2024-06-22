@@ -3,7 +3,14 @@ import { expect } from '@playwright/test'
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
 import { GenresPage } from '../../../fixtures/pages/genres'
-import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
+import {
+  createAccounts,
+  createGenres,
+  deleteAccounts,
+  deleteGenres,
+  type CreatedGenre,
+} from '../../../utils'
+import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-operations',
@@ -44,6 +51,8 @@ export default function operationsTests() {
     })
 
     test.describe('when there is 1 genre', () => {
+      let genre: CreatedGenre
+
       test.beforeAll(async () => {
         await createAccounts([
           {
@@ -60,7 +69,7 @@ export default function operationsTests() {
       })
 
       test.beforeEach(async ({ signInPage }) => {
-        await createGenres([{ name: 'Genre', type: 'STYLE' }])
+        ;[genre] = await createGenres([{ name: 'Genre', type: 'STYLE' }])
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -104,6 +113,7 @@ export default function operationsTests() {
         await expect(new GenreTreeGenre(genreTree.genres.first()).relevanceChip).toBeVisible()
         await expect(new GenreTreeGenre(genreTree.genres.first()).relevanceChip).toHaveText('?')
         await new GenreTreeGenre(genreTree.genres.first()).link.click()
+        await genrePage.page.waitForURL(GenreDetailsPage.url(genre.id))
         await genrePage.vote(5)
         await expect(new GenreTreeGenre(genreTree.genres.first()).relevanceChip).toBeVisible()
         await expect(new GenreTreeGenre(genreTree.genres.first()).relevanceChip).toHaveText('5')

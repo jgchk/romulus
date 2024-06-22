@@ -45,8 +45,8 @@
     </div>
 
     <div>
-      <Label>
-        Relevance
+      <div>
+        <Label>Relevance</Label>
         {#if $user && $user.permissions?.includes('EDIT_GENRES')}
           {' '}
           <button
@@ -56,7 +56,7 @@
             ({isVoting ? 'Cancel' : 'Vote'})
           </button>
         {/if}
-      </Label>
+      </div>
       <div>
         {#if data.genre.relevance === 99}
           None set.{' '}

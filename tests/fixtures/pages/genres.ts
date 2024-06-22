@@ -29,7 +29,7 @@ export class GenresPage {
           .getByLabel('Genre Search Results')
           .locator(this.page.getByRole('link', { name: 'Create one.' })),
       },
-      createGenreButton: this.page.getByRole('button', { name: 'New Genre' }),
+      createGenreButton: this.page.getByRole('link', { name: 'New Genre' }),
     }
   }
 
