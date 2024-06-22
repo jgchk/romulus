@@ -250,7 +250,9 @@
   </div>
 
   <Footer>
-    <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
+    {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+      <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
+    {/if}
     <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
     <div class="flex-1" />
     {#if $user && $user.permissions?.includes('EDIT_GENRES')}
