@@ -4,6 +4,7 @@ export class GenreTree {
   readonly emptyState: Locator
   readonly createGenreLink: Locator
   readonly genres: Locator
+  readonly collapseAllButton: Locator
 
   constructor(readonly page: Page) {
     this.emptyState = this.page
@@ -13,6 +14,7 @@ export class GenreTree {
       .getByLabel('Genre Tree')
       .locator(this.page.getByRole('link', { name: 'Create one.' }))
     this.genres = this.page.getByLabel('Genre Tree').locator('.genre-tree-node')
+    this.collapseAllButton = this.page.getByRole('button', { name: 'Collapse All' })
   }
 }
 

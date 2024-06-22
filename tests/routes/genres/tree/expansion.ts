@@ -24,6 +24,13 @@ export default function expansionTests() {
           new GenreTreeGenre(genreTree.genres.first()).expandCollapseButton,
         ).not.toBeVisible()
       })
+
+      test('should not show the collapse all button when a genre is selected', async ({
+        genreTree,
+      }) => {
+        await new GenreTreeGenre(genreTree.genres.first()).link.click()
+        await expect(genreTree.collapseAllButton).not.toBeVisible()
+      })
     })
 
     test.describe('when there are 2 genres', () => {
@@ -66,6 +73,24 @@ export default function expansionTests() {
         await expect(genreTree.genres).toHaveCount(2)
         await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
         await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
+      })
+
+      test('the collapse all button should show when a genre is expanded', async ({
+        genreTree,
+      }) => {
+        await expect(genreTree.collapseAllButton).not.toBeVisible()
+        await new GenreTreeGenre(genreTree.genres.nth(0)).expandButton.click()
+        await expect(genreTree.collapseAllButton).toBeVisible()
+        await new GenreTreeGenre(genreTree.genres.nth(0)).collapseButton.click()
+        await expect(genreTree.collapseAllButton).not.toBeVisible()
+      })
+
+      test('clicking the collapse all button should collapse all genres', async ({ genreTree }) => {
+        await expect(genreTree.genres).toHaveCount(1)
+        await new GenreTreeGenre(genreTree.genres.nth(0)).expandButton.click()
+        await expect(genreTree.genres).toHaveCount(2)
+        await genreTree.collapseAllButton.click()
+        await expect(genreTree.genres).toHaveCount(1)
       })
     })
 
