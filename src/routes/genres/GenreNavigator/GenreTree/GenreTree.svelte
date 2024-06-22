@@ -27,7 +27,16 @@
     }
   }
 
-  $: isAnyTopLevelExpanded = [...$treeState.expanded].some((key) => !key.includes('-'))
+  $: isAnyTopLevelExpanded = [...$treeState.expanded].some((key) => {
+    const isTopLevel = !key.includes('-')
+    if (!isTopLevel) return false
+
+    const genre = genres.find((genre) => genre.id === parseInt(key))
+    if (!genre) return false
+
+    const hasChildren = genre.children.length > 0
+    return hasChildren
+  })
 
   let ref: HTMLElement | undefined
 </script>
