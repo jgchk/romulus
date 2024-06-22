@@ -1,8 +1,9 @@
-import { db } from '$lib/server/db'
 import { asc, desc } from 'drizzle-orm'
 
-import type { PageServerLoad } from './$types'
+import { db } from '$lib/server/db'
 import { genreHistoryAkas } from '$lib/server/db/schema'
+
+import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async () => {
   const genreHistory = await db.query.genreHistory.findMany({

@@ -1,6 +1,5 @@
 <script lang="ts">
   import GenreDiff from '../GenreDiff.svelte'
-
   import { treeState } from '../GenreNavigator/GenreTree/state'
   import type { PageData } from './$types'
 

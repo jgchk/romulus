@@ -57,22 +57,23 @@
 </script>
 
 <script lang="ts">
+  import { equals, isEmpty } from 'ramda'
+
+  import { tooltip } from '$lib/actions/tooltip'
+  import Chip from '$lib/atoms/Chip.svelte'
+  import CommaList from '$lib/atoms/CommaList.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import LoaderLine from '$lib/atoms/LoaderLine.svelte'
+  import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import type { GenreHistory } from '$lib/server/db/schema'
-
   import type { GenreOperation } from '$lib/types/genres'
-  import { cn } from '$lib/utils/dom'
-  import { equals, isEmpty } from 'ramda'
-  import type { LayoutData } from './$types'
-  import CommaList from '$lib/atoms/CommaList.svelte'
-  import GenreLink from '$lib/components/GenreLink.svelte'
-  import LoaderLine from '$lib/atoms/LoaderLine.svelte'
-  import Chip from '$lib/atoms/Chip.svelte'
-  import { capitalize } from '$lib/utils/string'
-  import { tooltip } from '$lib/actions/tooltip'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
+  import { cn } from '$lib/utils/dom'
+  import { capitalize } from '$lib/utils/string'
+
+  import type { LayoutData } from './$types'
 
   type HistorySubset = Pick<
     GenreHistory,

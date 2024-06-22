@@ -1,5 +1,6 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { and, asc, desc, eq } from 'drizzle-orm'
+import { uniq } from 'ramda'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
@@ -16,10 +17,9 @@ import { createGenreHistoryEntry } from '$lib/server/db/utils'
 import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { median } from '$lib/utils/math'
+import { isNotNull } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
-import { uniq } from 'ramda'
-import { isNotNull } from '$lib/utils/types'
 
 const relevanceVoteSchema = z.object({
   relevanceVote: genreRelevance,

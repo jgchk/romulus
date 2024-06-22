@@ -1,4 +1,4 @@
-import { relations, type InferSelectModel } from 'drizzle-orm'
+import { type InferSelectModel,relations } from 'drizzle-orm'
 import {
   boolean,
   integer,
