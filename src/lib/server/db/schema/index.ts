@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm'
+import { relations, type InferSelectModel } from 'drizzle-orm'
 import {
   boolean,
   integer,
@@ -45,6 +45,7 @@ export const genresRelations = relations(genres, ({ many }) => ({
   history: many(genreHistory),
 }))
 
+export type GenreHistory = InferSelectModel<typeof genreHistory>
 export const genreHistory = pgTable('GenreHistory', {
   id: serial('id').primaryKey().notNull(),
   name: text('name').notNull(),

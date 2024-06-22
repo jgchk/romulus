@@ -1,19 +1,31 @@
 import { db } from '$lib/server/db'
+import { asc, desc } from 'drizzle-orm'
 
-import type { LayoutServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
+import { genreHistoryAkas } from '$lib/server/db/schema'
 
-export const load: LayoutServerLoad = async () => {
+export const load: PageServerLoad = async () => {
   const genreHistory = await db.query.genreHistory.findMany({
     columns: {
+      id: true,
       treeGenreId: true,
       name: true,
       subtitle: true,
       type: true,
       operation: true,
       createdAt: true,
+      shortDescription: true,
+      longDescription: true,
+      notes: true,
+      parentGenreIds: true,
+      influencedByGenreIds: true,
     },
     orderBy: (genreHistory, { desc }) => desc(genreHistory.createdAt),
     with: {
+      akas: {
+        columns: { name: true },
+        orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
+      },
       account: {
         columns: {
           id: true,
@@ -24,5 +36,10 @@ export const load: LayoutServerLoad = async () => {
     limit: 100,
   })
 
-  return { genreHistory }
+  return {
+    genreHistory: genreHistory.map(({ akas, ...genre }) => ({
+      akas: akas.map((aka) => aka.name),
+      ...genre,
+    })),
+  }
 }
