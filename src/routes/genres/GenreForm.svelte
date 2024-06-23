@@ -150,10 +150,10 @@
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
-      <Label for="influenced-by">Influenced By</Label>
+      <Label for="influences">Influences</Label>
       {#await genres}
         <GenreMultiselect
-          id="influenced-by"
+          id="influences"
           value={[]}
           exclude={id !== undefined ? [id] : []}
           genres={[]}
@@ -162,7 +162,7 @@
         />
       {:then genres}
         <GenreMultiselect
-          id="influenced-by"
+          id="influences"
           bind:value={$form.influencedBy}
           exclude={id !== undefined ? [id] : []}
           {genres}

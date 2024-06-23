@@ -107,7 +107,7 @@
 
     {#if data.genre.influencedBy.length > 0}
       <div>
-        <Label>Influenced By</Label>
+        <Label>Influences</Label>
         <div>
           <CommaList
             items={data.genre.influencedBy}

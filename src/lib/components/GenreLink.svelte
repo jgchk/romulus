@@ -14,16 +14,11 @@
   export { class_ as class }
 </script>
 
-<a href="/genres/{id}" class={tw('font-bold text-primary-500 hover:underline', class_)}>
-  {name}
-  {#if subtitle}
-    {' '}
-    <span class="text-[0.875em] text-primary-600 transition">
-      [{subtitle}]
-    </span>
-  {/if}
-  {#if type && type !== 'STYLE' && $userSettings.showTypeTags}
-    {' '}
-    <GenreTypeChip {type} class="bg-primary-100 text-primary-400" />
-  {/if}
-</a>
+<a href="/genres/{id}" class={tw('font-bold text-primary-500 hover:underline', class_)}
+  >{name}{#if subtitle}{' '}<span class="text-[0.875em] text-primary-600 transition"
+      >[{subtitle}]</span
+    >{/if}{#if type && type !== 'STYLE' && $userSettings.showTypeTags}{' '}<GenreTypeChip
+      {type}
+      class="bg-primary-100 text-primary-400"
+    />{/if}</a
+>
