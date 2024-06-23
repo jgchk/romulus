@@ -2,15 +2,15 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
+import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
 import { GenresPage } from '../../../fixtures/pages/genres'
 import {
   createAccounts,
+  type CreatedGenre,
   createGenres,
   deleteAccounts,
   deleteGenres,
-  type CreatedGenre,
 } from '../../../utils'
-import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-operations',
