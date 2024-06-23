@@ -62,15 +62,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const data = {
     ...genre,
     primaryAkas: akas
-      .filter((aka) => aka.order === 1)
+      .filter((aka) => aka.relevance === 3)
       .map((aka) => aka.name)
       .join(', '),
     secondaryAkas: akas
-      .filter((aka) => aka.order === 2)
+      .filter((aka) => aka.relevance === 2)
       .map((aka) => aka.name)
       .join(', '),
     tertiaryAkas: akas
-      .filter((aka) => aka.order === 3)
+      .filter((aka) => aka.relevance === 1)
       .map((aka) => aka.name)
       .join(', '),
     parents: parents.map((parent) => parent.parentId),
