@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 
 import { db } from '$lib/server/db'
 
@@ -10,6 +10,10 @@ export const load: PageServerLoad = async () => {
       id: true,
     },
   })
+
+  if (ids.length === 0) {
+    return error(404, 'No genres found')
+  }
 
   const randomId = ids[Math.floor(Math.random() * ids.length)].id
 
