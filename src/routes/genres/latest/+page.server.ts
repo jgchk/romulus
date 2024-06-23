@@ -1,12 +1,13 @@
-import { asc, desc } from 'drizzle-orm'
+import { and, asc, desc, eq, lt } from 'drizzle-orm'
 
 import { db } from '$lib/server/db'
-import { genreHistoryAkas } from '$lib/server/db/schema'
+import { genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
+import { ifDefined } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async () => {
-  const genreHistory = await db.query.genreHistory.findMany({
+  const results = await db.query.genreHistory.findMany({
     columns: {
       id: true,
       treeGenreId: true,
@@ -37,10 +38,34 @@ export const load: PageServerLoad = async () => {
     limit: 100,
   })
 
-  return {
-    genreHistory: genreHistory.map(({ akas, ...genre }) => ({
-      akas: akas.map((aka) => aka.name),
-      ...genre,
-    })),
-  }
+  const history = await Promise.all(
+    results.map(async ({ akas, ...genre }) => {
+      const maybePreviousHistory = await db.query.genreHistory.findFirst({
+        where: and(
+          eq(genreHistory.treeGenreId, genre.treeGenreId),
+          lt(genreHistory.createdAt, genre.createdAt),
+        ),
+        orderBy: desc(genreHistory.createdAt),
+        with: {
+          akas: {
+            columns: { name: true },
+            orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
+          },
+        },
+      })
+
+      const previousHistory = ifDefined(maybePreviousHistory, ({ akas, ...ph }) => ({
+        akas: akas.map((aka) => aka.name),
+        ...ph,
+      }))
+
+      return {
+        akas: akas.map((aka) => aka.name),
+        previousHistory,
+        ...genre,
+      }
+    }),
+  )
+
+  return { genreHistory: history }
 }
