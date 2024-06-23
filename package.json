@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "dotenv -e .env -- vite dev",
     "build": "vite build",
+    "build:vercel": "pnpm build && pnpm migrate",
     "preview": "vite preview",
     "test": "pnpm run test:unit run && pnpm run test:integration",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
