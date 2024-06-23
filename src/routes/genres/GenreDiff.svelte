@@ -32,13 +32,13 @@
   const getLabelClass = (action: DiffAction) => {
     switch (action) {
       case 'create': {
-        return 'dark:text-success-500'
+        return 'text-success-500 dark:text-success-500 transition'
       }
       case 'update': {
-        return 'dark:text-warning-500'
+        return 'text-warning-500 dark:text-warning-500 transition'
       }
       case 'delete': {
-        return 'dark:text-error-500'
+        return 'text-error-500 dark:text-error-500 transition'
       }
     }
   }
@@ -116,8 +116,12 @@
   }
 </script>
 
-<div class="rounded border border-gray-700 bg-gray-800">
-  <div class="flex w-full items-center justify-between gap-2 border-b border-gray-700 p-2">
+<div
+  class="rounded border border-gray-300 bg-gray-200 transition dark:border-gray-700 dark:bg-gray-800"
+>
+  <div
+    class="flex w-full items-center justify-between gap-2 border-b border-gray-300 p-2 transition dark:border-gray-700"
+  >
     <Chip
       class={cn(
         currentHistory.operation === 'DELETE' && 'text-error-500',
@@ -134,7 +138,7 @@
     {:else}
       <div class="text-gray-500 line-through">Deleted</div>
     {/if}
-    <div class="text-xs text-gray-400">
+    <div class="text-xs text-gray-600 transition dark:text-gray-400">
       <span class="cursor-default" use:tooltip={{ content: toPrettyDate(currentHistory.createdAt) }}
         >{getTimeSinceShort(currentHistory.createdAt)}</span
       >
@@ -373,16 +377,18 @@
       </div>
     {/if}
     {#if overflows && !expanded}
-      <div class="absolute bottom-0 h-4 w-full bg-gradient-to-t from-gray-800 to-transparent" />
+      <div
+        class="absolute bottom-0 h-4 w-full bg-gradient-to-t from-gray-200 to-transparent transition dark:from-gray-800"
+      />
     {/if}
   </div>
   {#if overflows}
     <button
-      class="group w-full p-1 text-sm text-gray-400 transition hover:text-gray-300"
+      class="group w-full p-1 text-sm text-gray-500 transition hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
       on:click={() => (expanded = !expanded)}
     >
       <div
-        class="flex w-full items-center justify-center gap-1 rounded-sm bg-transparent p-0.5 transition group-hover:bg-gray-700"
+        class="flex w-full items-center justify-center gap-1 rounded-sm bg-transparent p-0.5 transition group-hover:bg-gray-300 dark:group-hover:bg-gray-700"
       >
         <ChevronDownIcon
           class={cn('h-4 w-4 transform transition-transform', expanded && 'rotate-180')}
