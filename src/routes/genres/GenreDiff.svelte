@@ -62,6 +62,7 @@
   import { capitalize } from '$lib/utils/string'
 
   import type { LayoutData } from './$types'
+  import AccountLink from '$lib/components/AccountLink.svelte'
 
   type HistorySubset = Pick<
     GenreHistory,
@@ -131,10 +132,11 @@
       text={capitalize(currentHistory.operation)}
     />
     {#if currentHistory.account}
-      <a
-        href="/accounts/{currentHistory.account.id}"
-        class="text-xs text-primary-500 hover:underline">{currentHistory.account.username}</a
-      >
+      <AccountLink
+        id={currentHistory.account.id}
+        username={currentHistory.account.username}
+        class="text-xs"
+      />
     {:else}
       <div class="text-gray-500 line-through">Deleted</div>
     {/if}

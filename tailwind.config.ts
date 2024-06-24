@@ -20,6 +20,9 @@ const config = {
       warning: colors.yellow,
       error: colors.red,
 
+      code1: colors.orange,
+      code2: colors.red,
+
       inherit: colors.inherit,
       current: colors.current,
       transparent: colors.transparent,

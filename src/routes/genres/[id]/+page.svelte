@@ -5,6 +5,7 @@
   import Dialog from '$lib/atoms/Dialog.svelte'
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
+  import AccountLink from '$lib/components/AccountLink.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { user } from '$lib/contexts/user'
@@ -240,9 +241,7 @@
             let:item
             class="text-gray-600 transition dark:text-gray-400"
           >
-            <a class="text-primary-500 hover:underline" href="/accounts/{item.id}"
-              >{item.username}</a
-            >
+            <AccountLink id={item.id} username={item.username} />
           </CommaList>
         </div>
       </div>
