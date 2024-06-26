@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
+import { GenresPage } from './genres'
+
 export class SignInPage {
   static readonly url = '/sign-in'
 
@@ -23,5 +25,6 @@ export class SignInPage {
     await this.usernameInput.fill(username)
     await this.passwordInput.fill(password)
     await this.submitButton.click()
+    await this.page.waitForURL(GenresPage.url)
   }
 }

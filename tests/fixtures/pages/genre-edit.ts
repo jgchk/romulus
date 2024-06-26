@@ -17,6 +17,6 @@ export class EditGenrePage extends GenreForm {
   }
 
   static url(id: number) {
-    return `/genres/edit/${id}`
+    return `/genres/${id}/edit`
   }
 }

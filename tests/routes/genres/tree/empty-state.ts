@@ -2,7 +2,6 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { CreateGenrePage } from '../../../fixtures/pages/genre-create'
-import { GenresPage } from '../../../fixtures/pages/genres'
 import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
@@ -37,7 +36,6 @@ export default function emptyStateTests() {
           test.beforeEach(async ({ signInPage }) => {
             await signInPage.goto()
             await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-            await signInPage.page.waitForURL(GenresPage.url)
           })
 
           test('should show empty state', async ({ genreTree }) => {
@@ -58,7 +56,6 @@ export default function emptyStateTests() {
           test.beforeEach(async ({ signInPage }) => {
             await signInPage.goto()
             await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-            await signInPage.page.waitForURL(GenresPage.url)
           })
 
           test('should show empty state with CTA to create a genre', async ({

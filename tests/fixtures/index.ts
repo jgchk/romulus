@@ -1,9 +1,11 @@
 import { test as base } from '@playwright/test'
 
 import { GenreTree } from './elements/genre-tree'
+import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
 import { GenreDetailsPage } from './pages/genre-details'
 import { EditGenrePage } from './pages/genre-edit'
+import { GenreHistoryPage } from './pages/genre-history'
 import { GenresPage } from './pages/genres'
 import { SignInPage } from './pages/sign-in'
 import { SignUpPage } from './pages/sign-up'
@@ -37,8 +39,10 @@ export const test = base
   .extend<{
     createGenrePage: CreateGenrePage
     editGenrePage: EditGenrePage
+    errorPage: ErrorPage
     genresPage: GenresPage
     genrePage: GenreDetailsPage
+    genreHistoryPage: GenreHistoryPage
     signInPage: SignInPage
     signUpPage: SignUpPage
   }>({
@@ -48,11 +52,17 @@ export const test = base
     editGenrePage: async ({ page }, use) => {
       await use(new EditGenrePage(page))
     },
+    errorPage: async ({ page }, use) => {
+      await use(new ErrorPage(page))
+    },
     genresPage: async ({ page }, use) => {
       await use(new GenresPage(page))
     },
     genrePage: async ({ page }, use) => {
       await use(new GenreDetailsPage(page))
+    },
+    genreHistoryPage: async ({ page }, use) => {
+      await use(new GenreHistoryPage(page))
     },
     signInPage: async ({ page }, use) => {
       await use(new SignInPage(page))

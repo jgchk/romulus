@@ -53,6 +53,7 @@
   import CommaList from '$lib/atoms/CommaList.svelte'
   import Label from '$lib/atoms/Label.svelte'
   import LoaderLine from '$lib/atoms/LoaderLine.svelte'
+  import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import ChevronDownIcon from '$lib/icons/ChevronDownIcon.svelte'
   import type { GenreHistory } from '$lib/server/db/schema'
@@ -62,7 +63,6 @@
   import { capitalize } from '$lib/utils/string'
 
   import type { LayoutData } from './$types'
-  import AccountLink from '$lib/components/AccountLink.svelte'
 
   type HistorySubset = Pick<
     GenreHistory,
@@ -118,13 +118,14 @@
 </script>
 
 <div
-  class="rounded border border-gray-300 bg-gray-200 transition dark:border-gray-700 dark:bg-gray-800"
+  class="genre-diff rounded border border-gray-300 bg-gray-200 transition dark:border-gray-700 dark:bg-gray-800"
 >
   <div
     class="flex w-full items-center justify-between gap-2 border-b border-gray-300 p-2 transition dark:border-gray-700"
   >
     <Chip
       class={cn(
+        'genre-diff__operation',
         currentHistory.operation === 'DELETE' && 'text-error-500',
         currentHistory.operation === 'CREATE' && 'text-success-500',
         currentHistory.operation === 'UPDATE' && 'text-warning-500',
@@ -135,12 +136,12 @@
       <AccountLink
         id={currentHistory.account.id}
         username={currentHistory.account.username}
-        class="text-xs"
+        class="genre-diff__account text-xs"
       />
     {:else}
-      <div class="text-gray-500 line-through">Deleted</div>
+      <div class="genre-diff__account text-gray-500 line-through">Deleted</div>
     {/if}
-    <div class="text-xs text-gray-600 transition dark:text-gray-400">
+    <div class="genre-diff__time text-xs text-gray-600 transition dark:text-gray-400">
       <span class="cursor-default" use:tooltip={{ content: toPrettyDate(currentHistory.createdAt) }}
         >{getTimeSinceShort(currentHistory.createdAt)}</span
       >
@@ -159,8 +160,9 @@
           <Label class={cn('text-xs', getLabelClass(changed.name))}>Name</Label>
           <div class="text-sm">
             {#if changed.name !== 'delete'}
-              <a class="hover:underline" href="/genres/{currentHistory.treeGenreId}"
-                >{currentHistory.name}</a
+              <a
+                class="genre-diff__name hover:underline"
+                href="/genres/{currentHistory.treeGenreId}">{currentHistory.name}</a
               >
             {/if}
             {#if changed.name === 'update'}
@@ -177,7 +179,7 @@
             <Label class={cn('text-xs', getLabelClass(changed.subtitle))}>Subtitle</Label>
             <div class="text-sm">
               {#if changed.subtitle !== 'delete'}
-                {currentHistory.subtitle}
+                <span class="genre-diff__subtitle">{currentHistory.subtitle}</span>
               {/if}
               {#if changed.subtitle === 'update'}
                 {' '}
@@ -193,7 +195,7 @@
           <Label class={cn('text-xs', getLabelClass(changed.type))}>Type</Label>
           <div class="text-sm">
             {#if changed.type !== 'delete'}
-              {capitalize(currentHistory.type)}
+              <span class="genre-diff__type">{capitalize(currentHistory.type)}</span>
             {/if}
             {#if changed.type === 'update'}
               {' '}
@@ -211,7 +213,7 @@
             <Label class={cn('text-xs', getLabelClass(changed.akas))}>AKAs</Label>
             <div class="text-sm">
               {#if changed.akas !== 'delete'}
-                <div>{currentHistory.akas.join(', ')}</div>
+                <div class="genre-diff__akas">{currentHistory.akas.join(', ')}</div>
               {/if}
               {#if changed.akas === 'delete' || changed.akas === 'update'}
                 <div class="text-gray-500 line-through">{previousHistory?.akas.join(', ')}</div>
@@ -222,7 +224,7 @@
 
         {#if previousHistory?.parentGenreIds?.length || currentHistory.parentGenreIds?.length}
           <div class={cn(!changed.parentGenreIds && 'opacity-50')}>
-            <Label class={cn('text-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
+            <Label class={cn('gtext-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
             <div class="text-sm">
               {#await genres}
                 <div class="flex h-[26px] items-center">
@@ -233,7 +235,7 @@
                   <CommaList
                     items={currentHistory.parentGenreIds ?? []}
                     let:item={id}
-                    class="block"
+                    class="genre-diff__parents block"
                   >
                     {@const genre = genres.find((g) => g.id === id)}
                     {#if genre}
@@ -279,7 +281,7 @@
                   <CommaList
                     items={currentHistory.influencedByGenreIds ?? []}
                     let:item={id}
-                    class="block"
+                    class="genre-diff__influences block"
                   >
                     {@const genre = genres.find((g) => g.id === id)}
                     {#if genre}
@@ -326,7 +328,9 @@
                     <Romcode data={previousHistory?.shortDescription ?? ''} {genres} />
                   </span>
                 {:else}
-                  <Romcode data={currentHistory.shortDescription ?? ''} {genres} />
+                  <span class="genre-diff__short-description">
+                    <Romcode data={currentHistory.shortDescription ?? ''} {genres} />
+                  </span>
                 {/if}
               {/await}
             </div>
@@ -349,7 +353,9 @@
                     <Romcode data={previousHistory?.longDescription ?? ''} {genres} />
                   </span>
                 {:else}
-                  <Romcode data={currentHistory.longDescription ?? ''} {genres} />
+                  <span class="genre-diff__long-description">
+                    <Romcode data={currentHistory.longDescription ?? ''} {genres} />
+                  </span>
                 {/if}
               {/await}
             </div>
@@ -370,7 +376,9 @@
                     <Romcode data={previousHistory?.notes ?? ''} {genres} />
                   </span>
                 {:else}
-                  <Romcode data={currentHistory.notes ?? ''} {genres} />
+                  <span class="genre-diff__notes">
+                    <Romcode data={currentHistory.notes ?? ''} {genres} />
+                  </span>
                 {/if}
               {/await}
             </div>

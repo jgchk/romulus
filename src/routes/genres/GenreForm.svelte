@@ -132,6 +132,7 @@
       {#await genres}
         <GenreMultiselect
           id="parents"
+          class="genre-parents"
           value={[]}
           exclude={id !== undefined ? [id] : []}
           genres={[]}
@@ -141,6 +142,7 @@
       {:then genres}
         <GenreMultiselect
           id="parents"
+          class="genre-parents"
           bind:value={$form.parents}
           exclude={id !== undefined ? [id] : []}
           {genres}
@@ -154,6 +156,7 @@
       {#await genres}
         <GenreMultiselect
           id="influences"
+          class="genre-influences"
           value={[]}
           exclude={id !== undefined ? [id] : []}
           genres={[]}
@@ -163,6 +166,7 @@
       {:then genres}
         <GenreMultiselect
           id="influences"
+          class="genre-influences"
           bind:value={$form.influencedBy}
           exclude={id !== undefined ? [id] : []}
           {genres}

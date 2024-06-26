@@ -32,7 +32,7 @@
     {#if data.genre.akas.length > 0}
       <div>
         <Label>AKA</Label>
-        <div>
+        <div class="genre-akas">
           {data.genre.akas.join(', ')}
         </div>
       </div>
@@ -40,7 +40,7 @@
 
     <div>
       <Label>Type</Label>
-      <div class="capitalize">
+      <div class="genre-type capitalize">
         {GenreTypeNames[data.genre.type]}
       </div>
     </div>
@@ -58,7 +58,7 @@
           </button>
         {/if}
       </div>
-      <div>
+      <div class="genre-relevance">
         {#if data.genre.relevance === 99}
           None set.{' '}
           <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
@@ -89,7 +89,7 @@
     {#if data.genre.parents.length > 0}
       <div>
         <Label>Parents</Label>
-        <div>
+        <div class="genre-parents">
           <CommaList
             items={data.genre.parents}
             let:item={genre}
@@ -109,7 +109,7 @@
     {#if data.genre.influencedBy.length > 0}
       <div>
         <Label>Influences</Label>
-        <div>
+        <div class="genre-influences">
           <CommaList
             items={data.genre.influencedBy}
             let:item={genre}
@@ -129,7 +129,7 @@
     {#if data.genre.influences.length > 0}
       <div>
         <Label>Influenced</Label>
-        <div>
+        <div class="genre-influenced">
           <CommaList
             items={data.genre.influences}
             let:item={genre}
@@ -148,7 +148,7 @@
 
     <div>
       <Label>Short Description</Label>
-      <div>
+      <div class="genre-short-description">
         {#if data.genre.shortDescription}
           {#await data.streamed.genres}
             <div class="w-[75%] space-y-2 pt-1">
@@ -177,7 +177,7 @@
 
     <div>
       <Label>Long Description</Label>
-      <div>
+      <div class="genre-long-description">
         {#if data.genre.longDescription}
           {#await data.streamed.genres}
             <div class="w-[75%] space-y-2 pt-1">
@@ -216,7 +216,7 @@
                 <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
               </div>
             {:then genres}
-              <div transition:slide|local={{ axis: 'y' }}>
+              <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
                 <Romcode data={data.genre.notes} {genres} />
               </div>
             {/await}
@@ -235,7 +235,7 @@
     {#if data.contributors.length}
       <div>
         <Label>Contributors</Label>
-        <div>
+        <div class="genre-contributors">
           <CommaList
             items={data.contributors}
             let:item

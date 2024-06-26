@@ -152,7 +152,7 @@
 <div
   use:popoverReference
   data-invalid={errors}
-  class={tw('relative', class_)}
+  class={tw('multiselect relative', class_)}
   use:clickOutside={(e) => {
     if (open) {
       e.stopPropagation()
@@ -166,7 +166,7 @@
         {#each value as v (v.value)}
           <button
             type="button"
-            class="rounded-[3px] bg-gray-300 px-1 py-0.5 text-sm transition hover:bg-error-600 hover:bg-opacity-75 dark:bg-gray-600"
+            class="multiselect__selected rounded-[3px] bg-gray-300 px-1 py-0.5 text-sm transition hover:bg-error-600 hover:bg-opacity-75 dark:bg-gray-600"
             use:tooltip={{ content: 'Remove' }}
             on:click={() => {
               handleRemove(v)

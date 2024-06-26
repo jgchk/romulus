@@ -3,7 +3,6 @@ import { expect } from '@playwright/test'
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
 import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
-import { GenresPage } from '../../../fixtures/pages/genres'
 import {
   createAccounts,
   type CreatedGenre,
@@ -32,7 +31,6 @@ export default function operationsTests() {
       test.beforeEach(async ({ signInPage }) => {
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       test('should update with new genre upon creation', async ({
@@ -73,7 +71,6 @@ export default function operationsTests() {
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       test.afterEach(async () => {
@@ -142,7 +139,6 @@ export default function operationsTests() {
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       test.afterEach(async () => {
@@ -186,7 +182,6 @@ export default function operationsTests() {
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       test.afterEach(async () => {

@@ -24,7 +24,9 @@ export class GenreForm {
   }
   readonly typeInput: Locator
   readonly parentsInput: Locator
+  readonly selectedParents: Locator
   readonly influencesInput: Locator
+  readonly selectedInfluences: Locator
   readonly shortDescriptionInput: Locator
   readonly longDescriptionInput: Locator
   readonly notesInput: Locator
@@ -41,7 +43,9 @@ export class GenreForm {
     }
     this.typeInput = this.page.getByLabel('Type')
     this.parentsInput = this.page.getByLabel('Parents')
+    this.selectedParents = this.page.locator('.genre-parents .multiselect__selected')
     this.influencesInput = this.page.getByLabel('Influences')
+    this.selectedInfluences = this.page.locator('.genre-influences .multiselect__selected')
     this.shortDescriptionInput = this.page.getByLabel('Short Description')
     this.longDescriptionInput = this.page.getByLabel('Long Description')
     this.notesInput = this.page.getByLabel('Notes')
@@ -58,8 +62,8 @@ export class GenreForm {
       if (data.akas.tertiary) await this.akaInputs.tertiary.fill(data.akas.tertiary)
     }
     if (data.type) await this.selectType(data.type)
-    if (data.parents) await this.parentsInput.fill(data.parents.join(', ')) // TODO
-    if (data.influences) await this.influencesInput.fill(data.influences.join(', ')) // TODO
+    if (data.parents) await this.selectParents(data.parents)
+    if (data.influences) await this.selectInfluences(data.influences)
     if (data.shortDescription) await this.shortDescriptionInput.fill(data.shortDescription)
     if (data.longDescription) await this.longDescriptionInput.fill(data.longDescription)
     if (data.notes) await this.notesInput.fill(data.notes)
@@ -69,5 +73,35 @@ export class GenreForm {
     await this.typeInput.click()
     await this.typeInput.fill(type)
     await this.typeInput.press('Enter')
+  }
+
+  async selectParents(parents: string[]) {
+    await this.clearParents()
+    for (const parent of parents) {
+      await this.parentsInput.fill(parent)
+      await this.parentsInput.press('Enter')
+    }
+  }
+
+  async clearParents() {
+    const selectedParent = this.selectedParents.first()
+    while (await selectedParent.isVisible()) {
+      await selectedParent.click()
+    }
+  }
+
+  async selectInfluences(influences: string[]) {
+    await this.clearInfluences()
+    for (const influence of influences) {
+      await this.influencesInput.fill(influence)
+      await this.influencesInput.press('Enter')
+    }
+  }
+
+  async clearInfluences() {
+    const selectedInfluence = this.selectedInfluences.first()
+    while (await selectedInfluence.isVisible()) {
+      await selectedInfluence.click()
+    }
   }
 }

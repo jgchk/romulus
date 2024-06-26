@@ -2,9 +2,13 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
-import { GenresPage } from '../../../fixtures/pages/genres'
-import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
-import { type InsertTestGenre } from '../../../utils/genres'
+import {
+  createAccounts,
+  createGenres,
+  deleteAccounts,
+  deleteGenres,
+  type InsertTestGenre,
+} from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-chips',
@@ -71,7 +75,6 @@ export default function chipsTests() {
       test.beforeEach(async ({ signInPage }) => {
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       testTypeTagVisibility(true)
@@ -92,7 +95,6 @@ export default function chipsTests() {
       test.beforeEach(async ({ signInPage }) => {
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       testTypeTagVisibility(false)
@@ -113,7 +115,6 @@ export default function chipsTests() {
       test.beforeEach(async ({ signInPage }) => {
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-        await signInPage.page.waitForURL(GenresPage.url)
       })
 
       testTypeTagVisibility(true)
