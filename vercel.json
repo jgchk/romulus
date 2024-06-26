@@ -1,0 +1,4 @@
+{
+  "framework": "sveltekit",
+  "buildCommand": "pnpm build:vercel"
+}
