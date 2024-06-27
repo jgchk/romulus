@@ -47,7 +47,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       - name: Run integration tests
         run: pnpm run test:integration
         env:
-          DATABASE_URL: postgres://postgres:postgres@postgres:${{ job.services.postgres.ports['5432'] }}/postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
