@@ -50,4 +50,4 @@ jobs:
       - name: Run integration tests
         run: pnpm run test:integration
         env:
-          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:${{ job.services.postgres.ports['5432'] }}/postgres
