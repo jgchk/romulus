@@ -13,7 +13,7 @@ const config = {
     colors: {
       primary: colors.blue,
       secondary: colors.orange,
-      gray: colors.stone,
+      gray: colors.gray,
 
       success: colors.green,
       info: colors.blue,
