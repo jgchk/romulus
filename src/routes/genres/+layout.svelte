@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment'
+  import { page } from '$app/stores'
   import Card from '$lib/atoms/Card.svelte'
   import SplitPane from '$lib/atoms/SplitPane.svelte'
 
@@ -34,3 +35,13 @@
     </Card>
   </svelte:fragment>
 </SplitPane>
+
+{#if $page.url.pathname === '/genres'}
+  <div class="h-full md:hidden">
+    <GenreNavigator genres={data.streamed.genres} />
+  </div>
+{:else}
+  <Card class="h-full overflow-auto md:hidden">
+    <slot />
+  </Card>
+{/if}
