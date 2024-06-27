@@ -14,42 +14,44 @@
   const { form, errors, constraints, delayed, enhance } = superForm(data.form)
 </script>
 
-<form method="POST" use:enhance>
-  <InputGroup errors={$errors.username}>
-    <Label for="username">Username</Label>
-    <Input
-      type="text"
-      id="username"
-      name="username"
-      autofocus
-      bind:value={$form.username}
-      {...$constraints.username}
-    />
-  </InputGroup>
+<div class="flex h-full w-full items-center justify-center">
+  <form method="POST" use:enhance class="space-y-2">
+    <InputGroup errors={$errors.username}>
+      <Label for="username">Username</Label>
+      <Input
+        type="text"
+        id="username"
+        name="username"
+        autofocus
+        bind:value={$form.username}
+        {...$constraints.username}
+      />
+    </InputGroup>
 
-  <InputGroup errors={$errors.password}>
-    <Label for="password">Password</Label>
-    <Input
-      type="password"
-      id="password"
-      name="password"
-      bind:value={$form.password}
-      {...$constraints.password}
-    />
-  </InputGroup>
+    <InputGroup errors={$errors.password}>
+      <Label for="password">Password</Label>
+      <Input
+        type="password"
+        id="password"
+        name="password"
+        bind:value={$form.password}
+        {...$constraints.password}
+      />
+    </InputGroup>
 
-  <InputGroup errors={$errors.confirmPassword}>
-    <Label for="confirm-password">Confirm password</Label>
-    <Input
-      type="password"
-      id="confirm-password"
-      name="confirmPassword"
-      bind:value={$form.confirmPassword}
-      {...$constraints.confirmPassword}
-    />
-  </InputGroup>
+    <InputGroup errors={$errors.confirmPassword}>
+      <Label for="confirm-password">Confirm password</Label>
+      <Input
+        type="password"
+        id="confirm-password"
+        name="confirmPassword"
+        bind:value={$form.confirmPassword}
+        {...$constraints.confirmPassword}
+      />
+    </InputGroup>
 
-  <Button type="submit" loading={$delayed}>Sign up</Button>
+    <Button type="submit" loading={$delayed}>Sign up</Button>
 
-  <ErrorText errors={$errors._errors} />
-</form>
+    <ErrorText errors={$errors._errors} />
+  </form>
+</div>
