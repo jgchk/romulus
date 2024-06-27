@@ -40,6 +40,7 @@
       <Input
         id="name"
         name="name"
+        class="w-full"
         bind:value={$form.name}
         autofocus={autoFocus === 'name'}
         {...$constraints.name}
@@ -51,6 +52,7 @@
       <Input
         id="subtitle"
         name="subtitle"
+        class="w-full"
         value={$form.subtitle ?? ''}
         on:input={(e) => ($form.subtitle = e.currentTarget.value)}
         autofocus={autoFocus === 'subtitle'}
@@ -75,6 +77,7 @@
           <Input
             id="primary-akas"
             name="primary-akas"
+            class="w-full"
             value={$form.primaryAkas ?? ''}
             on:input={(e) => ($form.primaryAkas = e.currentTarget.value)}
             autofocus={autoFocus === 'primaryAkas'}
@@ -94,6 +97,7 @@
           <Input
             id="secondary-akas"
             name="secondary-akas"
+            class="w-full"
             value={$form.secondaryAkas ?? ''}
             on:input={(e) => ($form.secondaryAkas = e.currentTarget.value)}
             autofocus={autoFocus === 'secondaryAkas'}
@@ -113,6 +117,7 @@
           <Input
             id="tertiary-akas"
             name="tertiary-akas"
+            class="w-full"
             value={$form.tertiaryAkas ?? ''}
             on:input={(e) => ($form.tertiaryAkas = e.currentTarget.value)}
             autofocus={autoFocus === 'tertiaryAkas'}
@@ -124,7 +129,7 @@
 
     <InputGroup errors={$errors.type}>
       <Label for="type">Type</Label>
-      <GenreTypeSelect id="type" bind:value={$form.type} />
+      <GenreTypeSelect id="type" class="w-full" bind:value={$form.type} />
     </InputGroup>
 
     <InputGroup errors={$errors.parents?._errors}>
@@ -132,7 +137,7 @@
       {#await genres}
         <GenreMultiselect
           id="parents"
-          class="genre-parents"
+          class="genre-parents w-full"
           value={[]}
           exclude={id !== undefined ? [id] : []}
           genres={[]}
@@ -142,7 +147,7 @@
       {:then genres}
         <GenreMultiselect
           id="parents"
-          class="genre-parents"
+          class="genre-parents w-full"
           bind:value={$form.parents}
           exclude={id !== undefined ? [id] : []}
           {genres}
@@ -156,7 +161,7 @@
       {#await genres}
         <GenreMultiselect
           id="influences"
-          class="genre-influences"
+          class="genre-influences w-full"
           value={[]}
           exclude={id !== undefined ? [id] : []}
           genres={[]}
@@ -166,7 +171,7 @@
       {:then genres}
         <GenreMultiselect
           id="influences"
-          class="genre-influences"
+          class="genre-influences w-full"
           bind:value={$form.influencedBy}
           exclude={id !== undefined ? [id] : []}
           {genres}
