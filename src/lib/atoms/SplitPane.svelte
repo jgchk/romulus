@@ -5,7 +5,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
 
-  import { tw, unfocus } from '$lib/utils/dom'
+  import { cn, tw, unfocus } from '$lib/utils/dom'
 
   let class_: string | undefined = undefined
   export { class_ as class }
@@ -13,6 +13,7 @@
   export let defaultSize: number | undefined = undefined
   export let minSize = 50
   export let maxSize: number | undefined = undefined
+  export let onSmallScreenCollapseto: 'left' | 'right' = 'left'
 
   export let leftSize = getDefaultSize(defaultSize, minSize, maxSize)
 
@@ -100,7 +101,10 @@
 
 <div class={tw('flex', class_)} bind:this={containerRef}>
   <div
-    class="relative flex-none outline-none"
+    class={cn(
+      'relative outline-none',
+      onSmallScreenCollapseto === 'right' ? 'hidden flex-none md:block' : 'flex-1 md:flex-none',
+    )}
     style={leftSize === undefined ? undefined : `width: ${leftSize}px;`}
     bind:this={leftRef}
   >
@@ -108,7 +112,7 @@
   </div>
   <button
     class={tw(
-      'group w-px cursor-col-resize rounded-full bg-transparent px-1 py-[6px] transition hover:bg-primary-100 dark:hover:bg-primary-950',
+      'group hidden w-px cursor-col-resize rounded-full bg-transparent px-1 py-[6px] transition hover:bg-primary-100 md:block dark:hover:bg-primary-950',
       active && 'bg-primary-100 dark:bg-primary-950',
     )}
     on:mousedown={handleMouseDown}
@@ -122,7 +126,13 @@
       )}
     />
   </button>
-  <div class="relative flex-1 outline-none" bind:this={rightRef}>
+  <div
+    class={cn(
+      'relative flex-1 outline-none',
+      onSmallScreenCollapseto === 'left' && 'hidden md:block',
+    )}
+    bind:this={rightRef}
+  >
     <slot name="right" />
   </div>
 </div>

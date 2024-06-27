@@ -23,8 +23,9 @@
   defaultSize={leftPaneSize}
   minSize={200}
   maxSize={windowWidth - 300}
-  class="hidden h-full pt-0 md:flex"
+  class="h-full pt-0"
   on:resize={(e) => (leftPaneSize = e.detail)}
+  onSmallScreenCollapseto={$page.url.pathname === '/genres' ? 'left' : 'right'}
 >
   <svelte:fragment slot="left">
     <GenreNavigator genres={data.streamed.genres} />
@@ -35,13 +36,3 @@
     </Card>
   </svelte:fragment>
 </SplitPane>
-
-{#if $page.url.pathname === '/genres'}
-  <div class="h-full md:hidden">
-    <GenreNavigator genres={data.streamed.genres} />
-  </div>
-{:else}
-  <Card class="h-full overflow-auto md:hidden">
-    <slot />
-  </Card>
-{/if}
