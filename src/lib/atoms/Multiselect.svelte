@@ -13,7 +13,6 @@
   import { createPopoverActions } from '$lib/actions/popover'
   import { tooltip } from '$lib/actions/tooltip'
   import { getInputGroupErrors } from '$lib/atoms/InputGroup'
-  import { slide } from '$lib/transitions/slide'
   import { sortBy } from '$lib/utils/array'
   import { cn, tw } from '$lib/utils/dom'
   import { diceCoefficient } from '$lib/utils/string'
