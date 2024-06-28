@@ -28,9 +28,8 @@ jobs:
         run: pnpm install
 
       - name: Run linting
-        run: pnpm run lint
-        env:
-          NODE_OPTIONS: '--max_old_space_size=4096'
+        run: |
+          NODE_OPTIONS=--max_old_space_size=8192 pnpm run lint
 
   test-e2e:
     runs-on: ubuntu-latest
