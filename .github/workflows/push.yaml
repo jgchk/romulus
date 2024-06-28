@@ -37,8 +37,6 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
-        env:
-          NODE_OPTIONS: --max_old_space_size=16384
 
   test-e2e:
     runs-on: ubuntu-latest
