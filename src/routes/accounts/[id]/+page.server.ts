@@ -1,7 +1,9 @@
 import { error } from '@sveltejs/kit'
+import { desc } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '$lib/server/db'
+import { genreHistory } from '$lib/server/db/schema'
 
 import type { PageServerLoad } from './$types'
 
@@ -33,6 +35,7 @@ export const load: PageServerLoad = async ({ params }) => {
       createdAt: true,
       treeGenreId: true,
     },
+    orderBy: desc(genreHistory.createdAt),
   })
 
   const numCreated = new Set(
