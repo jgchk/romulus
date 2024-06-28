@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run integration tests
+      - name: Run linting
         run: pnpm run lint
 
   test-e2e:
