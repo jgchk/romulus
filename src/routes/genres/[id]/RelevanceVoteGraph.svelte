@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { tooltip } from '$lib/actions/tooltip'
   import HelpTip from '$lib/atoms/HelpTip.svelte'
   import {
     getGenreRelevanceText,

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MagnifyingGlass, X } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import Dialog from '$lib/atoms/Dialog.svelte'
@@ -7,8 +8,6 @@
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user'
-  import SearchIcon from '$lib/icons/SearchIcon.svelte'
-  import XIcon from '$lib/icons/XIcon.svelte'
   import { searchGenres, type SimpleGenre } from '$lib/types/genres'
   import type { Timeout } from '$lib/utils/types'
 
@@ -34,10 +33,10 @@
   <div class="flex items-center space-x-1">
     <Input class="flex-1" bind:value={filter} />
     <IconButton tooltip="Search" on:click={() => (debouncedFilter = filter)}>
-      <SearchIcon />
+      <MagnifyingGlass />
     </IconButton>
     <IconButton tooltip="Close" on:click={() => dispatch('close')}>
-      <XIcon />
+      <X />
     </IconButton>
   </div>
 

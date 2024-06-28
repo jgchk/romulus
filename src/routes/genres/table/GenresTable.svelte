@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { CaretDoubleLeft, CaretDoubleRight, CaretLeft, CaretRight } from 'phosphor-svelte'
+
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
   import { tooltip } from '$lib/actions/tooltip'
@@ -6,10 +8,6 @@
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import ChevronLeftFilledIcon from '$lib/icons/ChevronLeftFilledIcon.svelte'
-  import ChevronRightFilledIcon from '$lib/icons/ChevronRightFilledIcon.svelte'
-  import SkipBackIcon from '$lib/icons/SkipBackIcon.svelte'
-  import SkipForwardIcon from '$lib/icons/SkipForwardIcon.svelte'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
 
   import RelevanceChip from '../GenreNavigator/GenreTree/RelevanceChip.svelte'
@@ -104,16 +102,16 @@
     class="flex items-center border-t border-gray-200 p-1.5 pl-2 text-sm transition dark:border-gray-800"
   >
     <LinkIconButton tooltip="First Page" disabled={data.page === 1} href={firstPageHref}>
-      <SkipBackIcon />
+      <CaretDoubleLeft />
     </LinkIconButton>
     <LinkIconButton tooltip="Previous Page" href={previousPageHref} disabled={data.page === 1}>
-      <ChevronLeftFilledIcon />
+      <CaretLeft />
     </LinkIconButton>
     <LinkIconButton tooltip="Next Page" href={nextPageHref} disabled={data.page === totalPages}>
-      <ChevronRightFilledIcon />
+      <CaretRight />
     </LinkIconButton>
     <LinkIconButton tooltip="Last Page" href={lastPageHref} disabled={data.page === totalPages}>
-      <SkipForwardIcon />
+      <CaretDoubleRight />
     </LinkIconButton>
 
     <div class="pl-4 text-center">

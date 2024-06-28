@@ -1,8 +1,8 @@
 <script lang="ts">
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
-  import { tooltip } from '$lib/actions/tooltip'
   import Button from '$lib/atoms/Button.svelte'
+  import HelpTip from '$lib/atoms/HelpTip.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
@@ -16,7 +16,6 @@
   import GenreMultiselect from './GenreMultiselect.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
-  import HelpTip from '$lib/atoms/HelpTip.svelte'
 
   export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>

@@ -1,18 +1,15 @@
 <script lang="ts">
   import { offset } from '@floating-ui/dom'
   import type { User } from 'lucia'
+  import { CaretDown, MoonStars, SignOut, Sun, UserCircle } from 'phosphor-svelte'
 
   import { enhance } from '$app/forms'
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import Card from '$lib/atoms/Card.svelte'
   import { user, userSettings } from '$lib/contexts/user'
-  import ChevronDownIcon from '$lib/icons/ChevronDownIcon.svelte'
-  import LogoutIcon from '$lib/icons/LogoutIcon.svelte'
-  import MoonIcon from '$lib/icons/MoonIcon.svelte'
-  import ProfileIcon from '$lib/icons/ProfileIcon.svelte'
-  import SunIcon from '$lib/icons/SunIcon.svelte'
   import { slide } from '$lib/transitions/slide'
+  import { cn } from '$lib/utils/dom'
 
   export let account: User
 
@@ -39,9 +36,10 @@
     class="flex h-full items-center gap-1 rounded px-2 pr-1 transition group-hover/account-button:bg-gray-200 dark:group-hover/account-button:bg-gray-800"
   >
     <div>{account.username}</div>
-    <ChevronDownIcon
-      size={18}
-      class="relative top-px text-gray-500 transition dark:text-gray-400"
+    <CaretDown
+      size={12}
+      weight="bold"
+      class={cn('text-gray-500 transition-all dark:text-gray-400', open && 'rotate-180 transform')}
     />
   </div>
 </button>
@@ -58,7 +56,7 @@
         class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
         href="/accounts/{account.id}"
       >
-        <ProfileIcon size={18} />
+        <UserCircle size={18} />
         Profile
       </a>
 
@@ -77,10 +75,10 @@
         }}
       >
         {#if $userSettings.darkMode}
-          <MoonIcon size={18} />
+          <MoonStars size={18} />
           Dark Mode
         {:else}
-          <SunIcon size={18} />
+          <Sun size={18} />
           Light Mode
         {/if}
       </button>
@@ -90,7 +88,7 @@
           class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
           type="submit"
         >
-          <LogoutIcon size={18} />
+          <SignOut size={18} />
           Sign out
         </button>
       </form>

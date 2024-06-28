@@ -1,13 +1,9 @@
 <script lang="ts">
+  import { CheckCircle, Info, Warning, X, XCircle } from 'phosphor-svelte'
   import { onMount } from 'svelte'
   import { linear } from 'svelte/easing'
   import { tweened } from 'svelte/motion'
 
-  import CheckCircleIcon from '$lib/icons/CheckCircleIcon.svelte'
-  import ErrorIcon from '$lib/icons/ErrorIcon.svelte'
-  import InfoIcon from '$lib/icons/InfoIcon.svelte'
-  import WarningIcon from '$lib/icons/WarningIcon.svelte'
-  import XIcon from '$lib/icons/XIcon.svelte'
   import { cn } from '$lib/utils/dom'
 
   import type { Toast } from './toast'
@@ -54,19 +50,19 @@
         class="h-5 w-5 opacity-100 transition-all duration-200 group-hover/container:h-0 group-hover/container:w-0 group-hover/container:opacity-0"
       >
         {#if variant === 'success'}
-          <CheckCircleIcon />
+          <CheckCircle size="100%" />
         {:else if variant === 'error'}
-          <ErrorIcon />
+          <XCircle size="100%" />
         {:else if variant === 'warning'}
-          <WarningIcon />
+          <Warning size="100%" />
         {:else}
-          <InfoIcon />
+          <Info size="100%" />
         {/if}
       </div>
       <div
-        class="absolute left-0 top-0 h-full w-full opacity-0 transition-all duration-300 group-hover/container:opacity-100"
+        class="absolute left-0 top-0 flex h-full w-full items-center justify-center opacity-0 transition-all duration-300 group-hover/container:opacity-100"
       >
-        <XIcon size={20} />
+        <X size={18} />
       </div>
     </div>
   </button>

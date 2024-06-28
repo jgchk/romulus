@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Info } from 'phosphor-svelte'
+
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
   import { tw } from '$lib/utils/dom'
 

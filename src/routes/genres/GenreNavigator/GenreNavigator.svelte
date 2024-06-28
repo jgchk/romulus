@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { GearSix } from 'phosphor-svelte'
+
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
@@ -6,7 +8,6 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { user } from '$lib/contexts/user'
-  import SettingsIcon from '$lib/icons/SettingsIcon.svelte'
   import { slide } from '$lib/transitions/slide'
 
   import GenreNavigatorSettings from './GenreNavigatorSettings.svelte'
@@ -41,7 +42,7 @@
     </div>
     {#if $user}
       <IconButton tooltip="Genre Settings" on:click={() => (showSettings = !showSettings)}>
-        <SettingsIcon />
+        <GearSix />
       </IconButton>
     {/if}
   </div>

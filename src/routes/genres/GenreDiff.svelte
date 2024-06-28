@@ -45,6 +45,7 @@
 </script>
 
 <script lang="ts">
+  import { CaretDown } from 'phosphor-svelte'
   import { equals, isEmpty, isNil } from 'ramda'
   import { onMount } from 'svelte'
 
@@ -55,7 +56,6 @@
   import LoaderLine from '$lib/atoms/LoaderLine.svelte'
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
-  import ChevronDownIcon from '$lib/icons/ChevronDownIcon.svelte'
   import type { GenreHistory } from '$lib/server/db/schema'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
@@ -224,7 +224,7 @@
 
         {#if previousHistory?.parentGenreIds?.length || currentHistory.parentGenreIds?.length}
           <div class={cn(!changed.parentGenreIds && 'opacity-50')}>
-            <Label class={cn('gtext-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
+            <Label class={cn('text-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
             <div class="text-sm">
               {#await genres}
                 <div class="flex h-[26px] items-center">
@@ -400,14 +400,16 @@
       <div
         class="flex w-full items-center justify-center gap-1 rounded-sm bg-transparent p-0.5 transition group-hover:bg-gray-300 dark:group-hover:bg-gray-700"
       >
-        <ChevronDownIcon
-          class={cn('h-4 w-4 transform transition-transform', expanded && 'rotate-180')}
-        />
         {#if expanded}
           Collapse
         {:else}
           Expand
         {/if}
+        <CaretDown
+          size={12}
+          weight="bold"
+          class={cn('transform transition-transform', expanded && 'rotate-180')}
+        />
       </div>
     </button>
   {/if}

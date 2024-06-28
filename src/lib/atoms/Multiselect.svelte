@@ -4,15 +4,14 @@
 </script>
 
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
-  import { autoPlacement, flip, offset } from '@floating-ui/dom'
-  /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
+  import { flip, offset } from '@floating-ui/dom'
+  import { CaretDown } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import { tooltip } from '$lib/actions/tooltip'
   import { getInputGroupErrors } from '$lib/atoms/InputGroup'
-  import ChevronDownIcon from '$lib/icons/ChevronDownIcon.svelte'
   import { slide } from '$lib/transitions/slide'
   import { sortBy } from '$lib/utils/array'
   import { cn, tw } from '$lib/utils/dom'
@@ -218,10 +217,7 @@
         }
       }}
     >
-      <ChevronDownIcon
-        size={18}
-        class={cn('transition-transform', open && 'rotate-180 transform')}
-      />
+      <CaretDown size={14} class={cn('transition-transform', open && 'rotate-180 transform')} />
     </button>
   </div>
 

@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { SortAscending, SortDescending } from 'phosphor-svelte'
+
   import { page } from '$app/stores'
-  import SortAscIcon from '$lib/icons/SortAscIcon.svelte'
-  import SortDescIcon from '$lib/icons/SortDescIcon.svelte'
 
   import type { PageData } from './$types'
 
@@ -31,9 +31,9 @@
   {label}
   {#if data.sort === sort}
     {#if data.order === 'asc'}
-      <SortAscIcon class="text-primary-500" size={18} />
+      <SortAscending size={18} class="text-primary-500" />
     {:else}
-      <SortDescIcon class="text-primary-500" size={18} />
+      <SortDescending size={19} class="text-primary-500" />
     {/if}
   {/if}
 </a>

@@ -1,11 +1,11 @@
 <script lang="ts">
+  import { CaretRight } from 'phosphor-svelte'
   import { equals } from 'ramda'
 
   import { browser } from '$app/environment'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user'
-  import ChevronRightIcon from '$lib/icons/ChevronRightIcon.svelte'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible } from '$lib/utils/dom'
 
@@ -48,7 +48,7 @@
         class={cn('ml-1 flex-shrink-0 text-gray-500', genre.children.length === 0 && 'invisible')}
         on:click={() => treeState.setExpanded(path, !isExpanded)}
       >
-        <ChevronRightIcon class={cn('transition', isExpanded && 'rotate-90')} />
+        <CaretRight class={cn('transition', isExpanded && 'rotate-90')} />
       </IconButton>
 
       <a

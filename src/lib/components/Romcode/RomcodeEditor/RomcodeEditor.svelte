@@ -6,12 +6,10 @@
 </script>
 
 <script lang="ts">
+  import { Link, TextB, TextItalic } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
-  import BoldIcon from '$lib/icons/BoldIcon.svelte'
-  import ItalicIcon from '$lib/icons/ItalicIcon.svelte'
-  import LinkIcon from '$lib/icons/LinkIcon.svelte'
   import { makeGenreTag, type SimpleGenre } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
@@ -101,10 +99,10 @@
         class="flex border-b border-gray-300 bg-gray-100 transition dark:border-gray-700 dark:bg-gray-900"
       >
         <IconButton class="rounded-none" tooltip="Bold" on:click={() => handleBold()}>
-          <BoldIcon />
+          <TextB />
         </IconButton>
         <IconButton class="rounded-none" tooltip="Italic" on:click={() => handleItalic()}>
-          <ItalicIcon />
+          <TextItalic />
         </IconButton>
         <IconButton
           class="rounded-none"
@@ -121,7 +119,7 @@
             showGenreDialog = selectedText || true
           }}
         >
-          <LinkIcon />
+          <Link />
         </IconButton>
       </div>
 

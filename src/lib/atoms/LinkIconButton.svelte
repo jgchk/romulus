@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { IconContext } from 'phosphor-svelte'
   import { scale } from 'svelte/transition'
 
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
@@ -38,8 +39,10 @@
     {#if loading}
       <Loader />
     {:else}
-      <div class="absolute" transition:scale|local={{ duration: 150 }}>
-        <slot />
+      <div class="absolute h-full w-full" transition:scale|local={{ duration: 150 }}>
+        <IconContext values={{ size: '100%' }}>
+          <slot />
+        </IconContext>
       </div>
     {/if}
   </div>
