@@ -30,7 +30,7 @@ jobs:
       - name: Run integration tests
         run: pnpm run lint
 
-  e2e-tests:
+  test:e2e:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.43.1-jammy
