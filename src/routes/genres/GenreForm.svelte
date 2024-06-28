@@ -61,7 +61,7 @@
     </InputGroup>
 
     <fieldset
-      class="rounded border border-solid border-gray-200 p-3 transition dark:border-gray-800"
+      class="rounded border border-solid border-gray-200 p-3 pt-2 transition dark:border-gray-800"
     >
       <legend class="text-sm text-gray-600 transition dark:text-gray-400"> AKAs </legend>
 

@@ -70,7 +70,7 @@
   data-invalid={errors}
   aria-label={ariaLabel}
   class={tw(
-    'rounded bg-gray-200 px-2 py-1 text-black transition-all dark:bg-gray-700 dark:text-white',
+    'rounded border border-gray-300 bg-black bg-opacity-[0.04] p-1.5 px-2 text-sm text-black outline-none transition-all hover:bg-opacity-[0.07] focus:border-secondary-500 dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:text-white dark:hover:bg-opacity-10',
     class_,
   )}
 />

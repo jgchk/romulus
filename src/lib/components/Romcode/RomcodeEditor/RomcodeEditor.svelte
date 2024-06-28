@@ -91,7 +91,7 @@
 
 <div
   class={tw(
-    'flex h-72 resize-y flex-col overflow-auto rounded border border-gray-500 bg-gray-200 text-sm text-gray-800 transition focus-within:border-secondary-500 dark:bg-gray-800 dark:text-gray-200',
+    'flex h-72 resize-y flex-col overflow-auto rounded border border-gray-300 text-sm text-gray-800 transition focus-within:border-secondary-500 dark:border-gray-600 dark:text-gray-200',
     class_,
   )}
 >
@@ -100,13 +100,14 @@
       <div
         class="flex border-b border-gray-300 bg-gray-100 transition dark:border-gray-700 dark:bg-gray-900"
       >
-        <IconButton tooltip="Bold" on:click={() => handleBold()}>
+        <IconButton class="rounded-none" tooltip="Bold" on:click={() => handleBold()}>
           <BoldIcon />
         </IconButton>
-        <IconButton tooltip="Italic" on:click={() => handleItalic()}>
+        <IconButton class="rounded-none" tooltip="Italic" on:click={() => handleItalic()}>
           <ItalicIcon />
         </IconButton>
         <IconButton
+          class="rounded-none"
           tooltip="Insert genre link"
           on:click={() => {
             if (!ta) {
@@ -128,7 +129,7 @@
       <textarea
         bind:this={ta}
         {id}
-        class="flex-1 resize-none bg-transparent p-1.5 transition hover:bg-gray-300 focus:outline-none active:bg-gray-400 dark:hover:bg-gray-700 dark:active:bg-gray-600"
+        class="flex-1 resize-none bg-black bg-opacity-[0.04] p-1.5 transition hover:bg-opacity-[0.07] focus:outline-none dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
         bind:value
         on:blur
         {disabled}

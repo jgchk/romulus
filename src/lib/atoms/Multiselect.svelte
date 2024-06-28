@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
-  import { autoPlacement, offset } from '@floating-ui/dom'
+  import { autoPlacement, flip, offset } from '@floating-ui/dom'
   /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
   import { createEventDispatcher } from 'svelte'
 
@@ -145,7 +145,7 @@
   }
 
   const [popoverReference, popoverElement] = createPopoverActions({
-    middleware: [offset(4), autoPlacement({ allowedPlacements: ['bottom-start', 'top-start'] })],
+    middleware: [offset(4), flip()],
   })
 </script>
 
@@ -160,13 +160,15 @@
     }
   }}
 >
-  <div class="focus-within:outline-auto flex rounded bg-gray-200 transition dark:bg-gray-700">
+  <div
+    class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
+  >
     {#if value.length > 0}
       <div class="flex items-center gap-1 pl-1">
         {#each value as v (v.value)}
           <button
             type="button"
-            class="multiselect__selected rounded-[3px] bg-gray-300 px-1 py-0.5 text-sm transition hover:bg-error-600 hover:bg-opacity-75 dark:bg-gray-600"
+            class="multiselect__selected rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
             use:tooltip={{ content: 'Remove' }}
             on:click={() => {
               handleRemove(v)
@@ -189,7 +191,7 @@
     <input
       {id}
       class={cn(
-        'flex-1 bg-transparent py-1 text-black outline-none transition dark:text-white',
+        'flex-1 bg-transparent py-1.5 text-sm text-black outline-none transition dark:text-white',
         value.length > 0 ? 'pl-1' : 'pl-2',
       )}
       placeholder={value.length === 0 ? placeholder : undefined}
@@ -226,60 +228,55 @@
   {#if open}
     <div
       role="listbox"
-      class="relative z-10 max-h-96 w-full overflow-auto rounded bg-gray-200 shadow transition dark:bg-gray-700"
+      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
       transition:slide|local={{ axis: 'y' }}
       tabindex="-1"
       on:keydown={handleKeyDown}
       use:popoverElement
     >
-      <div class="h-full" tabindex="-1">
-        {#if filteredOptions.length === 0}
-          <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
-            No results
-          </div>
-        {:else}
-          <VirtualList
-            height="{Math.min(filteredOptions.length, 10) * 32}px"
-            items={filteredOptions}
-            let:item={option}
-            let:index={i}
+      {#if filteredOptions.length === 0}
+        <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
+          No results
+        </div>
+      {:else}
+        <VirtualList
+          height="{Math.min(filteredOptions.length, 10) * 32}px"
+          items={filteredOptions}
+          let:item={option}
+          let:index={i}
+        >
+          <button
+            type="button"
+            class={tw(
+              'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+              focusedIndex === i && 'border-secondary-500',
+            )}
+            tabindex="-1"
+            on:click={() => {
+              handleSelect(option)
+              inputRef?.focus()
+            }}
+            on:mouseenter={() => (focusedIndex = i)}
           >
-            <button
-              type="button"
-              class={cn(
-                'block w-full px-2 py-1 text-left hover:bg-gray-300 dark:hover:bg-gray-600',
-                focusedIndex === i && 'bg-gray-300 dark:bg-gray-600',
-              )}
-              tabindex="-1"
-              on:click={() => {
-                handleSelect(option)
-                inputRef?.focus()
-              }}
-              on:mouseenter={() => (focusedIndex = i)}
-            >
-              {option.label}
-            </button>
-          </VirtualList>
+            {option.label}
+          </button>
+        </VirtualList>
 
-          {#if hasMore}
-            <button
-              type="button"
-              class={cn(
-                'block w-full px-2 py-1 text-left transition hover:bg-gray-300 dark:hover:bg-gray-600',
-                focusedIndex === filteredOptions.length && 'bg-gray-300 dark:bg-gray-600',
-              )}
-              tabindex="-1"
-              on:click={() => handleLoadMore()}
-              on:mouseenter={() => (focusedIndex = filteredOptions.length)}
-            >
-              Load More...
-            </button>
-          {/if}
+        {#if hasMore}
+          <button
+            type="button"
+            class={tw(
+              'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+              focusedIndex === filteredOptions.length && 'border-secondary-500',
+            )}
+            tabindex="-1"
+            on:click={() => handleLoadMore()}
+            on:mouseenter={() => (focusedIndex = filteredOptions.length)}
+          >
+            Load More...
+          </button>
         {/if}
-      </div>
-      <div
-        class="pointer-events-none absolute left-0 top-0 h-full w-full rounded border border-black opacity-5 transition dark:border-white"
-      />
+      {/if}
     </div>
   {/if}
 </div>

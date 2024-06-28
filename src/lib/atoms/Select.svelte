@@ -4,7 +4,7 @@
 
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
   /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
-  import { autoPlacement, offset } from '@floating-ui/dom'
+  import { autoPlacement, flip, offset } from '@floating-ui/dom'
   import { createEventDispatcher } from 'svelte'
 
   import { clickOutside } from '$lib/actions/clickOutside'
@@ -137,7 +137,7 @@
   }
 
   const [popoverReference, popoverElement] = createPopoverActions({
-    middleware: [offset(4), autoPlacement({ allowedPlacements: ['bottom-start', 'top-start'] })],
+    middleware: [offset(4), flip()],
   })
 </script>
 
@@ -152,10 +152,12 @@
     }
   }}
 >
-  <div class="focus-within:outline-auto flex rounded bg-gray-200 transition dark:bg-gray-700">
+  <div
+    class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
+  >
     <input
       {id}
-      class="w-0 flex-1 bg-transparent py-1 pl-2 text-black outline-none transition dark:text-white"
+      class="w-0 flex-1 bg-transparent p-1.5 px-2 text-sm text-black outline-none transition dark:text-white"
       {disabled}
       {placeholder}
       type="text"
@@ -195,54 +197,50 @@
   {#if open}
     <div
       role="listbox"
-      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded bg-gray-200 text-black shadow transition dark:bg-gray-700 dark:text-white"
+      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
       transition:slide|local={{ axis: 'y' }}
       tabindex="-1"
       on:keydown={handleKeyDown}
       use:popoverElement
     >
-      <div tabindex="-1">
-        {#if filteredOptions.length === 0}
-          <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
-            No results
-          </div>
-        {:else}
-          {#each filteredOptions as option, i}
-            <button
-              type="button"
-              class={cn(
-                'block w-full px-2 py-1 text-left transition hover:bg-gray-300 dark:hover:bg-gray-600',
-                focusedIndex === i && 'bg-gray-300 dark:bg-gray-600',
-              )}
-              tabindex="-1"
-              on:click={() => {
-                handleSelect(option)
-              }}
-              on:mouseenter={() => (focusedIndex = i)}
-            >
-              {option.label}
-            </button>
-          {/each}
-        {/if}
-
-        {#if hasMore}
+      {#if filteredOptions.length === 0}
+        <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
+          No results
+        </div>
+      {:else}
+        {#each filteredOptions as option, i}
           <button
             type="button"
-            class={cn(
-              'block w-full px-2 py-1 text-left transition hover:bg-gray-300 dark:hover:bg-gray-600',
-              focusedIndex === filteredOptions.length && 'bg-gray-300 dark:bg-gray-600',
+            class={tw(
+              'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+              option.value === value?.value && 'border-primary-500',
+              focusedIndex === i && 'border-secondary-500',
             )}
             tabindex="-1"
-            on:click={() => handleLoadMore()}
-            on:mouseenter={() => (focusedIndex = filteredOptions.length)}
+            on:click={() => {
+              handleSelect(option)
+            }}
+            on:mouseenter={() => (focusedIndex = i)}
           >
-            Load More...
+            {option.label}
           </button>
-        {/if}
-      </div>
-      <div
-        class="pointer-events-none absolute left-0 top-0 h-full w-full rounded border border-black opacity-5 transition dark:border-white"
-      />
+        {/each}
+      {/if}
+
+      {#if hasMore}
+        <button
+          type="button"
+          class={tw(
+            'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+            focusedIndex === filteredOptions.length && 'border-secondary-500',
+          )}
+          tabindex="-1"
+          on:click={() => handleLoadMore()}
+          on:mouseenter={() => (focusedIndex = filteredOptions.length)}
+        >
+          Load More...
+        </button>
+      {/if}
     </div>
   {/if}
 </div>
