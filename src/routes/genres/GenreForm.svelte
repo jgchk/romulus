@@ -16,6 +16,7 @@
   import GenreMultiselect from './GenreMultiselect.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
+  import HelpTip from '$lib/atoms/HelpTip.svelte'
 
   export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>
@@ -67,13 +68,10 @@
 
       <div class="w-full space-y-2">
         <InputGroup errors={$errors.primaryAkas}>
-          <Label for="primary-akas"
-            >Primary <span
-              class="cursor-help text-primary-500"
-              use:tooltip={{ content: 'Used about as much as the main genre name itself.' }}
-              >(?)</span
-            ></Label
-          >
+          <div>
+            <Label for="primary-akas">Primary</Label>
+            <HelpTip tooltip="Used about as much as the main genre name itself." />
+          </div>
           <Input
             id="primary-akas"
             name="primary-akas"
@@ -85,15 +83,12 @@
           />
         </InputGroup>
         <InputGroup errors={$errors.secondaryAkas}>
-          <Label for="secondary-akas"
-            >Secondary <span
-              class="cursor-help text-primary-500"
-              use:tooltip={{
-                content:
-                  'Used less than the main genre name, but most people familiar with the genre will still know what it refers to.',
-              }}>(?)</span
-            ></Label
-          >
+          <div>
+            <Label for="secondary-akas">Secondary</Label>
+            <HelpTip
+              tooltip="Used less than the main genre name, but most people familiar with the genre will still know what it refers to."
+            />
+          </div>
           <Input
             id="secondary-akas"
             name="secondary-akas"
@@ -105,15 +100,12 @@
           />
         </InputGroup>
         <InputGroup errors={$errors.tertiaryAkas}>
-          <Label for="tertiary-akas"
-            >Tertiary <span
-              class="cursor-help text-primary-500"
-              use:tooltip={{
-                content:
-                  'Rarely used. Many people familiar with the genre will not know what it refers to.',
-              }}>(?)</span
-            ></Label
-          >
+          <div>
+            <Label for="tertiary-akas">Tertiary</Label>
+            <HelpTip
+              tooltip="Rarely used. Many people familiar with the genre will not know what it refers to."
+            />
+          </div>
           <Input
             id="tertiary-akas"
             name="tertiary-akas"

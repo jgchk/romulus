@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
+  import HelpTip from '$lib/atoms/HelpTip.svelte'
   import {
     getGenreRelevanceText,
     MAX_GENRE_RELEVANCE,
@@ -100,10 +101,7 @@
     <div
       class="h-6 w-9 cursor-default border-r border-gray-300 text-sm text-gray-700 transition dark:border-gray-700 dark:text-gray-300"
     >
-      {relevance}{' '}<span
-        class="cursor-help text-primary-500"
-        use:tooltip={{ content: relevanceData[relevance].docs }}>(?)</span
-      >
+      {relevance}{' '}<HelpTip tooltip={relevanceData[relevance].docs} />
     </div>
 
     {#if percentage > 0}
