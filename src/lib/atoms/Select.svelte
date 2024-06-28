@@ -6,10 +6,10 @@
   import { flip, offset } from '@floating-ui/dom'
   import { CaretDown } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
+  import { fade } from 'svelte/transition'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
-  import { slide } from '$lib/transitions/slide'
   import { sortBy } from '$lib/utils/array'
   import { cn, tw } from '$lib/utils/dom'
   import { diceCoefficient } from '$lib/utils/string'
@@ -195,7 +195,7 @@
     <div
       role="listbox"
       class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-      transition:slide|local={{ axis: 'y' }}
+      transition:fade={{ duration: 75 }}
       tabindex="-1"
       on:keydown={handleKeyDown}
       use:popoverElement
