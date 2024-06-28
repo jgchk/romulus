@@ -29,7 +29,7 @@ jobs:
 
       - name: Run linting
         run: |
-          NODE_OPTIONS=--max_old_space_size=8192 pnpm run lint
+          NODE_OPTIONS=--max_old_space_size=16384 pnpm run lint
 
   test-e2e:
     runs-on: ubuntu-latest
