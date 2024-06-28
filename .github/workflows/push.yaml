@@ -28,13 +28,12 @@ jobs:
         run: pnpm install
 
       - name: Run linting
-        run: |
-          NODE_OPTIONS=--max_old_space_size=16384 pnpm run lint
+        run: pnpm run lint
 
   test-e2e:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.43.1-jammy
+      image: mcr.microsoft.com/playwright:v1.45.0-jammy
 
     services:
       postgres:
