@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
+import { getGenreRelevanceText } from '$lib/types/genres'
 import { capitalize } from '$lib/utils/string'
 
 import type { GenreFormData } from '../elements/genre-form'
@@ -82,7 +83,7 @@ export class GenreDetailsPage {
 
   async vote(relevance: number) {
     await this.voteButton.click()
-    await this.voteInput.fill(`${relevance} - `)
+    await this.voteInput.fill(`${relevance} -`)
     await this.voteInput.press('Enter')
     await this.submitVoteButton.click()
   }
@@ -97,6 +98,10 @@ export class GenreDetailsPage {
     if (genre.type) await expect(this.type).toHaveText(capitalize(genre.type))
     if (genre.parents) await expect(this.parents).toHaveText(genre.parents.join(', '))
     if (genre.influences) await expect(this.influences).toHaveText(genre.influences.join(', '))
+    if (genre.relevance !== undefined)
+      await expect(this.relevance).toContainText(
+        `${genre.relevance} - ${getGenreRelevanceText(genre.relevance)}`,
+      )
     if (genre.shortDescription)
       await expect(this.shortDescription).toHaveText(genre.shortDescription)
     if (genre.longDescription) await expect(this.longDescription).toHaveText(genre.longDescription)

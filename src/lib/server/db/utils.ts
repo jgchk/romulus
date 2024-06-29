@@ -3,7 +3,7 @@ import type { PgTransaction } from 'drizzle-orm/pg-core'
 import type { PostgresJsDatabase, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js'
 import { z } from 'zod'
 
-import { GENRE_TYPES, type GenreOperation } from '$lib/types/genres'
+import { GENRE_TYPES, type GenreOperation, genreRelevance } from '$lib/types/genres'
 import { nullableString } from '$lib/utils/validators'
 
 import { db } from '.'
@@ -24,6 +24,8 @@ export const genreSchema = z.object({
 
   parents: z.number().int().array(),
   influencedBy: z.number().int().array(),
+
+  relevance: genreRelevance.optional(),
 })
 
 export type GenreSchema = typeof genreSchema

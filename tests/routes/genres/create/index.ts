@@ -68,6 +68,7 @@ export default function createGenrePageTests() {
           await expect(createGenrePage.nameInput).toHaveAttribute('required')
           await createGenrePage.createGenre({ name: 'a' })
           await expect(genrePage.name).toHaveText('a')
+          await expect(genrePage.relevance).toHaveText('None set. Vote.')
         })
 
         test('should default to Style type', async ({ createGenrePage }) => {
@@ -89,6 +90,7 @@ export default function createGenrePageTests() {
             type: 'META',
             parents: ['genre-one', 'genre-two'],
             influences: ['genre-one', 'genre-two'],
+            relevance: 3,
             shortDescription: 'short description',
             longDescription: 'long description',
             notes: 'notes',

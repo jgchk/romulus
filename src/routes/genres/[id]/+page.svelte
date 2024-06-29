@@ -10,7 +10,7 @@
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { user } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
-  import { GenreTypeNames, getGenreRelevanceText } from '$lib/types/genres'
+  import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
   import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
@@ -59,7 +59,7 @@
         {/if}
       </div>
       <div class="genre-relevance">
-        {#if data.genre.relevance === 99}
+        {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
           None set.{' '}
           <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
             Vote.

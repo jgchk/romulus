@@ -9,6 +9,7 @@ export type GenreFormData = {
   type?: GenreType
   parents?: string[]
   influences?: string[]
+  relevance?: number
   shortDescription?: string
   longDescription?: string
   notes?: string
@@ -27,6 +28,7 @@ export class GenreForm {
   readonly selectedParents: Locator
   readonly influencesInput: Locator
   readonly selectedInfluences: Locator
+  readonly relevanceInput: Locator
   readonly shortDescriptionInput: Locator
   readonly longDescriptionInput: Locator
   readonly notesInput: Locator
@@ -46,6 +48,7 @@ export class GenreForm {
     this.selectedParents = this.page.locator('.genre-parents .multiselect__selected')
     this.influencesInput = this.page.getByLabel('Influences')
     this.selectedInfluences = this.page.locator('.genre-influences .multiselect__selected')
+    this.relevanceInput = this.page.getByLabel('Relevance')
     this.shortDescriptionInput = this.page.getByLabel('Short Description')
     this.longDescriptionInput = this.page.getByLabel('Long Description')
     this.notesInput = this.page.getByLabel('Notes')
@@ -64,6 +67,7 @@ export class GenreForm {
     if (data.type) await this.selectType(data.type)
     if (data.parents) await this.selectParents(data.parents)
     if (data.influences) await this.selectInfluences(data.influences)
+    if (data.relevance !== undefined) await this.selectRelevance(data.relevance)
     if (data.shortDescription) await this.shortDescriptionInput.fill(data.shortDescription)
     if (data.longDescription) await this.longDescriptionInput.fill(data.longDescription)
     if (data.notes) await this.notesInput.fill(data.notes)
@@ -103,5 +107,10 @@ export class GenreForm {
     while (await selectedInfluence.isVisible()) {
       await selectedInfluence.click()
     }
+  }
+
+  async selectRelevance(relevance: number) {
+    await this.relevanceInput.fill(`${relevance} -`)
+    await this.relevanceInput.press('Enter')
   }
 }

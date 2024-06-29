@@ -16,10 +16,12 @@
   import GenreMultiselect from './GenreMultiselect.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
+  import RelevanceSelect from './RelevanceSelect.svelte'
 
   export let id: number | undefined = undefined
   export let data: SuperValidated<Infer<GenreSchema>>
   export let autoFocus: GenreFormField = 'name'
+  export let showRelevance = false
   export let genres: Promise<TreeGenre[]>
 
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
@@ -170,6 +172,17 @@
         />
       {/await}
     </InputGroup>
+
+    {#if showRelevance}
+      <InputGroup errors={$errors.relevance}>
+        <Label for="relevance">Relevance</Label>
+        <RelevanceSelect
+          id="relevance"
+          class="genre-relevances w-full"
+          bind:value={$form.relevance}
+        />
+      </InputGroup>
+    {/if}
 
     <InputGroup errors={$errors.shortDescription}>
       <Label for="short-description">Short Description</Label>

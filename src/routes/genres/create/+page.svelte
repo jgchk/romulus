@@ -9,4 +9,4 @@
   treeState.setSelectedPath(undefined)
 </script>
 
-<GenreForm data={data.form} genres={data.streamed.genres} />
+<GenreForm data={data.form} showRelevance genres={data.streamed.genres} />

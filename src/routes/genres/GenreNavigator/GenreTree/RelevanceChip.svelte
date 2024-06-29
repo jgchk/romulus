@@ -1,5 +1,6 @@
 <script lang="ts">
   import Chip from '$lib/atoms/Chip.svelte'
+  import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
   export let relevance: number
@@ -8,7 +9,7 @@
   export { class_ as class }
 </script>
 
-{#if relevance === 99}
+{#if relevance === UNSET_GENRE_RELEVANCE}
   <Chip
     text="?"
     tooltip="Missing Relevance"

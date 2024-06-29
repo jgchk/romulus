@@ -10,7 +10,7 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-import { GENRE_OPERATIONS, GENRE_TYPES } from '../../../types/genres'
+import { GENRE_OPERATIONS, GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../../types/genres'
 
 export const genreOperations = pgEnum('GenreOperation', GENRE_OPERATIONS)
 
@@ -28,7 +28,7 @@ export const genres = pgTable('Genre', {
   name: text('name').notNull(),
   subtitle: text('subtitle'),
   type: genreTypes('type').default('STYLE').notNull(),
-  relevance: integer('relevance').default(99).notNull(),
+  relevance: integer('relevance').default(UNSET_GENRE_RELEVANCE).notNull(),
   shortDescription: text('shortDescription'),
   longDescription: text('longDescription'),
   notes: text('notes'),

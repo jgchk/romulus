@@ -14,9 +14,9 @@ import {
   genres,
 } from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/db/utils'
+import { setRelevanceVote } from '$lib/server/genres'
 import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
-import { median } from '$lib/utils/math'
 import { isNotNull } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
@@ -154,29 +154,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    if (form.data.relevanceVote === UNSET_GENRE_RELEVANCE) {
-      await db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, id))
-      await updateRelevance(id)
-      return { form }
-    }
-
-    await db
-      .insert(genreRelevanceVotes)
-      .values({
-        genreId: id,
-        accountId: locals.user.id,
-        relevance: form.data.relevanceVote,
-        updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: [genreRelevanceVotes.genreId, genreRelevanceVotes.accountId],
-        set: {
-          relevance: form.data.relevanceVote,
-          updatedAt: new Date(),
-        },
-      })
-
-    await updateRelevance(id)
+    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id)
 
     return { form }
   },
@@ -300,17 +278,4 @@ export const actions: Actions = {
 
     return redirect(302, '/genres')
   },
-}
-
-async function updateRelevance(genreId: number) {
-  const votes = await db.query.genreRelevanceVotes.findMany({
-    where: eq(genreRelevanceVotes.genreId, genreId),
-  })
-
-  const relevance =
-    votes.length === 0
-      ? UNSET_GENRE_RELEVANCE
-      : Math.round(median(votes.map((vote) => vote.relevance)))
-
-  await db.update(genres).set({ relevance }).where(eq(genres.id, genreId))
 }

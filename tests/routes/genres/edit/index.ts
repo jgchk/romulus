@@ -235,6 +235,10 @@ export default function editGenrePageTests() {
             genreData.name + '-edited',
           )
         })
+
+        test('should not allow setting relevance', async ({ editGenrePage }) => {
+          await expect(editGenrePage.relevanceInput).not.toBeVisible()
+        })
       })
     })
   })

@@ -3,7 +3,8 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { genreSchema } from '$lib/server/db/utils'
-import { createGenre, GenreCycleError } from '$lib/server/genres'
+import { createGenre, GenreCycleError, setRelevanceVote } from '$lib/server/genres'
+import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
 
@@ -12,7 +13,11 @@ export const load: PageServerLoad = async ({ locals }) => {
     return error(403, { message: 'You do not have permission to create genres' })
   }
 
-  const form = await superValidate({ type: 'STYLE' }, zod(genreSchema), { errors: false })
+  const form = await superValidate(
+    { type: 'STYLE', relevance: UNSET_GENRE_RELEVANCE },
+    zod(genreSchema),
+    { errors: false },
+  )
   return { form }
 }
 
@@ -31,6 +36,9 @@ export const actions: Actions = {
 
     try {
       const genre = await createGenre(form.data, user.id)
+      if (form.data.relevance !== undefined) {
+        await setRelevanceVote(genre.id, form.data.relevance, user.id)
+      }
       redirect(302, `/genres/${genre.id}`)
     } catch (err) {
       if (err instanceof GenreCycleError) {

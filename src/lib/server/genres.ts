@@ -1,5 +1,10 @@
+import { eq } from 'drizzle-orm'
+
+import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+import { median } from '$lib/utils/math'
+
 import { db } from './db'
-import { genreAkas, genreInfluences, genreParents, genres } from './db/schema'
+import { genreAkas, genreInfluences, genreParents, genreRelevanceVotes, genres } from './db/schema'
 import { createGenreHistoryEntry, detectCycle, type GenreData } from './db/utils'
 
 export class GenreCycleError extends Error {
@@ -84,4 +89,43 @@ export async function createGenre(data: GenreData, accountId: number) {
   })
 
   return genre
+}
+
+export async function setRelevanceVote(id: number, relevance: number, accountId: number) {
+  if (relevance === UNSET_GENRE_RELEVANCE) {
+    await db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, id))
+    await updateRelevance(id)
+    return
+  }
+
+  await db
+    .insert(genreRelevanceVotes)
+    .values({
+      genreId: id,
+      accountId,
+      relevance,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: [genreRelevanceVotes.genreId, genreRelevanceVotes.accountId],
+      set: {
+        relevance,
+        updatedAt: new Date(),
+      },
+    })
+
+  await updateRelevance(id)
+}
+
+async function updateRelevance(genreId: number) {
+  const votes = await db.query.genreRelevanceVotes.findMany({
+    where: eq(genreRelevanceVotes.genreId, genreId),
+  })
+
+  const relevance =
+    votes.length === 0
+      ? UNSET_GENRE_RELEVANCE
+      : Math.round(median(votes.map((vote) => vote.relevance)))
+
+  await db.update(genres).set({ relevance }).where(eq(genres.id, genreId))
 }

@@ -10,6 +10,7 @@ const GenreFormFields = {
   shortDescription: '',
   longDescription: '',
   notes: '',
+  relevance: 0,
 } as const
 
 export type GenreFormField = keyof typeof GenreFormFields
