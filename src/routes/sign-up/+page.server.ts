@@ -4,22 +4,13 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { hashPassword, lucia } from '$lib/server/auth'
+import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
 import { db } from '$lib/server/db'
 import { accounts } from '$lib/server/db/schema'
 
 import type { PageServerLoad } from './$types'
 
-const schema = z
-  .object({
-    username: z.string().min(3).max(72),
-    password: z.string().min(8).max(72),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+const schema = z.object({ username: z.string().min(3).max(72), password: passwordSchema })
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.session) {
@@ -44,7 +35,7 @@ export const actions: Actions = {
         .insert(accounts)
         .values({
           username: form.data.username,
-          password: await hashPassword(form.data.password),
+          password: await hashPassword(form.data.password.password),
         })
         .returning()
     } catch (error) {

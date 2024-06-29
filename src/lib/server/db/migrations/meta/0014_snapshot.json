@@ -1,4 +1,6 @@
 {
+  "id": "21f05286-92bd-4ad4-a2ba-8fbeaf902fd2",
+  "prevId": "6197806f-fdfd-48b3-b06a-bbeff76947f9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -79,8 +81,8 @@
       "uniqueConstraints": {
         "Account_username_unique": {
           "name": "Account_username_unique",
-          "columns": ["username"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["username"]
         }
       }
     },
@@ -118,11 +120,11 @@
         "GenreAka_genreId_Genre_id_fk": {
           "name": "GenreAka_genreId_Genre_id_fk",
           "tableFrom": "GenreAka",
-          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
+          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -152,6 +154,7 @@
         "type": {
           "name": "type",
           "type": "GenreType",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'STYLE'"
@@ -202,6 +205,7 @@
         "operation": {
           "name": "operation",
           "type": "GenreOperation",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -223,11 +227,11 @@
         "GenreHistory_accountId_Account_id_fk": {
           "name": "GenreHistory_accountId_Account_id_fk",
           "tableFrom": "GenreHistory",
-          "columnsFrom": ["accountId"],
           "tableTo": "Account",
+          "columnsFrom": ["accountId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -267,11 +271,11 @@
         "GenreHistoryAka_genreId_GenreHistory_id_fk": {
           "name": "GenreHistoryAka_genreId_GenreHistory_id_fk",
           "tableFrom": "GenreHistoryAka",
-          "columnsFrom": ["genreId"],
           "tableTo": "GenreHistory",
+          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -286,14 +290,14 @@
       "name": "GenreInfluences",
       "schema": "",
       "columns": {
-        "influencedIdd": {
-          "name": "influencedIdd",
+        "influencedId": {
+          "name": "influencedId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "influencerIdd": {
-          "name": "influencerIdd",
+        "influencerId": {
+          "name": "influencerId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -301,29 +305,29 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "GenreInfluences_influencedIdd_Genre_id_fk": {
-          "name": "GenreInfluences_influencedIdd_Genre_id_fk",
+        "GenreInfluences_influencedId_Genre_id_fk": {
+          "name": "GenreInfluences_influencedId_Genre_id_fk",
           "tableFrom": "GenreInfluences",
-          "columnsFrom": ["influencedIdd"],
           "tableTo": "Genre",
+          "columnsFrom": ["influencedId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
-        "GenreInfluences_influencerIdd_Genre_id_fk": {
-          "name": "GenreInfluences_influencerIdd_Genre_id_fk",
+        "GenreInfluences_influencerId_Genre_id_fk": {
+          "name": "GenreInfluences_influencerId_Genre_id_fk",
           "tableFrom": "GenreInfluences",
-          "columnsFrom": ["influencerIdd"],
           "tableTo": "Genre",
+          "columnsFrom": ["influencerId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
-        "GenreInfluences_influencerIdd_influencedIdd_pk": {
-          "name": "GenreInfluences_influencerIdd_influencedIdd_pk",
-          "columns": ["influencerIdd", "influencedIdd"]
+        "GenreInfluences_influencerId_influencedId_pk": {
+          "name": "GenreInfluences_influencerId_influencedId_pk",
+          "columns": ["influencerId", "influencedId"]
         }
       },
       "uniqueConstraints": {}
@@ -350,20 +354,20 @@
         "GenreParents_parentId_Genre_id_fk": {
           "name": "GenreParents_parentId_Genre_id_fk",
           "tableFrom": "GenreParents",
-          "columnsFrom": ["parentId"],
           "tableTo": "Genre",
+          "columnsFrom": ["parentId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "GenreParents_childId_Genre_id_fk": {
           "name": "GenreParents_childId_Genre_id_fk",
           "tableFrom": "GenreParents",
-          "columnsFrom": ["childId"],
           "tableTo": "Genre",
+          "columnsFrom": ["childId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -415,20 +419,20 @@
         "GenreRelevanceVote_genreId_Genre_id_fk": {
           "name": "GenreRelevanceVote_genreId_Genre_id_fk",
           "tableFrom": "GenreRelevanceVote",
-          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
+          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "GenreRelevanceVote_accountId_Account_id_fk": {
           "name": "GenreRelevanceVote_accountId_Account_id_fk",
           "tableFrom": "GenreRelevanceVote",
-          "columnsFrom": ["accountId"],
           "tableTo": "Account",
+          "columnsFrom": ["accountId"],
           "columnsTo": ["id"],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -464,6 +468,7 @@
         "type": {
           "name": "type",
           "type": "GenreType",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'STYLE'"
@@ -512,6 +517,50 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "public.PasswordResetToken": {
+      "name": "PasswordResetToken",
+      "schema": "",
+      "columns": {
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PasswordResetToken_user_id_Account_id_fk": {
+          "name": "PasswordResetToken_user_id_Account_id_fk",
+          "tableFrom": "PasswordResetToken",
+          "tableTo": "Account",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "PasswordResetToken_token_hash_unique": {
+          "name": "PasswordResetToken_token_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": ["token_hash"]
+        }
+      }
+    },
     "public.Session": {
       "name": "Session",
       "schema": "",
@@ -540,11 +589,11 @@
         "Session_user_id_Account_id_fk": {
           "name": "Session_user_id_Account_id_fk",
           "tableFrom": "Session",
-          "columnsFrom": ["user_id"],
           "tableTo": "Account",
+          "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -565,15 +614,13 @@
     "public.Permission": {
       "name": "Permission",
       "schema": "public",
-      "values": ["EDIT_RELEASES", "EDIT_ARTISTS", "MIGRATE_CONTRIBUTORS", "EDIT_GENRES"]
+      "values": ["EDIT_GENRES"]
     }
   },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "78a7243e-d090-4bc2-93e8-45e3e504bb73",
-  "prevId": "ff1f4602-9d73-4c84-a525-f32577267a96"
+    "tables": {}
+  }
 }

@@ -1,10 +1,8 @@
 {
-  "id": "dca7ed86-b718-4dd7-9402-2a4b34a78ba5",
-  "prevId": "e64de157-cf9a-4f83-9ee0-23361963cb42",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "Account": {
+    "public.Account": {
       "name": "Account",
       "schema": "",
       "columns": {
@@ -77,16 +75,26 @@
       },
       "indexes": {
         "Account_username_key": {
+          "columns": [
+            {
+              "expression": "username",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "Account_username_key",
-          "columns": ["username"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Genre": {
+    "public.Genre": {
       "name": "Genre",
       "schema": "",
       "columns": {
@@ -159,7 +167,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "GenreAka": {
+    "public.GenreAka": {
       "name": "GenreAka",
       "schema": "",
       "columns": {
@@ -193,11 +201,11 @@
         "GenreAka_genreId_Genre_id_fk": {
           "name": "GenreAka_genreId_Genre_id_fk",
           "tableFrom": "GenreAka",
-          "tableTo": "Genre",
           "columnsFrom": ["genreId"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -208,7 +216,7 @@
       },
       "uniqueConstraints": {}
     },
-    "GenreHistory": {
+    "public.GenreHistory": {
       "name": "GenreHistory",
       "schema": "",
       "columns": {
@@ -298,17 +306,17 @@
         "GenreHistory_accountId_Account_id_fk": {
           "name": "GenreHistory_accountId_Account_id_fk",
           "tableFrom": "GenreHistory",
-          "tableTo": "Account",
           "columnsFrom": ["accountId"],
+          "tableTo": "Account",
           "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "GenreHistoryAka": {
+    "public.GenreHistoryAka": {
       "name": "GenreHistoryAka",
       "schema": "",
       "columns": {
@@ -342,11 +350,11 @@
         "GenreHistoryAka_genreId_GenreHistory_id_fk": {
           "name": "GenreHistoryAka_genreId_GenreHistory_id_fk",
           "tableFrom": "GenreHistoryAka",
-          "tableTo": "GenreHistory",
           "columnsFrom": ["genreId"],
+          "tableTo": "GenreHistory",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -357,7 +365,7 @@
       },
       "uniqueConstraints": {}
     },
-    "GenreRelevanceVote": {
+    "public.GenreRelevanceVote": {
       "name": "GenreRelevanceVote",
       "schema": "",
       "columns": {
@@ -398,20 +406,20 @@
         "GenreRelevanceVote_genreId_Genre_id_fk": {
           "name": "GenreRelevanceVote_genreId_Genre_id_fk",
           "tableFrom": "GenreRelevanceVote",
-          "tableTo": "Genre",
           "columnsFrom": ["genreId"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "GenreRelevanceVote_accountId_Account_id_fk": {
           "name": "GenreRelevanceVote_accountId_Account_id_fk",
           "tableFrom": "GenreRelevanceVote",
-          "tableTo": "Account",
           "columnsFrom": ["accountId"],
+          "tableTo": "Account",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -422,7 +430,7 @@
       },
       "uniqueConstraints": {}
     },
-    "_hierarchy": {
+    "public._hierarchy": {
       "name": "_hierarchy",
       "schema": "",
       "columns": {
@@ -441,40 +449,66 @@
       },
       "indexes": {
         "_hierarchy_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_hierarchy_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_hierarchy_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_hierarchy_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_hierarchy_A_Genre_id_fk": {
           "name": "_hierarchy_A_Genre_id_fk",
           "tableFrom": "_hierarchy",
-          "tableTo": "Genre",
           "columnsFrom": ["A"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_hierarchy_B_Genre_id_fk": {
           "name": "_hierarchy_B_Genre_id_fk",
           "tableFrom": "_hierarchy",
-          "tableTo": "Genre",
           "columnsFrom": ["B"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_influence": {
+    "public._influence": {
       "name": "_influence",
       "schema": "",
       "columns": {
@@ -493,34 +527,60 @@
       },
       "indexes": {
         "_influence_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_influence_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_influence_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_influence_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_influence_A_Genre_id_fk": {
           "name": "_influence_A_Genre_id_fk",
           "tableFrom": "_influence",
-          "tableTo": "Genre",
           "columnsFrom": ["A"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_influence_B_Genre_id_fk": {
           "name": "_influence_B_Genre_id_fk",
           "tableFrom": "_influence",
-          "tableTo": "Genre",
           "columnsFrom": ["B"],
+          "tableTo": "Genre",
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -528,38 +588,28 @@
     }
   },
   "enums": {
-    "GenreOperation": {
+    "public.GenreOperation": {
       "name": "GenreOperation",
-      "values": {
-        "DELETE": "DELETE",
-        "UPDATE": "UPDATE",
-        "CREATE": "CREATE"
-      }
+      "schema": "public",
+      "values": ["DELETE", "UPDATE", "CREATE"]
     },
-    "GenreType": {
+    "public.GenreType": {
       "name": "GenreType",
-      "values": {
-        "TREND": "TREND",
-        "SCENE": "SCENE",
-        "STYLE": "STYLE",
-        "META": "META",
-        "MOVEMENT": "MOVEMENT"
-      }
+      "schema": "public",
+      "values": ["TREND", "SCENE", "STYLE", "META", "MOVEMENT"]
     },
-    "Permission": {
+    "public.Permission": {
       "name": "Permission",
-      "values": {
-        "EDIT_RELEASES": "EDIT_RELEASES",
-        "EDIT_ARTISTS": "EDIT_ARTISTS",
-        "MIGRATE_CONTRIBUTORS": "MIGRATE_CONTRIBUTORS",
-        "EDIT_GENRES": "EDIT_GENRES"
-      }
+      "schema": "public",
+      "values": ["EDIT_RELEASES", "EDIT_ARTISTS", "MIGRATE_CONTRIBUTORS", "EDIT_GENRES"]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "dca7ed86-b718-4dd7-9402-2a4b34a78ba5",
+  "prevId": "e64de157-cf9a-4f83-9ee0-23361963cb42"
 }

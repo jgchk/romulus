@@ -2,10 +2,11 @@ import { error } from '@sveltejs/kit'
 import { desc } from 'drizzle-orm'
 import { z } from 'zod'
 
+import { createPasswordResetToken } from '$lib/server/auth'
 import { db } from '$lib/server/db'
 import { genreHistory } from '$lib/server/db/schema'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)
@@ -49,4 +50,24 @@ export const load: PageServerLoad = async ({ params }) => {
   ).size
 
   return { account, numCreated, numUpdated, numDeleted, history }
+}
+
+export const actions: Actions = {
+  createPasswordResetLink: async ({ params, locals }) => {
+    // mocha
+    if (locals.user?.id !== 1) {
+      return error(401, 'Unauthorized')
+    }
+
+    const maybeId = z.coerce.number().int().safeParse(params.id)
+    if (!maybeId.success) {
+      return error(400, { message: 'Invalid genre ID' })
+    }
+    const id = maybeId.data
+
+    const verificationToken = await createPasswordResetToken(id)
+    const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
+
+    return { verificationLink }
+  },
 }

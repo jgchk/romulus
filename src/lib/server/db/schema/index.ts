@@ -104,6 +104,20 @@ export const sessions = pgTable('Session', {
   }).notNull(),
 })
 
+export const passwordResetTokens = pgTable('PasswordResetToken', {
+  tokenHash: text('token_hash').unique().notNull(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => accounts.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  expiresAt: timestamp('expires_at', {
+    withTimezone: true,
+    mode: 'date',
+  }).notNull(),
+})
+
 export const genreParents = pgTable(
   'GenreParents',
   {

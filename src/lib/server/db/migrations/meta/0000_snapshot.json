@@ -1,10 +1,8 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "ItemBundle": {
+    "public.ItemBundle": {
       "name": "ItemBundle",
       "schema": "",
       "columns": {
@@ -20,7 +18,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Genre": {
+    "public.Genre": {
       "name": "Genre",
       "schema": "",
       "columns": {
@@ -93,7 +91,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "GenreHistory": {
+    "public.GenreHistory": {
       "name": "GenreHistory",
       "schema": "",
       "columns": {
@@ -183,18 +181,18 @@
         "GenreHistory_accountId_fkey": {
           "name": "GenreHistory_accountId_fkey",
           "tableFrom": "GenreHistory",
+          "columnsFrom": ["accountId"],
           "tableTo": "Account",
           "schemaTo": "public",
-          "columnsFrom": ["accountId"],
           "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Account": {
+    "public.Account": {
       "name": "Account",
       "schema": "",
       "columns": {
@@ -267,16 +265,26 @@
       },
       "indexes": {
         "Account_username_key": {
+          "columns": [
+            {
+              "expression": "username",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "Account_username_key",
-          "columns": ["username"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "ItemType": {
+    "public.ItemType": {
       "name": "ItemType",
       "schema": "",
       "columns": {
@@ -298,7 +306,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Artist": {
+    "public.Artist": {
       "name": "Artist",
       "schema": "",
       "columns": {
@@ -320,7 +328,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "ConceptBundle": {
+    "public.ConceptBundle": {
       "name": "ConceptBundle",
       "schema": "",
       "columns": {
@@ -336,7 +344,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Concept": {
+    "public.Concept": {
       "name": "Concept",
       "schema": "",
       "columns": {
@@ -358,18 +366,18 @@
         "Concept_typeId_fkey": {
           "name": "Concept_typeId_fkey",
           "tableFrom": "Concept",
+          "columnsFrom": ["typeId"],
           "tableTo": "ConceptType",
           "schemaTo": "public",
-          "columnsFrom": ["typeId"],
           "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "ConceptIssue": {
+    "public.ConceptIssue": {
       "name": "ConceptIssue",
       "schema": "",
       "columns": {
@@ -391,18 +399,18 @@
         "ConceptIssue_conceptId_fkey": {
           "name": "ConceptIssue_conceptId_fkey",
           "tableFrom": "ConceptIssue",
+          "columnsFrom": ["conceptId"],
           "tableTo": "Concept",
           "schemaTo": "public",
-          "columnsFrom": ["conceptId"],
           "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "ConceptType": {
+    "public.ConceptType": {
       "name": "ConceptType",
       "schema": "",
       "columns": {
@@ -424,7 +432,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Item": {
+    "public.Item": {
       "name": "Item",
       "schema": "",
       "columns": {
@@ -446,18 +454,18 @@
         "Item_typeId_fkey": {
           "name": "Item_typeId_fkey",
           "tableFrom": "Item",
+          "columnsFrom": ["typeId"],
           "tableTo": "ItemType",
           "schemaTo": "public",
-          "columnsFrom": ["typeId"],
           "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Unit": {
+    "public.Unit": {
       "name": "Unit",
       "schema": "",
       "columns": {
@@ -473,7 +481,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_ConceptToConceptBundle": {
+    "public._ConceptToConceptBundle": {
       "name": "_ConceptToConceptBundle",
       "schema": "",
       "columns": {
@@ -492,42 +500,68 @@
       },
       "indexes": {
         "_ConceptToConceptBundle_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ConceptToConceptBundle_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_ConceptToConceptBundle_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ConceptToConceptBundle_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_ConceptToConceptBundle_A_fkey": {
           "name": "_ConceptToConceptBundle_A_fkey",
           "tableFrom": "_ConceptToConceptBundle",
+          "columnsFrom": ["A"],
           "tableTo": "Concept",
           "schemaTo": "public",
-          "columnsFrom": ["A"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_ConceptToConceptBundle_B_fkey": {
           "name": "_ConceptToConceptBundle_B_fkey",
           "tableFrom": "_ConceptToConceptBundle",
+          "columnsFrom": ["B"],
           "tableTo": "ConceptBundle",
           "schemaTo": "public",
-          "columnsFrom": ["B"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_ConceptToUnit": {
+    "public._ConceptToUnit": {
       "name": "_ConceptToUnit",
       "schema": "",
       "columns": {
@@ -546,42 +580,68 @@
       },
       "indexes": {
         "_ConceptToUnit_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ConceptToUnit_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_ConceptToUnit_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ConceptToUnit_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_ConceptToUnit_A_fkey": {
           "name": "_ConceptToUnit_A_fkey",
           "tableFrom": "_ConceptToUnit",
+          "columnsFrom": ["A"],
           "tableTo": "Concept",
           "schemaTo": "public",
-          "columnsFrom": ["A"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_ConceptToUnit_B_fkey": {
           "name": "_ConceptToUnit_B_fkey",
           "tableFrom": "_ConceptToUnit",
+          "columnsFrom": ["B"],
           "tableTo": "Unit",
           "schemaTo": "public",
-          "columnsFrom": ["B"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_ItemToItemBundle": {
+    "public._ItemToItemBundle": {
       "name": "_ItemToItemBundle",
       "schema": "",
       "columns": {
@@ -600,42 +660,68 @@
       },
       "indexes": {
         "_ItemToItemBundle_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ItemToItemBundle_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_ItemToItemBundle_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_ItemToItemBundle_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_ItemToItemBundle_A_fkey": {
           "name": "_ItemToItemBundle_A_fkey",
           "tableFrom": "_ItemToItemBundle",
+          "columnsFrom": ["A"],
           "tableTo": "Item",
           "schemaTo": "public",
-          "columnsFrom": ["A"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_ItemToItemBundle_B_fkey": {
           "name": "_ItemToItemBundle_B_fkey",
           "tableFrom": "_ItemToItemBundle",
+          "columnsFrom": ["B"],
           "tableTo": "ItemBundle",
           "schemaTo": "public",
-          "columnsFrom": ["B"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_hierarchy": {
+    "public._hierarchy": {
       "name": "_hierarchy",
       "schema": "",
       "columns": {
@@ -654,42 +740,68 @@
       },
       "indexes": {
         "_hierarchy_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_hierarchy_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_hierarchy_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_hierarchy_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_hierarchy_A_fkey": {
           "name": "_hierarchy_A_fkey",
           "tableFrom": "_hierarchy",
+          "columnsFrom": ["A"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["A"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_hierarchy_B_fkey": {
           "name": "_hierarchy_B_fkey",
           "tableFrom": "_hierarchy",
+          "columnsFrom": ["B"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["B"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_prisma_migrations": {
+    "public._prisma_migrations": {
       "name": "_prisma_migrations",
       "schema": "",
       "columns": {
@@ -749,7 +861,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "ConceptBundleIssue": {
+    "public.ConceptBundleIssue": {
       "name": "ConceptBundleIssue",
       "schema": "",
       "columns": {
@@ -771,18 +883,18 @@
         "ConceptBundleIssue_conceptBundleId_fkey": {
           "name": "ConceptBundleIssue_conceptBundleId_fkey",
           "tableFrom": "ConceptBundleIssue",
+          "columnsFrom": ["conceptBundleId"],
           "tableTo": "ConceptBundle",
           "schemaTo": "public",
-          "columnsFrom": ["conceptBundleId"],
           "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Member": {
+    "public.Member": {
       "name": "Member",
       "schema": "",
       "columns": {
@@ -816,28 +928,28 @@
         "Member_artistId_fkey": {
           "name": "Member_artistId_fkey",
           "tableFrom": "Member",
+          "columnsFrom": ["artistId"],
           "tableTo": "Artist",
           "schemaTo": "public",
-          "columnsFrom": ["artistId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "Member_personId_fkey": {
           "name": "Member_personId_fkey",
           "tableFrom": "Member",
+          "columnsFrom": ["personId"],
           "tableTo": "Person",
           "schemaTo": "public",
-          "columnsFrom": ["personId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Person": {
+    "public.Person": {
       "name": "Person",
       "schema": "",
       "columns": {
@@ -871,7 +983,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "UnitIssue": {
+    "public.UnitIssue": {
       "name": "UnitIssue",
       "schema": "",
       "columns": {
@@ -893,18 +1005,18 @@
         "UnitIssue_unitId_fkey": {
           "name": "UnitIssue_unitId_fkey",
           "tableFrom": "UnitIssue",
+          "columnsFrom": ["unitId"],
           "tableTo": "Unit",
           "schemaTo": "public",
-          "columnsFrom": ["unitId"],
           "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "_influence": {
+    "public._influence": {
       "name": "_influence",
       "schema": "",
       "columns": {
@@ -923,42 +1035,68 @@
       },
       "indexes": {
         "_influence_AB_unique": {
+          "columns": [
+            {
+              "expression": "A",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_influence_AB_unique",
-          "columns": ["A", "B"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "_influence_B_index": {
+          "columns": [
+            {
+              "expression": "B",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "_influence_B_index",
-          "columns": ["B"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "_influence_A_fkey": {
           "name": "_influence_A_fkey",
           "tableFrom": "_influence",
+          "columnsFrom": ["A"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["A"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "_influence_B_fkey": {
           "name": "_influence_B_fkey",
           "tableFrom": "_influence",
+          "columnsFrom": ["B"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["B"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "GenreHistoryAka": {
+    "public.GenreHistoryAka": {
       "name": "GenreHistoryAka",
       "schema": "",
       "columns": {
@@ -992,12 +1130,12 @@
         "GenreHistoryAka_genreId_fkey": {
           "name": "GenreHistoryAka_genreId_fkey",
           "tableFrom": "GenreHistoryAka",
+          "columnsFrom": ["genreId"],
           "tableTo": "GenreHistory",
           "schemaTo": "public",
-          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -1008,7 +1146,7 @@
       },
       "uniqueConstraints": {}
     },
-    "GenreAka": {
+    "public.GenreAka": {
       "name": "GenreAka",
       "schema": "",
       "columns": {
@@ -1042,12 +1180,12 @@
         "GenreAka_genreId_fkey": {
           "name": "GenreAka_genreId_fkey",
           "tableFrom": "GenreAka",
+          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -1058,7 +1196,7 @@
       },
       "uniqueConstraints": {}
     },
-    "GenreRelevanceVote": {
+    "public.GenreRelevanceVote": {
       "name": "GenreRelevanceVote",
       "schema": "",
       "columns": {
@@ -1099,22 +1237,22 @@
         "GenreRelevanceVote_accountId_fkey": {
           "name": "GenreRelevanceVote_accountId_fkey",
           "tableFrom": "GenreRelevanceVote",
+          "columnsFrom": ["accountId"],
           "tableTo": "Account",
           "schemaTo": "public",
-          "columnsFrom": ["accountId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         },
         "GenreRelevanceVote_genreId_fkey": {
           "name": "GenreRelevanceVote_genreId_fkey",
           "tableFrom": "GenreRelevanceVote",
+          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
           "schemaTo": "public",
-          "columnsFrom": ["genreId"],
           "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "cascade",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -1127,32 +1265,20 @@
     }
   },
   "enums": {
-    "GenreOperation": {
+    "public.GenreOperation": {
       "name": "GenreOperation",
-      "values": {
-        "DELETE": "DELETE",
-        "UPDATE": "UPDATE",
-        "CREATE": "CREATE"
-      }
+      "schema": "public",
+      "values": ["DELETE", "UPDATE", "CREATE"]
     },
-    "GenreType": {
+    "public.GenreType": {
       "name": "GenreType",
-      "values": {
-        "TREND": "TREND",
-        "SCENE": "SCENE",
-        "STYLE": "STYLE",
-        "META": "META",
-        "MOVEMENT": "MOVEMENT"
-      }
+      "schema": "public",
+      "values": ["TREND", "SCENE", "STYLE", "META", "MOVEMENT"]
     },
-    "Permission": {
+    "public.Permission": {
       "name": "Permission",
-      "values": {
-        "EDIT_RELEASES": "EDIT_RELEASES",
-        "EDIT_ARTISTS": "EDIT_ARTISTS",
-        "MIGRATE_CONTRIBUTORS": "MIGRATE_CONTRIBUTORS",
-        "EDIT_GENRES": "EDIT_GENRES"
-      }
+      "schema": "public",
+      "values": ["EDIT_RELEASES", "EDIT_ARTISTS", "MIGRATE_CONTRIBUTORS", "EDIT_GENRES"]
     }
   },
   "schemas": {},
@@ -1160,5 +1286,7 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": ""
 }
