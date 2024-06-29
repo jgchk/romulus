@@ -17,6 +17,7 @@
   import { getInputGroupErrors } from './InputGroup'
   import type { Option, OptionData } from './Select'
 
+  export let filterable = false
   export let value: InternalOption | undefined = undefined
   export let options: InternalOption[] = []
   export let hasMore = false
@@ -39,18 +40,20 @@
   $: errors = propErrors || ($contextErrors && $contextErrors.length > 0)
 
   let inputRef: HTMLInputElement | undefined
+  let triggerButton: HTMLButtonElement | undefined
 
   $: if (!open) {
     displayFilter = value?.label ?? ''
   }
 
-  $: filteredOptions = virtual
-    ? options
-    : sortBy(
-        options,
-        (option) => option.label.toLowerCase(),
-        (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
-      )
+  $: filteredOptions =
+    virtual || !filter
+      ? options
+      : sortBy(
+          options,
+          (option) => option.label.toLowerCase(),
+          (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
+        )
 
   $: lastIndex = hasMore ? filteredOptions.length : filteredOptions.length - 1
 
@@ -120,9 +123,11 @@
       handleSelect(focusedOption)
     } else if (event.key === 'ArrowDown') {
       event.preventDefault()
+      open = true
       focusedIndex = (focusedIndex + 1) % (lastIndex + 1)
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
+      open = true
       focusedIndex = (focusedIndex - 1 + lastIndex + 1) % (lastIndex + 1)
     } else if (event.key === 'Escape') {
       event.preventDefault()
@@ -141,10 +146,18 @@
   })
 </script>
 
+<svelte:window
+  on:keydown={(e) => {
+    if (!filterable && (open || document.activeElement === triggerButton)) {
+      handleKeyDown(e)
+    }
+  }}
+/>
+
 <div
   use:popoverReference
   data-invalid={errors}
-  class={tw('relative w-56', class_)}
+  class={tw('select relative w-56', class_)}
   use:clickOutside={(e) => {
     if (open) {
       e.stopPropagation()
@@ -152,49 +165,68 @@
     }
   }}
 >
-  <div
-    class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
-  >
-    <input
-      {id}
-      class="w-0 flex-1 bg-transparent p-1.5 px-2 text-sm text-black outline-none transition dark:text-white"
-      {disabled}
-      {placeholder}
-      type="text"
-      value={displayFilter}
-      autocomplete="off"
-      on:input={(event) => {
-        displayFilter = event.currentTarget.value
-        filter = event.currentTarget.value
-      }}
-      on:focus={() => (open = true)}
-      on:click={() => (open = true)}
-      bind:this={inputRef}
-      on:keydown={handleKeyDown}
-      on:blur
-    />
-
-    <button
-      class="px-2"
-      type="button"
-      {disabled}
-      tabindex="-1"
-      on:click={(e) => {
-        e.currentTarget.blur()
-        open = !open
-        if (open) {
-          inputRef?.focus()
-        }
-      }}
+  {#if filterable}
+    <div
+      class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
     >
+      <input
+        {id}
+        class="w-0 flex-1 bg-transparent p-1.5 px-2 text-sm text-black outline-none transition dark:text-white"
+        {disabled}
+        {placeholder}
+        type="text"
+        value={displayFilter}
+        autocomplete="off"
+        on:input={(event) => {
+          displayFilter = event.currentTarget.value
+          filter = event.currentTarget.value
+        }}
+        on:focus={() => (open = true)}
+        on:click={() => (open = true)}
+        bind:this={inputRef}
+        on:keydown={handleKeyDown}
+        on:blur
+      />
+
+      <button
+        class="px-2"
+        type="button"
+        {disabled}
+        tabindex="-1"
+        on:click={(e) => {
+          e.currentTarget.blur()
+          open = !open
+          if (open) {
+            inputRef?.focus()
+          }
+        }}
+      >
+        <CaretDown size={14} class={cn('transition-transform', open && 'rotate-180 transform')} />
+      </button>
+    </div>
+  {:else}
+    <button
+      {id}
+      type="button"
+      class="flex w-full items-center justify-between rounded border border-gray-300 bg-black bg-opacity-[0.04] p-1.5 px-2 text-left text-sm text-black outline-none transition hover:bg-opacity-[0.07] focus:border-secondary-500 dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:text-white dark:hover:bg-opacity-10"
+      on:click={() => (open = !open)}
+      bind:this={triggerButton}
+    >
+      <span>
+        {#if value !== undefined}
+          {value.label}
+        {:else}
+          {placeholder}
+        {/if}
+      </span>
       <CaretDown size={14} class={cn('transition-transform', open && 'rotate-180 transform')} />
     </button>
-  </div>
+  {/if}
 
   {#if open}
     <div
       role="listbox"
-      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      class="select__list relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
       transition:fade={{ duration: 75 }}
       tabindex="-1"
       on:keydown={handleKeyDown}

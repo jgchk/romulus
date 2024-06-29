@@ -46,7 +46,7 @@
   $: isValueSelected = (value: Value) => selectedValues.has(value)
 
   $: filteredOptions = (
-    virtual
+    virtual || !filter
       ? options
       : sortBy(
           options,

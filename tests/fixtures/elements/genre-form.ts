@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
-import type { GenreType } from '$lib/types/genres'
+import { type GenreType, getGenreRelevanceText } from '$lib/types/genres'
+import { capitalize } from '$lib/utils/string'
 
 export type GenreFormData = {
   name?: string
@@ -75,8 +76,15 @@ export class GenreForm {
 
   async selectType(type: GenreType) {
     await this.typeInput.click()
-    await this.typeInput.fill(type)
-    await this.typeInput.press('Enter')
+    await this.page.locator('.select__list').getByText(capitalize(type)).click()
+  }
+
+  async selectRelevance(relevance: number) {
+    await this.relevanceInput.click()
+    await this.page
+      .locator('.select__list')
+      .getByText(`${relevance} - ${getGenreRelevanceText(relevance)}`)
+      .click()
   }
 
   async selectParents(parents: string[]) {
@@ -85,6 +93,7 @@ export class GenreForm {
       await this.parentsInput.fill(parent)
       await this.parentsInput.press('Enter')
     }
+    await this.parentsInput.press('Escape')
   }
 
   async clearParents() {
@@ -100,6 +109,7 @@ export class GenreForm {
       await this.influencesInput.fill(influence)
       await this.influencesInput.press('Enter')
     }
+    await this.influencesInput.press('Escape')
   }
 
   async clearInfluences() {
@@ -107,10 +117,5 @@ export class GenreForm {
     while (await selectedInfluence.isVisible()) {
       await selectedInfluence.click()
     }
-  }
-
-  async selectRelevance(relevance: number) {
-    await this.relevanceInput.fill(`${relevance} -`)
-    await this.relevanceInput.press('Enter')
   }
 }

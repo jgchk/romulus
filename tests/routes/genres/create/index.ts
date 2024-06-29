@@ -72,7 +72,7 @@ export default function createGenrePageTests() {
         })
 
         test('should default to Style type', async ({ createGenrePage }) => {
-          await expect(createGenrePage.typeInput).toHaveValue('Style')
+          await expect(createGenrePage.typeInput).toHaveText('Style')
         })
 
         test('should create a genre with all fields filled', async ({

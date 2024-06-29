@@ -83,8 +83,11 @@ export class GenreDetailsPage {
 
   async vote(relevance: number) {
     await this.voteButton.click()
-    await this.voteInput.fill(`${relevance} -`)
-    await this.voteInput.press('Enter')
+    await this.voteInput.click()
+    await this.page
+      .locator('.select__list')
+      .getByText(`${relevance} - ${getGenreRelevanceText(relevance)}`)
+      .click()
     await this.submitVoteButton.click()
   }
 
