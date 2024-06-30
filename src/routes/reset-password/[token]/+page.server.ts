@@ -51,7 +51,10 @@ export const actions: Actions = {
     }
 
     await lucia.invalidateUserSessions(token.userId)
-    await db.update(accounts).set({ password: await hashPassword(form.data.password) })
+    await db
+      .update(accounts)
+      .set({ password: await hashPassword(form.data.password) })
+      .where(eq(accounts.id, token.userId))
 
     const session = await lucia.createSession(token.userId, {})
     const sessionCookie = lucia.createSessionCookie(session.id)
