@@ -20,6 +20,13 @@
   import type { Option, OptionData } from './Select'
   import VirtualList from './VirtualList.svelte'
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface $$Slots {
+    default: never
+    selected: { option: InternalOption }
+    option: { option: InternalOption }
+  }
+
   export let value: InternalOption[] = []
   export let options: InternalOption[] = []
   export let hasMore = false
@@ -50,8 +57,14 @@
       ? options
       : sortBy(
           options,
-          (option) => option.label.toLowerCase(),
-          (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
+          (option) => option.label,
+          (a, b) => {
+            if (filter.length === 1) {
+              return a.toLowerCase().startsWith(filter.toLowerCase()) ? -1 : 1
+            } else {
+              return diceCoefficient(b, filter) - diceCoefficient(a, filter)
+            }
+          },
         )
   ).filter((option) => !isValueSelected(option.value))
 
@@ -78,12 +91,8 @@
   }
 
   const handleAdd = (option: InternalOption) => {
-    if (option.onSelect) {
-      option.onSelect()
-    } else {
-      value = [...value, option]
-      dispatch('change', { value })
-    }
+    value = [...value, option]
+    dispatch('change', { value })
   }
 
   const handleRemove = (option: InternalOption) => {
@@ -254,7 +263,11 @@
             }}
             on:mouseenter={() => (focusedIndex = i)}
           >
-            {option.label}
+            {#if $$slots.option}
+              <slot name="option" {option} />
+            {:else}
+              {option.label}
+            {/if}
           </button>
         </VirtualList>
 
