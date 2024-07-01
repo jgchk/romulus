@@ -8,11 +8,9 @@ export type Option<T extends OptionData> = T extends { data: any }
 export type PlainOption<V extends OptionValue> = {
   value: V
   label: string
-  onSelect?: () => void
 }
 export type DataOption<V extends OptionValue, Data> = {
   value: V
   label: string
   data: Data
-  onSelect?: () => void
 }

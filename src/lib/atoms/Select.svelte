@@ -51,8 +51,14 @@
       ? options
       : sortBy(
           options,
-          (option) => option.label.toLowerCase(),
-          (a, b) => diceCoefficient(b, filter) - diceCoefficient(a, filter),
+          (option) => option.label,
+          (a, b) => {
+            if (filter.length === 1) {
+              return a.toLowerCase().startsWith(filter.toLowerCase()) ? -1 : 1
+            } else {
+              return diceCoefficient(b, filter) - diceCoefficient(a, filter)
+            }
+          },
         )
 
   $: lastIndex = hasMore ? filteredOptions.length : filteredOptions.length - 1
@@ -76,14 +82,10 @@
       inputRef?.focus()
     }
 
-    if (option.onSelect) {
-      option.onSelect()
-    } else {
-      value = option
-      filter = ''
-      displayFilter = option.label
-      dispatch('change', { value })
-    }
+    value = option
+    filter = ''
+    displayFilter = option.label
+    dispatch('change', { value })
   }
 
   const handleLoadMore = () => {
