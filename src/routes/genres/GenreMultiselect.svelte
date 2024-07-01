@@ -6,7 +6,7 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user'
   import { type GenreMatch, searchGenres } from '$lib/types/genres'
-  import { isDefined } from '$lib/utils/types'
+  import { isDefined, type Timeout } from '$lib/utils/types'
 
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
 
@@ -45,9 +45,17 @@
     .filter(isDefined)
 
   let filter = ''
-  $: matches = searchGenres(genres, filter)
 
-  $: options = matches
+  let debouncedFilter = filter
+  let timeout: Timeout
+  $: {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      debouncedFilter = filter
+    }, 250)
+  }
+
+  $: options = searchGenres(genres, debouncedFilter)
     .filter((match) => !excludeSet.has(match.genre.id))
     .map((match) => ({
       value: match.genre.id,
