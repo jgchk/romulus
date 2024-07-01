@@ -3,9 +3,11 @@
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import type { Option } from '$lib/atoms/Select'
+  import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
+  import { userSettings } from '$lib/contexts/user'
+  import { type GenreMatch, searchGenres } from '$lib/types/genres'
   import { isDefined } from '$lib/utils/types'
 
-  import GenreMultiselectOption from './GenreMultiselectOption.svelte'
   import type { TreeGenre } from './GenreNavigator/GenreTree/state'
 
   type Opt = Option<{ value: number }>
@@ -27,20 +29,30 @@
     .map((id) => {
       const genre = genres.find((genre) => genre.id === id)
       if (!genre) return
+
+      const data: GenreMatch = {
+        id,
+        genre,
+        weight: 0,
+      }
+
       return {
         value: id,
         label: genre.name,
-        data: genre,
+        data,
       }
     })
     .filter(isDefined)
 
-  $: options = genres
-    .filter((genre) => !excludeSet.has(genre.id))
-    .map((genre) => ({
-      value: genre.id,
-      label: genre.name,
-      data: genre,
+  let filter = ''
+  $: matches = searchGenres(genres, filter)
+
+  $: options = matches
+    .filter((match) => !excludeSet.has(match.genre.id))
+    .map((match) => ({
+      value: match.genre.id,
+      label: match.genre.name,
+      data: match,
     }))
 
   const dispatch = createEventDispatcher<{
@@ -50,6 +62,8 @@
 
 <Multiselect
   value={values}
+  virtual
+  bind:filter
   {options}
   on:change={(e) => {
     value = e.detail.value.map((v) => v.value)
@@ -59,10 +73,29 @@
   {...$$restProps}
 >
   <svelte:fragment slot="selected" let:option>
-    <GenreMultiselectOption genre={option.data} />
+    <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}{' '}<span
+        class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
+      >{/if}{#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
+      {' '}
+      <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
+    {/if}
   </svelte:fragment>
 
   <svelte:fragment slot="option" let:option>
-    <GenreMultiselectOption genre={option.data} />
+    {option.data.genre.name}
+    {#if option.data.genre.subtitle}
+      {' '}
+      <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
+        >[{option.data.genre.subtitle}]</span
+      >
+    {/if}
+    {#if option.data.matchedAka}
+      {' '}
+      <span class="text-[0.8rem]">({option.data.matchedAka})</span>
+    {/if}
+    {#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
+      {' '}
+      <GenreTypeChip type={option.data.genre.type} />
+    {/if}
   </svelte:fragment>
 </Multiselect>
