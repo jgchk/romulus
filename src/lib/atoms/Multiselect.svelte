@@ -18,7 +18,6 @@
   import { diceCoefficient } from '$lib/utils/string'
 
   import type { Option, OptionData } from './Select'
-  import VirtualList from './VirtualList.svelte'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface $$Slots {
@@ -160,7 +159,7 @@
 <div
   use:popoverReference
   data-invalid={errors}
-  class={tw('multiselect relative', class_)}
+  class={tw('relative', class_)}
   use:clickOutside={(e) => {
     if (open) {
       e.stopPropagation()
@@ -176,13 +175,14 @@
         {#each value as v (v.value)}
           <button
             type="button"
-            class="multiselect__selected rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
+            class="rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
             use:tooltip={{ content: 'Remove' }}
             on:click={() => {
               handleRemove(v)
               inputRef?.focus()
             }}
             tabindex="-1"
+            data-testId="multiselect__selected"
           >
             {#if $$slots.selected}
               <slot name="selected" option={v} />
@@ -244,12 +244,7 @@
           No results
         </div>
       {:else}
-        <VirtualList
-          height="{Math.min(filteredOptions.length, 10) * 32}px"
-          items={filteredOptions}
-          let:item={option}
-          let:index={i}
-        >
+        {#each filteredOptions as option, i (option.value)}
           <button
             type="button"
             class={tw(
@@ -262,6 +257,7 @@
               inputRef?.focus()
             }}
             on:mouseenter={() => (focusedIndex = i)}
+            data-testId="multiselect__option"
           >
             {#if $$slots.option}
               <slot name="option" {option} />
@@ -269,7 +265,7 @@
               {option.label}
             {/if}
           </button>
-        </VirtualList>
+        {/each}
 
         {#if hasMore}
           <button

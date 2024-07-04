@@ -1,23 +1,19 @@
-<script lang="ts">
-  import { type ComponentProps, createEventDispatcher } from 'svelte'
+<script lang="ts" context="module">
+  type T = MultiselectGenre
+</script>
+
+<script lang="ts" generics="T extends MultiselectGenre">
+  import { createEventDispatcher } from 'svelte'
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
-  import type { Option } from '$lib/atoms/Select'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user'
   import { type GenreMatch, searchGenres } from '$lib/types/genres'
   import { isDefined, type Timeout } from '$lib/utils/types'
 
-  import type { TreeGenre } from './GenreNavigator/GenreTree/state'
+  import type { GenreMultiselectProps, MultiselectGenre } from './GenreMultiselect'
 
-  type Opt = Option<{ value: number }>
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface $$Props extends Omit<ComponentProps<Multiselect<Opt>>, 'value' | 'options'> {
-    value: number[]
-    genres: TreeGenre[]
-    exclude?: number[]
-  }
+  type $$Props = GenreMultiselectProps<T>
 
   export let value: $$Props['value']
   export let genres: $$Props['genres']
@@ -30,7 +26,7 @@
       const genre = genres.find((genre) => genre.id === id)
       if (!genre) return
 
-      const data: GenreMatch = {
+      const data: GenreMatch<T> = {
         id,
         genre,
         weight: 0,

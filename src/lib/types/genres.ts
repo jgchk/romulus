@@ -75,15 +75,17 @@ export type SimpleGenre = {
   children: number[]
 }
 
-export type GenreMatch = {
+export type SearchGenre = Pick<SimpleGenre, 'id' | 'name' | 'subtitle' | 'akas'>
+
+export type GenreMatch<T> = {
   id: number
-  genre: SimpleGenre
+  genre: T
   matchedAka?: string
   weight: number
 }
 
-export function searchGenres(genres: SimpleGenre[], query: string) {
-  const m: GenreMatch[] = []
+export function searchGenres<T extends SearchGenre>(genres: T[], query: string) {
+  const m: GenreMatch<T>[] = []
 
   for (const genre of genres) {
     let name = genre.name
@@ -91,7 +93,7 @@ export function searchGenres(genres: SimpleGenre[], query: string) {
       name += ` [${genre.subtitle}]`
     }
     const nameWeight = getMatchWeight(name, query)
-    let match: GenreMatch = { id: genre.id, genre, weight: nameWeight }
+    let match: GenreMatch<T> = { id: genre.id, genre, weight: nameWeight }
 
     for (const aka of genre.akas) {
       // TODO: incorporate aka relevance
