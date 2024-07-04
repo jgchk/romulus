@@ -53,7 +53,12 @@ export default function createGenrePageTests() {
         })
 
         test.beforeEach(async ({ signInPage, createGenrePage }) => {
-          await createGenres([{ name: 'genre-one' }, { name: 'genre-two' }])
+          await createGenres([
+            { name: 'parent-one' },
+            { name: 'parent-two' },
+            { name: 'influence-one' },
+            { name: 'influence-two' },
+          ])
 
           await signInPage.goto()
           await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -88,8 +93,8 @@ export default function createGenrePageTests() {
               tertiary: 'tertiary-one, tertiary-two',
             },
             type: 'META',
-            parents: ['genre-one', 'genre-two'],
-            influences: ['genre-one', 'genre-two'],
+            parents: ['parent-one', 'parent-two'],
+            influences: ['influence-one', 'influence-two'],
             relevance: 3,
             shortDescription: 'short description',
             longDescription: 'long description',

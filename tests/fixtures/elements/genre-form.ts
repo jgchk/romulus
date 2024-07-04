@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 import { type GenreType, getGenreRelevanceText } from '$lib/types/genres'
 import { capitalize } from '$lib/utils/string'
@@ -27,8 +27,10 @@ export class GenreForm {
   readonly typeInput: Locator
   readonly parentsInput: Locator
   readonly selectedParents: Locator
+  readonly parentsOptions: Locator
   readonly influencesInput: Locator
   readonly selectedInfluences: Locator
+  readonly influencesOptions: Locator
   readonly relevanceInput: Locator
   readonly shortDescriptionInput: Locator
   readonly longDescriptionInput: Locator
@@ -46,9 +48,15 @@ export class GenreForm {
     }
     this.typeInput = this.page.getByLabel('Type')
     this.parentsInput = this.page.getByLabel('Parents')
-    this.selectedParents = this.page.locator('.genre-parents .multiselect__selected')
+    this.selectedParents = this.page.locator('.genre-parents').getByTestId('multiselect__selected')
+    this.parentsOptions = this.page.locator('.genre-parents').getByTestId('multiselect__option')
     this.influencesInput = this.page.getByLabel('Influences')
-    this.selectedInfluences = this.page.locator('.genre-influences .multiselect__selected')
+    this.selectedInfluences = this.page
+      .locator('.genre-influences')
+      .getByTestId('multiselect__selected')
+    this.influencesOptions = this.page
+      .locator('.genre-influences')
+      .getByTestId('multiselect__option')
     this.relevanceInput = this.page.getByLabel('Relevance')
     this.shortDescriptionInput = this.page.getByLabel('Short Description')
     this.longDescriptionInput = this.page.getByLabel('Long Description')
@@ -91,7 +99,8 @@ export class GenreForm {
     await this.clearParents()
     for (const parent of parents) {
       await this.parentsInput.fill(parent)
-      await this.parentsInput.press('Enter')
+      await expect(this.parentsOptions.first()).toHaveText(parent)
+      await this.parentsOptions.first().click()
     }
     await this.parentsInput.press('Escape')
   }
@@ -107,7 +116,8 @@ export class GenreForm {
     await this.clearInfluences()
     for (const influence of influences) {
       await this.influencesInput.fill(influence)
-      await this.influencesInput.press('Enter')
+      await expect(this.influencesOptions.first()).toHaveText(influence)
+      await this.influencesOptions.first().click()
     }
     await this.influencesInput.press('Escape')
   }
