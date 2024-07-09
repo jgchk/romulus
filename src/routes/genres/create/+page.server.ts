@@ -1,9 +1,10 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, setError, superValidate } from 'sveltekit-superforms'
+import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
+import { createGenre } from '$lib/server/api/genres'
+import { db } from '$lib/server/db'
 import { genreSchema } from '$lib/server/db/utils'
-import { createGenre, GenreCycleError, setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
@@ -34,18 +35,8 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    try {
-      const genre = await createGenre(form.data, user.id)
-      if (form.data.relevance !== undefined) {
-        await setRelevanceVote(genre.id, form.data.relevance, user.id)
-      }
-      redirect(302, `/genres/${genre.id}`)
-    } catch (err) {
-      if (err instanceof GenreCycleError) {
-        return setError(form, 'parents._errors', `Cycle detected: ${err.cycle}`)
-      } else {
-        throw err
-      }
-    }
+    const genre = await createGenre(form.data, user.id, db)
+
+    redirect(302, `/genres/${genre.id}`)
   },
 }

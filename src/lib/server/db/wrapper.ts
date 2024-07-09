@@ -36,6 +36,7 @@ import {
 } from './schema'
 
 export interface IDatabase {
+  transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
   accounts: IAccountsDatabase
   passwordResetTokens: IPasswordResetTokensDatabase
   genres: IGenresDatabase
@@ -66,7 +67,7 @@ export interface IPasswordResetTokensDatabase {
 export interface IGenresDatabase {
   insert: (...data: ExtendedInsertGenre[]) => Promise<
     (Genre & {
-      akas: GenreAka[]
+      akas: Omit<GenreAka, 'genreId'>[]
       parents: Pick<GenreParent, 'parentId'>[]
       influencedBy: Pick<GenreInfluence, 'influencerId'>[]
     })[]
@@ -209,7 +210,7 @@ export class Database implements IDatabase {
     this.db = db
   }
 
-  async transaction<T>(fn: (db: Database) => Promise<T>): Promise<T> {
+  async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
   }
 

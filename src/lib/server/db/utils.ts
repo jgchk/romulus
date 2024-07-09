@@ -6,7 +6,7 @@ import { nullableString } from '$lib/utils/validators'
 
 import { db } from '.'
 import { genreHistoryAkas, type genres } from './schema'
-import type { Database } from './wrapper'
+import type { IDatabase } from './wrapper'
 
 export const genreSchema = z.object({
   name: z.string().min(1),
@@ -45,7 +45,7 @@ export async function createGenreHistoryEntry({
   }
   accountId: number
   operation: GenreOperation
-  db?: Database
+  db?: IDatabase
 }) {
   await db_.genreHistory.insert({
     name: genre.name,

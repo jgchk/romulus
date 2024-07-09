@@ -7,6 +7,7 @@ export type GenreOperation = (typeof GENRE_OPERATIONS)[number]
 
 export const GENRE_TYPES = ['TREND', 'SCENE', 'STYLE', 'META', 'MOVEMENT'] as const
 export type GenreType = (typeof GENRE_TYPES)[number]
+export const DEFAULT_GENRE_TYPE: GenreType = 'STYLE'
 
 export const GenreTypeNames: Record<GenreType, string> = {
   MOVEMENT: 'Movement',
