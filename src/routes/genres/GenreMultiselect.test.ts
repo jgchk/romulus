@@ -140,7 +140,9 @@ test('closes the options when clicking outside', async () => {
   expect(queryAllByTestId('multiselect__option')).toHaveLength(data.length)
 
   await user.click(document.body)
-  expect(queryAllByTestId('multiselect__option')).toHaveLength(0)
+  await waitFor(() => {
+    expect(queryAllByTestId('multiselect__option')).toHaveLength(0)
+  })
 })
 
 test('selects the top search result when hitting enter', async () => {

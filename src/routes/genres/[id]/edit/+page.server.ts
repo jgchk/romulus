@@ -1,19 +1,12 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { asc, desc, eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm'
+import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm'
 import { equals } from 'ramda'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { db } from '$lib/server/db'
-import {
-  genreAkas,
-  genreHistory,
-  genreHistoryAkas,
-  genreInfluences,
-  genreParents,
-  genres,
-} from '$lib/server/db/schema'
+import { genreAkas, genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
 import { createGenreHistoryEntry, detectCycle, genreSchema } from '$lib/server/db/utils'
 import { pick } from '$lib/utils/object'
 
@@ -30,29 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await db.query.genres.findFirst({
-    where: eq(genres.id, id),
-    with: {
-      akas: {
-        columns: {
-          name: true,
-          relevance: true,
-          order: true,
-        },
-        orderBy: asc(genreAkas.order),
-      },
-      parents: {
-        columns: {
-          parentId: true,
-        },
-      },
-      influencedBy: {
-        columns: {
-          influencerId: true,
-        },
-      },
-    },
-  })
+  const maybeGenre = await db.genres.findByIdEdit(id)
   if (!maybeGenre) {
     return error(404, { message: 'Genre not found' })
   }
@@ -100,28 +71,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const currentGenre = await db.query.genres.findFirst({
-      where: eq(genres.id, id),
-      with: {
-        parents: {
-          columns: {
-            parentId: true,
-          },
-        },
-        influencedBy: {
-          columns: {
-            influencerId: true,
-          },
-        },
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-        },
-      },
-    })
+    const currentGenre = await db.genres.findByIdEdit(id)
     if (!currentGenre) {
       return error(404, { message: 'Genre not found' })
     }
@@ -135,20 +85,7 @@ export const actions: Actions = {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
     }
 
-    const lastHistory = await db.query.genreHistory.findFirst({
-      where: eq(genreHistory.treeGenreId, id),
-      orderBy: desc(genreHistory.createdAt),
-      with: {
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-          orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
-        },
-      },
-    })
+    const lastHistory = await db.genreHistory.findLatestByGenreId(id)
 
     const akas = [
       ...(form.data.primaryAkas ?? '')
@@ -174,51 +111,21 @@ export const actions: Actions = {
 
     await db.transaction(async (tx) => {
       // update genre
-      const [updatedGenre] = await tx
-        .update(genres)
-        .set({
-          name: form.data.name,
-          shortDescription: form.data.shortDescription,
-          longDescription: form.data.longDescription,
-          notes: form.data.notes,
-          type: form.data.type,
-          subtitle: form.data.subtitle,
-          updatedAt: new Date(),
-        })
-        .where(eq(genres.id, id))
-        .returning()
-
-      // update akas
-      await tx.delete(genreAkas).where(eq(genreAkas.genreId, id))
-      if (akas.length > 0) {
-        await tx.insert(genreAkas).values(akas)
-      }
-
-      // update parents
-      await tx.delete(genreParents).where(eq(genreParents.childId, id))
-      if (form.data.parents.length > 0) {
-        await tx
-          .insert(genreParents)
-          .values(form.data.parents.map((parentId) => ({ parentId, childId: id })))
-      }
-
-      // update influences
-      await tx.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))
-      if (form.data.influencedBy.length > 0) {
-        await tx
-          .insert(genreInfluences)
-          .values(
-            form.data.influencedBy.map((influencerId) => ({ influencerId, influencedId: id })),
-          )
-      }
+      const updatedGenre = await tx.genres.update(id, {
+        name: form.data.name,
+        shortDescription: form.data.shortDescription,
+        longDescription: form.data.longDescription,
+        notes: form.data.notes,
+        type: form.data.type,
+        subtitle: form.data.subtitle,
+        updatedAt: new Date(),
+        akas,
+        parents: form.data.parents,
+        influencedBy: form.data.influencedBy,
+      })
 
       await createGenreHistoryEntry({
-        genre: {
-          ...updatedGenre,
-          parents: form.data.parents.map((parentId) => ({ parentId })),
-          influencedBy: form.data.influencedBy.map((influencerId) => ({ influencerId })),
-          akas,
-        },
+        genre: updatedGenre,
         accountId: user.id,
         operation: 'UPDATE',
         db: tx,

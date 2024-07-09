@@ -1,18 +1,10 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { and, asc, desc, eq } from 'drizzle-orm'
 import { uniq } from 'ramda'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { db } from '$lib/server/db'
-import {
-  genreAkas,
-  genreHistory,
-  genreParents,
-  genreRelevanceVotes,
-  genres,
-} from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/db/utils'
 import { setRelevanceVote } from '$lib/server/genres'
 import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -32,86 +24,19 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await db.query.genres.findFirst({
-    where: (genres, { eq }) => eq(genres.id, id),
-    columns: {
-      id: true,
-      name: true,
-      subtitle: true,
-      type: true,
-      relevance: true,
-      shortDescription: true,
-      longDescription: true,
-      notes: true,
-    },
-    with: {
-      akas: {
-        columns: { name: true },
-        orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
-      },
-      parents: {
-        columns: {},
-        with: {
-          parent: {
-            columns: { id: true, name: true, type: true, subtitle: true },
-          },
-        },
-      },
-      children: {
-        columns: {},
-        with: {
-          child: {
-            columns: { id: true, name: true, type: true },
-          },
-        },
-      },
-      influencedBy: {
-        columns: {},
-        with: {
-          influencer: {
-            columns: { id: true, name: true, type: true, subtitle: true },
-          },
-        },
-      },
-      influences: {
-        columns: {},
-        with: {
-          influenced: {
-            columns: { id: true, name: true, type: true, subtitle: true },
-          },
-        },
-      },
-      history: {
-        columns: {},
-        orderBy: [asc(genreHistory.createdAt)],
-        with: {
-          account: {
-            columns: { id: true, username: true },
-          },
-        },
-      },
-    },
-  })
-
+  const maybeGenre = await db.genres.findByIdDetail(id)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
 
-  const relevanceVotes = await db.query.genreRelevanceVotes
-    .findMany({
-      where: eq(genreRelevanceVotes.genreId, id),
-    })
+  const relevanceVotes = await db.genreRelevanceVotes
+    .findByGenreId(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await db.query.genreRelevanceVotes
-      .findFirst({
-        where: and(
-          eq(genreRelevanceVotes.genreId, id),
-          eq(genreRelevanceVotes.accountId, locals.user.id),
-        ),
-      })
+    relevanceVote = await db.genreRelevanceVotes
+      .findByGenreIdAndAccountId(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
@@ -158,6 +83,7 @@ export const actions: Actions = {
 
     return { form }
   },
+
   delete: async ({ locals, params }) => {
     if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
       return error(401, 'Unauthorized')
@@ -170,80 +96,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const genre = await db.query.genres.findFirst({
-      where: eq(genres.id, id),
-      with: {
-        parents: {
-          columns: { parentId: true },
-        },
-        children: {
-          columns: { childId: true },
-          with: {
-            child: {
-              with: {
-                parents: {
-                  columns: { parentId: true },
-                },
-                children: {
-                  columns: { childId: true },
-                },
-                influencedBy: {
-                  columns: {
-                    influencerId: true,
-                  },
-                },
-                akas: {
-                  columns: {
-                    name: true,
-                    relevance: true,
-                    order: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        influencedBy: {
-          columns: {
-            influencerId: true,
-          },
-        },
-        influences: {
-          with: {
-            influenced: {
-              with: {
-                parents: {
-                  columns: { parentId: true },
-                },
-                children: {
-                  columns: { childId: true },
-                },
-                influencedBy: {
-                  columns: {
-                    influencerId: true,
-                  },
-                },
-                akas: {
-                  columns: {
-                    name: true,
-                    relevance: true,
-                    order: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-        },
-      },
-    })
-
+    const genre = await db.genres.findByIdHistory(id)
     if (!genre) {
       return error(404, 'Genre not found')
     }
@@ -252,16 +105,11 @@ export const actions: Actions = {
     await db.transaction(async (tx) => {
       await Promise.all(
         genre.children.flatMap(({ childId }) =>
-          genre.parents.map(({ parentId }) =>
-            tx
-              .update(genreParents)
-              .set({ parentId })
-              .where(and(eq(genreParents.parentId, id), eq(genreParents.childId, childId))),
-          ),
+          genre.parents.map(({ parentId }) => tx.genreParents.update(id, childId, { parentId })),
         ),
       )
 
-      await tx.delete(genres).where(eq(genres.id, id))
+      await tx.genres.deleteById(id)
 
       await createGenreHistoryEntry({ genre, accountId: user.id, operation: 'DELETE', db: tx })
 

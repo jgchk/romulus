@@ -1,14 +1,12 @@
-import type { ExtractTablesWithRelations, InferSelectModel } from 'drizzle-orm'
-import type { PgTransaction } from 'drizzle-orm/pg-core'
-import type { PostgresJsDatabase, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js'
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { GENRE_TYPES, type GenreOperation, genreRelevance } from '$lib/types/genres'
 import { nullableString } from '$lib/utils/validators'
 
 import { db } from '.'
-import { genreHistory, genreHistoryAkas, type genres } from './schema'
-import * as schema from './schema'
+import { genreHistoryAkas, type genres } from './schema'
+import type { Database } from './wrapper'
 
 export const genreSchema = z.object({
   name: z.string().min(1),
@@ -43,40 +41,26 @@ export async function createGenreHistoryEntry({
   > & {
     parents: { parentId: number }[]
     influencedBy: { influencerId: number }[]
-    akas: { name: string; relevance: number; order: number }[]
+    akas: Omit<InferInsertModel<typeof genreHistoryAkas>, 'genreId'>[]
   }
   accountId: number
   operation: GenreOperation
-  db?:
-    | PostgresJsDatabase<typeof schema>
-    | PgTransaction<
-        PostgresJsQueryResultHKT,
-        typeof schema,
-        ExtractTablesWithRelations<typeof schema>
-      >
+  db?: Database
 }) {
-  const [historyEntry] = await db_
-    .insert(genreHistory)
-    .values({
-      name: genre.name,
-      type: genre.type,
-      shortDescription: genre.shortDescription,
-      longDescription: genre.longDescription,
-      notes: genre.notes,
-      parentGenreIds: genre.parents.map((parent) => parent.parentId),
-      influencedByGenreIds: genre.influencedBy.map((influencer) => influencer.influencerId),
-      treeGenreId: genre.id,
-      operation,
-      accountId,
-      subtitle: genre.subtitle,
-    })
-    .returning()
-
-  if (genre.akas.length > 0) {
-    await db_
-      .insert(genreHistoryAkas)
-      .values(genre.akas.map((aka) => ({ ...aka, genreId: historyEntry.id })))
-  }
+  await db_.genreHistory.insert({
+    name: genre.name,
+    type: genre.type,
+    shortDescription: genre.shortDescription,
+    longDescription: genre.longDescription,
+    notes: genre.notes,
+    parentGenreIds: genre.parents.map((parent) => parent.parentId),
+    influencedByGenreIds: genre.influencedBy.map((influencer) => influencer.influencerId),
+    treeGenreId: genre.id,
+    operation,
+    accountId,
+    subtitle: genre.subtitle,
+    akas: genre.akas,
+  })
 }
 
 type CycleGenre = { id: number; name: string; parents: number[] }
@@ -87,24 +71,7 @@ export async function detectCycle(data: {
   parents?: number[]
   children?: number[]
 }) {
-  let allGenres = await db.query.genres
-    .findMany({
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        parents: {
-          columns: { parentId: true },
-        },
-      },
-    })
-    .then((genres) =>
-      genres.map((genre) => ({
-        ...genre,
-        parents: genre.parents.map((parent) => parent.parentId),
-      })),
-    )
+  let allGenres = await db.genres.findAllSimple()
 
   // if the user has made any updates to parent/child genres,
   // temporarily apply those updates before checking for cycles

@@ -22,7 +22,7 @@
   $: isSearching = $searchStore.debouncedFilter
 </script>
 
-<Card class="flex h-full w-full flex-col">
+<Card class="flex h-full w-full flex-col overflow-hidden">
   <div
     class="flex items-center space-x-1 border-b border-gray-200 p-4 transition dark:border-gray-800"
   >

@@ -6,7 +6,6 @@ import { z } from 'zod'
 
 import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
 import { db } from '$lib/server/db'
-import { accounts } from '$lib/server/db/schema'
 
 import type { PageServerLoad } from './$types'
 
@@ -31,13 +30,10 @@ export const actions: Actions = {
 
     let account
     try {
-      ;[account] = await db
-        .insert(accounts)
-        .values({
-          username: form.data.username,
-          password: await hashPassword(form.data.password.password),
-        })
-        .returning()
+      ;[account] = await db.accounts.insert({
+        username: form.data.username,
+        password: await hashPassword(form.data.password.password),
+      })
     } catch (error) {
       if (
         error instanceof Postgres.PostgresError &&

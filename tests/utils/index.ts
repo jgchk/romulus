@@ -1,8 +1,8 @@
-import { inArray, type InferInsertModel } from 'drizzle-orm'
+import { type InferInsertModel } from 'drizzle-orm'
 
 import { hashPassword } from '$lib/server/auth'
 import { db } from '$lib/server/db'
-import { accounts, genreAkas, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
   akas?: { primary?: string[]; secondary?: string[]; tertiary?: string[] }
@@ -19,46 +19,33 @@ export const createAccounts = async (accounts_: InferInsertModel<typeof accounts
     })),
   )
 
-  return db.insert(accounts).values(hashedAccounts).returning()
+  return db.accounts.insert(...hashedAccounts)
 }
 
 export const deleteAccounts = async (usernames: string[]) => {
-  await db.delete(accounts).where(inArray(accounts.username, usernames))
+  await db.accounts.deleteByUsername(...usernames)
 }
 
 export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]
 export const createGenres = async (data: InsertTestGenre[]) => {
   if (data.length === 0) return []
 
-  const parsedData: InferInsertModel<typeof genres>[] = data.map((genre) => ({
-    ...genre,
-    updatedAt: new Date(),
-  }))
-
   const outputGenres = await db.transaction(async (tx) => {
-    const createdGenres = await tx.insert(genres).values(parsedData).returning()
+    const createdGenres = await tx.genres.insert(
+      ...data.map((genre) => ({
+        ...genre,
+        akas: [
+          ...(genre.akas?.primary?.map((name, i) => ({ name, relevance: 3, order: i })) ?? []),
+          ...(genre.akas?.secondary?.map((name, i) => ({ name, relevance: 2, order: i })) ?? []),
+          ...(genre.akas?.tertiary?.map((name, i) => ({ name, relevance: 1, order: i })) ?? []),
+        ],
+        parents: [],
+        influencedBy: [],
+        updatedAt: new Date(),
+      })),
+    )
 
     const nameToIdMap = new Map(createdGenres.map((genre) => [genre.name, genre.id]))
-
-    const akas: InferInsertModel<typeof genreAkas>[] = data.flatMap((genre) => {
-      const genreId = nameToIdMap.get(genre.name)
-      if (!genreId) {
-        throw new Error(`Genre ${genre.name} not found`)
-      }
-
-      return [
-        ...(genre.akas?.primary?.map((name, i) => ({ genreId, name, relevance: 3, order: i })) ??
-          []),
-        ...(genre.akas?.secondary?.map((name, i) => ({ genreId, name, relevance: 2, order: i })) ??
-          []),
-        ...(genre.akas?.tertiary?.map((name, i) => ({ genreId, name, relevance: 1, order: i })) ??
-          []),
-      ]
-    })
-
-    if (akas.length > 0) {
-      await tx.insert(genreAkas).values(akas)
-    }
 
     const parentRelations: InferInsertModel<typeof genreParents>[] = data.flatMap((genre) => {
       const genreId = nameToIdMap.get(genre.name)
@@ -82,7 +69,7 @@ export const createGenres = async (data: InsertTestGenre[]) => {
     })
 
     if (parentRelations.length > 0) {
-      await tx.insert(genreParents).values(parentRelations)
+      await tx.genreParents.insert(...parentRelations)
     }
 
     const influenceRelations: InferInsertModel<typeof genreInfluences>[] = data.flatMap((genre) => {
@@ -107,39 +94,15 @@ export const createGenres = async (data: InsertTestGenre[]) => {
     })
 
     if (influenceRelations.length > 0) {
-      await tx.insert(genreInfluences).values(influenceRelations)
+      await tx.genreInfluences.insert(...influenceRelations)
     }
 
-    return tx.query.genres.findMany({
-      where: inArray(
-        genres.id,
-        createdGenres.map((genre) => genre.id),
-      ),
-      with: {
-        parents: {
-          columns: {
-            parentId: true,
-          },
-        },
-        influencedBy: {
-          columns: {
-            influencerId: true,
-          },
-        },
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-        },
-      },
-    })
+    return tx.genres.findByIds(createdGenres.map((genre) => genre.id))
   })
 
   return outputGenres
 }
 
 export const deleteGenres = async () => {
-  await db.delete(genres)
+  await db.genres.deleteAll()
 }

@@ -1,12 +1,9 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit'
-import { eq } from 'drizzle-orm'
+import { omit } from 'ramda'
 import { z } from 'zod'
 
 import { db } from '$lib/server/db'
-import { accounts } from '$lib/server/db/schema'
 import { genreRelevance } from '$lib/types/genres'
-import { hasUpdate, makeUpdate } from '$lib/utils/db'
-import { omit } from '$lib/utils/object'
 
 const schema = z.object({
   genreRelevanceFilter: genreRelevance.optional(),
@@ -26,24 +23,14 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
   }
   const data = maybeData.data
 
-  const updates = makeUpdate(data)
-
-  let account
-  if (hasUpdate(updates)) {
-    account = await db
-      .update(accounts)
-      .set({
-        genreRelevanceFilter: data.genreRelevanceFilter,
-        showTypeTags: data.showTypeTags,
-        showRelevanceTags: data.showRelevanceTags,
-        darkMode: data.darkMode,
-      })
-      .where(eq(accounts.id, locals.user.id))
-      .returning()
-      .then((res) => omit(res[0], ['password']))
-  } else {
-    account = locals.user
-  }
+  const account = await db.accounts
+    .update(locals.user.id, {
+      genreRelevanceFilter: data.genreRelevanceFilter,
+      showTypeTags: data.showTypeTags,
+      showRelevanceTags: data.showRelevanceTags,
+      darkMode: data.darkMode,
+    })
+    .then((res) => omit(['password'], res))
 
   return json(account)
 }

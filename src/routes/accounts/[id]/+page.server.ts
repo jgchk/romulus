@@ -1,10 +1,8 @@
 import { error } from '@sveltejs/kit'
-import { desc } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { createPasswordResetToken } from '$lib/server/auth'
 import { db } from '$lib/server/db'
-import { genreHistory } from '$lib/server/db/schema'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -15,9 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
   }
   const id = maybeId.data
 
-  const maybeAccount = await db.query.accounts.findFirst({
-    where: (accounts, { eq }) => eq(accounts.id, id),
-  })
+  const maybeAccount = await db.accounts.findById(id)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')
@@ -25,19 +21,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const account = maybeAccount
 
-  const history = await db.query.genreHistory.findMany({
-    where: (genreHistory, { eq }) => eq(genreHistory.accountId, id),
-    columns: {
-      id: true,
-      name: true,
-      type: true,
-      subtitle: true,
-      operation: true,
-      createdAt: true,
-      treeGenreId: true,
-    },
-    orderBy: desc(genreHistory.createdAt),
-  })
+  const history = await db.genreHistory.findByAccountId(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),

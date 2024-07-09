@@ -5,11 +5,7 @@ import { db } from '$lib/server/db'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async () => {
-  const ids = await db.query.genres.findMany({
-    columns: {
-      id: true,
-    },
-  })
+  const ids = await db.genres.findAllIds()
 
   if (ids.length === 0) {
     return error(404, 'No genres found')

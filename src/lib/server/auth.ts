@@ -1,6 +1,6 @@
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
 import bcryptjs from 'bcryptjs'
-import { eq, type InferSelectModel } from 'drizzle-orm'
+import { type InferSelectModel } from 'drizzle-orm'
 import { generateIdFromEntropySize, Lucia } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 import { sha256 } from 'oslo/crypto'
@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { omit } from '$lib/utils/object'
 
 import { db } from './db'
-import { accounts, passwordResetTokens, sessions } from './db/schema'
+import { accounts, sessions } from './db/schema'
 
 export const passwordSchema = z
   .object({
@@ -32,7 +32,7 @@ declare module 'lucia' {
 
 type DatabaseUserAttributes = InferSelectModel<typeof accounts>
 
-const adapter = new DrizzlePostgreSQLAdapter(db, sessions, accounts)
+const adapter = new DrizzlePostgreSQLAdapter(db.db, sessions, accounts)
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -51,11 +51,11 @@ export const checkPassword = (password: string, hash: string) => bcryptjs.compar
 export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)
 
 export async function createPasswordResetToken(accountId: number): Promise<string> {
-  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId)) // invalidate all existing tokens
+  await db.passwordResetTokens.deleteByAccountId(accountId)
 
   const tokenId = generateIdFromEntropySize(25) // 40 character
   const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tokenId)))
-  await db.insert(passwordResetTokens).values({
+  await db.passwordResetTokens.insert({
     tokenHash: tokenHash,
     userId: accountId,
     expiresAt: createDate(new TimeSpan(2, 'h')),

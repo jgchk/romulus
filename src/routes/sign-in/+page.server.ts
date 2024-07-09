@@ -1,12 +1,10 @@
 import { type Actions, redirect } from '@sveltejs/kit'
-import { eq } from 'drizzle-orm'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { checkPassword, hashPassword, lucia } from '$lib/server/auth'
 import { db } from '$lib/server/db'
-import { accounts } from '$lib/server/db/schema'
 
 import type { PageServerLoad } from './$types'
 
@@ -32,13 +30,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const account = await db
-      .select()
-      .from(accounts)
-      .where(eq(accounts.username, form.data.username))
-      .limit(1)
-      .then((res) => res.at(0))
-
+    const account = await db.accounts.findByUsername(form.data.username)
     if (!account) {
       // spend some time to "waste" some time
       // this makes brute forcing harder
