@@ -1,4 +1,4 @@
-import { type InferSelectModel, relations } from 'drizzle-orm'
+import { type InferInsertModel, type InferSelectModel, relations } from 'drizzle-orm'
 import {
   boolean,
   integer,
@@ -23,6 +23,8 @@ export const permissions = pgEnum('Permission', [
   'EDIT_GENRES',
 ])
 
+export type InsertGenre = InferInsertModel<typeof genres>
+export type Genre = InferSelectModel<typeof genres>
 export const genres = pgTable('Genre', {
   id: serial('id').primaryKey().notNull(),
   name: text('name').notNull(),
@@ -45,6 +47,7 @@ export const genresRelations = relations(genres, ({ many }) => ({
   history: many(genreHistory),
 }))
 
+export type InsertGenreHistory = InferInsertModel<typeof genreHistory>
 export type GenreHistory = InferSelectModel<typeof genreHistory>
 export const genreHistory = pgTable('GenreHistory', {
   id: serial('id').primaryKey().notNull(),
@@ -77,6 +80,8 @@ export const genreHistoryRelations = relations(genreHistory, ({ many, one }) => 
   }),
 }))
 
+export type InsertAccount = InferInsertModel<typeof accounts>
+export type Account = InferSelectModel<typeof accounts>
 export const accounts = pgTable('Account', {
   id: serial('id').primaryKey().notNull(),
   username: text('username').notNull().unique(),
@@ -90,6 +95,8 @@ export const accounts = pgTable('Account', {
   showTypeTags: boolean('showTypeTags').default(true).notNull(),
 })
 
+export type InsertSession = InferInsertModel<typeof sessions>
+export type Session = InferSelectModel<typeof sessions>
 export const sessions = pgTable('Session', {
   id: text('id').primaryKey(),
   userId: integer('user_id')
@@ -104,6 +111,8 @@ export const sessions = pgTable('Session', {
   }).notNull(),
 })
 
+export type InsertPasswordResetToken = InferInsertModel<typeof passwordResetTokens>
+export type PasswordResetToken = InferSelectModel<typeof passwordResetTokens>
 export const passwordResetTokens = pgTable('PasswordResetToken', {
   tokenHash: text('token_hash').unique().notNull(),
   userId: integer('user_id')
@@ -118,6 +127,8 @@ export const passwordResetTokens = pgTable('PasswordResetToken', {
   }).notNull(),
 })
 
+export type InsertGenreParent = InferInsertModel<typeof genreParents>
+export type GenreParent = InferSelectModel<typeof genreParents>
 export const genreParents = pgTable(
   'GenreParents',
   {
@@ -152,6 +163,8 @@ export const genreParentsRelations = relations(genreParents, ({ one }) => ({
   }),
 }))
 
+export type InsertGenreInfluence = InferInsertModel<typeof genreInfluences>
+export type GenreInfluence = InferSelectModel<typeof genreInfluences>
 export const genreInfluences = pgTable(
   'GenreInfluences',
   {
@@ -186,6 +199,8 @@ export const genreInfluencesRelations = relations(genreInfluences, ({ one }) => 
   }),
 }))
 
+export type InsertGenreHistoryAka = InferInsertModel<typeof genreHistoryAkas>
+export type GenreHistoryAka = InferSelectModel<typeof genreHistoryAkas>
 export const genreHistoryAkas = pgTable(
   'GenreHistoryAka',
   {
@@ -211,6 +226,8 @@ export const genreHistoryAkasRelations = relations(genreHistoryAkas, ({ one }) =
   }),
 }))
 
+export type InsertGenreAka = InferInsertModel<typeof genreAkas>
+export type GenreAka = InferSelectModel<typeof genreAkas>
 export const genreAkas = pgTable(
   'GenreAka',
   {
@@ -236,6 +253,8 @@ export const genreAkasRelations = relations(genreAkas, ({ one }) => ({
   }),
 }))
 
+export type InsertGenreRelevanceVote = InferInsertModel<typeof genreRelevanceVotes>
+export type GenreRelevanceVote = InferSelectModel<typeof genreRelevanceVotes>
 export const genreRelevanceVotes = pgTable(
   'GenreRelevanceVote',
   {

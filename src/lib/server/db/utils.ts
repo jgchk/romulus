@@ -71,7 +71,12 @@ export async function detectCycle(data: {
   parents?: number[]
   children?: number[]
 }) {
-  let allGenres = await db.genres.findAllSimple()
+  let allGenres = await db.genres.findAllSimple().then((genres) =>
+    genres.map((genre) => ({
+      ...genre,
+      parents: genre.parents.map((parent) => parent.parentId),
+    })),
+  )
 
   // if the user has made any updates to parent/child genres,
   // temporarily apply those updates before checking for cycles

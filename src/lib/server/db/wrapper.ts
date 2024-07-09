@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, type InferInsertModel, lt } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, lt } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { omit } from 'ramda'
 
@@ -6,18 +6,203 @@ import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
 import * as schema from './schema'
 import {
+  type Account,
   accounts,
+  type Genre,
+  type GenreAka,
   genreAkas,
+  type GenreHistory,
   genreHistory,
+  type GenreHistoryAka,
   genreHistoryAkas,
+  type GenreInfluence,
   genreInfluences,
+  type GenreParent,
   genreParents,
+  type GenreRelevanceVote,
   genreRelevanceVotes,
   genres,
+  type InsertAccount,
+  type InsertGenre,
+  type InsertGenreAka,
+  type InsertGenreHistory,
+  type InsertGenreHistoryAka,
+  type InsertGenreInfluence,
+  type InsertGenreParent,
+  type InsertGenreRelevanceVote,
+  type InsertPasswordResetToken,
+  type PasswordResetToken,
   passwordResetTokens,
 } from './schema'
 
-export class Database {
+export interface IDatabase {
+  accounts: IAccountsDatabase
+  passwordResetTokens: IPasswordResetTokensDatabase
+  genres: IGenresDatabase
+  genreParents: IGenreParentsDatabase
+  genreInfluences: IGenreInfluencesDatabase
+  genreRelevanceVotes: IGenreRelevanceVotesDatabase
+  genreHistory: IGenreHistoryDatabase
+}
+
+export interface IAccountsDatabase {
+  insert: (...data: InsertAccount[]) => Promise<Account[]>
+  findById: (id: Account['id']) => Promise<Account | undefined>
+  findByUsername: (username: Account['username']) => Promise<Account | undefined>
+  update: (id: number, update: Partial<InsertAccount>) => Promise<Account>
+  deleteByUsername: (...usernames: Account['username'][]) => Promise<void>
+  deleteAll: () => Promise<void>
+}
+
+export interface IPasswordResetTokensDatabase {
+  insert: (...data: InsertPasswordResetToken[]) => Promise<PasswordResetToken[]>
+  findByTokenHash: (
+    tokenHash: PasswordResetToken['tokenHash'],
+  ) => Promise<PasswordResetToken | undefined>
+  deleteByAccountId: (accountId: Account['id']) => Promise<void>
+  deleteByTokenHash: (tokenHash: PasswordResetToken['tokenHash']) => Promise<void>
+}
+
+export interface IGenresDatabase {
+  insert: (...data: ExtendedInsertGenre[]) => Promise<
+    (Genre & {
+      akas: GenreAka[]
+      parents: Pick<GenreParent, 'parentId'>[]
+      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+    })[]
+  >
+  update: (id: Genre['id'], update: Partial<ExtendedInsertGenre>) => Promise<Genre>
+  findAllIds: () => Promise<Pick<Genre, 'id'>[]>
+  findByIdSimple: (id: Genre['id']) => Promise<Genre | undefined>
+  findByIdDetail: (id: Genre['id']) => Promise<
+    | (Genre & {
+        akas: Pick<GenreAka, 'name'>[]
+        parents: { parent: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
+        children: { child: Pick<Genre, 'id' | 'name' | 'type'> }[]
+        influencedBy: { influencer: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
+        influences: { influenced: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
+        history: { account: Pick<Account, 'id' | 'username'> | null }[]
+      })
+    | undefined
+  >
+  findByIdHistory: (id: Genre['id']) => Promise<
+    | (Genre & {
+        akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+        parents: Pick<GenreParent, 'parentId'>[]
+        children: (Pick<GenreParent, 'childId'> & {
+          child: Genre & {
+            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+            parents: Pick<GenreParent, 'parentId'>[]
+            children: Pick<GenreParent, 'childId'>[]
+            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+          }
+        })[]
+        influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+        influences: {
+          influenced: Genre & {
+            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+            parents: Pick<GenreParent, 'parentId'>[]
+            children: Pick<GenreParent, 'childId'>[]
+            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+          }
+        }[]
+      })
+    | undefined
+  >
+  findByIdEdit: (id: Genre['id']) => Promise<
+    | (Genre & {
+        akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+        parents: Pick<GenreParent, 'parentId'>[]
+        influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+      })
+    | undefined
+  >
+  findByIds: (ids: Genre['id'][]) => Promise<
+    (Genre & {
+      akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+      parents: Pick<GenreParent, 'parentId'>[]
+      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+    })[]
+  >
+  findAllSimple: () => Promise<
+    (Pick<Genre, 'id' | 'name'> & { parents: Pick<GenreParent, 'parentId'>[] })[]
+  >
+  findAllTree: () => Promise<
+    (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'updatedAt'> & {
+      akas: GenreAka['name'][]
+      parents: GenreParent['parentId'][]
+      children: GenreParent['childId'][]
+    })[]
+  >
+  deleteById: (id: Genre['id']) => Promise<void>
+  deleteAll: () => Promise<void>
+}
+export type ExtendedInsertGenre = InsertGenre & {
+  akas: Omit<InsertGenreAka, 'genreId'>[]
+  parents: number[]
+  influencedBy: number[]
+}
+
+export interface IGenreParentsDatabase {
+  insert: (...data: InsertGenreParent[]) => Promise<GenreParent[]>
+  find: (
+    parentId: GenreParent['parentId'],
+    childId: GenreParent['childId'],
+  ) => Promise<GenreParent | undefined>
+  update: (
+    parentId: GenreParent['parentId'],
+    childId: GenreParent['childId'],
+    update: Partial<InsertGenreParent>,
+  ) => Promise<GenreParent>
+}
+
+export interface IGenreInfluencesDatabase {
+  insert: (...data: InsertGenreInfluence[]) => Promise<GenreInfluence[]>
+}
+
+export interface IGenreRelevanceVotesDatabase {
+  upsert: (data: InsertGenreRelevanceVote) => Promise<GenreRelevanceVote>
+  findByGenreId: (genreId: number) => Promise<GenreRelevanceVote[]>
+  findByGenreIdAndAccountId: (
+    genreId: GenreRelevanceVote['genreId'],
+    accountId: GenreRelevanceVote['accountId'],
+  ) => Promise<GenreRelevanceVote | undefined>
+  deleteByGenreId: (genreId: GenreRelevanceVote['genreId']) => Promise<void>
+}
+
+export interface IGenreHistoryDatabase {
+  insert: (
+    ...data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[]
+  ) => Promise<GenreHistory[]>
+  findLatest: () => Promise<
+    (GenreHistory & {
+      akas: Pick<GenreHistoryAka, 'name'>[]
+      account: Pick<Account, 'id' | 'username'> | null
+    })[]
+  >
+  findLatestByGenreId: (
+    genreId: GenreHistory['treeGenreId'],
+  ) => Promise<
+    (GenreHistory & { akas: Pick<GenreHistoryAka, 'name' | 'relevance' | 'order'>[] }) | undefined
+  >
+  findPreviousByGenreId: (
+    genreId: GenreHistory['treeGenreId'],
+    createdAt: Date,
+  ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined>
+  findByGenreId: (
+    genreId: GenreHistory['treeGenreId'],
+  ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] })[]>
+  findByAccountId: (
+    accountId: NonNullable<GenreHistory['accountId']>,
+  ) => Promise<
+    Pick<
+      GenreHistory,
+      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId'
+    >[]
+  >
+}
+
+export class Database implements IDatabase {
   readonly db: PostgresJsDatabase<typeof schema>
 
   constructor(db: PostgresJsDatabase<typeof schema>) {
@@ -28,21 +213,20 @@ export class Database {
     return this.db.transaction((tx) => fn(new Database(tx)))
   }
 
-  accounts = {
-    insert: (...data: InferInsertModel<typeof accounts>[]) =>
-      this.db.insert(accounts).values(data).returning(),
+  accounts: IAccountsDatabase = {
+    insert: (...data) => this.db.insert(accounts).values(data).returning(),
 
-    findById: (id: number) =>
+    findById: (id) =>
       this.db.query.accounts.findFirst({
         where: eq(accounts.id, id),
       }),
 
-    findByUsername: (username: string) =>
+    findByUsername: (username) =>
       this.db.query.accounts.findFirst({
         where: eq(accounts.username, username),
       }),
 
-    update: async (id: number, update: Partial<InferInsertModel<typeof accounts>>) => {
+    update: async (id, update) => {
       if (!hasUpdate(update)) {
         const account = await this.accounts.findById(id)
         if (!account) throw new Error(`Account not found: ${id}`)
@@ -58,36 +242,34 @@ export class Database {
       return account
     },
 
-    deleteByUsername: (...usernames: string[]) =>
-      this.db.delete(accounts).where(inArray(accounts.username, usernames)),
+    deleteByUsername: async (...usernames) => {
+      await this.db.delete(accounts).where(inArray(accounts.username, usernames))
+    },
 
-    deleteAll: () => this.db.delete(accounts),
+    deleteAll: async () => {
+      await this.db.delete(accounts)
+    },
   }
 
-  passwordResetTokens = {
-    insert: (...data: InferInsertModel<typeof passwordResetTokens>[]) =>
-      this.db.insert(passwordResetTokens).values(data).returning(),
+  passwordResetTokens: IPasswordResetTokensDatabase = {
+    insert: (...data) => this.db.insert(passwordResetTokens).values(data).returning(),
 
-    findByTokenHash: (tokenHash: string) =>
+    findByTokenHash: (tokenHash) =>
       this.db.query.passwordResetTokens.findFirst({
         where: eq(passwordResetTokens.tokenHash, tokenHash),
       }),
 
-    deleteByAccountId: (accountId: number) =>
-      this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId)),
+    deleteByAccountId: async (accountId) => {
+      await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId))
+    },
 
-    deleteByTokenHash: (tokenHash: string) =>
-      this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash)),
+    deleteByTokenHash: async (tokenHash) => {
+      await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash))
+    },
   }
 
-  genres = {
-    insert: async (
-      ...data: (InferInsertModel<typeof genres> & {
-        akas: Omit<InferInsertModel<typeof genreAkas>, 'genreId'>[]
-        parents: number[]
-        influencedBy: number[]
-      })[]
-    ) =>
+  genres: IGenresDatabase = {
+    insert: async (...data) =>
       this.db.transaction(async (tx) => {
         const entries = await tx.insert(genres).values(data).returning()
 
@@ -129,16 +311,7 @@ export class Database {
         })
       }),
 
-    update: async (
-      id: number,
-      update: Partial<
-        InferInsertModel<typeof genres> & {
-          akas: Omit<InferInsertModel<typeof genreAkas>, 'genreId'>[]
-          parents: number[]
-          influencedBy: number[]
-        }
-      >,
-    ) => {
+    update: async (id, update) => {
       if (update.akas) {
         await this.db.delete(genreAkas).where(eq(genreAkas.genreId, id))
         if (update.akas.length > 0) {
@@ -186,24 +359,14 @@ export class Database {
         },
       }),
 
-    findByIdSimple: (id: number) =>
+    findByIdSimple: (id) =>
       this.db.query.genres.findFirst({
         where: eq(genres.id, id),
       }),
 
-    findByIdDetail: (id: number) =>
+    findByIdDetail: (id) =>
       this.db.query.genres.findFirst({
         where: eq(genres.id, id),
-        columns: {
-          id: true,
-          name: true,
-          subtitle: true,
-          type: true,
-          relevance: true,
-          shortDescription: true,
-          longDescription: true,
-          notes: true,
-        },
         with: {
           akas: {
             columns: { name: true },
@@ -253,10 +416,17 @@ export class Database {
         },
       }),
 
-    findByIdHistory: (id: number) =>
+    findByIdHistory: (id) =>
       this.db.query.genres.findFirst({
         where: eq(genres.id, id),
         with: {
+          akas: {
+            columns: {
+              name: true,
+              relevance: true,
+              order: true,
+            },
+          },
           parents: {
             columns: { parentId: true },
           },
@@ -265,6 +435,13 @@ export class Database {
             with: {
               child: {
                 with: {
+                  akas: {
+                    columns: {
+                      name: true,
+                      relevance: true,
+                      order: true,
+                    },
+                  },
                   parents: {
                     columns: { parentId: true },
                   },
@@ -274,13 +451,6 @@ export class Database {
                   influencedBy: {
                     columns: {
                       influencerId: true,
-                    },
-                  },
-                  akas: {
-                    columns: {
-                      name: true,
-                      relevance: true,
-                      order: true,
                     },
                   },
                 },
@@ -296,6 +466,13 @@ export class Database {
             with: {
               influenced: {
                 with: {
+                  akas: {
+                    columns: {
+                      name: true,
+                      relevance: true,
+                      order: true,
+                    },
+                  },
                   parents: {
                     columns: { parentId: true },
                   },
@@ -307,28 +484,14 @@ export class Database {
                       influencerId: true,
                     },
                   },
-                  akas: {
-                    columns: {
-                      name: true,
-                      relevance: true,
-                      order: true,
-                    },
-                  },
                 },
               },
-            },
-          },
-          akas: {
-            columns: {
-              name: true,
-              relevance: true,
-              order: true,
             },
           },
         },
       }),
 
-    findByIdEdit: (id: number) =>
+    findByIdEdit: (id) =>
       this.db.query.genres.findFirst({
         where: eq(genres.id, id),
         with: {
@@ -353,10 +516,17 @@ export class Database {
         },
       }),
 
-    findByIds: (ids: number[]) =>
+    findByIds: (ids) =>
       this.db.query.genres.findMany({
         where: inArray(genres.id, ids),
         with: {
+          akas: {
+            columns: {
+              name: true,
+              relevance: true,
+              order: true,
+            },
+          },
           parents: {
             columns: {
               parentId: true,
@@ -367,35 +537,21 @@ export class Database {
               influencerId: true,
             },
           },
-          akas: {
-            columns: {
-              name: true,
-              relevance: true,
-              order: true,
-            },
-          },
         },
       }),
 
     findAllSimple: () =>
-      this.db.query.genres
-        .findMany({
-          columns: {
-            id: true,
-            name: true,
+      this.db.query.genres.findMany({
+        columns: {
+          id: true,
+          name: true,
+        },
+        with: {
+          parents: {
+            columns: { parentId: true },
           },
-          with: {
-            parents: {
-              columns: { parentId: true },
-            },
-          },
-        })
-        .then((genres) =>
-          genres.map((genre) => ({
-            ...genre,
-            parents: genre.parents.map((parent) => parent.parentId),
-          })),
-        ),
+        },
+      }),
 
     findAllTree: () =>
       this.db.query.genres
@@ -445,26 +601,24 @@ export class Database {
           })),
         ),
 
-    deleteById: (id: number) => this.db.delete(genres).where(eq(genres.id, id)),
+    deleteById: async (id) => {
+      await this.db.delete(genres).where(eq(genres.id, id))
+    },
 
-    deleteAll: () => this.db.delete(genres),
+    deleteAll: async () => {
+      await this.db.delete(genres)
+    },
   }
 
-  genreParents = {
-    insert: (...data: InferInsertModel<typeof genreParents>[]) =>
-      this.db.insert(genreParents).values(data).returning(),
+  genreParents: IGenreParentsDatabase = {
+    insert: (...data) => this.db.insert(genreParents).values(data).returning(),
 
-    find: (parentId: number, childId: number) =>
+    find: (parentId, childId) =>
       this.db.query.genreParents.findFirst({
         where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
       }),
 
-    update: async (
-      parentId: number,
-      childId: number,
-      update: Partial<InferInsertModel<typeof genreParents>>,
-    ) => {
-      console.log({ hasUpdate: hasUpdate(update), update: makeUpdate(update) })
+    update: async (parentId, childId, update) => {
       if (!hasUpdate(update)) {
         const genreParent = await this.genreParents.find(parentId, childId)
         if (!genreParent)
@@ -482,27 +636,28 @@ export class Database {
     },
   }
 
-  genreInfluences = {
-    insert: (...data: InferInsertModel<typeof genreInfluences>[]) =>
-      this.db.insert(genreInfluences).values(data).returning(),
+  genreInfluences: IGenreInfluencesDatabase = {
+    insert: (...data) => this.db.insert(genreInfluences).values(data).returning(),
   }
 
-  genreRelevanceVotes = {
-    upsert: (data: InferInsertModel<typeof genreRelevanceVotes>) =>
+  genreRelevanceVotes: IGenreRelevanceVotesDatabase = {
+    upsert: (data) =>
       this.db
         .insert(genreRelevanceVotes)
         .values(data)
         .onConflictDoUpdate({
           target: [genreRelevanceVotes.genreId, genreRelevanceVotes.accountId],
           set: omit(['genreId', 'accountId'], data),
-        }),
+        })
+        .returning()
+        .then((res) => res[0]),
 
-    findByGenreId: (genreId: number) =>
+    findByGenreId: (genreId) =>
       this.db.query.genreRelevanceVotes.findMany({
         where: eq(genreRelevanceVotes.genreId, genreId),
       }),
 
-    findByGenreIdAndAccountId: (genreId: number, accountId: number) =>
+    findByGenreIdAndAccountId: (genreId, accountId) =>
       this.db.query.genreRelevanceVotes.findFirst({
         where: and(
           eq(genreRelevanceVotes.genreId, genreId),
@@ -510,16 +665,13 @@ export class Database {
         ),
       }),
 
-    deleteByGenreId: (genreId: number) =>
-      this.db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId)),
+    deleteByGenreId: async (genreId) => {
+      await this.db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
+    },
   }
 
-  genreHistory = {
-    insert: async (
-      ...data: (InferInsertModel<typeof genreHistory> & {
-        akas: Omit<InferInsertModel<typeof genreHistoryAkas>, 'genreId'>[]
-      })[]
-    ) =>
+  genreHistory: IGenreHistoryDatabase = {
+    insert: async (...data) =>
       this.db.transaction(async (tx) => {
         const values = await tx.insert(genreHistory).values(data).returning()
 
@@ -536,20 +688,6 @@ export class Database {
 
     findLatest: () =>
       this.db.query.genreHistory.findMany({
-        columns: {
-          id: true,
-          treeGenreId: true,
-          name: true,
-          subtitle: true,
-          type: true,
-          operation: true,
-          createdAt: true,
-          shortDescription: true,
-          longDescription: true,
-          notes: true,
-          parentGenreIds: true,
-          influencedByGenreIds: true,
-        },
         orderBy: (genreHistory, { desc }) => desc(genreHistory.createdAt),
         with: {
           akas: {
@@ -566,7 +704,7 @@ export class Database {
         limit: 100,
       }),
 
-    findLatestByGenreId: (genreId: number) =>
+    findLatestByGenreId: (genreId) =>
       this.db.query.genreHistory.findFirst({
         where: eq(genreHistory.treeGenreId, genreId),
         orderBy: desc(genreHistory.createdAt),
@@ -582,7 +720,7 @@ export class Database {
         },
       }),
 
-    findPreviousByGenreId: (genreId: number, createdAt: Date) =>
+    findPreviousByGenreId: (genreId, createdAt) =>
       this.db.query.genreHistory.findFirst({
         where: and(eq(genreHistory.treeGenreId, genreId), lt(genreHistory.createdAt, createdAt)),
         orderBy: desc(genreHistory.createdAt),
@@ -594,7 +732,7 @@ export class Database {
         },
       }),
 
-    findByGenreId: (genreId: number) =>
+    findByGenreId: (genreId) =>
       this.db.query.genreHistory.findMany({
         where: (genreHistory, { eq }) => eq(genreHistory.treeGenreId, genreId),
         orderBy: asc(genreHistory.createdAt),
@@ -612,7 +750,7 @@ export class Database {
         },
       }),
 
-    findByAccountId: (accountId: number) =>
+    findByAccountId: (accountId) =>
       this.db.query.genreHistory.findMany({
         where: eq(genreHistory.accountId, accountId),
         columns: {
