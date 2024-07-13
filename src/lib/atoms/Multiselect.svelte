@@ -17,6 +17,7 @@
   import { cn, tw } from '$lib/utils/dom'
   import { diceCoefficient } from '$lib/utils/string'
 
+  import type { MultiselectProps } from './Multiselect'
   import type { Option, OptionData } from './Select'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,15 +27,17 @@
     option: { option: InternalOption }
   }
 
-  export let value: InternalOption[] = []
-  export let options: InternalOption[] = []
+  type $$Props = MultiselectProps<InternalOption>
+
+  export let value: NonNullable<$$Props['value']> = []
+  export let options: NonNullable<$$Props['options']> = []
   export let hasMore = false
   export let open = false
   export let filter = ''
   export let virtual = false
   export let focusedIndex = 0
-  export let id: string | undefined = undefined
-  export let placeholder: string | undefined = undefined
+  export let id: $$Props['id'] = undefined
+  export let placeholder: $$Props['placeholder'] = undefined
   export let disabled = false
 
   let class_: string | undefined = undefined
