@@ -76,7 +76,7 @@ export const actions: Actions = {
       return error(404, { message: 'Genre not found' })
     }
 
-    const cycle = await detectCycle({ id, name: form.data.name, parents: form.data.parents })
+    const cycle = await detectCycle({ id, name: form.data.name, parents: form.data.parents }, db)
     if (cycle) {
       return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
     }

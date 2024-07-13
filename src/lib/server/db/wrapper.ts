@@ -72,7 +72,16 @@ export interface IGenresDatabase {
       influencedBy: Pick<GenreInfluence, 'influencerId'>[]
     })[]
   >
-  update: (id: Genre['id'], update: Partial<ExtendedInsertGenre>) => Promise<Genre>
+  update: (
+    id: Genre['id'],
+    update: Partial<ExtendedInsertGenre>,
+  ) => Promise<
+    Genre & {
+      akas: Omit<GenreAka, 'genreId'>[]
+      parents: Pick<GenreParent, 'parentId'>[]
+      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+    }
+  >
   findAllIds: () => Promise<Pick<Genre, 'id'>[]>
   findByIdSimple: (id: Genre['id']) => Promise<Genre | undefined>
   findByIdDetail: (id: Genre['id']) => Promise<

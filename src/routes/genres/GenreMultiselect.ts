@@ -1,20 +1,11 @@
-import type { ComponentProps } from 'svelte'
-
-import Multiselect from '$lib/atoms/Multiselect.svelte'
-import type { Option } from '$lib/atoms/Select'
 import type { SearchGenre } from '$lib/types/genres'
 
 import type { TreeGenre } from './GenreNavigator/GenreTree/state'
 
-export type GenreMultiselectProps<T extends MultiselectGenre> = Omit<
-  ComponentProps<Multiselect<GenreMultiselectOption>>,
-  'value' | 'options'
-> & {
+export type GenreMultiselectProps = {
   value: number[]
-  genres: T[]
+  genres: MultiselectGenre[]
   exclude?: number[]
 }
-
-export type GenreMultiselectOption = Option<{ value: number }>
 
 export type MultiselectGenre = SearchGenre & Pick<TreeGenre, 'type'>

@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 
+import { db } from '$lib/server/db'
 import { createGenreHistoryEntry } from '$lib/server/db/utils'
 
 import { test } from '../../../fixtures'
@@ -104,6 +105,7 @@ export default function editGenrePageTests() {
             genre,
             accountId: account.id,
             operation: 'CREATE',
+            db,
           })
 
           await signInPage.goto()

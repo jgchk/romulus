@@ -1,8 +1,4 @@
-<script lang="ts" context="module">
-  type T = MultiselectGenre
-</script>
-
-<script lang="ts" generics="T extends MultiselectGenre">
+<script lang="ts">
   import { createEventDispatcher } from 'svelte'
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
@@ -13,7 +9,7 @@
 
   import type { GenreMultiselectProps, MultiselectGenre } from './GenreMultiselect'
 
-  type $$Props = GenreMultiselectProps<T>
+  type $$Props = GenreMultiselectProps
 
   export let value: $$Props['value']
   export let genres: $$Props['genres']
@@ -26,7 +22,7 @@
       const genre = genres.find((genre) => genre.id === id)
       if (!genre) return
 
-      const data: GenreMatch<T> = {
+      const data: GenreMatch<MultiselectGenre> = {
         id,
         genre,
         weight: 0,

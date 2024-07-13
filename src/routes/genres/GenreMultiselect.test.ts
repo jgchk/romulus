@@ -46,10 +46,7 @@ const data: MultiselectGenre[] = [
   },
 ]
 
-const setup = (
-  props: GenreMultiselectProps<MultiselectGenre>,
-  options?: { user?: Partial<User> },
-) => {
+const setup = (props: GenreMultiselectProps, options?: { user?: Partial<User> }) => {
   userData.set({
     id: 0,
     username: 'username',

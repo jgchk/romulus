@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { GENRE_TYPES, type GenreOperation, genreRelevance } from '$lib/types/genres'
 import { nullableString } from '$lib/utils/validators'
 
-import { db } from '.'
 import { genreHistoryAkas, type genres } from './schema'
 import type { IDatabase } from './wrapper'
 
@@ -33,7 +32,7 @@ export async function createGenreHistoryEntry({
   genre,
   accountId,
   operation,
-  db: db_ = db,
+  db,
 }: {
   genre: Pick<
     InferSelectModel<typeof genres>,
@@ -45,9 +44,9 @@ export async function createGenreHistoryEntry({
   }
   accountId: number
   operation: GenreOperation
-  db?: IDatabase
+  db: IDatabase
 }) {
-  await db_.genreHistory.insert({
+  await db.genreHistory.insert({
     name: genre.name,
     type: genre.type,
     shortDescription: genre.shortDescription,
@@ -65,12 +64,15 @@ export async function createGenreHistoryEntry({
 
 type CycleGenre = { id: number; name: string; parents: number[] }
 
-export async function detectCycle(data: {
-  id?: number
-  name: string
-  parents?: number[]
-  children?: number[]
-}) {
+export async function detectCycle(
+  data: {
+    id?: number
+    name: string
+    parents?: number[]
+    children?: number[]
+  },
+  db: IDatabase,
+) {
   let allGenres = await db.genres.findAllSimple().then((genres) =>
     genres.map((genre) => ({
       ...genre,
