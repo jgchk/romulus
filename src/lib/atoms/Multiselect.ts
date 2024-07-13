@@ -9,4 +9,5 @@ export type MultiselectProps<T> = {
   id?: string
   placeholder?: string
   disabled?: boolean
+  class?: string
 }

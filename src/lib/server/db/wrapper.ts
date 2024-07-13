@@ -199,9 +199,12 @@ export interface IGenreHistoryDatabase {
     genreId: GenreHistory['treeGenreId'],
     createdAt: Date,
   ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined>
-  findByGenreId: (
-    genreId: GenreHistory['treeGenreId'],
-  ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] })[]>
+  findByGenreId: (genreId: GenreHistory['treeGenreId']) => Promise<
+    (GenreHistory & {
+      akas: Pick<GenreHistoryAka, 'name'>[]
+      account: Pick<Account, 'id' | 'username'> | null
+    })[]
+  >
   findByAccountId: (
     accountId: NonNullable<GenreHistory['accountId']>,
   ) => Promise<

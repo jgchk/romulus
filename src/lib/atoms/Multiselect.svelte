@@ -40,7 +40,7 @@
   export let placeholder: $$Props['placeholder'] = undefined
   export let disabled = false
 
-  let class_: string | undefined = undefined
+  let class_: $$Props['class'] = undefined
   export { class_ as class }
 
   let propErrors: string[] | undefined = undefined
