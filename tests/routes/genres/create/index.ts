@@ -69,13 +69,6 @@ export default function createGenrePageTests() {
           await deleteGenres()
         })
 
-        test('should only require name', async ({ createGenrePage, genrePage }) => {
-          await expect(createGenrePage.nameInput).toHaveAttribute('required')
-          await createGenrePage.createGenre({ name: 'a' })
-          await expect(genrePage.name).toHaveText('a')
-          await expect(genrePage.relevance).toHaveText('None set. Vote.')
-        })
-
         test('should default to Style type', async ({ createGenrePage }) => {
           await expect(createGenrePage.typeInput).toHaveText('Style')
         })

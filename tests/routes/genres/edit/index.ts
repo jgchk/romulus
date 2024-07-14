@@ -117,21 +117,6 @@ export default function editGenrePageTests() {
           await deleteGenres()
         })
 
-        test('should only require name', async ({ editGenrePage, genrePage }) => {
-          await expect(editGenrePage.nameInput).toHaveAttribute('required')
-          await editGenrePage.editGenre({
-            name: 'a',
-            subtitle: '',
-            akas: { primary: '', secondary: '', tertiary: '' },
-            parents: [],
-            influences: [],
-            shortDescription: '',
-            longDescription: '',
-            notes: '',
-          })
-          await expect(genrePage.name).toHaveText('a')
-        })
-
         test('should fill form with existing genre data', async ({ editGenrePage }) => {
           await expect(editGenrePage.nameInput).toHaveValue(genreData.name)
           await expect(editGenrePage.subtitleInput).toHaveValue(genreData.subtitle)

@@ -8,7 +8,7 @@ import { genreHistoryAkas, type genres } from './schema'
 import type { IDatabase } from './wrapper'
 
 export const genreSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'Name is required'),
   shortDescription: nullableString,
   longDescription: nullableString,
   notes: nullableString,

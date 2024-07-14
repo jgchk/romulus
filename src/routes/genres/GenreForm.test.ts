@@ -17,3 +17,10 @@ it('displays a warning when saving a genre with no parents (top-level)', async (
     'You are submitting a top level genre. Are you sure you want to continue?',
   )
 })
+
+it('should require a name', async () => {
+  const form = await superValidate({}, zod(genreSchema))
+  const { getByRole } = render(GenreForm, { data: form, genres: Promise.resolve([]) })
+  await userEvent.click(getByRole('button', { name: 'Save' }))
+  expect(getByRole('alert')).toHaveTextContent('Name is required')
+})
