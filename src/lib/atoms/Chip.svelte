@@ -1,11 +1,15 @@
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements'
+
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
   import { tw } from '$lib/utils/dom'
 
-  export let text: string
-  export let tooltip: string | undefined = undefined
+  type $$Props = HTMLAttributes<HTMLSpanElement> & { text: string; tooltip?: string }
 
-  let class_: string | undefined = undefined
+  export let text: $$Props['text']
+  export let tooltip: $$Props['tooltip'] = undefined
+
+  let class_: $$Props['class'] = undefined
   export { class_ as class }
 </script>
 
@@ -15,6 +19,7 @@
     class_,
   )}
   use:tooltipAction={{ content: tooltip, enabled: !!tooltip }}
+  {...$$restProps}
 >
   {text}
 </span>

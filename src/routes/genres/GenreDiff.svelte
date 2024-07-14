@@ -1,49 +1,3 @@
-<script lang="ts" context="module">
-  type DiffAction = 'create' | 'update' | 'delete' | null
-
-  function getAction<I extends { operation: GenreOperation }, O>(
-    previous: I | undefined,
-    current: I,
-    fn: (hist: I) => O,
-  ): DiffAction {
-    if (current.operation === 'DELETE') {
-      return 'delete'
-    }
-
-    let thisValue = fn(current)
-
-    if (!previous) {
-      return isNil(thisValue) || isEmpty(thisValue) ? null : 'create'
-    }
-
-    let lastValue = fn(previous)
-
-    if ((isNil(lastValue) || isEmpty(lastValue)) && !(isNil(thisValue) || isEmpty(thisValue))) {
-      return 'create'
-    }
-
-    if (equals(lastValue, thisValue)) {
-      return null
-    }
-
-    return isNil(thisValue) || isEmpty(thisValue) ? 'delete' : 'update'
-  }
-
-  const getLabelClass = (action: DiffAction) => {
-    switch (action) {
-      case 'create': {
-        return 'text-success-500 dark:text-success-500 transition'
-      }
-      case 'update': {
-        return 'text-warning-500 dark:text-warning-500 transition'
-      }
-      case 'delete': {
-        return 'text-error-500 dark:text-error-500 transition'
-      }
-    }
-  }
-</script>
-
 <script lang="ts">
   import { CaretDown } from 'phosphor-svelte'
   import { equals, isEmpty, isNil } from 'ramda'
@@ -115,6 +69,50 @@
       (h) => new Set(h.influencedByGenreIds),
     ),
   }
+
+  type DiffAction = 'create' | 'update' | 'delete' | null
+
+  function getAction<I extends { operation: GenreOperation }, O>(
+    previous: I | undefined,
+    current: I,
+    fn: (hist: I) => O,
+  ): DiffAction {
+    if (current.operation === 'DELETE') {
+      return 'delete'
+    }
+
+    let thisValue = fn(current)
+
+    if (!previous) {
+      return isNil(thisValue) || isEmpty(thisValue) ? null : 'create'
+    }
+
+    let lastValue = fn(previous)
+
+    if ((isNil(lastValue) || isEmpty(lastValue)) && !(isNil(thisValue) || isEmpty(thisValue))) {
+      return 'create'
+    }
+
+    if (equals(lastValue, thisValue)) {
+      return null
+    }
+
+    return isNil(thisValue) || isEmpty(thisValue) ? 'delete' : 'update'
+  }
+
+  const getLabelClass = (action: DiffAction) => {
+    switch (action) {
+      case 'create': {
+        return 'text-success-500 dark:text-success-500 transition'
+      }
+      case 'update': {
+        return 'text-warning-500 dark:text-warning-500 transition'
+      }
+      case 'delete': {
+        return 'text-error-500 dark:text-error-500 transition'
+      }
+    }
+  }
 </script>
 
 <div
@@ -125,12 +123,12 @@
   >
     <Chip
       class={cn(
-        'genre-diff__operation',
         currentHistory.operation === 'DELETE' && 'text-error-500',
         currentHistory.operation === 'CREATE' && 'text-success-500',
         currentHistory.operation === 'UPDATE' && 'text-warning-500',
       )}
       text={capitalize(currentHistory.operation)}
+      data-testid="genre-operation"
     />
     {#if currentHistory.account}
       <AccountLink
