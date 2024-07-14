@@ -1,11 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
+  import type { AriaRole } from 'svelte/elements'
   import { fade, scale } from 'svelte/transition'
 
   import { trapFocus } from '$lib/actions/trapFocus'
   import { tw } from '$lib/utils/dom'
 
   export let title: string | undefined = undefined
+  export let role: AriaRole | undefined = undefined
 
   let class_: string | undefined = undefined
   export { class_ as class }
@@ -21,7 +23,7 @@
   }
 </script>
 
-<div class="fixed inset-0 z-40 flex items-center justify-center p-4 backdrop-blur-sm">
+<div {role} class="fixed inset-0 z-40 flex items-center justify-center p-4 backdrop-blur-sm">
   <button
     type="button"
     class="absolute h-full w-full cursor-default bg-black opacity-50"

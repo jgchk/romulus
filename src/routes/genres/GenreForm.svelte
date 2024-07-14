@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
+  import Dialog from '$lib/atoms/Dialog.svelte'
   import HelpTip from '$lib/atoms/HelpTip.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
@@ -24,9 +26,24 @@
   export let showRelevance = false
   export let genres: Promise<TreeGenre[]>
 
-  const { form, errors, constraints, delayed, enhance } = superForm(data, {
+  let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = undefined
+
+  const dispatch = createEventDispatcher<{ submit: undefined }>()
+
+  const { form, errors, constraints, delayed, enhance, submit } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
+
+    onSubmit: ({ cancel }) => {
+      if ($form.parents.length === 0 && topLevelConfirmation !== 'confirmed') {
+        topLevelConfirmation = 'confirm'
+        cancel()
+        return
+      }
+
+      dispatch('submit')
+    },
+
     onUpdated: ({ form }) => {
       if (!form.valid) {
         toast.error('The form has errors. Please correct them before submitting.')
@@ -261,3 +278,21 @@
     </LinkButton>
   </Footer>
 </form>
+
+{#if topLevelConfirmation === 'confirm'}
+  <Dialog role="alertdialog" title="Submit top level genre?">
+    You are submitting a top level genre. Are you sure you want to continue?
+
+    <svelte:fragment slot="buttons">
+      <Button
+        on:click={() => {
+          topLevelConfirmation = 'confirmed'
+          submit()
+        }}
+      >
+        Yes
+      </Button>
+      <Button kind="text" on:click={() => (topLevelConfirmation = undefined)}>No</Button>
+    </svelte:fragment>
+  </Dialog>
+{/if}
