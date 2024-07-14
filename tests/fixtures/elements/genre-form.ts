@@ -37,6 +37,8 @@ export class GenreForm {
   readonly notesInput: Locator
   readonly saveButton: Locator
   readonly cancelButton: Locator
+  readonly confirmTopLevelButton: Locator
+  readonly cancelTopLevelButton: Locator
 
   constructor(readonly page: Page) {
     this.nameInput = this.page.getByLabel('Name')
@@ -63,6 +65,8 @@ export class GenreForm {
     this.notesInput = this.page.getByLabel('Notes')
     this.saveButton = this.page.getByRole('button', { name: 'Save' })
     this.cancelButton = this.page.getByRole('button', { name: 'Cancel' })
+    this.confirmTopLevelButton = this.page.getByRole('button', { name: 'Yes' })
+    this.cancelTopLevelButton = this.page.getByRole('button', { name: 'No' })
   }
 
   async fillForm(data: GenreFormData) {

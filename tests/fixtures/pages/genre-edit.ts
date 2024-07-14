@@ -10,6 +10,9 @@ export class EditGenrePage extends GenreForm {
   async editGenre(data: GenreFormData) {
     await this.fillForm(data)
     await this.saveButton.click()
+    if (await this.confirmTopLevelButton.isVisible()) {
+      await this.confirmTopLevelButton.click()
+    }
   }
 
   async goto(id: number) {

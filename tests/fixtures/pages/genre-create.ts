@@ -12,6 +12,9 @@ export class CreateGenrePage extends GenreForm {
   async createGenre(data: GenreFormData) {
     await this.fillForm(data)
     await this.saveButton.click()
+    if (await this.confirmTopLevelButton.isVisible()) {
+      await this.confirmTopLevelButton.click()
+    }
   }
 
   async goto() {
