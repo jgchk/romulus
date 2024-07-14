@@ -72,7 +72,7 @@
               'genre-tree-node__subtitle text-[0.8rem] transition',
               isSelected
                 ? 'text-primary-500 dark:text-primary-700'
-                : 'text-gray-500 group-hover:text-gray-400',
+                : 'text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400',
             )}
           >
             [{genre.subtitle}]
