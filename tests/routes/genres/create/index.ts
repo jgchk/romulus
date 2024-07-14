@@ -105,7 +105,7 @@ export default function createGenrePageTests() {
           genrePage,
           genreHistoryPage,
         }) => {
-          await createGenrePage.createGenre({ name: 'created-genre' })
+          await createGenrePage.createGenre({ name: 'created-genre', parents: ['parent-one'] })
 
           await genrePage.historyButton.click()
 
