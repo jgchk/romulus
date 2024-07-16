@@ -1,5 +1,6 @@
 <script lang="ts">
   import Loader from '$lib/atoms/Loader.svelte'
+  import { pageTitle } from '$lib/utils/string'
 
   import { treeState } from '../GenreNavigator/GenreTree/state'
   import type { PageData } from './$types'
@@ -10,6 +11,10 @@
   treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
 </script>
+
+<svelte:head>
+  <title>{pageTitle('Table', 'Genres')}</title>
+</svelte:head>
 
 {#await data.streamed.genres}
   <div class="center h-full max-h-96 w-full">

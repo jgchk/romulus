@@ -6,6 +6,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import { pageTitle } from '$lib/utils/string'
 
   import type { PageData } from './$types'
 
@@ -13,6 +14,10 @@
 
   const { form, errors, constraints, delayed, enhance } = superForm(data.form)
 </script>
+
+<svelte:head>
+  <title>{pageTitle('Sign In')}</title>
+</svelte:head>
 
 <div class="flex h-full w-full items-center justify-center">
   <form method="POST" use:enhance class="space-y-2">

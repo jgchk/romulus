@@ -4,13 +4,17 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
   import { user } from '$lib/contexts/user'
   import { toPrettyDate } from '$lib/utils/datetime'
-  import { capitalize } from '$lib/utils/string'
+  import { capitalize, pageTitle } from '$lib/utils/string'
 
   import type { ActionData, PageData } from './$types'
 
   export let data: PageData
   export let form: ActionData
 </script>
+
+<svelte:head>
+  <title>{pageTitle(data.account.username, 'Accounts')}</title>
+</svelte:head>
 
 <div class="h-full w-full">
   <Card class="h-full p-4">

@@ -1,5 +1,6 @@
 <script lang="ts">
   import LinkButton from '$lib/atoms/LinkButton.svelte'
+  import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import Footer from '../../Footer.svelte'
   import GenreDiff from '../../GenreDiff.svelte'
@@ -10,6 +11,16 @@
 
   $: latestEntry = data.genreHistory.at(-1)
 </script>
+
+<svelte:head>
+  <title
+    >{pageTitle(
+      latestEntry ? genreTitle(latestEntry.name, latestEntry.subtitle) : 'Unknown',
+      'History',
+      'Genres',
+    )}</title
+  >
+</svelte:head>
 
 <div class="flex h-full flex-col">
   {#if !latestEntry}

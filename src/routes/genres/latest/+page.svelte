@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { pageTitle } from '$lib/utils/string'
+
   import GenreDiff from '../GenreDiff.svelte'
   import { treeState } from '../GenreNavigator/GenreTree/state'
   import type { PageData } from './$types'
@@ -8,6 +10,10 @@
   treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
 </script>
+
+<svelte:head>
+  <title>{pageTitle('Latest', 'Genres')}</title>
+</svelte:head>
 
 <div class="h-full w-full overflow-auto p-4">
   <div class="max-w-lg space-y-3">

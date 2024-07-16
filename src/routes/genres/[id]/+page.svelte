@@ -11,6 +11,7 @@
   import { user } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+  import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
@@ -24,6 +25,10 @@
   let showNotes = false
   let isDeleting = false
 </script>
+
+<svelte:head>
+  <title>{pageTitle(genreTitle(data.genre.name, data.genre.subtitle), 'Genres')}</title>
+</svelte:head>
 
 <div class="flex h-full w-full flex-col">
   <GenrePageHeader id={data.genre.id} name={data.genre.name} subtitle={data.genre.subtitle} />
