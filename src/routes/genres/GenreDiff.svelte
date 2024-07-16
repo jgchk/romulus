@@ -128,18 +128,19 @@
         currentHistory.operation === 'UPDATE' && 'text-warning-500',
       )}
       text={capitalize(currentHistory.operation)}
-      data-testid="genre-operation"
+      data-testid="genre-diff-operation"
     />
     {#if currentHistory.account}
       <AccountLink
-        id={currentHistory.account.id}
+        accountId={currentHistory.account.id}
         username={currentHistory.account.username}
-        class="genre-diff__account text-xs"
+        class="text-xs"
+        data-testid="genre-diff-account"
       />
     {:else}
-      <div class="genre-diff__account text-gray-500 line-through">Deleted</div>
+      <div class="text-gray-500 line-through" data-testid="genre-diff-account">Deleted</div>
     {/if}
-    <div class="genre-diff__time text-xs text-gray-600 transition dark:text-gray-400">
+    <div class="text-xs text-gray-600 transition dark:text-gray-400" data-testid="genre-diff-time">
       <span class="cursor-default" use:tooltip={{ content: toPrettyDate(currentHistory.createdAt) }}
         >{getTimeSinceShort(currentHistory.createdAt)}</span
       >

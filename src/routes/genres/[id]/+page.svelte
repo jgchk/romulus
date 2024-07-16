@@ -241,7 +241,7 @@
             let:item
             class="text-gray-600 transition dark:text-gray-400"
           >
-            <AccountLink id={item.id} username={item.username} />
+            <AccountLink accountId={item.id} username={item.username} />
           </CommaList>
         </div>
       </div>

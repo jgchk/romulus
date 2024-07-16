@@ -1,13 +1,21 @@
 <script lang="ts">
+  import type { HTMLAttributes } from 'svelte/elements'
+
   import { tw } from '$lib/utils/dom'
 
-  export let id: number
-  export let username: string
+  type $$Props = HTMLAttributes<HTMLAnchorElement> & {
+    accountId: number
+    username: string
+    class?: string
+  }
 
-  let class_: string | undefined = undefined
+  export let accountId: $$Props['accountId']
+  export let username: $$Props['username']
+
+  let class_: $$Props['class'] = undefined
   export { class_ as class }
 
-  $: isSpecial = id === 3
+  $: isSpecial = accountId === 3
 </script>
 
 <a
@@ -18,5 +26,6 @@
       : 'text-primary-500 hover:underline',
     class_,
   )}
-  href="/accounts/{id}"><span class="hover:underline">{username}</span></a
+  href="/accounts/{accountId}"
+  {...$$restProps}><span class="hover:underline">{username}</span></a
 >

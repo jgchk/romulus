@@ -16,9 +16,9 @@ export class GenreDiffEntry {
   readonly notes: Locator
 
   constructor(readonly element: Locator) {
-    this.operation = this.element.getByTestId('genre-operation')
-    this.account = this.element.locator('.genre-diff__account')
-    this.time = this.element.locator('.genre-diff__time')
+    this.operation = this.element.getByTestId('genre-diff-operation')
+    this.account = this.element.getByTestId('genre-diff-account')
+    this.time = this.element.getByTestId('genre-diff-time')
 
     this.name = this.element.locator('.genre-diff__name')
     this.subtitle = this.element.locator('.genre-diff__subtitle')
