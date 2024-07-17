@@ -21,12 +21,7 @@ export const genreOperations = pgEnum('GenreOperation', GENRE_OPERATIONS)
 
 export const genreTypes = pgEnum('GenreType', GENRE_TYPES)
 
-export const permissions = pgEnum('Permission', [
-  'EDIT_RELEASES',
-  'EDIT_ARTISTS',
-  'MIGRATE_CONTRIBUTORS',
-  'EDIT_GENRES',
-])
+export const permissions = pgEnum('Permission', ['EDIT_GENRES'])
 
 export type InsertGenre = InferInsertModel<typeof genres>
 export type Genre = InferSelectModel<typeof genres>
@@ -36,6 +31,7 @@ export const genres = pgTable('Genre', {
   subtitle: text('subtitle'),
   type: genreTypes('type').default(DEFAULT_GENRE_TYPE).notNull(),
   relevance: integer('relevance').default(UNSET_GENRE_RELEVANCE).notNull(),
+  nsfw: boolean('nsfw').default(false).notNull(),
   shortDescription: text('shortDescription'),
   longDescription: text('longDescription'),
   notes: text('notes'),
@@ -60,6 +56,7 @@ export const genreHistory = pgTable('GenreHistory', {
   type: genreTypes('type').default('STYLE').notNull(),
   shortDescription: text('shortDescription'),
   longDescription: text('longDescription'),
+  nsfw: boolean('nsfw').default(false).notNull(),
   notes: text('notes'),
   parentGenreIds: integer('parentGenreIds').array(),
   influencedByGenreIds: integer('influencedByGenreIds').array(),

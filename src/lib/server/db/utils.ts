@@ -23,6 +23,7 @@ export const genreSchema = z.object({
   influencedBy: z.number().int().array(),
 
   relevance: genreRelevance.optional(),
+  nsfw: z.boolean(),
 })
 
 export type GenreSchema = typeof genreSchema

@@ -3,6 +3,7 @@
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
+  import Checkbox from '$lib/atoms/Checkbox.svelte'
   import Dialog from '$lib/atoms/Dialog.svelte'
   import HelpTip from '$lib/atoms/HelpTip.svelte'
   import Input from '$lib/atoms/Input.svelte'
@@ -200,6 +201,11 @@
         />
       </InputGroup>
     {/if}
+
+    <InputGroup errors={$errors.nsfw} layout="horizontal">
+      <Checkbox id="nsfw" bind:checked={$form.nsfw} />
+      <Label for="nsfw">NSFW</Label>
+    </InputGroup>
 
     <InputGroup errors={$errors.shortDescription}>
       <Label for="short-description">Short Description</Label>

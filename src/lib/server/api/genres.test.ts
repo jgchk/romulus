@@ -68,6 +68,7 @@ class MockDatabase implements IDatabase {
           subtitle: insertGenre.subtitle ?? null,
           type: insertGenre.type ?? DEFAULT_GENRE_TYPE,
           relevance: insertGenre.relevance ?? UNSET_GENRE_RELEVANCE,
+          nsfw: insertGenre.nsfw ?? false,
           shortDescription: insertGenre.shortDescription ?? null,
           longDescription: insertGenre.longDescription ?? null,
           notes: insertGenre.notes ?? null,
@@ -156,6 +157,7 @@ describe('createGenre', () => {
     parents: [],
     influencedBy: [],
     relevance: undefined,
+    nsfw: false,
   }
 
   const accountId = 10101
@@ -164,7 +166,8 @@ describe('createGenre', () => {
     const db = new MockDatabase()
     const createdGenre = await createGenre(genreData, accountId, db)
 
-    expect(createdGenre).toMatchObject({
+    expect(createdGenre).toEqual({
+      id: expect.any(Number) as number,
       name: 'Test',
       subtitle: null,
       type: 'STYLE',
@@ -175,10 +178,10 @@ describe('createGenre', () => {
       parents: [],
       influencedBy: [],
       relevance: 99,
+      nsfw: false,
+      createdAt: expect.any(Date) as Date,
+      updatedAt: expect.any(Date) as Date,
     })
-    expect(createdGenre.id).toBeTypeOf('number')
-    expect(createdGenre.createdAt).toBeInstanceOf(Date)
-    expect(createdGenre.updatedAt).toBeInstanceOf(Date)
   })
 
   it('should support setting a subtitle', async () => {
@@ -308,6 +311,18 @@ describe('createGenre', () => {
     expect(db.genreRelevanceVotes.upsert).not.toHaveBeenCalled()
   })
 
+  it('should support setting NSFW', async () => {
+    const createdGenre = await createGenre(
+      {
+        ...genreData,
+        nsfw: true,
+      },
+      accountId,
+      new MockDatabase(),
+    )
+    expect(createdGenre.nsfw).toBe(true)
+  })
+
   it('should add a history entry', async () => {
     const db = new MockDatabase()
     const createdGenre = await createGenre(genreData, accountId, db)
@@ -325,6 +340,7 @@ describe('createGenre', () => {
       parentGenreIds: [],
       influencedByGenreIds: [],
       relevance: 99,
+      nsfw: false,
       accountId,
       operation: 'CREATE',
     })
