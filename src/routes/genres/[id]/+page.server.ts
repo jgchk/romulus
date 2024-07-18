@@ -7,15 +7,12 @@ import { z } from 'zod'
 import { db } from '$lib/server/db'
 import { createGenreHistoryEntry } from '$lib/server/db/utils'
 import { setRelevanceVote } from '$lib/server/genres'
-import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isNotNull } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
-
-const relevanceVoteSchema = z.object({
-  relevanceVote: genreRelevance,
-})
+import { relevanceVoteSchema } from './utils'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)

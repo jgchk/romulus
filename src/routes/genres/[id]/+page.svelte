@@ -31,7 +31,12 @@
 </svelte:head>
 
 <div class="flex h-full w-full flex-col">
-  <GenrePageHeader id={data.genre.id} name={data.genre.name} subtitle={data.genre.subtitle} />
+  <GenrePageHeader
+    id={data.genre.id}
+    name={data.genre.name}
+    subtitle={data.genre.subtitle}
+    nsfw={data.genre.nsfw}
+  />
 
   <div class="flex-1 space-y-3 overflow-auto p-4">
     {#if data.genre.akas.length > 0}

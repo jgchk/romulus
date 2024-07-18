@@ -26,7 +26,12 @@
   {#if !latestEntry}
     <div>No history found :(</div>
   {:else}
-    <GenrePageHeader id={data.id} name={latestEntry.name} subtitle={latestEntry.subtitle} />
+    <GenrePageHeader
+      id={data.id}
+      name={latestEntry.name}
+      subtitle={latestEntry.subtitle}
+      nsfw={latestEntry.nsfw}
+    />
 
     <div class="flex-1 overflow-auto p-4">
       {#if data.genreHistory.length > 0}

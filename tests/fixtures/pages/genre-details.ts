@@ -34,7 +34,7 @@ export class GenreDetailsPage {
   readonly deleteDialogDeleteButton: Locator
 
   constructor(readonly page: Page) {
-    this.name = this.page.locator('.genre-name')
+    this.name = this.page.getByTestId('genre-name')
     this.subtitle = this.page.locator('.genre-subtitle')
     this.akas = this.page.locator('.genre-akas')
     this.type = this.page.locator('.genre-type')
