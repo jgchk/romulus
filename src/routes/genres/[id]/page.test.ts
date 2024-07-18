@@ -3,15 +3,70 @@ import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import GenrePage from './+page.svelte'
 import { relevanceVoteSchema } from './utils'
 
-function setup(props: ComponentProps<GenrePage>) {
+const mockUser = {
+  id: 0,
+  username: 'username',
+  darkMode: false,
+  genreRelevanceFilter: 0,
+  showRelevanceTags: false,
+  showTypeTags: false,
+  permissions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockGenre = {
+  id: 0,
+  name: 'Test',
+  subtitle: 'Subtitle',
+  type: 'STYLE' as const,
+  akas: ['AKA'],
+  parents: [],
+  children: [],
+  influencedBy: [],
+  influences: [],
+  shortDescription: 'A short description.',
+  longDescription: 'A long description.',
+  notes: 'Some notes.',
+  relevance: 0,
+  nsfw: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+async function setup(
+  props: Omit<Partial<ComponentProps<GenrePage>>, 'data'> & {
+    data?: Partial<ComponentProps<GenrePage>['data']>
+  } = {},
+) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const returned = render(GenrePage, props)
+
+  const relevanceVoteForm = await superValidate(
+    { relevanceVote: undefined },
+    zod(relevanceVoteSchema),
+  )
+
+  const returned = render(GenrePage, {
+    ...props,
+    data: {
+      id: 0,
+      user: mockUser,
+      genre: mockGenre,
+      leftPaneSize: undefined,
+      streamed: {
+        genres: Promise.resolve([]),
+      },
+      relevanceVotes: new Map(),
+      relevanceVoteForm,
+      contributors: [],
+      ...props?.data,
+    },
+  })
 
   return {
     user,
@@ -19,101 +74,18 @@ function setup(props: ComponentProps<GenrePage>) {
   }
 }
 
-it('should show the genre name', async () => {
-  const relevanceVoteForm = await superValidate(
-    { relevanceVote: undefined },
-    zod(relevanceVoteSchema),
-  )
-  const { getByTestId } = setup({
-    data: {
-      id: 0,
-      user: {
-        id: 0,
-        username: 'username',
-        darkMode: false,
-        genreRelevanceFilter: 0,
-        showRelevanceTags: false,
-        showTypeTags: false,
-        permissions: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      genre: {
-        id: 0,
-        name: 'Test',
-        subtitle: 'Subtitle',
-        type: 'STYLE',
-        akas: ['AKA'],
-        parents: [],
-        children: [],
-        influencedBy: [],
-        influences: [],
-        shortDescription: 'A short description.',
-        longDescription: 'A long description.',
-        notes: 'Some notes.',
-        relevance: 0,
-        nsfw: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      leftPaneSize: undefined,
-      streamed: {
-        genres: Promise.resolve([]),
-      },
-      relevanceVotes: new Map(),
-      relevanceVoteForm,
-      contributors: [],
-    },
+describe('GenrePage', () => {
+  it('should show the genre name', async () => {
+    const { getByTestId } = await setup()
+    expect(getByTestId('genre-name')).toHaveTextContent('Test')
   })
 
-  expect(getByTestId('genre-name')).toHaveTextContent('Test')
-})
-
-it('should show the NSFW status of the genre', async () => {
-  const relevanceVoteForm = await superValidate(
-    { relevanceVote: undefined },
-    zod(relevanceVoteSchema),
-  )
-  const { getByText } = setup({
-    data: {
-      id: 0,
-      user: {
-        id: 0,
-        username: 'username',
-        darkMode: false,
-        genreRelevanceFilter: 0,
-        showRelevanceTags: false,
-        showTypeTags: false,
-        permissions: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+  it('should show the NSFW status of the genre', async () => {
+    const { getByText } = await setup({
+      data: {
+        genre: { ...mockGenre, nsfw: true },
       },
-      genre: {
-        id: 0,
-        name: 'Test',
-        subtitle: 'Subtitle',
-        type: 'STYLE',
-        akas: ['AKA'],
-        parents: [],
-        children: [],
-        influencedBy: [],
-        influences: [],
-        shortDescription: 'A short description.',
-        longDescription: 'A long description.',
-        notes: 'Some notes.',
-        relevance: 0,
-        nsfw: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      leftPaneSize: undefined,
-      streamed: {
-        genres: Promise.resolve([]),
-      },
-      relevanceVotes: new Map(),
-      relevanceVoteForm,
-      contributors: [],
-    },
+    })
+    expect(getByText('NSFW')).toBeInTheDocument()
   })
-  expect(getByText('NSFW')).toBeInTheDocument()
 })
