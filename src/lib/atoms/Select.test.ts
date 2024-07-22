@@ -2,8 +2,8 @@ import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { SelectProps } from './Select2'
-import Select from './Select2.svelte'
+import type { SelectProps } from './Select'
+import Select from './Select.svelte'
 
 function setup<T>(props: SelectProps<T> = {}) {
   const user = userEvent.setup()

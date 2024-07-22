@@ -1,8 +1,8 @@
 <script lang="ts">
   import { type ComponentProps, createEventDispatcher } from 'svelte'
 
-  import type { Option } from '$lib/atoms/Select2'
-  import Select from '$lib/atoms/Select2.svelte'
+  import type { Option } from '$lib/atoms/Select'
+  import Select from '$lib/atoms/Select.svelte'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = Omit<ComponentProps<Select<number>>, 'options'>

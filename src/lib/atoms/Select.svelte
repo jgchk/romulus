@@ -12,7 +12,7 @@
   import { createPopoverActions } from '$lib/actions/popover'
   import { cn } from '$lib/utils/dom'
 
-  import type { Option, SelectProps } from './Select2'
+  import type { Option, SelectProps } from './Select'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = SelectProps<T>
