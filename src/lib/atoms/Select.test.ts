@@ -1,11 +1,11 @@
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import type { ComponentProps } from 'svelte'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { SelectProps } from './Select2'
 import Select from './Select2.svelte'
 
-function setup<T>(props: ComponentProps<Select<T>> = {}) {
+function setup<T>(props: SelectProps<T> = {}) {
   const user = userEvent.setup()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const returned = render(Select, props)

@@ -17,8 +17,7 @@
   import { cn, tw } from '$lib/utils/dom'
   import { diceCoefficient } from '$lib/utils/string'
 
-  import type { MultiselectProps } from './Multiselect'
-  import type { Option, OptionData } from './Select'
+  import type { MultiselectProps, Option, OptionData } from './Multiselect'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface $$Slots {

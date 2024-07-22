@@ -12,14 +12,17 @@
   import { createPopoverActions } from '$lib/actions/popover'
   import { cn } from '$lib/utils/dom'
 
-  import type { Option } from './Select2'
+  import type { Option, SelectProps } from './Select2'
 
-  export let value: Option<T>['value'] | undefined = undefined
-  export let options: Option<T>[] = []
-  export let placeholder: string | undefined = 'Select...'
-  export let id: string | undefined = undefined
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type $$Props = SelectProps<T>
 
-  let class_: string | undefined = undefined
+  export let value: $$Props['value'] = undefined
+  export let options: NonNullable<$$Props['options']> = []
+  export let placeholder: NonNullable<$$Props['placeholder']> = 'Select...'
+  export let id: $$Props['id'] = undefined
+
+  let class_: $$Props['class'] = undefined
   export { class_ as class }
 
   $: selectedOption = options.find((option) => option.value === value)

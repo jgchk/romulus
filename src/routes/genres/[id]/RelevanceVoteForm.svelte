@@ -5,7 +5,6 @@
   import Button from '$lib/atoms/Button.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
-  import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
   import RelevanceSelect from '../RelevanceSelect.svelte'
   import type { PageData } from './$types'
@@ -33,8 +32,8 @@
     <div class="flex items-center gap-1">
       <RelevanceSelect
         id="relevance-vote"
-        value={$form.relevanceVote}
-        on:change={(e) => ($form.relevanceVote = e.detail.value ?? UNSET_GENRE_RELEVANCE)}
+        class="w-52"
+        bind:value={$form.relevanceVote}
         {...$constraints.relevanceVote}
       />
       <Button kind="solid" type="submit" loading={$delayed}>Vote</Button>
