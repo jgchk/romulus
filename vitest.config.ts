@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => ({
     conditions: mode === 'test' ? ['browser'] : [],
   },
   test: {
+    css: true,
     include: ['src/**/*.test.ts'],
     environment: 'jsdom',
     setupFiles: ['./src/vitest-setup.ts'],

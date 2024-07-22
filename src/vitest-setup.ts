@@ -1,3 +1,5 @@
+import './app.css'
+
 import * as matchers from '@testing-library/jest-dom/matchers'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
 
