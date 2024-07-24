@@ -37,7 +37,7 @@
 <div class="relative h-full w-full">
   {#if data.genre.nsfw && !$userSettings.showNsfw}
     <div
-      class="absolute flex h-full w-full items-center justify-center font-semibold shadow-sm"
+      class="absolute flex h-full w-full items-center justify-center p-4 text-center font-semibold shadow-sm"
       transition:fade={{ duration: 75 }}
     >
       Enable NSFW genres in settings to view this genre
