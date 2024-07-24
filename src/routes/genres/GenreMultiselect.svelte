@@ -55,6 +55,7 @@
       label: match.genre.name,
       data: match,
     }))
+    .slice(0, 100)
 
   const dispatch = createEventDispatcher<{
     change: { value: number[] }
