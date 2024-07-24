@@ -1,6 +1,9 @@
-import { render } from '@testing-library/svelte'
+import { render, waitFor } from '@testing-library/svelte'
+import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { expect, it } from 'vitest'
+
+import { userSettings } from '$lib/contexts/user-settings'
 
 import GenreDiff from './GenreDiff.svelte'
 
@@ -25,8 +28,10 @@ const mockHistory = {
 }
 
 function setup(props: ComponentProps<GenreDiff>) {
+  const user = userEvent.setup()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  return render(GenreDiff, props)
+  const rendered = render(GenreDiff, props)
+  return { ...rendered, user }
 }
 
 it('should show the genre operation', () => {
@@ -74,4 +79,60 @@ it('should include NSFW status when it is changed to false', () => {
     genres: Promise.resolve([]),
   })
   expect(getByTestId('genre-diff-nsfw')).toHaveTextContent('False')
+})
+
+it('should blur the diff when the genre is NSFW and showNsfw is false', async () => {
+  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
+
+  const { user, getByTestId, getByRole } = setup({
+    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+    currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
+    genres: Promise.resolve([]),
+  })
+
+  const el = getByTestId('genre-diff')
+  expect(el).toHaveClass('blur-sm')
+
+  await user.hover(getByTestId('genre-diff'))
+  await waitFor(() => {
+    expect(getByRole('tooltip')).toHaveTextContent(
+      'Enable NSFW genres in settings to view this genre',
+    )
+  })
+})
+
+it('should not blur the diff when the genre is NSFW and showNsfw is true', async () => {
+  userSettings.update((prev) => ({ ...prev, showNsfw: true }))
+
+  const { user, getByTestId, queryByRole } = setup({
+    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+    currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
+    genres: Promise.resolve([]),
+  })
+
+  const el = getByTestId('genre-diff')
+  expect(el).not.toHaveClass('blur-sm')
+
+  await user.hover(getByTestId('genre-diff'))
+  await waitFor(() => {
+    expect(queryByRole('tooltip')).toBeNull()
+  })
+})
+
+it('should not blur the diff when the genre is not NSFW', async () => {
+  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
+
+  const { user, getByTestId, queryByRole } = setup({
+    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+    currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
+    genres: Promise.resolve([]),
+  })
+
+  const el = getByTestId('genre-diff')
+  expect(el).not.toHaveClass('blur-sm')
+
+  await user.hover(getByTestId('genre-diff'))
+  await waitFor(() => {
+    expect(queryByRole('tooltip')).toBeNull()
+  })
 })

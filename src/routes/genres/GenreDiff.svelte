@@ -10,6 +10,7 @@
   import LoaderLine from '$lib/atoms/LoaderLine.svelte'
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
+  import { userSettings } from '$lib/contexts/user-settings'
   import type { GenreHistory } from '$lib/server/db/schema'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
@@ -118,7 +119,15 @@
 </script>
 
 <div
-  class="genre-diff rounded border border-gray-300 bg-gray-200 transition dark:border-gray-700 dark:bg-gray-800"
+  class={cn(
+    'genre-diff rounded border border-gray-300 bg-gray-200 transition dark:border-gray-700 dark:bg-gray-800',
+    currentHistory.nsfw && !$userSettings.showNsfw && 'blur-sm',
+  )}
+  data-testid="genre-diff"
+  use:tooltip={{
+    content: 'Enable NSFW genres in settings to view this genre',
+    enabled: currentHistory.nsfw && !$userSettings.showNsfw,
+  }}
 >
   <div
     class="flex w-full items-center justify-between gap-2 border-b border-gray-300 p-2 transition dark:border-gray-700"
