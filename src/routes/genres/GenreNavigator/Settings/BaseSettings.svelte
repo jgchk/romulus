@@ -32,7 +32,7 @@
   />
 </InputGroup>
 
-<InputGroup>
+<InputGroup layout="horizontal">
   <Checkbox
     id="show-relevance-tags"
     checked={showRelevanceTags}
