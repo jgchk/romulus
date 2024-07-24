@@ -15,6 +15,7 @@ const mockUser = {
   genreRelevanceFilter: 0,
   showRelevanceTags: false,
   showTypeTags: false,
+  showNsfw: false,
   permissions: [],
   createdAt: new Date(),
   updatedAt: new Date(),

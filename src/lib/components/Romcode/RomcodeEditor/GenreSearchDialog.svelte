@@ -7,7 +7,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { searchGenres, type SimpleGenre } from '$lib/types/genres'
   import type { Timeout } from '$lib/utils/types'
 

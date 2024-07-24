@@ -1,0 +1,1 @@
+ALTER TABLE "Account" ADD COLUMN "showNsfw" boolean DEFAULT false NOT NULL;

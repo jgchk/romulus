@@ -95,6 +95,7 @@ export const accounts = pgTable('Account', {
   genreRelevanceFilter: integer('genreRelevanceFilter').default(1).notNull(),
   showRelevanceTags: boolean('showRelevanceTags').default(false).notNull(),
   showTypeTags: boolean('showTypeTags').default(true).notNull(),
+  showNsfw: boolean('showNsfw').default(false).notNull(),
 })
 
 export type InsertSession = InferInsertModel<typeof sessions>

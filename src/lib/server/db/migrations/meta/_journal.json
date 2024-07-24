@@ -113,6 +113,13 @@
       "when": 1721244970951,
       "tag": "0015_legal_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1721826228094,
+      "tag": "0016_lush_madripoor",
+      "breakpoints": true
     }
   ]
 }

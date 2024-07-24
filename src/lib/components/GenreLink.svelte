@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import type { GenreType } from '$lib/types/genres'
   import { tw } from '$lib/utils/dom'
 

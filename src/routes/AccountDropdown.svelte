@@ -7,7 +7,7 @@
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import Card from '$lib/atoms/Card.svelte'
-  import { user, userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
@@ -63,15 +63,7 @@
       <button
         class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
         on:click={() => {
-          void fetch(`/api/accounts/${account.id}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ darkMode: !$userSettings.darkMode }),
-          })
-            .then((res) => res.json())
-            .then((res) => ($user = res))
+          userSettings.update((prev) => ({ ...prev, darkMode: !$userSettings.darkMode }))
         }}
       >
         {#if $userSettings.darkMode}

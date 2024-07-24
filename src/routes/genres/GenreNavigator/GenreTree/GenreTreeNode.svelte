@@ -5,7 +5,7 @@
   import { browser } from '$app/environment'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible } from '$lib/utils/dom'
 

@@ -54,6 +54,7 @@ const setup = (props: GenreMultiselectProps, options?: { user?: Partial<User> })
     darkMode: true,
     showRelevanceTags: true,
     showTypeTags: true,
+    showNsfw: false,
     permissions: [],
     createdAt: new Date(),
     updatedAt: new Date(),

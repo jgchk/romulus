@@ -4,7 +4,8 @@
 <script lang="ts">
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { user, userSettings } from '$lib/contexts/user'
+  import { user } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { searchGenres } from '$lib/types/genres'
 
   import type { TreeGenre } from './GenreTree/state'

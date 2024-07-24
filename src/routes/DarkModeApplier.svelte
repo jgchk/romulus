@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment'
-  import { userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
 
   $: if (browser) {
     if ($userSettings.darkMode) {

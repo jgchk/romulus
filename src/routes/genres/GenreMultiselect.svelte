@@ -3,7 +3,7 @@
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { type GenreMatch, searchGenres } from '$lib/types/genres'
   import { isDefined, type Timeout } from '$lib/utils/types'
 

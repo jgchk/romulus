@@ -10,10 +10,10 @@
   import { user } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
 
-  import GenreNavigatorSettings from './GenreNavigatorSettings.svelte'
   import GenreSearchResults from './GenreSearchResults.svelte'
   import GenreTree from './GenreTree/GenreTree.svelte'
   import type { TreeGenre } from './GenreTree/state'
+  import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
 
   export let genres: Promise<TreeGenre[]>
@@ -40,11 +40,9 @@
         }}
       />
     </div>
-    {#if $user}
-      <IconButton tooltip="Genre Settings" on:click={() => (showSettings = !showSettings)}>
-        <GearSix />
-      </IconButton>
-    {/if}
+    <IconButton tooltip="Genre Settings" on:click={() => (showSettings = !showSettings)}>
+      <GearSix />
+    </IconButton>
   </div>
 
   {#if showSettings}

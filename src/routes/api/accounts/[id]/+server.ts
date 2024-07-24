@@ -12,9 +12,19 @@ const schema = z.object({
   darkMode: z.boolean().optional(),
 })
 
-export const PATCH: RequestHandler = async ({ request, locals }) => {
+export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   if (!locals.user) {
     return error(401, 'You must be logged in to do that')
+  }
+
+  const maybeId = z.coerce.number().safeParse(params.id)
+  if (!maybeId.success) {
+    return error(400, 'Invalid account ID')
+  }
+  const id = maybeId.data
+
+  if (id !== locals.user.id) {
+    return error(403, 'You do not have permission to do that')
   }
 
   const maybeData = schema.safeParse(await request.json())
@@ -24,7 +34,7 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
   const data = maybeData.data
 
   const account = await db.accounts
-    .update(locals.user.id, {
+    .update(id, {
       genreRelevanceFilter: data.genreRelevanceFilter,
       showTypeTags: data.showTypeTags,
       showRelevanceTags: data.showRelevanceTags,
