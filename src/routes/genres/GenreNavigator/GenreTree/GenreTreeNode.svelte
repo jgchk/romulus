@@ -59,7 +59,7 @@
           isSelected
             ? 'text-primary-500'
             : 'text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white',
-          genre.nsfw && 'pointer-events-none blur-sm',
+          genre.nsfw && !$userSettings.showNsfw && 'pointer-events-none blur-sm',
         )}
         on:click={() => {
           treeState.setSelectedId(id)
@@ -67,7 +67,7 @@
         }}
         use:tooltip={{
           content: 'Enable NSFW content in settings to view this genre',
-          enabled: genre.nsfw,
+          enabled: genre.nsfw && !$userSettings.showNsfw,
         }}
       >
         <span class="genre-tree-node__name">{genre.name}</span>
