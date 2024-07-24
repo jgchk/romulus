@@ -5,6 +5,7 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user-settings'
   import { type GenreMatch, searchGenres } from '$lib/types/genres'
+  import { cn } from '$lib/utils/dom'
   import { isDefined, type Timeout } from '$lib/utils/types'
 
   import type { GenreMultiselectProps, MultiselectGenre } from './GenreMultiselect'
@@ -73,29 +74,33 @@
   {...$$restProps}
 >
   <svelte:fragment slot="selected" let:option>
-    <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}{' '}<span
-        class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
-      >{/if}{#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-      {' '}
-      <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
-    {/if}
+    <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
+      <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}{' '}<span
+          class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
+        >{/if}{#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
+        {' '}
+        <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
+      {/if}
+    </div>
   </svelte:fragment>
 
   <svelte:fragment slot="option" let:option>
-    {option.data.genre.name}
-    {#if option.data.genre.subtitle}
-      {' '}
-      <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
-        >[{option.data.genre.subtitle}]</span
-      >
-    {/if}
-    {#if option.data.matchedAka}
-      {' '}
-      <span class="text-[0.8rem]">({option.data.matchedAka})</span>
-    {/if}
-    {#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-      {' '}
-      <GenreTypeChip type={option.data.genre.type} />
-    {/if}
+    <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
+      {option.data.genre.name}
+      {#if option.data.genre.subtitle}
+        {' '}
+        <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
+          >[{option.data.genre.subtitle}]</span
+        >
+      {/if}
+      {#if option.data.matchedAka}
+        {' '}
+        <span class="text-[0.8rem]">({option.data.matchedAka})</span>
+      {/if}
+      {#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
+        {' '}
+        <GenreTypeChip type={option.data.genre.type} />
+      {/if}
+    </div>
   </svelte:fragment>
 </Multiselect>

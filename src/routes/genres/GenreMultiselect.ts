@@ -1,7 +1,6 @@
 import type { MultiselectProps } from '$lib/atoms/Multiselect'
+import type { Genre } from '$lib/server/db/schema'
 import type { SearchGenre } from '$lib/types/genres'
-
-import type { TreeGenre } from './GenreNavigator/GenreTree/state'
 
 export type GenreMultiselectProps = Omit<MultiselectProps<unknown>, 'value' | 'options'> & {
   value: number[]
@@ -9,4 +8,4 @@ export type GenreMultiselectProps = Omit<MultiselectProps<unknown>, 'value' | 'o
   exclude?: number[]
 }
 
-export type MultiselectGenre = SearchGenre & Pick<TreeGenre, 'type'>
+export type MultiselectGenre = SearchGenre & Pick<Genre, 'type' | 'nsfw'>
