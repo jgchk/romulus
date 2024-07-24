@@ -1,7 +1,7 @@
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
-import { expect, it, vi } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { userSettings } from '$lib/contexts/user-settings'
 
