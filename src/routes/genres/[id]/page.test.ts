@@ -5,6 +5,8 @@ import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { describe, expect, it } from 'vitest'
 
+import { userSettings } from '$lib/contexts/user-settings'
+
 import GenrePage from './+page.svelte'
 import { relevanceVoteSchema } from './utils'
 
@@ -70,8 +72,8 @@ async function setup(
   })
 
   return {
-    user,
     ...returned,
+    user,
   }
 }
 
@@ -88,5 +90,35 @@ describe('GenrePage', () => {
       },
     })
     expect(getByText('NSFW')).toBeInTheDocument()
+  })
+
+  it('should blur the page when the genre is NSFW and showNsfw is false', async () => {
+    userSettings.update((prev) => ({ ...prev, showNsfw: false }))
+    const { getByTestId } = await setup({
+      data: {
+        genre: { ...mockGenre, nsfw: true },
+      },
+    })
+    expect(getByTestId('genre-page')).toHaveClass('blur-sm')
+  })
+
+  it('should not blur the page when the genre is not NSFW', async () => {
+    userSettings.update((prev) => ({ ...prev, showNsfw: false }))
+    const { getByTestId } = await setup({
+      data: {
+        genre: { ...mockGenre, nsfw: false },
+      },
+    })
+    expect(getByTestId('genre-page')).not.toHaveClass('blur-sm')
+  })
+
+  it('should not blur the page when showNsfw is true', async () => {
+    userSettings.update((prev) => ({ ...prev, showNsfw: true }))
+    const { getByTestId } = await setup({
+      data: {
+        genre: { ...mockGenre, nsfw: true },
+      },
+    })
+    expect(getByTestId('genre-page')).not.toHaveClass('blur-sm')
   })
 })

@@ -9,8 +9,10 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { user } from '$lib/contexts/user'
+  import { userSettings } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+  import { cn } from '$lib/utils/dom'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import Footer from '../Footer.svelte'
@@ -30,7 +32,13 @@
   <title>{pageTitle(genreTitle(data.genre.name, data.genre.subtitle), 'Genres')}</title>
 </svelte:head>
 
-<div class="flex h-full w-full flex-col">
+<div
+  data-testid="genre-page"
+  class={cn(
+    'flex h-full w-full flex-col transition',
+    data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
+  )}
+>
   <GenrePageHeader
     id={data.genre.id}
     name={data.genre.name}
