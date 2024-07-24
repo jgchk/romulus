@@ -10,6 +10,7 @@ const schema = z.object({
   showTypeTags: z.boolean().optional(),
   showRelevanceTags: z.boolean().optional(),
   darkMode: z.boolean().optional(),
+  showNsfw: z.boolean().optional(),
 })
 
 export const PATCH: RequestHandler = async ({ request, params, locals }) => {
@@ -39,6 +40,7 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
       showTypeTags: data.showTypeTags,
       showRelevanceTags: data.showRelevanceTags,
       darkMode: data.darkMode,
+      showNsfw: data.showNsfw,
     })
     .then((res) => omit(['password'], res))
 
