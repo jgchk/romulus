@@ -84,7 +84,12 @@
         {#each visibleGenres as genre (genre.id)}
           <tr>
             <td class="p-1 px-2">
-              <GenreLink id={genre.id} name={genre.name} subtitle={genre.subtitle} />
+              <GenreLink
+                id={genre.id}
+                name={genre.name}
+                subtitle={genre.subtitle}
+                nsfw={genre.nsfw}
+              />
             </td>
             <td class="p-1 px-2"><GenreTypeChip type={genre.type} /></td>
             <td class="p-1 px-2"><RelevanceChip relevance={genre.relevance} /></td>

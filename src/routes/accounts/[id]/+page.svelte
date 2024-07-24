@@ -53,6 +53,7 @@
                     name={entry.name}
                     type={entry.type}
                     subtitle={entry.subtitle}
+                    nsfw={entry.nsfw}
                   />
                 </td>
                 <td class="p-1 px-2">{capitalize(entry.operation)}</td>

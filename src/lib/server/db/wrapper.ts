@@ -87,10 +87,10 @@ export interface IGenresDatabase {
   findByIdDetail: (id: Genre['id']) => Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name'>[]
-        parents: { parent: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
+        parents: { parent: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
         children: { child: Pick<Genre, 'id' | 'name' | 'type'> }[]
-        influencedBy: { influencer: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
-        influences: { influenced: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle'> }[]
+        influencedBy: { influencer: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
+        influences: { influenced: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
         history: { account: Pick<Account, 'id' | 'username'> | null }[]
       })
     | undefined
@@ -210,7 +210,7 @@ export interface IGenreHistoryDatabase {
   ) => Promise<
     Pick<
       GenreHistory,
-      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId'
+      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
     >[]
   >
 }
@@ -389,7 +389,7 @@ export class Database implements IDatabase {
             columns: {},
             with: {
               parent: {
-                columns: { id: true, name: true, type: true, subtitle: true },
+                columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
               },
             },
           },
@@ -405,7 +405,7 @@ export class Database implements IDatabase {
             columns: {},
             with: {
               influencer: {
-                columns: { id: true, name: true, type: true, subtitle: true },
+                columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
               },
             },
           },
@@ -413,7 +413,7 @@ export class Database implements IDatabase {
             columns: {},
             with: {
               influenced: {
-                columns: { id: true, name: true, type: true, subtitle: true },
+                columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
               },
             },
           },
@@ -775,6 +775,7 @@ export class Database implements IDatabase {
           operation: true,
           createdAt: true,
           treeGenreId: true,
+          nsfw: true,
         },
         orderBy: desc(genreHistory.createdAt),
       }),

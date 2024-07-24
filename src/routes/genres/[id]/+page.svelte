@@ -110,6 +110,7 @@
               name={genre.name}
               type={genre.type}
               subtitle={genre.subtitle}
+              nsfw={genre.nsfw}
             />
           </CommaList>
         </div>
@@ -130,6 +131,7 @@
               name={genre.name}
               type={genre.type}
               subtitle={genre.subtitle}
+              nsfw={genre.nsfw}
             />
           </CommaList>
         </div>
@@ -150,6 +152,7 @@
               name={genre.name}
               type={genre.type}
               subtitle={genre.subtitle}
+              nsfw={genre.nsfw}
             />
           </CommaList>
         </div>

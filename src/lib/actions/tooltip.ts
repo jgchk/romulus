@@ -11,6 +11,7 @@ export const TooltipDefaults = {
   delay: 300,
   enabled: true,
   touch: false,
+  role: 'tooltip',
 } as const
 const injectDefaultParams = (params: TooltipProps): TooltipProps => ({
   ...params,
@@ -19,6 +20,7 @@ const injectDefaultParams = (params: TooltipProps): TooltipProps => ({
   delay: params.delay ?? TooltipDefaults.delay,
   enabled: params.enabled ?? TooltipDefaults.enabled,
   touch: params.touch ?? TooltipDefaults.touch,
+  role: params.role ?? TooltipDefaults.role,
 })
 
 export const tooltip: Action<TooltipProps> = (node, params) => {

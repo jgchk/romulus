@@ -59,7 +59,7 @@
           isSelected
             ? 'text-primary-500'
             : 'text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white',
-          genre.nsfw && !$userSettings.showNsfw && 'pointer-events-none blur-sm',
+          genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
         on:click={() => {
           treeState.setSelectedId(id)
