@@ -138,7 +138,7 @@ export interface IGenresDatabase {
     (Pick<Genre, 'id' | 'name'> & { parents: Pick<GenreParent, 'parentId'>[] })[]
   >
   findAllTree: () => Promise<
-    (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'updatedAt'> & {
+    (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'updatedAt'> & {
       akas: GenreAka['name'][]
       parents: GenreParent['parentId'][]
       children: GenreParent['childId'][]
@@ -575,6 +575,7 @@ export class Database implements IDatabase {
             subtitle: true,
             type: true,
             relevance: true,
+            nsfw: true,
             updatedAt: true,
           },
           orderBy: (genres, { asc }) => asc(genres.name),

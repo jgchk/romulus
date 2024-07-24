@@ -23,6 +23,7 @@
     | 'name'
     | 'subtitle'
     | 'type'
+    | 'nsfw'
     | 'shortDescription'
     | 'longDescription'
     | 'notes'
@@ -58,6 +59,7 @@
     name: getAction(previousHistory, currentHistory, (h) => h.name),
     subtitle: getAction(previousHistory, currentHistory, (h) => h.subtitle),
     type: getAction(previousHistory, currentHistory, (h) => h.type),
+    nsfw: getAction(previousHistory, currentHistory, (h) => h.nsfw),
     shortDescription: getAction(previousHistory, currentHistory, (h) => h.shortDescription),
     longDescription: getAction(previousHistory, currentHistory, (h) => h.longDescription),
     notes: getAction(previousHistory, currentHistory, (h) => h.notes),
@@ -305,6 +307,23 @@
           </div>
         </div>
       {/if}
+
+      <div class={cn(!changed.nsfw && 'opacity-50')}>
+        <Label class={cn('text-xs', getLabelClass(changed.nsfw))}>NSFW</Label>
+        <div class="text-sm" data-testid="genre-diff-nsfw">
+          {#if changed.type !== 'delete'}
+            <span>{capitalize(currentHistory.nsfw.toString())}</span>
+          {/if}
+          {#if changed.type === 'update'}
+            {' '}
+          {/if}
+          {#if changed.type === 'delete' || changed.type === 'update'}
+            <span class="text-gray-500 line-through"
+              >{capitalize(previousHistory?.nsfw?.toString() ?? '')}</span
+            >
+          {/if}
+        </div>
+      </div>
 
       {#if previousHistory?.shortDescription || currentHistory.shortDescription}
         <div class={cn(!changed.shortDescription && 'opacity-50')}>

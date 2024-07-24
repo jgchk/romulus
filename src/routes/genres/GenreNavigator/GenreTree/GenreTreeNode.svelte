@@ -3,11 +3,12 @@
   import { equals } from 'ramda'
 
   import { browser } from '$app/environment'
+  import { tooltip } from '$lib/actions/tooltip'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
-  import { cn, isFullyVisible } from '$lib/utils/dom'
+  import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
   import RelevanceChip from './RelevanceChip.svelte'
   import { treeState } from './state'
@@ -53,15 +54,20 @@
 
       <a
         href="/genres/{id}"
-        class={cn(
+        class={tw(
           'group block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] transition hover:border-opacity-[0.03] hover:bg-gray-200 dark:border-white dark:border-opacity-0 dark:hover:bg-gray-800',
           isSelected
             ? 'text-primary-500'
             : 'text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white',
+          genre.nsfw && 'pointer-events-none blur-sm',
         )}
         on:click={() => {
           treeState.setSelectedId(id)
           treeState.setSelectedPath(path)
+        }}
+        use:tooltip={{
+          content: 'Enable NSFW content in settings to view this genre',
+          enabled: genre.nsfw,
         }}
       >
         <span class="genre-tree-node__name">{genre.name}</span>

@@ -118,6 +118,7 @@ export const actions: Actions = {
         notes: form.data.notes,
         type: form.data.type,
         subtitle: form.data.subtitle,
+        nsfw: form.data.nsfw,
         updatedAt: new Date(),
         akas,
         parents: form.data.parents,
@@ -146,6 +147,7 @@ function didChange(
 ) {
   if (data.name !== history.name) return true
   if (data.subtitle !== history.subtitle) return true
+  if (data.nsfw !== history.nsfw) return true
   if (data.type !== history.type) return true
   if (data.shortDescription !== history.shortDescription) return true
   if (data.longDescription !== history.longDescription) return true
