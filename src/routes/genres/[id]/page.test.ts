@@ -1,4 +1,4 @@
-import { getByText, render } from '@testing-library/svelte'
+import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { superValidate } from 'sveltekit-superforms'
