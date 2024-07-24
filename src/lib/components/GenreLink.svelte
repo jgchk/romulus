@@ -19,7 +19,7 @@
 <a
   href="/genres/{id}"
   class={tw(
-    'font-bold text-primary-500 hover:underline',
+    'font-bold text-primary-500 transition hover:underline',
     nsfw && !$userSettings.showNsfw && 'blur-sm',
     class_,
   )}

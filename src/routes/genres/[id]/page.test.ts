@@ -1,4 +1,4 @@
-import { render } from '@testing-library/svelte'
+import { getByText, render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { superValidate } from 'sveltekit-superforms'
@@ -94,31 +94,34 @@ describe('GenrePage', () => {
 
   it('should blur the page when the genre is NSFW and showNsfw is false', async () => {
     userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-    const { getByTestId } = await setup({
+    const { getByTestId, getByText } = await setup({
       data: {
         genre: { ...mockGenre, nsfw: true },
       },
     })
-    expect(getByTestId('genre-page')).toHaveClass('blur-sm')
+    expect(getByTestId('genre-page')).toHaveClass('blur')
+    expect(getByText('Enable NSFW genres in settings to view this genre')).toBeInTheDocument()
   })
 
   it('should not blur the page when the genre is not NSFW', async () => {
     userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-    const { getByTestId } = await setup({
+    const { getByTestId, queryByText } = await setup({
       data: {
         genre: { ...mockGenre, nsfw: false },
       },
     })
-    expect(getByTestId('genre-page')).not.toHaveClass('blur-sm')
+    expect(getByTestId('genre-page')).not.toHaveClass('blur')
+    expect(queryByText('Enable NSFW genres in settings to view this genre')).toBeNull()
   })
 
   it('should not blur the page when showNsfw is true', async () => {
     userSettings.update((prev) => ({ ...prev, showNsfw: true }))
-    const { getByTestId } = await setup({
+    const { getByTestId, queryByText } = await setup({
       data: {
         genre: { ...mockGenre, nsfw: true },
       },
     })
-    expect(getByTestId('genre-page')).not.toHaveClass('blur-sm')
+    expect(getByTestId('genre-page')).not.toHaveClass('blur')
+    expect(queryByText('Enable NSFW genres in settings to view this genre')).toBeNull()
   })
 })

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition'
+
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import CommaList from '$lib/atoms/CommaList.svelte'
@@ -32,204 +34,155 @@
   <title>{pageTitle(genreTitle(data.genre.name, data.genre.subtitle), 'Genres')}</title>
 </svelte:head>
 
-<div
-  data-testid="genre-page"
-  class={cn(
-    'flex h-full w-full flex-col transition',
-    data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
-  )}
->
-  <GenrePageHeader
-    id={data.genre.id}
-    name={data.genre.name}
-    subtitle={data.genre.subtitle}
-    nsfw={data.genre.nsfw}
-  />
-
-  <div class="flex-1 space-y-3 overflow-auto p-4">
-    {#if data.genre.akas.length > 0}
-      <div>
-        <Label>AKA</Label>
-        <div class="genre-akas">
-          {data.genre.akas.join(', ')}
-        </div>
-      </div>
-    {/if}
-
-    <div>
-      <Label>Type</Label>
-      <div class="genre-type capitalize">
-        {GenreTypeNames[data.genre.type]}
-      </div>
+<div class="relative h-full w-full">
+  {#if data.genre.nsfw && !$userSettings.showNsfw}
+    <div
+      class="absolute flex h-full w-full items-center justify-center font-semibold shadow-sm"
+      transition:fade={{ duration: 75 }}
+    >
+      Enable NSFW genres in settings to view this genre
     </div>
+  {/if}
 
-    <div>
-      <div>
-        <Label>Relevance</Label>
-        {#if $user && $user.permissions?.includes('EDIT_GENRES')}
-          {' '}
-          <button
-            class="text-xs text-primary-500 hover:underline"
-            on:click={() => (isVoting = !isVoting)}
-          >
-            ({isVoting ? 'Cancel' : 'Vote'})
-          </button>
-        {/if}
-      </div>
-      <div class="genre-relevance">
-        {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
-          None set.{' '}
-          <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
-            Vote.
-          </button>
-        {:else}
-          {data.genre.relevance} - {getGenreRelevanceText(data.genre.relevance)}
-        {/if}
-      </div>
-      {#if isVoting}
-        <div
-          class="mt-1 rounded border border-gray-300 bg-gray-50 p-4 transition dark:border-gray-700 dark:bg-gray-900"
-          transition:slide|local={{ axis: 'y' }}
-        >
-          <RelevanceVoteForm
-            voteForm={data.relevanceVoteForm}
-            class="mt-1"
-            on:close={() => (isVoting = false)}
-          />
-          <div class="mt-4 max-w-sm space-y-0.5">
-            <Label>Results</Label>
-            <RelevanceVoteGraph votes={data.relevanceVotes} />
+  <div
+    data-testid="genre-page"
+    class={cn(
+      'flex h-full w-full flex-col transition',
+      data.genre.nsfw && !$userSettings.showNsfw && 'blur',
+    )}
+  >
+    <GenrePageHeader
+      id={data.genre.id}
+      name={data.genre.name}
+      subtitle={data.genre.subtitle}
+      nsfw={data.genre.nsfw}
+    />
+
+    <div class="flex-1 space-y-3 overflow-auto p-4">
+      {#if data.genre.akas.length > 0}
+        <div>
+          <Label>AKA</Label>
+          <div class="genre-akas">
+            {data.genre.akas.join(', ')}
           </div>
         </div>
       {/if}
-    </div>
 
-    {#if data.genre.parents.length > 0}
       <div>
-        <Label>Parents</Label>
-        <div class="genre-parents">
-          <CommaList
-            items={data.genre.parents}
-            let:item={genre}
-            class="text-gray-600 transition dark:text-gray-400"
-          >
-            <GenreLink
-              id={genre.id}
-              name={genre.name}
-              type={genre.type}
-              subtitle={genre.subtitle}
-              nsfw={genre.nsfw}
-            />
-          </CommaList>
+        <Label>Type</Label>
+        <div class="genre-type capitalize">
+          {GenreTypeNames[data.genre.type]}
         </div>
       </div>
-    {/if}
 
-    {#if data.genre.influencedBy.length > 0}
       <div>
-        <Label>Influences</Label>
-        <div class="genre-influences">
-          <CommaList
-            items={data.genre.influencedBy}
-            let:item={genre}
-            class="text-gray-600 transition dark:text-gray-400"
-          >
-            <GenreLink
-              id={genre.id}
-              name={genre.name}
-              type={genre.type}
-              subtitle={genre.subtitle}
-              nsfw={genre.nsfw}
-            />
-          </CommaList>
-        </div>
-      </div>
-    {/if}
-
-    {#if data.genre.influences.length > 0}
-      <div>
-        <Label>Influenced</Label>
-        <div class="genre-influenced">
-          <CommaList
-            items={data.genre.influences}
-            let:item={genre}
-            class="text-gray-600 transition dark:text-gray-400"
-          >
-            <GenreLink
-              id={genre.id}
-              name={genre.name}
-              type={genre.type}
-              subtitle={genre.subtitle}
-              nsfw={genre.nsfw}
-            />
-          </CommaList>
-        </div>
-      </div>
-    {/if}
-
-    <div>
-      <Label>Short Description</Label>
-      <div class="genre-short-description">
-        {#if data.genre.shortDescription}
-          {#await data.streamed.genres}
-            <div class="w-[75%] space-y-2 pt-1">
-              <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
-              <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
-              <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
-            </div>
-          {:then genres}
-            <Romcode data={data.genre.shortDescription} {genres} />
-          {/await}
-        {:else}
-          <span>
-            Missing a short description.{' '}
-            {#if $user && $user.permissions?.includes('EDIT_GENRES')}
-              <a
-                href="/genres/{data.genre.id}/edit?focus=shortDescription"
-                class="text-primary-500 hover:underline"
-              >
-                Add one.
-              </a>
-            {/if}
-          </span>
-        {/if}
-      </div>
-    </div>
-
-    <div>
-      <Label>Long Description</Label>
-      <div class="genre-long-description">
-        {#if data.genre.longDescription}
-          {#await data.streamed.genres}
-            <div class="w-[75%] space-y-2 pt-1">
-              <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
-              <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
-              <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
-            </div>
-          {:then genres}
-            <Romcode data={data.genre.longDescription} {genres} />
-          {/await}
-        {:else}
-          <span>
-            Missing a long description.{' '}
-            {#if $user && $user.permissions?.includes('EDIT_GENRES')}
-              <a
-                href="/genres/{data.genre.id}/edit?focus=longDescription"
-                class="text-primary-500 hover:underline"
-              >
-                Add one.
-              </a>
-            {/if}
-          </span>
-        {/if}
-      </div>
-    </div>
-
-    {#if data.genre.notes}
-      <div>
-        <Label>Notes</Label>
         <div>
-          {#if showNotes}
+          <Label>Relevance</Label>
+          {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+            {' '}
+            <button
+              class="text-xs text-primary-500 hover:underline"
+              on:click={() => (isVoting = !isVoting)}
+            >
+              ({isVoting ? 'Cancel' : 'Vote'})
+            </button>
+          {/if}
+        </div>
+        <div class="genre-relevance">
+          {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
+            None set.{' '}
+            <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
+              Vote.
+            </button>
+          {:else}
+            {data.genre.relevance} - {getGenreRelevanceText(data.genre.relevance)}
+          {/if}
+        </div>
+        {#if isVoting}
+          <div
+            class="mt-1 rounded border border-gray-300 bg-gray-50 p-4 transition dark:border-gray-700 dark:bg-gray-900"
+            transition:slide|local={{ axis: 'y' }}
+          >
+            <RelevanceVoteForm
+              voteForm={data.relevanceVoteForm}
+              class="mt-1"
+              on:close={() => (isVoting = false)}
+            />
+            <div class="mt-4 max-w-sm space-y-0.5">
+              <Label>Results</Label>
+              <RelevanceVoteGraph votes={data.relevanceVotes} />
+            </div>
+          </div>
+        {/if}
+      </div>
+
+      {#if data.genre.parents.length > 0}
+        <div>
+          <Label>Parents</Label>
+          <div class="genre-parents">
+            <CommaList
+              items={data.genre.parents}
+              let:item={genre}
+              class="text-gray-600 transition dark:text-gray-400"
+            >
+              <GenreLink
+                id={genre.id}
+                name={genre.name}
+                type={genre.type}
+                subtitle={genre.subtitle}
+                nsfw={genre.nsfw}
+              />
+            </CommaList>
+          </div>
+        </div>
+      {/if}
+
+      {#if data.genre.influencedBy.length > 0}
+        <div>
+          <Label>Influences</Label>
+          <div class="genre-influences">
+            <CommaList
+              items={data.genre.influencedBy}
+              let:item={genre}
+              class="text-gray-600 transition dark:text-gray-400"
+            >
+              <GenreLink
+                id={genre.id}
+                name={genre.name}
+                type={genre.type}
+                subtitle={genre.subtitle}
+                nsfw={genre.nsfw}
+              />
+            </CommaList>
+          </div>
+        </div>
+      {/if}
+
+      {#if data.genre.influences.length > 0}
+        <div>
+          <Label>Influenced</Label>
+          <div class="genre-influenced">
+            <CommaList
+              items={data.genre.influences}
+              let:item={genre}
+              class="text-gray-600 transition dark:text-gray-400"
+            >
+              <GenreLink
+                id={genre.id}
+                name={genre.name}
+                type={genre.type}
+                subtitle={genre.subtitle}
+                nsfw={genre.nsfw}
+              />
+            </CommaList>
+          </div>
+        </div>
+      {/if}
+
+      <div>
+        <Label>Short Description</Label>
+        <div class="genre-short-description">
+          {#if data.genre.shortDescription}
             {#await data.streamed.genres}
               <div class="w-[75%] space-y-2 pt-1">
                 <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
@@ -237,48 +190,108 @@
                 <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
               </div>
             {:then genres}
-              <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
-                <Romcode data={data.genre.notes} {genres} />
-              </div>
+              <Romcode data={data.genre.shortDescription} {genres} />
             {/await}
+          {:else}
+            <span>
+              Missing a short description.{' '}
+              {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+                <a
+                  href="/genres/{data.genre.id}/edit?focus=shortDescription"
+                  class="text-primary-500 hover:underline"
+                >
+                  Add one.
+                </a>
+              {/if}
+            </span>
           {/if}
-          <button
-            type="button"
-            class="text-primary-500 hover:underline"
-            on:click={() => (showNotes = !showNotes)}
-          >
-            {#if showNotes}Hide{:else}Show{/if} notes
-          </button>
         </div>
       </div>
-    {/if}
 
-    {#if data.contributors.length}
       <div>
-        <Label>Contributors</Label>
-        <div class="genre-contributors">
-          <CommaList
-            items={data.contributors}
-            let:item
-            class="text-gray-600 transition dark:text-gray-400"
-          >
-            <AccountLink accountId={item.id} username={item.username} />
-          </CommaList>
+        <Label>Long Description</Label>
+        <div class="genre-long-description">
+          {#if data.genre.longDescription}
+            {#await data.streamed.genres}
+              <div class="w-[75%] space-y-2 pt-1">
+                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
+                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
+                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
+              </div>
+            {:then genres}
+              <Romcode data={data.genre.longDescription} {genres} />
+            {/await}
+          {:else}
+            <span>
+              Missing a long description.{' '}
+              {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+                <a
+                  href="/genres/{data.genre.id}/edit?focus=longDescription"
+                  class="text-primary-500 hover:underline"
+                >
+                  Add one.
+                </a>
+              {/if}
+            </span>
+          {/if}
         </div>
       </div>
-    {/if}
-  </div>
 
-  <Footer>
-    {#if $user && $user.permissions?.includes('EDIT_GENRES')}
-      <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
-    {/if}
-    <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
-    <div class="flex-1" />
-    {#if $user && $user.permissions?.includes('EDIT_GENRES')}
-      <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
-    {/if}
-  </Footer>
+      {#if data.genre.notes}
+        <div>
+          <Label>Notes</Label>
+          <div>
+            {#if showNotes}
+              {#await data.streamed.genres}
+                <div class="w-[75%] space-y-2 pt-1">
+                  <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
+                  <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
+                  <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
+                </div>
+              {:then genres}
+                <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
+                  <Romcode data={data.genre.notes} {genres} />
+                </div>
+              {/await}
+            {/if}
+            <button
+              type="button"
+              class="text-primary-500 hover:underline"
+              on:click={() => (showNotes = !showNotes)}
+            >
+              {#if showNotes}Hide{:else}Show{/if} notes
+            </button>
+          </div>
+        </div>
+      {/if}
+
+      {#if data.contributors.length}
+        <div>
+          <Label>Contributors</Label>
+          <div class="genre-contributors">
+            <CommaList
+              items={data.contributors}
+              let:item
+              class="text-gray-600 transition dark:text-gray-400"
+            >
+              <AccountLink accountId={item.id} username={item.username} />
+            </CommaList>
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <Footer>
+      {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+        <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
+      {/if}
+      <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
+      <div class="flex-1" />
+      {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+        <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
+      {/if}
+    </Footer>
+  </div>
 </div>
 
 {#if isDeleting}
