@@ -1,18 +1,27 @@
 <script lang="ts">
+  import { tooltip } from '$lib/actions/tooltip'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { userSettings } from '$lib/contexts/user-settings'
+  import type { Genre } from '$lib/server/db/schema'
   import type { GenreMatch } from '$lib/types/genres'
+  import { cn } from '$lib/utils/dom'
 
-  import type { TreeGenre } from './GenreTree/state'
   import { searchStore } from './state'
 
-  export let match: GenreMatch<TreeGenre>
+  export let match: GenreMatch<Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'nsfw'>>
 </script>
 
 <a
   href="/genres/{match.genre.id}"
-  class="group block truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+  class={cn(
+    'group block truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white',
+    match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
+  )}
   on:click={() => searchStore.clearFilter()}
+  use:tooltip={{
+    content: 'Enable NSFW genres in settings to view this genre',
+    enabled: match.genre.nsfw && !$userSettings.showNsfw,
+  }}
 >
   {match.genre.name}
   {#if match.genre.subtitle}
