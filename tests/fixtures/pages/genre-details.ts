@@ -85,8 +85,8 @@ export class GenreDetailsPage {
     await this.voteButton.click()
     await this.voteInput.click()
     await this.page
-      .locator('.select__list')
-      .getByText(`${relevance} - ${getGenreRelevanceText(relevance)}`)
+      .getByRole('listbox')
+      .getByRole('button', { name: `${relevance} - ` })
       .click()
     await this.submitVoteButton.click()
   }

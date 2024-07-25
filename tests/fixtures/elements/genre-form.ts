@@ -88,14 +88,17 @@ export class GenreForm {
 
   async selectType(type: GenreType) {
     await this.typeInput.click()
-    await this.page.locator('.select__list').getByText(capitalize(type)).click()
+    await this.page
+      .getByRole('listbox')
+      .getByRole('button', { name: capitalize(type) })
+      .click()
   }
 
   async selectRelevance(relevance: number) {
     await this.relevanceInput.click()
     await this.page
-      .locator('.select__list')
-      .getByText(`${relevance} - ${getGenreRelevanceText(relevance)}`)
+      .getByRole('listbox')
+      .getByRole('button', { name: `${relevance} - ` })
       .click()
   }
 

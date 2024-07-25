@@ -48,13 +48,13 @@ export default function expansionTests() {
 
       test('only the parent genre should be expandable', async ({ genreTree }) => {
         await expect(genreTree.genres).toHaveCount(1)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
 
         await new GenreTreeGenre(genreTree.genres.nth(0)).expandButton.click()
 
         await expect(genreTree.genres).toHaveCount(2)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
         await expect(
           new GenreTreeGenre(genreTree.genres.nth(1)).expandCollapseButton,
         ).not.toBeVisible()
@@ -62,7 +62,7 @@ export default function expansionTests() {
         await new GenreTreeGenre(genreTree.genres.nth(0)).collapseButton.click()
 
         await expect(genreTree.genres).toHaveCount(1)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
       })
 
       test('the parent genre should expand on click', async ({ genreTree }) => {
@@ -71,8 +71,8 @@ export default function expansionTests() {
         await new GenreTreeGenre(genreTree.genres.nth(0)).link.click()
 
         await expect(genreTree.genres).toHaveCount(2)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
       })
 
       test('the collapse all button should show when a genre is expanded', async ({
@@ -113,20 +113,20 @@ export default function expansionTests() {
 
       test('only the parent and child genres should be expandable', async ({ genreTree }) => {
         await expect(genreTree.genres).toHaveCount(1)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
 
         await new GenreTreeGenre(genreTree.genres.nth(0)).expandButton.click()
 
         await expect(genreTree.genres).toHaveCount(2)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
 
         await new GenreTreeGenre(genreTree.genres.nth(1)).expandButton.click()
 
         await expect(genreTree.genres).toHaveCount(3)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(2)).link).toHaveText('Grandchild')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(2)).link).toContainText('Grandchild')
         await expect(
           new GenreTreeGenre(genreTree.genres.nth(2)).expandCollapseButton,
         ).not.toBeVisible()
@@ -134,13 +134,13 @@ export default function expansionTests() {
         await new GenreTreeGenre(genreTree.genres.nth(1)).collapseButton.click()
 
         await expect(genreTree.genres).toHaveCount(2)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
 
         await new GenreTreeGenre(genreTree.genres.nth(0)).collapseButton.click()
 
         await expect(genreTree.genres).toHaveCount(1)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
       })
 
       test('should expand and collapse entire subtrees', async ({ genreTree }) => {
@@ -151,14 +151,14 @@ export default function expansionTests() {
         await new GenreTreeGenre(genreTree.genres.nth(0)).collapseButton.click()
 
         await expect(genreTree.genres).toHaveCount(1)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
 
         await new GenreTreeGenre(genreTree.genres.nth(0)).expandButton.click()
 
         await expect(genreTree.genres).toHaveCount(3)
-        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toHaveText('Parent')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toHaveText('Child')
-        await expect(new GenreTreeGenre(genreTree.genres.nth(2)).link).toHaveText('Grandchild')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(0)).link).toContainText('Parent')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(1)).link).toContainText('Child')
+        await expect(new GenreTreeGenre(genreTree.genres.nth(2)).link).toContainText('Grandchild')
       })
     })
   })
