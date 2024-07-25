@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
-  import { user } from '$lib/contexts/user'
+  import { getUserContext } from '$lib/contexts/user'
 
   import GenreTreeNode from './GenreTreeNode.svelte'
   import { getNewPath, isPathValid } from './path'
@@ -39,6 +39,8 @@
   })
 
   let ref: HTMLElement | undefined
+
+  const user = getUserContext()
 </script>
 
 <nav aria-label="Genre Tree" class="flex h-full w-full flex-col">

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import type { GenreType } from '$lib/types/genres'
   import { tw } from '$lib/utils/dom'
 
@@ -14,6 +14,8 @@
 
   let class_: string | undefined = undefined
   export { class_ as class }
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <a

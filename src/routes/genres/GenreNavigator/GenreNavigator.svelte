@@ -7,7 +7,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
-  import { user } from '$lib/contexts/user'
+  import { getUserContext } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
 
   import GenreSearchResults from './GenreSearchResults.svelte'
@@ -20,6 +20,8 @@
 
   let showSettings = false
   $: isSearching = $searchStore.debouncedFilter
+
+  const user = getUserContext()
 </script>
 
 <Card class="flex h-full w-full flex-col overflow-hidden">

@@ -3,7 +3,7 @@
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { type GenreMatch, searchGenres } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
   import { isDefined, type Timeout } from '$lib/utils/types'
@@ -60,6 +60,8 @@
   const dispatch = createEventDispatcher<{
     change: { value: number[] }
   }>()
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <Multiselect

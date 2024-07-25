@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import type { Genre } from '$lib/server/db/schema'
   import type { GenreMatch } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
@@ -9,6 +9,8 @@
   import { searchStore } from './state'
 
   export let match: GenreMatch<Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'nsfw'>>
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <a

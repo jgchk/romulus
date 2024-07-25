@@ -1,31 +1,23 @@
-import {
-  get,
-  type Invalidator,
-  type Subscriber,
-  type Unsubscriber,
-  type Updater,
-  type Writable,
-} from 'svelte/store'
+import type { User } from 'lucia'
+import { type Invalidator, type Subscriber, type Unsubscriber, type Updater } from 'svelte/store'
 
 import { browser } from '$app/environment'
 
-import { user } from '../user'
 import { BaseUserSettingsStore } from './base-store'
 import {
   DefaultUserSettingsRepository,
   LocalUserSettingsRepository,
   RemoteUserSettingsRepository,
 } from './repository'
-import { DEFAULT_USER_SETTINGS, type UserSettings } from './types'
+import { DEFAULT_USER_SETTINGS, type IUserSettingsStore, type UserSettings } from './types'
 
-export default class UserSettingsStore implements Writable<UserSettings> {
+export default class UserSettingsStore implements IUserSettingsStore {
   store: BaseUserSettingsStore
 
-  constructor() {
-    const userValue = get(user)
-    if (userValue) {
-      const repository = new RemoteUserSettingsRepository(userValue.id)
-      this.store = new BaseUserSettingsStore(userValue, repository)
+  constructor(initialUser: User | undefined) {
+    if (initialUser) {
+      const repository = new RemoteUserSettingsRepository(initialUser.id)
+      this.store = new BaseUserSettingsStore(initialUser, repository)
     } else if (browser) {
       const repository = new LocalUserSettingsRepository(localStorage)
       const initialValue = repository.get()
@@ -34,23 +26,23 @@ export default class UserSettingsStore implements Writable<UserSettings> {
       const repository = new DefaultUserSettingsRepository()
       this.store = new BaseUserSettingsStore(DEFAULT_USER_SETTINGS, repository)
     }
+  }
 
-    user.subscribe((value) => {
-      if (value) {
-        const repository = new RemoteUserSettingsRepository(value.id)
-        this.store.setRepository(repository)
-        this.store.set(value)
-      } else if (browser) {
-        const repository = new LocalUserSettingsRepository(localStorage)
-        const currentValue = repository.get()
-        this.store.setRepository(repository)
-        this.store.set(currentValue)
-      } else {
-        const repository = new DefaultUserSettingsRepository()
-        this.store.setRepository(repository)
-        this.store.set(DEFAULT_USER_SETTINGS)
-      }
-    })
+  updateUser(user: User | undefined): void {
+    if (user) {
+      const repository = new RemoteUserSettingsRepository(user.id)
+      this.store.setRepository(repository)
+      this.store.set(user)
+    } else if (browser) {
+      const repository = new LocalUserSettingsRepository(localStorage)
+      const currentValue = repository.get()
+      this.store.setRepository(repository)
+      this.store.set(currentValue)
+    } else {
+      const repository = new DefaultUserSettingsRepository()
+      this.store.setRepository(repository)
+      this.store.set(DEFAULT_USER_SETTINGS)
+    }
   }
 
   set(value: UserSettings): void {

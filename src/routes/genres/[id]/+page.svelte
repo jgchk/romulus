@@ -10,8 +10,8 @@
   import AccountLink from '$lib/components/AccountLink.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
-  import { user } from '$lib/contexts/user'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserContext } from '$lib/contexts/user'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
@@ -28,6 +28,9 @@
   let isVoting = false
   let showNotes = false
   let isDeleting = false
+
+  const user = getUserContext()
+  const userSettings = getUserSettingsContext()
 </script>
 
 <svelte:head>

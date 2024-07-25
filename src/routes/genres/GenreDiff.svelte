@@ -10,7 +10,7 @@
   import LoaderLine from '$lib/atoms/LoaderLine.svelte'
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import type { GenreHistory } from '$lib/server/db/schema'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
@@ -46,6 +46,8 @@
   let body: HTMLElement | undefined
   let scrollHeight = 0
   $: overflows = scrollHeight > SHORT_HEIGHT
+
+  const userSettings = getUserSettingsContext()
 
   onMount(() => {
     const cb = () => {

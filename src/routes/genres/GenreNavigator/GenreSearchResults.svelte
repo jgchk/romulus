@@ -3,7 +3,7 @@
 
 <script lang="ts">
   import VirtualList from '$lib/atoms/VirtualList.svelte'
-  import { user } from '$lib/contexts/user'
+  import { getUserContext } from '$lib/contexts/user'
   import { searchGenres } from '$lib/types/genres'
 
   import GenreSearchResult from './GenreSearchResult.svelte'
@@ -13,6 +13,8 @@
   export let genres: TreeGenre[]
 
   $: matches = searchGenres(genres, $searchStore.debouncedFilter)
+
+  const user = getUserContext()
 </script>
 
 <div aria-label="Genre Search Results" class="h-full overflow-auto p-4">

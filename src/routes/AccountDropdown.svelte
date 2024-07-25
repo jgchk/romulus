@@ -7,7 +7,7 @@
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import Card from '$lib/atoms/Card.svelte'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
@@ -19,6 +19,8 @@
     placement: 'bottom-end',
     middleware: [offset(4)],
   })
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <svelte:window

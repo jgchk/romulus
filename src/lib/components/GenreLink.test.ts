@@ -1,17 +1,30 @@
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
+import { writable } from 'svelte/store'
 import { expect, it } from 'vitest'
 
-import { userSettings } from '$lib/contexts/user-settings'
+import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
+import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 
 import GenreLink from './GenreLink.svelte'
 
-function setup(props: ComponentProps<GenreLink>) {
+function setup(
+  props: ComponentProps<GenreLink>,
+  options: { userSettings?: Partial<UserSettings> } = {},
+) {
   const user = userEvent.setup()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const returned = render(GenreLink, props)
+  const returned = render(GenreLink, {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    props,
+    context: new Map([
+      [
+        USER_SETTINGS_CONTEXT_KEY,
+        writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
+      ],
+    ]),
+  })
 
   return {
     user,
@@ -20,13 +33,14 @@ function setup(props: ComponentProps<GenreLink>) {
 }
 
 it('should be blurred and show a tooltip if the genre is NSFW and showNsfw is false', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { getByRole, user } = setup({
-    id: 0,
-    name: 'Test',
-    nsfw: true,
-  })
+  const { getByRole, user } = setup(
+    {
+      id: 0,
+      name: 'Test',
+      nsfw: true,
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   const link = getByRole('link')
   expect(link).toHaveClass('blur-sm')
@@ -40,13 +54,14 @@ it('should be blurred and show a tooltip if the genre is NSFW and showNsfw is fa
 })
 
 it('should not be blurred and not show a tooltip if the genre is NSFW and showNsfw is true', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: true }))
-
-  const { getByRole, queryByRole, user } = setup({
-    id: 0,
-    name: 'Test',
-    nsfw: true,
-  })
+  const { getByRole, queryByRole, user } = setup(
+    {
+      id: 0,
+      name: 'Test',
+      nsfw: true,
+    },
+    { userSettings: { showNsfw: true } },
+  )
 
   const link = getByRole('link')
   expect(link).not.toHaveClass('blur-sm')
@@ -58,13 +73,14 @@ it('should not be blurred and not show a tooltip if the genre is NSFW and showNs
 })
 
 it('should not be blurred and not show a tooltip if the genre is not NSFW', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { getByRole, queryByRole, user } = setup({
-    id: 0,
-    name: 'Test',
-    nsfw: false,
-  })
+  const { getByRole, queryByRole, user } = setup(
+    {
+      id: 0,
+      name: 'Test',
+      nsfw: false,
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   const link = getByRole('link')
   expect(link).not.toHaveClass('blur-sm')

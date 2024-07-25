@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
 
   import BaseSettings from './BaseSettings.svelte'
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <BaseSettings

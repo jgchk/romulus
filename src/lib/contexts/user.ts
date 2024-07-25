@@ -1,4 +1,11 @@
 import type { User } from 'lucia'
-import { writable } from 'svelte/store'
+import { getContext, setContext } from 'svelte'
+import { type Readable } from 'svelte/store'
 
-export const user = writable<User | undefined>()
+export type UserStore = Readable<User | undefined>
+
+export const USER_CONTEXT_KEY = Symbol('user-context')
+
+export const setUserContext = (value: UserStore) => setContext(USER_CONTEXT_KEY, value)
+
+export const getUserContext = () => getContext<UserStore>(USER_CONTEXT_KEY)

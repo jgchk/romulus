@@ -1,9 +1,11 @@
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
+import { writable } from 'svelte/store'
 import { expect, it } from 'vitest'
 
-import { userSettings } from '$lib/contexts/user-settings'
+import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
+import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 
 import GenreDiff from './GenreDiff.svelte'
 
@@ -27,10 +29,21 @@ const mockHistory = {
   },
 }
 
-function setup(props: ComponentProps<GenreDiff>) {
+function setup(
+  props: ComponentProps<GenreDiff>,
+  options: { userSettings?: Partial<UserSettings> } = {},
+) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const rendered = render(GenreDiff, props)
+  const rendered = render(GenreDiff, {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    props,
+    context: new Map([
+      [
+        USER_SETTINGS_CONTEXT_KEY,
+        writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
+      ],
+    ]),
+  })
   return { ...rendered, user }
 }
 
@@ -82,13 +95,14 @@ it('should include NSFW status when it is changed to false', () => {
 })
 
 it('should blur the diff when the genre is NSFW and showNsfw is false', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { user, getByTestId, getByRole } = setup({
-    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
-    currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
-    genres: Promise.resolve([]),
-  })
+  const { user, getByTestId, getByRole } = setup(
+    {
+      previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+      currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
+      genres: Promise.resolve([]),
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   const el = getByTestId('genre-diff')
   expect(el).toHaveClass('blur-sm')
@@ -102,13 +116,14 @@ it('should blur the diff when the genre is NSFW and showNsfw is false', async ()
 })
 
 it('should not blur the diff when the genre is NSFW and showNsfw is true', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: true }))
-
-  const { user, getByTestId, queryByRole } = setup({
-    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
-    currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
-    genres: Promise.resolve([]),
-  })
+  const { user, getByTestId, queryByRole } = setup(
+    {
+      previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+      currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
+      genres: Promise.resolve([]),
+    },
+    { userSettings: { showNsfw: true } },
+  )
 
   const el = getByTestId('genre-diff')
   expect(el).not.toHaveClass('blur-sm')
@@ -120,13 +135,14 @@ it('should not blur the diff when the genre is NSFW and showNsfw is true', async
 })
 
 it('should not blur the diff when the genre is not NSFW', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { user, getByTestId, queryByRole } = setup({
-    previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
-    currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
-    genres: Promise.resolve([]),
-  })
+  const { user, getByTestId, queryByRole } = setup(
+    {
+      previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
+      currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
+      genres: Promise.resolve([]),
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   const el = getByTestId('genre-diff')
   expect(el).not.toHaveClass('blur-sm')

@@ -6,7 +6,7 @@
   import { tooltip } from '$lib/actions/tooltip'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
-  import { userSettings } from '$lib/contexts/user-settings'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
@@ -33,6 +33,8 @@
       }
     }, 250)
   }
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 {#if genre}

@@ -1,3 +1,5 @@
+import type { Writable } from 'svelte/store'
+
 export type UserSettings = {
   darkMode: boolean
   genreRelevanceFilter: number
@@ -13,3 +15,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   showTypeTags: true,
   showNsfw: false,
 }
+
+export type IUserSettingsStore = Writable<UserSettings>

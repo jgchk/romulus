@@ -2,10 +2,13 @@
   import '../app.css'
 
   import { onMount } from 'svelte'
+  import { writable } from 'svelte/store'
 
   import Card from '$lib/atoms/Card.svelte'
   import Toaster from '$lib/atoms/Toast/Toaster.svelte'
-  import { user } from '$lib/contexts/user'
+  import { setUserContext, type UserStore } from '$lib/contexts/user'
+  import { setUserSettingsContext } from '$lib/contexts/user-settings'
+  import UserSettingsStore from '$lib/contexts/user-settings/store'
 
   import type { LayoutData } from './$types'
   import AccountDropdown from './AccountDropdown.svelte'
@@ -13,7 +16,14 @@
 
   export let data: LayoutData
 
+  const user: UserStore = writable(data.user)
+  const userSettings = new UserSettingsStore(data.user)
+
+  setUserContext(user)
+  setUserSettingsContext(userSettings)
+
   $: $user = data.user
+  $: userSettings.updateUser(data.user)
 
   // Used to indicate when hydration is complete for Playwright tests
   // See: https://github.com/microsoft/playwright/issues/19858#issuecomment-1377088645

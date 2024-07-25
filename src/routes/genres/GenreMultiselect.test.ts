@@ -1,10 +1,10 @@
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import type { User } from 'lucia'
+import { writable } from 'svelte/store'
 import { expect, it, test, vi } from 'vitest'
 
-import { user as userData } from '$lib/contexts/user'
-import { userSettings } from '$lib/contexts/user-settings'
+import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
+import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 
 import type { GenreMultiselectProps, MultiselectGenre } from './GenreMultiselect'
 import GenreMultiselect from './GenreMultiselect.svelte'
@@ -52,34 +52,32 @@ const data: MultiselectGenre[] = [
   },
 ]
 
-const setup = (props: GenreMultiselectProps, options?: { user?: Partial<User> }) => {
-  userData.set({
-    id: 0,
-    username: 'username',
-    genreRelevanceFilter: 0,
-    darkMode: true,
-    showRelevanceTags: true,
-    showTypeTags: true,
-    showNsfw: false,
-    permissions: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-
-    ...options?.user,
+const setup = (
+  props: GenreMultiselectProps,
+  options: { userSettings?: Partial<UserSettings> } = {},
+) => {
+  const returned = render(GenreMultiselect, {
+    props,
+    context: new Map([
+      [
+        USER_SETTINGS_CONTEXT_KEY,
+        writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
+      ],
+    ]),
   })
 
-  const user = userEvent.setup()
-  const returned = render(GenreMultiselect, props)
   const input = returned.getByRole('textbox')
 
   const onChange = vi.fn<[{ value: number[] }], void>()
   returned.component.$on('change', (e: CustomEvent<{ value: number[] }>) => onChange(e.detail))
 
+  const user = userEvent.setup()
+
   return {
-    user,
+    ...returned,
     input,
     onChange,
-    ...returned,
+    user,
   }
 }
 
@@ -99,7 +97,7 @@ test('renders selected genres', () => {
 test('renders selected genres with no type chips when showTypeTags is disabled', () => {
   const { queryAllByTestId } = setup(
     { value: data.map((g) => g.id), genres: data },
-    { user: { showTypeTags: false } },
+    { userSettings: { showTypeTags: false } },
   )
 
   const selected = queryAllByTestId('multiselect__selected')
@@ -264,21 +262,22 @@ test('should match on AKAs', async () => {
 })
 
 it('blurs NSFW options when showNsfw is disabled', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: true,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: true,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   await user.click(input)
   const options = queryAllByTestId('multiselect__option')
@@ -288,21 +287,22 @@ it('blurs NSFW options when showNsfw is disabled', async () => {
 })
 
 it('does not blur NSFW options when showNsfw is enabled', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: true }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: true,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: true,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: true } },
+  )
 
   await user.click(input)
   const options = queryAllByTestId('multiselect__option')
@@ -312,21 +312,22 @@ it('does not blur NSFW options when showNsfw is enabled', async () => {
 })
 
 it('does not blur non-NSFW options', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: false,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: false,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   await user.click(input)
   const options = queryAllByTestId('multiselect__option')
@@ -336,21 +337,22 @@ it('does not blur non-NSFW options', async () => {
 })
 
 it('blurs selected NSFW options when showNsfw is disabled', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [5],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: true,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [5],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: true,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   await user.click(input)
   const selected = queryAllByTestId('multiselect__selected')
@@ -360,21 +362,22 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
 })
 
 it('does not blur selected NSFW options when showNsfw is enabled', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: true }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [5],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: true,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [5],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: true,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: true } },
+  )
 
   await user.click(input)
   const selected = queryAllByTestId('multiselect__selected')
@@ -384,21 +387,22 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
 })
 
 it('does not blur selected non-NSFW options', async () => {
-  userSettings.update((prev) => ({ ...prev, showNsfw: false }))
-
-  const { queryAllByTestId, user, input } = setup({
-    value: [5],
-    genres: [
-      {
-        id: 5,
-        name: 'Five',
-        subtitle: 'Subtitle',
-        akas: [],
-        type: 'TREND',
-        nsfw: false,
-      },
-    ],
-  })
+  const { queryAllByTestId, user, input } = setup(
+    {
+      value: [5],
+      genres: [
+        {
+          id: 5,
+          name: 'Five',
+          subtitle: 'Subtitle',
+          akas: [],
+          type: 'TREND',
+          nsfw: false,
+        },
+      ],
+    },
+    { userSettings: { showNsfw: false } },
+  )
 
   await user.click(input)
   const selected = queryAllByTestId('multiselect__selected')
