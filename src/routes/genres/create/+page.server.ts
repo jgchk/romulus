@@ -2,7 +2,7 @@ import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { createGenre } from '$lib/server/api/genres'
+import { createGenre } from '$lib/server/api/genres/create'
 import { db } from '$lib/server/db'
 import { genreSchema } from '$lib/server/db/utils'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'

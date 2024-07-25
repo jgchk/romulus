@@ -3,7 +3,13 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { DEFAULT_GENRE_TYPE, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import type { Genre, GenreAka, GenreInfluence, GenreParent, GenreRelevanceVote } from '../db/schema'
+import type {
+  Genre,
+  GenreAka,
+  GenreInfluence,
+  GenreParent,
+  GenreRelevanceVote,
+} from '../../db/schema'
 import type {
   IAccountsDatabase,
   IDatabase,
@@ -13,8 +19,8 @@ import type {
   IGenreRelevanceVotesDatabase,
   IGenresDatabase,
   IPasswordResetTokensDatabase,
-} from '../db/wrapper'
-import { createGenre } from './genres'
+} from '../../db/wrapper'
+import { createGenre } from './create'
 
 class MockDatabase implements IDatabase {
   id: number
