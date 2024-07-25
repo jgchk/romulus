@@ -5,7 +5,7 @@ import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { expect, it } from 'vitest'
 
-import { genreSchema } from '$lib/server/db/utils'
+import { genreSchema } from '$lib/server/api/genres/types'
 
 import GenreForm from './GenreForm.svelte'
 

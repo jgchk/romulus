@@ -3,8 +3,8 @@ import { omit } from 'ramda'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { Account } from '../../db/schema'
-import type { GenreData } from '../../db/utils'
 import type { IDatabase } from '../../db/wrapper'
+import type { GenreData } from './types'
 
 export async function createGenre(data: GenreData, accountId: Account['id'], db: IDatabase) {
   const [genre] = await db.genres.insert({

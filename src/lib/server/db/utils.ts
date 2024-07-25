@@ -1,33 +1,9 @@
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { z } from 'zod'
 
-import { GENRE_TYPES, type GenreOperation, genreRelevance } from '$lib/types/genres'
-import { nullableString } from '$lib/utils/validators'
+import { type GenreOperation } from '$lib/types/genres'
 
 import { genreHistoryAkas, type genres } from './schema'
 import type { IDatabase } from './wrapper'
-
-export const genreSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  shortDescription: nullableString,
-  longDescription: nullableString,
-  notes: nullableString,
-  type: z.enum(GENRE_TYPES),
-  subtitle: nullableString,
-
-  primaryAkas: nullableString,
-  secondaryAkas: nullableString,
-  tertiaryAkas: nullableString,
-
-  parents: z.number().int().array(),
-  influencedBy: z.number().int().array(),
-
-  relevance: genreRelevance.optional(),
-  nsfw: z.boolean(),
-})
-
-export type GenreSchema = typeof genreSchema
-export type GenreData = z.infer<typeof genreSchema>
 
 export async function createGenreHistoryEntry({
   genre,

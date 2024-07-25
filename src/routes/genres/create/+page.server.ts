@@ -3,8 +3,8 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { createGenre } from '$lib/server/api/genres/create'
+import { genreSchema } from '$lib/server/api/genres/types'
 import { db } from '$lib/server/db'
-import { genreSchema } from '$lib/server/db/utils'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
