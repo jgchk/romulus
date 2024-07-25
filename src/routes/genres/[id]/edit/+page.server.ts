@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { genreSchema } from '$lib/server/api/genres/types'
 import { db } from '$lib/server/db'
 import { genreAkas, genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
-import { createGenreHistoryEntry, detectCycle } from '$lib/server/db/utils'
+import { createGenreHistoryEntry, detectCycle } from '$lib/server/genres'
 import { pick } from '$lib/utils/object'
 
 import type { PageServerLoad } from './$types'

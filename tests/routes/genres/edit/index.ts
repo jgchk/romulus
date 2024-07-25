@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 
 import { db } from '$lib/server/db'
-import { createGenreHistoryEntry } from '$lib/server/db/utils'
+import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
