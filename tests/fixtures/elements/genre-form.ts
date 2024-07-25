@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
-import { type GenreType, getGenreRelevanceText } from '$lib/types/genres'
+import { type GenreType } from '$lib/types/genres'
 import { capitalize } from '$lib/utils/string'
 
 export type GenreFormData = {
