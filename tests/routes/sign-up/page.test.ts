@@ -14,12 +14,12 @@ const NEW_ACCOUNT = {
   password: 'test-password-sign-up',
 }
 
-test.beforeAll(async () => {
-  await createAccounts([EXISTING_ACCOUNT])
+test.beforeAll(async ({ dbConnection }) => {
+  await createAccounts([EXISTING_ACCOUNT], dbConnection)
 })
 
-test.afterAll(async () => {
-  await deleteAccounts([EXISTING_ACCOUNT.username, NEW_ACCOUNT.username])
+test.afterAll(async ({ dbConnection }) => {
+  await deleteAccounts([EXISTING_ACCOUNT.username, NEW_ACCOUNT.username], dbConnection)
 })
 
 test.beforeEach(async ({ signUpPage }) => {

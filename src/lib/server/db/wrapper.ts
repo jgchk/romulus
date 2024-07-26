@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, lt } from 'drizzle-orm'
+import { and, asc, desc, eq, lt } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { omit } from 'ramda'
 
@@ -7,7 +7,6 @@ import { hasUpdate, makeUpdate } from '$lib/utils/db'
 import * as schema from './schema'
 import {
   type Account,
-  accounts,
   type GenreHistory,
   genreHistory,
   type GenreHistoryAka,
@@ -18,7 +17,6 @@ import {
   genreParents,
   type GenreRelevanceVote,
   genreRelevanceVotes,
-  type InsertAccount,
   type InsertGenreHistory,
   type InsertGenreHistoryAka,
   type InsertGenreInfluence,
@@ -31,21 +29,11 @@ import {
 
 export interface IDatabase {
   transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
-  accounts: IAccountsDatabase
   passwordResetTokens: IPasswordResetTokensDatabase
   genreParents: IGenreParentsDatabase
   genreInfluences: IGenreInfluencesDatabase
   genreRelevanceVotes: IGenreRelevanceVotesDatabase
   genreHistory: IGenreHistoryDatabase
-}
-
-export interface IAccountsDatabase {
-  insert: (...data: InsertAccount[]) => Promise<Account[]>
-  findById: (id: Account['id']) => Promise<Account | undefined>
-  findByUsername: (username: Account['username']) => Promise<Account | undefined>
-  update: (id: number, update: Partial<InsertAccount>) => Promise<Account>
-  deleteByUsername: (...usernames: Account['username'][]) => Promise<void>
-  deleteAll: () => Promise<void>
 }
 
 export interface IPasswordResetTokensDatabase {
@@ -128,44 +116,6 @@ export class Database implements IDatabase {
 
   async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
-  }
-
-  accounts: IAccountsDatabase = {
-    insert: (...data) => this.db.insert(accounts).values(data).returning(),
-
-    findById: (id) =>
-      this.db.query.accounts.findFirst({
-        where: eq(accounts.id, id),
-      }),
-
-    findByUsername: (username) =>
-      this.db.query.accounts.findFirst({
-        where: eq(accounts.username, username),
-      }),
-
-    update: async (id, update) => {
-      if (!hasUpdate(update)) {
-        const account = await this.accounts.findById(id)
-        if (!account) throw new Error(`Account not found: ${id}`)
-        return account
-      }
-
-      const [account] = await this.db
-        .update(accounts)
-        .set(makeUpdate(update))
-        .where(eq(accounts.id, id))
-        .returning()
-
-      return account
-    },
-
-    deleteByUsername: async (...usernames) => {
-      await this.db.delete(accounts).where(inArray(accounts.username, usernames))
-    },
-
-    deleteAll: async () => {
-      await this.db.delete(accounts)
-    },
   }
 
   passwordResetTokens: IPasswordResetTokensDatabase = {

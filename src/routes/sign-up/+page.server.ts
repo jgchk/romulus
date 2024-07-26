@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
-import { db } from '$lib/server/db'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 
 import type { PageServerLoad } from './$types'
 
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, locals }) => {
     const form = await superValidate(request, zod(schema))
 
     if (!form.valid) {
@@ -30,7 +30,8 @@ export const actions: Actions = {
 
     let account
     try {
-      ;[account] = await db.accounts.insert({
+      const accountsDb = new AccountsDatabase(locals.dbConnection)
+      ;[account] = await accountsDb.insert({
         username: form.data.username,
         password: await hashPassword(form.data.password.password),
       })

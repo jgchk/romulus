@@ -9,12 +9,12 @@ const TEST_ACCOUNT = {
   password: 'test-password-sign-in',
 }
 
-test.beforeAll(async () => {
-  await createAccounts([TEST_ACCOUNT])
+test.beforeAll(async ({ dbConnection }) => {
+  await createAccounts([TEST_ACCOUNT], dbConnection)
 })
 
-test.afterAll(async () => {
-  await deleteAccounts([TEST_ACCOUNT.username])
+test.afterAll(async ({ dbConnection }) => {
+  await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
 })
 
 test.beforeEach(async ({ signInPage }) => {

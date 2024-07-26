@@ -1,7 +1,6 @@
 import { vi } from 'vitest'
 
 import type {
-  IAccountsDatabase,
   IDatabase,
   IGenreHistoryDatabase,
   IGenreInfluencesDatabase,
@@ -13,15 +12,6 @@ import type {
 export default class MockDatabase implements IDatabase {
   async transaction<T>(fn: (tx: IDatabase) => Promise<T>): Promise<T> {
     return fn(this)
-  }
-
-  accounts: IAccountsDatabase = {
-    insert: vi.fn(),
-    findById: vi.fn(),
-    findByUsername: vi.fn(),
-    update: vi.fn(),
-    deleteByUsername: vi.fn(),
-    deleteAll: vi.fn(),
   }
 
   passwordResetTokens: IPasswordResetTokensDatabase = {

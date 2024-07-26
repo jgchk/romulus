@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { checkPassword, hashPassword, lucia } from '$lib/server/auth'
-import { db } from '$lib/server/db'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 
 import type { PageServerLoad } from './$types'
 
@@ -23,14 +23,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, locals }) => {
     const form = await superValidate(request, zod(schema))
 
     if (!form.valid) {
       return fail(400, { form })
     }
 
-    const account = await db.accounts.findByUsername(form.data.username)
+    const accountsDb = new AccountsDatabase(locals.dbConnection)
+    const account = await accountsDb.findByUsername(form.data.username)
     if (!account) {
       // spend some time to "waste" some time
       // this makes brute forcing harder

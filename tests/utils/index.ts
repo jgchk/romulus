@@ -1,8 +1,8 @@
 import { type InferInsertModel } from 'drizzle-orm'
 
 import { hashPassword } from '$lib/server/auth'
-import { db } from '$lib/server/db'
 import type { DbConnection } from '$lib/server/db/connection'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 import { Database } from '$lib/server/db/wrapper'
@@ -14,7 +14,10 @@ export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'>
 }
 
 export type CreatedAccount = Awaited<ReturnType<typeof createAccounts>>[number]
-export const createAccounts = async (accounts_: InferInsertModel<typeof accounts>[]) => {
+export const createAccounts = async (
+  accounts_: InferInsertModel<typeof accounts>[],
+  connection: DbConnection,
+) => {
   const hashedAccounts = await Promise.all(
     accounts_.map(async (account) => ({
       ...account,
@@ -22,11 +25,13 @@ export const createAccounts = async (accounts_: InferInsertModel<typeof accounts
     })),
   )
 
-  return db.accounts.insert(...hashedAccounts)
+  const accountsDb = new AccountsDatabase(connection)
+  return accountsDb.insert(...hashedAccounts)
 }
 
-export const deleteAccounts = async (usernames: string[]) => {
-  await db.accounts.deleteByUsername(...usernames)
+export const deleteAccounts = async (usernames: string[], connection: DbConnection) => {
+  const accountsDb = new AccountsDatabase(connection)
+  await accountsDb.deleteByUsername(...usernames)
 }
 
 export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]

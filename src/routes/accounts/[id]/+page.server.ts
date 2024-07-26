@@ -3,17 +3,19 @@ import { z } from 'zod'
 
 import { createPasswordResetToken } from '$lib/server/auth'
 import { db } from '$lib/server/db'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 
 import type { Actions, PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)
   if (!maybeId.success) {
     return error(400, { message: 'Invalid genre ID' })
   }
   const id = maybeId.data
 
-  const maybeAccount = await db.accounts.findById(id)
+  const accountsDb = new AccountsDatabase(locals.dbConnection)
+  const maybeAccount = await accountsDb.findById(id)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')

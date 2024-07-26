@@ -48,12 +48,12 @@ export default function editGenrePageTests() {
         let genre: CreatedGenre
 
         test.beforeAll(async ({ dbConnection }) => {
-          await createAccounts([TEST_ACCOUNT])
+          await createAccounts([TEST_ACCOUNT], dbConnection)
           ;[genre] = await createGenres([{ name: 'test' }], dbConnection)
         })
 
         test.afterAll(async ({ dbConnection }) => {
-          await deleteAccounts([TEST_ACCOUNT.username])
+          await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
           await deleteGenres(dbConnection)
         })
 
@@ -84,12 +84,15 @@ export default function editGenrePageTests() {
         let account: CreatedAccount
         let genre: CreatedGenre
 
-        test.beforeAll(async () => {
-          ;[account] = await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+        test.beforeAll(async ({ dbConnection }) => {
+          ;[account] = await createAccounts(
+            [{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }],
+            dbConnection,
+          )
         })
 
-        test.afterAll(async () => {
-          await deleteAccounts([TEST_ACCOUNT.username])
+        test.afterAll(async ({ dbConnection }) => {
+          await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         })
 
         test.beforeEach(async ({ signInPage, editGenrePage, dbConnection }) => {

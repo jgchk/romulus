@@ -25,12 +25,12 @@ export default function emptyStateTests() {
 
       test.describe('when user is logged in', () => {
         test.describe('without EDIT_GENRES permission', () => {
-          test.beforeAll(async () => {
-            await createAccounts([TEST_ACCOUNT])
+          test.beforeAll(async ({ dbConnection }) => {
+            await createAccounts([TEST_ACCOUNT], dbConnection)
           })
 
-          test.afterAll(async () => {
-            await deleteAccounts([TEST_ACCOUNT.username])
+          test.afterAll(async ({ dbConnection }) => {
+            await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
           })
 
           test.beforeEach(async ({ signInPage }) => {
@@ -45,12 +45,12 @@ export default function emptyStateTests() {
         })
 
         test.describe('with EDIT_GENRES permission', () => {
-          test.beforeAll(async () => {
-            await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
+          test.beforeAll(async ({ dbConnection }) => {
+            await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }], dbConnection)
           })
 
-          test.afterAll(async () => {
-            await deleteAccounts([TEST_ACCOUNT.username])
+          test.afterAll(async ({ dbConnection }) => {
+            await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
           })
 
           test.beforeEach(async ({ signInPage }) => {

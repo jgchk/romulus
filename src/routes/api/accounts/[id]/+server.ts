@@ -2,7 +2,7 @@ import { error, json, type RequestHandler } from '@sveltejs/kit'
 import { omit } from 'ramda'
 import { z } from 'zod'
 
-import { db } from '$lib/server/db'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
@@ -34,7 +34,8 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   }
   const data = maybeData.data
 
-  const account = await db.accounts
+  const accountsDb = new AccountsDatabase(locals.dbConnection)
+  const account = await accountsDb
     .update(id, {
       genreRelevanceFilter: data.genreRelevanceFilter,
       showTypeTags: data.showTypeTags,

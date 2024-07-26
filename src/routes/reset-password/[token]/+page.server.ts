@@ -7,6 +7,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 
 import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
 import { db } from '$lib/server/db'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 
 import type { PageServerLoad } from './$types'
 
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ params }) => {
 }
 
 export const actions: Actions = {
-  default: async ({ request, params, cookies, setHeaders }) => {
+  default: async ({ request, params, cookies, locals, setHeaders }) => {
     const form = await superValidate(request, zod(passwordSchema))
 
     if (!form.valid) {
@@ -45,7 +46,9 @@ export const actions: Actions = {
     }
 
     await lucia.invalidateUserSessions(token.userId)
-    await db.accounts.update(token.userId, { password: await hashPassword(form.data.password) })
+
+    const accountsDb = new AccountsDatabase(locals.dbConnection)
+    await accountsDb.update(token.userId, { password: await hashPassword(form.data.password) })
 
     const session = await lucia.createSession(token.userId, {})
     const sessionCookie = lucia.createSessionCookie(session.id)
