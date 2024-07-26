@@ -5,6 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -107,12 +108,11 @@ export const actions: Actions = {
     await locals.dbConnection.transaction(async (tx) => {
       const wrapperDb = new Database(tx)
       const genresDb = new GenresDatabase(tx)
+      const genreParentsDb = new GenreParentsDatabase(tx)
 
       await Promise.all(
         genre.children.flatMap(({ childId }) =>
-          genre.parents.map(({ parentId }) =>
-            wrapperDb.genreParents.update(id, childId, { parentId }),
-          ),
+          genre.parents.map(({ parentId }) => genreParentsDb.update(id, childId, { parentId })),
         ),
       )
 

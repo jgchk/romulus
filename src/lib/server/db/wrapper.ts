@@ -2,8 +2,6 @@ import { and, asc, desc, eq, lt } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { omit } from 'ramda'
 
-import { hasUpdate, makeUpdate } from '$lib/utils/db'
-
 import * as schema from './schema'
 import {
   type Account,
@@ -13,36 +11,19 @@ import {
   genreHistoryAkas,
   type GenreInfluence,
   genreInfluences,
-  type GenreParent,
-  genreParents,
   type GenreRelevanceVote,
   genreRelevanceVotes,
   type InsertGenreHistory,
   type InsertGenreHistoryAka,
   type InsertGenreInfluence,
-  type InsertGenreParent,
   type InsertGenreRelevanceVote,
 } from './schema'
 
 export interface IDatabase {
   transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
-  genreParents: IGenreParentsDatabase
   genreInfluences: IGenreInfluencesDatabase
   genreRelevanceVotes: IGenreRelevanceVotesDatabase
   genreHistory: IGenreHistoryDatabase
-}
-
-export interface IGenreParentsDatabase {
-  insert: (...data: InsertGenreParent[]) => Promise<GenreParent[]>
-  find: (
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-  ) => Promise<GenreParent | undefined>
-  update: (
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-    update: Partial<InsertGenreParent>,
-  ) => Promise<GenreParent>
 }
 
 export interface IGenreInfluencesDatabase {
@@ -103,32 +84,6 @@ export class Database implements IDatabase {
 
   async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
-  }
-
-  genreParents: IGenreParentsDatabase = {
-    insert: (...data) => this.db.insert(genreParents).values(data).returning(),
-
-    find: (parentId, childId) =>
-      this.db.query.genreParents.findFirst({
-        where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
-      }),
-
-    update: async (parentId, childId, update) => {
-      if (!hasUpdate(update)) {
-        const genreParent = await this.genreParents.find(parentId, childId)
-        if (!genreParent)
-          throw new Error(`Genre Parent not found: { parentId: ${parentId}, childId: ${childId} }`)
-        return genreParent
-      }
-
-      const [genreParent] = await this.db
-        .update(genreParents)
-        .set(makeUpdate(update))
-        .where(and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)))
-        .returning()
-
-      return genreParent
-    },
   }
 
   genreInfluences: IGenreInfluencesDatabase = {

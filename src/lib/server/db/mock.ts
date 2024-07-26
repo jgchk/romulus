@@ -4,19 +4,12 @@ import type {
   IDatabase,
   IGenreHistoryDatabase,
   IGenreInfluencesDatabase,
-  IGenreParentsDatabase,
   IGenreRelevanceVotesDatabase,
 } from './wrapper'
 
 export default class MockDatabase implements IDatabase {
   async transaction<T>(fn: (tx: IDatabase) => Promise<T>): Promise<T> {
     return fn(this)
-  }
-
-  genreParents: IGenreParentsDatabase = {
-    insert: vi.fn(),
-    find: vi.fn(),
-    update: vi.fn(),
   }
 
   genreInfluences: IGenreInfluencesDatabase = {
