@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
+import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -28,14 +29,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     return error(404, 'Genre not found')
   }
 
-  const wrapperDb = new Database(locals.dbConnection)
-  const relevanceVotes = await wrapperDb.genreRelevanceVotes
+  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase(locals.dbConnection)
+  const relevanceVotes = await genreRelevanceVotesDb
     .findByGenreId(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await wrapperDb.genreRelevanceVotes
+    relevanceVote = await genreRelevanceVotesDb
       .findByGenreIdAndAccountId(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
@@ -79,9 +80,15 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const wrapperDb = new Database(locals.dbConnection)
     const genresDb = new GenresDatabase(locals.dbConnection)
-    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, wrapperDb, genresDb)
+    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase(locals.dbConnection)
+    await setRelevanceVote(
+      id,
+      form.data.relevanceVote,
+      locals.user.id,
+      genresDb,
+      genreRelevanceVotesDb,
+    )
 
     return { form }
   },

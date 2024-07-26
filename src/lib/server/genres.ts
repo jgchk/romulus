@@ -4,6 +4,7 @@ import { type GenreOperation, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
 
 import type { IGenresDatabase } from './db/controllers/genre'
+import type { IGenreRelevanceVotesDatabase } from './db/controllers/genre-relevance-votes'
 import type { genreHistoryAkas, genres } from './db/schema'
 import type { IDatabase } from './db/wrapper'
 
@@ -90,27 +91,31 @@ export async function setRelevanceVote(
   id: number,
   relevance: number,
   accountId: number,
-  db: IDatabase,
   genresDb: IGenresDatabase,
+  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase,
 ) {
   if (relevance === UNSET_GENRE_RELEVANCE) {
-    await db.genreRelevanceVotes.deleteByGenreId(id)
-    await updateRelevance(id, db, genresDb)
+    await genreRelevanceVotesDb.deleteByGenreId(id)
+    await updateRelevance(id, genresDb, genreRelevanceVotesDb)
     return
   }
 
-  await db.genreRelevanceVotes.upsert({
+  await genreRelevanceVotesDb.upsert({
     genreId: id,
     accountId,
     relevance,
     updatedAt: new Date(),
   })
 
-  await updateRelevance(id, db, genresDb)
+  await updateRelevance(id, genresDb, genreRelevanceVotesDb)
 }
 
-async function updateRelevance(genreId: number, db: IDatabase, genresDb: IGenresDatabase) {
-  const votes = await db.genreRelevanceVotes.findByGenreId(genreId)
+async function updateRelevance(
+  genreId: number,
+  genresDb: IGenresDatabase,
+  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase,
+) {
+  const votes = await genreRelevanceVotesDb.findByGenreId(genreId)
 
   const relevance =
     votes.length === 0

@@ -1,6 +1,7 @@
 import { omit } from 'ramda'
 
 import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
+import type { IGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import type { IDatabase } from '$lib/server/db/wrapper'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -12,6 +13,7 @@ export async function createGenre(
   accountId: Account['id'],
   wrapperDb: IDatabase,
   genresDb: IGenresDatabase,
+  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase,
 ) {
   const [genre] = await genresDb.insert({
     ...data,
@@ -46,7 +48,7 @@ export async function createGenre(
   })
 
   if (data.relevance !== undefined && data.relevance !== UNSET_GENRE_RELEVANCE) {
-    await wrapperDb.genreRelevanceVotes.upsert({
+    await genreRelevanceVotesDb.upsert({
       genreId: genre.id,
       accountId,
       relevance: data.relevance,

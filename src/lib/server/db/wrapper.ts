@@ -1,6 +1,5 @@
 import { and, asc, desc, eq, lt } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import { omit } from 'ramda'
 
 import * as schema from './schema'
 import {
@@ -9,27 +8,13 @@ import {
   genreHistory,
   type GenreHistoryAka,
   genreHistoryAkas,
-  type GenreRelevanceVote,
-  genreRelevanceVotes,
   type InsertGenreHistory,
   type InsertGenreHistoryAka,
-  type InsertGenreRelevanceVote,
 } from './schema'
 
 export interface IDatabase {
   transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
-  genreRelevanceVotes: IGenreRelevanceVotesDatabase
   genreHistory: IGenreHistoryDatabase
-}
-
-export interface IGenreRelevanceVotesDatabase {
-  upsert: (data: InsertGenreRelevanceVote) => Promise<GenreRelevanceVote>
-  findByGenreId: (genreId: number) => Promise<GenreRelevanceVote[]>
-  findByGenreIdAndAccountId: (
-    genreId: GenreRelevanceVote['genreId'],
-    accountId: GenreRelevanceVote['accountId'],
-  ) => Promise<GenreRelevanceVote | undefined>
-  deleteByGenreId: (genreId: GenreRelevanceVote['genreId']) => Promise<void>
 }
 
 export interface IGenreHistoryDatabase {
@@ -76,36 +61,6 @@ export class Database implements IDatabase {
 
   async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
-  }
-
-  genreRelevanceVotes: IGenreRelevanceVotesDatabase = {
-    upsert: (data) =>
-      this.db
-        .insert(genreRelevanceVotes)
-        .values(data)
-        .onConflictDoUpdate({
-          target: [genreRelevanceVotes.genreId, genreRelevanceVotes.accountId],
-          set: omit(['genreId', 'accountId'], data),
-        })
-        .returning()
-        .then((res) => res[0]),
-
-    findByGenreId: (genreId) =>
-      this.db.query.genreRelevanceVotes.findMany({
-        where: eq(genreRelevanceVotes.genreId, genreId),
-      }),
-
-    findByGenreIdAndAccountId: (genreId, accountId) =>
-      this.db.query.genreRelevanceVotes.findFirst({
-        where: and(
-          eq(genreRelevanceVotes.genreId, genreId),
-          eq(genreRelevanceVotes.accountId, accountId),
-        ),
-      }),
-
-    deleteByGenreId: async (genreId) => {
-      await this.db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
-    },
   }
 
   genreHistory: IGenreHistoryDatabase = {

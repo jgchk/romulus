@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
+import { MockGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes-mock'
 import MockDatabase from '$lib/server/db/mock'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -28,7 +29,14 @@ describe('createGenre', () => {
   it('should create a genre', async () => {
     const db = new MockDatabase()
     const genresDb = new MockGenresDatabase()
-    const createdGenre = await createGenre(genreData, accountId, db, genresDb)
+    const genreRelevanceVotesDb = new MockGenreRelevanceVotesDatabase()
+    const createdGenre = await createGenre(
+      genreData,
+      accountId,
+      db,
+      genresDb,
+      genreRelevanceVotesDb,
+    )
 
     expect(createdGenre).toEqual({
       id: expect.any(Number) as number,
@@ -57,6 +65,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
     expect(createdGenre.subtitle).toBe('Subtitle')
   })
@@ -70,6 +79,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.shortDescription).toBe('Short description')
@@ -84,6 +94,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.longDescription).toBe('Long description')
@@ -98,6 +109,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.notes).toBe('Notes')
@@ -114,6 +126,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.akas).toEqual([
@@ -135,6 +148,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.parents).toEqual([1, 2, 3])
@@ -149,6 +163,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
 
     expect(createdGenre.influencedBy).toEqual([1, 2, 3])
@@ -157,6 +172,7 @@ describe('createGenre', () => {
   it('should support setting a relevance', async () => {
     const db = new MockDatabase()
     const genresDb = new MockGenresDatabase()
+    const genreRelevanceVotesDb = new MockGenreRelevanceVotesDatabase()
     const createdGenre = await createGenre(
       {
         ...genreData,
@@ -165,12 +181,13 @@ describe('createGenre', () => {
       accountId,
       db,
       genresDb,
+      genreRelevanceVotesDb,
     )
 
     expect(createdGenre.relevance).toBe(1)
 
-    expect(db.genreRelevanceVotes.upsert).toHaveBeenCalledTimes(1)
-    expect(db.genreRelevanceVotes.upsert).toHaveBeenCalledWith({
+    expect(genreRelevanceVotesDb.upsert).toHaveBeenCalledTimes(1)
+    expect(genreRelevanceVotesDb.upsert).toHaveBeenCalledWith({
       genreId: createdGenre.id,
       accountId,
       relevance: 1,
@@ -181,8 +198,15 @@ describe('createGenre', () => {
   it('should not add a relevance vote when relevance is unset', async () => {
     const db = new MockDatabase()
     const genresDb = new MockGenresDatabase()
-    await createGenre({ ...genreData, relevance: UNSET_GENRE_RELEVANCE }, accountId, db, genresDb)
-    expect(db.genreRelevanceVotes.upsert).not.toHaveBeenCalled()
+    const genreRelevanceVotesDb = new MockGenreRelevanceVotesDatabase()
+    await createGenre(
+      { ...genreData, relevance: UNSET_GENRE_RELEVANCE },
+      accountId,
+      db,
+      genresDb,
+      genreRelevanceVotesDb,
+    )
+    expect(genreRelevanceVotesDb.upsert).not.toHaveBeenCalled()
   })
 
   it('should support setting NSFW', async () => {
@@ -194,6 +218,7 @@ describe('createGenre', () => {
       accountId,
       new MockDatabase(),
       new MockGenresDatabase(),
+      new MockGenreRelevanceVotesDatabase(),
     )
     expect(createdGenre.nsfw).toBe(true)
   })
@@ -201,7 +226,14 @@ describe('createGenre', () => {
   it('should add a history entry', async () => {
     const db = new MockDatabase()
     const genresDb = new MockGenresDatabase()
-    const createdGenre = await createGenre(genreData, accountId, db, genresDb)
+    const genreRelevanceVotesDb = new MockGenreRelevanceVotesDatabase()
+    const createdGenre = await createGenre(
+      genreData,
+      accountId,
+      db,
+      genresDb,
+      genreRelevanceVotesDb,
+    )
 
     expect(db.genreHistory.insert).toHaveBeenCalledTimes(1)
     expect(db.genreHistory.insert).toHaveBeenCalledWith({
