@@ -4,9 +4,9 @@ import { type GenreOperation, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
 
 import type { IGenresDatabase } from './db/controllers/genre'
+import type { IGenreHistoryDatabase } from './db/controllers/genre-history'
 import type { IGenreRelevanceVotesDatabase } from './db/controllers/genre-relevance-votes'
 import type { genreHistoryAkas, genres } from './db/schema'
-import type { IDatabase } from './db/wrapper'
 
 export class GenreCycleError extends Error {
   constructor(public cycle: string) {
@@ -129,7 +129,7 @@ export async function createGenreHistoryEntry({
   genre,
   accountId,
   operation,
-  db,
+  genreHistoryDb,
 }: {
   genre: Pick<
     InferSelectModel<typeof genres>,
@@ -141,9 +141,9 @@ export async function createGenreHistoryEntry({
   }
   accountId: number
   operation: GenreOperation
-  db: IDatabase
+  genreHistoryDb: IGenreHistoryDatabase
 }) {
-  await db.genreHistory.insert({
+  await genreHistoryDb.insert({
     name: genre.name,
     type: genre.type,
     shortDescription: genre.shortDescription,

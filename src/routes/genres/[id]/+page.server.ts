@@ -5,9 +5,9 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
@@ -113,9 +113,9 @@ export const actions: Actions = {
 
     // move child genres under deleted genre's parents
     await locals.dbConnection.transaction(async (tx) => {
-      const wrapperDb = new Database(tx)
       const genresDb = new GenresDatabase(tx)
       const genreParentsDb = new GenreParentsDatabase(tx)
+      const genreHistoryDb = new GenreHistoryDatabase(tx)
 
       await Promise.all(
         genre.children.flatMap(({ childId }) =>
@@ -129,7 +129,7 @@ export const actions: Actions = {
         genre,
         accountId: user.id,
         operation: 'DELETE',
-        db: wrapperDb,
+        genreHistoryDb,
       })
 
       const relations = [
@@ -142,7 +142,7 @@ export const actions: Actions = {
             genre,
             accountId: user.id,
             operation: 'UPDATE',
-            db: wrapperDb,
+            genreHistoryDb,
           }),
         ),
       )

@@ -7,8 +7,8 @@ import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { genreAkas, genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
-import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, detectCycle } from '$lib/server/genres'
 import { pick } from '$lib/utils/object'
 
@@ -92,8 +92,8 @@ export const actions: Actions = {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
     }
 
-    const wrapperDb = new Database(locals.dbConnection)
-    const lastHistory = await wrapperDb.genreHistory.findLatestByGenreId(id)
+    const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
+    const lastHistory = await genreHistoryDb.findLatestByGenreId(id)
 
     const akas = [
       ...(form.data.primaryAkas ?? '')
@@ -118,8 +118,8 @@ export const actions: Actions = {
     }
 
     await locals.dbConnection.transaction(async (tx) => {
-      const db = new Database(tx)
       const genresDb = new GenresDatabase(tx)
+      const genreHistoryDb = new GenreHistoryDatabase(tx)
 
       // update genre
       const updatedGenre = await genresDb.update(id, {
@@ -140,7 +140,7 @@ export const actions: Actions = {
         genre: updatedGenre,
         accountId: user.id,
         operation: 'UPDATE',
-        db,
+        genreHistoryDb,
       })
     })
 

@@ -2,8 +2,8 @@ import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
 import { createPasswordResetToken } from '$lib/server/auth'
-import { db } from '$lib/server/db'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
 
 import type { Actions, PageServerLoad } from './$types'
@@ -24,7 +24,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   const account = maybeAccount
 
-  const history = await db.genreHistory.findByAccountId(id)
+  const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
+  const history = await genreHistoryDb.findByAccountId(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),

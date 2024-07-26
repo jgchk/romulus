@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 
-import { Database } from '$lib/server/db/wrapper'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../fixtures'
@@ -111,7 +111,7 @@ export default function editGenrePageTests() {
             genre,
             accountId: account.id,
             operation: 'CREATE',
-            db: new Database(dbConnection),
+            genreHistoryDb: new GenreHistoryDatabase(dbConnection),
           })
 
           await signInPage.goto()
