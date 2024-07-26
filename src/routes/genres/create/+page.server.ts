@@ -4,7 +4,8 @@ import { zod } from 'sveltekit-superforms/adapters'
 
 import { createGenre } from '$lib/server/api/genres/create'
 import { genreSchema } from '$lib/server/api/genres/types'
-import { db } from '$lib/server/db'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { Database } from '$lib/server/db/wrapper'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
@@ -35,7 +36,9 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genre = await createGenre(form.data, user.id, db)
+    const wrapperDb = new Database(locals.dbConnection)
+    const genresDb = new GenresDatabase(locals.dbConnection)
+    const genre = await createGenre(form.data, user.id, wrapperDb, genresDb)
 
     redirect(302, `/genres/${genre.id}`)
   },

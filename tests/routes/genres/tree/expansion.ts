@@ -7,12 +7,12 @@ import { createGenres, deleteGenres } from '../../../utils'
 export default function expansionTests() {
   test.describe('expansion', () => {
     test.describe('when there is 1 genre', () => {
-      test.beforeAll(async () => {
-        await createGenres([{ name: 'Genre' }])
+      test.beforeAll(async ({ dbConnection }) => {
+        await createGenres([{ name: 'Genre' }], dbConnection)
       })
 
-      test.afterAll(async () => {
-        await deleteGenres()
+      test.afterAll(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ genresPage }) => {
@@ -34,12 +34,15 @@ export default function expansionTests() {
     })
 
     test.describe('when there are 2 genres', () => {
-      test.beforeAll(async () => {
-        await createGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }])
+      test.beforeAll(async ({ dbConnection }) => {
+        await createGenres(
+          [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
+          dbConnection,
+        )
       })
 
-      test.afterAll(async () => {
-        await deleteGenres()
+      test.afterAll(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ genresPage }) => {
@@ -95,16 +98,19 @@ export default function expansionTests() {
     })
 
     test.describe('when there are 3 genres', () => {
-      test.beforeAll(async () => {
-        await createGenres([
-          { name: 'Parent' },
-          { name: 'Child', parents: ['Parent'] },
-          { name: 'Grandchild', parents: ['Child'] },
-        ])
+      test.beforeAll(async ({ dbConnection }) => {
+        await createGenres(
+          [
+            { name: 'Parent' },
+            { name: 'Child', parents: ['Parent'] },
+            { name: 'Grandchild', parents: ['Child'] },
+          ],
+          dbConnection,
+        )
       })
 
-      test.afterAll(async () => {
-        await deleteGenres()
+      test.afterAll(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ genresPage }) => {

@@ -9,12 +9,12 @@ export default function linksTests() {
   test.describe('links', () => {
     let genre: CreatedGenre
 
-    test.beforeAll(async () => {
-      ;[genre] = await createGenres([{ name: 'Genre' }])
+    test.beforeAll(async ({ dbConnection }) => {
+      ;[genre] = await createGenres([{ name: 'Genre' }], dbConnection)
     })
 
-    test.afterAll(async () => {
-      await deleteGenres()
+    test.afterAll(async ({ dbConnection }) => {
+      await deleteGenres(dbConnection)
     })
 
     test.beforeEach(async ({ genresPage }) => {

@@ -72,12 +72,12 @@ export default function emptyStateTests() {
     })
 
     test.describe('when there is 1 genre', () => {
-      test.beforeAll(async () => {
-        await createGenres([{ name: 'Genre' }])
+      test.beforeAll(async ({ dbConnection }) => {
+        await createGenres([{ name: 'Genre' }], dbConnection)
       })
 
-      test.afterAll(async () => {
-        await deleteGenres()
+      test.afterAll(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ genresPage }) => {

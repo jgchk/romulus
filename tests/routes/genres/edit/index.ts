@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 
-import { db } from '$lib/server/db'
+import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../fixtures'
@@ -26,12 +26,12 @@ export default function editGenrePageTests() {
     test.describe('when not logged in', () => {
       let genre: CreatedGenre
 
-      test.beforeAll(async () => {
-        ;[genre] = await createGenres([{ name: 'test' }])
+      test.beforeAll(async ({ dbConnection }) => {
+        ;[genre] = await createGenres([{ name: 'test' }], dbConnection)
       })
 
-      test.afterAll(async () => {
-        await deleteGenres()
+      test.afterAll(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ editGenrePage }) => {
@@ -47,14 +47,14 @@ export default function editGenrePageTests() {
       test.describe('without EDIT_GENRES permission', () => {
         let genre: CreatedGenre
 
-        test.beforeAll(async () => {
+        test.beforeAll(async ({ dbConnection }) => {
           await createAccounts([TEST_ACCOUNT])
-          ;[genre] = await createGenres([{ name: 'test' }])
+          ;[genre] = await createGenres([{ name: 'test' }], dbConnection)
         })
 
-        test.afterAll(async () => {
+        test.afterAll(async ({ dbConnection }) => {
           await deleteAccounts([TEST_ACCOUNT.username])
-          await deleteGenres()
+          await deleteGenres(dbConnection)
         })
 
         test.beforeEach(async ({ signInPage, editGenrePage }) => {
@@ -92,20 +92,23 @@ export default function editGenrePageTests() {
           await deleteAccounts([TEST_ACCOUNT.username])
         })
 
-        test.beforeEach(async ({ signInPage, editGenrePage }) => {
-          ;[genre] = await createGenres([
-            genreData,
-            ...genreData.parents.map((name) => ({ name })),
-            ...genreData.influences.map((name) => ({ name })),
-            ...genreData.parents.map((name) => ({ name: name + '-edited' })),
-            ...genreData.influences.map((name) => ({ name: name + '-edited' })),
-          ])
+        test.beforeEach(async ({ signInPage, editGenrePage, dbConnection }) => {
+          ;[genre] = await createGenres(
+            [
+              genreData,
+              ...genreData.parents.map((name) => ({ name })),
+              ...genreData.influences.map((name) => ({ name })),
+              ...genreData.parents.map((name) => ({ name: name + '-edited' })),
+              ...genreData.influences.map((name) => ({ name: name + '-edited' })),
+            ],
+            dbConnection,
+          )
 
           await createGenreHistoryEntry({
             genre,
             accountId: account.id,
             operation: 'CREATE',
-            db,
+            db: new Database(dbConnection),
           })
 
           await signInPage.goto()
@@ -113,8 +116,8 @@ export default function editGenrePageTests() {
           await editGenrePage.goto(genre.id)
         })
 
-        test.afterEach(async () => {
-          await deleteGenres()
+        test.afterEach(async ({ dbConnection }) => {
+          await deleteGenres(dbConnection)
         })
 
         test('should fill form with existing genre data', async ({ editGenrePage }) => {

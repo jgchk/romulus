@@ -1,8 +1,12 @@
 import type { Handle } from '@sveltejs/kit'
 
 import { lucia } from '$lib/server/auth'
+import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection'
 
 export const handle: Handle = async ({ event, resolve }) => {
+  const pg = getPostgresConnection()
+  event.locals.dbConnection = getDbConnection(pg)
+
   const sessionId = event.cookies.get(lucia.sessionCookieName)
 
   if (!sessionId) {
@@ -32,5 +36,9 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.user = user ?? undefined
   event.locals.session = session ?? undefined
 
-  return resolve(event)
+  const response = await resolve(event)
+
+  await pg.end()
+
+  return response
 }

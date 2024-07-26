@@ -23,9 +23,9 @@ export default function operationsTests() {
         await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }])
       })
 
-      test.afterAll(async () => {
+      test.afterAll(async ({ dbConnection }) => {
         await deleteAccounts([TEST_ACCOUNT.username])
-        await deleteGenres()
+        await deleteGenres(dbConnection)
       })
 
       test.beforeEach(async ({ signInPage }) => {
@@ -66,15 +66,15 @@ export default function operationsTests() {
         await deleteAccounts([TEST_ACCOUNT.username])
       })
 
-      test.beforeEach(async ({ signInPage }) => {
-        ;[genre] = await createGenres([{ name: 'Genre', type: 'STYLE' }])
+      test.beforeEach(async ({ signInPage, dbConnection }) => {
+        ;[genre] = await createGenres([{ name: 'Genre', type: 'STYLE' }], dbConnection)
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
       })
 
-      test.afterEach(async () => {
-        await deleteGenres()
+      test.afterEach(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test('should update genre name upon edit', async ({
@@ -134,15 +134,18 @@ export default function operationsTests() {
         await deleteAccounts([TEST_ACCOUNT.username])
       })
 
-      test.beforeEach(async ({ signInPage }) => {
-        await createGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }])
+      test.beforeEach(async ({ signInPage, dbConnection }) => {
+        await createGenres(
+          [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
+          dbConnection,
+        )
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
       })
 
-      test.afterEach(async () => {
-        await deleteGenres()
+      test.afterEach(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test('should move child to root level when deleting parent genre', async ({
@@ -173,19 +176,22 @@ export default function operationsTests() {
         await deleteAccounts([TEST_ACCOUNT.username])
       })
 
-      test.beforeEach(async ({ signInPage }) => {
-        await createGenres([
-          { name: 'Parent' },
-          { name: 'Child', parents: ['Parent'] },
-          { name: 'Grandchild', parents: ['Child'] },
-        ])
+      test.beforeEach(async ({ signInPage, dbConnection }) => {
+        await createGenres(
+          [
+            { name: 'Parent' },
+            { name: 'Child', parents: ['Parent'] },
+            { name: 'Grandchild', parents: ['Child'] },
+          ],
+          dbConnection,
+        )
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
       })
 
-      test.afterEach(async () => {
-        await deleteGenres()
+      test.afterEach(async ({ dbConnection }) => {
+        await deleteGenres(dbConnection)
       })
 
       test('should move grandchild under parent when deleting child genre', async ({

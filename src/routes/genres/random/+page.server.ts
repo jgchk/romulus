@@ -1,11 +1,12 @@
 import { error, redirect } from '@sveltejs/kit'
 
-import { db } from '$lib/server/db'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async () => {
-  const ids = await db.genres.findAllIds()
+export const load: PageServerLoad = async ({ locals }) => {
+  const genresDb = new GenresDatabase(locals.dbConnection)
+  const ids = await genresDb.findAllIds()
 
   if (ids.length === 0) {
     return error(404, 'No genres found')

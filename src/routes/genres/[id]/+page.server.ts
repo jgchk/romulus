@@ -4,7 +4,8 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { db } from '$lib/server/db'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
@@ -20,18 +21,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await db.genres.findByIdDetail(id)
+  const genresDb = new GenresDatabase(locals.dbConnection)
+  const maybeGenre = await genresDb.findByIdDetail(id)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
 
-  const relevanceVotes = await db.genreRelevanceVotes
+  const wrapperDb = new Database(locals.dbConnection)
+  const relevanceVotes = await wrapperDb.genreRelevanceVotes
     .findByGenreId(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await db.genreRelevanceVotes
+    relevanceVote = await wrapperDb.genreRelevanceVotes
       .findByGenreIdAndAccountId(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
@@ -75,7 +78,9 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id)
+    const wrapperDb = new Database(locals.dbConnection)
+    const genresDb = new GenresDatabase(locals.dbConnection)
+    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, wrapperDb, genresDb)
 
     return { form }
   },
@@ -92,22 +97,33 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const genre = await db.genres.findByIdHistory(id)
+    const genresDb = new GenresDatabase(locals.dbConnection)
+    const genre = await genresDb.findByIdHistory(id)
     if (!genre) {
       return error(404, 'Genre not found')
     }
 
     // move child genres under deleted genre's parents
-    await db.transaction(async (tx) => {
+    await locals.dbConnection.transaction(async (tx) => {
+      const wrapperDb = new Database(tx)
+      const genresDb = new GenresDatabase(tx)
+
       await Promise.all(
         genre.children.flatMap(({ childId }) =>
-          genre.parents.map(({ parentId }) => tx.genreParents.update(id, childId, { parentId })),
+          genre.parents.map(({ parentId }) =>
+            wrapperDb.genreParents.update(id, childId, { parentId }),
+          ),
         ),
       )
 
-      await tx.genres.deleteById(id)
+      await genresDb.deleteById(id)
 
-      await createGenreHistoryEntry({ genre, accountId: user.id, operation: 'DELETE', db: tx })
+      await createGenreHistoryEntry({
+        genre,
+        accountId: user.id,
+        operation: 'DELETE',
+        db: wrapperDb,
+      })
 
       const relations = [
         ...genre.children.map((c) => c.child),
@@ -115,7 +131,12 @@ export const actions: Actions = {
       ]
       await Promise.all(
         relations.map((genre) =>
-          createGenreHistoryEntry({ genre, accountId: user.id, operation: 'UPDATE', db: tx }),
+          createGenreHistoryEntry({
+            genre,
+            accountId: user.id,
+            operation: 'UPDATE',
+            db: wrapperDb,
+          }),
         ),
       )
     })

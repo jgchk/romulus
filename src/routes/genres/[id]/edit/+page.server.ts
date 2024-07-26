@@ -6,8 +6,9 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
-import { db } from '$lib/server/db'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { genreAkas, genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
+import { Database } from '$lib/server/db/wrapper'
 import { createGenreHistoryEntry, detectCycle } from '$lib/server/genres'
 import { pick } from '$lib/utils/object'
 
@@ -24,7 +25,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await db.genres.findByIdEdit(id)
+  const genresDb = new GenresDatabase(locals.dbConnection)
+  const maybeGenre = await genresDb.findByIdEdit(id)
   if (!maybeGenre) {
     return error(404, { message: 'Genre not found' })
   }
@@ -72,12 +74,16 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const currentGenre = await db.genres.findByIdEdit(id)
+    const genresDb = new GenresDatabase(locals.dbConnection)
+    const currentGenre = await genresDb.findByIdEdit(id)
     if (!currentGenre) {
       return error(404, { message: 'Genre not found' })
     }
 
-    const cycle = await detectCycle({ id, name: form.data.name, parents: form.data.parents }, db)
+    const cycle = await detectCycle(
+      { id, name: form.data.name, parents: form.data.parents },
+      genresDb,
+    )
     if (cycle) {
       return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
     }
@@ -86,7 +92,8 @@ export const actions: Actions = {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
     }
 
-    const lastHistory = await db.genreHistory.findLatestByGenreId(id)
+    const wrapperDb = new Database(locals.dbConnection)
+    const lastHistory = await wrapperDb.genreHistory.findLatestByGenreId(id)
 
     const akas = [
       ...(form.data.primaryAkas ?? '')
@@ -110,9 +117,12 @@ export const actions: Actions = {
       return redirect(302, `/genres/${id}`)
     }
 
-    await db.transaction(async (tx) => {
+    await locals.dbConnection.transaction(async (tx) => {
+      const db = new Database(tx)
+      const genresDb = new GenresDatabase(tx)
+
       // update genre
-      const updatedGenre = await tx.genres.update(id, {
+      const updatedGenre = await genresDb.update(id, {
         name: form.data.name,
         shortDescription: form.data.shortDescription,
         longDescription: form.data.longDescription,
@@ -130,7 +140,7 @@ export const actions: Actions = {
         genre: updatedGenre,
         accountId: user.id,
         operation: 'UPDATE',
-        db: tx,
+        db,
       })
     })
 

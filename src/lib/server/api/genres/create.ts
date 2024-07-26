@@ -1,13 +1,19 @@
 import { omit } from 'ramda'
 
+import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
+import type { IDatabase } from '$lib/server/db/wrapper'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { Account } from '../../db/schema'
-import type { IDatabase } from '../../db/wrapper'
 import type { GenreData } from './types'
 
-export async function createGenre(data: GenreData, accountId: Account['id'], db: IDatabase) {
-  const [genre] = await db.genres.insert({
+export async function createGenre(
+  data: GenreData,
+  accountId: Account['id'],
+  wrapperDb: IDatabase,
+  genresDb: IGenresDatabase,
+) {
+  const [genre] = await genresDb.insert({
     ...data,
     akas: [
       ...(data.primaryAkas ?? '')
@@ -29,7 +35,7 @@ export async function createGenre(data: GenreData, accountId: Account['id'], db:
     updatedAt: new Date(),
   })
 
-  await db.genreHistory.insert({
+  await wrapperDb.genreHistory.insert({
     ...omit(['id', 'parents', 'influencedBy', 'createdAt', 'updatedAt'], genre),
     treeGenreId: genre.id,
     parentGenreIds: genre.parents.map((parent) => parent.parentId),
@@ -40,7 +46,7 @@ export async function createGenre(data: GenreData, accountId: Account['id'], db:
   })
 
   if (data.relevance !== undefined && data.relevance !== UNSET_GENRE_RELEVANCE) {
-    await db.genreRelevanceVotes.upsert({
+    await wrapperDb.genreRelevanceVotes.upsert({
       genreId: genre.id,
       accountId,
       relevance: data.relevance,

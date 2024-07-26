@@ -52,21 +52,24 @@ export default function createGenrePageTests() {
           await deleteAccounts([TEST_ACCOUNT.username])
         })
 
-        test.beforeEach(async ({ signInPage, createGenrePage }) => {
-          await createGenres([
-            { name: 'parent-one' },
-            { name: 'parent-two' },
-            { name: 'influence-one' },
-            { name: 'influence-two' },
-          ])
+        test.beforeEach(async ({ signInPage, createGenrePage, dbConnection }) => {
+          await createGenres(
+            [
+              { name: 'parent-one' },
+              { name: 'parent-two' },
+              { name: 'influence-one' },
+              { name: 'influence-two' },
+            ],
+            dbConnection,
+          )
 
           await signInPage.goto()
           await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
           await createGenrePage.goto()
         })
 
-        test.afterEach(async () => {
-          await deleteGenres()
+        test.afterEach(async ({ dbConnection }) => {
+          await deleteGenres(dbConnection)
         })
 
         test('should default to Style type', async ({ createGenrePage }) => {

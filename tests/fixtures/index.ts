@@ -1,5 +1,11 @@
 import { test as base } from '@playwright/test'
 
+import {
+  type DbConnection,
+  getDbConnection,
+  getPostgresConnection,
+} from '$lib/server/db/connection'
+
 import { GenreTree } from './elements/genre-tree'
 import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
@@ -32,6 +38,14 @@ export const test = base
       })
 
       await use(page)
+    },
+  })
+  .extend<{ dbConnection: DbConnection }>({
+    // eslint-disable-next-line no-empty-pattern
+    dbConnection: async ({}, use) => {
+      const pg = getPostgresConnection()
+      await use(getDbConnection(pg))
+      await pg.end()
     },
   })
   .extend<{

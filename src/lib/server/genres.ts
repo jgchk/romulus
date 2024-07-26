@@ -3,7 +3,7 @@ import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { type GenreOperation, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
 
-import { db } from './db'
+import type { IGenresDatabase } from './db/controllers/genre'
 import type { genreHistoryAkas, genres } from './db/schema'
 import type { IDatabase } from './db/wrapper'
 
@@ -22,9 +22,9 @@ export async function detectCycle(
     parents?: number[]
     children?: number[]
   },
-  db: IDatabase,
+  genresDb: IGenresDatabase,
 ) {
-  let allGenres = await db.genres.findAllSimple().then((genres) =>
+  let allGenres = await genresDb.findAllSimple().then((genres) =>
     genres.map((genre) => ({
       ...genre,
       parents: genre.parents.map((parent) => parent.parentId),
@@ -86,10 +86,16 @@ function detectCycleInner(
   return false
 }
 
-export async function setRelevanceVote(id: number, relevance: number, accountId: number) {
+export async function setRelevanceVote(
+  id: number,
+  relevance: number,
+  accountId: number,
+  db: IDatabase,
+  genresDb: IGenresDatabase,
+) {
   if (relevance === UNSET_GENRE_RELEVANCE) {
     await db.genreRelevanceVotes.deleteByGenreId(id)
-    await updateRelevance(id)
+    await updateRelevance(id, db, genresDb)
     return
   }
 
@@ -100,10 +106,10 @@ export async function setRelevanceVote(id: number, relevance: number, accountId:
     updatedAt: new Date(),
   })
 
-  await updateRelevance(id)
+  await updateRelevance(id, db, genresDb)
 }
 
-async function updateRelevance(genreId: number) {
+async function updateRelevance(genreId: number, db: IDatabase, genresDb: IGenresDatabase) {
   const votes = await db.genreRelevanceVotes.findByGenreId(genreId)
 
   const relevance =
@@ -111,7 +117,7 @@ async function updateRelevance(genreId: number) {
       ? UNSET_GENRE_RELEVANCE
       : Math.round(median(votes.map((vote) => vote.relevance)))
 
-  await db.genres.update(genreId, { relevance })
+  await genresDb.update(genreId, { relevance })
 }
 
 export async function createGenreHistoryEntry({
