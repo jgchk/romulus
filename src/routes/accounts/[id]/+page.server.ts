@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { createPasswordResetToken } from '$lib/server/auth'
 import { db } from '$lib/server/db'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -51,7 +52,8 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const verificationToken = await createPasswordResetToken(id)
+    const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
+    const verificationToken = await createPasswordResetToken(id, passwordResetTokensDb)
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }

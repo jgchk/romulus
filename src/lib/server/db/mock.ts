@@ -6,19 +6,11 @@ import type {
   IGenreInfluencesDatabase,
   IGenreParentsDatabase,
   IGenreRelevanceVotesDatabase,
-  IPasswordResetTokensDatabase,
 } from './wrapper'
 
 export default class MockDatabase implements IDatabase {
   async transaction<T>(fn: (tx: IDatabase) => Promise<T>): Promise<T> {
     return fn(this)
-  }
-
-  passwordResetTokens: IPasswordResetTokensDatabase = {
-    insert: vi.fn(),
-    findByTokenHash: vi.fn(),
-    deleteByAccountId: vi.fn(),
-    deleteByTokenHash: vi.fn(),
   }
 
   genreParents: IGenreParentsDatabase = {

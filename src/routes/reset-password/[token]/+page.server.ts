@@ -6,16 +6,17 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
-import { db } from '$lib/server/db'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
   const verificationToken = params.token
-
   const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
-  const token = await db.passwordResetTokens.findByTokenHash(tokenHash)
+
+  const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
+  const token = await passwordResetTokensDb.findByTokenHash(tokenHash)
 
   if (!token || !isWithinExpirationDate(token.expiresAt)) {
     return error(400, 'Invalid or expired token')
@@ -34,11 +35,12 @@ export const actions: Actions = {
     }
 
     const verificationToken = params.token
-
     const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
-    const token = await db.passwordResetTokens.findByTokenHash(tokenHash)
+
+    const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
+    const token = await passwordResetTokensDb.findByTokenHash(tokenHash)
     if (token) {
-      await db.passwordResetTokens.deleteByTokenHash(tokenHash)
+      await passwordResetTokensDb.deleteByTokenHash(tokenHash)
     }
 
     if (!token || !isWithinExpirationDate(token.expiresAt)) {

@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { omit } from '$lib/utils/object'
 
 import { db } from './db'
+import type { IPasswordResetTokensDatabase } from './db/controllers/password-reset-tokens'
 import { accounts, sessions } from './db/schema'
 
 export const passwordSchema = z
@@ -50,12 +51,15 @@ export const lucia = new Lucia(adapter, {
 export const checkPassword = (password: string, hash: string) => bcryptjs.compare(password, hash)
 export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)
 
-export async function createPasswordResetToken(accountId: number): Promise<string> {
-  await db.passwordResetTokens.deleteByAccountId(accountId)
+export async function createPasswordResetToken(
+  accountId: number,
+  passwordResetTokensDb: IPasswordResetTokensDatabase,
+): Promise<string> {
+  await passwordResetTokensDb.deleteByAccountId(accountId)
 
   const tokenId = generateIdFromEntropySize(25) // 40 character
   const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tokenId)))
-  await db.passwordResetTokens.insert({
+  await passwordResetTokensDb.insert({
     tokenHash: tokenHash,
     userId: accountId,
     expiresAt: createDate(new TimeSpan(2, 'h')),

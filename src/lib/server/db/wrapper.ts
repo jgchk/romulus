@@ -22,27 +22,14 @@ import {
   type InsertGenreInfluence,
   type InsertGenreParent,
   type InsertGenreRelevanceVote,
-  type InsertPasswordResetToken,
-  type PasswordResetToken,
-  passwordResetTokens,
 } from './schema'
 
 export interface IDatabase {
   transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
-  passwordResetTokens: IPasswordResetTokensDatabase
   genreParents: IGenreParentsDatabase
   genreInfluences: IGenreInfluencesDatabase
   genreRelevanceVotes: IGenreRelevanceVotesDatabase
   genreHistory: IGenreHistoryDatabase
-}
-
-export interface IPasswordResetTokensDatabase {
-  insert: (...data: InsertPasswordResetToken[]) => Promise<PasswordResetToken[]>
-  findByTokenHash: (
-    tokenHash: PasswordResetToken['tokenHash'],
-  ) => Promise<PasswordResetToken | undefined>
-  deleteByAccountId: (accountId: Account['id']) => Promise<void>
-  deleteByTokenHash: (tokenHash: PasswordResetToken['tokenHash']) => Promise<void>
 }
 
 export interface IGenreParentsDatabase {
@@ -116,23 +103,6 @@ export class Database implements IDatabase {
 
   async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
-  }
-
-  passwordResetTokens: IPasswordResetTokensDatabase = {
-    insert: (...data) => this.db.insert(passwordResetTokens).values(data).returning(),
-
-    findByTokenHash: (tokenHash) =>
-      this.db.query.passwordResetTokens.findFirst({
-        where: eq(passwordResetTokens.tokenHash, tokenHash),
-      }),
-
-    deleteByAccountId: async (accountId) => {
-      await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId))
-    },
-
-    deleteByTokenHash: async (tokenHash) => {
-      await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash))
-    },
   }
 
   genreParents: IGenreParentsDatabase = {
