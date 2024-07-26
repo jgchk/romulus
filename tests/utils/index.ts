@@ -4,9 +4,9 @@ import { hashPassword } from '$lib/server/auth'
 import type { DbConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influences'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
-import { Database } from '$lib/server/db/wrapper'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
   akas?: { primary?: string[]; secondary?: string[]; tertiary?: string[] }
@@ -41,8 +41,8 @@ export const createGenres = async (data: InsertTestGenre[], connection: DbConnec
 
   const outputGenres = await connection.transaction(async (tx) => {
     const genresDb = new GenresDatabase(tx)
-    const wrapperDb = new Database(tx)
     const genreParentsDb = new GenreParentsDatabase(tx)
+    const genreInfluencesDb = new GenreInfluencesDatabase(tx)
 
     const createdGenres = await genresDb.insert(
       ...data.map((genre) => ({
@@ -107,7 +107,7 @@ export const createGenres = async (data: InsertTestGenre[], connection: DbConnec
     })
 
     if (influenceRelations.length > 0) {
-      await wrapperDb.genreInfluences.insert(...influenceRelations)
+      await genreInfluencesDb.insert(...influenceRelations)
     }
 
     return genresDb.findByIds(createdGenres.map((genre) => genre.id))

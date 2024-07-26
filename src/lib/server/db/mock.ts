@@ -1,19 +1,10 @@
 import { vi } from 'vitest'
 
-import type {
-  IDatabase,
-  IGenreHistoryDatabase,
-  IGenreInfluencesDatabase,
-  IGenreRelevanceVotesDatabase,
-} from './wrapper'
+import type { IDatabase, IGenreHistoryDatabase, IGenreRelevanceVotesDatabase } from './wrapper'
 
 export default class MockDatabase implements IDatabase {
   async transaction<T>(fn: (tx: IDatabase) => Promise<T>): Promise<T> {
     return fn(this)
-  }
-
-  genreInfluences: IGenreInfluencesDatabase = {
-    insert: vi.fn(),
   }
 
   genreRelevanceVotes: IGenreRelevanceVotesDatabase = {

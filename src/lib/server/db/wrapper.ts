@@ -9,25 +9,17 @@ import {
   genreHistory,
   type GenreHistoryAka,
   genreHistoryAkas,
-  type GenreInfluence,
-  genreInfluences,
   type GenreRelevanceVote,
   genreRelevanceVotes,
   type InsertGenreHistory,
   type InsertGenreHistoryAka,
-  type InsertGenreInfluence,
   type InsertGenreRelevanceVote,
 } from './schema'
 
 export interface IDatabase {
   transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T>
-  genreInfluences: IGenreInfluencesDatabase
   genreRelevanceVotes: IGenreRelevanceVotesDatabase
   genreHistory: IGenreHistoryDatabase
-}
-
-export interface IGenreInfluencesDatabase {
-  insert: (...data: InsertGenreInfluence[]) => Promise<GenreInfluence[]>
 }
 
 export interface IGenreRelevanceVotesDatabase {
@@ -84,10 +76,6 @@ export class Database implements IDatabase {
 
   async transaction<T>(fn: (db: IDatabase) => Promise<T>): Promise<T> {
     return this.db.transaction((tx) => fn(new Database(tx)))
-  }
-
-  genreInfluences: IGenreInfluencesDatabase = {
-    insert: (...data) => this.db.insert(genreInfluences).values(data).returning(),
   }
 
   genreRelevanceVotes: IGenreRelevanceVotesDatabase = {
