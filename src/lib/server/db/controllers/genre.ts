@@ -2,7 +2,7 @@ import { asc, desc, eq, inArray } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import {
   type Account,
   type Genre,
@@ -23,8 +23,11 @@ export type ExtendedInsertGenre = InsertGenre & {
   influencedBy: number[]
 }
 
-export interface IGenresDatabase {
-  insert(...data: ExtendedInsertGenre[]): Promise<
+export interface IGenresDatabase<T> {
+  insert(
+    data: ExtendedInsertGenre[],
+    conn: T,
+  ): Promise<
     (Genre & {
       akas: Omit<GenreAka, 'genreId'>[]
       parents: number[]
@@ -35,6 +38,7 @@ export interface IGenresDatabase {
   update(
     id: Genre['id'],
     update: Partial<ExtendedInsertGenre>,
+    conn: T,
   ): Promise<
     Genre & {
       akas: Omit<GenreAka, 'genreId'>[]
@@ -43,11 +47,14 @@ export interface IGenresDatabase {
     }
   >
 
-  findAllIds(): Promise<number[]>
+  findAllIds(conn: T): Promise<number[]>
 
-  findByIdSimple(id: Genre['id']): Promise<Genre | undefined>
+  findByIdSimple(id: Genre['id'], conn: T): Promise<Genre | undefined>
 
-  findByIdDetail(id: Genre['id']): Promise<
+  findByIdDetail(
+    id: Genre['id'],
+    conn: T,
+  ): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name'>[]
         parents: { parent: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
@@ -59,7 +66,10 @@ export interface IGenresDatabase {
     | undefined
   >
 
-  findByIdHistory(id: Genre['id']): Promise<
+  findByIdHistory(
+    id: Genre['id'],
+    conn: T,
+  ): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
         parents: number[]
@@ -80,7 +90,10 @@ export interface IGenresDatabase {
     | undefined
   >
 
-  findByIdEdit(id: Genre['id']): Promise<
+  findByIdEdit(
+    id: Genre['id'],
+    conn: T,
+  ): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
         parents: number[]
@@ -89,7 +102,10 @@ export interface IGenresDatabase {
     | undefined
   >
 
-  findByIds(ids: Genre['id'][]): Promise<
+  findByIds(
+    ids: Genre['id'][],
+    conn: T,
+  ): Promise<
     (Genre & {
       akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
       parents: number[]
@@ -97,9 +113,9 @@ export interface IGenresDatabase {
     })[]
   >
 
-  findAllSimple(): Promise<(Pick<Genre, 'id' | 'name'> & { parents: number[] })[]>
+  findAllSimple(conn: T): Promise<(Pick<Genre, 'id' | 'name'> & { parents: number[] })[]>
 
-  findAllTree(): Promise<
+  findAllTree(conn: T): Promise<
     (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'updatedAt'> & {
       akas: GenreAka['name'][]
       parents: GenreParent['parentId'][]
@@ -107,15 +123,13 @@ export interface IGenresDatabase {
     })[]
   >
 
-  deleteById(id: Genre['id']): Promise<void>
-  deleteAll(): Promise<void>
+  deleteById(id: Genre['id'], conn: T): Promise<void>
+  deleteAll(conn: T): Promise<void>
 }
 
-export class GenresDatabase implements IGenresDatabase {
-  constructor(private db: DbConnection) {}
-
-  insert(...data: ExtendedInsertGenre[]) {
-    return this.db.transaction(async (tx) => {
+export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
+  insert(data: ExtendedInsertGenre[], conn: IDrizzleConnection) {
+    return conn.transaction(async (tx) => {
       const entries = await tx.insert(genres).values(data).returning()
 
       const akas = data.flatMap((entry, i) =>
@@ -163,47 +177,47 @@ export class GenresDatabase implements IGenresDatabase {
     })
   }
 
-  async update(id: Genre['id'], update: Partial<ExtendedInsertGenre>) {
+  async update(id: Genre['id'], update: Partial<ExtendedInsertGenre>, conn: IDrizzleConnection) {
     if (update.akas) {
-      await this.db.delete(genreAkas).where(eq(genreAkas.genreId, id))
+      await conn.delete(genreAkas).where(eq(genreAkas.genreId, id))
       if (update.akas.length > 0) {
-        await this.db.insert(genreAkas).values(update.akas.map((aka) => ({ ...aka, genreId: id })))
+        await conn.insert(genreAkas).values(update.akas.map((aka) => ({ ...aka, genreId: id })))
       }
     }
 
     if (update.parents) {
-      await this.db.delete(genreParents).where(eq(genreParents.childId, id))
+      await conn.delete(genreParents).where(eq(genreParents.childId, id))
       if (update.parents.length > 0) {
-        await this.db
+        await conn
           .insert(genreParents)
           .values(update.parents.map((parentId) => ({ parentId, childId: id })))
       }
     }
 
     if (update.influencedBy) {
-      await this.db.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))
+      await conn.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))
       if (update.influencedBy.length > 0) {
-        await this.db
+        await conn
           .insert(genreInfluences)
           .values(update.influencedBy.map((influencerId) => ({ influencerId, influencedId: id })))
       }
     }
 
     if (!hasUpdate(update)) {
-      const genre = await this.findByIdEdit(id)
+      const genre = await this.findByIdEdit(id, conn)
       if (!genre) throw new Error(`Genre not found: ${id}`)
       return genre
     }
 
-    await this.db.update(genres).set(makeUpdate(update)).where(eq(genres.id, id))
+    await conn.update(genres).set(makeUpdate(update)).where(eq(genres.id, id))
 
-    const genre = await this.findByIdEdit(id)
+    const genre = await this.findByIdEdit(id, conn)
     if (!genre) throw new Error(`Genre not found: ${id}`)
     return genre
   }
 
-  async findAllIds() {
-    const results = await this.db.query.genres.findMany({
+  async findAllIds(conn: IDrizzleConnection) {
+    const results = await conn.query.genres.findMany({
       columns: {
         id: true,
       },
@@ -212,14 +226,14 @@ export class GenresDatabase implements IGenresDatabase {
     return results.map(({ id }) => id)
   }
 
-  findByIdSimple(id: Genre['id']) {
-    return this.db.query.genres.findFirst({
+  findByIdSimple(id: Genre['id'], conn: IDrizzleConnection) {
+    return conn.query.genres.findFirst({
       where: eq(genres.id, id),
     })
   }
 
-  findByIdDetail(id: Genre['id']) {
-    return this.db.query.genres.findFirst({
+  findByIdDetail(id: Genre['id'], conn: IDrizzleConnection) {
+    return conn.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -271,8 +285,8 @@ export class GenresDatabase implements IGenresDatabase {
     })
   }
 
-  async findByIdHistory(id: Genre['id']) {
-    const result = await this.db.query.genres.findFirst({
+  async findByIdHistory(id: Genre['id'], conn: IDrizzleConnection) {
+    const result = await conn.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -370,8 +384,8 @@ export class GenresDatabase implements IGenresDatabase {
     }
   }
 
-  async findByIdEdit(id: Genre['id']) {
-    const result = await this.db.query.genres.findFirst({
+  async findByIdEdit(id: Genre['id'], conn: IDrizzleConnection) {
+    const result = await conn.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -404,8 +418,8 @@ export class GenresDatabase implements IGenresDatabase {
     }
   }
 
-  async findByIds(ids: Genre['id'][]) {
-    const results = await this.db.query.genres.findMany({
+  async findByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
+    const results = await conn.query.genres.findMany({
       where: inArray(genres.id, ids),
       with: {
         akas: {
@@ -435,8 +449,8 @@ export class GenresDatabase implements IGenresDatabase {
     }))
   }
 
-  async findAllSimple() {
-    const results = await this.db.query.genres.findMany({
+  async findAllSimple(conn: IDrizzleConnection) {
+    const results = await conn.query.genres.findMany({
       columns: {
         id: true,
         name: true,
@@ -454,8 +468,8 @@ export class GenresDatabase implements IGenresDatabase {
     }))
   }
 
-  async findAllTree() {
-    const results = await this.db.query.genres.findMany({
+  async findAllTree(conn: IDrizzleConnection) {
+    const results = await conn.query.genres.findMany({
       columns: {
         id: true,
         name: true,
@@ -502,11 +516,11 @@ export class GenresDatabase implements IGenresDatabase {
     }))
   }
 
-  async deleteById(id: Genre['id']) {
-    await this.db.delete(genres).where(eq(genres.id, id))
+  async deleteById(id: Genre['id'], conn: IDrizzleConnection) {
+    await conn.delete(genres).where(eq(genres.id, id))
   }
 
-  async deleteAll() {
-    await this.db.delete(genres)
+  async deleteAll(conn: IDrizzleConnection) {
+    await conn.delete(genres)
   }
 }

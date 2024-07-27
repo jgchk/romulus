@@ -5,8 +5,8 @@ import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const genresDb = new GenresDatabase(locals.dbConnection)
-  const ids = await genresDb.findAllIds()
+  const genresDb = new GenresDatabase()
+  const ids = await genresDb.findAllIds(locals.dbConnection)
 
   if (ids.length === 0) {
     return error(404, 'No genres found')

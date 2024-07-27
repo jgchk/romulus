@@ -24,8 +24,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   const account = maybeAccount
 
-  const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
-  const history = await genreHistoryDb.findByAccountId(id)
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const history = await genreHistoryDb.findByAccountId(id, locals.dbConnection)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),

@@ -2,7 +2,7 @@ import { eq, inArray } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import { type Account, accounts, type InsertAccount } from '../schema'
 
 export interface IAccountsDatabase {
@@ -15,7 +15,7 @@ export interface IAccountsDatabase {
 }
 
 export class AccountsDatabase implements IAccountsDatabase {
-  constructor(private db: DbConnection) {}
+  constructor(private db: IDrizzleConnection) {}
 
   insert(...data: InsertAccount[]) {
     return this.db.insert(accounts).values(data).returning()

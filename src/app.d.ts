@@ -4,7 +4,7 @@ declare global {
   namespace App {
     // interface Error {}
     interface Locals {
-      dbConnection: import('$lib/server/db/connection').DbConnection
+      dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       user: import('lucia').User | undefined
       session: import('lucia').Session | undefined
       lucia: import('$lib/server/auth').AppLucia

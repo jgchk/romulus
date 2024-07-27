@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import {
   type Account,
   type InsertPasswordResetToken,
@@ -18,7 +18,7 @@ export interface IPasswordResetTokensDatabase {
 }
 
 export class PasswordResetTokensDatabase implements IPasswordResetTokensDatabase {
-  constructor(private db: DbConnection) {}
+  constructor(private db: IDrizzleConnection) {}
 
   insert(...data: InsertPasswordResetToken[]) {
     return this.db.insert(passwordResetTokens).values(data).returning()

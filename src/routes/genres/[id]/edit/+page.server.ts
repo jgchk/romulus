@@ -25,8 +25,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const genresDb = new GenresDatabase(locals.dbConnection)
-  const maybeGenre = await genresDb.findByIdEdit(id)
+  const genresDb = new GenresDatabase()
+  const maybeGenre = await genresDb.findByIdEdit(id, locals.dbConnection)
   if (!maybeGenre) {
     return error(404, { message: 'Genre not found' })
   }
@@ -72,8 +72,8 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genresDb = new GenresDatabase(locals.dbConnection)
-    const currentGenre = await genresDb.findByIdEdit(id)
+    const genresDb = new GenresDatabase()
+    const currentGenre = await genresDb.findByIdEdit(id, locals.dbConnection)
     if (!currentGenre) {
       return error(404, { message: 'Genre not found' })
     }
@@ -81,6 +81,7 @@ export const actions: Actions = {
     const cycle = await detectCycle(
       { id, name: form.data.name, parents: form.data.parents },
       genresDb,
+      locals.dbConnection,
     )
     if (cycle) {
       return setError(form, 'parents._errors', `Cycle detected: ${cycle}`)
@@ -90,8 +91,8 @@ export const actions: Actions = {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
     }
 
-    const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
-    const lastHistory = await genreHistoryDb.findLatestByGenreId(id)
+    const genreHistoryDb = new GenreHistoryDatabase()
+    const lastHistory = await genreHistoryDb.findLatestByGenreId(id, locals.dbConnection)
 
     const akas = [
       ...(form.data.primaryAkas ?? '')
@@ -116,29 +117,34 @@ export const actions: Actions = {
     }
 
     await locals.dbConnection.transaction(async (tx) => {
-      const genresDb = new GenresDatabase(tx)
-      const genreHistoryDb = new GenreHistoryDatabase(tx)
+      const genresDb = new GenresDatabase()
+      const genreHistoryDb = new GenreHistoryDatabase()
 
       // update genre
-      const updatedGenre = await genresDb.update(id, {
-        name: form.data.name,
-        shortDescription: form.data.shortDescription,
-        longDescription: form.data.longDescription,
-        notes: form.data.notes,
-        type: form.data.type,
-        subtitle: form.data.subtitle,
-        nsfw: form.data.nsfw,
-        updatedAt: new Date(),
-        akas,
-        parents: form.data.parents,
-        influencedBy: form.data.influencedBy,
-      })
+      const updatedGenre = await genresDb.update(
+        id,
+        {
+          name: form.data.name,
+          shortDescription: form.data.shortDescription,
+          longDescription: form.data.longDescription,
+          notes: form.data.notes,
+          type: form.data.type,
+          subtitle: form.data.subtitle,
+          nsfw: form.data.nsfw,
+          updatedAt: new Date(),
+          akas,
+          parents: form.data.parents,
+          influencedBy: form.data.influencedBy,
+        },
+        tx,
+      )
 
       await createGenreHistoryEntry({
         genre: updatedGenre,
         accountId: user.id,
         operation: 'UPDATE',
         genreHistoryDb,
+        connection: tx,
       })
     })
 

@@ -1,10 +1,10 @@
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 
 import * as schema from './schema'
 
-export type DbConnection = PostgresJsDatabase<typeof schema>
+export type IDrizzleConnection = PgDatabase<PgQueryResultHKT, typeof schema>
 
 export const getPostgresConnection = (databaseUrl = process.env.DATABASE_URL) => {
   if (!databaseUrl) {
@@ -16,7 +16,7 @@ export const getPostgresConnection = (databaseUrl = process.env.DATABASE_URL) =>
   return pg
 }
 
-export const getDbConnection = (pg = getPostgresConnection()): DbConnection => {
+export const getDbConnection = (pg = getPostgresConnection()) => {
   const drizzleClient = drizzle(pg, {
     schema,
     logger: process.env.LOGGING === 'true',

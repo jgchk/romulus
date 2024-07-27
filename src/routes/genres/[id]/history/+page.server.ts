@@ -12,8 +12,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
-  const genreHistory = await genreHistoryDb.findByGenreId(id)
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const genreHistory = await genreHistoryDb.findByGenreId(id, locals.dbConnection)
 
   return {
     genreHistory: genreHistory.map(({ akas, ...entry }) => ({

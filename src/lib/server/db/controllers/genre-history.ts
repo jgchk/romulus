@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, lt } from 'drizzle-orm'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import {
   type Account,
   type GenreHistory,
@@ -11,33 +11,45 @@ import {
   type InsertGenreHistoryAka,
 } from '../schema'
 
-export interface IGenreHistoryDatabase {
+export interface IGenreHistoryDatabase<T> {
   insert: (
-    ...data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[]
+    data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
+    conn: T,
   ) => Promise<GenreHistory[]>
-  findLatest: () => Promise<
+
+  findLatest: (conn: T) => Promise<
     (GenreHistory & {
       akas: Pick<GenreHistoryAka, 'name'>[]
       account: Pick<Account, 'id' | 'username'> | null
     })[]
   >
+
   findLatestByGenreId: (
     genreId: GenreHistory['treeGenreId'],
+    conn: T,
   ) => Promise<
     (GenreHistory & { akas: Pick<GenreHistoryAka, 'name' | 'relevance' | 'order'>[] }) | undefined
   >
+
   findPreviousByGenreId: (
     genreId: GenreHistory['treeGenreId'],
     createdAt: Date,
+    conn: T,
   ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined>
-  findByGenreId: (genreId: GenreHistory['treeGenreId']) => Promise<
+
+  findByGenreId: (
+    genreId: GenreHistory['treeGenreId'],
+    conn: T,
+  ) => Promise<
     (GenreHistory & {
       akas: Pick<GenreHistoryAka, 'name'>[]
       account: Pick<Account, 'id' | 'username'> | null
     })[]
   >
+
   findByAccountId: (
     accountId: NonNullable<GenreHistory['accountId']>,
+    conn: T,
   ) => Promise<
     Pick<
       GenreHistory,
@@ -46,11 +58,12 @@ export interface IGenreHistoryDatabase {
   >
 }
 
-export class GenreHistoryDatabase implements IGenreHistoryDatabase {
-  constructor(private db: DbConnection) {}
-
-  insert(...data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[]) {
-    return this.db.transaction(async (tx) => {
+export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConnection> {
+  insert(
+    data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
+    conn: IDrizzleConnection,
+  ) {
+    return conn.transaction(async (tx) => {
       const values = await tx.insert(genreHistory).values(data).returning()
 
       const akas = data.flatMap((entry, i) =>
@@ -65,8 +78,8 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase {
     })
   }
 
-  findLatest() {
-    return this.db.query.genreHistory.findMany({
+  findLatest(conn: IDrizzleConnection) {
+    return conn.query.genreHistory.findMany({
       orderBy: (genreHistory, { desc }) => desc(genreHistory.createdAt),
       with: {
         akas: {
@@ -84,8 +97,8 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase {
     })
   }
 
-  findLatestByGenreId(genreId: GenreHistory['treeGenreId']) {
-    return this.db.query.genreHistory.findFirst({
+  findLatestByGenreId(genreId: GenreHistory['treeGenreId'], conn: IDrizzleConnection) {
+    return conn.query.genreHistory.findFirst({
       where: eq(genreHistory.treeGenreId, genreId),
       orderBy: desc(genreHistory.createdAt),
       with: {
@@ -101,8 +114,12 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase {
     })
   }
 
-  findPreviousByGenreId(genreId: GenreHistory['treeGenreId'], createdAt: Date) {
-    return this.db.query.genreHistory.findFirst({
+  findPreviousByGenreId(
+    genreId: GenreHistory['treeGenreId'],
+    createdAt: Date,
+    conn: IDrizzleConnection,
+  ) {
+    return conn.query.genreHistory.findFirst({
       where: and(eq(genreHistory.treeGenreId, genreId), lt(genreHistory.createdAt, createdAt)),
       orderBy: desc(genreHistory.createdAt),
       with: {
@@ -114,8 +131,8 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase {
     })
   }
 
-  findByGenreId(genreId: GenreHistory['treeGenreId']) {
-    return this.db.query.genreHistory.findMany({
+  findByGenreId(genreId: GenreHistory['treeGenreId'], conn: IDrizzleConnection) {
+    return conn.query.genreHistory.findMany({
       where: (genreHistory, { eq }) => eq(genreHistory.treeGenreId, genreId),
       orderBy: asc(genreHistory.createdAt),
       with: {
@@ -133,8 +150,8 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase {
     })
   }
 
-  findByAccountId(accountId: NonNullable<GenreHistory['accountId']>) {
-    return this.db.query.genreHistory.findMany({
+  findByAccountId(accountId: NonNullable<GenreHistory['accountId']>, conn: IDrizzleConnection) {
+    return conn.query.genreHistory.findMany({
       where: eq(genreHistory.accountId, accountId),
       columns: {
         id: true,

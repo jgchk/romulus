@@ -23,21 +23,21 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genresDb = new GenresDatabase(locals.dbConnection)
-  const maybeGenre = await genresDb.findByIdDetail(id)
+  const genresDb = new GenresDatabase()
+  const maybeGenre = await genresDb.findByIdDetail(id, locals.dbConnection)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
 
-  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase(locals.dbConnection)
+  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
   const relevanceVotes = await genreRelevanceVotesDb
-    .findByGenreId(id)
+    .findByGenreId(id, locals.dbConnection)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
     relevanceVote = await genreRelevanceVotesDb
-      .findByGenreIdAndAccountId(id, locals.user.id)
+      .findByGenreIdAndAccountId(id, locals.user.id, locals.dbConnection)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
@@ -80,14 +80,15 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genresDb = new GenresDatabase(locals.dbConnection)
-    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase(locals.dbConnection)
+    const genresDb = new GenresDatabase()
+    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
     await setRelevanceVote(
       id,
       form.data.relevanceVote,
       locals.user.id,
       genresDb,
       genreRelevanceVotesDb,
+      locals.dbConnection,
     )
 
     return { form }
@@ -105,31 +106,32 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const genresDb = new GenresDatabase(locals.dbConnection)
-    const genre = await genresDb.findByIdHistory(id)
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdHistory(id, locals.dbConnection)
     if (!genre) {
       return error(404, 'Genre not found')
     }
 
     // move child genres under deleted genre's parents
     await locals.dbConnection.transaction(async (tx) => {
-      const genresDb = new GenresDatabase(tx)
-      const genreParentsDb = new GenreParentsDatabase(tx)
-      const genreHistoryDb = new GenreHistoryDatabase(tx)
+      const genresDb = new GenresDatabase()
+      const genreParentsDb = new GenreParentsDatabase()
+      const genreHistoryDb = new GenreHistoryDatabase()
 
       await Promise.all(
         genre.children.flatMap(({ id: childId }) =>
-          genre.parents.map((parentId) => genreParentsDb.update(id, childId, { parentId })),
+          genre.parents.map((parentId) => genreParentsDb.update(id, childId, { parentId }, tx)),
         ),
       )
 
-      await genresDb.deleteById(id)
+      await genresDb.deleteById(id, tx)
 
       await createGenreHistoryEntry({
         genre,
         accountId: user.id,
         operation: 'DELETE',
         genreHistoryDb,
+        connection: tx,
       })
 
       const relations = [...genre.children, ...genre.influences]
@@ -140,6 +142,7 @@ export const actions: Actions = {
             accountId: user.id,
             operation: 'UPDATE',
             genreHistoryDb,
+            connection: tx,
           }),
         ),
       )

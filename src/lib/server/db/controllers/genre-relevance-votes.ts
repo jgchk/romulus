@@ -1,28 +1,29 @@
 import { and, eq } from 'drizzle-orm'
 import { omit } from 'ramda'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import {
   type GenreRelevanceVote,
   genreRelevanceVotes,
   type InsertGenreRelevanceVote,
 } from '../schema'
 
-export interface IGenreRelevanceVotesDatabase {
-  upsert: (data: InsertGenreRelevanceVote) => Promise<GenreRelevanceVote>
-  findByGenreId: (genreId: number) => Promise<GenreRelevanceVote[]>
+export interface IGenreRelevanceVotesDatabase<T> {
+  upsert: (data: InsertGenreRelevanceVote, conn: T) => Promise<GenreRelevanceVote>
+  findByGenreId: (genreId: number, conn: T) => Promise<GenreRelevanceVote[]>
   findByGenreIdAndAccountId: (
     genreId: GenreRelevanceVote['genreId'],
     accountId: GenreRelevanceVote['accountId'],
+    conn: T,
   ) => Promise<GenreRelevanceVote | undefined>
-  deleteByGenreId: (genreId: GenreRelevanceVote['genreId']) => Promise<void>
+  deleteByGenreId: (genreId: GenreRelevanceVote['genreId'], conn: T) => Promise<void>
 }
 
-export class GenreRelevanceVotesDatabase implements IGenreRelevanceVotesDatabase {
-  constructor(private db: DbConnection) {}
-
-  async upsert(data: InsertGenreRelevanceVote) {
-    const [vote] = await this.db
+export class GenreRelevanceVotesDatabase
+  implements IGenreRelevanceVotesDatabase<IDrizzleConnection>
+{
+  async upsert(data: InsertGenreRelevanceVote, conn: IDrizzleConnection) {
+    const [vote] = await conn
       .insert(genreRelevanceVotes)
       .values(data)
       .onConflictDoUpdate({
@@ -33,8 +34,8 @@ export class GenreRelevanceVotesDatabase implements IGenreRelevanceVotesDatabase
     return vote
   }
 
-  findByGenreId(genreId: number) {
-    return this.db.query.genreRelevanceVotes.findMany({
+  findByGenreId(genreId: number, conn: IDrizzleConnection) {
+    return conn.query.genreRelevanceVotes.findMany({
       where: eq(genreRelevanceVotes.genreId, genreId),
     })
   }
@@ -42,8 +43,9 @@ export class GenreRelevanceVotesDatabase implements IGenreRelevanceVotesDatabase
   findByGenreIdAndAccountId(
     genreId: GenreRelevanceVote['genreId'],
     accountId: GenreRelevanceVote['accountId'],
+    conn: IDrizzleConnection,
   ) {
-    return this.db.query.genreRelevanceVotes.findFirst({
+    return conn.query.genreRelevanceVotes.findFirst({
       where: and(
         eq(genreRelevanceVotes.genreId, genreId),
         eq(genreRelevanceVotes.accountId, accountId),
@@ -51,7 +53,7 @@ export class GenreRelevanceVotesDatabase implements IGenreRelevanceVotesDatabase
     })
   }
 
-  async deleteByGenreId(genreId: GenreRelevanceVote['genreId']) {
-    await this.db.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
+  async deleteByGenreId(genreId: GenreRelevanceVote['genreId'], conn: IDrizzleConnection) {
+    await conn.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
   }
 }

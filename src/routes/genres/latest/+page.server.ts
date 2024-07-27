@@ -4,14 +4,15 @@ import { ifDefined } from '$lib/utils/types'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const genreHistoryDb = new GenreHistoryDatabase(locals.dbConnection)
-  const results = await genreHistoryDb.findLatest()
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const results = await genreHistoryDb.findLatest(locals.dbConnection)
 
   const history = await Promise.all(
     results.map(async ({ akas, ...genre }) => {
       const maybePreviousHistory = await genreHistoryDb.findPreviousByGenreId(
         genre.treeGenreId,
         genre.createdAt,
+        locals.dbConnection,
       )
 
       const previousHistory = ifDefined(maybePreviousHistory, ({ akas, ...ph }) => ({

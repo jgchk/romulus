@@ -2,31 +2,35 @@ import { and, eq } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
-import type { DbConnection } from '../connection'
+import type { IDrizzleConnection } from '../connection'
 import { type GenreParent, genreParents, type InsertGenreParent } from '../schema'
 
-export interface IGenreParentsDatabase {
-  insert: (...data: InsertGenreParent[]) => Promise<GenreParent[]>
+export interface IGenreParentsDatabase<T> {
+  insert: (data: InsertGenreParent[], conn: T) => Promise<GenreParent[]>
   find: (
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],
+    conn: T,
   ) => Promise<GenreParent | undefined>
   update: (
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],
     update: Partial<InsertGenreParent>,
+    conn: T,
   ) => Promise<GenreParent>
 }
 
-export class GenreParentsDatabase implements IGenreParentsDatabase {
-  constructor(private db: DbConnection) {}
-
-  insert(...data: InsertGenreParent[]) {
-    return this.db.insert(genreParents).values(data).returning()
+export class GenreParentsDatabase implements IGenreParentsDatabase<IDrizzleConnection> {
+  insert(data: InsertGenreParent[], conn: IDrizzleConnection) {
+    return conn.insert(genreParents).values(data).returning()
   }
 
-  find(parentId: GenreParent['parentId'], childId: GenreParent['childId']) {
-    return this.db.query.genreParents.findFirst({
+  find(
+    parentId: GenreParent['parentId'],
+    childId: GenreParent['childId'],
+    conn: IDrizzleConnection,
+  ) {
+    return conn.query.genreParents.findFirst({
       where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
     })
   }
@@ -35,15 +39,16 @@ export class GenreParentsDatabase implements IGenreParentsDatabase {
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],
     update: Partial<InsertGenreParent>,
+    conn: IDrizzleConnection,
   ) {
     if (!hasUpdate(update)) {
-      const genreParent = await this.find(parentId, childId)
+      const genreParent = await this.find(parentId, childId, conn)
       if (!genreParent)
         throw new Error(`Genre Parent not found: { parentId: ${parentId}, childId: ${childId} }`)
       return genreParent
     }
 
-    const [genreParent] = await this.db
+    const [genreParent] = await conn
       .update(genreParents)
       .set(makeUpdate(update))
       .where(and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)))

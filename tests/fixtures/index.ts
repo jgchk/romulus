@@ -1,9 +1,9 @@
 import { test as base } from '@playwright/test'
 
 import {
-  type DbConnection,
   getDbConnection,
   getPostgresConnection,
+  type IDrizzleConnection,
 } from '$lib/server/db/connection'
 
 import { GenreTree } from './elements/genre-tree'
@@ -40,7 +40,7 @@ export const test = base
       await use(page)
     },
   })
-  .extend<{ dbConnection: DbConnection }>({
+  .extend<{ dbConnection: IDrizzleConnection }>({
     // eslint-disable-next-line no-empty-pattern
     dbConnection: async ({}, use) => {
       const pg = getPostgresConnection()

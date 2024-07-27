@@ -1,7 +1,7 @@
 import { type InferInsertModel } from 'drizzle-orm'
 
 import { hashPassword } from '$lib/server/auth'
-import type { DbConnection } from '$lib/server/db/connection'
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influences'
@@ -17,7 +17,7 @@ export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'>
 export type CreatedAccount = Awaited<ReturnType<typeof createAccounts>>[number]
 export const createAccounts = async (
   accounts_: InferInsertModel<typeof accounts>[],
-  connection: DbConnection,
+  connection: IDrizzleConnection,
 ) => {
   const hashedAccounts = await Promise.all(
     accounts_.map(async (account) => ({
@@ -30,22 +30,22 @@ export const createAccounts = async (
   return accountsDb.insert(...hashedAccounts)
 }
 
-export const deleteAccounts = async (usernames: string[], connection: DbConnection) => {
+export const deleteAccounts = async (usernames: string[], connection: IDrizzleConnection) => {
   const accountsDb = new AccountsDatabase(connection)
   await accountsDb.deleteByUsername(...usernames)
 }
 
 export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]
-export const createGenres = async (data: InsertTestGenre[], connection: DbConnection) => {
+export const createGenres = async (data: InsertTestGenre[], connection: IDrizzleConnection) => {
   if (data.length === 0) return []
 
   const outputGenres = await connection.transaction(async (tx) => {
-    const genresDb = new GenresDatabase(tx)
-    const genreParentsDb = new GenreParentsDatabase(tx)
-    const genreInfluencesDb = new GenreInfluencesDatabase(tx)
+    const genresDb = new GenresDatabase()
+    const genreParentsDb = new GenreParentsDatabase()
+    const genreInfluencesDb = new GenreInfluencesDatabase()
 
     const createdGenres = await genresDb.insert(
-      ...data.map((genre) => ({
+      data.map((genre) => ({
         ...genre,
         akas: [
           ...(genre.akas?.primary?.map((name, i) => ({ name, relevance: 3, order: i })) ?? []),
@@ -56,6 +56,7 @@ export const createGenres = async (data: InsertTestGenre[], connection: DbConnec
         influencedBy: [],
         updatedAt: new Date(),
       })),
+      tx,
     )
 
     const nameToIdMap = new Map(createdGenres.map((genre) => [genre.name, genre.id]))
@@ -82,7 +83,7 @@ export const createGenres = async (data: InsertTestGenre[], connection: DbConnec
     })
 
     if (parentRelations.length > 0) {
-      await genreParentsDb.insert(...parentRelations)
+      await genreParentsDb.insert(parentRelations, tx)
     }
 
     const influenceRelations: InferInsertModel<typeof genreInfluences>[] = data.flatMap((genre) => {
@@ -107,16 +108,19 @@ export const createGenres = async (data: InsertTestGenre[], connection: DbConnec
     })
 
     if (influenceRelations.length > 0) {
-      await genreInfluencesDb.insert(...influenceRelations)
+      await genreInfluencesDb.insert(influenceRelations, tx)
     }
 
-    return genresDb.findByIds(createdGenres.map((genre) => genre.id))
+    return genresDb.findByIds(
+      createdGenres.map((genre) => genre.id),
+      tx,
+    )
   })
 
   return outputGenres
 }
 
-export const deleteGenres = async (dbConnection: DbConnection) => {
-  const genresDb = new GenresDatabase(dbConnection)
-  await genresDb.deleteAll()
+export const deleteGenres = async (dbConnection: IDrizzleConnection) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.deleteAll(dbConnection)
 }

@@ -16,16 +16,17 @@ export class GenreCycleError extends Error {
 
 type CycleGenre = { id: number; name: string; parents: number[] }
 
-export async function detectCycle(
+export async function detectCycle<T>(
   data: {
     id?: number
     name: string
     parents?: number[]
     children?: number[]
   },
-  genresDb: IGenresDatabase,
+  genresDb: IGenresDatabase<T>,
+  connection: T,
 ) {
-  let allGenres = await genresDb.findAllSimple()
+  let allGenres = await genresDb.findAllSimple(connection)
 
   // if the user has made any updates to parent/child genres,
   // temporarily apply those updates before checking for cycles
@@ -82,49 +83,55 @@ function detectCycleInner(
   return false
 }
 
-export async function setRelevanceVote(
+export async function setRelevanceVote<T>(
   id: number,
   relevance: number,
   accountId: number,
-  genresDb: IGenresDatabase,
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase,
+  genresDb: IGenresDatabase<T>,
+  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>,
+  connection: T,
 ) {
   if (relevance === UNSET_GENRE_RELEVANCE) {
-    await genreRelevanceVotesDb.deleteByGenreId(id)
-    await updateRelevance(id, genresDb, genreRelevanceVotesDb)
+    await genreRelevanceVotesDb.deleteByGenreId(id, connection)
+    await updateRelevance(id, genresDb, genreRelevanceVotesDb, connection)
     return
   }
 
-  await genreRelevanceVotesDb.upsert({
-    genreId: id,
-    accountId,
-    relevance,
-    updatedAt: new Date(),
-  })
+  await genreRelevanceVotesDb.upsert(
+    {
+      genreId: id,
+      accountId,
+      relevance,
+      updatedAt: new Date(),
+    },
+    connection,
+  )
 
-  await updateRelevance(id, genresDb, genreRelevanceVotesDb)
+  await updateRelevance(id, genresDb, genreRelevanceVotesDb, connection)
 }
 
-async function updateRelevance(
+async function updateRelevance<T>(
   genreId: number,
-  genresDb: IGenresDatabase,
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase,
+  genresDb: IGenresDatabase<T>,
+  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>,
+  connection: T,
 ) {
-  const votes = await genreRelevanceVotesDb.findByGenreId(genreId)
+  const votes = await genreRelevanceVotesDb.findByGenreId(genreId, connection)
 
   const relevance =
     votes.length === 0
       ? UNSET_GENRE_RELEVANCE
       : Math.round(median(votes.map((vote) => vote.relevance)))
 
-  await genresDb.update(genreId, { relevance })
+  await genresDb.update(genreId, { relevance }, connection)
 }
 
-export async function createGenreHistoryEntry({
+export async function createGenreHistoryEntry<T>({
   genre,
   accountId,
   operation,
   genreHistoryDb,
+  connection,
 }: {
   genre: Pick<
     InferSelectModel<typeof genres>,
@@ -136,21 +143,27 @@ export async function createGenreHistoryEntry({
   }
   accountId: number
   operation: GenreOperation
-  genreHistoryDb: IGenreHistoryDatabase
+  genreHistoryDb: IGenreHistoryDatabase<T>
+  connection: T
 }) {
-  await genreHistoryDb.insert({
-    name: genre.name,
-    type: genre.type,
-    shortDescription: genre.shortDescription,
-    longDescription: genre.longDescription,
-    notes: genre.notes,
-    parentGenreIds: genre.parents,
-    influencedByGenreIds: genre.influencedBy,
-    treeGenreId: genre.id,
-    nsfw: genre.nsfw,
-    operation,
-    accountId,
-    subtitle: genre.subtitle,
-    akas: genre.akas,
-  })
+  await genreHistoryDb.insert(
+    [
+      {
+        name: genre.name,
+        type: genre.type,
+        shortDescription: genre.shortDescription,
+        longDescription: genre.longDescription,
+        notes: genre.notes,
+        parentGenreIds: genre.parents,
+        influencedByGenreIds: genre.influencedBy,
+        treeGenreId: genre.id,
+        nsfw: genre.nsfw,
+        operation,
+        accountId,
+        subtitle: genre.subtitle,
+        akas: genre.akas,
+      },
+    ],
+    connection,
+  )
 }

@@ -111,7 +111,8 @@ export default function editGenrePageTests() {
             genre,
             accountId: account.id,
             operation: 'CREATE',
-            genreHistoryDb: new GenreHistoryDatabase(dbConnection),
+            genreHistoryDb: new GenreHistoryDatabase(),
+            connection: dbConnection,
           })
 
           await signInPage.goto()
