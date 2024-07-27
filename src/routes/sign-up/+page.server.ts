@@ -30,11 +30,16 @@ export const actions: Actions = {
 
     let account
     try {
-      const accountsDb = new AccountsDatabase(locals.dbConnection)
-      ;[account] = await accountsDb.insert({
-        username: form.data.username,
-        password: await hashPassword(form.data.password.password),
-      })
+      const accountsDb = new AccountsDatabase()
+      ;[account] = await accountsDb.insert(
+        [
+          {
+            username: form.data.username,
+            password: await hashPassword(form.data.password.password),
+          },
+        ],
+        locals.dbConnection,
+      )
     } catch (error) {
       if (
         error instanceof Postgres.PostgresError &&

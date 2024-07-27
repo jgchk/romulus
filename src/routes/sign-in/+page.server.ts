@@ -30,8 +30,8 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const accountsDb = new AccountsDatabase(locals.dbConnection)
-    const account = await accountsDb.findByUsername(form.data.username)
+    const accountsDb = new AccountsDatabase()
+    const account = await accountsDb.findByUsername(form.data.username, locals.dbConnection)
     if (!account) {
       // spend some time to "waste" some time
       // this makes brute forcing harder

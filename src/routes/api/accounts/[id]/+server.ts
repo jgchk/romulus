@@ -34,15 +34,19 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   }
   const data = maybeData.data
 
-  const accountsDb = new AccountsDatabase(locals.dbConnection)
+  const accountsDb = new AccountsDatabase()
   const account = await accountsDb
-    .update(id, {
-      genreRelevanceFilter: data.genreRelevanceFilter,
-      showTypeTags: data.showTypeTags,
-      showRelevanceTags: data.showRelevanceTags,
-      darkMode: data.darkMode,
-      showNsfw: data.showNsfw,
-    })
+    .update(
+      id,
+      {
+        genreRelevanceFilter: data.genreRelevanceFilter,
+        showTypeTags: data.showTypeTags,
+        showRelevanceTags: data.showRelevanceTags,
+        darkMode: data.darkMode,
+        showNsfw: data.showNsfw,
+      },
+      locals.dbConnection,
+    )
     .then((res) => omit(['password'], res))
 
   return json(account)

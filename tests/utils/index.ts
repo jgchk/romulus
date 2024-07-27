@@ -26,13 +26,13 @@ export const createAccounts = async (
     })),
   )
 
-  const accountsDb = new AccountsDatabase(connection)
-  return accountsDb.insert(...hashedAccounts)
+  const accountsDb = new AccountsDatabase()
+  return accountsDb.insert(hashedAccounts, connection)
 }
 
 export const deleteAccounts = async (usernames: string[], connection: IDrizzleConnection) => {
-  const accountsDb = new AccountsDatabase(connection)
-  await accountsDb.deleteByUsername(...usernames)
+  const accountsDb = new AccountsDatabase()
+  await accountsDb.deleteByUsername(usernames, connection)
 }
 
 export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]

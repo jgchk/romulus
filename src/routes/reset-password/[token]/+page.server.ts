@@ -49,8 +49,12 @@ export const actions: Actions = {
 
     await locals.lucia.invalidateUserSessions(token.userId)
 
-    const accountsDb = new AccountsDatabase(locals.dbConnection)
-    await accountsDb.update(token.userId, { password: await hashPassword(form.data.password) })
+    const accountsDb = new AccountsDatabase()
+    await accountsDb.update(
+      token.userId,
+      { password: await hashPassword(form.data.password) },
+      locals.dbConnection,
+    )
 
     const session = await locals.lucia.createSession(token.userId, {})
     const sessionCookie = locals.lucia.createSessionCookie(session.id)

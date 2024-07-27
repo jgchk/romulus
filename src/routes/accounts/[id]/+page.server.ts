@@ -15,8 +15,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const accountsDb = new AccountsDatabase(locals.dbConnection)
-  const maybeAccount = await accountsDb.findById(id)
+  const accountsDb = new AccountsDatabase()
+  const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')
