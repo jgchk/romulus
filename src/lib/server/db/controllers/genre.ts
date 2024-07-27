@@ -45,7 +45,9 @@ export interface IGenresDatabase {
   >
 
   findAllIds(): Promise<Pick<Genre, 'id'>[]>
+
   findByIdSimple(id: Genre['id']): Promise<Genre | undefined>
+
   findByIdDetail(id: Genre['id']): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name'>[]
@@ -57,6 +59,7 @@ export interface IGenresDatabase {
       })
     | undefined
   >
+
   findByIdHistory(id: Genre['id']): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
@@ -81,6 +84,7 @@ export interface IGenresDatabase {
       })
     | undefined
   >
+
   findByIdEdit(id: Genre['id']): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
@@ -89,6 +93,7 @@ export interface IGenresDatabase {
       })
     | undefined
   >
+
   findByIds(ids: Genre['id'][]): Promise<
     (Genre & {
       akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
@@ -96,9 +101,9 @@ export interface IGenresDatabase {
       influencedBy: Pick<GenreInfluence, 'influencerId'>[]
     })[]
   >
-  findAllSimple(): Promise<
-    (Pick<Genre, 'id' | 'name'> & { parents: Pick<GenreParent, 'parentId'>[] })[]
-  >
+
+  findAllSimple(): Promise<(Pick<Genre, 'id' | 'name'> & { parents: number[] })[]>
+
   findAllTree(): Promise<
     (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'updatedAt'> & {
       akas: GenreAka['name'][]
@@ -106,6 +111,7 @@ export interface IGenresDatabase {
       children: GenreParent['childId'][]
     })[]
   >
+
   deleteById(id: Genre['id']): Promise<void>
   deleteAll(): Promise<void>
 }
@@ -412,8 +418,8 @@ export class GenresDatabase implements IGenresDatabase {
     })
   }
 
-  findAllSimple() {
-    return this.db.query.genres.findMany({
+  async findAllSimple() {
+    const results = await this.db.query.genres.findMany({
       columns: {
         id: true,
         name: true,
@@ -424,6 +430,11 @@ export class GenresDatabase implements IGenresDatabase {
         },
       },
     })
+
+    return results.map(({ parents, ...genre }) => ({
+      ...genre,
+      parents: parents.map((parent) => parent.parentId),
+    }))
   }
 
   async findAllTree() {

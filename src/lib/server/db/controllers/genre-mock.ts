@@ -131,7 +131,7 @@ export class MockGenresDatabase implements IGenresDatabase {
       Array.from(this.db.genres.values()).map((genre) => ({
         id: genre.id,
         name: genre.name,
-        parents: this.getParents(genre.id),
+        parents: this.getParentIds(genre.id),
       })),
     )
   }
