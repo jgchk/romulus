@@ -58,18 +58,24 @@ export const createLucia = (db: PgDatabase<any, any, any>) => {
 export const checkPassword = (password: string, hash: string) => bcryptjs.compare(password, hash)
 export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)
 
-export async function createPasswordResetToken(
+export async function createPasswordResetToken<T>(
   accountId: number,
-  passwordResetTokensDb: IPasswordResetTokensDatabase,
+  passwordResetTokensDb: IPasswordResetTokensDatabase<T>,
+  dbConnection: T,
 ): Promise<string> {
-  await passwordResetTokensDb.deleteByAccountId(accountId)
+  await passwordResetTokensDb.deleteByAccountId(accountId, dbConnection)
 
   const tokenId = generateIdFromEntropySize(25) // 40 character
   const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tokenId)))
-  await passwordResetTokensDb.insert({
-    tokenHash: tokenHash,
-    userId: accountId,
-    expiresAt: createDate(new TimeSpan(2, 'h')),
-  })
+  await passwordResetTokensDb.insert(
+    [
+      {
+        tokenHash,
+        userId: accountId,
+        expiresAt: createDate(new TimeSpan(2, 'h')),
+      },
+    ],
+    dbConnection,
+  )
   return tokenId
 }

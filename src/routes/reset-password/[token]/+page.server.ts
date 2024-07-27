@@ -15,8 +15,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const verificationToken = params.token
   const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
 
-  const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
-  const token = await passwordResetTokensDb.findByTokenHash(tokenHash)
+  const passwordResetTokensDb = new PasswordResetTokensDatabase()
+  const token = await passwordResetTokensDb.findByTokenHash(tokenHash, locals.dbConnection)
 
   if (!token || !isWithinExpirationDate(token.expiresAt)) {
     return error(400, 'Invalid or expired token')
@@ -37,10 +37,10 @@ export const actions: Actions = {
     const verificationToken = params.token
     const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
 
-    const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
-    const token = await passwordResetTokensDb.findByTokenHash(tokenHash)
+    const passwordResetTokensDb = new PasswordResetTokensDatabase()
+    const token = await passwordResetTokensDb.findByTokenHash(tokenHash, locals.dbConnection)
     if (token) {
-      await passwordResetTokensDb.deleteByTokenHash(tokenHash)
+      await passwordResetTokensDb.deleteByTokenHash(tokenHash, locals.dbConnection)
     }
 
     if (!token || !isWithinExpirationDate(token.expiresAt)) {

@@ -53,8 +53,12 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const passwordResetTokensDb = new PasswordResetTokensDatabase(locals.dbConnection)
-    const verificationToken = await createPasswordResetToken(id, passwordResetTokensDb)
+    const passwordResetTokensDb = new PasswordResetTokensDatabase()
+    const verificationToken = await createPasswordResetToken(
+      id,
+      passwordResetTokensDb,
+      locals.dbConnection,
+    )
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }
