@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     return error(404, 'No genres found')
   }
 
-  const randomId = ids[Math.floor(Math.random() * ids.length)].id
+  const randomId = ids[Math.floor(Math.random() * ids.length)]
 
   return redirect(302, `/genres/${randomId}`)
 }

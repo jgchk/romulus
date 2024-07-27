@@ -43,7 +43,7 @@ export interface IGenresDatabase {
     }
   >
 
-  findAllIds(): Promise<Pick<Genre, 'id'>[]>
+  findAllIds(): Promise<number[]>
 
   findByIdSimple(id: Genre['id']): Promise<Genre | undefined>
 
@@ -202,12 +202,14 @@ export class GenresDatabase implements IGenresDatabase {
     return genre
   }
 
-  findAllIds() {
-    return this.db.query.genres.findMany({
+  async findAllIds() {
+    const results = await this.db.query.genres.findMany({
       columns: {
         id: true,
       },
     })
+
+    return results.map(({ id }) => id)
   }
 
   findByIdSimple(id: Genre['id']) {

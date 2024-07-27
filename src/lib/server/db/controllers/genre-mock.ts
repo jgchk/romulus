@@ -64,7 +64,7 @@ export class MockGenresDatabase implements IGenresDatabase {
   }
 
   findAllIds() {
-    return Promise.resolve(Array.from(this.db.genres.values()).map(({ id }) => ({ id })))
+    return Promise.resolve(Array.from(this.db.genres.values()).map(({ id }) => id))
   }
 
   findByIdSimple(id: Genre['id']) {
