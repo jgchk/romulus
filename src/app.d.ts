@@ -7,6 +7,7 @@ declare global {
       dbConnection: import('$lib/server/db/connection').DbConnection
       user: import('lucia').User | undefined
       session: import('lucia').Session | undefined
+      lucia: import('$lib/server/auth').AppLucia
     }
     // interface PageData {}
     // interface PageState {}

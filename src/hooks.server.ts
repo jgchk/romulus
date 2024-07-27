@@ -1,11 +1,15 @@
 import type { Handle } from '@sveltejs/kit'
 
-import { lucia } from '$lib/server/auth'
+import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection'
 
 export const handle: Handle = async ({ event, resolve }) => {
   const pg = getPostgresConnection()
-  event.locals.dbConnection = getDbConnection(pg)
+  const dbConnection = getDbConnection(pg)
+  event.locals.dbConnection = dbConnection
+
+  const lucia = createLucia(dbConnection)
+  event.locals.lucia = lucia
 
   const sessionId = event.cookies.get(lucia.sessionCookieName)
 

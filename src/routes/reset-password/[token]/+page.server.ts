@@ -5,7 +5,7 @@ import { encodeHex } from 'oslo/encoding'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
+import { hashPassword, passwordSchema } from '$lib/server/auth'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
 
@@ -47,13 +47,13 @@ export const actions: Actions = {
       return error(400, 'Invalid or expired token')
     }
 
-    await lucia.invalidateUserSessions(token.userId)
+    await locals.lucia.invalidateUserSessions(token.userId)
 
     const accountsDb = new AccountsDatabase(locals.dbConnection)
     await accountsDb.update(token.userId, { password: await hashPassword(form.data.password) })
 
-    const session = await lucia.createSession(token.userId, {})
-    const sessionCookie = lucia.createSessionCookie(session.id)
+    const session = await locals.lucia.createSession(token.userId, {})
+    const sessionCookie = locals.lucia.createSessionCookie(session.id)
     cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,

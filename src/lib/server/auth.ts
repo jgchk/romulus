@@ -1,6 +1,7 @@
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
 import bcryptjs from 'bcryptjs'
 import { type InferSelectModel } from 'drizzle-orm'
+import type { PgDatabase } from 'drizzle-orm/pg-core'
 import { generateIdFromEntropySize, Lucia } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 import { sha256 } from 'oslo/crypto'
@@ -9,7 +10,6 @@ import { z } from 'zod'
 
 import { omit } from '$lib/utils/object'
 
-import { db } from './db'
 import type { IPasswordResetTokensDatabase } from './db/controllers/password-reset-tokens'
 import { accounts, sessions } from './db/schema'
 
@@ -25,7 +25,7 @@ export const passwordSchema = z
 
 declare module 'lucia' {
   interface Register {
-    Lucia: typeof lucia
+    Lucia: AppLucia
     UserId: number
     DatabaseUserAttributes: DatabaseUserAttributes
   }
@@ -33,20 +33,27 @@ declare module 'lucia' {
 
 type DatabaseUserAttributes = InferSelectModel<typeof accounts>
 
-const adapter = new DrizzlePostgreSQLAdapter(db.db, sessions, accounts)
+export type AppLucia = ReturnType<typeof createLucia>
 
-export const lucia = new Lucia(adapter, {
-  sessionCookie: {
-    name: 'auth_session',
-    attributes: {
-      // set to `true` when using HTTPS
-      secure: process.env.NODE_ENV === 'production',
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const createLucia = (db: PgDatabase<any, any, any>) => {
+  const adapter = new DrizzlePostgreSQLAdapter(db, sessions, accounts)
+
+  const lucia = new Lucia(adapter, {
+    sessionCookie: {
+      name: 'auth_session',
+      attributes: {
+        // set to `true` when using HTTPS
+        secure: process.env.NODE_ENV === 'production',
+      },
     },
-  },
-  getUserAttributes: (attributes) => {
-    return omit(attributes, ['password'])
-  },
-})
+    getUserAttributes: (attributes) => {
+      return omit(attributes, ['password'])
+    },
+  })
+
+  return lucia
+}
 
 export const checkPassword = (password: string, hash: string) => bcryptjs.compare(password, hash)
 export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)

@@ -4,7 +4,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { hashPassword, lucia, passwordSchema } from '$lib/server/auth'
+import { hashPassword, passwordSchema } from '$lib/server/auth'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 
 import type { PageServerLoad } from './$types'
@@ -46,8 +46,8 @@ export const actions: Actions = {
       throw error
     }
 
-    const session = await lucia.createSession(account.id, {})
-    const sessionCookie = lucia.createSessionCookie(session.id)
+    const session = await locals.lucia.createSession(account.id, {})
+    const sessionCookie = locals.lucia.createSessionCookie(session.id)
     cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,
