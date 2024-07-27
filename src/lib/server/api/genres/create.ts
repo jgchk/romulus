@@ -40,8 +40,8 @@ export async function createGenre(
   await genreHistoryDb.insert({
     ...omit(['id', 'parents', 'influencedBy', 'createdAt', 'updatedAt'], genre),
     treeGenreId: genre.id,
-    parentGenreIds: genre.parents.map((parent) => parent.parentId),
-    influencedByGenreIds: genre.influencedBy.map((influencer) => influencer.influencerId),
+    parentGenreIds: genre.parents,
+    influencedByGenreIds: genre.influencedBy,
     operation: 'CREATE',
     accountId,
     akas: genre.akas,
@@ -58,7 +58,7 @@ export async function createGenre(
 
   return {
     ...genre,
-    parents: genre.parents.map(({ parentId }) => parentId),
-    influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
+    parents: genre.parents,
+    influencedBy: genre.influencedBy,
   }
 }

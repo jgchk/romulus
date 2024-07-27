@@ -33,8 +33,12 @@ export class MockGenresDatabase implements IGenresDatabase {
       this.db.genres.set(genre.id, genre)
 
       const akas = this.createAkas(genre.id, insertGenre.akas)
-      const parents = this.createParents(genre.id, insertGenre.parents)
-      const influencedBy = this.createInfluences(genre.id, insertGenre.influencedBy)
+      const parents = this.createParents(genre.id, insertGenre.parents).map(
+        (parent) => parent.parentId,
+      )
+      const influencedBy = this.createInfluences(genre.id, insertGenre.influencedBy).map(
+        (influence) => influence.influencerId,
+      )
 
       results.push({ ...genre, akas, parents, influencedBy })
     }
@@ -172,7 +176,7 @@ export class MockGenresDatabase implements IGenresDatabase {
   private createGenre(data: ExtendedInsertGenre): Genre {
     return {
       id: this.id++,
-      ...data,
+      name: data.name,
       subtitle: data.subtitle ?? null,
       type: data.type ?? DEFAULT_GENRE_TYPE,
       relevance: data.relevance ?? UNSET_GENRE_RELEVANCE,

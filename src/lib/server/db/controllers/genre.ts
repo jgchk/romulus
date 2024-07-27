@@ -28,8 +28,8 @@ export interface IGenresDatabase {
   insert(...data: ExtendedInsertGenre[]): Promise<
     (Genre & {
       akas: Omit<GenreAka, 'genreId'>[]
-      parents: Pick<GenreParent, 'parentId'>[]
-      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+      parents: number[]
+      influencedBy: number[]
     })[]
   >
 
@@ -144,7 +144,7 @@ export class GenresDatabase implements IGenresDatabase {
         await tx.insert(genreInfluences).values(influencedBy)
       }
 
-      return tx.query.genres.findMany({
+      const results = await tx.query.genres.findMany({
         where: inArray(
           genres.id,
           entries.map((entry) => entry.id),
@@ -159,6 +159,12 @@ export class GenresDatabase implements IGenresDatabase {
           },
         },
       })
+
+      return results.map((genre) => ({
+        ...genre,
+        influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
+        parents: genre.parents.map(({ parentId }) => parentId),
+      }))
     })
   }
 
