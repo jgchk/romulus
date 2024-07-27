@@ -130,8 +130,8 @@ export async function createGenreHistoryEntry({
     InferSelectModel<typeof genres>,
     'id' | 'name' | 'type' | 'shortDescription' | 'longDescription' | 'notes' | 'subtitle' | 'nsfw'
   > & {
-    parents: { parentId: number }[]
-    influencedBy: { influencerId: number }[]
+    parents: number[]
+    influencedBy: number[]
     akas: Omit<InferInsertModel<typeof genreHistoryAkas>, 'genreId'>[]
   }
   accountId: number
@@ -144,8 +144,8 @@ export async function createGenreHistoryEntry({
     shortDescription: genre.shortDescription,
     longDescription: genre.longDescription,
     notes: genre.notes,
-    parentGenreIds: genre.parents.map((parent) => parent.parentId),
-    influencedByGenreIds: genre.influencedBy.map((influencer) => influencer.influencerId),
+    parentGenreIds: genre.parents,
+    influencedByGenreIds: genre.influencedBy,
     treeGenreId: genre.id,
     nsfw: genre.nsfw,
     operation,

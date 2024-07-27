@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     return error(404, { message: 'Genre not found' })
   }
 
-  const { akas, parents, influencedBy, ...genre } = maybeGenre
+  const { akas, ...genre } = maybeGenre
 
   const data = {
     ...genre,
@@ -47,8 +47,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       .filter((aka) => aka.relevance === 1)
       .map((aka) => aka.name)
       .join(', '),
-    parents: parents.map((parent) => parent.parentId),
-    influencedBy: influencedBy.map((influencer) => influencer.influencerId),
   }
 
   const form = await superValidate(data, zod(genreSchema))

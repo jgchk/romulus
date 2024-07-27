@@ -9,7 +9,6 @@ import {
   type GenreAka,
   genreAkas,
   genreHistory,
-  type GenreInfluence,
   genreInfluences,
   type GenreParent,
   genreParents,
@@ -39,8 +38,8 @@ export interface IGenresDatabase {
   ): Promise<
     Genre & {
       akas: Omit<GenreAka, 'genreId'>[]
-      parents: Pick<GenreParent, 'parentId'>[]
-      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+      parents: number[]
+      influencedBy: number[]
     }
   >
 
@@ -63,24 +62,20 @@ export interface IGenresDatabase {
   findByIdHistory(id: Genre['id']): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-        parents: Pick<GenreParent, 'parentId'>[]
-        children: (Pick<GenreParent, 'childId'> & {
-          child: Genre & {
-            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-            parents: Pick<GenreParent, 'parentId'>[]
-            children: Pick<GenreParent, 'childId'>[]
-            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-          }
+        parents: number[]
+        children: (Genre & {
+          akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+          parents: number[]
+          children: number[]
+          influencedBy: number[]
         })[]
-        influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-        influences: {
-          influenced: Genre & {
-            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-            parents: Pick<GenreParent, 'parentId'>[]
-            children: Pick<GenreParent, 'childId'>[]
-            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-          }
-        }[]
+        influencedBy: number[]
+        influences: (Genre & {
+          akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+          parents: number[]
+          children: number[]
+          influencedBy: number[]
+        })[]
       })
     | undefined
   >
@@ -88,8 +83,8 @@ export interface IGenresDatabase {
   findByIdEdit(id: Genre['id']): Promise<
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-        parents: Pick<GenreParent, 'parentId'>[]
-        influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+        parents: number[]
+        influencedBy: number[]
       })
     | undefined
   >
@@ -97,8 +92,8 @@ export interface IGenresDatabase {
   findByIds(ids: Genre['id'][]): Promise<
     (Genre & {
       akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-      parents: Pick<GenreParent, 'parentId'>[]
-      influencedBy: Pick<GenreInfluence, 'influencerId'>[]
+      parents: number[]
+      influencedBy: number[]
     })[]
   >
 
@@ -274,31 +269,8 @@ export class GenresDatabase implements IGenresDatabase {
     })
   }
 
-  findByIdHistory(id: Genre['id']): Promise<
-    | (Genre & {
-        akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-        parents: Pick<GenreParent, 'parentId'>[]
-        children: (Pick<GenreParent, 'childId'> & {
-          child: Genre & {
-            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-            parents: Pick<GenreParent, 'parentId'>[]
-            children: Pick<GenreParent, 'childId'>[]
-            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-          }
-        })[]
-        influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-        influences: {
-          influenced: Genre & {
-            akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-            parents: Pick<GenreParent, 'parentId'>[]
-            children: Pick<GenreParent, 'childId'>[]
-            influencedBy: Pick<GenreInfluence, 'influencerId'>[]
-          }
-        }[]
-      })
-    | undefined
-  > {
-    return this.db.query.genres.findFirst({
+  async findByIdHistory(id: Genre['id']) {
+    const result = await this.db.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -371,10 +343,33 @@ export class GenresDatabase implements IGenresDatabase {
         },
       },
     })
+
+    if (!result) return undefined
+
+    return {
+      ...result,
+
+      parents: result.parents.map(({ parentId }) => parentId),
+      influencedBy: result.influencedBy.map(({ influencerId }) => influencerId),
+
+      children: result.children.map(({ child }) => ({
+        ...child,
+        parents: child.parents.map(({ parentId }) => parentId),
+        children: child.children.map(({ childId }) => childId),
+        influencedBy: child.influencedBy.map(({ influencerId }) => influencerId),
+      })),
+
+      influences: result.influences.map(({ influenced }) => ({
+        ...influenced,
+        parents: influenced.parents.map(({ parentId }) => parentId),
+        children: influenced.children.map(({ childId }) => childId),
+        influencedBy: influenced.influencedBy.map(({ influencerId }) => influencerId),
+      })),
+    }
   }
 
-  findByIdEdit(id: Genre['id']) {
-    return this.db.query.genres.findFirst({
+  async findByIdEdit(id: Genre['id']) {
+    const result = await this.db.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -397,10 +392,18 @@ export class GenresDatabase implements IGenresDatabase {
         },
       },
     })
+
+    if (!result) return undefined
+
+    return {
+      ...result,
+      parents: result.parents.map(({ parentId }) => parentId),
+      influencedBy: result.influencedBy.map(({ influencerId }) => influencerId),
+    }
   }
 
-  findByIds(ids: Genre['id'][]) {
-    return this.db.query.genres.findMany({
+  async findByIds(ids: Genre['id'][]) {
+    const results = await this.db.query.genres.findMany({
       where: inArray(genres.id, ids),
       with: {
         akas: {
@@ -422,6 +425,12 @@ export class GenresDatabase implements IGenresDatabase {
         },
       },
     })
+
+    return results.map((genre) => ({
+      ...genre,
+      parents: genre.parents.map(({ parentId }) => parentId),
+      influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
+    }))
   }
 
   async findAllSimple() {

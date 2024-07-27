@@ -58,8 +58,8 @@ export class MockGenresDatabase implements IGenresDatabase {
     return Promise.resolve({
       ...updatedGenre,
       akas: this.getAkas(id),
-      parents: this.getParents(id),
-      influencedBy: this.getInfluencedBy(id),
+      parents: this.getParentIds(id),
+      influencedBy: this.getInfluencedByIds(id),
     })
   }
 
@@ -93,9 +93,9 @@ export class MockGenresDatabase implements IGenresDatabase {
     return Promise.resolve({
       ...genre,
       akas: this.getAkasHistory(id),
-      parents: this.getParentsHistory(id),
+      parents: this.getParentIds(id),
       children: this.getChildrenHistory(id),
-      influencedBy: this.getInfluencedByHistory(id),
+      influencedBy: this.getInfluencedByIds(id),
       influences: this.getInfluencesHistory(id),
     })
   }
@@ -107,8 +107,8 @@ export class MockGenresDatabase implements IGenresDatabase {
     return Promise.resolve({
       ...genre,
       akas: this.getAkas(id),
-      parents: this.getParents(id),
-      influencedBy: this.getInfluencedBy(id),
+      parents: this.getParentIds(id),
+      influencedBy: this.getInfluencedByIds(id),
     })
   }
 
@@ -122,8 +122,8 @@ export class MockGenresDatabase implements IGenresDatabase {
           return {
             ...genre,
             akas: this.getAkas(id),
-            parents: this.getParents(id),
-            influencedBy: this.getInfluencedBy(id),
+            parents: this.getParentIds(id),
+            influencedBy: this.getInfluencedByIds(id),
           }
         })
         .filter(isDefined),
@@ -253,10 +253,6 @@ export class MockGenresDatabase implements IGenresDatabase {
     }))
   }
 
-  private getParentsHistory(id: Genre['id']) {
-    return this.getParents(id)
-  }
-
   private getChildren(id: Genre['id']) {
     return Array.from(this.db.genreParents.values())
       .filter((parent) => parent.parentId === id)
@@ -269,14 +265,11 @@ export class MockGenresDatabase implements IGenresDatabase {
 
   private getChildrenHistory(id: Genre['id']) {
     return this.getChildren(id).map((child) => ({
-      childId: child.childId,
-      child: {
-        ...this.db.genres.get(child.childId)!,
-        akas: this.getAkasHistory(child.childId),
-        parents: this.getParentsHistory(child.childId),
-        children: this.getChildrenIds(child.childId).map((childId) => ({ childId })),
-        influencedBy: this.getInfluencedByHistory(child.childId),
-      },
+      ...this.db.genres.get(child.childId)!,
+      akas: this.getAkasHistory(child.childId),
+      parents: this.getParentIds(child.childId),
+      children: this.getChildrenIds(child.childId),
+      influencedBy: this.getInfluencedByIds(child.childId),
     }))
   }
 
@@ -296,14 +289,14 @@ export class MockGenresDatabase implements IGenresDatabase {
       .map((influence) => ({ influencerId: influence.influencerId }))
   }
 
+  private getInfluencedByIds(id: Genre['id']) {
+    return this.getInfluencedBy(id).map((influence) => influence.influencerId)
+  }
+
   private getInfluencedByDetail(id: Genre['id']) {
     return this.getInfluencedBy(id).map((influence) => ({
       influencer: this.db.genres.get(influence.influencerId)!,
     }))
-  }
-
-  private getInfluencedByHistory(id: Genre['id']) {
-    return this.getInfluencedBy(id)
   }
 
   private getInfluences(id: Genre['id']) {
@@ -320,13 +313,11 @@ export class MockGenresDatabase implements IGenresDatabase {
 
   private getInfluencesHistory(id: Genre['id']) {
     return this.getInfluences(id).map((influence) => ({
-      influenced: {
-        ...influence.influenced,
-        akas: this.getAkasHistory(influence.influenced.id),
-        parents: this.getParentsHistory(influence.influenced.id),
-        children: this.getChildrenIds(influence.influenced.id).map((childId) => ({ childId })),
-        influencedBy: this.getInfluencedByHistory(influence.influenced.id),
-      },
+      ...influence.influenced,
+      akas: this.getAkasHistory(influence.influenced.id),
+      parents: this.getParentIds(influence.influenced.id),
+      children: this.getChildrenIds(influence.influenced.id),
+      influencedBy: this.getInfluencedByIds(influence.influenced.id),
     }))
   }
 

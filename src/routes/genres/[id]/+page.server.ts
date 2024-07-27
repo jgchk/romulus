@@ -118,8 +118,8 @@ export const actions: Actions = {
       const genreHistoryDb = new GenreHistoryDatabase(tx)
 
       await Promise.all(
-        genre.children.flatMap(({ childId }) =>
-          genre.parents.map(({ parentId }) => genreParentsDb.update(id, childId, { parentId })),
+        genre.children.flatMap(({ id: childId }) =>
+          genre.parents.map((parentId) => genreParentsDb.update(id, childId, { parentId })),
         ),
       )
 
@@ -132,10 +132,7 @@ export const actions: Actions = {
         genreHistoryDb,
       })
 
-      const relations = [
-        ...genre.children.map((c) => c.child),
-        ...genre.influences.map((i) => i.influenced),
-      ]
+      const relations = [...genre.children, ...genre.influences]
       await Promise.all(
         relations.map((genre) =>
           createGenreHistoryEntry({
