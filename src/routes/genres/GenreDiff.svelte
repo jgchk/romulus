@@ -74,6 +74,7 @@
       (h) => new Set(h.influencedByGenreIds),
     ),
   }
+  $: console.log(changed)
 
   type DiffAction = 'create' | 'update' | 'delete' | null
 
@@ -366,16 +367,16 @@
       <div class={cn(!changed.nsfw && 'opacity-50')}>
         <Label class={cn('text-xs', getLabelClass(changed.nsfw))}>NSFW</Label>
         <div class="text-sm" data-testid="genre-diff-nsfw">
-          {#if changed.type === 'delete'}
+          {#if changed.nsfw === 'delete'}
             <span class="text-gray-500 line-through"
               >{capitalize(currentHistory.nsfw.toString())}</span
             >
-          {:else if changed.type === 'update'}
+          {:else if changed.nsfw === 'update'}
             <span>{capitalize(currentHistory.nsfw.toString())}</span>
             <span class="text-gray-500 line-through"
               >{capitalize(previousHistory?.nsfw?.toString() ?? '')}</span
             >
-          {:else if changed.type === 'create'}
+          {:else if changed.nsfw === 'create'}
             <span>{capitalize(currentHistory.nsfw.toString())}</span>
           {/if}
         </div>
