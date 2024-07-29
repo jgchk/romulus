@@ -1,4 +1,4 @@
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
+import type { InferInsertModel } from 'drizzle-orm'
 
 import { type GenreOperation, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
@@ -6,7 +6,7 @@ import { median } from '$lib/utils/math'
 import type { IGenresDatabase } from './db/controllers/genre'
 import type { IGenreHistoryDatabase } from './db/controllers/genre-history'
 import type { IGenreRelevanceVotesDatabase } from './db/controllers/genre-relevance-votes'
-import type { genreHistoryAkas, genres } from './db/schema'
+import type { Genre, genreHistoryAkas } from './db/schema'
 
 export class GenreCycleError extends Error {
   constructor(public cycle: string) {
@@ -134,7 +134,7 @@ export async function createGenreHistoryEntry<T>({
   connection,
 }: {
   genre: Pick<
-    InferSelectModel<typeof genres>,
+    Genre,
     'id' | 'name' | 'type' | 'shortDescription' | 'longDescription' | 'notes' | 'subtitle' | 'nsfw'
   > & {
     parents: number[]

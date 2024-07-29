@@ -73,19 +73,9 @@ export interface IGenresDatabase<T> {
     | (Genre & {
         akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
         parents: number[]
-        children: (Genre & {
-          akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-          parents: number[]
-          children: number[]
-          influencedBy: number[]
-        })[]
+        children: number[]
         influencedBy: number[]
-        influences: (Genre & {
-          akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-          parents: number[]
-          children: number[]
-          influencedBy: number[]
-        })[]
+        influences: number[]
       })
     | undefined
   >
@@ -301,30 +291,6 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
         },
         children: {
           columns: { childId: true },
-          with: {
-            child: {
-              with: {
-                akas: {
-                  columns: {
-                    name: true,
-                    relevance: true,
-                    order: true,
-                  },
-                },
-                parents: {
-                  columns: { parentId: true },
-                },
-                children: {
-                  columns: { childId: true },
-                },
-                influencedBy: {
-                  columns: {
-                    influencerId: true,
-                  },
-                },
-              },
-            },
-          },
         },
         influencedBy: {
           columns: {
@@ -332,29 +298,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
           },
         },
         influences: {
-          with: {
-            influenced: {
-              with: {
-                akas: {
-                  columns: {
-                    name: true,
-                    relevance: true,
-                    order: true,
-                  },
-                },
-                parents: {
-                  columns: { parentId: true },
-                },
-                children: {
-                  columns: { childId: true },
-                },
-                influencedBy: {
-                  columns: {
-                    influencerId: true,
-                  },
-                },
-              },
-            },
+          columns: {
+            influencedId: true,
           },
         },
       },
@@ -366,21 +311,9 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       ...result,
 
       parents: result.parents.map(({ parentId }) => parentId),
+      children: result.children.map(({ childId }) => childId),
       influencedBy: result.influencedBy.map(({ influencerId }) => influencerId),
-
-      children: result.children.map(({ child }) => ({
-        ...child,
-        parents: child.parents.map(({ parentId }) => parentId),
-        children: child.children.map(({ childId }) => childId),
-        influencedBy: child.influencedBy.map(({ influencerId }) => influencerId),
-      })),
-
-      influences: result.influences.map(({ influenced }) => ({
-        ...influenced,
-        parents: influenced.parents.map(({ parentId }) => parentId),
-        children: influenced.children.map(({ childId }) => childId),
-        influencedBy: influenced.influencedBy.map(({ influencerId }) => influencerId),
-      })),
+      influences: result.influences.map(({ influencedId }) => influencedId),
     }
   }
 
@@ -419,6 +352,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
   }
 
   async findByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
+    if (ids.length === 0) return []
+
     const results = await conn.query.genres.findMany({
       where: inArray(genres.id, ids),
       with: {

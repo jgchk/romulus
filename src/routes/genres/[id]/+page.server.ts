@@ -4,11 +4,12 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
+import { deleteGenre, NotFoundError } from '$lib/server/api/genres/delete'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import { createGenreHistoryEntry, setRelevanceVote } from '$lib/server/genres'
+import { setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isNotNull } from '$lib/utils/types'
@@ -106,47 +107,20 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const genresDb = new GenresDatabase()
-    const genre = await genresDb.findByIdHistory(id, locals.dbConnection)
-    if (!genre) {
-      return error(404, 'Genre not found')
-    }
-
-    // move child genres under deleted genre's parents
-    await locals.dbConnection.transaction(async (tx) => {
-      const genresDb = new GenresDatabase()
-      const genreParentsDb = new GenreParentsDatabase()
-      const genreHistoryDb = new GenreHistoryDatabase()
-
-      await Promise.all(
-        genre.children.flatMap(({ id: childId }) =>
-          genre.parents.map((parentId) => genreParentsDb.update(id, childId, { parentId }, tx)),
-        ),
-      )
-
-      await genresDb.deleteById(id, tx)
-
-      await createGenreHistoryEntry({
-        genre,
-        accountId: user.id,
-        operation: 'DELETE',
-        genreHistoryDb,
-        connection: tx,
+    try {
+      await deleteGenre(id, user.id, {
+        transactor: locals.dbConnection,
+        genresDb: new GenresDatabase(),
+        genreHistoryDb: new GenreHistoryDatabase(),
+        genreParentsDb: new GenreParentsDatabase(),
       })
-
-      const relations = [...genre.children, ...genre.influences]
-      await Promise.all(
-        relations.map((genre) =>
-          createGenreHistoryEntry({
-            genre,
-            accountId: user.id,
-            operation: 'UPDATE',
-            genreHistoryDb,
-            connection: tx,
-          }),
-        ),
-      )
-    })
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        return error(404, 'Genre not found')
+      } else {
+        throw err
+      }
+    }
 
     return redirect(302, '/genres')
   },
