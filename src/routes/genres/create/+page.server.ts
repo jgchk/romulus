@@ -37,14 +37,11 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genresDb = new GenresDatabase()
-    const genreHistoryDb = new GenreHistoryDatabase()
-    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
     const genreId = await createGenre(form.data, user.id, {
       transactor: locals.dbConnection,
-      genresDb,
-      genreHistoryDb,
-      genreRelevanceVotesDb,
+      genresDb: new GenresDatabase(),
+      genreHistoryDb: new GenreHistoryDatabase(),
+      genreRelevanceVotesDb: new GenreRelevanceVotesDatabase(),
     })
 
     redirect(302, `/genres/${genreId}`)
