@@ -1,11 +1,9 @@
 import type { InferInsertModel } from 'drizzle-orm'
 
-import { type GenreOperation, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
-import { median } from '$lib/utils/math'
+import { type GenreOperation } from '$lib/types/genres'
 
 import type { IGenresDatabase } from './db/controllers/genre'
 import type { IGenreHistoryDatabase } from './db/controllers/genre-history'
-import type { IGenreRelevanceVotesDatabase } from './db/controllers/genre-relevance-votes'
 import type { Genre, genreHistoryAkas } from './db/schema'
 
 export class GenreCycleError extends Error {
@@ -81,49 +79,6 @@ function detectCycleInner(
   }
 
   return false
-}
-
-export async function setRelevanceVote<T>(
-  id: number,
-  relevance: number,
-  accountId: number,
-  genresDb: IGenresDatabase<T>,
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>,
-  connection: T,
-) {
-  if (relevance === UNSET_GENRE_RELEVANCE) {
-    await genreRelevanceVotesDb.deleteByGenreId(id, connection)
-    await updateRelevance(id, genresDb, genreRelevanceVotesDb, connection)
-    return
-  }
-
-  await genreRelevanceVotesDb.upsert(
-    {
-      genreId: id,
-      accountId,
-      relevance,
-      updatedAt: new Date(),
-    },
-    connection,
-  )
-
-  await updateRelevance(id, genresDb, genreRelevanceVotesDb, connection)
-}
-
-async function updateRelevance<T>(
-  genreId: number,
-  genresDb: IGenresDatabase<T>,
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>,
-  connection: T,
-) {
-  const votes = await genreRelevanceVotesDb.findByGenreId(genreId, connection)
-
-  const relevance =
-    votes.length === 0
-      ? UNSET_GENRE_RELEVANCE
-      : Math.round(median(votes.map((vote) => vote.relevance)))
-
-  await genresDb.update(genreId, { relevance }, connection)
 }
 
 export async function createGenreHistoryEntry<T>({

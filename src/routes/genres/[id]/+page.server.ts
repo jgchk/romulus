@@ -5,11 +5,11 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { deleteGenre, NotFoundError } from '$lib/server/api/genres/delete'
+import { setRelevanceVote } from '$lib/server/api/genres/relevance/vote'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import { setRelevanceVote } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isNotNull } from '$lib/utils/types'
@@ -81,16 +81,11 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genresDb = new GenresDatabase()
-    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
-    await setRelevanceVote(
-      id,
-      form.data.relevanceVote,
-      locals.user.id,
-      genresDb,
-      genreRelevanceVotesDb,
-      locals.dbConnection,
-    )
+    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, {
+      transactor: locals.dbConnection,
+      genresDb: new GenresDatabase(),
+      genreRelevanceVotesDb: new GenreRelevanceVotesDatabase(),
+    })
 
     return { form }
   },
