@@ -2,7 +2,7 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { CreateGenrePage } from '../../../fixtures/pages/genre-create'
-import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
+import { createGenres, deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-empty-state',
@@ -11,84 +11,61 @@ const TEST_ACCOUNT = {
 
 export default function emptyStateTests() {
   test.describe('empty state', () => {
-    test.describe('when there are 0 genres', () => {
-      test.describe('when user is not logged in', () => {
-        test.beforeEach(async ({ genresPage }) => {
-          await genresPage.goto()
-        })
-
-        test('should show empty state', async ({ genreTree }) => {
-          await expect(genreTree.emptyState).toBeVisible()
-          await expect(genreTree.createGenreLink).not.toBeVisible()
-        })
-      })
-
-      test.describe('when user is logged in', () => {
-        test.describe('without EDIT_GENRES permission', () => {
-          test.beforeAll(async ({ dbConnection }) => {
-            await createAccounts([TEST_ACCOUNT], dbConnection)
-          })
-
-          test.afterAll(async ({ dbConnection }) => {
-            await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
-          })
-
-          test.beforeEach(async ({ signInPage }) => {
-            await signInPage.goto()
-            await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-          })
-
-          test('should show empty state', async ({ genreTree }) => {
-            await expect(genreTree.emptyState).toBeVisible()
-            await expect(genreTree.createGenreLink).not.toBeVisible()
-          })
-        })
-
-        test.describe('with EDIT_GENRES permission', () => {
-          test.beforeAll(async ({ dbConnection }) => {
-            await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }], dbConnection)
-          })
-
-          test.afterAll(async ({ dbConnection }) => {
-            await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
-          })
-
-          test.beforeEach(async ({ signInPage }) => {
-            await signInPage.goto()
-            await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-          })
-
-          test('should show empty state with CTA to create a genre', async ({
-            page,
-            genreTree,
-          }) => {
-            await expect(genreTree.emptyState).toBeVisible()
-            await expect(genreTree.createGenreLink).toBeVisible()
-            await genreTree.createGenreLink.click()
-            await expect(page).toHaveURL(CreateGenrePage.url)
-          })
-        })
-      })
+    test.afterAll(async ({ dbConnection }) => {
+      await deleteGenres(dbConnection)
     })
 
-    test.describe('when there is 1 genre', () => {
-      test.beforeAll(async ({ dbConnection }) => {
-        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
-        await createGenres([{ name: 'Genre' }], account.id, dbConnection)
-      })
+    test('when there are 0 genres and the user is not logged in, should show empty state', async ({
+      genresPage,
+      genreTree,
+    }) => {
+      await genresPage.goto()
 
-      test.afterAll(async ({ dbConnection }) => {
-        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
-        await deleteGenres(dbConnection)
-      })
+      await expect(genreTree.emptyState).toBeVisible()
+      await expect(genreTree.createGenreLink).not.toBeVisible()
+    })
 
-      test.beforeEach(async ({ genresPage }) => {
-        await genresPage.goto()
-      })
+    test('when there are 0 genres and the user is logged in without EDIT_GENRES permission, should show empty state', async ({
+      withAccount,
+      signInPage,
+      genresPage,
+      genreTree,
+    }) => {
+      await withAccount(TEST_ACCOUNT)
 
-      test('should not show empty state', async ({ genreTree }) => {
-        await expect(genreTree.emptyState).not.toBeVisible()
-      })
+      await signInPage.goto()
+      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+
+      await genresPage.goto()
+
+      await expect(genreTree.emptyState).toBeVisible()
+      await expect(genreTree.createGenreLink).not.toBeVisible()
+    })
+
+    test('when there are 0 genres and the user is logged in with EDIT_GENRES permission, should show empty state with CTA to create a genre', async ({
+      withAccount,
+      signInPage,
+      genreTree,
+      page,
+    }) => {
+      await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
+
+      await signInPage.goto()
+      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+
+      await expect(genreTree.emptyState).toBeVisible()
+      await expect(genreTree.createGenreLink).toBeVisible()
+      await genreTree.createGenreLink.click()
+      await expect(page).toHaveURL(CreateGenrePage.url)
+    })
+
+    test('when there is 1 genre', async ({ withAccount, dbConnection, genresPage, genreTree }) => {
+      const account = await withAccount(TEST_ACCOUNT)
+      await createGenres([{ name: 'Genre' }], account.id, dbConnection)
+
+      await genresPage.goto()
+
+      await expect(genreTree.emptyState).not.toBeVisible()
     })
   })
 }
