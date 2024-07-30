@@ -226,7 +226,7 @@ export default function editGenrePageTests() {
             TEST_ACCOUNT.username,
           )
           await expect(new GenreDiffEntry(genreHistoryPage.entries.nth(1)).name).toHaveText(
-            genreData.name + '-edited',
+            `${genreData.name}-edited ${genreData.name}`,
           )
         })
 
