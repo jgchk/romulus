@@ -5,7 +5,9 @@ import {
   getPostgresConnection,
   type IDrizzleConnection,
 } from '$lib/server/db/connection'
+import type { Account, InsertAccount } from '$lib/server/db/schema'
 
+import { createAccounts, deleteAccounts } from '../utils'
 import { GenreTree } from './elements/genre-tree'
 import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
@@ -46,6 +48,26 @@ export const test = base
       const pg = getPostgresConnection()
       await use(getDbConnection(pg))
       await pg.end()
+    },
+  })
+  .extend<{
+    withAccount: (account: InsertAccount) => Promise<Account>
+  }>({
+    withAccount: async ({ dbConnection }, use) => {
+      const accounts: Account[] = []
+
+      const withAccount = async (data: InsertAccount): Promise<Account> => {
+        const [account] = await createAccounts([data], dbConnection)
+        accounts.push(account)
+        return account
+      }
+
+      await use(withAccount)
+
+      await deleteAccounts(
+        accounts.map((account) => account.username),
+        dbConnection,
+      )
     },
   })
   .extend<{

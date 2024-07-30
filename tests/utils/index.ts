@@ -7,7 +7,13 @@ import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influences'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
-import { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import {
+  type Account,
+  accounts,
+  genreInfluences,
+  genreParents,
+  genres,
+} from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
@@ -20,7 +26,7 @@ export type CreatedAccount = Awaited<ReturnType<typeof createAccounts>>[number]
 export const createAccounts = async (
   accounts_: InferInsertModel<typeof accounts>[],
   connection: IDrizzleConnection,
-) => {
+): Promise<Account[]> => {
   const hashedAccounts = await Promise.all(
     accounts_.map(async (account) => ({
       ...account,
