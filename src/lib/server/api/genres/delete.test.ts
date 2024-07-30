@@ -6,7 +6,8 @@ import { MockGenreHistoryDatabase } from '$lib/server/db/controllers/genre-histo
 import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
 import { MockGenreParentsDatabase } from '$lib/server/db/controllers/genre-parents-mock'
 
-import { deleteGenre, type DeleteGenreContext, NotFoundError } from './delete'
+import { deleteGenre, type DeleteGenreContext } from './delete'
+import { NotFoundError } from './types'
 
 describe('deleteGenre', () => {
   function setup() {

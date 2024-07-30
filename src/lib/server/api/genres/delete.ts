@@ -5,18 +5,13 @@ import type { ITransactor } from '$lib/server/db/transactor'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import type { Account, Genre } from '../../db/schema'
+import { NotFoundError } from './types'
 
 export type DeleteGenreContext<T> = {
   transactor: ITransactor<T>
   genresDb: IGenresDatabase<T>
   genreHistoryDb: IGenreHistoryDatabase<T>
   genreParentsDb: IGenreParentsDatabase<T>
-}
-
-export class NotFoundError extends Error {
-  constructor() {
-    super('Genre not found')
-  }
 }
 
 export async function deleteGenre<T>(
