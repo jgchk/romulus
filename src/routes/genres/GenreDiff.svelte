@@ -175,7 +175,7 @@
             <a class="hover:underline" href="/genres/{currentHistory.treeGenreId}"
               >{currentHistory.name}</a
             > <span class="text-gray-500 line-through">{previousHistory?.name}</span>
-          {:else if changed.name === 'create'}
+          {:else}
             <a class="hover:underline" href="/genres/{currentHistory.treeGenreId}"
               >{currentHistory.name}</a
             >
@@ -192,7 +192,7 @@
             {:else if changed.subtitle === 'update'}
               <span>{currentHistory.subtitle}</span>
               <span class="text-gray-500 line-through">{previousHistory?.subtitle}</span>
-            {:else if changed.name === 'create'}
+            {:else}
               <span>{currentHistory.subtitle}</span>
             {/if}
           </div>
@@ -208,7 +208,7 @@
             <span>{capitalize(currentHistory.type)}</span>
             <span class="text-gray-500 line-through">{capitalize(previousHistory?.type ?? '')}</span
             >
-          {:else if changed.type === 'create'}
+          {:else}
             <span>{capitalize(currentHistory.type)}</span>
           {/if}
         </div>
@@ -223,7 +223,7 @@
             {:else if changed.type === 'update'}
               <div>{currentHistory.akas.join(', ')}</div>
               <div class="text-gray-500 line-through">{previousHistory?.akas.join(', ')}</div>
-            {:else if changed.type === 'create'}
+            {:else}
               <div>{currentHistory.akas.join(', ')}</div>
             {/if}
           </div>
@@ -277,7 +277,7 @@
                     <span class="text-gray-500 line-through">Deleted</span>
                   {/if}
                 </CommaList>
-              {:else if changed.parentGenreIds === 'create'}
+              {:else}
                 <CommaList items={currentHistory.parentGenreIds ?? []} let:item={id} class="block">
                   {@const genre = genres.find((g) => g.id === id)}
                   {#if genre}
@@ -345,7 +345,7 @@
                     <span class="text-gray-500 line-through">Deleted</span>
                   {/if}
                 </CommaList>
-              {:else if changed.influencedByGenreIds === 'create'}
+              {:else}
                 <CommaList
                   items={currentHistory.influencedByGenreIds ?? []}
                   let:item={id}
@@ -376,7 +376,7 @@
             <span class="text-gray-500 line-through"
               >{capitalize(previousHistory?.nsfw?.toString() ?? '')}</span
             >
-          {:else if changed.nsfw === 'create'}
+          {:else}
             <span>{capitalize(currentHistory.nsfw.toString())}</span>
           {/if}
         </div>
