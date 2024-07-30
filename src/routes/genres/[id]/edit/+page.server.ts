@@ -4,10 +4,14 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema, NotFoundError } from '$lib/server/api/genres/types'
-import { NoUpdatesError, SelfInfluenceError, updateGenre } from '$lib/server/api/genres/update'
+import {
+  GenreCycleError,
+  NoUpdatesError,
+  SelfInfluenceError,
+  updateGenre,
+} from '$lib/server/api/genres/update'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { GenreCycleError } from '$lib/server/genres'
 
 import type { PageServerLoad } from './$types'
 

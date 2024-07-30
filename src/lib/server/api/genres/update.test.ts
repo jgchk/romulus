@@ -5,10 +5,15 @@ import { describe, expect, it, vi } from 'vitest'
 import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
 import { MockGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history-mock'
 import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
-import { GenreCycleError } from '$lib/server/genres'
 
 import { type GenreData, NotFoundError } from './types'
-import { NoUpdatesError, SelfInfluenceError, updateGenre, type UpdateGenreContext } from './update'
+import {
+  GenreCycleError,
+  NoUpdatesError,
+  SelfInfluenceError,
+  updateGenre,
+  type UpdateGenreContext,
+} from './update'
 
 describe('updateGenre', () => {
   const ORIGINAL_GENRE: NonNullable<Awaited<ReturnType<IGenresDatabase<unknown>['findByIdEdit']>>> =

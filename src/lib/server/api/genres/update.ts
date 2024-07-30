@@ -5,7 +5,7 @@ import type { z } from 'zod'
 import { type IGenresDatabase } from '$lib/server/db/controllers/genre'
 import { type IGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import type { ITransactor } from '$lib/server/db/transactor'
-import { createGenreHistoryEntry, detectCycle, GenreCycleError } from '$lib/server/genres'
+import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import type { Account, Genre, genreAkas, genreHistory, genreHistoryAkas } from '../../db/schema'
 import { type GenreData, type genreSchema, NotFoundError } from './types'
@@ -14,6 +14,12 @@ export type UpdateGenreContext<T> = {
   transactor: ITransactor<T>
   genresDb: IGenresDatabase<T>
   genreHistoryDb: IGenreHistoryDatabase<T>
+}
+
+export class GenreCycleError extends Error {
+  constructor(public cycle: string) {
+    super(`Cycle detected: ${cycle}`)
+  }
 }
 
 export class SelfInfluenceError extends Error {
@@ -125,5 +131,74 @@ function didChange(
     )
   )
     return true
+  return false
+}
+
+type CycleGenre = { id: number; name: string; parents: number[] }
+
+async function detectCycle<T>(
+  data: {
+    id?: number
+    name: string
+    parents?: number[]
+    children?: number[]
+  },
+  genresDb: IGenresDatabase<T>,
+  connection: T,
+) {
+  let allGenres = await genresDb.findAllSimple(connection)
+
+  // if the user has made any updates to parent/child genres,
+  // temporarily apply those updates before checking for cycles
+  const id = data.id ?? -1
+  if (!allGenres.some((genre) => genre.id === id)) {
+    allGenres.push({
+      id,
+      name: data.name,
+      parents: data.parents ?? [],
+    })
+  }
+
+  if (data.parents) {
+    const parents = data.parents
+    allGenres = allGenres.map((genre) => (genre.id === data.id ? { ...genre, parents } : genre))
+  }
+  if (data.children) {
+    const children = data.children
+    allGenres = allGenres.map((genre) =>
+      children.includes(genre.id) ? { ...genre, parentGenres: [...genre.parents, id] } : genre,
+    )
+  }
+
+  const allGenresMap = new Map(allGenres.map((genre) => [genre.id, genre]))
+
+  for (const genre of allGenres) {
+    const cycle = detectCycleInner(genre.id, [], allGenresMap)
+    if (cycle) {
+      const formattedCycle = cycle.map((id) => allGenresMap.get(id)!.name).join(' → ')
+      return formattedCycle
+    }
+  }
+}
+
+function detectCycleInner(
+  id: number,
+  stack: number[],
+  allGenresMap: Map<number, CycleGenre>,
+): number[] | false {
+  if (stack.includes(id)) {
+    return [...stack, id]
+  }
+
+  const genre = allGenresMap.get(id)
+  if (!genre) return false
+
+  for (const parentId of genre.parents) {
+    const cycle = detectCycleInner(parentId, [...stack, id], allGenresMap)
+    if (cycle) {
+      return cycle
+    }
+  }
+
   return false
 }
