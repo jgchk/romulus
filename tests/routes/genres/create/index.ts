@@ -3,7 +3,13 @@ import { expect } from '@playwright/test'
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
 import type { GenreFormData } from '../../../fixtures/elements/genre-form'
-import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
+import {
+  createAccounts,
+  type CreatedAccount,
+  createGenres,
+  deleteAccounts,
+  deleteGenres,
+} from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genres-create',
@@ -44,8 +50,13 @@ export default function createGenrePageTests() {
       })
 
       test.describe('with EDIT_GENRES permission', () => {
+        let account: CreatedAccount
+
         test.beforeAll(async ({ dbConnection }) => {
-          await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }], dbConnection)
+          ;[account] = await createAccounts(
+            [{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }],
+            dbConnection,
+          )
         })
 
         test.afterAll(async ({ dbConnection }) => {
@@ -60,6 +71,7 @@ export default function createGenrePageTests() {
               { name: 'influence-one' },
               { name: 'influence-two' },
             ],
+            account.id,
             dbConnection,
           )
 

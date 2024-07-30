@@ -3,17 +3,30 @@ import { expect } from '@playwright/test'
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
 import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
-import { type CreatedGenre, createGenres, deleteGenres } from '../../../utils'
+import {
+  createAccounts,
+  type CreatedGenre,
+  createGenres,
+  deleteAccounts,
+  deleteGenres,
+} from '../../../utils'
+
+const TEST_ACCOUNT = {
+  username: 'test-username-genre-tree-links',
+  password: 'test-password-genre-tree-links',
+}
 
 export default function linksTests() {
   test.describe('links', () => {
     let genre: CreatedGenre
 
     test.beforeAll(async ({ dbConnection }) => {
-      ;[genre] = await createGenres([{ name: 'Genre' }], dbConnection)
+      const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+      ;[genre] = await createGenres([{ name: 'Genre' }], account.id, dbConnection)
     })
 
     test.afterAll(async ({ dbConnection }) => {
+      await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
       await deleteGenres(dbConnection)
     })
 

@@ -73,10 +73,12 @@ export default function emptyStateTests() {
 
     test.describe('when there is 1 genre', () => {
       test.beforeAll(async ({ dbConnection }) => {
-        await createGenres([{ name: 'Genre' }], dbConnection)
+        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+        await createGenres([{ name: 'Genre' }], account.id, dbConnection)
       })
 
       test.afterAll(async ({ dbConnection }) => {
+        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         await deleteGenres(dbConnection)
       })
 

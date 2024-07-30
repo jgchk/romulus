@@ -2,16 +2,23 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
-import { createGenres, deleteGenres } from '../../../utils'
+import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../../utils'
+
+const TEST_ACCOUNT = {
+  username: 'test-username-genre-tree-expansion',
+  password: 'test-password-genre-tree-expansion',
+}
 
 export default function expansionTests() {
   test.describe('expansion', () => {
     test.describe('when there is 1 genre', () => {
       test.beforeAll(async ({ dbConnection }) => {
-        await createGenres([{ name: 'Genre' }], dbConnection)
+        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+        await createGenres([{ name: 'Genre' }], account.id, dbConnection)
       })
 
       test.afterAll(async ({ dbConnection }) => {
+        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         await deleteGenres(dbConnection)
       })
 
@@ -35,13 +42,16 @@ export default function expansionTests() {
 
     test.describe('when there are 2 genres', () => {
       test.beforeAll(async ({ dbConnection }) => {
+        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
         await createGenres(
           [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
+          account.id,
           dbConnection,
         )
       })
 
       test.afterAll(async ({ dbConnection }) => {
+        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         await deleteGenres(dbConnection)
       })
 
@@ -99,17 +109,20 @@ export default function expansionTests() {
 
     test.describe('when there are 3 genres', () => {
       test.beforeAll(async ({ dbConnection }) => {
+        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
         await createGenres(
           [
             { name: 'Parent' },
             { name: 'Child', parents: ['Parent'] },
             { name: 'Grandchild', parents: ['Child'] },
           ],
+          account.id,
           dbConnection,
         )
       })
 
       test.afterAll(async ({ dbConnection }) => {
+        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         await deleteGenres(dbConnection)
       })
 

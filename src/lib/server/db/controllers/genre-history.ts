@@ -56,6 +56,8 @@ export interface IGenreHistoryDatabase<T> {
       'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
     >[]
   >
+
+  deleteAll: (conn: T) => Promise<void>
 }
 
 export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConnection> {
@@ -165,5 +167,9 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
       },
       orderBy: desc(genreHistory.createdAt),
     })
+  }
+
+  async deleteAll(conn: IDrizzleConnection) {
+    await conn.delete(genreHistory)
   }
 }

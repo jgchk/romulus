@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import type { InsertAccount } from '$lib/server/db/schema'
 
 import { test } from '../../fixtures'
@@ -21,9 +22,20 @@ const TEST_ACCOUNT: InsertAccount = {
 }
 
 test.describe('genres page', () => {
-  test.beforeEach(async ({ dbConnection }) => {
-    await createAccounts([TEST_ACCOUNT], dbConnection)
-  })
+  async function setup(dbConnection: IDrizzleConnection) {
+    const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+    const genres = await createGenres(
+      [
+        { name: 'Parent' },
+        { name: 'Child', parents: ['Parent'] },
+        { name: 'Grandchild', parents: ['Child'] },
+      ],
+      account.id,
+      dbConnection,
+    )
+
+    return { account, genres }
+  }
 
   test.afterEach(async ({ dbConnection }) => {
     await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
@@ -37,14 +49,7 @@ test.describe('genres page', () => {
     genreTree,
     genreHistoryPage,
   }) => {
-    const genres = await createGenres(
-      [
-        { name: 'Parent' },
-        { name: 'Child', parents: ['Parent'] },
-        { name: 'Grandchild', parents: ['Child'] },
-      ],
-      dbConnection,
-    )
+    const { genres } = await setup(dbConnection)
 
     const parentGenre = genres.find((genre) => genre.name === 'Parent')
     if (!parentGenre) {
@@ -76,8 +81,8 @@ test.describe('genres page', () => {
     await expect(new GenreTreeGenre(genreTree.genres.nth(0)).name).toHaveText('Parent')
 
     await genreHistoryPage.goto(childGenre.id)
-    await expect(genreHistoryPage.entries).toHaveCount(1)
-    await new GenreDiffEntry(genreHistoryPage.entries.nth(0)).expectData({
+    await expect(genreHistoryPage.entries).toHaveCount(2)
+    await new GenreDiffEntry(genreHistoryPage.entries.nth(1)).expectData({
       operation: 'Delete',
       account: TEST_ACCOUNT.username,
       name: 'Child',
@@ -85,15 +90,15 @@ test.describe('genres page', () => {
     })
 
     await genreHistoryPage.goto(grandchildGenre.id)
-    await expect(genreHistoryPage.entries).toHaveCount(1)
-    await new GenreDiffEntry(genreHistoryPage.entries.nth(0)).expectData({
+    await expect(genreHistoryPage.entries).toHaveCount(2)
+    await new GenreDiffEntry(genreHistoryPage.entries.nth(1)).expectData({
       operation: 'Update',
       account: TEST_ACCOUNT.username,
       name: 'Grandchild',
-      parents: 'Parent',
+      parents: 'Parent Deleted',
     })
 
     await genreHistoryPage.goto(parentGenre.id)
-    await expect(genreHistoryPage.entries).toHaveCount(0)
+    await expect(genreHistoryPage.entries).toHaveCount(1)
   })
 })

@@ -5,6 +5,7 @@ import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
 import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
 import {
   createAccounts,
+  type CreatedAccount,
   type CreatedGenre,
   createGenres,
   deleteAccounts,
@@ -50,9 +51,10 @@ export default function operationsTests() {
 
     test.describe('when there is 1 genre', () => {
       let genre: CreatedGenre
+      let account: CreatedAccount
 
       test.beforeAll(async ({ dbConnection }) => {
-        await createAccounts(
+        ;[account] = await createAccounts(
           [
             {
               ...TEST_ACCOUNT,
@@ -70,7 +72,7 @@ export default function operationsTests() {
       })
 
       test.beforeEach(async ({ signInPage, dbConnection }) => {
-        ;[genre] = await createGenres([{ name: 'Genre', type: 'STYLE' }], dbConnection)
+        ;[genre] = await createGenres([{ name: 'Genre', type: 'STYLE' }], account.id, dbConnection)
 
         await signInPage.goto()
         await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -129,8 +131,13 @@ export default function operationsTests() {
     })
 
     test.describe('when there are 2 genres', () => {
+      let account: CreatedAccount
+
       test.beforeAll(async ({ dbConnection }) => {
-        await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }], dbConnection)
+        ;[account] = await createAccounts(
+          [{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }],
+          dbConnection,
+        )
       })
 
       test.afterAll(async ({ dbConnection }) => {
@@ -140,6 +147,7 @@ export default function operationsTests() {
       test.beforeEach(async ({ signInPage, dbConnection }) => {
         await createGenres(
           [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
+          account.id,
           dbConnection,
         )
 
@@ -171,8 +179,13 @@ export default function operationsTests() {
     })
 
     test.describe('when there are 3 genres', () => {
+      let account: CreatedAccount
+
       test.beforeAll(async ({ dbConnection }) => {
-        await createAccounts([{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }], dbConnection)
+        ;[account] = await createAccounts(
+          [{ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] }],
+          dbConnection,
+        )
       })
 
       test.afterAll(async ({ dbConnection }) => {
@@ -186,6 +199,7 @@ export default function operationsTests() {
             { name: 'Child', parents: ['Parent'] },
             { name: 'Grandchild', parents: ['Child'] },
           ],
+          account.id,
           dbConnection,
         )
 

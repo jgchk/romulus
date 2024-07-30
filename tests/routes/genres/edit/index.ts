@@ -1,8 +1,5 @@
 import { expect } from '@playwright/test'
 
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { createGenreHistoryEntry } from '$lib/server/genres'
-
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
 import type { GenreFormData } from '../../../fixtures/elements/genre-form'
@@ -27,10 +24,12 @@ export default function editGenrePageTests() {
       let genre: CreatedGenre
 
       test.beforeAll(async ({ dbConnection }) => {
-        ;[genre] = await createGenres([{ name: 'test' }], dbConnection)
+        const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+        ;[genre] = await createGenres([{ name: 'test' }], account.id, dbConnection)
       })
 
       test.afterAll(async ({ dbConnection }) => {
+        await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
         await deleteGenres(dbConnection)
       })
 
@@ -48,8 +47,8 @@ export default function editGenrePageTests() {
         let genre: CreatedGenre
 
         test.beforeAll(async ({ dbConnection }) => {
-          await createAccounts([TEST_ACCOUNT], dbConnection)
-          ;[genre] = await createGenres([{ name: 'test' }], dbConnection)
+          const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
+          ;[genre] = await createGenres([{ name: 'test' }], account.id, dbConnection)
         })
 
         test.afterAll(async ({ dbConnection }) => {
@@ -104,16 +103,9 @@ export default function editGenrePageTests() {
               ...genreData.parents.map((name) => ({ name: name + '-edited' })),
               ...genreData.influences.map((name) => ({ name: name + '-edited' })),
             ],
+            account.id,
             dbConnection,
           )
-
-          await createGenreHistoryEntry({
-            genre,
-            accountId: account.id,
-            operation: 'CREATE',
-            genreHistoryDb: new GenreHistoryDatabase(),
-            connection: dbConnection,
-          })
 
           await signInPage.goto()
           await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
