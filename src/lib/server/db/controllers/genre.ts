@@ -330,7 +330,7 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
             relevance: true,
             order: true,
           },
-          orderBy: asc(genreAkas.order),
+          orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
         },
         parents: {
           columns: {

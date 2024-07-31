@@ -1,8 +1,9 @@
 import { omit } from 'ramda'
 
-import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
-import type { IGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import type { IGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import type { ITransactor } from '$lib/server/db/transactor'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -11,16 +12,17 @@ import type { GenreData } from './types'
 
 export type CreateGenreContext<T> = {
   transactor: ITransactor<T>
-  genresDb: IGenresDatabase<T>
-  genreHistoryDb: IGenreHistoryDatabase<T>
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>
 }
 
-export async function createGenre<T>(
+export async function createGenre<T extends IDrizzleConnection>(
   data: GenreData,
   accountId: Account['id'],
-  { transactor, genresDb, genreHistoryDb, genreRelevanceVotesDb }: CreateGenreContext<T>,
+  transactor: ITransactor<T>,
 ): Promise<number> {
+  const genresDb = new GenresDatabase()
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
+
   const genre = await transactor.transaction(async (tx) => {
     const [genre] = await genresDb.insert(
       [

@@ -48,6 +48,7 @@ export class AccountsDatabase implements IAccountsDatabase<IDrizzleConnection> {
   }
 
   async deleteByUsername(usernames: Account['username'][], conn: IDrizzleConnection) {
+    if (usernames.length === 0) return
     await conn.delete(accounts).where(inArray(accounts.username, usernames))
   }
 

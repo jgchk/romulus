@@ -1,10 +1,7 @@
 import { test as base } from '@playwright/test'
 
-import {
-  getDbConnection,
-  getPostgresConnection,
-  type IDrizzleConnection,
-} from '$lib/server/db/connection'
+import { type IDrizzleConnection } from '$lib/server/db/connection'
+import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 import type { Account, Genre, InsertAccount } from '$lib/server/db/schema'
 
 import {

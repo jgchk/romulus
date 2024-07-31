@@ -1,39 +1,16 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+import { describe, expect } from 'vitest'
 
-import { omit } from 'ramda'
-import { describe, expect, it, vi } from 'vitest'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 
-import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
-import { MockGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history-mock'
-import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
-import { MockGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes-mock'
-
-import { createGenre, type CreateGenreContext } from './create'
+import { test } from '../../../../vitest-setup'
+import { createGenre } from './create'
 import type { GenreData } from './types'
 
 describe('createGenre', () => {
-  function setup() {
-    type MockConnection = { db: 'connection' }
-    const mockConnection = Object.freeze({ db: 'connection' }) satisfies MockConnection
-
-    const context = {
-      transactor: {
-        transaction: (fn) => fn(mockConnection),
-      },
-      genresDb: vi.mocked(MockGenresDatabase()),
-      genreHistoryDb: vi.mocked(MockGenreHistoryDatabase()),
-      genreRelevanceVotesDb: vi.mocked(MockGenreRelevanceVotesDatabase()),
-    } satisfies CreateGenreContext<MockConnection>
-
-    return {
-      context,
-      mockConnection,
-    }
-  }
-
-  it('should return the created genre id', async () => {
-    const { context } = setup()
-
+  test('should return the created genre id', async ({ dbConnection }) => {
     const genreData: GenreData = {
       name: 'Test',
       subtitle: null,
@@ -50,74 +27,73 @@ describe('createGenre', () => {
       nsfw: false,
     }
 
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    const genreId = await createGenre(genreData, accountId, context)
-
-    expect(genreId).toBe(insertedGenre.id)
-  })
-
-  it('should insert the genre into the database', async () => {
-    const { context } = setup()
-
-    const genreData: GenreData = {
-      name: 'Test',
-      subtitle: null,
-      type: 'STYLE',
-      shortDescription: null,
-      longDescription: null,
-      notes: null,
-      primaryAkas: null,
-      secondaryAkas: null,
-      tertiaryAkas: null,
-      parents: [],
-      influencedBy: [],
-      relevance: undefined,
-      nsfw: false,
-    }
-
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genresDb.insert).toHaveBeenCalledTimes(1)
-    expect(context.genresDb.insert).toHaveBeenCalledWith(
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
       [
         {
-          ...genreData,
-          akas: [],
-          updatedAt: expect.any(Date) as Date,
+          username: 'test-1',
+          password: 'test-1',
         },
       ],
-      expect.anything(),
+      dbConnection,
     )
+
+    const genreId = await createGenre(genreData, account.id, dbConnection)
+
+    expect(genreId).toBeTypeOf('number')
   })
 
-  it('should map AKAs correctly', async () => {
-    const { context } = setup()
+  test('should insert the genre into the database', async ({ dbConnection }) => {
+    const genreData: GenreData = {
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      primaryAkas: null,
+      secondaryAkas: null,
+      tertiaryAkas: null,
+      parents: [],
+      influencedBy: [],
+      relevance: undefined,
+      nsfw: false,
+    }
 
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [
+        {
+          username: 'test-2',
+          password: 'test-2',
+        },
+      ],
+      dbConnection,
+    )
+
+    const id = await createGenre(genreData, account.id, dbConnection)
+
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdEdit(id, dbConnection)
+    expect(genre).toEqual({
+      id: expect.any(Number) as number,
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      parents: [],
+      influencedBy: [],
+      relevance: 99,
+      nsfw: false,
+      akas: [],
+      createdAt: expect.any(Date) as Date,
+      updatedAt: expect.any(Date) as Date,
+    })
+  })
+
+  test('should map AKAs correctly', async ({ dbConnection }) => {
     const genreData: GenreData = {
       name: 'Test',
       subtitle: null,
@@ -134,11 +110,33 @@ describe('createGenre', () => {
       nsfw: false,
     }
 
-    const accountId = 10101
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [
+        {
+          username: 'test-3',
+          password: 'test-3',
+        },
+      ],
+      dbConnection,
+    )
 
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
+    const id = await createGenre(genreData, account.id, dbConnection)
+
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdEdit(id, dbConnection)
+    expect(genre).toEqual({
+      id: expect.any(Number) as number,
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      parents: [],
+      influencedBy: [],
+      relevance: 99,
+      nsfw: false,
       akas: [
         { name: 'primary one', relevance: 3, order: 0 },
         { name: 'primary two', relevance: 3, order: 1 },
@@ -147,38 +145,12 @@ describe('createGenre', () => {
         { name: 'tertiary one', relevance: 1, order: 0 },
         { name: 'tertiary two', relevance: 1, order: 1 },
       ],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genresDb.insert).toHaveBeenCalledTimes(1)
-    expect(context.genresDb.insert).toHaveBeenCalledWith(
-      [
-        {
-          ...genreData,
-          akas: [
-            { name: 'primary one', relevance: 3, order: 0 },
-            { name: 'primary two', relevance: 3, order: 1 },
-            { name: 'secondary one', relevance: 2, order: 0 },
-            { name: 'secondary two', relevance: 2, order: 1 },
-            { name: 'tertiary one', relevance: 1, order: 0 },
-            { name: 'tertiary two', relevance: 1, order: 1 },
-          ],
-          updatedAt: expect.any(Date) as Date,
-        },
-      ],
-      expect.anything(),
-    )
+      createdAt: expect.any(Date) as Date,
+      updatedAt: expect.any(Date) as Date,
+    })
   })
 
-  it('should insert a history entry', async () => {
-    const { context } = setup()
-
+  test('should insert a history entry', async ({ dbConnection }) => {
     const genreData: GenreData = {
       name: 'Test',
       subtitle: null,
@@ -195,168 +167,47 @@ describe('createGenre', () => {
       nsfw: false,
     }
 
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genreHistoryDb.insert).toHaveBeenCalledTimes(1)
-    expect(context.genreHistoryDb.insert).toHaveBeenCalledWith(
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
       [
         {
-          treeGenreId: insertedGenre.id,
-          name: 'Test',
-          subtitle: null,
-          type: 'STYLE',
-          shortDescription: null,
-          longDescription: null,
-          notes: null,
-          akas: [],
-          parentGenreIds: [],
-          influencedByGenreIds: [],
-          relevance: 99,
-          nsfw: false,
-          accountId,
-          operation: 'CREATE',
+          username: 'test-3',
+          password: 'test-3',
         },
       ],
-      expect.anything(),
+      dbConnection,
     )
-  })
 
-  it('should insert a relevance vote when relevance is set', async () => {
-    const { context } = setup()
+    const id = await createGenre(genreData, account.id, dbConnection)
 
-    const genreData: GenreData = {
-      name: 'Test',
-      subtitle: null,
-      type: 'STYLE',
-      shortDescription: null,
-      longDescription: null,
-      notes: null,
-      primaryAkas: null,
-      secondaryAkas: null,
-      tertiaryAkas: null,
-      parents: [],
-      influencedBy: [],
-      relevance: 1,
-      nsfw: false,
-    }
-
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genreRelevanceVotesDb.upsert).toHaveBeenCalledTimes(1)
-    expect(context.genreRelevanceVotesDb.upsert).toHaveBeenCalledWith(
+    const genreHistoryDb = new GenreHistoryDatabase()
+    const genreHistory = await genreHistoryDb.findByGenreId(id, dbConnection)
+    expect(genreHistory).toEqual([
       {
-        genreId: insertedGenre.id,
-        accountId,
-        relevance: 1,
-        updatedAt: expect.any(Date) as Date,
+        id: expect.any(Number) as number,
+        treeGenreId: id,
+        name: 'Test',
+        subtitle: null,
+        type: 'STYLE',
+        shortDescription: null,
+        longDescription: null,
+        notes: null,
+        akas: [],
+        parentGenreIds: [],
+        influencedByGenreIds: [],
+        nsfw: false,
+        accountId: account.id,
+        operation: 'CREATE',
+        createdAt: expect.any(Date) as Date,
+        account: {
+          id: account.id,
+          username: 'test-3',
+        },
       },
-      expect.anything(),
-    )
+    ])
   })
 
-  it('should not insert a relevance vote when relevance is undefined', async () => {
-    const { context } = setup()
-
-    const genreData: GenreData = {
-      name: 'Test',
-      subtitle: null,
-      type: 'STYLE',
-      shortDescription: null,
-      longDescription: null,
-      notes: null,
-      primaryAkas: null,
-      secondaryAkas: null,
-      tertiaryAkas: null,
-      parents: [],
-      influencedBy: [],
-      relevance: undefined,
-      nsfw: false,
-    }
-
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genreRelevanceVotesDb.upsert).not.toHaveBeenCalled()
-  })
-
-  it('should not insert a relevance vote when relevance is unset', async () => {
-    const { context } = setup()
-
-    const genreData: GenreData = {
-      name: 'Test',
-      subtitle: null,
-      type: 'STYLE',
-      shortDescription: null,
-      longDescription: null,
-      notes: null,
-      primaryAkas: null,
-      secondaryAkas: null,
-      tertiaryAkas: null,
-      parents: [],
-      influencedBy: [],
-      relevance: 99,
-      nsfw: false,
-    }
-
-    const accountId = 10101
-
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genreRelevanceVotesDb.upsert).not.toHaveBeenCalled()
-  })
-
-  it('should use a single transaction for all database actions', async () => {
-    const { context, mockConnection } = setup()
-
+  test('should insert a relevance vote when relevance is set', async ({ dbConnection }) => {
     const genreData: GenreData = {
       name: 'Test',
       subtitle: null,
@@ -373,26 +224,123 @@ describe('createGenre', () => {
       nsfw: false,
     }
 
-    const accountId = 10101
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [
+        {
+          username: 'test-3',
+          password: 'test-3',
+        },
+      ],
+      dbConnection,
+    )
 
-    const insertedGenre: Awaited<ReturnType<IGenresDatabase<null>['insert']>>[number] = {
-      id: 1,
-      ...omit(['primaryAkas', 'secondaryAkas', 'tertiaryAkas'], genreData),
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    const id = await createGenre(genreData, account.id, dbConnection)
+
+    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
+    const genreRelevanceVote = await genreRelevanceVotesDb.findByGenreIdAndAccountId(
+      id,
+      account.id,
+      dbConnection,
+    )
+    expect(genreRelevanceVote).toEqual({
+      genreId: id,
+      accountId: account.id,
+      relevance: 1,
+      createdAt: expect.any(Date) as Date,
+      updatedAt: expect.any(Date) as Date,
+    })
+
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdEdit(id, dbConnection)
+    expect(genre?.relevance).toBe(1)
+  })
+
+  test('should not insert a relevance vote when relevance is undefined', async ({
+    dbConnection,
+  }) => {
+    const genreData: GenreData = {
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      primaryAkas: null,
+      secondaryAkas: null,
+      tertiaryAkas: null,
+      parents: [],
+      influencedBy: [],
+      relevance: undefined,
+      nsfw: false,
     }
 
-    context.genresDb.insert.mockResolvedValueOnce([insertedGenre])
-
-    await createGenre(genreData, accountId, context)
-
-    expect(context.genresDb.insert).toHaveBeenCalledWith(expect.anything(), mockConnection)
-    expect(context.genreHistoryDb.insert).toHaveBeenCalledWith(expect.anything(), mockConnection)
-    expect(context.genreRelevanceVotesDb.upsert).toHaveBeenCalledWith(
-      expect.anything(),
-      mockConnection,
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [
+        {
+          username: 'test-3',
+          password: 'test-3',
+        },
+      ],
+      dbConnection,
     )
+
+    const id = await createGenre(genreData, account.id, dbConnection)
+
+    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
+    const genreRelevanceVote = await genreRelevanceVotesDb.findByGenreIdAndAccountId(
+      id,
+      account.id,
+      dbConnection,
+    )
+    expect(genreRelevanceVote).toBeUndefined()
+
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdEdit(id, dbConnection)
+    expect(genre?.relevance).toBe(99)
+  })
+
+  test('should not insert a relevance vote when relevance is unset', async ({ dbConnection }) => {
+    const genreData: GenreData = {
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      primaryAkas: null,
+      secondaryAkas: null,
+      tertiaryAkas: null,
+      parents: [],
+      influencedBy: [],
+      relevance: 99,
+      nsfw: false,
+    }
+
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [
+        {
+          username: 'test-3',
+          password: 'test-3',
+        },
+      ],
+      dbConnection,
+    )
+
+    const id = await createGenre(genreData, account.id, dbConnection)
+
+    const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
+    const genreRelevanceVote = await genreRelevanceVotesDb.findByGenreIdAndAccountId(
+      id,
+      account.id,
+      dbConnection,
+    )
+    expect(genreRelevanceVote).toBeUndefined()
+
+    const genresDb = new GenresDatabase()
+    const genre = await genresDb.findByIdEdit(id, dbConnection)
+    expect(genre?.relevance).toBe(99)
   })
 })

@@ -1,7 +1,7 @@
 import type { Handle } from '@sveltejs/kit'
 
 import { createLucia } from '$lib/server/auth'
-import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection'
+import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 
 export const handle: Handle = async ({ event, resolve }) => {
   const pg = getPostgresConnection()
