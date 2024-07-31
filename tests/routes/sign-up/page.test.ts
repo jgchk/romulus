@@ -2,6 +2,7 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
+import { deleteAccounts } from '../../utils'
 
 const EXISTING_ACCOUNT = {
   username: 'existing-username-sign-up',
@@ -12,6 +13,10 @@ const NEW_ACCOUNT = {
   username: 'test-username-sign-up',
   password: 'test-password-sign-up',
 }
+
+test.afterAll(async ({ dbConnection }) => {
+  await deleteAccounts([NEW_ACCOUNT.username], dbConnection)
+})
 
 test('should tab between username, password, confirm password, and submit fields', async ({
   signUpPage,
