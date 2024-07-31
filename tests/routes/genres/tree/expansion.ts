@@ -2,7 +2,6 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
-import { createGenres, deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-expansion',
@@ -11,18 +10,14 @@ const TEST_ACCOUNT = {
 
 export default function expansionTests() {
   test.describe('expansion', () => {
-    test.afterEach(async ({ dbConnection }) => {
-      await deleteGenres(dbConnection)
-    })
-
     test('when there is 1 genre, should not be expandable', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres([{ name: 'Genre' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre' }], account.id)
 
       await genresPage.goto()
 
@@ -33,12 +28,12 @@ export default function expansionTests() {
 
     test('when there is 1 genre, should not show the collapse all button when a genre is selected', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres([{ name: 'Genre' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre' }], account.id)
 
       await genresPage.goto()
 
@@ -49,16 +44,12 @@ export default function expansionTests() {
 
     test('when there are 2 genres, only the parent genre should be expandable', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
-        [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
-        account.id,
-        dbConnection,
-      )
+      await withGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }], account.id)
 
       await genresPage.goto()
 
@@ -82,16 +73,12 @@ export default function expansionTests() {
 
     test('when there are 2 genres, the parent genre should expand on click', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
-        [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
-        account.id,
-        dbConnection,
-      )
+      await withGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }], account.id)
 
       await genresPage.goto()
 
@@ -106,16 +93,12 @@ export default function expansionTests() {
 
     test('when there are 2 genres, the collapse all button should show when a genre is expanded', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
-        [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
-        account.id,
-        dbConnection,
-      )
+      await withGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }], account.id)
 
       await genresPage.goto()
 
@@ -128,16 +111,12 @@ export default function expansionTests() {
 
     test('when there are 2 genres, clicking the collapse all button should collapse all genres', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
-        [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
-        account.id,
-        dbConnection,
-      )
+      await withGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }], account.id)
 
       await genresPage.goto()
 
@@ -150,19 +129,18 @@ export default function expansionTests() {
 
     test('when there are 3 genres, only the parent and child genres should be expandable', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
+      await withGenres(
         [
           { name: 'Parent' },
           { name: 'Child', parents: ['Parent'] },
           { name: 'Grandchild', parents: ['Child'] },
         ],
         account.id,
-        dbConnection,
       )
 
       await genresPage.goto()
@@ -200,19 +178,18 @@ export default function expansionTests() {
 
     test('when there are 3 genres, should expand and collapse entire subtrees', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       genresPage,
       genreTree,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres(
+      await withGenres(
         [
           { name: 'Parent' },
           { name: 'Child', parents: ['Parent'] },
           { name: 'Grandchild', parents: ['Child'] },
         ],
         account.id,
-        dbConnection,
       )
 
       await genresPage.goto()

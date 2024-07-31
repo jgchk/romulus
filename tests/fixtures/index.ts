@@ -5,9 +5,15 @@ import {
   getPostgresConnection,
   type IDrizzleConnection,
 } from '$lib/server/db/connection'
-import type { Account, InsertAccount } from '$lib/server/db/schema'
+import type { Account, Genre, InsertAccount } from '$lib/server/db/schema'
 
-import { createAccounts, deleteAccounts } from '../utils'
+import {
+  createAccounts,
+  createGenres,
+  deleteAccounts,
+  deleteGenres,
+  type InsertTestGenre,
+} from '../utils'
 import { GenreTree } from './elements/genre-tree'
 import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
@@ -66,6 +72,29 @@ export const test = base
 
       await deleteAccounts(
         accounts.map((account) => account.username),
+        dbConnection,
+      )
+    },
+  })
+  .extend<{
+    withGenres: (genres: InsertTestGenre[], accountId: Account['id']) => Promise<Genre[]>
+  }>({
+    withGenres: async ({ dbConnection }, use) => {
+      const genres: Genre[] = []
+
+      const withGenre = async (
+        data: InsertTestGenre[],
+        accountId: Account['id'],
+      ): Promise<Genre[]> => {
+        const newGenres = await createGenres(data, accountId, dbConnection)
+        genres.push(...newGenres)
+        return newGenres
+      }
+
+      await use(withGenre)
+
+      await deleteGenres(
+        genres.map((genre) => genre.id),
         dbConnection,
       )
     },

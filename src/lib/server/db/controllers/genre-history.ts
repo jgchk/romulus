@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, lt } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, lt } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
 import {
@@ -57,6 +57,7 @@ export interface IGenreHistoryDatabase<T> {
     >[]
   >
 
+  deleteByGenreIds: (genreIds: GenreHistory['treeGenreId'][], conn: T) => Promise<void>
   deleteAll: (conn: T) => Promise<void>
 }
 
@@ -167,6 +168,11 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
       },
       orderBy: desc(genreHistory.createdAt),
     })
+  }
+
+  async deleteByGenreIds(genreIds: GenreHistory['treeGenreId'][], conn: IDrizzleConnection) {
+    if (genreIds.length === 0) return
+    await conn.delete(genreHistory).where(inArray(genreHistory.treeGenreId, genreIds))
   }
 
   async deleteAll(conn: IDrizzleConnection) {

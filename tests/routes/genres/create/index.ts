@@ -1,9 +1,11 @@
 import { expect } from '@playwright/test'
 
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
 import type { GenreFormData } from '../../../fixtures/elements/genre-form'
-import { createGenres, deleteGenres } from '../../../utils'
+import { deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genres-create',
@@ -13,7 +15,13 @@ const TEST_ACCOUNT = {
 export default function createGenrePageTests() {
   test.describe('create', () => {
     test.afterEach(async ({ dbConnection }) => {
-      await deleteGenres(dbConnection)
+      // delete created-genre
+      const genresDb = new GenresDatabase()
+      const createdGenres = await genresDb.findByName('created-genre', dbConnection)
+      await deleteGenres(
+        createdGenres.map((genre) => genre.id),
+        dbConnection,
+      )
     })
 
     test('when not logged in, should show error message', async ({
@@ -42,12 +50,12 @@ export default function createGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should default to Style type', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       createGenrePage,
     }) => {
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await createGenres(
+      await withGenres(
         [
           { name: 'parent-one' },
           { name: 'parent-two' },
@@ -55,7 +63,6 @@ export default function createGenrePageTests() {
           { name: 'influence-two' },
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -68,13 +75,13 @@ export default function createGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should create a genre with all fields filled', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       createGenrePage,
       genrePage,
     }) => {
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await createGenres(
+      await withGenres(
         [
           { name: 'parent-one' },
           { name: 'parent-two' },
@@ -82,7 +89,6 @@ export default function createGenrePageTests() {
           { name: 'influence-two' },
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -115,14 +121,14 @@ export default function createGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should create a history entry', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       createGenrePage,
       genrePage,
       genreHistoryPage,
     }) => {
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await createGenres(
+      await withGenres(
         [
           { name: 'parent-one' },
           { name: 'parent-two' },
@@ -130,7 +136,6 @@ export default function createGenrePageTests() {
           { name: 'influence-two' },
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()

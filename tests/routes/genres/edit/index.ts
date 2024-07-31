@@ -3,7 +3,7 @@ import { expect } from '@playwright/test'
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
 import type { GenreFormData } from '../../../fixtures/elements/genre-form'
-import { createGenres, deleteGenres, type InsertTestGenre } from '../../../utils'
+import { type InsertTestGenre } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genres-edit',
@@ -12,18 +12,14 @@ const TEST_ACCOUNT = {
 
 export default function editGenrePageTests() {
   test.describe('edit', () => {
-    test.afterAll(async ({ dbConnection }) => {
-      await deleteGenres(dbConnection)
-    })
-
     test('when not logged in, should show error message', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       editGenrePage,
       errorPage,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      const [genre] = await createGenres([{ name: 'test' }], account.id, dbConnection)
+      const [genre] = await withGenres([{ name: 'test' }], account.id)
 
       await editGenrePage.goto(genre.id)
 
@@ -32,13 +28,13 @@ export default function editGenrePageTests() {
 
     test('when logged in without EDIT_GENRES permission, should show error message', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
       errorPage,
     }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      const [genre] = await createGenres([{ name: 'test' }], account.id, dbConnection)
+      const [genre] = await withGenres([{ name: 'test' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -51,7 +47,7 @@ export default function editGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should fill in form with existing data', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
     }) => {
@@ -68,7 +64,7 @@ export default function editGenrePageTests() {
       } satisfies InsertTestGenre
 
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      const [genre] = await createGenres(
+      const [genre] = await withGenres(
         [
           genreData,
           ...genreData.parents.map((name) => ({ name })),
@@ -77,7 +73,6 @@ export default function editGenrePageTests() {
           ...genreData.influences.map((name) => ({ name: name + '-edited' })),
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -107,7 +102,7 @@ export default function editGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should update a genre when fields are edited', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
       genrePage,
@@ -125,7 +120,7 @@ export default function editGenrePageTests() {
       } satisfies InsertTestGenre
 
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      const [genre] = await createGenres(
+      const [genre] = await withGenres(
         [
           genreData,
           ...genreData.parents.map((name) => ({ name })),
@@ -134,7 +129,6 @@ export default function editGenrePageTests() {
           ...genreData.influences.map((name) => ({ name: name + '-edited' })),
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -166,7 +160,7 @@ export default function editGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should not create a history entry when no changes are made', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
       genrePage,
@@ -185,7 +179,7 @@ export default function editGenrePageTests() {
       } satisfies InsertTestGenre
 
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      const [genre] = await createGenres(
+      const [genre] = await withGenres(
         [
           genreData,
           ...genreData.parents.map((name) => ({ name })),
@@ -194,7 +188,6 @@ export default function editGenrePageTests() {
           ...genreData.influences.map((name) => ({ name: name + '-edited' })),
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -220,7 +213,7 @@ export default function editGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should create a history entry when changes are made', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
       genrePage,
@@ -239,7 +232,7 @@ export default function editGenrePageTests() {
       } satisfies InsertTestGenre
 
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      const [genre] = await createGenres(
+      const [genre] = await withGenres(
         [
           genreData,
           ...genreData.parents.map((name) => ({ name })),
@@ -248,7 +241,6 @@ export default function editGenrePageTests() {
           ...genreData.influences.map((name) => ({ name: name + '-edited' })),
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()
@@ -287,7 +279,7 @@ export default function editGenrePageTests() {
 
     test('when logged in with EDIT_GENRES permission, should not allow setting relevance', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       editGenrePage,
     }) => {
@@ -304,7 +296,7 @@ export default function editGenrePageTests() {
       } satisfies InsertTestGenre
 
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      const [genre] = await createGenres(
+      const [genre] = await withGenres(
         [
           genreData,
           ...genreData.parents.map((name) => ({ name })),
@@ -313,7 +305,6 @@ export default function editGenrePageTests() {
           ...genreData.influences.map((name) => ({ name: name + '-edited' })),
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()

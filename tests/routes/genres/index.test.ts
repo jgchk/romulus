@@ -1,12 +1,10 @@
 import { expect } from '@playwright/test'
 
-import type { IDrizzleConnection } from '$lib/server/db/connection'
 import type { InsertAccount } from '$lib/server/db/schema'
 
 import { test } from '../../fixtures'
 import { GenreDiffEntry } from '../../fixtures/elements/genre-diff'
 import { GenreTreeGenre } from '../../fixtures/elements/genre-tree'
-import { createAccounts, createGenres, deleteAccounts, deleteGenres } from '../../utils'
 import createGenrePageTests from './create'
 import editGenrePageTests from './edit'
 import treeTests from './tree'
@@ -22,34 +20,23 @@ const TEST_ACCOUNT: InsertAccount = {
 }
 
 test.describe('genres page', () => {
-  async function setup(dbConnection: IDrizzleConnection) {
-    const [account] = await createAccounts([TEST_ACCOUNT], dbConnection)
-    const genres = await createGenres(
+  test("when the user deletes a genre, its children should be moved under the genre's parents and history entries should be created", async ({
+    withAccount,
+    withGenres,
+    signInPage,
+    genrePage,
+    genreTree,
+    genreHistoryPage,
+  }) => {
+    const account = await withAccount(TEST_ACCOUNT)
+    const genres = await withGenres(
       [
         { name: 'Parent' },
         { name: 'Child', parents: ['Parent'] },
         { name: 'Grandchild', parents: ['Child'] },
       ],
       account.id,
-      dbConnection,
     )
-
-    return { account, genres }
-  }
-
-  test.afterEach(async ({ dbConnection }) => {
-    await deleteAccounts([TEST_ACCOUNT.username], dbConnection)
-    await deleteGenres(dbConnection)
-  })
-
-  test("when the user deletes a genre, its children should be moved under the genre's parents and history entries should be created", async ({
-    dbConnection,
-    signInPage,
-    genrePage,
-    genreTree,
-    genreHistoryPage,
-  }) => {
-    const { genres } = await setup(dbConnection)
 
     const parentGenre = genres.find((genre) => genre.name === 'Parent')
     if (!parentGenre) {

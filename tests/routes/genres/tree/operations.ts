@@ -1,9 +1,11 @@
 import { expect } from '@playwright/test'
 
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
 import { GenreDetailsPage } from '../../../fixtures/pages/genre-details'
-import { createGenres, deleteGenres } from '../../../utils'
+import { deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-operations',
@@ -13,7 +15,13 @@ const TEST_ACCOUNT = {
 export default function operationsTests() {
   test.describe('operations', () => {
     test.afterEach(async ({ dbConnection }) => {
-      await deleteGenres(dbConnection)
+      // delete created-genre
+      const genresDb = new GenresDatabase()
+      const createdGenres = await genresDb.findByName('Genre', dbConnection)
+      await deleteGenres(
+        createdGenres.map((genre) => genre.id),
+        dbConnection,
+      )
     })
 
     test('when there are 0 genres, should update with new genre upon creation', async ({
@@ -39,7 +47,7 @@ export default function operationsTests() {
 
     test('when there is 1 genre, should update the genre name upon edit', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
@@ -51,7 +59,7 @@ export default function operationsTests() {
         showTypeTags: true,
         showRelevanceTags: true,
       })
-      await createGenres([{ name: 'Genre', type: 'STYLE' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre', type: 'STYLE' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -65,7 +73,7 @@ export default function operationsTests() {
 
     test('when there is 1 genre, should update the subtitle upon edit', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
@@ -77,7 +85,7 @@ export default function operationsTests() {
         showTypeTags: true,
         showRelevanceTags: true,
       })
-      await createGenres([{ name: 'Genre', type: 'STYLE' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre', type: 'STYLE' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -91,7 +99,7 @@ export default function operationsTests() {
 
     test('when there is 1 genre, should update the type chip upon edit', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
@@ -103,7 +111,7 @@ export default function operationsTests() {
         showTypeTags: true,
         showRelevanceTags: true,
       })
-      await createGenres([{ name: 'Genre', type: 'STYLE' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre', type: 'STYLE' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -118,7 +126,7 @@ export default function operationsTests() {
 
     test('when there is 1 genre, should update the relevance upon vote', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
@@ -129,11 +137,7 @@ export default function operationsTests() {
         showTypeTags: true,
         showRelevanceTags: true,
       })
-      const [genre] = await createGenres(
-        [{ name: 'Genre', type: 'STYLE' }],
-        account.id,
-        dbConnection,
-      )
+      const [genre] = await withGenres([{ name: 'Genre', type: 'STYLE' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -149,7 +153,7 @@ export default function operationsTests() {
 
     test('when there is 1 genre, should show empty state upon deletion', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
@@ -160,7 +164,7 @@ export default function operationsTests() {
         showTypeTags: true,
         showRelevanceTags: true,
       })
-      await createGenres([{ name: 'Genre', type: 'STYLE' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre', type: 'STYLE' }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -174,17 +178,13 @@ export default function operationsTests() {
 
     test('when there are 2 genres, should move child to root level when deleting parent genre', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
     }) => {
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await createGenres(
-        [{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }],
-        account.id,
-        dbConnection,
-      )
+      await withGenres([{ name: 'Parent' }, { name: 'Child', parents: ['Parent'] }], account.id)
 
       await signInPage.goto()
       await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
@@ -205,20 +205,19 @@ export default function operationsTests() {
 
     test('when there are 3 genres, should move grandchild under parent when deleting child genre', async ({
       withAccount,
-      dbConnection,
+      withGenres,
       signInPage,
       genreTree,
       genrePage,
     }) => {
       const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await createGenres(
+      await withGenres(
         [
           { name: 'Parent' },
           { name: 'Child', parents: ['Parent'] },
           { name: 'Grandchild', parents: ['Child'] },
         ],
         account.id,
-        dbConnection,
       )
 
       await signInPage.goto()

@@ -2,7 +2,6 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../../fixtures'
 import { CreateGenrePage } from '../../../fixtures/pages/genre-create'
-import { createGenres, deleteGenres } from '../../../utils'
 
 const TEST_ACCOUNT = {
   username: 'test-username-genre-tree-empty-state',
@@ -11,10 +10,6 @@ const TEST_ACCOUNT = {
 
 export default function emptyStateTests() {
   test.describe('empty state', () => {
-    test.afterAll(async ({ dbConnection }) => {
-      await deleteGenres(dbConnection)
-    })
-
     test('when there are 0 genres and the user is not logged in, should show empty state', async ({
       genresPage,
       genreTree,
@@ -59,9 +54,9 @@ export default function emptyStateTests() {
       await expect(page).toHaveURL(CreateGenrePage.url)
     })
 
-    test('when there is 1 genre', async ({ withAccount, dbConnection, genresPage, genreTree }) => {
+    test('when there is 1 genre', async ({ withAccount, withGenres, genresPage, genreTree }) => {
       const account = await withAccount(TEST_ACCOUNT)
-      await createGenres([{ name: 'Genre' }], account.id, dbConnection)
+      await withGenres([{ name: 'Genre' }], account.id)
 
       await genresPage.goto()
 

@@ -146,10 +146,10 @@ export const createGenres = async (
   return outputGenres
 }
 
-export const deleteGenres = async (dbConnection: IDrizzleConnection) => {
+export const deleteGenres = async (ids: number[], dbConnection: IDrizzleConnection) => {
   const genresDb = new GenresDatabase()
-  await genresDb.deleteAll(dbConnection)
+  await genresDb.deleteByIds(ids, dbConnection)
 
   const genreHistoryDb = new GenreHistoryDatabase()
-  await genreHistoryDb.deleteAll(dbConnection)
+  await genreHistoryDb.deleteByGenreIds(ids, dbConnection)
 }

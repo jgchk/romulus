@@ -11,5 +11,6 @@ export function MockGenreHistoryDatabase<T>(): IGenreHistoryDatabase<T> {
     findByGenreId: vi.fn(),
     findByAccountId: vi.fn(),
     deleteAll: vi.fn(),
+    deleteByGenreIds: vi.fn(),
   }
 }

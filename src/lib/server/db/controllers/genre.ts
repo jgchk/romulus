@@ -103,6 +103,8 @@ export interface IGenresDatabase<T> {
     })[]
   >
 
+  findByName(name: string, conn: T): Promise<Genre[]>
+
   findAllSimple(conn: T): Promise<(Pick<Genre, 'id' | 'name'> & { parents: number[] })[]>
 
   findAllTree(conn: T): Promise<
@@ -114,6 +116,7 @@ export interface IGenresDatabase<T> {
   >
 
   deleteById(id: Genre['id'], conn: T): Promise<void>
+  deleteByIds(ids: Genre['id'][], conn: T): Promise<void>
   deleteAll(conn: T): Promise<void>
 }
 
@@ -351,6 +354,12 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     }
   }
 
+  async findByName(name: string, conn: IDrizzleConnection) {
+    return conn.query.genres.findMany({
+      where: eq(genres.name, name),
+    })
+  }
+
   async findByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
     if (ids.length === 0) return []
 
@@ -453,6 +462,11 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
 
   async deleteById(id: Genre['id'], conn: IDrizzleConnection) {
     await conn.delete(genres).where(eq(genres.id, id))
+  }
+
+  async deleteByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
+    if (ids.length === 0) return
+    await conn.delete(genres).where(inArray(genres.id, ids))
   }
 
   async deleteAll(conn: IDrizzleConnection) {
