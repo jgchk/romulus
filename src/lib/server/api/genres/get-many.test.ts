@@ -420,3 +420,167 @@ test('should allow filtering by creator account id', async ({ dbConnection }) =>
     },
   })
 })
+
+test('should allow filtering by empty shortDescription', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      {
+        name: 'Test 1',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: '',
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 2',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: null,
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 3',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: undefined,
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 4',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: 'Short',
+        updatedAt: new Date(),
+      },
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres(
+    { skip: 0, limit: 10, include: [], filter: { shortDescription: '' } },
+    dbConnection,
+  )
+
+  expect(result).toEqual({
+    data: [
+      {
+        id: 1,
+        name: 'Test 1',
+        subtitle: null,
+        type: 'STYLE',
+        nsfw: false,
+        shortDescription: '',
+        longDescription: null,
+        notes: null,
+        relevance: 99,
+        createdAt: expect.any(Date) as Date,
+        updatedAt: expect.any(Date) as Date,
+      },
+      {
+        id: 2,
+        name: 'Test 2',
+        subtitle: null,
+        type: 'STYLE',
+        nsfw: false,
+        shortDescription: null,
+        longDescription: null,
+        notes: null,
+        relevance: 99,
+        createdAt: expect.any(Date) as Date,
+        updatedAt: expect.any(Date) as Date,
+      },
+      {
+        id: 3,
+        name: 'Test 3',
+        subtitle: null,
+        type: 'STYLE',
+        nsfw: false,
+        shortDescription: null,
+        longDescription: null,
+        notes: null,
+        relevance: 99,
+        createdAt: expect.any(Date) as Date,
+        updatedAt: expect.any(Date) as Date,
+      },
+    ],
+    pagination: {
+      skip: 0,
+      limit: 10,
+      total: 3,
+    },
+  })
+})
+
+test('should allow filtering by non-empty shortDescription', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      {
+        name: 'Test 1',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: '',
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 2',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: null,
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 3',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: undefined,
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Test 4',
+        akas: [],
+        parents: [],
+        influencedBy: [],
+        shortDescription: 'Short',
+        updatedAt: new Date(),
+      },
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres(
+    { skip: 0, limit: 10, include: [], filter: { shortDescription: 'Short' } },
+    dbConnection,
+  )
+
+  expect(result).toEqual({
+    data: [
+      {
+        id: 4,
+        name: 'Test 4',
+        subtitle: null,
+        type: 'STYLE',
+        nsfw: false,
+        shortDescription: 'Short',
+        longDescription: null,
+        notes: null,
+        relevance: 99,
+        createdAt: expect.any(Date) as Date,
+        updatedAt: expect.any(Date) as Date,
+      },
+    ],
+    pagination: {
+      skip: 0,
+      limit: 10,
+      total: 1,
+    },
+  })
+})

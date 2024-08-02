@@ -1,4 +1,4 @@
-import { asc, count, desc, eq, inArray } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, isNull, or, SQL } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
@@ -29,6 +29,7 @@ export type FindAllParams<I extends FindAllInclude> = {
   include?: I[]
   filter?: {
     ids?: number[]
+    shortDescription?: string
   }
 }
 
@@ -253,7 +254,20 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     const includeInfluencedBy = (include as string[]).includes('influencedBy')
     const includeAkas = (include as string[]).includes('akas')
 
-    const where = filter.ids?.length ? inArray(genres.id, filter.ids) : undefined
+    const wheres = []
+    if (filter.ids !== undefined && filter.ids.length > 0) {
+      wheres.push(inArray(genres.id, filter.ids))
+    }
+    if (filter.shortDescription !== undefined) {
+      if (filter.shortDescription === '') {
+        wheres.push(
+          or(eq(genres.shortDescription, filter.shortDescription), isNull(genres.shortDescription)),
+        )
+      } else {
+        wheres.push(eq(genres.shortDescription, filter.shortDescription))
+      }
+    }
+    const where = wheres.length > 0 ? and(...wheres) : undefined
 
     const dataQuery = conn.query.genres.findMany({
       where,

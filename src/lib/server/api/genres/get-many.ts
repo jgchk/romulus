@@ -7,6 +7,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
   limit?: number
   include?: I[]
   filter?: {
+    shortDescription?: string
     createdBy?: number
   }
 }
@@ -35,7 +36,7 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
     }
   }
 
-  const { results, total } = await genresDb.findAll({ skip, limit, include }, dbConnection)
+  const { results, total } = await genresDb.findAll({ skip, limit, include, filter }, dbConnection)
 
   return {
     data: results,
