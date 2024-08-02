@@ -18,5 +18,6 @@ export function MockGenresDatabase<T>(): IGenresDatabase<T> {
     deleteById: vi.fn(),
     deleteByIds: vi.fn(),
     deleteAll: vi.fn(),
+    findAll: vi.fn(),
   }
 }

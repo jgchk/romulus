@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, isNull, or, SQL } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
@@ -289,28 +289,25 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     const queryResults = limit === 0 ? [] : await dataQuery.execute()
     const totalResults = await totalQuery.execute()
 
-    let results = queryResults
-    if (includeParents) {
-      results = results.map((genre) => ({
-        ...genre,
-        parents: genre.parents.map((parent) => parent.parentId),
-      }))
-    }
-    if (includeInfluencedBy) {
-      results = results.map((genre) => ({
-        ...genre,
-        influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
-      }))
-    }
-    if (includeAkas) {
-      results = results.map((genre) => {
+    const results = queryResults.map((input) => {
+      const output = input
+
+      if (includeParents) {
+        // @ts-expect-error - we are dynamically adding a new field
+        output.parents = input.parents.map(({ parentId }) => parentId)
+      }
+      if (includeInfluencedBy) {
+        // @ts-expect-error - we are dynamically adding a new field
+        output.influencedBy = input.influencedBy.map(({ influencerId }) => influencerId)
+      }
+      if (includeAkas) {
         const akas: { primary: string[]; secondary: string[]; tertiary: string[] } = {
           primary: [],
           secondary: [],
           tertiary: [],
         }
 
-        for (const aka of genre.akas) {
+        for (const aka of input.akas) {
           if (aka.relevance === 3) {
             akas.primary.push(aka.name)
           } else if (aka.relevance === 2) {
@@ -320,11 +317,15 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
           }
         }
 
-        return { ...genre, akas }
-      })
-    }
+        // @ts-expect-error - we are dynamically adding a new field
+        output.akas = akas
+      }
+
+      return output
+    })
 
     return {
+      // @ts-expect-error - we are dynamically adding new fields
       results,
       total: totalResults.length > 0 ? totalResults[0].total : 0,
     }
