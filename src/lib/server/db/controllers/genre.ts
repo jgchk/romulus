@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray } from 'drizzle-orm'
+import { asc, count, desc, eq, inArray } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
@@ -21,6 +21,24 @@ export type ExtendedInsertGenre = InsertGenre & {
   akas: Omit<InsertGenreAka, 'genreId'>[]
   parents: number[]
   influencedBy: number[]
+}
+
+export type FindAllParams<I extends FindAllInclude> = {
+  skip?: number
+  limit?: number
+  include?: I[]
+}
+
+export type FindAllInclude = 'parents' | 'influencedBy' | 'akas'
+
+export type FindAllGenre<T extends FindAllInclude> = Genre & {
+  [K in T]: K extends 'parents'
+    ? number[]
+    : K extends 'influencedBy'
+      ? number[]
+      : K extends 'akas'
+        ? { primary: string[]; secondary: string[]; tertiary: string[] }
+        : never
 }
 
 export interface IGenresDatabase<T> {
@@ -48,6 +66,11 @@ export interface IGenresDatabase<T> {
   >
 
   findAllIds(conn: T): Promise<number[]>
+
+  findAll<I extends FindAllInclude>(
+    params: FindAllParams<I>,
+    conn: T,
+  ): Promise<{ results: FindAllGenre<I>[]; total: number }>
 
   findByIdSimple(id: Genre['id'], conn: T): Promise<Genre | undefined>
 
@@ -217,6 +240,74 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     })
 
     return results.map(({ id }) => id)
+  }
+
+  async findAll<I extends FindAllInclude>(
+    { skip, limit, include = [] }: FindAllParams<I>,
+    conn: IDrizzleConnection,
+  ): Promise<{ results: FindAllGenre<I>[]; total: number }> {
+    const includeParents = (include as string[]).includes('parents')
+    const includeInfluencedBy = (include as string[]).includes('influencedBy')
+    const includeAkas = (include as string[]).includes('akas')
+
+    const dataQuery = conn.query.genres.findMany({
+      offset: skip,
+      limit,
+      with: {
+        parents: includeParents ? { columns: { parentId: true } } : undefined,
+        influencedBy: includeInfluencedBy ? { columns: { influencerId: true } } : undefined,
+        akas: includeAkas
+          ? {
+              columns: { name: true, relevance: true, order: true },
+              orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
+            }
+          : undefined,
+      },
+    })
+    const totalQuery = conn.select({ total: count() }).from(genres).$dynamic()
+
+    const queryResults = limit === 0 ? [] : await dataQuery.execute()
+    const totalResults = await totalQuery.execute()
+
+    let results = queryResults
+    if (includeParents) {
+      results = results.map((genre) => ({
+        ...genre,
+        parents: genre.parents.map((parent) => parent.parentId),
+      }))
+    }
+    if (includeInfluencedBy) {
+      results = results.map((genre) => ({
+        ...genre,
+        influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
+      }))
+    }
+    if (includeAkas) {
+      results = results.map((genre) => {
+        const akas: { primary: string[]; secondary: string[]; tertiary: string[] } = {
+          primary: [],
+          secondary: [],
+          tertiary: [],
+        }
+
+        for (const aka of genre.akas) {
+          if (aka.relevance === 3) {
+            akas.primary.push(aka.name)
+          } else if (aka.relevance === 2) {
+            akas.secondary.push(aka.name)
+          } else {
+            akas.tertiary.push(aka.name)
+          }
+        }
+
+        return { ...genre, akas }
+      })
+    }
+
+    return {
+      results,
+      total: totalResults.length > 0 ? totalResults[0].total : 0,
+    }
   }
 
   findByIdSimple(id: Genre['id'], conn: IDrizzleConnection) {
