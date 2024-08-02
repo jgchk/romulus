@@ -27,6 +27,9 @@ export type FindAllParams<I extends FindAllInclude> = {
   skip?: number
   limit?: number
   include?: I[]
+  filter?: {
+    ids?: number[]
+  }
 }
 
 export type FindAllInclude = 'parents' | 'influencedBy' | 'akas'
@@ -243,14 +246,17 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
   }
 
   async findAll<I extends FindAllInclude>(
-    { skip, limit, include = [] }: FindAllParams<I>,
+    { skip, limit, include = [], filter = {} }: FindAllParams<I>,
     conn: IDrizzleConnection,
   ): Promise<{ results: FindAllGenre<I>[]; total: number }> {
     const includeParents = (include as string[]).includes('parents')
     const includeInfluencedBy = (include as string[]).includes('influencedBy')
     const includeAkas = (include as string[]).includes('akas')
 
+    const where = filter.ids?.length ? inArray(genres.id, filter.ids) : undefined
+
     const dataQuery = conn.query.genres.findMany({
+      where,
       offset: skip,
       limit,
       with: {
@@ -264,7 +270,7 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
           : undefined,
       },
     })
-    const totalQuery = conn.select({ total: count() }).from(genres).$dynamic()
+    const totalQuery = conn.select({ total: count() }).from(genres).where(where).$dynamic()
 
     const queryResults = limit === 0 ? [] : await dataQuery.execute()
     const totalResults = await totalQuery.execute()

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, lt } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, lt } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
 import {
@@ -10,6 +10,14 @@ import {
   type InsertGenreHistory,
   type InsertGenreHistoryAka,
 } from '../schema'
+
+export type FindAllParams = {
+  skip?: number
+  limit?: number
+  filter?: {
+    accountId?: number
+  }
+}
 
 export interface IGenreHistoryDatabase<T> {
   insert: (
@@ -56,6 +64,8 @@ export interface IGenreHistoryDatabase<T> {
       'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
     >[]
   >
+
+  findAll(params: FindAllParams, conn: T): Promise<{ results: GenreHistory[]; total: number }>
 
   deleteByGenreIds: (genreIds: GenreHistory['treeGenreId'][], conn: T) => Promise<void>
   deleteAll: (conn: T) => Promise<void>
@@ -168,6 +178,26 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
       },
       orderBy: desc(genreHistory.createdAt),
     })
+  }
+
+  async findAll({ skip, limit, filter = {} }: FindAllParams, conn: IDrizzleConnection) {
+    const where =
+      filter.accountId !== undefined ? eq(genreHistory.accountId, filter.accountId) : undefined
+
+    const dataQuery = conn.query.genreHistory.findMany({
+      where,
+      offset: skip,
+      limit,
+    })
+    const totalQuery = conn.select({ total: count() }).from(genreHistory).where(where).$dynamic()
+
+    const queryResults = limit === 0 ? [] : await dataQuery.execute()
+    const totalResults = await totalQuery.execute()
+
+    return {
+      results: queryResults,
+      total: totalResults.length > 0 ? totalResults[0].total : 0,
+    }
   }
 
   async deleteByGenreIds(genreIds: GenreHistory['treeGenreId'][], conn: IDrizzleConnection) {

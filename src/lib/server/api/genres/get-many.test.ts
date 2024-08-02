@@ -1,6 +1,9 @@
 import { expect } from 'vitest'
 
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../../vitest-setup'
 import getManyGenres from './get-many'
@@ -359,6 +362,60 @@ test('should include akas when requested', async ({ dbConnection }) => {
     pagination: {
       skip: 0,
       limit: 2,
+      total: 1,
+    },
+  })
+})
+
+test('should allow filtering by creator account id', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert(
+    [
+      { name: 'Test 1', akas: [], parents: [], influencedBy: [], updatedAt: new Date() },
+      { name: 'Test 2', akas: [], parents: [], influencedBy: [], updatedAt: new Date() },
+    ],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Testing', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const genreHistoryDb = new GenreHistoryDatabase()
+  await createGenreHistoryEntry({
+    genre,
+    accountId: account.id,
+    operation: 'CREATE',
+    genreHistoryDb,
+    connection: dbConnection,
+  })
+
+  const result = await getManyGenres(
+    { skip: 0, limit: 10, include: [], filter: { createdBy: account.id } },
+    dbConnection,
+  )
+
+  expect(result).toEqual({
+    data: [
+      {
+        id: 1,
+        name: 'Test 1',
+        subtitle: null,
+        type: 'STYLE',
+        nsfw: false,
+        shortDescription: null,
+        longDescription: null,
+        notes: null,
+        relevance: 99,
+        createdAt: expect.any(Date) as Date,
+        updatedAt: expect.any(Date) as Date,
+      },
+    ],
+    pagination: {
+      skip: 0,
+      limit: 10,
       total: 1,
     },
   })
