@@ -289,6 +289,39 @@ test('should allow filtering by empty shortDescription', async ({ dbConnection }
   ])
 })
 
+test('should allow filtering by null shortDescription', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({
+        name: 'Test 1',
+        shortDescription: '',
+      }),
+      getTestGenre({
+        name: 'Test 2',
+        shortDescription: null,
+      }),
+      getTestGenre({
+        name: 'Test 3',
+        shortDescription: undefined,
+      }),
+      getTestGenre({
+        name: 'Test 4',
+        shortDescription: 'Short',
+      }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { shortDescription: null } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
 test('should allow filtering by non-empty shortDescription', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
