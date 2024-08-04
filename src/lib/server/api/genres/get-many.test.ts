@@ -576,6 +576,24 @@ test('should allow filtering on createdAt by exact match', async ({ dbConnection
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
 
+test('should allow filtering on updatedAt by exact match', async ({ dbConnection }) => {
+  const date1 = new Date()
+  const date2 = new Date(date1.getTime() + 1000)
+
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', updatedAt: date1 }),
+      getTestGenre({ name: 'Test 2', updatedAt: date2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { updatedAt: date1 } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
+})
+
 test('should allow filtering by creator account id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(

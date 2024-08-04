@@ -39,6 +39,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     longDescription?: string | null
     notes?: string | null
     createdAt?: Date
+    updatedAt?: Date
   }
 }
 
@@ -313,6 +314,9 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     }
     if (filter.createdAt !== undefined) {
       wheres.push(eq(genres.createdAt, filter.createdAt))
+    }
+    if (filter.updatedAt !== undefined) {
+      wheres.push(eq(genres.updatedAt, filter.updatedAt))
     }
     const where = wheres.length > 0 ? and(...wheres) : undefined
 
