@@ -369,6 +369,18 @@ test('should allow filtering on relevance by null', async ({ dbConnection }) => 
   ])
 })
 
+test('should allow filtering on NSFW by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [getTestGenre({ name: 'Test 1', nsfw: true }), getTestGenre({ name: 'Test 2', nsfw: false })],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { nsfw: false } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
+})
+
 test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(

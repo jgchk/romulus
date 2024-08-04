@@ -34,6 +34,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     subtitle?: string | null
     type?: GenreType
     relevance?: number | null
+    nsfw?: boolean
     shortDescription?: string | null
   }
 }
@@ -282,6 +283,9 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       } else {
         wheres.push(eq(genres.relevance, filter.relevance))
       }
+    }
+    if (filter.nsfw !== undefined) {
+      wheres.push(eq(genres.nsfw, filter.nsfw))
     }
     if (filter.shortDescription !== undefined) {
       if (filter.shortDescription === '' || filter.shortDescription === null) {

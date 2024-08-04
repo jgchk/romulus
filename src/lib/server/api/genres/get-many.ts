@@ -12,6 +12,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     subtitle?: string | null
     type?: GenreType
     relevance?: number | null
+    nsfw?: boolean
     shortDescription?: string | null
     createdBy?: number
   }
