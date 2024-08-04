@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 
-import type { GenreType } from '$lib/types/genres'
+import { type GenreType, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
 import type { IDrizzleConnection } from '../connection'
@@ -33,7 +33,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     name?: string
     subtitle?: string | null
     type?: GenreType
-    relevance?: number
+    relevance?: number | null
     shortDescription?: string | null
   }
 }
@@ -277,7 +277,11 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       wheres.push(eq(genres.type, filter.type))
     }
     if (filter.relevance !== undefined) {
-      wheres.push(eq(genres.relevance, filter.relevance))
+      if (filter.relevance === UNSET_GENRE_RELEVANCE || filter.relevance === null) {
+        wheres.push(eq(genres.relevance, UNSET_GENRE_RELEVANCE))
+      } else {
+        wheres.push(eq(genres.relevance, filter.relevance))
+      }
     }
     if (filter.shortDescription !== undefined) {
       if (filter.shortDescription === '' || filter.shortDescription === null) {
