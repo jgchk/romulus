@@ -36,6 +36,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     relevance?: number | null
     nsfw?: boolean
     shortDescription?: string | null
+    longDescription?: string
   }
 }
 
@@ -293,6 +294,9 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       } else {
         wheres.push(eq(genres.shortDescription, filter.shortDescription))
       }
+    }
+    if (filter.longDescription !== undefined) {
+      wheres.push(eq(genres.longDescription, filter.longDescription))
     }
     const where = wheres.length > 0 ? and(...wheres) : undefined
 

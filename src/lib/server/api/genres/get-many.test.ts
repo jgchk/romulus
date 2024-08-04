@@ -440,6 +440,23 @@ test('should allow filtering on shortDescription by null', async ({ dbConnection
   ])
 })
 
+test('should allow filtering on longDescription by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', longDescription: '' }),
+      getTestGenre({ name: 'Test 2', longDescription: null }),
+      getTestGenre({ name: 'Test 3', longDescription: undefined }),
+      getTestGenre({ name: 'Test 4', longDescription: 'Long' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { longDescription: 'Long' } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+})
+
 test('should allow filtering by creator account id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(
