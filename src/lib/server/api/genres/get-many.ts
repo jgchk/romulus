@@ -16,6 +16,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     shortDescription?: string | null
     longDescription?: string | null
     notes?: string | null
+    createdAt?: Date
     createdBy?: number
   }
 }

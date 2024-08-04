@@ -558,6 +558,24 @@ test('should allow filtering on notes by null', async ({ dbConnection }) => {
   ])
 })
 
+test('should allow filtering on createdAt by exact match', async ({ dbConnection }) => {
+  const date1 = new Date()
+  const date2 = new Date(date1.getTime() + 1000)
+
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', createdAt: date1 }),
+      getTestGenre({ name: 'Test 2', createdAt: date2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { createdAt: date1 } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
+})
+
 test('should allow filtering by creator account id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(
