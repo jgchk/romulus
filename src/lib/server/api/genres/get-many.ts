@@ -14,7 +14,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     relevance?: number | null
     nsfw?: boolean
     shortDescription?: string | null
-    longDescription?: string
+    longDescription?: string | null
     createdBy?: number
   }
 }

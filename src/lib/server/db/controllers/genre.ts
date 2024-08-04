@@ -36,7 +36,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     relevance?: number | null
     nsfw?: boolean
     shortDescription?: string | null
-    longDescription?: string
+    longDescription?: string | null
   }
 }
 
@@ -296,7 +296,11 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       }
     }
     if (filter.longDescription !== undefined) {
-      wheres.push(eq(genres.longDescription, filter.longDescription))
+      if (filter.longDescription === '' || filter.longDescription === null) {
+        wheres.push(or(eq(genres.longDescription, ''), isNull(genres.longDescription)))
+      } else {
+        wheres.push(eq(genres.longDescription, filter.longDescription))
+      }
     }
     const where = wheres.length > 0 ? and(...wheres) : undefined
 
