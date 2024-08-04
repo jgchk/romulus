@@ -300,6 +300,21 @@ test('should allow filtering on subtitle by null', async ({ dbConnection }) => {
   ])
 })
 
+test('should allow filtering on type by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', type: 'STYLE' }),
+      getTestGenre({ name: 'Test 2', type: 'META' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { type: 'META' } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
+})
+
 test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(

@@ -1,6 +1,7 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { type FindAllInclude, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import type { GenreType } from '$lib/types/genres'
 
 export type GetManyGenresParams<I extends FindAllInclude> = {
   skip?: number
@@ -9,6 +10,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
   filter?: {
     name?: string
     subtitle?: string | null
+    type?: GenreType
     shortDescription?: string | null
     createdBy?: number
   }
