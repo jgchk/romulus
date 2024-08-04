@@ -30,6 +30,7 @@ export type FindAllParams<I extends FindAllInclude> = {
   filter?: {
     ids?: number[]
     name?: string
+    subtitle?: string | null
     shortDescription?: string | null
   }
 }
@@ -261,6 +262,13 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     }
     if (filter.name !== undefined) {
       wheres.push(eq(genres.name, filter.name))
+    }
+    if (filter.subtitle !== undefined) {
+      if (filter.subtitle === '' || filter.subtitle === null) {
+        wheres.push(or(eq(genres.subtitle, ''), isNull(genres.subtitle)))
+      } else {
+        wheres.push(eq(genres.subtitle, filter.subtitle))
+      }
     }
     if (filter.shortDescription !== undefined) {
       if (filter.shortDescription === '' || filter.shortDescription === null) {

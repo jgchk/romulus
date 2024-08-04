@@ -241,26 +241,90 @@ test('should allow filtering on name by exact match', async ({ dbConnection }) =
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
 
+test('should allow filtering on subtitle by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', subtitle: '' }),
+      getTestGenre({ name: 'Test 2', subtitle: null }),
+      getTestGenre({ name: 'Test 3', subtitle: undefined }),
+      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { subtitle: 'Test Subtitle' } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+})
+
+test('should allow filtering on subtitle by empty string', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', subtitle: '' }),
+      getTestGenre({ name: 'Test 2', subtitle: null }),
+      getTestGenre({ name: 'Test 3', subtitle: undefined }),
+      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { subtitle: '' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
+test('should allow filtering on subtitle by null', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', subtitle: '' }),
+      getTestGenre({ name: 'Test 2', subtitle: null }),
+      getTestGenre({ name: 'Test 3', subtitle: undefined }),
+      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { subtitle: null } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
+test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', shortDescription: '' }),
+      getTestGenre({ name: 'Test 2', shortDescription: null }),
+      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { shortDescription: 'Short' } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+})
+
 test('should allow filtering on shortDescription by empty string', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [
-      getTestGenre({
-        name: 'Test 1',
-        shortDescription: '',
-      }),
-      getTestGenre({
-        name: 'Test 2',
-        shortDescription: null,
-      }),
-      getTestGenre({
-        name: 'Test 3',
-        shortDescription: undefined,
-      }),
-      getTestGenre({
-        name: 'Test 4',
-        shortDescription: 'Short',
-      }),
+      getTestGenre({ name: 'Test 1', shortDescription: '' }),
+      getTestGenre({ name: 'Test 2', shortDescription: null }),
+      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
     ],
     dbConnection,
   )
@@ -278,22 +342,10 @@ test('should allow filtering on shortDescription by null', async ({ dbConnection
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [
-      getTestGenre({
-        name: 'Test 1',
-        shortDescription: '',
-      }),
-      getTestGenre({
-        name: 'Test 2',
-        shortDescription: null,
-      }),
-      getTestGenre({
-        name: 'Test 3',
-        shortDescription: undefined,
-      }),
-      getTestGenre({
-        name: 'Test 4',
-        shortDescription: 'Short',
-      }),
+      getTestGenre({ name: 'Test 1', shortDescription: '' }),
+      getTestGenre({ name: 'Test 2', shortDescription: null }),
+      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
     ],
     dbConnection,
   )
@@ -305,35 +357,6 @@ test('should allow filtering on shortDescription by null', async ({ dbConnection
     expect.objectContaining({ name: 'Test 2' }),
     expect.objectContaining({ name: 'Test 3' }),
   ])
-})
-
-test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({
-        name: 'Test 1',
-        shortDescription: '',
-      }),
-      getTestGenre({
-        name: 'Test 2',
-        shortDescription: null,
-      }),
-      getTestGenre({
-        name: 'Test 3',
-        shortDescription: undefined,
-      }),
-      getTestGenre({
-        name: 'Test 4',
-        shortDescription: 'Short',
-      }),
-    ],
-    dbConnection,
-  )
-
-  const result = await getManyGenres({ filter: { shortDescription: 'Short' } }, dbConnection)
-
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
 })
 
 test('should allow filtering by creator account id', async ({ dbConnection }) => {

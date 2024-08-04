@@ -8,6 +8,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
   include?: I[]
   filter?: {
     name?: string
+    subtitle?: string | null
     shortDescription?: string | null
     createdBy?: number
   }
