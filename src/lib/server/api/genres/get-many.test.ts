@@ -4,6 +4,7 @@ import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { createGenreHistoryEntry } from '$lib/server/genres'
+import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../vitest-setup'
 import getManyGenres from './get-many'
@@ -328,6 +329,25 @@ test('should allow filtering on relevance by exact match', async ({ dbConnection
   const result = await getManyGenres({ filter: { relevance: 2 } }, dbConnection)
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
+})
+
+test('should allow filtering on relevance by unset value', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', relevance: 1 }),
+      getTestGenre({ name: 'Test 2', relevance: UNSET_GENRE_RELEVANCE }),
+      getTestGenre({ name: 'Test 3', relevance: undefined }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { relevance: UNSET_GENRE_RELEVANCE } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
 })
 
 test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
