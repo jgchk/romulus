@@ -478,6 +478,27 @@ test('should allow filtering on longDescription by empty string', async ({ dbCon
   ])
 })
 
+test('should allow filtering on longDescription by null', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', longDescription: '' }),
+      getTestGenre({ name: 'Test 2', longDescription: null }),
+      getTestGenre({ name: 'Test 3', longDescription: undefined }),
+      getTestGenre({ name: 'Test 4', longDescription: 'Long' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { longDescription: null } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
 test('should allow filtering by creator account id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(
