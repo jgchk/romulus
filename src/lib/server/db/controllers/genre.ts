@@ -37,6 +37,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     nsfw?: boolean
     shortDescription?: string | null
     longDescription?: string | null
+    notes?: string | null
   }
 }
 
@@ -300,6 +301,13 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
         wheres.push(or(eq(genres.longDescription, ''), isNull(genres.longDescription)))
       } else {
         wheres.push(eq(genres.longDescription, filter.longDescription))
+      }
+    }
+    if (filter.notes !== undefined) {
+      if (filter.notes === '' || filter.notes === null) {
+        wheres.push(or(eq(genres.notes, ''), isNull(genres.notes)))
+      } else {
+        wheres.push(eq(genres.notes, filter.notes))
       }
     }
     const where = wheres.length > 0 ? and(...wheres) : undefined

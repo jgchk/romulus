@@ -499,6 +499,65 @@ test('should allow filtering on longDescription by null', async ({ dbConnection 
   ])
 })
 
+test('should allow filtering on notes by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', notes: '' }),
+      getTestGenre({ name: 'Test 2', notes: null }),
+      getTestGenre({ name: 'Test 3', notes: undefined }),
+      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { notes: 'Notes' } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+})
+
+test('should allow filtering on notes by empty string', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', notes: '' }),
+      getTestGenre({ name: 'Test 2', notes: null }),
+      getTestGenre({ name: 'Test 3', notes: undefined }),
+      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { notes: '' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
+test('should allow filtering on notes by null', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', notes: '' }),
+      getTestGenre({ name: 'Test 2', notes: null }),
+      getTestGenre({ name: 'Test 3', notes: undefined }),
+      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { notes: null } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Test 1' }),
+    expect.objectContaining({ name: 'Test 2' }),
+    expect.objectContaining({ name: 'Test 3' }),
+  ])
+})
+
 test('should allow filtering by creator account id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(
