@@ -229,34 +229,19 @@ test('should include akas when requested', async ({ dbConnection }) => {
   ])
 })
 
-test('should allow filtering by creator account id', async ({ dbConnection }) => {
+test('should allow filtering on name by exact match', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
-  const [genre] = await genresDb.insert(
+  await genresDb.insert(
     [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
     dbConnection,
   )
 
-  const accountsDb = new AccountsDatabase()
-  const [account] = await accountsDb.insert(
-    [{ username: 'Testing', password: 'Pass' }],
-    dbConnection,
-  )
+  const result = await getManyGenres({ filter: { name: 'Test 2' } }, dbConnection)
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  await createGenreHistoryEntry({
-    genre,
-    accountId: account.id,
-    operation: 'CREATE',
-    genreHistoryDb,
-    connection: dbConnection,
-  })
-
-  const result = await getManyGenres({ filter: { createdBy: account.id } }, dbConnection)
-
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
 
-test('should allow filtering by empty shortDescription', async ({ dbConnection }) => {
+test('should allow filtering on shortDescription by empty string', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [
@@ -289,7 +274,7 @@ test('should allow filtering by empty shortDescription', async ({ dbConnection }
   ])
 })
 
-test('should allow filtering by null shortDescription', async ({ dbConnection }) => {
+test('should allow filtering on shortDescription by null', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [
@@ -322,7 +307,7 @@ test('should allow filtering by null shortDescription', async ({ dbConnection })
   ])
 })
 
-test('should allow filtering by non-empty shortDescription', async ({ dbConnection }) => {
+test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [
@@ -349,4 +334,31 @@ test('should allow filtering by non-empty shortDescription', async ({ dbConnecti
   const result = await getManyGenres({ filter: { shortDescription: 'Short' } }, dbConnection)
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+})
+
+test('should allow filtering by creator account id', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert(
+    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Testing', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const genreHistoryDb = new GenreHistoryDatabase()
+  await createGenreHistoryEntry({
+    genre,
+    accountId: account.id,
+    operation: 'CREATE',
+    genreHistoryDb,
+    connection: dbConnection,
+  })
+
+  const result = await getManyGenres({ filter: { createdBy: account.id } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
