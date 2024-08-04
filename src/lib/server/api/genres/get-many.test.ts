@@ -315,6 +315,21 @@ test('should allow filtering on type by exact match', async ({ dbConnection }) =
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
 
+test('should allow filtering on relevance by exact match', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'Test 1', relevance: 1 }),
+      getTestGenre({ name: 'Test 2', relevance: 2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { relevance: 2 } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
+})
+
 test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
