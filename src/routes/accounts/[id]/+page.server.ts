@@ -11,7 +11,7 @@ import type { Actions, PageServerLoad } from './$types'
 export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)
   if (!maybeId.success) {
-    return error(400, { message: 'Invalid genre ID' })
+    return error(400, { message: 'Invalid account ID' })
   }
   const id = maybeId.data
 
