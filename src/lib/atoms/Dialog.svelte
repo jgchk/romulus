@@ -7,7 +7,7 @@
   import { tw } from '$lib/utils/dom'
 
   export let title: string | undefined = undefined
-  export let role: AriaRole | undefined = undefined
+  export let role: AriaRole | undefined = 'dialog'
 
   let class_: string | undefined = undefined
   export { class_ as class }

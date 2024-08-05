@@ -46,3 +46,9 @@ test('should show existing keys in table', () => {
   expect(returned.getByText('Dec 31, 2020, 7:00:00 PM')).toBeInTheDocument()
   expect(returned.getByText('Jan 1, 2021, 7:00:00 PM')).toBeInTheDocument()
 })
+
+test('should show a dialog when add key is clicked', async () => {
+  const { getByRole, user } = setup({ data: { user: undefined, keys: [] } })
+  await user.click(getByRole('button', { name: 'Add a key' }))
+  expect(getByRole('dialog')).toBeInTheDocument()
+})
