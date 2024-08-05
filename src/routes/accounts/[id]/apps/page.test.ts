@@ -1,4 +1,4 @@
-import { render } from '@testing-library/svelte'
+import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { expect } from 'vitest'
@@ -51,4 +51,12 @@ test('should show a dialog when add key is clicked', async () => {
   const { getByRole, user } = setup({ data: { user: undefined, keys: [] } })
   await user.click(getByRole('button', { name: 'Add a key' }))
   expect(getByRole('dialog')).toBeInTheDocument()
+})
+
+test('should close the dialog when cancel is clicked', async () => {
+  const { getByRole, queryByRole, user } = setup({ data: { user: undefined, keys: [] } })
+  await user.click(getByRole('button', { name: 'Add a key' }))
+  expect(getByRole('dialog')).toBeInTheDocument()
+  await user.click(getByRole('button', { name: 'Cancel' }))
+  await waitFor(() => expect(queryByRole('dialog')).toBeNull())
 })

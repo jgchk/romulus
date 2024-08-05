@@ -31,5 +31,9 @@
 {/if}
 
 {#if showCreateDialog}
-  <Dialog />
+  <Dialog>
+    <svelte:fragment slot="buttons">
+      <Button kind="text" on:click={() => (showCreateDialog = false)}>Cancel</Button>
+    </svelte:fragment>
+  </Dialog>
 {/if}
