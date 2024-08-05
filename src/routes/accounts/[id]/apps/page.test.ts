@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { expect, vi } from 'vitest'
 
+import { toPrettyDate } from '$lib/utils/datetime'
+
 import { test } from '../../../../vitest-setup'
 import AccountAppsPage from './+page.svelte'
 
@@ -53,8 +55,8 @@ test('should show a create button when there are keys', () => {
 })
 
 test('should show existing keys in table', () => {
-  const date1 = new Date('2021-01-01')
-  const date2 = new Date('2021-01-02')
+  const date1 = new Date('2024-08-05T20:51:43.048Z')
+  const date2 = new Date('2024-08-06T20:51:43.048Z')
 
   const returned = setup({
     data: {
@@ -69,8 +71,8 @@ test('should show existing keys in table', () => {
   expect(returned.getByText('key-one')).toBeInTheDocument()
   expect(returned.getByText('key-two')).toBeInTheDocument()
 
-  expect(returned.getByText('Dec 31, 2020, 7:00:00 PM')).toBeInTheDocument()
-  expect(returned.getByText('Jan 1, 2021, 7:00:00 PM')).toBeInTheDocument()
+  expect(returned.getByText(toPrettyDate(date1))).toBeInTheDocument()
+  expect(returned.getByText(toPrettyDate(date2))).toBeInTheDocument()
 })
 
 test('should show a dialog when create key is clicked', async () => {
