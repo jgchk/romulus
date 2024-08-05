@@ -1,3 +1,5 @@
+import { clamp } from 'ramda'
+
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { type FindAllInclude, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
@@ -23,9 +25,12 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
 }
 
 export default async function getManyGenres<I extends FindAllInclude = never>(
-  { skip = 0, limit = 10, include = [], filter = {} }: GetManyGenresParams<I>,
+  params: GetManyGenresParams<I>,
   dbConnection: IDrizzleConnection,
 ) {
+  const { skip = 0, include = [], filter = {} } = params
+  const limit = clamp(0, 100, params.limit ?? 10)
+
   const genresDb = new GenresDatabase()
 
   if (filter.createdBy !== undefined) {

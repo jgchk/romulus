@@ -620,3 +620,27 @@ test('should allow filtering by creator account id', async ({ dbConnection }) =>
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
+
+test('should not allow limit values above 100', async ({ dbConnection }) => {
+  const result = await getManyGenres({ limit: 101 }, dbConnection)
+  expect(result).toEqual({
+    data: [],
+    pagination: {
+      skip: 0,
+      limit: 100,
+      total: 0,
+    },
+  })
+})
+
+test('should not allow negative limit values', async ({ dbConnection }) => {
+  const result = await getManyGenres({ limit: -1 }, dbConnection)
+  expect(result).toEqual({
+    data: [],
+    pagination: {
+      skip: 0,
+      limit: 0,
+      total: 0,
+    },
+  })
+})
