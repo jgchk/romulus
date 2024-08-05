@@ -118,3 +118,10 @@ test('name field should be required', async () => {
   expect(getCreateDialog()).toBeInTheDocument()
   expect(getNameInput()).toHaveAttribute('required')
 })
+
+test('should autofocus name field', async () => {
+  const { getCreateButton, getCreateDialog, getNameInput, user } = setup({})
+  await user.click(getCreateButton())
+  expect(getCreateDialog()).toBeInTheDocument()
+  await waitFor(() => expect(getNameInput()).toHaveFocus())
+})
