@@ -1,5 +1,6 @@
 import { describe, expect } from 'vitest'
 
+import { checkApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
 
@@ -163,5 +164,51 @@ describe('create', () => {
         createdAt: expect.any(Date) as Date,
       },
     ])
+  })
+
+  test('should return the created key which should resolve to the stored hash', async ({
+    dbConnection,
+  }) => {
+    const accountsDb = new AccountsDatabase()
+    await accountsDb.insert(
+      [{ id: 1, username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('name', 'New API Key')
+
+    const key = await actions.create({
+      params: { id: '1' },
+      locals: { dbConnection, user: { id: 1 } },
+      request: new Request('http://localhost', { method: 'POST', body: formData }),
+    })
+
+    const apiKeysDb = new ApiKeysDatabase()
+    const [{ keyHash }] = await apiKeysDb.findByAccountId(1, dbConnection)
+
+    expect(key).not.toBe(keyHash)
+    expect(await checkApiKey(key, keyHash)).toBe(true)
+  })
+
+  test('should require a key name', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    await accountsDb.insert(
+      [{ id: 1, username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+
+    try {
+      await actions.create({
+        params: { id: '1' },
+        locals: { dbConnection, user: { id: 1 } },
+        request: new Request('http://localhost', { method: 'POST', body: formData }),
+      })
+      expect.fail('should throw error')
+    } catch (e) {
+      expect(e).toEqual({ status: 400, data: { missing: true } })
+    }
   })
 })

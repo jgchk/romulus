@@ -1,7 +1,11 @@
-import { error } from '@sveltejs/kit'
+import { error, fail } from '@sveltejs/kit'
+import { generateIdFromEntropySize } from 'lucia'
+import { sha256 } from 'oslo/crypto'
+import { encodeHex } from 'oslo/encoding'
 import { pick } from 'ramda'
 import { z } from 'zod'
 
+import { generateApiKey, hashApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
 
@@ -79,11 +83,20 @@ export const actions = {
     const account = maybeAccount
 
     const data = await request.formData()
-    const name = data.get('name')!.toString()
+    const nameField = data.get('name')
 
-    const key = '00000'
+    if (nameField === null) {
+      throw fail(400, { missing: true })
+    }
+
+    const name = nameField.toString()
+
+    const key = generateApiKey()
+    const keyHash = await hashApiKey(key)
 
     const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert([{ accountId: account.id, name, keyHash: key }], locals.dbConnection)
+    await apiKeysDb.insert([{ accountId: account.id, name, keyHash }], locals.dbConnection)
+
+    return key
   },
 } satisfies Actions
