@@ -12,11 +12,13 @@
   export let disableFormSubmission = false
 
   let showCreateDialog = false
+  $: createdKey =
+    form && 'success' in form && form.success ? { name: form.name, key: form.key } : null
 
   const dispatch = createEventDispatcher<{ submit: { name: string } }>()
 </script>
 
-{#if data.keys.length === 0}
+{#if data.keys.length === 0 && !createdKey}
   <div>No keys found</div>
   <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
 {:else}
@@ -27,6 +29,15 @@
       <th>Created</th>
     </thead>
     <tbody>
+      {#if createdKey}
+        <tr>
+          <td>{createdKey.name}</td>
+          <td>Just now</td>
+        </tr>
+        <tr>
+          <td>{createdKey.key}</td>
+        </tr>
+      {/if}
       {#each data.keys as key}
         <tr>
           <td>{key.name}</td>

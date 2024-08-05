@@ -104,7 +104,7 @@ test('should submit the new key when create is clicked', async () => {
 
 test('should show name form errors', async () => {
   const { getCreateButton, getCreateDialog, getByRole, user } = setup({
-    form: { errors: { name: ['Name is required'] }, toString: undefined, valueOf: undefined },
+    form: { errors: { name: ['Name is required'] } },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
@@ -124,4 +124,11 @@ test('should autofocus name field', async () => {
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
   await waitFor(() => expect(getNameInput()).toHaveFocus())
+})
+
+test('should display generated key after creation', () => {
+  const { getByText } = setup({
+    form: { success: true, name: 'A Test Key', key: 'a-test-key' },
+  })
+  expect(getByText('a-test-key')).toBeVisible()
 })

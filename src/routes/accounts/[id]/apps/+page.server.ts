@@ -95,6 +95,6 @@ export const actions = {
     const apiKeysDb = new ApiKeysDatabase()
     await apiKeysDb.insert([{ accountId: account.id, name, keyHash }], locals.dbConnection)
 
-    return key
+    return { success: true, name, key }
   },
 } satisfies Actions

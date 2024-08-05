@@ -178,7 +178,7 @@ describe('create', () => {
     const formData = new FormData()
     formData.set('name', 'New API Key')
 
-    const key = await actions.create({
+    const res = await actions.create({
       params: { id: '1' },
       locals: { dbConnection, user: { id: 1 } },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -187,11 +187,11 @@ describe('create', () => {
     const apiKeysDb = new ApiKeysDatabase()
     const [{ keyHash }] = await apiKeysDb.findByAccountId(1, dbConnection)
 
-    expect(key).not.toBe(keyHash)
-    if (typeof key !== 'string') {
-      expect.fail('key should be a string')
+    if (!('success' in res && res.success === true)) {
+      expect.fail('create failed')
     }
-    expect(await checkApiKey(key, keyHash)).toBe(true)
+    expect(res.name).toEqual('New API Key')
+    expect(await checkApiKey(res.key, keyHash)).toBe(true)
   })
 
   test('should throw an error when key name is not included', async ({ dbConnection }) => {
