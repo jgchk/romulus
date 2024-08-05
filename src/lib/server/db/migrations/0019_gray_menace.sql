@@ -1,0 +1,1 @@
+ALTER TABLE "ApiKey" ADD COLUMN "id" serial NOT NULL;

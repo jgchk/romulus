@@ -133,6 +133,7 @@ export const passwordResetTokens = pgTable('PasswordResetToken', {
 export type InsertApiKey = InferInsertModel<typeof apiKeys>
 export type ApiKey = InferSelectModel<typeof apiKeys>
 export const apiKeys = pgTable('ApiKey', {
+  id: serial('id').primaryKey().notNull(),
   name: text('name').notNull(),
   keyHash: text('key_hash').unique().notNull(),
   accountId: integer('account_id')

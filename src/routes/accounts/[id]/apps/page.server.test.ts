@@ -156,6 +156,7 @@ describe('create', () => {
     const keys = await apiKeysDb.findByAccountId(1, dbConnection)
     expect(keys).toEqual([
       {
+        id: expect.any(Number) as number,
         accountId: 1,
         name: 'New API Key',
         keyHash: expect.any(String) as string,
