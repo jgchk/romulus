@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { Copy } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import Button from '$lib/atoms/Button.svelte'
+  import IconButton from '$lib/atoms/Button.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
+  import { copyTextToClipboard } from '$lib/utils/dom'
 
   import type { ActionData, PageData } from './$types'
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
@@ -36,6 +39,13 @@
         </tr>
         <tr>
           <td>{createdKey.key}</td>
+          <td
+            ><IconButton
+              kind="text"
+              tooltip="Copy"
+              on:click={() => copyTextToClipboard(createdKey.key)}><Copy /></IconButton
+            ></td
+          >
         </tr>
       {/if}
       {#each data.keys as key}

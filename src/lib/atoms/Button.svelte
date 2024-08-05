@@ -32,6 +32,7 @@
   on:click
   {disabled}
   {type}
+  aria-label={tooltip_}
   class={tw(
     'relative flex items-center rounded border px-4 py-1 text-sm font-medium transition',
 

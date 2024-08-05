@@ -132,3 +132,13 @@ test('should display generated key after creation', () => {
   })
   expect(getByText('a-test-key')).toBeVisible()
 })
+
+test('should allow user to copy key', async () => {
+  const { getByText, getByRole, user } = setup({
+    form: { success: true, name: 'A Test Key', key: 'a-test-key' },
+  })
+  expect(getByText('a-test-key')).toBeVisible()
+  await user.click(getByRole('button', { name: 'Copy' }))
+  const copiedText = await window.navigator.clipboard.readText()
+  expect(copiedText).toEqual('a-test-key')
+})
