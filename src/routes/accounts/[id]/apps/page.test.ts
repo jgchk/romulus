@@ -6,12 +6,17 @@ import { expect, vi } from 'vitest'
 import { test } from '../../../../vitest-setup'
 import AccountAppsPage from './+page.svelte'
 
-function setup(props: ComponentProps<AccountAppsPage>) {
+function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
   const user = userEvent.setup()
 
   const returned = render(AccountAppsPage, {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    props: { disableFormSubmission: true, ...props },
+    props: {
+      disableFormSubmission: true,
+      form: null,
+      data: { user: undefined, keys: [] },
+      ...props,
+    },
   })
 
   const getCreateButton = () => returned.getByRole('button', { name: 'Create a key' })
@@ -35,6 +40,13 @@ function setup(props: ComponentProps<AccountAppsPage>) {
 test('should show an empty state when there are no keys', () => {
   const { getByText, getCreateButton } = setup({ data: { user: undefined, keys: [] } })
   expect(getByText('No keys found')).toBeInTheDocument()
+  expect(getCreateButton()).toBeInTheDocument()
+})
+
+test('should show a create button when there are keys', () => {
+  const { getCreateButton } = setup({
+    data: { user: undefined, keys: [{ name: 'key-one', createdAt: new Date() }] },
+  })
   expect(getCreateButton()).toBeInTheDocument()
 })
 

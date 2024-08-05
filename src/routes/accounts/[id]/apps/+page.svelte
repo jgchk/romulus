@@ -20,6 +20,7 @@
   <div>No keys found</div>
   <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
 {:else}
+  <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
   <table>
     <thead>
       <th>Name</th>
