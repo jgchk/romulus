@@ -4,10 +4,11 @@
   import Button from '$lib/atoms/Button.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
 
-  import type { PageData } from './$types'
+  import type { ActionData, PageData } from './$types'
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
 
   export let data: PageData
+  export let form: ActionData
   export let disableFormSubmission = false
 
   let showCreateDialog = false
@@ -37,6 +38,7 @@
 
 {#if showCreateDialog}
   <CreateApiKeyDialog
+    {form}
     {disableFormSubmission}
     on:cancel={() => (showCreateDialog = false)}
     on:submit={(e) => {

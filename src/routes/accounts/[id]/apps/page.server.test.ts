@@ -188,10 +188,13 @@ describe('create', () => {
     const [{ keyHash }] = await apiKeysDb.findByAccountId(1, dbConnection)
 
     expect(key).not.toBe(keyHash)
+    if (typeof key !== 'string') {
+      expect.fail('key should be a string')
+    }
     expect(await checkApiKey(key, keyHash)).toBe(true)
   })
 
-  test('should require a key name', async ({ dbConnection }) => {
+  test('should throw an error when key name is not included', async ({ dbConnection }) => {
     const accountsDb = new AccountsDatabase()
     await accountsDb.insert(
       [{ id: 1, username: 'test-user', password: 'test-password' }],
@@ -200,15 +203,32 @@ describe('create', () => {
 
     const formData = new FormData()
 
-    try {
-      await actions.create({
-        params: { id: '1' },
-        locals: { dbConnection, user: { id: 1 } },
-        request: new Request('http://localhost', { method: 'POST', body: formData }),
-      })
-      expect.fail('should throw error')
-    } catch (e) {
-      expect(e).toEqual({ status: 400, data: { missing: true } })
-    }
+    const res = await actions.create({
+      params: { id: '1' },
+      locals: { dbConnection, user: { id: 1 } },
+      request: new Request('http://localhost', { method: 'POST', body: formData }),
+    })
+    expect(res).toEqual({
+      status: 400,
+      data: { errors: { name: ['Expected string, received null'] } },
+    })
+  })
+
+  test('should throw an error when key name is empty', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    await accountsDb.insert(
+      [{ id: 1, username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('name', '')
+
+    const res = await actions.create({
+      params: { id: '1' },
+      locals: { dbConnection, user: { id: 1 } },
+      request: new Request('http://localhost', { method: 'POST', body: formData }),
+    })
+    expect(res).toEqual({ status: 400, data: { errors: { name: ['Name is required'] } } })
   })
 })

@@ -1,7 +1,4 @@
 import { error, fail } from '@sveltejs/kit'
-import { generateIdFromEntropySize } from 'lucia'
-import { sha256 } from 'oslo/crypto'
-import { encodeHex } from 'oslo/encoding'
 import { pick } from 'ramda'
 import { z } from 'zod'
 
@@ -83,13 +80,14 @@ export const actions = {
     const account = maybeAccount
 
     const data = await request.formData()
-    const nameField = data.get('name')
 
-    if (nameField === null) {
-      throw fail(400, { missing: true })
+    const maybeName = z.string().min(1, 'Name is required').safeParse(data.get('name'))
+    if (!maybeName.success) {
+      return fail(400, {
+        errors: { name: maybeName.error.errors.map((err) => err.message) },
+      })
     }
-
-    const name = nameField.toString()
+    const name = maybeName.data
 
     const key = generateApiKey()
     const keyHash = await hashApiKey(key)
