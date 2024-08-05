@@ -10,8 +10,15 @@ export const load = (async ({
   locals,
 }: {
   params: PageServerLoadEvent['params']
-  locals: Pick<App.Locals, 'dbConnection'>
+  locals: {
+    dbConnection: App.Locals['dbConnection']
+    user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+  }
 }) => {
+  if (!locals.user) {
+    return error(404, 'Unauthorized')
+  }
+
   const maybeId = z.coerce.number().int().safeParse(params.id)
   if (!maybeId.success) {
     return error(400, 'Invalid account ID')
