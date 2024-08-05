@@ -59,7 +59,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint
+      - name: Run unit tests
         run: pnpm run test:unit
 
   test-e2e:
