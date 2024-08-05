@@ -41,7 +41,7 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
     )
 
     const { results, total } = await genresDb.findAll(
-      { skip, limit, include, filter: { ids: history.map((h) => h.treeGenreId) } },
+      { skip, limit, include, filter: { ...filter, ids: history.map((h) => h.treeGenreId) } },
       dbConnection,
     )
 

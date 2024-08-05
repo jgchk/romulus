@@ -594,7 +594,7 @@ test('should allow filtering on updatedAt by exact match', async ({ dbConnection
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
 
-test('should allow filtering by creator account id', async ({ dbConnection }) => {
+test('should allow filtering by createdBy', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   const [genre] = await genresDb.insert(
     [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
@@ -617,6 +617,40 @@ test('should allow filtering by creator account id', async ({ dbConnection }) =>
   })
 
   const result = await getManyGenres({ filter: { createdBy: account.id } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
+})
+
+test('should allow filtering by both createdBy and name', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const genres = await genresDb.insert(
+    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Testing', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const genreHistoryDb = new GenreHistoryDatabase()
+  await Promise.all(
+    genres.map((genre) =>
+      createGenreHistoryEntry({
+        genre,
+        accountId: account.id,
+        operation: 'CREATE',
+        genreHistoryDb,
+        connection: dbConnection,
+      }),
+    ),
+  )
+
+  const result = await getManyGenres(
+    { filter: { name: 'Test 1', createdBy: account.id } },
+    dbConnection,
+  )
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
