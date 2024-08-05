@@ -23,7 +23,7 @@ function setup(props: ComponentProps<AccountAppsPage>) {
 test('should show an empty state when there are no keys', () => {
   const { getByText, getByRole } = setup({ data: { user: undefined, keys: [] } })
   expect(getByText('No keys found')).toBeInTheDocument()
-  expect(getByRole('button', { name: 'Add a key' })).toBeInTheDocument()
+  expect(getByRole('button', { name: 'Create a key' })).toBeInTheDocument()
 })
 
 test('should show existing keys in table', () => {
@@ -47,15 +47,15 @@ test('should show existing keys in table', () => {
   expect(returned.getByText('Jan 1, 2021, 7:00:00 PM')).toBeInTheDocument()
 })
 
-test('should show a dialog when add key is clicked', async () => {
+test('should show a dialog when create key is clicked', async () => {
   const { getByRole, user } = setup({ data: { user: undefined, keys: [] } })
-  await user.click(getByRole('button', { name: 'Add a key' }))
+  await user.click(getByRole('button', { name: 'Create a key' }))
   expect(getByRole('dialog')).toBeInTheDocument()
 })
 
 test('should close the dialog when cancel is clicked', async () => {
   const { getByRole, queryByRole, user } = setup({ data: { user: undefined, keys: [] } })
-  await user.click(getByRole('button', { name: 'Add a key' }))
+  await user.click(getByRole('button', { name: 'Create a key' }))
   expect(getByRole('dialog')).toBeInTheDocument()
   await user.click(getByRole('button', { name: 'Cancel' }))
   await waitFor(() => expect(queryByRole('dialog')).toBeNull())

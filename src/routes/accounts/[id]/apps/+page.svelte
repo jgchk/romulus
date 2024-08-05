@@ -12,7 +12,7 @@
 
 {#if data.keys.length === 0}
   <div>No keys found</div>
-  <Button on:click={() => (showCreateDialog = true)}>Add a key</Button>
+  <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
 {:else}
   <table>
     <thead>
@@ -31,7 +31,7 @@
 {/if}
 
 {#if showCreateDialog}
-  <Dialog>
+  <Dialog title="Create a key">
     <svelte:fragment slot="buttons">
       <Button kind="text" on:click={() => (showCreateDialog = false)}>Cancel</Button>
     </svelte:fragment>
