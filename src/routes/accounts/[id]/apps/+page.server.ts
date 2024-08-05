@@ -1,7 +1,9 @@
 import { error } from '@sveltejs/kit'
+import { pick } from 'ramda'
 import { z } from 'zod'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
 
 import type { PageServerLoad, PageServerLoadEvent } from './$types'
 
@@ -34,7 +36,10 @@ export const load = (async ({
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
-  // const account = maybeAccount
+  const account = maybeAccount
 
-  return { keys: [] }
+  const apiKeysDb = new ApiKeysDatabase()
+  const keys = await apiKeysDb.findByAccountId(account.id, locals.dbConnection)
+
+  return { keys: keys.map((key) => pick(['name', 'createdAt'], key)) }
 }) satisfies PageServerLoad

@@ -120,6 +120,20 @@
       "when": 1721826228094,
       "tag": "0016_lush_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1722866182418,
+      "tag": "0017_nebulous_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1722866410934,
+      "tag": "0018_fine_tarot",
+      "breakpoints": true
     }
   ]
 }

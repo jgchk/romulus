@@ -130,6 +130,20 @@ export const passwordResetTokens = pgTable('PasswordResetToken', {
   }).notNull(),
 })
 
+export type InsertApiKey = InferInsertModel<typeof apiKeys>
+export type ApiKey = InferSelectModel<typeof apiKeys>
+export const apiKeys = pgTable('ApiKey', {
+  name: text('name').notNull(),
+  keyHash: text('key_hash').unique().notNull(),
+  accountId: integer('account_id')
+    .notNull()
+    .references(() => accounts.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+})
+
 export type InsertGenreParent = InferInsertModel<typeof genreParents>
 export type GenreParent = InferSelectModel<typeof genreParents>
 export const genreParents = pgTable(
