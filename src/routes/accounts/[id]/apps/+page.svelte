@@ -1,13 +1,18 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+
   import Button from '$lib/atoms/Button.svelte'
-  import Dialog from '$lib/atoms/Dialog.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
 
   import type { PageData } from './$types'
+  import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
 
   export let data: PageData
+  export let disableFormSubmission = false
 
   let showCreateDialog = false
+
+  const dispatch = createEventDispatcher<{ submit: { name: string } }>()
 </script>
 
 {#if data.keys.length === 0}
@@ -31,9 +36,12 @@
 {/if}
 
 {#if showCreateDialog}
-  <Dialog title="Create a key">
-    <svelte:fragment slot="buttons">
-      <Button kind="text" on:click={() => (showCreateDialog = false)}>Cancel</Button>
-    </svelte:fragment>
-  </Dialog>
+  <CreateApiKeyDialog
+    {disableFormSubmission}
+    on:cancel={() => (showCreateDialog = false)}
+    on:submit={(e) => {
+      dispatch('submit', e.detail)
+      showCreateDialog = false
+    }}
+  />
 {/if}
