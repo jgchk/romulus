@@ -25,3 +25,24 @@ test('should show an empty state when there are no keys', () => {
   expect(getByText('No keys found')).toBeInTheDocument()
   expect(getByRole('button', { name: 'Add a key' })).toBeInTheDocument()
 })
+
+test('should show existing keys in table', () => {
+  const date1 = new Date('2021-01-01')
+  const date2 = new Date('2021-01-02')
+
+  const returned = setup({
+    data: {
+      user: undefined,
+      keys: [
+        { name: 'key-one', createdAt: date1 },
+        { name: 'key-two', createdAt: date2 },
+      ],
+    },
+  })
+
+  expect(returned.getByText('key-one')).toBeInTheDocument()
+  expect(returned.getByText('key-two')).toBeInTheDocument()
+
+  expect(returned.getByText('Dec 31, 2020, 7:00:00 PM')).toBeInTheDocument()
+  expect(returned.getByText('Jan 1, 2021, 7:00:00 PM')).toBeInTheDocument()
+})
