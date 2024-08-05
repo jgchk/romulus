@@ -44,7 +44,6 @@
     on:cancel={() => (showCreateDialog = false)}
     on:submit={(e) => {
       dispatch('submit', e.detail)
-      showCreateDialog = false
     }}
   />
 {/if}

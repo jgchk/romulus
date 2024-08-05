@@ -13,4 +13,8 @@ export class ApiKeysDatabase {
       where: eq(apiKeys.accountId, accountId),
     })
   }
+
+  async deleteAll(conn: IDrizzleConnection): Promise<void> {
+    await conn.delete(apiKeys)
+  }
 }

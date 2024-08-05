@@ -38,7 +38,7 @@
   <Dialog title="Create a key">
     <InputGroup errors={form?.errors?.name}>
       <Label for="api-key-name">Name</Label>
-      <Input id="api-key-name" name="name" />
+      <Input id="api-key-name" name="name" required />
     </InputGroup>
 
     <svelte:fragment slot="buttons">

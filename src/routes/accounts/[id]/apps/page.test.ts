@@ -22,6 +22,7 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
   const getCreateButton = () => returned.getByRole('button', { name: 'Create a key' })
   const getCreateDialog = () => returned.getByRole('dialog')
   const queryCreateDialog = () => returned.queryByRole('dialog')
+  const getNameInput = () => returned.getByLabelText('Name')
 
   const onSubmit = vi.fn()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
@@ -32,6 +33,7 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
     getCreateButton,
     getCreateDialog,
     queryCreateDialog,
+    getNameInput,
     onSubmit,
     ...returned,
   }
@@ -90,21 +92,29 @@ test('should close the dialog when cancel is clicked', async () => {
 })
 
 test('should submit the new key when create is clicked', async () => {
-  const {
-    getCreateButton,
-    getCreateDialog,
-    queryCreateDialog,
-    getByRole,
-    getByLabelText,
-    user,
-    onSubmit,
-  } = setup({
+  const { getCreateButton, getCreateDialog, getByRole, getNameInput, user, onSubmit } = setup({
     data: { user: undefined, keys: [] },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
-  await user.type(getByLabelText('Name'), 'key-name')
+  await user.type(getNameInput(), 'key-name')
   await user.click(getByRole('button', { name: 'Create' }))
   expect(onSubmit).toHaveBeenCalledWith({ name: 'key-name' })
-  await waitFor(() => expect(queryCreateDialog()).toBeNull())
+})
+
+test('should show name form errors', async () => {
+  const { getCreateButton, getCreateDialog, getByRole, user } = setup({
+    form: { errors: { name: ['Name is required'] }, toString: undefined, valueOf: undefined },
+  })
+  await user.click(getCreateButton())
+  expect(getCreateDialog()).toBeInTheDocument()
+  await user.click(getByRole('button', { name: 'Create' }))
+  expect(getByRole('alert')).toHaveTextContent('Name is required')
+})
+
+test('name field should be required', async () => {
+  const { getCreateButton, getCreateDialog, getNameInput, user } = setup({})
+  await user.click(getCreateButton())
+  expect(getCreateDialog()).toBeInTheDocument()
+  expect(getNameInput()).toHaveAttribute('required')
 })
