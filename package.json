@@ -14,8 +14,9 @@
     "format": "prettier --write .",
     "test:e2e": "dotenv -e .env.test -- pnpm migrate && playwright test",
     "test:unit": "vitest",
-    "migrate": "node ./src/lib/server/db/migrate.js",
-    "generate": "drizzle-kit generate"
+    "db:migrate": "node ./src/lib/server/db/migrate.js",
+    "db:generate": "drizzle-kit generate",
+    "db:sync": "dotenv -e .env -- node ./src/lib/server/db/sync-prod.js"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.1.5",
