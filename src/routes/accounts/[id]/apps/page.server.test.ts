@@ -78,7 +78,9 @@ describe('load', () => {
 
     const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
 
-    expect(result).toEqual({ keys: [{ name: 'test-key-1', createdAt: expect.any(Date) as Date }] })
+    expect(result).toEqual({
+      keys: [{ id: 1, name: 'test-key-1', createdAt: expect.any(Date) as Date }],
+    })
   })
 })
 

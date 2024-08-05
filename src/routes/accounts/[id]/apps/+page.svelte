@@ -16,7 +16,9 @@
 
   let showCreateDialog = false
   $: createdKey =
-    form && 'success' in form && form.success ? { name: form.name, key: form.key } : null
+    form && 'success' in form && form.success
+      ? { id: form.id, name: form.name, key: form.key }
+      : null
 
   const dispatch = createEventDispatcher<{ submit: { name: string } }>()
 </script>
@@ -48,11 +50,13 @@
           >
         </tr>
       {/if}
-      {#each data.keys as key}
-        <tr>
-          <td>{key.name}</td>
-          <td>{toPrettyDate(key.createdAt)}</td>
-        </tr>
+      {#each data.keys as key (key.id)}
+        {#if key.id !== createdKey?.id}
+          <tr>
+            <td>{key.name}</td>
+            <td>{toPrettyDate(key.createdAt)}</td>
+          </tr>
+        {/if}
       {/each}
     </tbody>
   </table>

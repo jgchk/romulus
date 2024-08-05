@@ -42,7 +42,7 @@ export const load = (async ({
   const apiKeysDb = new ApiKeysDatabase()
   const keys = await apiKeysDb.findByAccountId(account.id, locals.dbConnection)
 
-  return { keys: keys.map((key) => pick(['name', 'createdAt'], key)) }
+  return { keys: keys.map((key) => pick(['id', 'name', 'createdAt'], key)) }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -93,8 +93,11 @@ export const actions = {
     const keyHash = await hashApiKey(key)
 
     const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert([{ accountId: account.id, name, keyHash }], locals.dbConnection)
+    const [insertedKey] = await apiKeysDb.insert(
+      [{ accountId: account.id, name, keyHash }],
+      locals.dbConnection,
+    )
 
-    return { success: true, name, key }
+    return { success: true, id: insertedKey.id, name, key }
   },
 } satisfies Actions

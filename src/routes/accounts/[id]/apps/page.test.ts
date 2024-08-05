@@ -47,7 +47,7 @@ test('should show an empty state when there are no keys', () => {
 
 test('should show a create button when there are keys', () => {
   const { getCreateButton } = setup({
-    data: { user: undefined, keys: [{ name: 'key-one', createdAt: new Date() }] },
+    data: { user: undefined, keys: [{ id: 0, name: 'key-one', createdAt: new Date() }] },
   })
   expect(getCreateButton()).toBeInTheDocument()
 })
@@ -60,8 +60,8 @@ test('should show existing keys in table', () => {
     data: {
       user: undefined,
       keys: [
-        { name: 'key-one', createdAt: date1 },
-        { name: 'key-two', createdAt: date2 },
+        { id: 0, name: 'key-one', createdAt: date1 },
+        { id: 1, name: 'key-two', createdAt: date2 },
       ],
     },
   })
@@ -128,14 +128,14 @@ test('should autofocus name field', async () => {
 
 test('should display generated key after creation', () => {
   const { getByText } = setup({
-    form: { success: true, name: 'A Test Key', key: 'a-test-key' },
+    form: { success: true, id: 0, name: 'A Test Key', key: 'a-test-key' },
   })
   expect(getByText('a-test-key')).toBeVisible()
 })
 
 test('should allow user to copy key', async () => {
   const { getByText, getByRole, user } = setup({
-    form: { success: true, name: 'A Test Key', key: 'a-test-key' },
+    form: { success: true, id: 0, name: 'A Test Key', key: 'a-test-key' },
   })
   expect(getByText('a-test-key')).toBeVisible()
   await user.click(getByRole('button', { name: 'Copy' }))
