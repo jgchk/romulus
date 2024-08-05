@@ -74,7 +74,6 @@
       (h) => new Set(h.influencedByGenreIds),
     ),
   }
-  $: console.log(changed)
 
   type DiffAction = 'create' | 'update' | 'delete' | null
 
