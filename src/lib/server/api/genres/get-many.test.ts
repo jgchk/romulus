@@ -13,19 +13,17 @@ function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre 
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
 }
 
+test('should have a default limit', async ({ dbConnection }) => {
+  const result = await getManyGenres({}, dbConnection)
+  expect(result.pagination.limit).toBe(25)
+})
+
 test('should return an empty array of genres when there are no genres in the DB', async ({
   dbConnection,
 }) => {
   const result = await getManyGenres({}, dbConnection)
-
-  expect(result).toEqual({
-    data: [],
-    pagination: {
-      skip: 0,
-      limit: 10,
-      total: 0,
-    },
-  })
+  expect(result.data).toEqual([])
+  expect(result.pagination.total).toBe(0)
 })
 
 test('should return an array of genres when there are genres in the DB', async ({
@@ -35,29 +33,22 @@ test('should return an array of genres when there are genres in the DB', async (
   await genresDb.insert([getTestGenre()], dbConnection)
 
   const result = await getManyGenres({}, dbConnection)
-
-  expect(result).toEqual({
-    data: [
-      {
-        id: 1,
-        name: 'Test',
-        subtitle: null,
-        type: 'STYLE',
-        nsfw: false,
-        shortDescription: null,
-        longDescription: null,
-        notes: null,
-        relevance: 99,
-        createdAt: expect.any(Date) as Date,
-        updatedAt: expect.any(Date) as Date,
-      },
-    ],
-    pagination: {
-      skip: 0,
-      limit: 10,
-      total: 1,
+  expect(result.data).toEqual([
+    {
+      id: 1,
+      name: 'Test',
+      subtitle: null,
+      type: 'STYLE',
+      nsfw: false,
+      shortDescription: null,
+      longDescription: null,
+      notes: null,
+      relevance: 99,
+      createdAt: expect.any(Date) as Date,
+      updatedAt: expect.any(Date) as Date,
     },
-  })
+  ])
+  expect(result.pagination.total).toEqual(1)
 })
 
 test('should paginate the results', async ({ dbConnection }) => {
@@ -118,7 +109,7 @@ test('should handle a skip that is larger than the number of genres in the DB', 
     data: [],
     pagination: {
       skip: 10,
-      limit: 10,
+      limit: expect.any(Number) as number,
       total: 1,
     },
   })

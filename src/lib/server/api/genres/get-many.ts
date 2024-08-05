@@ -29,7 +29,7 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
   dbConnection: IDrizzleConnection,
 ) {
   const { skip = 0, include = [], filter = {} } = params
-  const limit = clamp(0, 100, params.limit ?? 10)
+  const limit = clamp(0, 100, params.limit ?? 25)
 
   const genresDb = new GenresDatabase()
 
