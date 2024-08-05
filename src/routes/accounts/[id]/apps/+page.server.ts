@@ -16,7 +16,7 @@ export const load = (async ({
   }
 }) => {
   if (!locals.user) {
-    return error(404, 'Unauthorized')
+    return error(401, 'Unauthorized')
   }
 
   const maybeId = z.coerce.number().int().safeParse(params.id)
@@ -24,6 +24,10 @@ export const load = (async ({
     return error(400, 'Invalid account ID')
   }
   const id = maybeId.data
+
+  if (locals.user.id !== id) {
+    return error(401, 'Unauthorized')
+  }
 
   const accountsDb = new AccountsDatabase()
   const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
