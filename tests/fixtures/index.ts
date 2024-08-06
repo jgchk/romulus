@@ -12,6 +12,7 @@ import {
   type InsertTestGenre,
 } from '../utils'
 import { GenreTree } from './elements/genre-tree'
+import { ApiKeysPage } from './pages/api-keys'
 import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
 import { GenreDetailsPage } from './pages/genre-details'
@@ -97,6 +98,7 @@ export const test = base
     },
   })
   .extend<{
+    apiKeysPage: ApiKeysPage
     createGenrePage: CreateGenrePage
     editGenrePage: EditGenrePage
     errorPage: ErrorPage
@@ -106,6 +108,9 @@ export const test = base
     signInPage: SignInPage
     signUpPage: SignUpPage
   }>({
+    apiKeysPage: async ({ page }, use) => {
+      await use(new ApiKeysPage(page))
+    },
     createGenrePage: async ({ page }, use) => {
       await use(new CreateGenrePage(page))
     },

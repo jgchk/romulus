@@ -14,24 +14,30 @@ test.afterEach(async ({ dbConnection }) => {
   await apiKeysDb.deleteAll(dbConnection)
 })
 
-test('should create a new API key', async ({ withAccount, signInPage, page }) => {
+test('should create a new API key', async ({ withAccount, signInPage, apiKeysPage, page }) => {
   const account = await withAccount(TEST_ACCOUNT)
 
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
 
-  await page.goto(`/accounts/${account.id}/apps`)
+  await apiKeysPage.goto(account.id)
 
   await expect(page.getByText('test-key')).not.toBeVisible()
 
-  await page.getByRole('button', { name: 'Create a key' }).click()
-  await page.getByLabel('Name').fill('test-key')
-  await page.getByRole('button', { name: 'Create', exact: true }).click()
+  await apiKeysPage.createButton.click()
+  await apiKeysPage.nameInput.fill('test-key')
+  await apiKeysPage.confirmCreateButton.click()
 
   await expect(page.getByText('test-key')).toBeVisible()
 })
 
-test('should delete an API key', async ({ withAccount, dbConnection, signInPage, page }) => {
+test('should delete an API key', async ({
+  withAccount,
+  dbConnection,
+  signInPage,
+  apiKeysPage,
+  page,
+}) => {
   const account = await withAccount(TEST_ACCOUNT)
 
   const apiKeysDb = new ApiKeysDatabase()
@@ -43,11 +49,11 @@ test('should delete an API key', async ({ withAccount, dbConnection, signInPage,
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
 
-  await page.goto(`/accounts/${account.id}/apps`)
+  await apiKeysPage.goto(account.id)
 
   await expect(page.getByText('test-key')).toBeVisible()
 
-  await page.getByRole('button', { name: 'Delete' }).click()
+  await apiKeysPage.deleteButton.click()
 
   await expect(page.getByText('test-key')).not.toBeVisible()
 })
