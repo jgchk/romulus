@@ -315,4 +315,38 @@ describe('delete', () => {
     const keys = await apiKeysDb.findByAccountId(account.id, dbConnection)
     expect(keys).toEqual([])
   })
+
+  test('should throw error if the key is not yours', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account1, account2] = await accountsDb.insert(
+      [
+        { username: 'test-user-1', password: 'test-password-1' },
+        { username: 'test-user-2', password: 'test-password-2' },
+      ],
+      dbConnection,
+    )
+
+    const apiKeysDb = new ApiKeysDatabase()
+    const [, apiKey2] = await apiKeysDb.insert(
+      [
+        { name: 'test-api-key-1', keyHash: '000-001', accountId: account1.id },
+        { name: 'test-api-key-2', keyHash: '000-002', accountId: account2.id },
+      ],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('id', apiKey2.id.toString())
+
+    try {
+      await actions.delete({
+        params: { id: account1.id.toString() },
+        locals: { dbConnection, user: { id: account1.id } },
+        request: new Request('http://localhost', { method: 'POST', body: formData }),
+      })
+      expect.fail('should throw error')
+    } catch (e) {
+      expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
+    }
+  })
 })

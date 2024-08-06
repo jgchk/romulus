@@ -132,7 +132,6 @@ export const actions = {
     if (!maybeAccount) {
       return error(404, 'Account not found')
     }
-    // const account = maybeAccount
 
     const data = await request.formData()
 
@@ -142,9 +141,15 @@ export const actions = {
         errors: { id: maybeApiKeyId.error.errors.map((err) => err.message) },
       })
     }
-    const apiKeyId = maybeAccountId.data
+    const apiKeyId = maybeApiKeyId.data
 
     const apiKeysDb = new ApiKeysDatabase()
+    const accountApiKeys = await apiKeysDb.findByAccountId(accountId, locals.dbConnection)
+    const isOwnApiKey = accountApiKeys.some((key) => key.id === apiKeyId)
+    if (!isOwnApiKey) {
+      return error(401, 'Unauthorized')
+    }
+
     await apiKeysDb.deleteById(apiKeyId, locals.dbConnection)
   },
 } satisfies Actions
