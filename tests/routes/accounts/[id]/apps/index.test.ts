@@ -30,3 +30,24 @@ test('should create a new API key', async ({ withAccount, signInPage, page }) =>
 
   await expect(page.getByText('test-key')).toBeVisible()
 })
+
+test('should delete an API key', async ({ withAccount, dbConnection, signInPage, page }) => {
+  const account = await withAccount(TEST_ACCOUNT)
+
+  const apiKeysDb = new ApiKeysDatabase()
+  await apiKeysDb.insert(
+    [{ name: 'test-key', keyHash: '000-000', accountId: account.id }],
+    dbConnection,
+  )
+
+  await signInPage.goto()
+  await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
+
+  await page.goto(`/accounts/${account.id}/apps`)
+
+  await expect(page.getByText('test-key')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Delete' }).click()
+
+  await expect(page.getByText('test-key')).not.toBeVisible()
+})

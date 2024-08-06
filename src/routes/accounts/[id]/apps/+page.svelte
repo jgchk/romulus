@@ -2,6 +2,7 @@
   import { Copy, Trash } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
+  import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import IconButton from '$lib/atoms/Button.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
@@ -58,13 +59,23 @@
             <td>{key.name}</td>
             <td>{toPrettyDate(key.createdAt)}</td>
             <td>
-              <IconButton
-                kind="text"
-                tooltip="Delete"
-                on:click={() => dispatch('delete', { id: key.id })}
+              <form
+                method="POST"
+                action="?/delete"
+                use:enhance
+                on:submit={(e) => {
+                  if (disableFormSubmission) {
+                    e.preventDefault()
+                  }
+
+                  dispatch('delete', { id: key.id })
+                }}
               >
-                <Trash />
-              </IconButton>
+                <input type="hidden" name="id" value={key.id} />
+                <IconButton type="submit" kind="text" tooltip="Delete">
+                  <Trash />
+                </IconButton>
+              </form>
             </td>
           </tr>
         {/if}

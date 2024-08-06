@@ -113,7 +113,7 @@ test('should create the new key when create is clicked', async () => {
 
 test('should show name form errors', async () => {
   const { getCreateButton, getCreateDialog, getByRole, user } = setup({
-    form: { errors: { name: ['Name is required'] } },
+    form: { action: 'create', errors: { name: ['Name is required'] } },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()

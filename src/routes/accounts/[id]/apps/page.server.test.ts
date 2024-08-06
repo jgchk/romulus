@@ -212,7 +212,7 @@ describe('create', () => {
     })
     expect(res).toEqual({
       status: 400,
-      data: { errors: { name: ['Expected string, received null'] } },
+      data: { action: 'create', errors: { name: ['Expected string, received null'] } },
     })
   })
 
@@ -231,7 +231,10 @@ describe('create', () => {
       locals: { dbConnection, user: { id: 1 } },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
-    expect(res).toEqual({ status: 400, data: { errors: { name: ['Name is required'] } } })
+    expect(res).toEqual({
+      status: 400,
+      data: { action: 'create', errors: { name: ['Name is required'] } },
+    })
   })
 })
 
@@ -367,7 +370,7 @@ describe('delete', () => {
     })
     expect(res).toEqual({
       status: 400,
-      data: { errors: { id: ['Expected number, received nan'] } },
+      data: { action: 'delete', errors: { id: ['Expected number, received nan'] } },
     })
   })
 

@@ -84,6 +84,7 @@ export const actions = {
     const maybeName = z.string().min(1, 'Name is required').safeParse(data.get('name'))
     if (!maybeName.success) {
       return fail(400, {
+        action: 'create' as const,
         errors: { name: maybeName.error.errors.map((err) => err.message) },
       })
     }
@@ -138,6 +139,7 @@ export const actions = {
     const maybeApiKeyId = z.coerce.number().safeParse(data.get('id'))
     if (!maybeApiKeyId.success) {
       return fail(400, {
+        action: 'delete' as const,
         errors: { id: maybeApiKeyId.error.errors.map((err) => err.message) },
       })
     }
