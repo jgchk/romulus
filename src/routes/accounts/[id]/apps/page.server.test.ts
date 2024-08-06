@@ -370,4 +370,25 @@ describe('delete', () => {
       data: { errors: { id: ['Expected number, received nan'] } },
     })
   })
+
+  test('should not throw error if the api key id does not exist', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('id', '1')
+
+    try {
+      await actions.delete({
+        params: { id: account.id.toString() },
+        locals: { dbConnection, user: { id: account.id } },
+        request: new Request('http://localhost', { method: 'POST', body: formData }),
+      })
+    } catch (e) {
+      expect.fail('should not throw error')
+    }
+  })
 })

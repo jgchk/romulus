@@ -8,6 +8,12 @@ export class ApiKeysDatabase {
     return conn.insert(apiKeys).values(data).returning()
   }
 
+  findById(id: ApiKey['id'], conn: IDrizzleConnection): Promise<ApiKey | undefined> {
+    return conn.query.apiKeys.findFirst({
+      where: eq(apiKeys.id, id),
+    })
+  }
+
   findByAccountId(accountId: ApiKey['accountId'], conn: IDrizzleConnection): Promise<ApiKey[]> {
     return conn.query.apiKeys.findMany({
       where: eq(apiKeys.accountId, accountId),
