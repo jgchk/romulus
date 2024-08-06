@@ -349,4 +349,25 @@ describe('delete', () => {
       expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
     }
   })
+
+  test('should throw error if the api key id is not a number', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('id', 'test')
+
+    const res = await actions.delete({
+      params: { id: account.id.toString() },
+      locals: { dbConnection, user: { id: account.id } },
+      request: new Request('http://localhost', { method: 'POST', body: formData }),
+    })
+    expect(res).toEqual({
+      status: 400,
+      data: { errors: { id: ['Expected number, received nan'] } },
+    })
+  })
 })
