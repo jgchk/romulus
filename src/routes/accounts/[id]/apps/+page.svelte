@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Copy } from 'phosphor-svelte'
+  import { Copy, Trash } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -20,7 +20,7 @@
       ? { id: form.id, name: form.name, key: form.key }
       : null
 
-  const dispatch = createEventDispatcher<{ submit: { name: string } }>()
+  const dispatch = createEventDispatcher<{ create: { name: string }; delete: { id: number } }>()
 </script>
 
 {#if data.keys.length === 0 && !createdKey}
@@ -41,13 +41,15 @@
         </tr>
         <tr>
           <td>{createdKey.key}</td>
-          <td
-            ><IconButton
+          <td>
+            <IconButton
               kind="text"
               tooltip="Copy"
-              on:click={() => copyTextToClipboard(createdKey.key)}><Copy /></IconButton
-            ></td
-          >
+              on:click={() => copyTextToClipboard(createdKey.key)}
+            >
+              <Copy />
+            </IconButton>
+          </td>
         </tr>
       {/if}
       {#each data.keys as key (key.id)}
@@ -55,6 +57,15 @@
           <tr>
             <td>{key.name}</td>
             <td>{toPrettyDate(key.createdAt)}</td>
+            <td>
+              <IconButton
+                kind="text"
+                tooltip="Delete"
+                on:click={() => dispatch('delete', { id: key.id })}
+              >
+                <Trash />
+              </IconButton>
+            </td>
           </tr>
         {/if}
       {/each}
@@ -67,8 +78,6 @@
     {form}
     {disableFormSubmission}
     on:cancel={() => (showCreateDialog = false)}
-    on:submit={(e) => {
-      dispatch('submit', e.detail)
-    }}
+    on:create={(e) => dispatch('create', e.detail)}
   />
 {/if}

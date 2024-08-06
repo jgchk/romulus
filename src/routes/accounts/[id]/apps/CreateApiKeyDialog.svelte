@@ -13,7 +13,7 @@
   export let form: ActionData
   export let disableFormSubmission = false
 
-  const dispatch = createEventDispatcher<{ cancel: undefined; submit: { name: string } }>()
+  const dispatch = createEventDispatcher<{ cancel: undefined; create: { name: string } }>()
 </script>
 
 <form
@@ -24,7 +24,7 @@
       e.preventDefault()
     }
 
-    dispatch('submit', { name: new FormData(e.currentTarget).get('name')?.toString() ?? '' })
+    dispatch('create', { name: new FormData(e.currentTarget).get('name')?.toString() ?? '' })
   }}
   use:enhance={() => {
     return ({ result, update }) => {

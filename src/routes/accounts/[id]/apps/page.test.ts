@@ -25,10 +25,15 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
   const getCreateDialog = () => returned.getByRole('dialog')
   const queryCreateDialog = () => returned.queryByRole('dialog')
   const getNameInput = () => returned.getByLabelText('Name')
+  const getDeleteButton = () => returned.getByRole('button', { name: 'Delete' })
 
-  const onSubmit = vi.fn()
+  const onCreate = vi.fn()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-  returned.component.$on('submit', (e) => onSubmit(e.detail))
+  returned.component.$on('create', (e) => onCreate(e.detail))
+
+  const onDelete = vi.fn()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+  returned.component.$on('delete', (e) => onDelete(e.detail))
 
   return {
     user,
@@ -36,7 +41,9 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
     getCreateDialog,
     queryCreateDialog,
     getNameInput,
-    onSubmit,
+    getDeleteButton,
+    onCreate,
+    onDelete,
     ...returned,
   }
 }
@@ -93,15 +100,15 @@ test('should close the dialog when cancel is clicked', async () => {
   await waitFor(() => expect(queryCreateDialog()).toBeNull())
 })
 
-test('should submit the new key when create is clicked', async () => {
-  const { getCreateButton, getCreateDialog, getByRole, getNameInput, user, onSubmit } = setup({
+test('should create the new key when create is clicked', async () => {
+  const { getCreateButton, getCreateDialog, getByRole, getNameInput, user, onCreate } = setup({
     data: { user: undefined, keys: [] },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
   await user.type(getNameInput(), 'key-name')
   await user.click(getByRole('button', { name: 'Create' }))
-  expect(onSubmit).toHaveBeenCalledWith({ name: 'key-name' })
+  expect(onCreate).toHaveBeenCalledWith({ name: 'key-name' })
 })
 
 test('should show name form errors', async () => {
@@ -143,4 +150,16 @@ test('should allow user to copy key', async () => {
   await user.click(getByRole('button', { name: 'Copy' }))
   const copiedText = await window.navigator.clipboard.readText()
   expect(copiedText).toEqual('a-test-key')
+})
+
+test('should delete key when delete is clicked', async () => {
+  const { getByText, getDeleteButton, user, onDelete } = setup({
+    data: {
+      user: undefined,
+      keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+    },
+  })
+  expect(getByText('key-one')).toBeVisible()
+  await user.click(getDeleteButton())
+  expect(onDelete).toHaveBeenCalledWith({ id: 0 })
 })
