@@ -104,32 +104,47 @@ export const actions = {
   delete: async ({
     params,
     locals,
+    request,
   }: {
     params: RequestEvent['params']
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
     }
+    request: RequestEvent['request']
   }) => {
     if (!locals.user) {
       return error(401, 'Unauthorized')
     }
 
-    const maybeId = z.coerce.number().int().safeParse(params.id)
-    if (!maybeId.success) {
+    const maybeAccountId = z.coerce.number().int().safeParse(params.id)
+    if (!maybeAccountId.success) {
       return error(400, 'Invalid account ID')
     }
-    const id = maybeId.data
+    const accountId = maybeAccountId.data
 
-    if (locals.user.id !== id) {
+    if (locals.user.id !== accountId) {
       return error(401, 'Unauthorized')
     }
 
     const accountsDb = new AccountsDatabase()
-    const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+    const maybeAccount = await accountsDb.findById(accountId, locals.dbConnection)
     if (!maybeAccount) {
       return error(404, 'Account not found')
     }
-    const account = maybeAccount
+    // const account = maybeAccount
+
+    const data = await request.formData()
+
+    const maybeApiKeyId = z.coerce.number().safeParse(data.get('id'))
+    if (!maybeApiKeyId.success) {
+      return fail(400, {
+        errors: { id: maybeApiKeyId.error.errors.map((err) => err.message) },
+      })
+    }
+    const apiKeyId = maybeAccountId.data
+
+    const apiKeysDb = new ApiKeysDatabase()
+    await apiKeysDb.deleteById(apiKeyId, locals.dbConnection)
   },
 } satisfies Actions

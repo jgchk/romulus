@@ -241,6 +241,7 @@ describe('delete', () => {
       await actions.delete({
         params: { id: '1' },
         locals: { dbConnection, user: undefined },
+        request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
     } catch (e) {
@@ -255,6 +256,7 @@ describe('delete', () => {
       await actions.delete({
         params: { id: '1' },
         locals: { dbConnection, user: { id: 2 } },
+        request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
     } catch (e) {
@@ -267,6 +269,7 @@ describe('delete', () => {
       await actions.delete({
         params: { id: 'test' },
         locals: { dbConnection, user: { id: 1 } },
+        request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
     } catch (e) {
@@ -279,10 +282,37 @@ describe('delete', () => {
       await actions.delete({
         params: { id: '1' },
         locals: { dbConnection, user: { id: 1 } },
+        request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
     } catch (e) {
       expect(e).toEqual({ status: 404, body: { message: 'Account not found' } })
     }
+  })
+
+  test('should delete the requested key', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
+    const apiKeysDb = new ApiKeysDatabase()
+    const [apiKey] = await apiKeysDb.insert(
+      [{ name: 'test-api-key', keyHash: '000-000', accountId: account.id }],
+      dbConnection,
+    )
+
+    const formData = new FormData()
+    formData.set('id', apiKey.id.toString())
+
+    await actions.delete({
+      params: { id: account.id.toString() },
+      locals: { dbConnection, user: { id: account.id } },
+      request: new Request('http://localhost', { method: 'POST', body: formData }),
+    })
+
+    const keys = await apiKeysDb.findByAccountId(account.id, dbConnection)
+    expect(keys).toEqual([])
   })
 })
