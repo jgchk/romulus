@@ -16,7 +16,22 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
   }
 })
 
-test('should not throw an error if an API key is provided via Bearer', async ({ dbConnection }) => {
+test('should throw an error if Bearer auth is malformed', async ({ dbConnection }) => {
+  try {
+    await GET({
+      url: new URL('http://localhost/api/genres'),
+      locals: { dbConnection },
+      request: new Request('http://localhost/api/genres', {
+        headers: { authorization: 'Bearer' },
+      }),
+    })
+    expect.fail('Expected an error to be thrown')
+  } catch (e) {
+    expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
+  }
+})
+
+test('should not throw an error if a API key is provided via Bearer', async ({ dbConnection }) => {
   try {
     await GET({
       url: new URL('http://localhost/api/genres'),
