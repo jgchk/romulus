@@ -1,7 +1,7 @@
 <script lang="ts">
   import { offset } from '@floating-ui/dom'
   import type { User } from 'lucia'
-  import { CaretDown, MoonStars, SignOut, Sun, UserCircle } from 'phosphor-svelte'
+  import { CaretDown, Key, MoonStars, SignOut, Sun, UserCircle } from 'phosphor-svelte'
 
   import { enhance } from '$app/forms'
   import { clickOutside } from '$lib/actions/clickOutside'
@@ -60,6 +60,14 @@
       >
         <UserCircle size={18} />
         Profile
+      </a>
+
+      <a
+        class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
+        href="/accounts/{account.id}/keys"
+      >
+        <Key size={18} />
+        API Keys
       </a>
 
       <button
