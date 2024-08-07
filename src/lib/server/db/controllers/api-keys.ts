@@ -20,6 +20,12 @@ export class ApiKeysDatabase {
     })
   }
 
+  findByKeyHash(keyHash: ApiKey['keyHash'], conn: IDrizzleConnection): Promise<ApiKey | undefined> {
+    return conn.query.apiKeys.findFirst({
+      where: eq(apiKeys.keyHash, keyHash),
+    })
+  }
+
   async deleteById(id: ApiKey['id'], conn: IDrizzleConnection): Promise<void> {
     await conn.delete(apiKeys).where(eq(apiKeys.id, id))
   }

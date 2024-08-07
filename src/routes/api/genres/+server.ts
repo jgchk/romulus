@@ -1,6 +1,8 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 
 import getManyGenres from '$lib/server/api/genres/get-many'
+import { hashApiKey } from '$lib/server/api-keys'
+import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
 
 import { parseQueryParams } from './utils'
 
@@ -15,6 +17,13 @@ export const GET = (async ({
 }) => {
   const key = getKeyFromHeaders(request)
   if (key === null) {
+    return error(401, 'Unauthorized')
+  }
+
+  const keyHash = await hashApiKey(key)
+  const apiKeysDb = new ApiKeysDatabase()
+  const maybeExistingKey = await apiKeysDb.findByKeyHash(keyHash, locals.dbConnection)
+  if (!maybeExistingKey) {
     return error(401, 'Unauthorized')
   }
 
