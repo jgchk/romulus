@@ -120,6 +120,9 @@
     role="alertdialog"
     on:close={() => (showDeleteDialog = false)}
   >
+    Any applications or scripts using this key will no longer be able to access the Romulus API. You
+    cannot undo this action.
+
     <svelte:fragment slot="buttons">
       <form
         method="POST"
