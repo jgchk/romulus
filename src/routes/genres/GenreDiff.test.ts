@@ -2,11 +2,12 @@ import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { writable } from 'svelte/store'
-import { expect, it, vi } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 
+import { test } from '../../vitest-setup'
 import GenreDiff from './GenreDiff.svelte'
 
 const mockHistory = {
@@ -67,13 +68,15 @@ it('should show the account who made the operation', () => {
   expect(usernameLink).toHaveAttribute('href', '/accounts/0')
 })
 
-it('should show the time since the operation', () => {
+test('should show the time since the operation', ({ withSystemTime }) => {
+  withSystemTime(mockHistory.createdAt)
+
   const { getByTestId } = setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
     genres: Promise.resolve([]),
   })
-  vi.setSystemTime(mockHistory.createdAt)
+
   expect(getByTestId('genre-diff-time')).toHaveTextContent('0s')
 })
 
