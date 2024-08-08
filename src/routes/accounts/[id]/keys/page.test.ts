@@ -171,18 +171,6 @@ test('should allow user to copy key', async () => {
   expect(copiedText).toEqual('a-test-key')
 })
 
-// test('should delete key when delete is clicked', async () => {
-//   const { getByText, getDeleteButton, user, onDelete } = setup({
-//     data: {
-//       user: undefined,
-//       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
-//     },
-//   })
-//   expect(getByText('key-one')).toBeVisible()
-//   await user.click(getDeleteButton())
-//   expect(onDelete).toHaveBeenCalledWith({ id: 0 })
-// })
-
 test('should show a confirmation dialog when delete is clicked', async () => {
   const { getDeleteButton, getDeleteDialog, user } = setup({
     data: {
