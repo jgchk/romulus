@@ -35,7 +35,7 @@
     }
   }}
 >
-  <Dialog title="Create an API key">
+  <Dialog title="Create an API key" on:close={() => dispatch('cancel')}>
     <InputGroup errors={form?.action === 'create' ? form.errors.name : undefined}>
       <Label for="api-key-name">Name</Label>
       <Input id="api-key-name" name="name" class="w-full" required autofocus />

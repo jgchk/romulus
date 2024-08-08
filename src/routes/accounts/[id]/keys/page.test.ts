@@ -118,6 +118,16 @@ test('should close the create dialog when cancel is clicked', async () => {
   await waitFor(() => expect(queryCreateDialog()).toBeNull())
 })
 
+test('should close the create dialog when ESC is pressed', async () => {
+  const { getCreateButton, getCreateDialog, queryCreateDialog, user } = setup({
+    data: { user: undefined, keys: [] },
+  })
+  await user.click(getCreateButton())
+  expect(getCreateDialog()).toBeInTheDocument()
+  await user.keyboard('[Escape]')
+  await waitFor(() => expect(queryCreateDialog()).toBeNull())
+})
+
 test('should create the new key when create is clicked', async () => {
   const { getCreateButton, getCreateDialog, getCreateConfirmButton, getNameInput, user, onCreate } =
     setup({
