@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { Copy, Trash } from 'phosphor-svelte'
+  import { Copy, Warning } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
-  import IconButton from '$lib/atoms/Button.svelte'
+  import Card from '$lib/atoms/Card.svelte'
+  import IconButton from '$lib/atoms/IconButton.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { copyTextToClipboard } from '$lib/utils/dom'
 
@@ -24,41 +25,73 @@
   const dispatch = createEventDispatcher<{ create: { name: string }; delete: { id: number } }>()
 </script>
 
-{#if data.keys.length === 0 && !createdKey}
-  <div>No keys found</div>
-  <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
-{:else}
-  <Button on:click={() => (showCreateDialog = true)}>Create a key</Button>
-  <table>
-    <thead>
-      <th>Name</th>
-      <th>Created</th>
-    </thead>
-    <tbody>
+<Card class="h-full space-y-2 p-4">
+  <h1 class="text-xl font-bold">API Keys</h1>
+
+  <Button on:click={() => (showCreateDialog = true)}>Create an API key</Button>
+
+  {#if data.keys.length === 0 && !createdKey}
+    <div
+      class="flex h-full max-h-96 w-full items-center justify-center text-gray-600 transition dark:text-gray-400"
+    >
+      <div class="text-center">
+        <div>No API keys found.</div>
+        <div>
+          <button
+            type="button"
+            class="text-primary-500 hover:underline"
+            on:click={() => (showCreateDialog = true)}>Create one!</button
+          >
+        </div>
+      </div>
+    </div>
+  {:else}
+    {#if createdKey}
+      <div
+        class="flex items-center gap-2.5 rounded border border-warning-300 bg-warning-200 px-3 py-2 text-sm transition dark:border-warning-700 dark:bg-warning-900"
+      >
+        <Warning class="transition dark:text-warning-300" size={16} /> Make sure to copy your API key
+        somewhere safe. You won't be able to see it again!
+      </div>
+    {/if}
+
+    <div class="overflow-hidden rounded border border-gray-200 transition dark:border-gray-700">
       {#if createdKey}
-        <tr>
-          <td>{createdKey.name}</td>
-          <td>Just now</td>
-        </tr>
-        <tr>
-          <td>{createdKey.key}</td>
-          <td>
-            <IconButton
-              kind="text"
-              tooltip="Copy"
-              on:click={() => copyTextToClipboard(createdKey.key)}
-            >
-              <Copy />
-            </IconButton>
-          </td>
-        </tr>
+        <div
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-success-300 bg-success-200 p-2 transition last:border-b-0 dark:border-success-800 dark:bg-success-900 dark:bg-opacity-60"
+        >
+          <div class="space-y-0.5">
+            <div class="font-medium">{createdKey.name}</div>
+            <div class="text-xs transition dark:text-gray-400">Created just now</div>
+          </div>
+
+          <div class="flex flex-1 basis-[440px] justify-center overflow-hidden">
+            <div class="flex gap-1 overflow-hidden">
+              <pre
+                class="truncate rounded bg-success-300 px-2 py-0.5 transition dark:bg-success-800">{createdKey.key}</pre>
+              <IconButton
+                class="flex-shrink-0 text-success-600 dark:text-success-300"
+                tooltip="Copy"
+                on:click={() => copyTextToClipboard(createdKey.key)}
+              >
+                <Copy />
+              </IconButton>
+            </div>
+          </div>
+        </div>
       {/if}
       {#each data.keys as key (key.id)}
         {#if key.id !== createdKey?.id}
-          <tr>
-            <td>{key.name}</td>
-            <td>{toPrettyDate(key.createdAt)}</td>
-            <td>
+          <div
+            class="flex min-w-52 items-center justify-between gap-2 border-b border-gray-200 p-2 transition last:border-b-0 dark:border-gray-700"
+          >
+            <div class="space-y-0.5">
+              <div class="font-medium">{key.name}</div>
+              <div class="text-xs transition dark:text-gray-400">
+                Created on {toPrettyDate(key.createdAt)}
+              </div>
+            </div>
+            <div>
               <form
                 method="POST"
                 action="?/delete"
@@ -72,17 +105,15 @@
                 }}
               >
                 <input type="hidden" name="id" value={key.id} />
-                <IconButton type="submit" kind="text" tooltip="Delete">
-                  <Trash />
-                </IconButton>
+                <Button color="error" kind="outline" type="submit">Delete</Button>
               </form>
-            </td>
-          </tr>
+            </div>
+          </div>
         {/if}
       {/each}
-    </tbody>
-  </table>
-{/if}
+    </div>
+  {/if}
+</Card>
 
 {#if showCreateDialog}
   <CreateApiKeyDialog
