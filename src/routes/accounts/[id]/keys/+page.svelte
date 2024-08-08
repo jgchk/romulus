@@ -5,6 +5,7 @@
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
+  import Dialog from '$lib/atoms/Dialog.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { copyTextToClipboard } from '$lib/utils/dom'
@@ -17,6 +18,8 @@
   export let disableFormSubmission = false
 
   let showCreateDialog = false
+  let showDeleteDialog: false | { id: number; name: string } = false
+
   $: createdKey =
     form && 'success' in form && form.success
       ? { id: form.id, name: form.name, key: form.key }
@@ -91,23 +94,9 @@
                 Created on {toPrettyDate(key.createdAt)}
               </div>
             </div>
-            <div>
-              <form
-                method="POST"
-                action="?/delete"
-                use:enhance
-                on:submit={(e) => {
-                  if (disableFormSubmission) {
-                    e.preventDefault()
-                  }
-
-                  dispatch('delete', { id: key.id })
-                }}
-              >
-                <input type="hidden" name="id" value={key.id} />
-                <Button color="error" kind="outline" type="submit">Delete</Button>
-              </form>
-            </div>
+            <Button color="error" kind="outline" on:click={() => (showDeleteDialog = key)}
+              >Delete</Button
+            >
           </div>
         {/if}
       {/each}
@@ -122,4 +111,35 @@
     on:cancel={() => (showCreateDialog = false)}
     on:create={(e) => dispatch('create', e.detail)}
   />
+{/if}
+
+{#if showDeleteDialog}
+  {@const deletingKey = showDeleteDialog}
+  <Dialog title="Delete {showDeleteDialog.name}?" role="alertdialog">
+    <svelte:fragment slot="buttons">
+      <form
+        method="POST"
+        action="?/delete"
+        use:enhance={() => {
+          return ({ result, update }) => {
+            if (result.type === 'success') {
+              showDeleteDialog = false
+            }
+            void update()
+          }
+        }}
+        on:submit={(e) => {
+          if (disableFormSubmission) {
+            e.preventDefault()
+          }
+
+          dispatch('delete', { id: deletingKey.id })
+        }}
+      >
+        <input type="hidden" name="id" value={deletingKey.id} />
+        <Button kind="solid" color="error" type="submit">Delete</Button>
+      </form>
+      <Button kind="text" on:click={() => (showDeleteDialog = false)}>Cancel</Button>
+    </svelte:fragment>
+  </Dialog>
 {/if}

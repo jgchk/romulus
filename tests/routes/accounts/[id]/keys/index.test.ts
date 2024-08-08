@@ -51,9 +51,10 @@ test('should delete an API key', async ({
 
   await apiKeysPage.goto(account.id)
 
-  await expect(page.getByText('test-key')).toBeVisible()
+  await expect(page.getByText('test-key', { exact: true })).toBeVisible()
 
   await apiKeysPage.deleteButton.click()
+  await apiKeysPage.confirmDeleteButton.click()
 
-  await expect(page.getByText('test-key')).not.toBeVisible()
+  await expect(page.getByText('test-key', { exact: true })).not.toBeVisible()
 })

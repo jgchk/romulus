@@ -298,7 +298,11 @@
 </div>
 
 {#if isDeleting}
-  <Dialog title="Delete {data.genre.name}?" on:close={() => (isDeleting = false)}>
+  <Dialog
+    role="alertdialog"
+    title="Delete {data.genre.name}?"
+    on:close={() => (isDeleting = false)}
+  >
     <svelte:fragment slot="buttons">
       <form method="POST" action="?/delete" use:enhance>
         <Button kind="solid" color="error" type="submit">Delete</Button>

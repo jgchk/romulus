@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/svelte'
+import { render, waitFor, within } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { expect, vi } from 'vitest'
@@ -25,7 +25,16 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
   const getCreateDialog = () => returned.getByRole('dialog')
   const queryCreateDialog = () => returned.queryByRole('dialog')
   const getNameInput = () => returned.getByLabelText('Name')
+  const getFormError = () => returned.getByRole('alert')
+  const getCreateCancelButton = () => returned.getByRole('button', { name: 'Cancel' })
+  const getCreateConfirmButton = () => returned.getByRole('button', { name: 'Create' })
   const getDeleteButton = () => returned.getByRole('button', { name: 'Delete' })
+  const getDeleteDialog = () => returned.getByRole('alertdialog')
+  const queryDeleteDialog = () => returned.queryByRole('alertdialog')
+  const getDeleteCancelButton = () => returned.getByRole('button', { name: 'Cancel' })
+  const getDeleteConfirmButton = () =>
+    within(getDeleteDialog()).getByRole('button', { name: 'Delete' })
+  const getCopyButton = () => returned.getByRole('button', { name: 'Copy' })
 
   const onCreate = vi.fn()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
@@ -41,7 +50,15 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
     getCreateDialog,
     queryCreateDialog,
     getNameInput,
+    getFormError,
+    getCreateCancelButton,
+    getCreateConfirmButton,
     getDeleteButton,
+    getDeleteDialog,
+    queryDeleteDialog,
+    getDeleteCancelButton,
+    getDeleteConfirmButton,
+    getCopyButton,
     onCreate,
     onDelete,
     ...returned,
@@ -90,35 +107,37 @@ test('should show a dialog when create key is clicked', async () => {
   expect(getCreateDialog()).toBeInTheDocument()
 })
 
-test('should close the dialog when cancel is clicked', async () => {
-  const { getCreateButton, getCreateDialog, queryCreateDialog, getByRole, user } = setup({
-    data: { user: undefined, keys: [] },
-  })
+test('should close the create dialog when cancel is clicked', async () => {
+  const { getCreateButton, getCreateDialog, queryCreateDialog, getCreateCancelButton, user } =
+    setup({
+      data: { user: undefined, keys: [] },
+    })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
-  await user.click(getByRole('button', { name: 'Cancel' }))
+  await user.click(getCreateCancelButton())
   await waitFor(() => expect(queryCreateDialog()).toBeNull())
 })
 
 test('should create the new key when create is clicked', async () => {
-  const { getCreateButton, getCreateDialog, getByRole, getNameInput, user, onCreate } = setup({
-    data: { user: undefined, keys: [] },
-  })
+  const { getCreateButton, getCreateDialog, getCreateConfirmButton, getNameInput, user, onCreate } =
+    setup({
+      data: { user: undefined, keys: [] },
+    })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
   await user.type(getNameInput(), 'key-name')
-  await user.click(getByRole('button', { name: 'Create' }))
+  await user.click(getCreateConfirmButton())
   expect(onCreate).toHaveBeenCalledWith({ name: 'key-name' })
 })
 
 test('should show name form errors', async () => {
-  const { getCreateButton, getCreateDialog, getByRole, user } = setup({
+  const { getCreateButton, getCreateDialog, getCreateConfirmButton, getFormError, user } = setup({
     form: { action: 'create', errors: { name: ['Name is required'] } },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
-  await user.click(getByRole('button', { name: 'Create' }))
-  expect(getByRole('alert')).toHaveTextContent('Name is required')
+  await user.click(getCreateConfirmButton())
+  expect(getFormError()).toHaveTextContent('Name is required')
 })
 
 test('name field should be required', async () => {
@@ -143,23 +162,62 @@ test('should display generated key after creation', () => {
 })
 
 test('should allow user to copy key', async () => {
-  const { getByText, getByRole, user } = setup({
+  const { getByText, getCopyButton, user } = setup({
     form: { success: true, id: 0, name: 'A Test Key', key: 'a-test-key' },
   })
   expect(getByText('a-test-key')).toBeVisible()
-  await user.click(getByRole('button', { name: 'Copy' }))
+  await user.click(getCopyButton())
   const copiedText = await window.navigator.clipboard.readText()
   expect(copiedText).toEqual('a-test-key')
 })
 
-test('should delete key when delete is clicked', async () => {
-  const { getByText, getDeleteButton, user, onDelete } = setup({
+// test('should delete key when delete is clicked', async () => {
+//   const { getByText, getDeleteButton, user, onDelete } = setup({
+//     data: {
+//       user: undefined,
+//       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+//     },
+//   })
+//   expect(getByText('key-one')).toBeVisible()
+//   await user.click(getDeleteButton())
+//   expect(onDelete).toHaveBeenCalledWith({ id: 0 })
+// })
+
+test('should show a confirmation dialog when delete is clicked', async () => {
+  const { getDeleteButton, getDeleteDialog, user } = setup({
     data: {
       user: undefined,
       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
     },
   })
-  expect(getByText('key-one')).toBeVisible()
+
   await user.click(getDeleteButton())
+  expect(getDeleteDialog()).toBeInTheDocument()
+})
+
+test('should close the delete dialog when cancel is clicked', async () => {
+  const { getDeleteButton, getDeleteCancelButton, getDeleteDialog, queryDeleteDialog, user } =
+    setup({
+      data: {
+        user: undefined,
+        keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+      },
+    })
+  await user.click(getDeleteButton())
+  expect(getDeleteDialog()).toBeInTheDocument()
+  await user.click(getDeleteCancelButton())
+  await waitFor(() => expect(queryDeleteDialog()).toBeNull())
+})
+
+test('should delete the key when the user confirms the delete dialog', async () => {
+  const { getDeleteButton, getDeleteConfirmButton, getDeleteDialog, user, onDelete } = setup({
+    data: {
+      user: undefined,
+      keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+    },
+  })
+  await user.click(getDeleteButton())
+  expect(getDeleteDialog()).toBeInTheDocument()
+  await user.click(getDeleteConfirmButton())
   expect(onDelete).toHaveBeenCalledWith({ id: 0 })
 })
