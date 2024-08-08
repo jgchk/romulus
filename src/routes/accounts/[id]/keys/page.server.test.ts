@@ -82,6 +82,44 @@ describe('load', () => {
       keys: [{ id: 1, name: 'test-key-1', createdAt: expect.any(Date) as Date }],
     })
   })
+
+  test('should return account keys in descending order of creation date', async ({
+    dbConnection,
+  }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user-1', password: 'test-password-1' }],
+      dbConnection,
+    )
+
+    const apiKeysDb = new ApiKeysDatabase()
+    await apiKeysDb.insert(
+      [
+        {
+          accountId: account.id,
+          name: 'test-key-1',
+          keyHash: 'test-key-1-hash',
+          createdAt: new Date(),
+        },
+        {
+          accountId: account.id,
+          name: 'test-key-2',
+          keyHash: 'test-key-2-hash',
+          createdAt: new Date(new Date().getTime() + 1000000),
+        },
+      ],
+      dbConnection,
+    )
+
+    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+
+    expect(result).toEqual({
+      keys: [
+        expect.objectContaining({ name: 'test-key-2' }),
+        expect.objectContaining({ name: 'test-key-1' }),
+      ],
+    })
+  })
 })
 
 describe('create', () => {
