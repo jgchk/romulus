@@ -108,8 +108,8 @@
   <CreateApiKeyDialog
     {form}
     {disableFormSubmission}
-    on:cancel={() => (showCreateDialog = false)}
     on:create={(e) => dispatch('create', e.detail)}
+    on:close={() => (showCreateDialog = false)}
   />
 {/if}
 

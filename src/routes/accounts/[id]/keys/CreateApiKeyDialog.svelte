@@ -13,7 +13,7 @@
   export let form: ActionData
   export let disableFormSubmission = false
 
-  const dispatch = createEventDispatcher<{ cancel: undefined; create: { name: string } }>()
+  const dispatch = createEventDispatcher<{ close: undefined; create: { name: string } }>()
 </script>
 
 <form
@@ -29,13 +29,13 @@
   use:enhance={() => {
     return ({ result, update }) => {
       if (result.type === 'success') {
-        dispatch('cancel')
+        dispatch('close')
       }
       void update()
     }
   }}
 >
-  <Dialog title="Create an API key" on:close={() => dispatch('cancel')}>
+  <Dialog title="Create an API key" on:close={() => dispatch('close')}>
     <InputGroup errors={form?.action === 'create' ? form.errors.name : undefined}>
       <Label for="api-key-name">Name</Label>
       <Input id="api-key-name" name="name" class="w-full" required autofocus />
@@ -43,7 +43,7 @@
 
     <svelte:fragment slot="buttons">
       <Button type="submit">Create</Button>
-      <Button kind="text" on:click={() => dispatch('cancel')}>Cancel</Button>
+      <Button kind="text" on:click={() => dispatch('close')}>Cancel</Button>
     </svelte:fragment>
   </Dialog>
 </form>
