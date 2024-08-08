@@ -7,7 +7,7 @@ export class ApiKeysPage {
   deleteButton: Locator
 
   constructor(readonly page: Page) {
-    this.createButton = this.page.getByRole('button', { name: 'Create a key' })
+    this.createButton = this.page.getByRole('button', { name: 'Create an API key' })
     this.nameInput = this.page.getByLabel('Name')
     this.confirmCreateButton = this.page.getByRole('button', { name: 'Create', exact: true })
     this.deleteButton = this.page.getByRole('button', { name: 'Delete' })

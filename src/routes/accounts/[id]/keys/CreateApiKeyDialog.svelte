@@ -35,7 +35,7 @@
     }
   }}
 >
-  <Dialog title="Create a key">
+  <Dialog title="Create an API key">
     <InputGroup errors={form?.action === 'create' ? form.errors.name : undefined}>
       <Label for="api-key-name">Name</Label>
       <Input id="api-key-name" name="name" class="w-full" required autofocus />

@@ -21,7 +21,7 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
     },
   })
 
-  const getCreateButton = () => returned.getByRole('button', { name: 'Create a key' })
+  const getCreateButton = () => returned.getByRole('button', { name: 'Create an API key' })
   const getCreateDialog = () => returned.getByRole('dialog')
   const queryCreateDialog = () => returned.queryByRole('dialog')
   const getNameInput = () => returned.getByLabelText('Name')
@@ -50,7 +50,7 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
 
 test('should show an empty state when there are no keys', () => {
   const { getByText, getCreateButton } = setup({ data: { user: undefined, keys: [] } })
-  expect(getByText('No keys found')).toBeInTheDocument()
+  expect(getByText('No API keys found.')).toBeInTheDocument()
   expect(getCreateButton()).toBeInTheDocument()
 })
 
@@ -78,8 +78,8 @@ test('should show existing keys in table', () => {
   expect(returned.getByText('key-one')).toBeInTheDocument()
   expect(returned.getByText('key-two')).toBeInTheDocument()
 
-  expect(returned.getByText(toPrettyDate(date1))).toBeInTheDocument()
-  expect(returned.getByText(toPrettyDate(date2))).toBeInTheDocument()
+  expect(returned.getByText(new RegExp(toPrettyDate(date1)))).toBeInTheDocument()
+  expect(returned.getByText(new RegExp(toPrettyDate(date2)))).toBeInTheDocument()
 })
 
 test('should show a dialog when create key is clicked', async () => {
