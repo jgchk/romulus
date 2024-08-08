@@ -2,16 +2,15 @@
   import { Copy, Warning } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
-  import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
-  import Dialog from '$lib/atoms/Dialog.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { copyTextToClipboard } from '$lib/utils/dom'
 
   import type { ActionData, PageData } from './$types'
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
+  import DeleteApiKeyDialog from './DeleteApiKeyDialog.svelte'
 
   export let data: PageData
   export let form: ActionData
@@ -115,38 +114,10 @@
 
 {#if showDeleteDialog}
   {@const deletingKey = showDeleteDialog}
-  <Dialog
-    title="Delete {showDeleteDialog.name}?"
-    role="alertdialog"
+  <DeleteApiKeyDialog
+    {deletingKey}
+    {disableFormSubmission}
+    on:delete={() => dispatch('delete', { id: deletingKey.id })}
     on:close={() => (showDeleteDialog = false)}
-  >
-    Any applications or scripts using this key will no longer be able to access the Romulus API. You
-    cannot undo this action.
-
-    <svelte:fragment slot="buttons">
-      <form
-        method="POST"
-        action="?/delete"
-        use:enhance={() => {
-          return ({ result, update }) => {
-            if (result.type === 'success') {
-              showDeleteDialog = false
-            }
-            void update()
-          }
-        }}
-        on:submit={(e) => {
-          if (disableFormSubmission) {
-            e.preventDefault()
-          }
-
-          dispatch('delete', { id: deletingKey.id })
-        }}
-      >
-        <input type="hidden" name="id" value={deletingKey.id} />
-        <Button kind="solid" color="error" type="submit">Delete</Button>
-      </form>
-      <Button kind="text" on:click={() => (showDeleteDialog = false)}>Cancel</Button>
-    </svelte:fragment>
-  </Dialog>
+  />
 {/if}
