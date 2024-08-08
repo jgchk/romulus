@@ -38,7 +38,7 @@
   <Dialog title="Create a key">
     <InputGroup errors={form?.action === 'create' ? form.errors.name : undefined}>
       <Label for="api-key-name">Name</Label>
-      <Input id="api-key-name" name="name" required autofocus />
+      <Input id="api-key-name" name="name" class="w-full" required autofocus />
     </InputGroup>
 
     <svelte:fragment slot="buttons">
