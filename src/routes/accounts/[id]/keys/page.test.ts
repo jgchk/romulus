@@ -219,3 +219,16 @@ test('should delete the key when the user confirms the delete dialog', async () 
   await user.click(getDeleteConfirmButton())
   expect(onDelete).toHaveBeenCalledWith({ id: 0 })
 })
+
+test('should close the delete dialog when ESC is pressed', async () => {
+  const { getDeleteButton, getDeleteDialog, queryDeleteDialog, user } = setup({
+    data: {
+      user: undefined,
+      keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+    },
+  })
+  await user.click(getDeleteButton())
+  expect(getDeleteDialog()).toBeInTheDocument()
+  await user.keyboard('[Escape]')
+  await waitFor(() => expect(queryDeleteDialog()).toBeNull())
+})

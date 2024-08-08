@@ -115,7 +115,11 @@
 
 {#if showDeleteDialog}
   {@const deletingKey = showDeleteDialog}
-  <Dialog title="Delete {showDeleteDialog.name}?" role="alertdialog">
+  <Dialog
+    title="Delete {showDeleteDialog.name}?"
+    role="alertdialog"
+    on:close={() => (showDeleteDialog = false)}
+  >
     <svelte:fragment slot="buttons">
       <form
         method="POST"
