@@ -7,6 +7,7 @@
   import IconButton from '$lib/atoms/IconButton.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { copyTextToClipboard } from '$lib/utils/dom'
+  import { pageTitle } from '$lib/utils/string'
 
   import type { ActionData, PageData } from './$types'
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
@@ -26,6 +27,10 @@
 
   const dispatch = createEventDispatcher<{ create: { name: string }; delete: { id: number } }>()
 </script>
+
+<svelte:head>
+  <title>{pageTitle('API Keys', data.user?.username ?? 'Unknown', 'Accounts')}</title>
+</svelte:head>
 
 <Card class="h-full space-y-2 p-4">
   <h1 class="text-xl font-bold">API Keys</h1>
