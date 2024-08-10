@@ -587,7 +587,7 @@ test('should allow filtering on updatedAt by exact match', async ({ dbConnection
 
 test('should allow filtering by createdBy', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
-  const [genre] = await genresDb.insert(
+  const [genre1, genre2] = await genresDb.insert(
     [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
     dbConnection,
   )
@@ -600,9 +600,16 @@ test('should allow filtering by createdBy', async ({ dbConnection }) => {
 
   const genreHistoryDb = new GenreHistoryDatabase()
   await createGenreHistoryEntry({
-    genre,
+    genre: genre1,
     accountId: account.id,
     operation: 'CREATE',
+    genreHistoryDb,
+    connection: dbConnection,
+  })
+  await createGenreHistoryEntry({
+    genre: genre2,
+    accountId: account.id,
+    operation: 'UPDATE',
     genreHistoryDb,
     connection: dbConnection,
   })

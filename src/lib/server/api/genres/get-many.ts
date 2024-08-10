@@ -38,7 +38,7 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
   if (filter.createdBy !== undefined) {
     const genreHistoryDb = new GenreHistoryDatabase()
     const { results: history } = await genreHistoryDb.findAll(
-      { filter: { accountId: filter.createdBy } },
+      { filter: { accountId: filter.createdBy, operation: 'CREATE' } },
       dbConnection,
     )
 

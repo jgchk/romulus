@@ -1,5 +1,7 @@
 import { and, asc, count, desc, eq, inArray, lt } from 'drizzle-orm'
 
+import type { GenreOperation } from '$lib/types/genres'
+
 import type { IDrizzleConnection } from '../connection'
 import {
   type Account,
@@ -16,6 +18,7 @@ export type FindAllParams = {
   limit?: number
   filter?: {
     accountId?: number
+    operation?: GenreOperation
   }
 }
 
@@ -181,8 +184,14 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
   }
 
   async findAll({ skip, limit, filter = {} }: FindAllParams, conn: IDrizzleConnection) {
-    const where =
-      filter.accountId !== undefined ? eq(genreHistory.accountId, filter.accountId) : undefined
+    const wheres = []
+    if (filter.accountId !== undefined) {
+      wheres.push(eq(genreHistory.accountId, filter.accountId))
+    }
+    if (filter.operation !== undefined) {
+      wheres.push(eq(genreHistory.operation, filter.operation))
+    }
+    const where = wheres.length > 0 ? and(...wheres) : undefined
 
     const dataQuery = conn.query.genreHistory.findMany({
       where,
