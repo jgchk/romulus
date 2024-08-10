@@ -3,6 +3,7 @@ import {
   type FindAllGenre,
   type FindAllInclude,
   type FindAllSortField,
+  type FindAllSortOrder,
   GenresDatabase,
 } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
@@ -27,7 +28,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
   }
   sort?: {
     field?: FindAllSortField
-    order?: 'asc' | 'desc'
+    order?: FindAllSortOrder
   }
 }
 

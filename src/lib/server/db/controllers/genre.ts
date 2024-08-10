@@ -43,7 +43,7 @@ export type FindAllParams<I extends FindAllInclude> = {
   }
   sort?: {
     field?: FindAllSortField
-    order?: 'asc' | 'desc'
+    order?: FindAllSortOrder
   }
 }
 
@@ -64,6 +64,9 @@ export const FIND_ALL_SORT_FIELD = [
   'updatedAt',
 ] as const
 export type FindAllSortField = (typeof FIND_ALL_SORT_FIELD)[number]
+
+export const FIND_ALL_SORT_ORDER = ['asc', 'desc'] as const
+export type FindAllSortOrder = (typeof FIND_ALL_SORT_ORDER)[number]
 
 export type FindAllGenre<T extends FindAllInclude> = Genre & {
   [K in T]: K extends 'parents'

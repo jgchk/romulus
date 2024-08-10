@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
-import { FIND_ALL_INCLUDE, FIND_ALL_SORT_FIELD } from '$lib/server/db/controllers/genre'
+import {
+  FIND_ALL_INCLUDE,
+  FIND_ALL_SORT_FIELD,
+  FIND_ALL_SORT_ORDER,
+} from '$lib/server/db/controllers/genre'
 import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
@@ -28,7 +32,7 @@ const schema = z.object({
   sort: z
     .object({
       field: z.enum(FIND_ALL_SORT_FIELD).optional(),
-      order: z.enum(['asc', 'desc']).optional(),
+      order: z.enum(FIND_ALL_SORT_ORDER).optional(),
     })
     .optional(),
 })
