@@ -780,3 +780,63 @@ test('should sorting by name in descending order', async ({ dbConnection }) => {
     expect.objectContaining({ name: 'A' }),
   ])
 })
+
+test('should allow sorting by subtitle', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', subtitle: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', subtitle: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'subtitle' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by subtitle in ascending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', subtitle: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', subtitle: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'subtitle', order: 'asc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by subtitle in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', subtitle: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', subtitle: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'subtitle', order: 'desc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+  ])
+})
