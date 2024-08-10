@@ -1,0 +1,249 @@
+openapi: 3.1.0
+info:
+  title: Romulus API
+  version: 1.0.0
+  description: API for retrieving and filtering genre information in the Romulus system.
+servers:
+  - url: https://www.romulus.lol/api
+paths:
+  /genres:
+    get:
+      summary: Retrieve and filter genres
+      description: Fetches a list of genres based on specified criteria, with options for pagination, additional field inclusion, and various filtering parameters.
+      parameters:
+        - in: query
+          name: skip
+          schema:
+            type: integer
+            minimum: 0
+          required: false
+          description: Number of genres to skip before starting to collect the result set. Useful for pagination in combination with the 'limit' parameter.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          required: false
+          description: Maximum number of genres to return in the result set. Defaults to 25 if not specified. Use in combination with 'skip' for pagination.
+        - in: query
+          name: include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [parents, influencedBy, akas]
+          required: false
+          style: form
+          explode: true
+          description: Additional fields to include in each returned genre. Can be one or more.
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: false
+          description: Filter genres by name. Supports exact matching and is case-sensitive.
+        - in: query
+          name: subtitle
+          schema:
+            type: string
+          required: false
+          description: Filter genres by subtitle. Supports exact matching and is case-sensitive.
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [TREND, SCENE, STYLE, META, MOVEMENT]
+          required: false
+          description: Filter genres by type.
+        - in: query
+          name: relevance
+          schema:
+            type: integer
+            enum: [0, 1, 2, 3, 4, 5, 6, 7, 99]
+          required: false
+          description: Filter genres by relevance score. A relevance score of 99 refers to a genre with an unset relevance.
+        - in: query
+          name: nsfw
+          schema:
+            type: boolean
+          required: false
+          description: Filter genres by NSFW (Not Safe For Work) status. Set to true to include only NSFW genres, false for non-NSFW genres, or omit to include both.
+        - in: query
+          name: shortDescription
+          schema:
+            type: string
+          required: false
+          description: Filter genres by their short description. Supports exact matching and is case-sensitive.
+        - in: query
+          name: longDescription
+          schema:
+            type: string
+          required: false
+          description: Filter genres by their long description. Supports exact matching and is case-sensitive.
+        - in: query
+          name: notes
+          schema:
+            type: string
+          required: false
+          description: Filter genres by their notes field. Supports exact matching and is case-sensitive.
+        - in: query
+          name: createdAt
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: Filter genres by their creation date and time. Use ISO 8601 format (e.g., '2023-04-01T12:00:00Z').
+        - in: query
+          name: updatedAt
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: Filter genres by their last update date and time. Use ISO 8601 format (e.g., '2023-04-01T12:00:00Z').
+        - in: query
+          name: createdBy
+          schema:
+            type: number
+          required: false
+          description: Filter genres by the account ID of their creator.
+      responses:
+        '200':
+          description: Successful operation. Returns a list of genres matching the specified criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Genre'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Bad request. This can occur if invalid parameter values are provided or if there's a conflict between parameters.
+        '401':
+          description: Unauthorized. Authentication is required to access this endpoint.
+        '500':
+          description: Internal server error. An unexpected error occurred on the server.
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: JWT token-based authentication. Include the token in the Authorization header as 'Bearer <token>'.
+
+  schemas:
+    Pagination:
+      type: object
+      properties:
+        skip:
+          type: integer
+          description: Number of items skipped before starting to collect the result set.
+          examples: [0]
+        limit:
+          type: integer
+          description: Maximum number of items returned in the result set.
+          examples: [25]
+        total:
+          type: integer
+          description: Total number of items matching the criteria, without pagination.
+          examples: [1]
+    Genre:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the genre.
+          examples: [2737]
+        name:
+          type: string
+          description: Name of the genre.
+          examples: [Bristol Sound]
+        subtitle:
+          type: [string, 'null']
+          description: Subtitle for the genre.
+          examples: [Trip Hop]
+        type:
+          type: string
+          enum: [TREND, SCENE, STYLE, META, MOVEMENT]
+          description: Type of the genre.
+          examples: [SCENE]
+        relevance:
+          type: integer
+          enum: [0, 1, 2, 3, 4, 5, 6, 7, 99]
+          description: Relevance score of the genre. Valid values are 0-7 and 99, where higher numbers indicate higher relevance. 99 represents an unset relevance.
+          examples: [2]
+        nsfw:
+          type: boolean
+          description: Indicates if the genre is Not Safe For Work.
+          examples: [false]
+        shortDescription:
+          type: [string, 'null']
+          description: Brief description of the genre.
+          examples: [A short description of the genre.]
+        longDescription:
+          type: [string, 'null']
+          description: Detailed description of the genre.
+          examples: [A much longer and more detailed description of the genre.]
+        notes:
+          type: [string, 'null']
+          description: Additional notes about the genre.
+          examples: [Some additional notes and links.]
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the genre was created.
+          examples: [2022-08-23T12:34:21.841Z]
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the genre was last updated.
+          examples: [2024-05-30T12:34:21.841Z]
+        parents:
+          type: array
+          items:
+            type: integer
+          description: IDs of parent genres. Only included when 'parents' is specified in the 'include' parameter.
+          examples: [[53, 527]]
+        influencedBy:
+          type: array
+          items:
+            type: integer
+          description: IDs of genres that influenced this genre. Only included when 'influencedBy' is specified in the 'include' parameter.
+          examples: [[671, 1882, 1548, 664, 53]]
+        akas:
+          type: object
+          properties:
+            primary:
+              type: array
+              items:
+                type: string
+              examples: [[Bristol Scene, Bristol Underground Scene]]
+            secondary:
+              type: array
+              items:
+                type: string
+              examples: [[Bristol Trip Hop]]
+            tertiary:
+              type: array
+              items:
+                type: string
+              examples: [[Bristol School]]
+          description: Also Known As names for the genre. Only included when 'akas' is specified in the 'include' parameter.
+      required:
+        - id
+        - name
+        - subtitle
+        - type
+        - relevance
+        - nsfw
+        - shortDescription
+        - longDescription
+        - notes
+        - createdAt
+        - updatedAt
