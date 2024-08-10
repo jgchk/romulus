@@ -1284,3 +1284,75 @@ test('should allow sorting by createdAt in descending order', async ({ dbConnect
     expect.objectContaining({ name: 'A' }),
   ])
 })
+
+test('should allow sorting by updatedAt', async ({ dbConnection }) => {
+  const date1 = new Date()
+  const date2 = new Date(date1.getTime() + 1000)
+  const date3 = new Date(date2.getTime() + 1000)
+
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', updatedAt: date3 }),
+      getTestGenre({ name: 'A', updatedAt: date1 }),
+      getTestGenre({ name: 'B', updatedAt: date2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'updatedAt' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+  ])
+})
+
+test('should allow sorting by updatedAt in ascending order', async ({ dbConnection }) => {
+  const date1 = new Date()
+  const date2 = new Date(date1.getTime() + 1000)
+  const date3 = new Date(date2.getTime() + 1000)
+
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', updatedAt: date3 }),
+      getTestGenre({ name: 'A', updatedAt: date1 }),
+      getTestGenre({ name: 'B', updatedAt: date2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'updatedAt', order: 'asc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+  ])
+})
+
+test('should allow sorting by updatedAt in descending order', async ({ dbConnection }) => {
+  const date1 = new Date()
+  const date2 = new Date(date1.getTime() + 1000)
+  const date3 = new Date(date2.getTime() + 1000)
+
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', updatedAt: date3 }),
+      getTestGenre({ name: 'A', updatedAt: date1 }),
+      getTestGenre({ name: 'B', updatedAt: date2 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'updatedAt', order: 'desc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
