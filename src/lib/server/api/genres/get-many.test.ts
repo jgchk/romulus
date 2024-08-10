@@ -900,3 +900,63 @@ test('should allow sorting by type in descending order', async ({ dbConnection }
     expect.objectContaining({ name: 'B' }),
   ])
 })
+
+test('should allow sorting by relevance', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', relevance: 2 }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', relevance: 1 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'relevance' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by relevance in ascending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', relevance: 2 }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', relevance: 1 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'relevance', order: 'asc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by relevance in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', relevance: 2 }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', relevance: 1 }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'relevance', order: 'desc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+  ])
+})
