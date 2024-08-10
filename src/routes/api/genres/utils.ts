@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
-  skip: z.coerce.number().optional(),
-  limit: z.coerce.number().min(0).max(100).optional(),
+  skip: z.coerce.number().int().optional(),
+  limit: z.coerce.number().int().min(0).max(100).optional(),
   include: z.enum(['parents', 'influencedBy', 'akas']).array().optional(),
   filter: z
     .object({
@@ -21,7 +21,7 @@ const schema = z.object({
       notes: z.string().nullable().optional(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
-      createdBy: z.coerce.number().optional(),
+      createdBy: z.coerce.number().int().optional(),
     })
     .optional(),
 })
