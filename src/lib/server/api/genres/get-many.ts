@@ -2,6 +2,7 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import {
   type FindAllGenre,
   type FindAllInclude,
+  type FindAllSortField,
   GenresDatabase,
 } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
@@ -25,18 +26,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     createdBy?: number
   }
   sort?: {
-    field?:
-      | 'id'
-      | 'name'
-      | 'subtitle'
-      | 'type'
-      | 'relevance'
-      | 'nsfw'
-      | 'shortDescription'
-      | 'longDescription'
-      | 'notes'
-      | 'createdAt'
-      | 'updatedAt'
+    field?: FindAllSortField
     order?: 'asc' | 'desc'
   }
 }

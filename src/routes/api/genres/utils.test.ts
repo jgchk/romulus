@@ -146,4 +146,11 @@ describe('parseQueryParams', () => {
     expect(result.success).toBe(true)
     expect(result.data?.filter?.createdBy).toBe(1)
   })
+
+  test('should parse sort.field', () => {
+    const url = new URL('http://localhost?sort=createdAt')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.sort?.field).toBe('createdAt')
+  })
 })

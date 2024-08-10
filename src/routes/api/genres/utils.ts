@@ -1,11 +1,12 @@
 import { z } from 'zod'
 
+import { FIND_ALL_INCLUDE, FIND_ALL_SORT_FIELD } from '$lib/server/db/controllers/genre'
 import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
   skip: z.coerce.number().int().optional(),
   limit: z.coerce.number().int().min(0).max(100).optional(),
-  include: z.enum(['parents', 'influencedBy', 'akas']).array().optional(),
+  include: z.enum(FIND_ALL_INCLUDE).array().optional(),
   filter: z
     .object({
       name: z.string().optional(),
@@ -22,6 +23,11 @@ const schema = z.object({
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
       createdBy: z.coerce.number().int().optional(),
+    })
+    .optional(),
+  sort: z
+    .object({
+      field: z.enum(FIND_ALL_SORT_FIELD).optional(),
     })
     .optional(),
 })
@@ -43,6 +49,9 @@ export function parseQueryParams(url: URL) {
       createdAt: url.searchParams.get('createdAt') ?? undefined,
       updatedAt: url.searchParams.get('updatedAt') ?? undefined,
       createdBy: url.searchParams.get('createdBy') ?? undefined,
+    },
+    sort: {
+      field: url.searchParams.get('sort') ?? undefined,
     },
   })
 }

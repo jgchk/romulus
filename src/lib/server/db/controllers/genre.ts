@@ -42,23 +42,28 @@ export type FindAllParams<I extends FindAllInclude> = {
     updatedAt?: Date
   }
   sort?: {
-    field?:
-      | 'id'
-      | 'name'
-      | 'subtitle'
-      | 'type'
-      | 'relevance'
-      | 'nsfw'
-      | 'shortDescription'
-      | 'longDescription'
-      | 'notes'
-      | 'createdAt'
-      | 'updatedAt'
+    field?: FindAllSortField
     order?: 'asc' | 'desc'
   }
 }
 
-export type FindAllInclude = 'parents' | 'influencedBy' | 'akas'
+export const FIND_ALL_INCLUDE = ['parents', 'influencedBy', 'akas'] as const
+export type FindAllInclude = (typeof FIND_ALL_INCLUDE)[number]
+
+export const FIND_ALL_SORT_FIELD = [
+  'id',
+  'name',
+  'subtitle',
+  'type',
+  'relevance',
+  'nsfw',
+  'shortDescription',
+  'longDescription',
+  'notes',
+  'createdAt',
+  'updatedAt',
+] as const
+export type FindAllSortField = (typeof FIND_ALL_SORT_FIELD)[number]
 
 export type FindAllGenre<T extends FindAllInclude> = Genre & {
   [K in T]: K extends 'parents'
