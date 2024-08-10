@@ -56,7 +56,7 @@ export const UNSET_GENRE_RELEVANCE = 99
 export const MIN_AKA_RELEVANCE = 1
 export const MAX_AKA_RELEVANCE = 3
 
-export const genreRelevance = z
+export const genreRelevance = z.coerce
   .number()
   .int()
   .min(MIN_GENRE_RELEVANCE)

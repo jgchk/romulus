@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { GENRE_TYPES } from '$lib/types/genres'
+import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
   skip: z.coerce.number().optional(),
@@ -11,7 +11,7 @@ const schema = z.object({
       name: z.string().optional(),
       subtitle: z.string().nullable().optional(),
       type: z.enum(GENRE_TYPES).optional(),
-      relevance: z.coerce.number().nullable().optional(),
+      relevance: genreRelevance.nullable().optional(),
       nsfw: z
         .enum(['true', 'false'])
         .transform((v) => v === 'true')

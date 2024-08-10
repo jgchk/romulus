@@ -73,6 +73,12 @@ describe('parseQueryParams', () => {
     expect(result.data?.filter?.relevance).toBe(1)
   })
 
+  test('should fail on invalid filter.relevance', () => {
+    const url = new URL('http://localhost?relevance=50')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(false)
+  })
+
   test('should parse filter.nsfw', () => {
     const url = new URL('http://localhost?nsfw=true')
     const result = parseQueryParams(url)
