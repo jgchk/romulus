@@ -24,10 +24,14 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     updatedAt?: Date
     createdBy?: number
   }
+  sort?: {
+    field?: 'name'
+    order?: 'asc' | 'desc'
+  }
 }
 
 export default async function getManyGenres<I extends FindAllInclude = never>(
-  { skip = 0, limit = 25, include = [], filter = {} }: GetManyGenresParams<I>,
+  { skip = 0, limit = 25, include = [], filter = {}, sort = {} }: GetManyGenresParams<I>,
   dbConnection: IDrizzleConnection,
 ): Promise<{
   data: FindAllGenre<I>[]
@@ -43,7 +47,7 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
     )
 
     const { results, total } = await genresDb.findAll(
-      { skip, limit, include, filter: { ...filter, ids: history.map((h) => h.treeGenreId) } },
+      { skip, limit, include, filter: { ...filter, ids: history.map((h) => h.treeGenreId) }, sort },
       dbConnection,
     )
 
@@ -53,7 +57,10 @@ export default async function getManyGenres<I extends FindAllInclude = never>(
     }
   }
 
-  const { results, total } = await genresDb.findAll({ skip, limit, include, filter }, dbConnection)
+  const { results, total } = await genresDb.findAll(
+    { skip, limit, include, filter, sort },
+    dbConnection,
+  )
 
   return {
     data: results,

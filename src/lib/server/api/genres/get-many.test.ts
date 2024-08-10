@@ -652,3 +652,35 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
+
+test('should allow sorting by name', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'name' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+  ])
+})
+
+test('should sorting by name in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'name', order: 'desc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})

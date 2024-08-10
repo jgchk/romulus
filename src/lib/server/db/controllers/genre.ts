@@ -41,6 +41,10 @@ export type FindAllParams<I extends FindAllInclude> = {
     createdAt?: Date
     updatedAt?: Date
   }
+  sort?: {
+    field?: 'name'
+    order?: 'asc' | 'desc'
+  }
 }
 
 export type FindAllInclude = 'parents' | 'influencedBy' | 'akas'
@@ -257,7 +261,7 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
   }
 
   async findAll<I extends FindAllInclude>(
-    { skip, limit, include = [], filter = {} }: FindAllParams<I>,
+    { skip, limit, include = [], filter = {}, sort = {} }: FindAllParams<I>,
     conn: IDrizzleConnection,
   ): Promise<{ results: FindAllGenre<I>[]; total: number }> {
     const includeParents = (include as string[]).includes('parents')
@@ -334,6 +338,7 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
             }
           : undefined,
       },
+      orderBy: [(sort?.order === 'desc' ? desc : asc)(genres.name)],
     })
     const totalQuery = conn.select({ total: count() }).from(genres).where(where).$dynamic()
 
