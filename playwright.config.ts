@@ -1,13 +1,16 @@
-import { devices, type PlaywrightTestConfig } from '@playwright/test'
+import { defineConfig, devices, type PlaywrightTestConfig } from '@playwright/test'
 import dotenv from 'dotenv'
 
 dotenv.config({ path: '.env.test' })
 
-const config: PlaywrightTestConfig = {
-  webServer: {
-    command: 'npm run build && npm run preview',
-    port: 4173,
-  },
+export default defineConfig({
+  webServer:
+    process.env.NODE_ENV === 'development'
+      ? { command: 'npm run dev', port: 5173 }
+      : {
+          command: 'npm run build && npm run preview',
+          port: 4173,
+        },
   testDir: 'tests',
   testMatch: /(.+\.)?(test|spec)\.[jt]s/,
   projects: [
@@ -21,6 +24,4 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
-}
-
-export default config
+})
