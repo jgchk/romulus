@@ -42,7 +42,7 @@ export type FindAllParams<I extends FindAllInclude> = {
     updatedAt?: Date
   }
   sort?: {
-    field?: 'name'
+    field?: 'id' | 'name'
     order?: 'asc' | 'desc'
   }
 }
@@ -324,6 +324,15 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
     }
     const where = wheres.length > 0 ? and(...wheres) : undefined
 
+    const sortDirection = sort?.order === 'desc' ? desc : asc
+
+    let sortField
+    if (sort.field === 'id') {
+      sortField = genres.id
+    } else if (sort.field === 'name') {
+      sortField = genres.name
+    }
+
     const dataQuery = conn.query.genres.findMany({
       where,
       offset: skip,
@@ -338,7 +347,7 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
             }
           : undefined,
       },
-      orderBy: [(sort?.order === 'desc' ? desc : asc)(genres.name)],
+      orderBy: sortField ? sortDirection(sortField) : undefined,
     })
     const totalQuery = conn.select({ total: count() }).from(genres).where(where).$dynamic()
 
