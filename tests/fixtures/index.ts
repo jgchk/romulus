@@ -13,6 +13,7 @@ import {
 } from '../utils'
 import { GenreTree } from './elements/genre-tree'
 import { ApiKeysPage } from './pages/api-keys'
+import { ApiPlaygroundPage } from './pages/api-playground'
 import { ErrorPage } from './pages/error'
 import { CreateGenrePage } from './pages/genre-create'
 import { GenreDetailsPage } from './pages/genre-details'
@@ -99,6 +100,7 @@ export const test = base
   })
   .extend<{
     apiKeysPage: ApiKeysPage
+    apiPlaygroundPage: ApiPlaygroundPage
     createGenrePage: CreateGenrePage
     editGenrePage: EditGenrePage
     errorPage: ErrorPage
@@ -110,6 +112,9 @@ export const test = base
   }>({
     apiKeysPage: async ({ page }, use) => {
       await use(new ApiKeysPage(page))
+    },
+    apiPlaygroundPage: async ({ page }, use) => {
+      await use(new ApiPlaygroundPage(page))
     },
     createGenrePage: async ({ page }, use) => {
       await use(new CreateGenrePage(page))

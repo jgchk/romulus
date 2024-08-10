@@ -6,6 +6,8 @@ export class ApiKeysPage {
   confirmCreateButton: Locator
   deleteButton: Locator
   confirmDeleteButton: Locator
+  copyButton: Locator
+  apiPlaygroundLink: Locator
 
   constructor(readonly page: Page) {
     this.createButton = this.page.getByRole('button', { name: 'Create an API key' })
@@ -15,6 +17,8 @@ export class ApiKeysPage {
     this.confirmDeleteButton = this.page
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Delete' })
+    this.copyButton = this.page.getByRole('button', { name: 'Copy' })
+    this.apiPlaygroundLink = this.page.getByRole('link', { name: 'API Playground' })
   }
 
   static url(accountId: number) {
