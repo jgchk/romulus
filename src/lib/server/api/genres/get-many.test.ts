@@ -960,3 +960,63 @@ test('should allow sorting by relevance in descending order', async ({ dbConnect
     expect.objectContaining({ name: 'B' }),
   ])
 })
+
+test('should allow sorting by NSFW', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', nsfw: true }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', nsfw: false }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'nsfw' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+  ])
+})
+
+test('should allow sorting by NSFW in ascending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', nsfw: true }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', nsfw: false }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'nsfw', order: 'asc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+  ])
+})
+
+test('should allow sorting by NSFW in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', nsfw: true }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', nsfw: false }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'nsfw', order: 'desc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'B' }),
+  ])
+})
