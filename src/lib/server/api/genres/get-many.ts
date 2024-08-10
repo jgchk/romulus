@@ -25,7 +25,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
     createdBy?: number
   }
   sort?: {
-    field?: 'id' | 'name' | 'subtitle'
+    field?: 'id' | 'name' | 'subtitle' | 'type'
     order?: 'asc' | 'desc'
   }
 }
