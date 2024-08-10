@@ -1,7 +1,11 @@
 import { clamp } from 'ramda'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { type FindAllInclude, GenresDatabase } from '$lib/server/db/controllers/genre'
+import {
+  type FindAllGenre,
+  type FindAllInclude,
+  GenresDatabase,
+} from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import type { GenreType } from '$lib/types/genres'
 
@@ -27,7 +31,10 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
 export default async function getManyGenres<I extends FindAllInclude = never>(
   params: GetManyGenresParams<I>,
   dbConnection: IDrizzleConnection,
-) {
+): Promise<{
+  data: FindAllGenre<I>[]
+  pagination: { skip: number; limit: number; total: number }
+}> {
   const { skip = 0, include = [], filter = {} } = params
   const limit = clamp(0, 100, params.limit ?? 25)
 
