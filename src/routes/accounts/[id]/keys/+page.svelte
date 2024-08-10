@@ -32,8 +32,18 @@
   <title>{pageTitle('API Keys', data.user?.username ?? 'Unknown', 'Accounts')}</title>
 </svelte:head>
 
-<Card class="h-full space-y-2 p-4">
-  <h1 class="text-xl font-bold">API Keys</h1>
+<Card class="h-full space-y-4 p-4">
+  <div class="space-y-1">
+    <h1 class="text-xl font-bold">API Keys</h1>
+
+    <p class="text-gray-700 transition dark:text-gray-200">
+      API keys are used to identify and authorize your API requests. You can try them out and
+      explore the available APIs in the <a
+        class="text-primary-500 hover:underline"
+        href="/api/openapi">API Playground</a
+      >.
+    </p>
+  </div>
 
   <Button on:click={() => (showCreateDialog = true)}>Create an API key</Button>
 
