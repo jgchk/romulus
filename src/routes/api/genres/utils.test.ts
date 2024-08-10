@@ -153,4 +153,11 @@ describe('parseQueryParams', () => {
     expect(result.success).toBe(true)
     expect(result.data?.sort?.field).toBe('createdAt')
   })
+
+  test('should parse sort.order', () => {
+    const url = new URL('http://localhost?order=asc')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.sort?.order).toBe('asc')
+  })
 })

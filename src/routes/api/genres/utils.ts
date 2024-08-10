@@ -28,6 +28,7 @@ const schema = z.object({
   sort: z
     .object({
       field: z.enum(FIND_ALL_SORT_FIELD).optional(),
+      order: z.enum(['asc', 'desc']).optional(),
     })
     .optional(),
 })
@@ -52,6 +53,7 @@ export function parseQueryParams(url: URL) {
     },
     sort: {
       field: url.searchParams.get('sort') ?? undefined,
+      order: url.searchParams.get('order') ?? undefined,
     },
   })
 }
