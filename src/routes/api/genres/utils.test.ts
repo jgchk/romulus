@@ -18,6 +18,18 @@ describe('parseQueryParams', () => {
     expect(result.data?.limit).toBe(10)
   })
 
+  test('should fail on limit values below 0', () => {
+    const url = new URL('http://localhost?limit=-1')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(false)
+  })
+
+  test('should fail on limit values above 100', () => {
+    const url = new URL('http://localhost?limit=101')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(false)
+  })
+
   test('should parse no include', () => {
     const url = new URL('http://localhost')
     const result = parseQueryParams(url)

@@ -1,5 +1,3 @@
-import { clamp } from 'ramda'
-
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import {
   type FindAllGenre,
@@ -29,15 +27,12 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
 }
 
 export default async function getManyGenres<I extends FindAllInclude = never>(
-  params: GetManyGenresParams<I>,
+  { skip = 0, limit = 25, include = [], filter = {} }: GetManyGenresParams<I>,
   dbConnection: IDrizzleConnection,
 ): Promise<{
   data: FindAllGenre<I>[]
   pagination: { skip: number; limit: number; total: number }
 }> {
-  const { skip = 0, include = [], filter = {} } = params
-  const limit = clamp(0, 100, params.limit ?? 25)
-
   const genresDb = new GenresDatabase()
 
   if (filter.createdBy !== undefined) {
