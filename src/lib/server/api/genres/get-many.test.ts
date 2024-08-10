@@ -765,7 +765,7 @@ test('should allow sorting by name in ascending order', async ({ dbConnection })
   ])
 })
 
-test('should sorting by name in descending order', async ({ dbConnection }) => {
+test('should allow sorting by name in descending order', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
     [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
@@ -1145,6 +1145,66 @@ test('should allow sorting by longDescription in descending order', async ({ dbC
     { sort: { field: 'longDescription', order: 'desc' } },
     dbConnection,
   )
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+  ])
+})
+
+test('should allow sorting by notes', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', notes: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', notes: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'notes' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by notes in ascending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', notes: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', notes: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'notes', order: 'asc' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by notes in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', notes: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', notes: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'notes', order: 'desc' } }, dbConnection)
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),

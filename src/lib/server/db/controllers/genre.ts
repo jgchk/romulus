@@ -51,6 +51,7 @@ export type FindAllParams<I extends FindAllInclude> = {
       | 'nsfw'
       | 'shortDescription'
       | 'longDescription'
+      | 'notes'
     order?: 'asc' | 'desc'
   }
 }
@@ -351,6 +352,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       sortField = genres.shortDescription
     } else if (sort.field === 'longDescription') {
       sortField = genres.longDescription
+    } else if (sort.field === 'notes') {
+      sortField = genres.notes
     } else {
       sortField = genres.id
     }
