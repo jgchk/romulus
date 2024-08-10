@@ -656,48 +656,60 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
 test('should allow sorting by id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+    [
+      getTestGenre({ id: 2, name: 'A' }),
+      getTestGenre({ id: 0, name: 'B' }),
+      getTestGenre({ id: 1, name: 'C' }),
+    ],
     dbConnection,
   )
 
   const result = await getManyGenres({ sort: { field: 'id' } }, dbConnection)
 
   expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'C' }),
     expect.objectContaining({ name: 'A' }),
-    expect.objectContaining({ name: 'B' }),
   ])
 })
 
 test('should allow sorting by id in ascending order', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+    [
+      getTestGenre({ id: 2, name: 'A' }),
+      getTestGenre({ id: 0, name: 'B' }),
+      getTestGenre({ id: 1, name: 'C' }),
+    ],
     dbConnection,
   )
 
   const result = await getManyGenres({ sort: { field: 'id', order: 'asc' } }, dbConnection)
 
   expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'C' }),
     expect.objectContaining({ name: 'A' }),
-    expect.objectContaining({ name: 'B' }),
   ])
 })
 
 test('should allow sorting by id in descending order', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+    [
+      getTestGenre({ id: 2, name: 'A' }),
+      getTestGenre({ id: 0, name: 'B' }),
+      getTestGenre({ id: 1, name: 'C' }),
+    ],
     dbConnection,
   )
 
   const result = await getManyGenres({ sort: { field: 'id', order: 'desc' } }, dbConnection)
 
   expect(result.data).toEqual([
-    expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'A' }),
     expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
   ])
 })
 
