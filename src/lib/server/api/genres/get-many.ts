@@ -35,6 +35,7 @@ export type GetManyGenresParams<I extends FindAllInclude> = {
       | 'shortDescription'
       | 'longDescription'
       | 'notes'
+      | 'createdAt'
     order?: 'asc' | 'desc'
   }
 }

@@ -52,6 +52,7 @@ export type FindAllParams<I extends FindAllInclude> = {
       | 'shortDescription'
       | 'longDescription'
       | 'notes'
+      | 'createdAt'
     order?: 'asc' | 'desc'
   }
 }
@@ -354,6 +355,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       sortField = genres.longDescription
     } else if (sort.field === 'notes') {
       sortField = genres.notes
+    } else if (sort.field === 'createdAt') {
+      sortField = genres.createdAt
     } else {
       sortField = genres.id
     }
