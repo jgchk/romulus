@@ -713,6 +713,26 @@ test('should allow sorting by id in descending order', async ({ dbConnection }) 
   ])
 })
 
+test('should sort by id by default', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ id: 2, name: 'A' }),
+      getTestGenre({ id: 0, name: 'B' }),
+      getTestGenre({ id: 1, name: 'C' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({}, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
 test('should allow sorting by name', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(

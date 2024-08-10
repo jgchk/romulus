@@ -331,6 +331,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       sortField = genres.id
     } else if (sort.field === 'name') {
       sortField = genres.name
+    } else {
+      sortField = genres.id
     }
 
     const dataQuery = conn.query.genres.findMany({
