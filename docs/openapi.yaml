@@ -48,6 +48,7 @@ paths:
           schema:
             type: string
           required: false
+          allowEmptyValue: true
           description: Filter genres by subtitle. Supports exact matching and is case-sensitive.
         - in: query
           name: type
@@ -74,18 +75,21 @@ paths:
           schema:
             type: string
           required: false
+          allowEmptyValue: true
           description: Filter genres by their short description. Supports exact matching and is case-sensitive.
         - in: query
           name: longDescription
           schema:
             type: string
           required: false
+          allowEmptyValue: true
           description: Filter genres by their long description. Supports exact matching and is case-sensitive.
         - in: query
           name: notes
           schema:
             type: string
           required: false
+          allowEmptyValue: true
           description: Filter genres by their notes field. Supports exact matching and is case-sensitive.
         - in: query
           name: createdAt
