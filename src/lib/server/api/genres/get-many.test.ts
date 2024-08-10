@@ -1086,3 +1086,69 @@ test('should allow sorting by shortDescription in descending order', async ({ db
     expect.objectContaining({ name: 'B' }),
   ])
 })
+
+test('should allow sorting by longDescription', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', longDescription: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', longDescription: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ sort: { field: 'longDescription' } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by longDescription in ascending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', longDescription: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', longDescription: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres(
+    { sort: { field: 'longDescription', order: 'asc' } },
+    dbConnection,
+  )
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'A' }),
+  ])
+})
+
+test('should allow sorting by longDescription in descending order', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ name: 'C', longDescription: 'B' }),
+      getTestGenre({ name: 'A' }),
+      getTestGenre({ name: 'B', longDescription: 'A' }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres(
+    { sort: { field: 'longDescription', order: 'desc' } },
+    dbConnection,
+  )
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
+    expect.objectContaining({ name: 'C' }),
+    expect.objectContaining({ name: 'B' }),
+  ])
+})

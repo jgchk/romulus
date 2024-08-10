@@ -42,7 +42,15 @@ export type FindAllParams<I extends FindAllInclude> = {
     updatedAt?: Date
   }
   sort?: {
-    field?: 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'shortDescription'
+    field?:
+      | 'id'
+      | 'name'
+      | 'subtitle'
+      | 'type'
+      | 'relevance'
+      | 'nsfw'
+      | 'shortDescription'
+      | 'longDescription'
     order?: 'asc' | 'desc'
   }
 }
@@ -341,6 +349,8 @@ export class GenresDatabase implements IGenresDatabase<IDrizzleConnection> {
       sortField = genres.nsfw
     } else if (sort.field === 'shortDescription') {
       sortField = genres.shortDescription
+    } else if (sort.field === 'longDescription') {
+      sortField = genres.longDescription
     } else {
       sortField = genres.id
     }
