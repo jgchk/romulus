@@ -38,6 +38,33 @@ paths:
           explode: true
           description: Additional fields to include in each returned genre. Can be one or more.
         - in: query
+          name: sort
+          schema:
+            type: string
+            enum:
+              [
+                id,
+                name,
+                subtitle,
+                type,
+                relevance,
+                nsfw,
+                shortDescription,
+                longDescription,
+                notes,
+                createdAt,
+                updatedAt,
+              ]
+          required: false
+          description: Sorts genres by the given field. Useful in combination with the 'order' parameter.
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+          required: false
+          description: Sorts genres in the given order. Useful in combination with the 'sort' parameter.
+        - in: query
           name: name
           schema:
             type: string
