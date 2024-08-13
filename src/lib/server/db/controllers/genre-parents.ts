@@ -5,24 +5,8 @@ import { hasUpdate, makeUpdate } from '$lib/utils/db'
 import type { IDrizzleConnection } from '../connection'
 import { type GenreParent, genreParents, type InsertGenreParent } from '../schema'
 
-export type IGenreParentsDatabase<T> = {
-  insert: (data: InsertGenreParent[], conn: T) => Promise<GenreParent[]>
-  find: (
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-    conn: T,
-  ) => Promise<GenreParent | undefined>
-  findByParentId: (parentId: GenreParent['parentId'], conn: T) => Promise<GenreParent[]>
-  update: (
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-    update: Partial<InsertGenreParent>,
-    conn: T,
-  ) => Promise<GenreParent>
-}
-
-export class GenreParentsDatabase implements IGenreParentsDatabase<IDrizzleConnection> {
-  insert(data: InsertGenreParent[], conn: IDrizzleConnection) {
+export class GenreParentsDatabase {
+  insert(data: InsertGenreParent[], conn: IDrizzleConnection): Promise<GenreParent[]> {
     return conn.insert(genreParents).values(data).returning()
   }
 
@@ -30,13 +14,16 @@ export class GenreParentsDatabase implements IGenreParentsDatabase<IDrizzleConne
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],
     conn: IDrizzleConnection,
-  ) {
+  ): Promise<GenreParent | undefined> {
     return conn.query.genreParents.findFirst({
       where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
     })
   }
 
-  findByParentId(parentId: GenreParent['parentId'], conn: IDrizzleConnection) {
+  findByParentId(
+    parentId: GenreParent['parentId'],
+    conn: IDrizzleConnection,
+  ): Promise<GenreParent[]> {
     return conn.query.genreParents.findMany({
       where: eq(genreParents.parentId, parentId),
     })
@@ -47,7 +34,7 @@ export class GenreParentsDatabase implements IGenreParentsDatabase<IDrizzleConne
     childId: GenreParent['childId'],
     update: Partial<InsertGenreParent>,
     conn: IDrizzleConnection,
-  ) {
+  ): Promise<GenreParent> {
     if (!hasUpdate(update)) {
       const genreParent = await this.find(parentId, childId, conn)
       if (!genreParent)
