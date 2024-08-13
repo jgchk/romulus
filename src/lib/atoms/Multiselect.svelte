@@ -72,10 +72,14 @@
   $: lastIndex = hasMore ? filteredOptions.length : filteredOptions.length - 1
 
   // prevent focusedIndex from being out of bounds
-  $: filteredOptions && (focusedIndex = Math.min(focusedIndex, lastIndex))
+  $: if (filteredOptions) {
+    focusedIndex = Math.min(focusedIndex, lastIndex)
+  }
 
   // reset focusedIndex when closing
-  $: !open && (focusedIndex = 0)
+  $: if (!open) {
+    focusedIndex = 0
+  }
 
   const dispatch = createEventDispatcher<{
     loadMore: undefined

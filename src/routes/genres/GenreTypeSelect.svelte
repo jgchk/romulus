@@ -5,7 +5,6 @@
   import Select from '$lib/atoms/Select.svelte'
   import { GENRE_TYPES, type GenreType, GenreTypeNames } from '$lib/types/genres'
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = Omit<ComponentProps<Select<GenreType>>, 'options'>
 
   export let value: $$Props['value'] = undefined

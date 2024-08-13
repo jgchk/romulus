@@ -7,7 +7,7 @@ import BaseSettings from './BaseSettings.svelte'
 
 function setup(props: Partial<ComponentProps<BaseSettings>> = {}) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   const returned = render(BaseSettings, {
     genreRelevanceFilter: 0,
     showRelevanceTags: false,

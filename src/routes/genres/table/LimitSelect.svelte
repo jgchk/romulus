@@ -4,7 +4,6 @@
   import type { Option } from '$lib/atoms/Select'
   import Select from '$lib/atoms/Select.svelte'
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = Omit<ComponentProps<Select<number>>, 'options'>
 
   export let value: $$Props['value'] = undefined

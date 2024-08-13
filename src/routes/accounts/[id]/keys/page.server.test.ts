@@ -428,7 +428,7 @@ describe('delete', () => {
         locals: { dbConnection, user: { id: account.id } },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
-    } catch (e) {
+    } catch {
       expect.fail('should not throw error')
     }
   })

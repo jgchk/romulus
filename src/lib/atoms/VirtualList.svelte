@@ -32,7 +32,6 @@
   let averageHeight: number
 
   $: visible = items.slice(start, end).map((data, i) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return { index: i + start, data }
   })
 

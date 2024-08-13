@@ -73,7 +73,7 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
         headers: { authorization: 'Bearer 000-000-000' },
       }),
     })
-  } catch (e) {
+  } catch {
     expect.fail('Expected no error to be thrown')
   }
 })

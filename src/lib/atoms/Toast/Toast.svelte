@@ -16,7 +16,9 @@
   const progress = tweened(0, { duration, easing: linear })
 
   const close = () => toast.hide(item.id)
-  $: $progress === 1 && close()
+  $: if ($progress === 1) {
+    close()
+  }
 
   const pause = () => {
     void progress.set($progress, { duration: 0 })

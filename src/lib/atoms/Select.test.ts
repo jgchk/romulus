@@ -7,7 +7,7 @@ import Select from './Select.svelte'
 
 function setup<T>(props: SelectProps<T> = {}) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   const returned = render(Select, props)
 
   const getRoot = () => returned.getByTestId('select-root')
@@ -17,7 +17,7 @@ function setup<T>(props: SelectProps<T> = {}) {
   const getOption = (name: string) => returned.getByRole('option', { name })
 
   const onChange = vi.fn()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
   returned.component.$on('change', (e) => onChange(e.detail))
 
   return {

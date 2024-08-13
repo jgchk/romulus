@@ -11,7 +11,6 @@
   } from '$lib/types/genres'
   import { range } from '$lib/utils/array'
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = Omit<ComponentProps<Select<number>>, 'options'>
 
   export let value: $$Props['value'] = undefined

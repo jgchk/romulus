@@ -12,7 +12,6 @@ function setup(props: Partial<ComponentProps<AccountAppsPage>>) {
   const user = userEvent.setup()
 
   const returned = render(AccountAppsPage, {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     props: {
       disableFormSubmission: true,
       form: null,

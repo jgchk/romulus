@@ -14,7 +14,6 @@
 
   import type { Option, SelectProps } from './Select'
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = SelectProps<T>
 
   export let value: $$Props['value'] = undefined

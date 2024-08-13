@@ -42,6 +42,7 @@ export class LocalUserSettingsRepository implements UserSettingsRepository {
         this.storage.setItem('userSettings', JSON.stringify(settings))
         resolve()
       } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         reject(error)
       }
     })
