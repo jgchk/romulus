@@ -5,7 +5,7 @@ import type { LayoutData } from '../../$types'
 
 export type TreeGenre = Awaited<LayoutData['streamed']['genres']>[number]
 
-interface TreeState {
+type TreeState = {
   genres: Map<number, TreeGenre>
   selectedId?: number
   selectedPath?: number[]

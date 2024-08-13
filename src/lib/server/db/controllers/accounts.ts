@@ -5,7 +5,7 @@ import { hasUpdate, makeUpdate } from '$lib/utils/db'
 import type { IDrizzleConnection } from '../connection'
 import { type Account, accounts, type InsertAccount } from '../schema'
 
-export interface IAccountsDatabase<T> {
+export type IAccountsDatabase<T> = {
   insert: (data: InsertAccount[], conn: T) => Promise<Account[]>
   findById: (id: Account['id'], conn: T) => Promise<Account | undefined>
   findByUsername: (username: Account['username'], conn: T) => Promise<Account | undefined>

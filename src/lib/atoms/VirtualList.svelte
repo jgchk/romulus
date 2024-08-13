@@ -55,7 +55,7 @@
         row = rows[i - start]
       }
 
-      const rowHeight = (heightMap[i] = itemHeight || row.offsetHeight)
+      const rowHeight = (heightMap[i] = itemHeight ?? row.offsetHeight)
       contentHeight += rowHeight
       i += 1
     }
@@ -75,7 +75,7 @@
     const oldStart = start
 
     for (let v = 0; v < rows.length; v += 1) {
-      heightMap[start + v] = itemHeight || rows[v].offsetHeight
+      heightMap[start + v] = itemHeight ?? rows[v].offsetHeight
     }
 
     let i = 0
@@ -119,7 +119,7 @@
       for (let i = start; i < oldStart; i += 1) {
         if (rows[i - start]) {
           expectedHeight += heightMap[i]
-          actualHeight += itemHeight || rows[i - start].offsetHeight
+          actualHeight += itemHeight ?? rows[i - start].offsetHeight
         }
       }
 

@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 export const actions: Actions = {
   relevance: async ({ locals, params, request }) => {
-    if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
       return error(401, 'Unauthorized')
     }
 
@@ -86,7 +86,7 @@ export const actions: Actions = {
   },
 
   delete: async ({ locals, params }) => {
-    if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
       return error(401, 'Unauthorized')
     }
     const user = locals.user

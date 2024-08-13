@@ -42,7 +42,7 @@ function getKeyFromHeaders(request: Request) {
   const bearer = request.headers.get('authorization')
   if (!bearer) return null
 
-  const match = bearer.match(/^Bearer (.+)$/)
+  const match = /^Bearer (.+)$/.exec(bearer)
   if (!match) return null
 
   return match[1]

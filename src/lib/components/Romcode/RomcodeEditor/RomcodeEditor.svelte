@@ -17,7 +17,7 @@
   import GenreSearchDialog from './GenreSearchDialog.svelte'
 
   export let id: string | undefined = undefined
-  export let value: string = ''
+  export let value = ''
   export let genres: SimpleGenre[]
   export let disabled = false
   export let autofocus = false

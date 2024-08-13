@@ -8,7 +8,7 @@ import {
   type InsertGenreRelevanceVote,
 } from '../schema'
 
-export interface IGenreRelevanceVotesDatabase<T> {
+export type IGenreRelevanceVotesDatabase<T> = {
   upsert: (data: InsertGenreRelevanceVote, conn: T) => Promise<GenreRelevanceVote>
   findByGenreId: (genreId: number, conn: T) => Promise<GenreRelevanceVote[]>
   findByGenreIdAndAccountId: (

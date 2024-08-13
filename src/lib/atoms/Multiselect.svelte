@@ -20,7 +20,7 @@
   import type { MultiselectProps, Option, OptionData } from './Multiselect'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface $$Slots {
+  type $$Slots = {
     default: never
     selected: { option: InternalOption }
     option: { option: InternalOption }
@@ -45,7 +45,7 @@
   let propErrors: string[] | undefined = undefined
   export { propErrors as errors }
   const contextErrors = getInputGroupErrors()
-  $: errors = propErrors || ($contextErrors && $contextErrors.length > 0)
+  $: errors = propErrors ?? ($contextErrors && $contextErrors.length > 0)
 
   let inputRef: HTMLInputElement | undefined
 

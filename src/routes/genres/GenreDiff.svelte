@@ -182,7 +182,7 @@
         </div>
       </div>
 
-      {#if previousHistory?.subtitle || currentHistory.subtitle}
+      {#if previousHistory?.subtitle ?? currentHistory.subtitle}
         <div class={cn(!changed.subtitle && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.subtitle))}>Subtitle</Label>
           <div class="text-sm" data-testid="genre-diff-subtitle">
@@ -213,7 +213,7 @@
         </div>
       </div>
 
-      {#if previousHistory?.akas.length || currentHistory.akas.length}
+      {#if previousHistory?.akas.length ?? currentHistory.akas.length}
         <div class={cn(!changed.akas && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.akas))}>AKAs</Label>
           <div class="text-sm" data-testid="genre-diff-akas">
@@ -229,7 +229,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.parentGenreIds?.length || currentHistory.parentGenreIds?.length}
+      {#if previousHistory?.parentGenreIds?.length ?? currentHistory.parentGenreIds?.length}
         <div class={cn(!changed.parentGenreIds && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
           <div class="text-sm" data-testid="genre-diff-parents">
@@ -291,7 +291,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.influencedByGenreIds?.length || currentHistory.influencedByGenreIds?.length}
+      {#if previousHistory?.influencedByGenreIds?.length ?? currentHistory.influencedByGenreIds?.length}
         <div class={cn(!changed.influencedByGenreIds && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.influencedByGenreIds))}
             >Influences</Label
@@ -381,7 +381,7 @@
         </div>
       </div>
 
-      {#if previousHistory?.shortDescription || currentHistory.shortDescription}
+      {#if previousHistory?.shortDescription ?? currentHistory.shortDescription}
         <div class={cn(!changed.shortDescription && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.shortDescription))}
             >Short Description</Label
@@ -406,7 +406,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.longDescription || currentHistory.longDescription}
+      {#if previousHistory?.longDescription ?? currentHistory.longDescription}
         <div class={cn(!changed.longDescription && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.longDescription))}
             >Long Description</Label
@@ -431,7 +431,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.notes || currentHistory.notes}
+      {#if previousHistory?.notes ?? currentHistory.notes}
         <div class={cn(!changed.notes && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.notes))}>Notes</Label>
           <div class="text-sm" data-testid="genre-diff-notes">

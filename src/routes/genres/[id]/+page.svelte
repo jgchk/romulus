@@ -81,7 +81,7 @@
       <div>
         <div>
           <Label>Relevance</Label>
-          {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+          {#if $user?.permissions?.includes('EDIT_GENRES')}
             {' '}
             <button
               class="text-xs text-primary-500 hover:underline"
@@ -198,7 +198,7 @@
           {:else}
             <span>
               Missing a short description.{' '}
-              {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+              {#if $user?.permissions?.includes('EDIT_GENRES')}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=shortDescription"
                   class="text-primary-500 hover:underline"
@@ -227,7 +227,7 @@
           {:else}
             <span>
               Missing a long description.{' '}
-              {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+              {#if $user?.permissions?.includes('EDIT_GENRES')}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=longDescription"
                   class="text-primary-500 hover:underline"
@@ -285,12 +285,12 @@
     </div>
 
     <Footer>
-      {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions?.includes('EDIT_GENRES')}
         <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
       {/if}
       <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
       <div class="flex-1" />
-      {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions?.includes('EDIT_GENRES')}
         <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
       {/if}
     </Footer>

@@ -45,9 +45,7 @@ describe('LocalUserSettingsRepository', () => {
     key = vi.fn()
     removeItem = vi.fn()
     setItem = vi.fn()
-    get length() {
-      return 0
-    }
+    readonly length = 0
   }
 
   function setup() {

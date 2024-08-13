@@ -15,7 +15,7 @@ import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+  if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
     return error(403, { message: 'You do not have permission to edit genres' })
   }
 
@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
   default: async ({ params, request, locals }) => {
-    if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
       return error(403, { message: 'You do not have permission to edit genres' })
     }
     const user = locals.user

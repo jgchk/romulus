@@ -11,7 +11,7 @@
   import { searchGenres, type SimpleGenre } from '$lib/types/genres'
   import type { Timeout } from '$lib/utils/types'
 
-  export let filter: string = ''
+  export let filter = ''
   export let genres: SimpleGenre[]
 
   let debouncedFilter = filter

@@ -24,6 +24,7 @@ export const passwordSchema = z
   })
 
 declare module 'lucia' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Register {
     Lucia: AppLucia
     UserId: number

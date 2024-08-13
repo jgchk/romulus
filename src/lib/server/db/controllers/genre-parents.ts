@@ -5,7 +5,7 @@ import { hasUpdate, makeUpdate } from '$lib/utils/db'
 import type { IDrizzleConnection } from '../connection'
 import { type GenreParent, genreParents, type InsertGenreParent } from '../schema'
 
-export interface IGenreParentsDatabase<T> {
+export type IGenreParentsDatabase<T> = {
   insert: (data: InsertGenreParent[], conn: T) => Promise<GenreParent[]>
   find: (
     parentId: GenreParent['parentId'],

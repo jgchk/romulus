@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  type PartialTouchEvent = { touches: { [index: number]: { clientX: number } } }
+  type PartialTouchEvent = { touches: Record<number, { clientX: number }> }
 </script>
 
 <script lang="ts">

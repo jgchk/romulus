@@ -10,7 +10,7 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 expect.extend(matchers)
 
 declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-definitions
   interface Assertion<T = any>
     extends jest.Matchers<void, T>,
       matchers.TestingLibraryMatchers<T, void> {}

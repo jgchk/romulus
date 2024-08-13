@@ -1,7 +1,7 @@
 export const sortBy = <T, O>(array: T[], accessor: (t: T) => O, compare: (a: O, b: O) => number) =>
   array.sort((a, b) => compare(accessor(a), accessor(b)))
 
-export function range(start: number, stop?: number, step: number = 1): number[] {
+export function range(start: number, stop?: number, step = 1): number[] {
   // If only one argument is provided, we assume it is the stop value, and start should be 0.
   if (stop === undefined) {
     stop = start

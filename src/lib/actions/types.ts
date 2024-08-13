@@ -1,4 +1,4 @@
-export interface ActionReturn<Parameter> {
+export type ActionReturn<Parameter> = {
   update?: (parameter: Parameter) => void
   destroy?: () => void
 }

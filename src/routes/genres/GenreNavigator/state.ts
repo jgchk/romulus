@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 
-interface SearchState {
+type SearchState = {
   filter: string
   debouncedFilter: string
 }

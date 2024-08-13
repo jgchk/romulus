@@ -55,7 +55,7 @@
   {:else}
     <div class="flex w-full flex-1 flex-col items-center justify-center text-gray-400">
       <div>No genres found.</div>
-      {#if $user && $user.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions?.includes('EDIT_GENRES')}
         <div>
           <a href="/genres/create" class="text-primary-500 hover:underline">Create one.</a>
         </div>

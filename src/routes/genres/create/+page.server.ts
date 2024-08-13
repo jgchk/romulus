@@ -9,7 +9,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+  if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
     return error(403, { message: 'You do not have permission to create genres' })
   }
 
@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
-    if (!locals.user || !locals.user.permissions?.includes('EDIT_GENRES')) {
+    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
       return error(403, { message: 'You do not have permission to create genres' })
     }
     const user = locals.user

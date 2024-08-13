@@ -8,7 +8,7 @@ import {
   passwordResetTokens,
 } from '../schema'
 
-export interface IPasswordResetTokensDatabase<T> {
+export type IPasswordResetTokensDatabase<T> = {
   insert(data: InsertPasswordResetToken[], conn: T): Promise<PasswordResetToken[]>
   findByTokenHash(
     tokenHash: PasswordResetToken['tokenHash'],

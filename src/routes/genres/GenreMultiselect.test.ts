@@ -189,9 +189,7 @@ test('wraps around when navigating the search results with arrow keys', async ()
   })
 
   await user.click(input)
-  for (let i = 0; i < data.length; i++) {
-    await user.keyboard('{arrowdown}')
-  }
+  await user.keyboard('{arrowdown}'.repeat(data.length))
   await user.keyboard('{enter}')
 
   const selected = queryAllByTestId('multiselect__selected')

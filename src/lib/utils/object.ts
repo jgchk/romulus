@@ -48,7 +48,7 @@ export type ObjectKeys<T> = T extends object
   : T extends number
     ? []
     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      T extends Array<any> | string
+      T extends any[] | string
       ? string[]
       : never
 export const keys = <T extends object>(o: T): ObjectKeys<T> => Object.keys(o) as ObjectKeys<T>

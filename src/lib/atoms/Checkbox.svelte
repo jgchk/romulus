@@ -9,7 +9,7 @@
   export let tabindex: number | undefined = undefined
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface $$Events {
+  type $$Events = {
     change: Event & {
       currentTarget: EventTarget & HTMLInputElement
     }

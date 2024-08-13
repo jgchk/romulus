@@ -21,10 +21,10 @@
   let propErrors: string[] | undefined = undefined
   export { propErrors as errors }
   const contextErrors = getInputGroupErrors()
-  $: errors = propErrors || ($contextErrors && $contextErrors.length > 0)
+  $: errors = propErrors ?? ($contextErrors && $contextErrors.length > 0)
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface $$Events {
+  type $$Events = {
     input: Event & {
       currentTarget: EventTarget & HTMLInputElement
     }

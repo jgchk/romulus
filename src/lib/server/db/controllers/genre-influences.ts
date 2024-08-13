@@ -1,7 +1,7 @@
 import type { IDrizzleConnection } from '../connection'
 import { type GenreInfluence, genreInfluences, type InsertGenreInfluence } from '../schema'
 
-export interface IGenreInfluencesDatabase<T> {
+export type IGenreInfluencesDatabase<T> = {
   insert: (data: InsertGenreInfluence[], conn: T) => Promise<GenreInfluence[]>
 }
 

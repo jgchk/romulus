@@ -22,7 +22,7 @@ export type FindAllParams = {
   }
 }
 
-export interface IGenreHistoryDatabase<T> {
+export type IGenreHistoryDatabase<T> = {
   insert: (
     data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
     conn: T,

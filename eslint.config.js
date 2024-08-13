@@ -12,7 +12,7 @@ import svelteConfig from './svelte.config.js'
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
-  // ...tseslint.configs.stylisticTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   ...svelte.configs['flat/recommended'],
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -81,6 +81,7 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     },
   },
 )
