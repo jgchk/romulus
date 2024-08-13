@@ -179,7 +179,6 @@ test('should throw NoUpdatesError if no changes are made', async ({ dbConnection
     genre,
     accountId: account.id,
     operation: 'CREATE',
-    genreHistoryDb: new GenreHistoryDatabase(),
     connection: dbConnection,
   })
 
@@ -209,7 +208,6 @@ test('should not create a history entry if no changes are detected', async ({ db
     genre,
     accountId: account.id,
     operation: 'CREATE',
-    genreHistoryDb: new GenreHistoryDatabase(),
     connection: dbConnection,
   })
 

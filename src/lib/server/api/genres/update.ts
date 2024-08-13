@@ -98,7 +98,6 @@ export async function updateGenre(
       genre: updatedGenre,
       accountId,
       operation: 'UPDATE',
-      genreHistoryDb,
       connection: tx,
     })
   })

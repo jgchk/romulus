@@ -2,14 +2,14 @@ import type { InferInsertModel } from 'drizzle-orm'
 
 import { type GenreOperation } from '$lib/types/genres'
 
-import type { IGenreHistoryDatabase } from './db/controllers/genre-history'
+import type { IDrizzleConnection } from './db/connection'
+import { GenreHistoryDatabase } from './db/controllers/genre-history'
 import type { Genre, genreHistoryAkas } from './db/schema'
 
-export async function createGenreHistoryEntry<T>({
+export async function createGenreHistoryEntry({
   genre,
   accountId,
   operation,
-  genreHistoryDb,
   connection,
 }: {
   genre: Pick<
@@ -22,9 +22,9 @@ export async function createGenreHistoryEntry<T>({
   }
   accountId: number
   operation: GenreOperation
-  genreHistoryDb: IGenreHistoryDatabase<T>
-  connection: T
+  connection: IDrizzleConnection
 }) {
+  const genreHistoryDb = new GenreHistoryDatabase()
   await genreHistoryDb.insert(
     [
       {

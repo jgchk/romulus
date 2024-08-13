@@ -129,7 +129,6 @@ export const createGenres = async (
           genre,
           accountId,
           operation: 'CREATE',
-          genreHistoryDb: new GenreHistoryDatabase(),
           connection: tx,
         }),
       ),

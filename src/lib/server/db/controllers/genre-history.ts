@@ -22,63 +22,11 @@ export type FindAllParams = {
   }
 }
 
-export type IGenreHistoryDatabase<T> = {
-  insert: (
-    data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
-    conn: T,
-  ) => Promise<GenreHistory[]>
-
-  findLatest: (conn: T) => Promise<
-    (GenreHistory & {
-      akas: Pick<GenreHistoryAka, 'name'>[]
-      account: Pick<Account, 'id' | 'username'> | null
-    })[]
-  >
-
-  findLatestByGenreId: (
-    genreId: GenreHistory['treeGenreId'],
-    conn: T,
-  ) => Promise<
-    (GenreHistory & { akas: Pick<GenreHistoryAka, 'name' | 'relevance' | 'order'>[] }) | undefined
-  >
-
-  findPreviousByGenreId: (
-    genreId: GenreHistory['treeGenreId'],
-    createdAt: Date,
-    conn: T,
-  ) => Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined>
-
-  findByGenreId: (
-    genreId: GenreHistory['treeGenreId'],
-    conn: T,
-  ) => Promise<
-    (GenreHistory & {
-      akas: Pick<GenreHistoryAka, 'name'>[]
-      account: Pick<Account, 'id' | 'username'> | null
-    })[]
-  >
-
-  findByAccountId: (
-    accountId: NonNullable<GenreHistory['accountId']>,
-    conn: T,
-  ) => Promise<
-    Pick<
-      GenreHistory,
-      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
-    >[]
-  >
-
-  findAll(params: FindAllParams, conn: T): Promise<{ results: GenreHistory[]; total: number }>
-
-  deleteByGenreIds: (genreIds: GenreHistory['treeGenreId'][], conn: T) => Promise<void>
-  deleteAll: (conn: T) => Promise<void>
-}
-
-export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConnection> {
+export class GenreHistoryDatabase {
   insert(
     data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
     conn: IDrizzleConnection,
-  ) {
+  ): Promise<GenreHistory[]> {
     return conn.transaction(async (tx) => {
       const values = await tx.insert(genreHistory).values(data).returning()
 
@@ -94,7 +42,12 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     })
   }
 
-  findLatest(conn: IDrizzleConnection) {
+  findLatest(conn: IDrizzleConnection): Promise<
+    (GenreHistory & {
+      akas: Pick<GenreHistoryAka, 'name'>[]
+      account: Pick<Account, 'id' | 'username'> | null
+    })[]
+  > {
     return conn.query.genreHistory.findMany({
       orderBy: (genreHistory, { desc }) => desc(genreHistory.createdAt),
       with: {
@@ -113,7 +66,12 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     })
   }
 
-  findLatestByGenreId(genreId: GenreHistory['treeGenreId'], conn: IDrizzleConnection) {
+  findLatestByGenreId(
+    genreId: GenreHistory['treeGenreId'],
+    conn: IDrizzleConnection,
+  ): Promise<
+    (GenreHistory & { akas: Pick<GenreHistoryAka, 'name' | 'relevance' | 'order'>[] }) | undefined
+  > {
     return conn.query.genreHistory.findFirst({
       where: eq(genreHistory.treeGenreId, genreId),
       orderBy: desc(genreHistory.createdAt),
@@ -134,7 +92,7 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     genreId: GenreHistory['treeGenreId'],
     createdAt: Date,
     conn: IDrizzleConnection,
-  ) {
+  ): Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined> {
     return conn.query.genreHistory.findFirst({
       where: and(eq(genreHistory.treeGenreId, genreId), lt(genreHistory.createdAt, createdAt)),
       orderBy: desc(genreHistory.createdAt),
@@ -147,7 +105,15 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     })
   }
 
-  findByGenreId(genreId: GenreHistory['treeGenreId'], conn: IDrizzleConnection) {
+  findByGenreId(
+    genreId: GenreHistory['treeGenreId'],
+    conn: IDrizzleConnection,
+  ): Promise<
+    (GenreHistory & {
+      akas: Pick<GenreHistoryAka, 'name'>[]
+      account: Pick<Account, 'id' | 'username'> | null
+    })[]
+  > {
     return conn.query.genreHistory.findMany({
       where: (genreHistory, { eq }) => eq(genreHistory.treeGenreId, genreId),
       orderBy: asc(genreHistory.createdAt),
@@ -166,7 +132,15 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     })
   }
 
-  findByAccountId(accountId: NonNullable<GenreHistory['accountId']>, conn: IDrizzleConnection) {
+  findByAccountId(
+    accountId: NonNullable<GenreHistory['accountId']>,
+    conn: IDrizzleConnection,
+  ): Promise<
+    Pick<
+      GenreHistory,
+      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
+    >[]
+  > {
     return conn.query.genreHistory.findMany({
       where: eq(genreHistory.accountId, accountId),
       columns: {
@@ -183,7 +157,10 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     })
   }
 
-  async findAll({ skip, limit, filter = {} }: FindAllParams, conn: IDrizzleConnection) {
+  async findAll(
+    { skip, limit, filter = {} }: FindAllParams,
+    conn: IDrizzleConnection,
+  ): Promise<{ results: GenreHistory[]; total: number }> {
     const wheres = []
     if (filter.accountId !== undefined) {
       wheres.push(eq(genreHistory.accountId, filter.accountId))
@@ -209,12 +186,15 @@ export class GenreHistoryDatabase implements IGenreHistoryDatabase<IDrizzleConne
     }
   }
 
-  async deleteByGenreIds(genreIds: GenreHistory['treeGenreId'][], conn: IDrizzleConnection) {
+  async deleteByGenreIds(
+    genreIds: GenreHistory['treeGenreId'][],
+    conn: IDrizzleConnection,
+  ): Promise<void> {
     if (genreIds.length === 0) return
     await conn.delete(genreHistory).where(inArray(genreHistory.treeGenreId, genreIds))
   }
 
-  async deleteAll(conn: IDrizzleConnection) {
+  async deleteAll(conn: IDrizzleConnection): Promise<void> {
     await conn.delete(genreHistory)
   }
 }

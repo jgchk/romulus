@@ -2,7 +2,6 @@ import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -598,19 +597,16 @@ test('should allow filtering by createdBy', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const genreHistoryDb = new GenreHistoryDatabase()
   await createGenreHistoryEntry({
     genre: genre1,
     accountId: account.id,
     operation: 'CREATE',
-    genreHistoryDb,
     connection: dbConnection,
   })
   await createGenreHistoryEntry({
     genre: genre2,
     accountId: account.id,
     operation: 'UPDATE',
-    genreHistoryDb,
     connection: dbConnection,
   })
 
@@ -632,14 +628,12 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
     dbConnection,
   )
 
-  const genreHistoryDb = new GenreHistoryDatabase()
   await Promise.all(
     genres.map((genre) =>
       createGenreHistoryEntry({
         genre,
         accountId: account.id,
         operation: 'CREATE',
-        genreHistoryDb,
         connection: dbConnection,
       }),
     ),
@@ -707,14 +701,12 @@ test('should allow filtering by parents and createdBy', async ({ dbConnection })
     dbConnection,
   )
 
-  const genreHistoryDb = new GenreHistoryDatabase()
   await Promise.all(
     genres.slice(genres.findIndex((genre) => genre.name === 'Child 5')).map((genre) =>
       createGenreHistoryEntry({
         genre,
         accountId: account.id,
         operation: 'CREATE',
-        genreHistoryDb,
         connection: dbConnection,
       }),
     ),

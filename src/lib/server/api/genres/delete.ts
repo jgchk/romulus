@@ -1,6 +1,5 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
@@ -14,7 +13,6 @@ export async function deleteGenre(
 ): Promise<void> {
   const genresDb = new GenresDatabase()
   const genreParentsDb = new GenreParentsDatabase()
-  const genreHistoryDb = new GenreHistoryDatabase()
 
   await dbConnection.transaction(async (tx) => {
     const genre = await genresDb.findByIdHistory(id, tx)
@@ -35,7 +33,6 @@ export async function deleteGenre(
       genre,
       accountId,
       operation: 'DELETE',
-      genreHistoryDb,
       connection: tx,
     })
 
@@ -46,7 +43,6 @@ export async function deleteGenre(
           genre,
           accountId,
           operation: 'UPDATE',
-          genreHistoryDb,
           connection: tx,
         }),
       ),
