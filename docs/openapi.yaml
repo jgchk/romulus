@@ -138,6 +138,16 @@ paths:
             type: number
           required: false
           description: Filter genres by the account ID of their creator.
+        - in: query
+          name: parent
+          schema:
+            type: array
+            items:
+              type: integer
+          required: false
+          style: form
+          explode: true
+          description: Filter genres by their parents. If multiple parents are passed, only genres with all included parents will be returned.
       responses:
         '200':
           description: Successful operation. Returns a list of genres matching the specified criteria.

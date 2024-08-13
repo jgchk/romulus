@@ -653,6 +653,102 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
 
+test('should allow filtering by parent id', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [getTestGenre({ id: 0, name: 'Parent' }), getTestGenre({ id: 1, name: 'Child', parents: [0] })],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { parents: [0] } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Child' })])
+})
+
+test('should allow filtering by multiple parent ids', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Parent 1' }),
+      getTestGenre({ id: 1, name: 'Parent 2' }),
+      getTestGenre({ id: 2, name: 'Child 1' }),
+      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
+      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
+      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { parents: [0, 1] } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Child 4' })])
+})
+
+test('should allow filtering by parents and createdBy', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const genres = await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Parent 1' }),
+      getTestGenre({ id: 1, name: 'Parent 2' }),
+      getTestGenre({ id: 2, name: 'Child 1' }),
+      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
+      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
+      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
+      getTestGenre({ id: 6, name: 'Child 5', parents: [0] }),
+      getTestGenre({ id: 7, name: 'Child 6', parents: [1] }),
+      getTestGenre({ id: 8, name: 'Child 7', parents: [0, 1] }),
+    ],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Testing', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const genreHistoryDb = new GenreHistoryDatabase()
+  await Promise.all(
+    genres.slice(genres.findIndex((genre) => genre.name === 'Child 5')).map((genre) =>
+      createGenreHistoryEntry({
+        genre,
+        accountId: account.id,
+        operation: 'CREATE',
+        genreHistoryDb,
+        connection: dbConnection,
+      }),
+    ),
+  )
+
+  const result = await getManyGenres(
+    { filter: { parents: [0, 1], createdBy: account.id } },
+    dbConnection,
+  )
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Child 7' })])
+})
+
+test('should return no results when filtering by parents and createdBy with no matches', async ({
+  dbConnection,
+}) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Parent 1' }),
+      getTestGenre({ id: 1, name: 'Parent 2' }),
+      getTestGenre({ id: 2, name: 'Child 1' }),
+      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
+      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
+      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { parents: [0, 1], createdBy: 1 } }, dbConnection)
+
+  expect(result.data).toEqual([])
+})
+
 test('should allow sorting by id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(

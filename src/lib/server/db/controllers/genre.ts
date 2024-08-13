@@ -205,7 +205,7 @@ export class GenresDatabase {
     const includeAkas = (include as string[]).includes('akas')
 
     const wheres = []
-    if (filter.ids !== undefined && filter.ids.length > 0) {
+    if (filter.ids !== undefined) {
       wheres.push(inArray(genres.id, filter.ids))
     }
     if (filter.name !== undefined) {

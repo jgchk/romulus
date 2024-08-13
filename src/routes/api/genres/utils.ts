@@ -27,6 +27,7 @@ const schema = z.object({
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
       createdBy: z.coerce.number().int().optional(),
+      parents: z.coerce.number().int().array().optional(),
     })
     .optional(),
   sort: z
@@ -38,6 +39,8 @@ const schema = z.object({
 })
 
 export function parseQueryParams(url: URL) {
+  const parents = url.searchParams.getAll('parent')
+
   return schema.safeParse({
     skip: url.searchParams.get('skip') ?? undefined,
     limit: url.searchParams.get('limit') ?? undefined,
@@ -54,6 +57,7 @@ export function parseQueryParams(url: URL) {
       createdAt: url.searchParams.get('createdAt') ?? undefined,
       updatedAt: url.searchParams.get('updatedAt') ?? undefined,
       createdBy: url.searchParams.get('createdBy') ?? undefined,
+      parents: parents.length === 0 ? undefined : parents,
     },
     sort: {
       field: url.searchParams.get('sort') ?? undefined,

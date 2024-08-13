@@ -12,6 +12,7 @@ export type IGenreParentsDatabase<T> = {
     childId: GenreParent['childId'],
     conn: T,
   ) => Promise<GenreParent | undefined>
+  findByParentId: (parentId: GenreParent['parentId'], conn: T) => Promise<GenreParent[]>
   update: (
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],
@@ -32,6 +33,12 @@ export class GenreParentsDatabase implements IGenreParentsDatabase<IDrizzleConne
   ) {
     return conn.query.genreParents.findFirst({
       where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
+    })
+  }
+
+  findByParentId(parentId: GenreParent['parentId'], conn: IDrizzleConnection) {
+    return conn.query.genreParents.findMany({
+      where: eq(genreParents.parentId, parentId),
     })
   }
 

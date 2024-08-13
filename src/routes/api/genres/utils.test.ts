@@ -172,4 +172,25 @@ describe('parseQueryParams', () => {
     const result = parseQueryParams(url)
     expect(result.success).toBe(false)
   })
+
+  test('should parse filter.parents for 0 parents', () => {
+    const url = new URL('http://localhost')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.parents).toBeUndefined()
+  })
+
+  test('should parse filter.parents for 1 parent', () => {
+    const url = new URL('http://localhost?parent=1')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.parents).toEqual([1])
+  })
+
+  test('should parse filter.parents for 2 parents', () => {
+    const url = new URL('http://localhost?parent=1&parent=2')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.parents).toEqual([1, 2])
+  })
 })
