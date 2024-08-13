@@ -1,25 +1,22 @@
-import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
-import type { IGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import type { IGenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
-import type { ITransactor } from '$lib/server/db/transactor'
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import type { Account, Genre } from '../../db/schema'
 import { NotFoundError } from './types'
 
-export type DeleteGenreContext<T> = {
-  transactor: ITransactor<T>
-  genresDb: IGenresDatabase<T>
-  genreHistoryDb: IGenreHistoryDatabase<T>
-  genreParentsDb: IGenreParentsDatabase<T>
-}
-
-export async function deleteGenre<T>(
+export async function deleteGenre(
   id: Genre['id'],
   accountId: Account['id'],
-  { transactor, genresDb, genreHistoryDb, genreParentsDb }: DeleteGenreContext<T>,
+  dbConnection: IDrizzleConnection,
 ): Promise<void> {
-  await transactor.transaction(async (tx) => {
+  const genresDb = new GenresDatabase()
+  const genreParentsDb = new GenreParentsDatabase()
+  const genreHistoryDb = new GenreHistoryDatabase()
+
+  await dbConnection.transaction(async (tx) => {
     const genre = await genresDb.findByIdHistory(id, tx)
     if (!genre) {
       throw new NotFoundError()

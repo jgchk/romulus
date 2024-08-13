@@ -1,25 +1,21 @@
-import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
-import type { IGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import type { ITransactor } from '$lib/server/db/transactor'
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
 
-export type SetRelevanceVoteContext<T> = {
-  transactor: ITransactor<T>
-  genresDb: IGenresDatabase<T>
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>
-}
-
-export async function setRelevanceVote<T>(
+export async function setRelevanceVote(
   id: number,
   relevance: number,
   accountId: number,
-  { transactor, genresDb, genreRelevanceVotesDb }: SetRelevanceVoteContext<T>,
+  dbConnection: IDrizzleConnection,
 ): Promise<void> {
-  await transactor.transaction(async (tx) => {
+  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
+
+  await dbConnection.transaction(async (tx) => {
     if (relevance === UNSET_GENRE_RELEVANCE) {
       await genreRelevanceVotesDb.deleteByGenreId(id, tx)
-      await updateRelevance(id, { dbConnection: tx, genresDb, genreRelevanceVotesDb })
+      await updateRelevance(id, tx)
       return
     }
 
@@ -33,20 +29,14 @@ export async function setRelevanceVote<T>(
       tx,
     )
 
-    await updateRelevance(id, { dbConnection: tx, genresDb, genreRelevanceVotesDb })
+    await updateRelevance(id, tx)
   })
 }
 
-type UpdateRelevanceContext<T> = {
-  dbConnection: T
-  genresDb: IGenresDatabase<T>
-  genreRelevanceVotesDb: IGenreRelevanceVotesDatabase<T>
-}
+async function updateRelevance(genreId: number, dbConnection: IDrizzleConnection): Promise<void> {
+  const genresDb = new GenresDatabase()
+  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
 
-async function updateRelevance<T>(
-  genreId: number,
-  { dbConnection, genresDb, genreRelevanceVotesDb }: UpdateRelevanceContext<T>,
-): Promise<void> {
   const votes = await genreRelevanceVotesDb.findByGenreId(genreId, dbConnection)
 
   const relevance =

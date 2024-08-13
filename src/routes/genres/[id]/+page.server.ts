@@ -8,8 +8,6 @@ import { deleteGenre } from '$lib/server/api/genres/delete'
 import { setRelevanceVote } from '$lib/server/api/genres/relevance/vote'
 import { NotFoundError } from '$lib/server/api/genres/types'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
@@ -82,11 +80,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, {
-      transactor: locals.dbConnection,
-      genresDb: new GenresDatabase(),
-      genreRelevanceVotesDb: new GenreRelevanceVotesDatabase(),
-    })
+    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, locals.dbConnection)
 
     return { form }
   },
@@ -104,12 +98,7 @@ export const actions: Actions = {
     const id = maybeId.data
 
     try {
-      await deleteGenre(id, user.id, {
-        transactor: locals.dbConnection,
-        genresDb: new GenresDatabase(),
-        genreHistoryDb: new GenreHistoryDatabase(),
-        genreParentsDb: new GenreParentsDatabase(),
-      })
+      await deleteGenre(id, user.id, locals.dbConnection)
     } catch (err) {
       if (err instanceof NotFoundError) {
         return error(404, 'Genre not found')

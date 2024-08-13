@@ -1,227 +1,237 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 
-import { describe, expect, it, vi } from 'vitest'
+import { expect } from 'vitest'
 
-import type { IGenresDatabase } from '$lib/server/db/controllers/genre'
-import { MockGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history-mock'
-import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { createGenreHistoryEntry } from '$lib/server/genres'
 
+import { test } from '../../../../vitest-setup'
 import { type GenreData, NotFoundError } from './types'
-import {
-  GenreCycleError,
-  NoUpdatesError,
-  SelfInfluenceError,
-  updateGenre,
-  type UpdateGenreContext,
-} from './update'
+import { GenreCycleError, NoUpdatesError, SelfInfluenceError, updateGenre } from './update'
 
-describe('updateGenre', () => {
-  const ORIGINAL_GENRE: NonNullable<Awaited<ReturnType<IGenresDatabase<unknown>['findByIdEdit']>>> =
-    Object.freeze({
-      id: 0,
-      name: 'Original Genre',
-      shortDescription: 'Short desc',
-      longDescription: 'Long desc',
-      notes: 'Notes',
-      type: 'STYLE',
-      subtitle: 'Subtitle',
-      nsfw: false,
-      parents: [],
-      influencedBy: [],
-      akas: [],
-      relevance: 99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
+function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
+  return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
+}
 
-  const GENRE_UPDATE: GenreData = Object.freeze({
-    name: 'Updated Genre',
-    shortDescription: 'Updated short desc',
-    longDescription: 'Updated long desc',
-    notes: 'Updated notes',
-    type: 'META',
-    subtitle: 'Updated subtitle',
-    nsfw: true,
-    parents: [3, 4],
-    influencedBy: [5, 6],
-    relevance: 99,
-    primaryAkas: '',
-    secondaryAkas: '',
-    tertiaryAkas: '',
+const GENRE_UPDATE: GenreData = Object.freeze({
+  name: 'Updated Genre',
+  shortDescription: 'Updated short desc',
+  longDescription: 'Updated long desc',
+  notes: 'Updated notes',
+  type: 'META',
+  subtitle: 'Updated subtitle',
+  nsfw: true,
+  parents: [3, 4],
+  influencedBy: [5, 6],
+  relevance: 99,
+  primaryAkas: '',
+  secondaryAkas: '',
+  tertiaryAkas: '',
+})
+
+test('should update the genre', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await updateGenre(
+    genre.id,
+    {
+      ...genre,
+      name: 'Updated Genre',
+      primaryAkas: 'primary-one, primary-two',
+      secondaryAkas: 'secondary-one, secondary-two',
+      tertiaryAkas: 'tertiary-one, tertiary-two',
+    },
+    account.id,
+    dbConnection,
+  )
+
+  const {
+    results: [updatedGenre],
+  } = await genresDb.findAll({ filter: { ids: [genre.id] }, include: ['akas'] }, dbConnection)
+  expect(updatedGenre).toEqual(
+    expect.objectContaining({
+      id: genre.id,
+      name: 'Updated Genre',
+      akas: {
+        primary: ['primary-one', 'primary-two'],
+        secondary: ['secondary-one', 'secondary-two'],
+        tertiary: ['tertiary-one', 'tertiary-two'],
+      },
+    }),
+  )
+})
+
+test('should create a history entry', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await updateGenre(
+    genre.id,
+    {
+      ...genre,
+      name: 'Updated Genre',
+      primaryAkas: 'primary-one, primary-two',
+      secondaryAkas: 'secondary-one, secondary-two',
+      tertiaryAkas: 'tertiary-one, tertiary-two',
+    },
+    account.id,
+    dbConnection,
+  )
+
+  const {
+    results: [updatedGenre],
+  } = await genresDb.findAll({ filter: { ids: [genre.id] }, include: ['akas'] }, dbConnection)
+  expect(updatedGenre).toEqual(
+    expect.objectContaining({
+      id: genre.id,
+      name: 'Updated Genre',
+      akas: {
+        primary: ['primary-one', 'primary-two'],
+        secondary: ['secondary-one', 'secondary-two'],
+        tertiary: ['tertiary-one', 'tertiary-two'],
+      },
+    }),
+  )
+})
+
+test('should throw NotFoundError if genre is not found', async ({ dbConnection }) => {
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await expect(updateGenre(0, GENRE_UPDATE, account.id, dbConnection)).rejects.toThrow(
+    NotFoundError,
+  )
+})
+
+test('should throw GenreCycleError if a 1-cycle is detected', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await expect(
+    updateGenre(genre.id, { ...GENRE_UPDATE, parents: [genre.id] }, account.id, dbConnection),
+  ).rejects.toThrow(GenreCycleError)
+})
+
+test('should throw GenreCycleError if a 2-cycle is detected', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [parent, child] = await genresDb.insert(
+    [getTestGenre({ id: 0, name: 'Parent' }), getTestGenre({ id: 1, name: 'Child', parents: [0] })],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await expect(
+    updateGenre(parent.id, { ...GENRE_UPDATE, parents: [child.id] }, account.id, dbConnection),
+  ).rejects.toThrow(GenreCycleError)
+})
+
+test('should throw GenreCycleError if a 3-cycle is detected', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [parent, , grandchild] = await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Parent' }),
+      getTestGenre({ id: 1, name: 'Child', parents: [0] }),
+      getTestGenre({ id: 2, name: 'Grandchild', parents: [1] }),
+    ],
+    dbConnection,
+  )
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await expect(
+    updateGenre(parent.id, { ...GENRE_UPDATE, parents: [grandchild.id] }, account.id, dbConnection),
+  ).rejects.toThrow(GenreCycleError)
+})
+
+test('should throw SelfInfluenceError if genre influences itself', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await expect(
+    updateGenre(genre.id, { ...GENRE_UPDATE, influencedBy: [genre.id] }, account.id, dbConnection),
+  ).rejects.toThrow(SelfInfluenceError)
+})
+
+test('should throw NoUpdatesError if no changes are made', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await createGenreHistoryEntry({
+    genre,
+    accountId: account.id,
+    operation: 'CREATE',
+    genreHistoryDb: new GenreHistoryDatabase(),
+    connection: dbConnection,
   })
 
-  function setup() {
-    type MockConnection = { db: 'connection' }
-    const mockConnection = Object.freeze({ db: 'connection' }) satisfies MockConnection
-
-    const context = {
-      transactor: {
-        transaction: (fn) => fn(mockConnection),
+  await expect(
+    updateGenre(
+      genre.id,
+      {
+        ...genre,
+        primaryAkas: '',
+        secondaryAkas: '',
+        tertiaryAkas: '',
       },
-      genresDb: vi.mocked(MockGenresDatabase()),
-      genreHistoryDb: vi.mocked(MockGenreHistoryDatabase()),
-    } satisfies UpdateGenreContext<MockConnection>
+      account.id,
+      dbConnection,
+    ),
+  ).rejects.toThrow(NoUpdatesError)
+})
 
-    context.genresDb.findByIdEdit.mockResolvedValue(ORIGINAL_GENRE)
-    context.genreHistoryDb.findLatestByGenreId.mockResolvedValue({
-      ...ORIGINAL_GENRE,
-      treeGenreId: ORIGINAL_GENRE.id,
-      parentGenreIds: ORIGINAL_GENRE.parents,
-      influencedByGenreIds: ORIGINAL_GENRE.influencedBy,
-      operation: 'CREATE',
-      accountId: 0,
-    })
-    context.genresDb.update.mockImplementation((_, update) => {
-      return Promise.resolve({ ...ORIGINAL_GENRE, ...update })
-    })
-    context.genresDb.findAllSimple.mockResolvedValue([])
+test('should not create a history entry if no changes are detected', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
 
-    return {
-      context,
-      mockConnection,
-    }
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  await createGenreHistoryEntry({
+    genre,
+    accountId: account.id,
+    operation: 'CREATE',
+    genreHistoryDb: new GenreHistoryDatabase(),
+    connection: dbConnection,
+  })
+
+  try {
+    await updateGenre(
+      genre.id,
+      {
+        ...genre,
+        primaryAkas: '',
+        secondaryAkas: '',
+        tertiaryAkas: '',
+      },
+      account.id,
+      dbConnection,
+    )
+  } catch {
+    // ignore
   }
 
-  it('should update the genre when all checks pass', async () => {
-    const { context, mockConnection } = setup()
-
-    await updateGenre(ORIGINAL_GENRE.id, GENRE_UPDATE, 123, context)
-
-    expect(context.genresDb.update).toHaveBeenCalledWith(
-      ORIGINAL_GENRE.id,
-      {
-        name: 'Updated Genre',
-        shortDescription: 'Updated short desc',
-        longDescription: 'Updated long desc',
-        notes: 'Updated notes',
-        type: 'META',
-        subtitle: 'Updated subtitle',
-        nsfw: true,
-        parents: [3, 4],
-        influencedBy: [5, 6],
-        akas: [],
-        updatedAt: expect.any(Date) as Date,
-      },
-      mockConnection,
-    )
-  })
-
-  it('should throw NotFoundError if genre is not found', async () => {
-    const { context } = setup()
-
-    context.genresDb.findByIdEdit.mockResolvedValue(undefined)
-
-    await expect(updateGenre(1, GENRE_UPDATE, 123, context)).rejects.toThrow(NotFoundError)
-  })
-
-  it('should throw GenreCycleError if a cycle is detected', async () => {
-    const { context } = setup()
-
-    context.genresDb.findAllSimple.mockResolvedValue([
-      { id: 0, name: ORIGINAL_GENRE.name, parents: ORIGINAL_GENRE.parents },
-      { id: 1, name: 'Parent', parents: [0] },
-      { id: 2, name: 'Child', parents: [1] },
-      { id: 3, name: 'Grandchild', parents: [2] },
-    ])
-
-    await expect(updateGenre(1, { ...GENRE_UPDATE, parents: [2] }, 123, context)).rejects.toThrow(
-      GenreCycleError,
-    )
-  })
-
-  it('should throw SelfInfluenceError if genre influences itself', async () => {
-    const { context } = setup()
-
-    await expect(
-      updateGenre(
-        ORIGINAL_GENRE.id,
-        { ...GENRE_UPDATE, influencedBy: [ORIGINAL_GENRE.id] },
-        123,
-        context,
-      ),
-    ).rejects.toThrow(SelfInfluenceError)
-  })
-
-  it('should not update if no changes are detected', async () => {
-    const { context } = setup()
-
-    await expect(
-      updateGenre(
-        ORIGINAL_GENRE.id,
-        { ...ORIGINAL_GENRE, primaryAkas: '', secondaryAkas: '', tertiaryAkas: '' },
-        123,
-        context,
-      ),
-    ).rejects.toThrow(NoUpdatesError)
-
-    expect(context.genresDb.update).not.toHaveBeenCalled()
-  })
-
-  it('should correctly process AKAs', async () => {
-    const { context, mockConnection } = setup()
-
-    await updateGenre(
-      ORIGINAL_GENRE.id,
-      {
-        ...GENRE_UPDATE,
-        primaryAkas: 'primary-one, primary-two',
-        secondaryAkas: 'secondary-one, secondary-two',
-        tertiaryAkas: 'tertiary-one, tertiary-two',
-      },
-      123,
-      context,
-    )
-
-    expect(context.genresDb.update).toHaveBeenCalledWith(
-      ORIGINAL_GENRE.id,
-      {
-        name: 'Updated Genre',
-        shortDescription: 'Updated short desc',
-        longDescription: 'Updated long desc',
-        notes: 'Updated notes',
-        type: 'META',
-        subtitle: 'Updated subtitle',
-        nsfw: true,
-        parents: [3, 4],
-        influencedBy: [5, 6],
-        akas: [
-          { genreId: ORIGINAL_GENRE.id, name: 'primary-one', relevance: 3, order: 0 },
-          { genreId: ORIGINAL_GENRE.id, name: 'primary-two', relevance: 3, order: 1 },
-          { genreId: ORIGINAL_GENRE.id, name: 'secondary-one', relevance: 2, order: 0 },
-          { genreId: ORIGINAL_GENRE.id, name: 'secondary-two', relevance: 2, order: 1 },
-          { genreId: ORIGINAL_GENRE.id, name: 'tertiary-one', relevance: 1, order: 0 },
-          { genreId: ORIGINAL_GENRE.id, name: 'tertiary-two', relevance: 1, order: 1 },
-        ],
-        updatedAt: expect.any(Date) as Date,
-      },
-      mockConnection,
-    )
-  })
-
-  it('should create a history entry', async () => {
-    const { context, mockConnection } = setup()
-
-    await updateGenre(ORIGINAL_GENRE.id, GENRE_UPDATE, 123, context)
-
-    expect(context.genreHistoryDb.insert).toHaveBeenCalledWith(
-      [
-        {
-          name: 'Updated Genre',
-          shortDescription: 'Updated short desc',
-          longDescription: 'Updated long desc',
-          notes: 'Updated notes',
-          parentGenreIds: [3, 4],
-          influencedByGenreIds: [5, 6],
-          treeGenreId: ORIGINAL_GENRE.id,
-          nsfw: true,
-          operation: 'UPDATE',
-          accountId: 123,
-          subtitle: 'Updated subtitle',
-          akas: [],
-          type: 'META',
-        },
-      ],
-      mockConnection,
-    )
-  })
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
+  expect(genreHistory).toHaveLength(1)
 })

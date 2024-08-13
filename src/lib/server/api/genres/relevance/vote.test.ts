@@ -1,92 +1,113 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+import { expect } from 'vitest'
 
-import { describe, expect, it, vi } from 'vitest'
-
-import { MockGenresDatabase } from '$lib/server/db/controllers/genre-mock'
-import { MockGenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes-mock'
+import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import { setRelevanceVote, type SetRelevanceVoteContext } from './vote'
+import { test } from '../../../../../vitest-setup'
+import { setRelevanceVote } from './vote'
 
-describe('setRelevanceVote', () => {
-  function setup() {
-    type MockConnection = { db: 'connection' }
-    const mockConnection = Object.freeze({ db: 'connection' }) satisfies MockConnection
+function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
+  return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
+}
 
-    const context = {
-      transactor: {
-        transaction: (fn) => fn(mockConnection),
-      },
-      genresDb: vi.mocked(MockGenresDatabase()),
-      genreRelevanceVotesDb: vi.mocked(MockGenreRelevanceVotesDatabase()),
-    } satisfies SetRelevanceVoteContext<MockConnection>
+test('should delete vote and update relevance when relevance is UNSET_GENRE_RELEVANCE', async ({
+  dbConnection,
+}) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre({ relevance: 1 })], dbConnection)
 
-    return {
-      context,
-      mockConnection,
-    }
-  }
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  it('should delete vote and update relevance when relevance is UNSET_GENRE_RELEVANCE', async () => {
-    const { context, mockConnection } = setup()
-    context.genreRelevanceVotesDb.findByGenreId.mockResolvedValue([])
+  const relevanceVotesDb = new GenreRelevanceVotesDatabase()
+  await relevanceVotesDb.upsert(
+    { genreId: genre.id, accountId: account.id, relevance: 1, updatedAt: new Date() },
+    dbConnection,
+  )
 
-    await setRelevanceVote(1, UNSET_GENRE_RELEVANCE, 123, context)
+  await setRelevanceVote(genre.id, UNSET_GENRE_RELEVANCE, account.id, dbConnection)
 
-    expect(context.genreRelevanceVotesDb.deleteByGenreId).toHaveBeenCalledWith(1, mockConnection)
-    expect(context.genresDb.update).toHaveBeenCalledWith(
-      1,
-      { relevance: UNSET_GENRE_RELEVANCE },
-      mockConnection,
-    )
-  })
+  const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
+  expect(relevanceVotes).toHaveLength(0)
 
-  it('should upsert vote and update relevance when relevance is not UNSET_GENRE_RELEVANCE', async () => {
-    const { context, mockConnection } = setup()
-    context.genreRelevanceVotesDb.findByGenreId.mockResolvedValue([
-      { genreId: 1, accountId: 123, relevance: 5, createdAt: new Date(), updatedAt: new Date() },
-    ])
+  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  expect(updatedGenre?.relevance).toBe(UNSET_GENRE_RELEVANCE)
+})
 
-    await setRelevanceVote(1, 5, 123, context)
+test('should upsert vote and update relevance when relevance is not UNSET_GENRE_RELEVANCE', async ({
+  dbConnection,
+}) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre({ relevance: 1 })], dbConnection)
 
-    expect(context.genreRelevanceVotesDb.upsert).toHaveBeenCalledWith(
-      {
-        genreId: 1,
-        accountId: 123,
-        relevance: 5,
-        updatedAt: expect.any(Date) as Date,
-      },
-      mockConnection,
-    )
-    expect(context.genresDb.update).toHaveBeenCalledWith(1, { relevance: 5 }, mockConnection)
-  })
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  it('should calculate median relevance correctly', async () => {
-    const { context, mockConnection } = setup()
-    context.genreRelevanceVotesDb.findByGenreId.mockResolvedValue([
-      { genreId: 1, accountId: 123, relevance: 1, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 124, relevance: 2, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 125, relevance: 3, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 126, relevance: 4, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 127, relevance: 5, createdAt: new Date(), updatedAt: new Date() },
-    ])
+  const relevanceVotesDb = new GenreRelevanceVotesDatabase()
+  await relevanceVotesDb.upsert(
+    { genreId: genre.id, accountId: account.id, relevance: 1, updatedAt: new Date() },
+    dbConnection,
+  )
 
-    await setRelevanceVote(1, 3, 123, context)
+  await setRelevanceVote(genre.id, 2, account.id, dbConnection)
 
-    expect(context.genresDb.update).toHaveBeenCalledWith(1, { relevance: 3 }, mockConnection)
-  })
+  const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
+  expect(relevanceVotes).toEqual([
+    expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 2 }),
+  ])
 
-  it('should round median relevance to nearest integer', async () => {
-    const { context, mockConnection } = setup()
-    context.genreRelevanceVotesDb.findByGenreId.mockResolvedValue([
-      { genreId: 1, accountId: 123, relevance: 1, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 124, relevance: 2, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 125, relevance: 3, createdAt: new Date(), updatedAt: new Date() },
-      { genreId: 1, accountId: 126, relevance: 4, createdAt: new Date(), updatedAt: new Date() },
-    ])
+  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  expect(updatedGenre?.relevance).toBe(2)
+})
 
-    await setRelevanceVote(1, 4, 123, context)
+test('should calculate median relevance correctly', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
 
-    expect(context.genresDb.update).toHaveBeenCalledWith(1, { relevance: 3 }, mockConnection)
-  })
+  const accountsDb = new AccountsDatabase()
+  const accounts = await accountsDb.insert(
+    [
+      { username: 'user-1', password: 'user-1' },
+      { username: 'user-2', password: 'user-2' },
+      { username: 'user-3', password: 'user-3' },
+      { username: 'user-4', password: 'user-4' },
+      { username: 'user-5', password: 'user-5' },
+    ],
+    dbConnection,
+  )
+
+  await setRelevanceVote(genre.id, 1, accounts[0].id, dbConnection)
+  await setRelevanceVote(genre.id, 2, accounts[1].id, dbConnection)
+  await setRelevanceVote(genre.id, 3, accounts[2].id, dbConnection)
+  await setRelevanceVote(genre.id, 4, accounts[3].id, dbConnection)
+  await setRelevanceVote(genre.id, 5, accounts[4].id, dbConnection)
+
+  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  expect(updatedGenre?.relevance).toBe(3)
+})
+
+test('should round median relevance to nearest integer', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+
+  const accountsDb = new AccountsDatabase()
+  const accounts = await accountsDb.insert(
+    [
+      { username: 'user-1', password: 'user-1' },
+      { username: 'user-2', password: 'user-2' },
+      { username: 'user-3', password: 'user-3' },
+      { username: 'user-4', password: 'user-4' },
+    ],
+    dbConnection,
+  )
+
+  await setRelevanceVote(genre.id, 1, accounts[0].id, dbConnection)
+  await setRelevanceVote(genre.id, 2, accounts[1].id, dbConnection)
+  await setRelevanceVote(genre.id, 3, accounts[2].id, dbConnection)
+  await setRelevanceVote(genre.id, 4, accounts[3].id, dbConnection)
+
+  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  expect(updatedGenre?.relevance).toBe(3)
 })

@@ -11,7 +11,6 @@ import {
   updateGenre,
 } from '$lib/server/api/genres/update'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 
 import type { PageServerLoad } from './$types'
 
@@ -74,11 +73,7 @@ export const actions: Actions = {
     }
 
     try {
-      await updateGenre(id, form.data, user.id, {
-        transactor: locals.dbConnection,
-        genresDb: new GenresDatabase(),
-        genreHistoryDb: new GenreHistoryDatabase(),
-      })
+      await updateGenre(id, form.data, user.id, locals.dbConnection)
     } catch (e) {
       if (e instanceof NotFoundError) {
         return error(404, { message: 'Genre not found' })

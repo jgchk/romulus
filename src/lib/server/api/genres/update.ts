@@ -2,19 +2,13 @@ import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { equals, pick } from 'ramda'
 import type { z } from 'zod'
 
-import { type IGenresDatabase } from '$lib/server/db/controllers/genre'
-import { type IGenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import type { ITransactor } from '$lib/server/db/transactor'
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import type { Account, Genre, genreAkas, genreHistory, genreHistoryAkas } from '../../db/schema'
 import { type GenreData, type genreSchema, NotFoundError } from './types'
-
-export type UpdateGenreContext<T> = {
-  transactor: ITransactor<T>
-  genresDb: IGenresDatabase<T>
-  genreHistoryDb: IGenreHistoryDatabase<T>
-}
 
 export class GenreCycleError extends Error {
   constructor(public cycle: string) {
@@ -34,19 +28,22 @@ export class NoUpdatesError extends Error {
   }
 }
 
-export async function updateGenre<T>(
+export async function updateGenre(
   id: Genre['id'],
   data: GenreData,
   accountId: Account['id'],
-  { transactor, genresDb, genreHistoryDb }: UpdateGenreContext<T>,
+  dbConnection: IDrizzleConnection,
 ): Promise<void> {
-  await transactor.transaction(async (tx) => {
+  const genresDb = new GenresDatabase()
+  const genreHistoryDb = new GenreHistoryDatabase()
+
+  await dbConnection.transaction(async (tx) => {
     const currentGenre = await genresDb.findByIdEdit(id, tx)
     if (!currentGenre) {
       throw new NotFoundError()
     }
 
-    const cycle = await detectCycle({ id, name: data.name, parents: data.parents }, genresDb, tx)
+    const cycle = await detectCycle({ id, name: data.name, parents: data.parents }, tx)
     if (cycle) {
       throw new GenreCycleError(cycle)
     }
@@ -136,16 +133,17 @@ function didChange(
 
 type CycleGenre = { id: number; name: string; parents: number[] }
 
-async function detectCycle<T>(
+async function detectCycle(
   data: {
     id?: number
     name: string
     parents?: number[]
     children?: number[]
   },
-  genresDb: IGenresDatabase<T>,
-  connection: T,
+  connection: IDrizzleConnection,
 ) {
+  const genresDb = new GenresDatabase()
+
   let allGenres = await genresDb.findAllSimple(connection)
 
   // if the user has made any updates to parent/child genres,
