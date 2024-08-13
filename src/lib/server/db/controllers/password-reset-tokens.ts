@@ -8,34 +8,31 @@ import {
   passwordResetTokens,
 } from '../schema'
 
-export type IPasswordResetTokensDatabase<T> = {
-  insert(data: InsertPasswordResetToken[], conn: T): Promise<PasswordResetToken[]>
-  findByTokenHash(
-    tokenHash: PasswordResetToken['tokenHash'],
-    conn: T,
-  ): Promise<PasswordResetToken | undefined>
-  deleteByAccountId(accountId: Account['id'], conn: T): Promise<void>
-  deleteByTokenHash(tokenHash: PasswordResetToken['tokenHash'], conn: T): Promise<void>
-}
-
-export class PasswordResetTokensDatabase
-  implements IPasswordResetTokensDatabase<IDrizzleConnection>
-{
-  insert(data: InsertPasswordResetToken[], conn: IDrizzleConnection) {
+export class PasswordResetTokensDatabase {
+  insert(
+    data: InsertPasswordResetToken[],
+    conn: IDrizzleConnection,
+  ): Promise<PasswordResetToken[]> {
     return conn.insert(passwordResetTokens).values(data).returning()
   }
 
-  findByTokenHash(tokenHash: PasswordResetToken['tokenHash'], conn: IDrizzleConnection) {
+  findByTokenHash(
+    tokenHash: PasswordResetToken['tokenHash'],
+    conn: IDrizzleConnection,
+  ): Promise<PasswordResetToken | undefined> {
     return conn.query.passwordResetTokens.findFirst({
       where: eq(passwordResetTokens.tokenHash, tokenHash),
     })
   }
 
-  async deleteByAccountId(accountId: Account['id'], conn: IDrizzleConnection) {
+  async deleteByAccountId(accountId: Account['id'], conn: IDrizzleConnection): Promise<void> {
     await conn.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId))
   }
 
-  async deleteByTokenHash(tokenHash: PasswordResetToken['tokenHash'], conn: IDrizzleConnection) {
+  async deleteByTokenHash(
+    tokenHash: PasswordResetToken['tokenHash'],
+    conn: IDrizzleConnection,
+  ): Promise<void> {
     await conn.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash))
   }
 }

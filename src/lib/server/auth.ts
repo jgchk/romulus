@@ -10,7 +10,8 @@ import { z } from 'zod'
 
 import { omit } from '$lib/utils/object'
 
-import type { IPasswordResetTokensDatabase } from './db/controllers/password-reset-tokens'
+import type { IDrizzleConnection } from './db/connection'
+import { PasswordResetTokensDatabase } from './db/controllers/password-reset-tokens'
 import { accounts, sessions } from './db/schema'
 
 export const passwordSchema = z
@@ -59,11 +60,12 @@ export const createLucia = (db: PgDatabase<any, any, any>) => {
 export const checkPassword = (password: string, hash: string) => bcryptjs.compare(password, hash)
 export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)
 
-export async function createPasswordResetToken<T>(
+export async function createPasswordResetToken(
   accountId: number,
-  passwordResetTokensDb: IPasswordResetTokensDatabase<T>,
-  dbConnection: T,
+  dbConnection: IDrizzleConnection,
 ): Promise<string> {
+  const passwordResetTokensDb = new PasswordResetTokensDatabase()
+
   await passwordResetTokensDb.deleteByAccountId(accountId, dbConnection)
 
   const tokenId = generateIdFromEntropySize(25) // 40 character
