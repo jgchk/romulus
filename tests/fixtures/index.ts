@@ -1,4 +1,4 @@
-import { test as base } from '@playwright/test'
+import { type Page, test as base } from '@playwright/test'
 
 import { type IDrizzleConnection } from '$lib/server/db/connection'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
@@ -24,7 +24,7 @@ import { SignInPage } from './pages/sign-in'
 import { SignUpPage } from './pages/sign-up'
 
 export const test = base
-  .extend({
+  .extend<{ page: Page }>({
     page: async ({ page, javaScriptEnabled }, use) => {
       // automatically wait for kit started event after navigation functions if js is enabled
       const page_navigation_functions = ['goto', 'goBack', 'reload'] as const
