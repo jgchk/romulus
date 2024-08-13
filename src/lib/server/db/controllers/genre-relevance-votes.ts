@@ -8,21 +8,11 @@ import {
   type InsertGenreRelevanceVote,
 } from '../schema'
 
-export type IGenreRelevanceVotesDatabase<T> = {
-  upsert: (data: InsertGenreRelevanceVote, conn: T) => Promise<GenreRelevanceVote>
-  findByGenreId: (genreId: number, conn: T) => Promise<GenreRelevanceVote[]>
-  findByGenreIdAndAccountId: (
-    genreId: GenreRelevanceVote['genreId'],
-    accountId: GenreRelevanceVote['accountId'],
-    conn: T,
-  ) => Promise<GenreRelevanceVote | undefined>
-  deleteByGenreId: (genreId: GenreRelevanceVote['genreId'], conn: T) => Promise<void>
-}
-
-export class GenreRelevanceVotesDatabase
-  implements IGenreRelevanceVotesDatabase<IDrizzleConnection>
-{
-  async upsert(data: InsertGenreRelevanceVote, conn: IDrizzleConnection) {
+export class GenreRelevanceVotesDatabase {
+  async upsert(
+    data: InsertGenreRelevanceVote,
+    conn: IDrizzleConnection,
+  ): Promise<GenreRelevanceVote> {
     const [vote] = await conn
       .insert(genreRelevanceVotes)
       .values(data)
@@ -34,7 +24,7 @@ export class GenreRelevanceVotesDatabase
     return vote
   }
 
-  findByGenreId(genreId: number, conn: IDrizzleConnection) {
+  findByGenreId(genreId: number, conn: IDrizzleConnection): Promise<GenreRelevanceVote[]> {
     return conn.query.genreRelevanceVotes.findMany({
       where: eq(genreRelevanceVotes.genreId, genreId),
     })
@@ -44,7 +34,7 @@ export class GenreRelevanceVotesDatabase
     genreId: GenreRelevanceVote['genreId'],
     accountId: GenreRelevanceVote['accountId'],
     conn: IDrizzleConnection,
-  ) {
+  ): Promise<GenreRelevanceVote | undefined> {
     return conn.query.genreRelevanceVotes.findFirst({
       where: and(
         eq(genreRelevanceVotes.genreId, genreId),
@@ -53,7 +43,10 @@ export class GenreRelevanceVotesDatabase
     })
   }
 
-  async deleteByGenreId(genreId: GenreRelevanceVote['genreId'], conn: IDrizzleConnection) {
+  async deleteByGenreId(
+    genreId: GenreRelevanceVote['genreId'],
+    conn: IDrizzleConnection,
+  ): Promise<void> {
     await conn.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
   }
 }
