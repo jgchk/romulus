@@ -7,13 +7,8 @@ import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influences'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
-import {
-  type Account,
-  accounts,
-  genreInfluences,
-  genreParents,
-  genres,
-} from '$lib/server/db/schema'
+import type { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import { type Account } from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
