@@ -68,7 +68,7 @@ const setup = (
 
   const input = returned.getByRole('textbox')
 
-  const onChange = vi.fn<[{ value: number[] }], void>()
+  const onChange = vi.fn<(detail: { value: number[] }) => void>()
   returned.component.$on('change', (e: CustomEvent<{ value: number[] }>) => onChange(e.detail))
 
   const user = userEvent.setup()
