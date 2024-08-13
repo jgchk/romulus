@@ -66,6 +66,8 @@ export default tseslint.config(
         ...globals.node,
       },
     },
+  },
+  {
     plugins: {
       'simple-import-sort': simpleImportSort,
     },
