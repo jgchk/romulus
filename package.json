@@ -21,7 +21,7 @@
     "db:sync": "dotenv -e .env -- node ./src/lib/server/db/sync-prod.js"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.2.0-alpha",
+    "@electric-sql/pglite": "^0.2.0",
     "@floating-ui/dom": "^1.6.6",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@neondatabase/serverless": "^0.9.4",
