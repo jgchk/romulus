@@ -50,7 +50,9 @@ export default tseslint.config(
       parserOptions: {
         projectService: {
           allowDefaultProject: [
-            '*.js',
+            'eslint.config.js',
+            'postcss.config.js',
+            'svelte.config.js',
             'drizzle.config.ts',
             'playwright.config.ts',
             'tailwind.config.ts',
