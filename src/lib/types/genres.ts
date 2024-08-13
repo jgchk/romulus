@@ -59,9 +59,10 @@ export const MAX_AKA_RELEVANCE = 3
 export const genreRelevance = z.coerce
   .number()
   .int()
-  .min(MIN_GENRE_RELEVANCE)
-  .max(MAX_GENRE_RELEVANCE)
-  .or(z.literal(UNSET_GENRE_RELEVANCE))
+  .refine(
+    (v) => v === UNSET_GENRE_RELEVANCE || (v >= MIN_GENRE_RELEVANCE && v <= MAX_GENRE_RELEVANCE),
+    { message: `Relevance must be between 0 and 7 (inclusive), or ${UNSET_GENRE_RELEVANCE}` },
+  )
 
 export const makeGenreTag = (id: number) => `[Genre${id}]`
 

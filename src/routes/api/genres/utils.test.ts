@@ -1,5 +1,7 @@
 import { describe, expect } from 'vitest'
 
+import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+
 import { test } from '../../../vitest-setup'
 import { parseQueryParams } from './utils'
 
@@ -83,6 +85,13 @@ describe('parseQueryParams', () => {
     const result = parseQueryParams(url)
     expect(result.success).toBe(true)
     expect(result.data?.filter?.relevance).toBe(1)
+  })
+
+  test('should parse filter.relevance for unset relevance', () => {
+    const url = new URL(`http://localhost?relevance=${UNSET_GENRE_RELEVANCE}`)
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.relevance).toBe(UNSET_GENRE_RELEVANCE)
   })
 
   test('should fail on invalid filter.relevance', () => {
