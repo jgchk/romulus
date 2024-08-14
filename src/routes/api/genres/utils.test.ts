@@ -202,4 +202,25 @@ describe('parseQueryParams', () => {
     expect(result.success).toBe(true)
     expect(result.data?.filter?.parents).toEqual([1, 2])
   })
+
+  test('should parse filter.ancestors for 0 ancestors', () => {
+    const url = new URL('http://localhost')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.ancestors).toBeUndefined()
+  })
+
+  test('should parse filter.ancestors for 1 ancestor', () => {
+    const url = new URL('http://localhost?ancestor=1')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.ancestors).toEqual([1])
+  })
+
+  test('should parse filter.ancestors for 2 ancestors', () => {
+    const url = new URL('http://localhost?ancestor=1&ancestor=2')
+    const result = parseQueryParams(url)
+    expect(result.success).toBe(true)
+    expect(result.data?.filter?.ancestors).toEqual([1, 2])
+  })
 })

@@ -148,6 +148,16 @@ paths:
           style: form
           explode: true
           description: Filter genres by their parents. If multiple parents are passed, only genres with all included parents will be returned.
+        - in: query
+          name: ancestor
+          schema:
+            type: array
+            items:
+              type: integer
+          required: false
+          style: form
+          explode: true
+          description: Filter genres by their ancestors. If multiple ancestors are passed, only genres with all included ancestors will be returned.
       responses:
         '200':
           description: Successful operation. Returns a list of genres matching the specified criteria.

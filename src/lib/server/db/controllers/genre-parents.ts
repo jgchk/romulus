@@ -29,6 +29,10 @@ export class GenreParentsDatabase {
     })
   }
 
+  findAll(conn: IDrizzleConnection): Promise<GenreParent[]> {
+    return conn.query.genreParents.findMany()
+  }
+
   async update(
     parentId: GenreParent['parentId'],
     childId: GenreParent['childId'],

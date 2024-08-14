@@ -741,6 +741,51 @@ test('should return no results when filtering by parents and createdBy with no m
   expect(result.data).toEqual([])
 })
 
+test('should allow filtering by ancestor id', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Grandparent' }),
+      getTestGenre({ id: 1, name: 'Parent', parents: [0] }),
+      getTestGenre({ id: 2, name: 'Child', parents: [1] }),
+      getTestGenre({ id: 3, name: 'Grandchild', parents: [2] }),
+      getTestGenre({ id: 4, name: 'Other 1' }),
+      getTestGenre({ id: 5, name: 'Other 2', parents: [4] }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { ancestors: [0] } }, dbConnection)
+
+  expect(result.data).toEqual([
+    expect.objectContaining({ name: 'Parent' }),
+    expect.objectContaining({ name: 'Child' }),
+    expect.objectContaining({ name: 'Grandchild' }),
+  ])
+})
+
+test('should allow filtering by multiple ancestor ids', async ({ dbConnection }) => {
+  const genresDb = new GenresDatabase()
+  await genresDb.insert(
+    [
+      getTestGenre({ id: 0, name: 'Grandparent 1' }),
+      getTestGenre({ id: 1, name: 'Parent 1', parents: [0] }),
+      getTestGenre({ id: 2, name: 'Child 1', parents: [1] }),
+      getTestGenre({ id: 3, name: 'Grandparent 2' }),
+      getTestGenre({ id: 4, name: 'Parent 2', parents: [3] }),
+      getTestGenre({ id: 5, name: 'Child 2', parents: [4] }),
+      getTestGenre({ id: 6, name: 'Grandchild', parents: [2, 5] }),
+      getTestGenre({ id: 7, name: 'Other 1' }),
+      getTestGenre({ id: 8, name: 'Other 2', parents: [2] }),
+    ],
+    dbConnection,
+  )
+
+  const result = await getManyGenres({ filter: { ancestors: [0, 4] } }, dbConnection)
+
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Grandchild' })])
+})
+
 test('should allow sorting by id', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert(
