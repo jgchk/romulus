@@ -94,6 +94,12 @@
           {' '}
           <RelevanceChip relevance={genre.relevance} />
         {/if}
+        {#if genre.nsfw}
+          <span
+            class="align-super text-xs font-bold text-error-500 transition dark:text-error-700"
+            use:tooltip={{ content: 'NSFW' }}>N</span
+          >
+        {/if}
       </a>
     </div>
 
