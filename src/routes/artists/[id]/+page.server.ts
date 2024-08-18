@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
+import getManyReleases from '$lib/server/api/releases/get-many'
 import ArtistsDatabase from '$lib/server/db/controllers/artists'
 
 import type { PageServerLoad } from './$types'
@@ -15,7 +16,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const artistsDb = new ArtistsDatabase()
   const maybeArtist = await artistsDb.findById(
     id,
-    { include: ['releases-full', 'tracks-full'] },
+    { include: ['tracks-full'] },
     locals.dbConnection,
   )
   if (!maybeArtist) {
@@ -23,5 +24,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const artist = maybeArtist
 
-  return { artist }
+  const { data: releases } = await getManyReleases(
+    { include: ['artists-full'], filter: { artists: [id] } },
+    locals.dbConnection,
+  )
+
+  return { artist, releases }
 }

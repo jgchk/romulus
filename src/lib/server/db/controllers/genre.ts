@@ -1,3 +1,4 @@
+import type { SQL } from 'drizzle-orm'
 import { and, asc, count, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 
 import { type GenreType, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -204,7 +205,7 @@ export class GenresDatabase {
     const includeInfluencedBy = (include as string[]).includes('influencedBy')
     const includeAkas = (include as string[]).includes('akas')
 
-    const wheres = []
+    const wheres: (SQL | undefined)[] = []
     if (filter.ids !== undefined) {
       wheres.push(inArray(genres.id, filter.ids))
     }

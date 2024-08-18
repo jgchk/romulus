@@ -1,4 +1,5 @@
-import { count, eq, inArray } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
 import {
@@ -25,6 +26,25 @@ export type ExtendedRelease = Release & {
 
 export const FIND_MANY_INCLUDE = ['artists', 'artists-full', 'tracks', 'tracks-full'] as const
 export type FindInclude = (typeof FIND_MANY_INCLUDE)[number]
+
+export const FIND_ALL_SORT_FIELD = ['id'] as const
+export type FindManySortField = (typeof FIND_ALL_SORT_FIELD)[number]
+
+export const FIND_ALL_SORT_ORDER = ['asc', 'desc'] as const
+export type FindManySortOrder = (typeof FIND_ALL_SORT_ORDER)[number]
+
+export type FindManyParams<I extends FindInclude> = {
+  skip?: number
+  limit?: number
+  include?: I[]
+  filter?: {
+    ids?: number[]
+  }
+  sort?: {
+    field?: FindManySortField
+    order?: FindManySortOrder
+  }
+}
 
 export type FindRelease<T extends FindInclude> = Release & {
   artists: T extends 'artists' ? number[] : T extends 'artists-full' ? Artist[] : never
@@ -74,7 +94,7 @@ export default class ReleasesDatabase {
   }
 
   async findMany<I extends FindInclude>(
-    { include = [] }: { include?: I[] },
+    { skip, limit, include = [], filter = {}, sort = {} }: FindManyParams<I>,
     conn: IDrizzleConnection,
   ): Promise<{ results: FindRelease<I>[]; total: number }> {
     const includeArtists = (include as string[]).includes('artists')
@@ -82,7 +102,25 @@ export default class ReleasesDatabase {
     const includeTracks = (include as string[]).includes('tracks')
     const includeTracksFull = (include as string[]).includes('tracks-full')
 
+    const wheres: (SQL | undefined)[] = []
+    if (filter.ids !== undefined) {
+      wheres.push(inArray(releases.id, filter.ids))
+    }
+    const where = wheres.length > 0 ? and(...wheres) : undefined
+
+    const sortDirection = sort?.order === 'desc' ? desc : asc
+
+    let sortField
+    if (sort.field === 'id') {
+      sortField = releases.id
+    } else {
+      sortField = releases.id
+    }
+
     const dataQuery = conn.query.releases.findMany({
+      where,
+      offset: skip,
+      limit,
       with: {
         artists: includeArtistsFull
           ? { columns: {}, with: { artist: true }, orderBy: (a) => a.order }
@@ -95,10 +133,11 @@ export default class ReleasesDatabase {
             ? { columns: { trackId: true }, orderBy: (t) => t.order }
             : undefined,
       },
+      orderBy: sortField ? sortDirection(sortField) : undefined,
     })
-    const totalQuery = conn.select({ total: count() }).from(releases).$dynamic()
+    const totalQuery = conn.select({ total: count() }).from(releases).where(where).$dynamic()
 
-    const queryResults = await dataQuery.execute()
+    const queryResults = limit === 0 ? [] : await dataQuery.execute()
     const totalResults = await totalQuery.execute()
 
     const results = queryResults.map((input) => {
