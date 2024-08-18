@@ -141,6 +141,13 @@
       "when": 1722878990471,
       "tag": "0019_gray_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1723910931094,
+      "tag": "0020_flaky_red_ghost",
+      "breakpoints": true
     }
   ]
 }

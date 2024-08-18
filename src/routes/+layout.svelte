@@ -62,6 +62,11 @@
         class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
         >Random</a
       >
+      <a
+        href="/releases"
+        class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
+        >Releases</a
+      >
     </Card>
 
     <Card
