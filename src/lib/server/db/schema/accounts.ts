@@ -1,7 +1,7 @@
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm'
 import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
-export const permissions = pgEnum('Permission', ['EDIT_GENRES', 'EDIT_RELEASES'])
+export const permissions = pgEnum('Permission', ['EDIT_GENRES', 'EDIT_RELEASES', 'EDIT_ARTISTS'])
 
 export type InsertAccount = InferInsertModel<typeof accounts>
 export type Account = InferSelectModel<typeof accounts>

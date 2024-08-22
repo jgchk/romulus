@@ -162,6 +162,13 @@
       "when": 1724353896593,
       "tag": "0022_absurd_thor_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1724355523157,
+      "tag": "0023_careless_starbolt",
+      "breakpoints": true
     }
   ]
 }

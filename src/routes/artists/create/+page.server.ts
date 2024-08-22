@@ -3,11 +3,17 @@ import { z } from 'zod'
 
 import ArtistsDatabase from '$lib/server/db/controllers/artists'
 
-import type { Actions } from './$types'
+import type { Actions, PageServerLoad } from './$types'
+
+export const load: PageServerLoad = ({ locals }) => {
+  if (!locals.user?.permissions?.includes('EDIT_ARTISTS')) {
+    return error(403, { message: 'You do not have permission to create artists' })
+  }
+}
 
 export const actions: Actions = {
   default: async ({ locals, request }) => {
-    if (!locals.user?.permissions?.includes('EDIT_RELEASES')) {
+    if (!locals.user?.permissions?.includes('EDIT_ARTISTS')) {
       return error(403, { message: 'You do not have permission to create artists' })
     }
 

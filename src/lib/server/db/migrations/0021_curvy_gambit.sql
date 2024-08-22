@@ -1,2 +1,2 @@
-DROP TABLE "ReleaseIssue";--> statement-breakpoint
-DROP TABLE "TrackIssue";
+DROP TABLE "TrackIssue";--> statement-breakpoint
+DROP TABLE "ReleaseIssue";
