@@ -1,6 +1,6 @@
 {
-  "id": "00e22dac-a27d-45f6-ba71-c24ae08f041d",
-  "prevId": "e270c966-f10e-4f3c-91d5-afd3c3b7fb9d",
+  "id": "fa564ff1-3914-40ad-99da-ecbe66d02415",
+  "prevId": "00e22dac-a27d-45f6-ba71-c24ae08f041d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -751,56 +751,6 @@
       },
       "uniqueConstraints": {}
     },
-    "public.ReleaseIssue": {
-      "name": "ReleaseIssue",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "release_id": {
-          "name": "release_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "format": {
-          "name": "format",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "catno": {
-          "name": "catno",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "ReleaseIssue_release_id_Release_id_fk": {
-          "name": "ReleaseIssue_release_id_Release_id_fk",
-          "tableFrom": "ReleaseIssue",
-          "tableTo": "Release",
-          "columnsFrom": ["release_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.ReleaseTrack": {
       "name": "ReleaseTrack",
       "schema": "",
@@ -937,53 +887,6 @@
           "columns": ["track_id", "artist_id"]
         }
       },
-      "uniqueConstraints": {}
-    },
-    "public.TrackIssue": {
-      "name": "TrackIssue",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "track_id": {
-          "name": "track_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "release_issue_id": {
-          "name": "release_issue_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "TrackIssue_track_id_Track_id_fk": {
-          "name": "TrackIssue_track_id_Track_id_fk",
-          "tableFrom": "TrackIssue",
-          "tableTo": "Track",
-          "columnsFrom": ["track_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "TrackIssue_release_issue_id_ReleaseIssue_id_fk": {
-          "name": "TrackIssue_release_issue_id_ReleaseIssue_id_fk",
-          "tableFrom": "TrackIssue",
-          "tableTo": "ReleaseIssue",
-          "columnsFrom": ["release_issue_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "public.Track": {

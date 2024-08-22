@@ -71,7 +71,6 @@ export const tracks = pgTable('Track', {
 
 export const tracksRelations = relations(tracks, ({ many }) => ({
   artists: many(trackArtists),
-  issues: many(trackIssues),
   releases: many(releaseTracks),
 }))
 
@@ -142,56 +141,5 @@ export const trackArtistsRelations = relations(trackArtists, ({ one }) => ({
   artist: one(artists, {
     fields: [trackArtists.artistId],
     references: [artists.id],
-  }),
-}))
-
-export type InsertReleaseIssue = InferInsertModel<typeof releaseIssues>
-export type ReleaseIssue = InferSelectModel<typeof releaseIssues>
-export const releaseIssues = pgTable('ReleaseIssue', {
-  id: serial('id').primaryKey().notNull(),
-  releaseId: integer('release_id')
-    .references(() => releases.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    })
-    .notNull(),
-  format: text('format').notNull(),
-  label: text('label').notNull(),
-  catno: text('catno').notNull(),
-})
-
-export const releaseIssuesRelations = relations(releaseIssues, ({ one }) => ({
-  release: one(releases, {
-    fields: [releaseIssues.releaseId],
-    references: [releases.id],
-  }),
-}))
-
-export type InsertTrackIssue = InferInsertModel<typeof trackIssues>
-export type TrackIssue = InferSelectModel<typeof trackIssues>
-export const trackIssues = pgTable('TrackIssue', {
-  id: serial('id').primaryKey().notNull(),
-  trackId: integer('track_id')
-    .references(() => tracks.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    })
-    .notNull(),
-  releaseIssueId: integer('release_issue_id')
-    .references(() => releaseIssues.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    })
-    .notNull(),
-})
-
-export const trackIssuesRelations = relations(trackIssues, ({ one }) => ({
-  track: one(tracks, {
-    fields: [trackIssues.trackId],
-    references: [tracks.id],
-  }),
-  releaseIssue: one(releaseIssues, {
-    fields: [trackIssues.releaseIssueId],
-    references: [releaseIssues.id],
   }),
 }))

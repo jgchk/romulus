@@ -148,6 +148,13 @@
       "when": 1723910931094,
       "tag": "0020_flaky_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1724351033625,
+      "tag": "0021_curvy_gambit",
+      "breakpoints": true
     }
   ]
 }
