@@ -12,7 +12,10 @@ export const actions: Actions = {
     }
 
     const artistsDb = new ArtistsDatabase()
-    const [fishmans] = await artistsDb.insert([{ name: 'Fishmans' }], locals.dbConnection)
+    const [fishmans, pierre] = await artistsDb.insert(
+      [{ name: 'Fishmans' }, { name: "Pi'erre Bourne" }],
+      locals.dbConnection,
+    )
 
     const releasesDb = new ReleasesDatabase()
     await releasesDb.insert(
@@ -44,6 +47,71 @@ export const actions: Actions = {
             { title: 'ゆらめき IN THE AIR' },
             { title: 'いかれたBaby' },
             { title: 'LONG SEASON' },
+          ],
+        },
+        {
+          title: "The Life of P'erre 4",
+          releaseDate: '2019',
+          art: 'https://i.discogs.com/FaEwv0AMSOUyJOpj5FYyWEaNlSdJ--k85wv4xxujlh0/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MjU3/NDc0LTE2NjI4MzQ2/NjUtMjM0NC5qcGVn.jpeg',
+          artists: [pierre.id],
+          tracks: [
+            { title: 'Poof' },
+            { title: 'Try Again' },
+            { title: 'Feds' },
+            { title: 'Be Mine' },
+            { title: 'Ballad' },
+            { title: 'Routine' },
+            { title: 'Lovers' },
+            { title: 'How High' },
+            { title: 'Romeo Must Die' },
+            { title: 'Racer' },
+            { title: 'Stereotypes' },
+            { title: 'Doublemint' },
+            { title: 'Horoscopes' },
+            { title: 'Juice' },
+            { title: 'Guillotine' },
+            { title: 'Speed Dial' },
+          ],
+          issues: [
+            {
+              title: "The Life of P'ierre 4 (Deluxe)",
+              releaseDate: '2020',
+              art: 'https://i.discogs.com/LB3VziHBPk9OGvVFKyuQewO98r6CJyBURyFb2_KcE2o/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MjU3/NjA5LTE2NjI4MzQ2/ODYtMTM2Ny5qcGVn.jpeg',
+              artists: [pierre.id],
+              tracks: [
+                { title: 'Gotta Blast' },
+                { title: 'Joe Morris' },
+                { title: '4L' },
+                { title: "BeBe's Kids" },
+                { title: 'Sossgirl' },
+                { title: 'Sossboy' },
+                { title: 'Deja Vu' },
+                { title: 'Purple Genes' },
+                { title: 'Conspiracy' },
+                { title: 'Motto' },
+                { title: 'Growing Pains' },
+                { title: 'Jay P' },
+                { title: 'Simon Says' },
+                { title: 'TBH' },
+                { title: 'Fortune Cookie' },
+                { title: 'Poof' },
+                { title: 'Try Again' },
+                { title: 'Feds' },
+                { title: 'Be Mine' },
+                { title: 'Ballad' },
+                { title: 'Routine' },
+                { title: 'Lovers' },
+                { title: 'How High' },
+                { title: 'Romeo Must Die' },
+                { title: 'Racer' },
+                { title: 'Stereotypes' },
+                { title: 'Doublemint' },
+                { title: 'Horoscopes' },
+                { title: 'Juice' },
+                { title: 'Guillotine' },
+                { title: 'Speed Dial' },
+              ],
+            },
           ],
         },
       ],

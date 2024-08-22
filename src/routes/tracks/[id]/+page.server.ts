@@ -39,7 +39,6 @@ export const actions: Actions = {
       return error(400, { message: 'Invalid track ID' })
     }
     const id = maybeId.data
-    console.log({ id })
 
     const data = await request.formData()
 
