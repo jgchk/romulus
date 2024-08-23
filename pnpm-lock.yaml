@@ -20,6 +20,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^0.9.4
         version: 0.9.4
+      '@tanstack/svelte-query':
+        specifier: ^5.52.0
+        version: 5.52.0(svelte@4.2.18)
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -1349,6 +1352,14 @@ packages:
 
   '@swagger-api/apidom-reference@1.0.0-alpha.8':
     resolution: {integrity: sha512-mt22fvH8xZO7g5vjTY5wJqjk7O9EGjUJi7NYA8swptg+6k1Ha3cOItFVMsZIPnOcsH+V6dI4bs9fuGQ7PUvx5w==}
+
+  '@tanstack/query-core@5.52.0':
+    resolution: {integrity: sha512-U1DOEgltjUwalN6uWYTewSnA14b+tE7lSylOiASKCAO61ENJeCq9VVD/TXHA6O5u9+6v5+UgGYBSccTKDoyMqw==}
+
+  '@tanstack/svelte-query@5.52.0':
+    resolution: {integrity: sha512-RsT8cKrRzI7c5OR6Y+NYpZ7o7QLoVnt9QbkMPqCHPZbMgwQZgdMo8euUdQgia+/a3lORXb0Oe07kXzxKR6HGnA==}
+    peerDependencies:
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -4988,6 +4999,13 @@ snapshots:
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.8
     transitivePeerDependencies:
       - debug
+
+  '@tanstack/query-core@5.52.0': {}
+
+  '@tanstack/svelte-query@5.52.0(svelte@4.2.18)':
+    dependencies:
+      '@tanstack/query-core': 5.52.0
+      svelte: 4.2.18
 
   '@testing-library/dom@10.4.0':
     dependencies:
