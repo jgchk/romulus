@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createCoverArtAltText } from './Release'
+  import CoverArt from './CoverArt.svelte'
 
   export let id: number
-  export let art: string
+  export let art: string | null
   export let title: string
   export let artists: { id: number; name: string }[]
 </script>
@@ -11,18 +11,13 @@
   href="/releases/{id}"
   class="block rounded border p-1 transition dark:border-gray-700 dark:bg-gray-800"
 >
-  <img
-    src={art}
-    class="h-52 w-52"
-    alt={createCoverArtAltText(
-      title,
-      artists.map((a) => a.name),
-    )}
-  />
+  <CoverArt class="h-52 w-52" {art} {title} artists={artists.map((a) => a.name)} />
   <div class="font-medium">{title}</div>
   <div class="text-sm">
-    {#each artists as artist (artist.id)}
+    {#each artists as artist, index (artist.id)}
       <a href="/artists/{artist.id}" class="hover:underline">{artist.name}</a>
+      {#if index < artists.length - 1},
+      {/if}
     {/each}
   </div>
 </a>

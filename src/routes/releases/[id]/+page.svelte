@@ -1,6 +1,6 @@
 <script lang="ts">
   import Card from '$lib/atoms/Card.svelte'
-  import { createCoverArtAltText } from '$lib/components/Release'
+  import CoverArt from '$lib/components/CoverArt.svelte'
 
   import type { PageData } from './$types'
 
@@ -9,13 +9,11 @@
 
 <Card class="flex h-full w-full gap-2 p-4">
   <div class="flex-1">
-    <img
-      src={data.release.art}
+    <CoverArt
       class="w-full"
-      alt={createCoverArtAltText(
-        data.release.title,
-        data.release.artists.map((a) => a.name),
-      )}
+      art={data.release.art}
+      title={data.release.title}
+      artists={data.release.artists.map((a) => a.name)}
     />
 
     <h3 class="mt-4 text-lg font-bold">Tracks</h3>

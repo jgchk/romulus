@@ -18,8 +18,7 @@ export type Release = InferSelectModel<typeof releases>
 export const releases = pgTable('Release', {
   id: serial('id').primaryKey().notNull(),
   title: text('title').notNull(),
-  releaseDate: text('release_date').notNull(),
-  art: text('art').notNull(),
+  art: text('art'),
 })
 
 export const releasesRelations = relations(releases, ({ many }) => ({

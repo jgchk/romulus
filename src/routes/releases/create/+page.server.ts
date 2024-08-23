@@ -4,14 +4,14 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import ReleasesDatabase from '$lib/server/db/controllers/releases'
+import { optionalString } from '$lib/utils/validators'
 
 import type { Actions, PageServerLoad } from './$types'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
   artists: z.number().int().array().min(1, 'At least one artist is required'),
-  releaseDate: z.string().min(1, 'Release date is required'),
-  art: z.string().min(1, 'Art URL is required'),
+  art: optionalString,
   tracks: z
     .object({
       title: z.string().min(1, 'Title is required'),

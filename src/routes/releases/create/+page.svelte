@@ -32,11 +32,6 @@
       <ArtistMultiselect bind:value={$form.artists} {...$constraints.artists} />
     </InputGroup>
 
-    <InputGroup errors={$errors.releaseDate}>
-      <Label for="releaseDate">Release Date</Label>
-      <Input id="releaseDate" bind:value={$form.releaseDate} {...$constraints.releaseDate} />
-    </InputGroup>
-
     <InputGroup errors={$errors.art}>
       <Label for="art">Art</Label>
       <Input id="art" bind:value={$form.art} {...$constraints.art} />
