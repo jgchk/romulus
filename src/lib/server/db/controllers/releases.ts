@@ -11,12 +11,17 @@ import {
   releases,
   releaseTracks,
   type Track,
+  trackArtists,
   tracks,
 } from '../schema'
 
 export type ExtendedInsertRelease = InsertRelease & {
   artists: number[]
-  tracks: InsertTrack[]
+  tracks: ExtendedInsertTrack[]
+}
+
+export type ExtendedInsertTrack = InsertTrack & {
+  artists: number[]
 }
 
 export type ExtendedRelease = Release & {
@@ -71,6 +76,17 @@ export default class ReleasesDatabase {
             .values(
               trackEntries.map((t, order) => ({ releaseId: entries[i].id, trackId: t.id, order })),
             )
+
+          const trackArtists_ = release.tracks.flatMap((track, j) =>
+            track.artists.map((artistId, order) => ({
+              trackId: trackEntries[j].id,
+              artistId,
+              order,
+            })),
+          )
+          if (trackArtists_.length > 0) {
+            await tx.insert(trackArtists).values(trackArtists_)
+          }
         }
       }
 

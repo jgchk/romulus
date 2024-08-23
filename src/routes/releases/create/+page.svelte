@@ -1,53 +1,79 @@
 <script lang="ts">
   import { Plus, Trash } from 'phosphor-svelte'
+  import { superForm } from 'sveltekit-superforms'
 
+  import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
 
+  import type { PageData } from './$types'
   import ArtistMultiselect from './ArtistMultiselect.svelte'
 
-  let artists: number[] = []
-  let tracks: { title: string; artists: number[] }[] = [{ title: '', artists: [] }]
+  export let data: PageData
+
+  const { form, errors, constraints, delayed, enhance } = superForm(data.form, {
+    dataType: 'json',
+    taintedMessage: true,
+  })
 </script>
 
 <Card class="h-full w-full p-4">
-  <form method="POST">
-    <InputGroup>
+  <form method="POST" use:enhance>
+    <InputGroup errors={$errors.title}>
       <Label for="title">Title</Label>
-      <Input type="text" id="title" name="title" />
+      <Input id="title" bind:value={$form.title} {...$constraints.title} />
     </InputGroup>
 
-    <InputGroup>
+    <InputGroup errors={$errors.artists?._errors}>
       <Label for="artists">Artists</Label>
-      <ArtistMultiselect bind:value={artists} />
+      <ArtistMultiselect bind:value={$form.artists} {...$constraints.artists} />
+    </InputGroup>
+
+    <InputGroup errors={$errors.releaseDate}>
+      <Label for="releaseDate">Release Date</Label>
+      <Input id="releaseDate" bind:value={$form.releaseDate} {...$constraints.releaseDate} />
+    </InputGroup>
+
+    <InputGroup errors={$errors.art}>
+      <Label for="art">Art</Label>
+      <Input id="art" bind:value={$form.art} {...$constraints.art} />
     </InputGroup>
 
     <h2 class="text-lg font-bold">Tracks</h2>
-    {#each tracks as track, i}
+    {#each $form.tracks as track, i}
       <div class="flex items-center rounded-lg border p-4 dark:border-gray-800">
         <div class="flex-1">
           <InputGroup>
             <Label for="tracks[{i}].title">Title</Label>
-            <Input type="text" id="tracks[{i}].title" bind:value={track.title} />
+            <Input
+              type="text"
+              id="tracks[{i}].title"
+              bind:value={track.title}
+              {...$constraints.tracks?.title}
+            />
           </InputGroup>
 
           <InputGroup>
             <Label for="tracks[{i}].artists">Artists</Label>
-            <ArtistMultiselect bind:value={track.artists} />
+            <ArtistMultiselect bind:value={track.artists} {...$constraints.tracks?.artists} />
           </InputGroup>
         </div>
         <IconButton
           tooltip="Remove track"
-          on:click={() => (tracks = tracks.filter((_, j) => j !== i))}><Trash /></IconButton
+          on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
+          ><Trash /></IconButton
         >
       </div>
     {/each}
     <IconButton
       tooltip="Add track"
-      on:click={() => (tracks = [...tracks, { title: '', artists: [] }])}><Plus /></IconButton
+      on:click={() => ($form.tracks = [...$form.tracks, { title: '', artists: [] }])}
+      ><Plus /></IconButton
     >
+
+    <Button type="submit" loading={$delayed}>Create</Button>
   </form>
 </Card>

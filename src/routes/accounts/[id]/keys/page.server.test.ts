@@ -24,7 +24,7 @@ describe('load', () => {
       await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 2 } } })
       expect.fail('should throw error')
     } catch (e) {
-      expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
+      expect(e).toEqual({ status: 403, body: { message: 'Unauthorized' } })
     }
   })
 
@@ -147,7 +147,7 @@ describe('create', () => {
       })
       expect.fail('should throw error')
     } catch (e) {
-      expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
+      expect(e).toEqual({ status: 403, body: { message: 'Unauthorized' } })
     }
   })
 

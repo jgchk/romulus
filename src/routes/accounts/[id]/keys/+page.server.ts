@@ -29,7 +29,7 @@ export const load = (async ({
   const id = maybeId.data
 
   if (locals.user.id !== id) {
-    return error(401, 'Unauthorized')
+    return error(403, 'Unauthorized')
   }
 
   const accountsDb = new AccountsDatabase()
@@ -69,7 +69,7 @@ export const actions = {
     const id = maybeId.data
 
     if (locals.user.id !== id) {
-      return error(401, 'Unauthorized')
+      return error(403, 'Unauthorized')
     }
 
     const accountsDb = new AccountsDatabase()
