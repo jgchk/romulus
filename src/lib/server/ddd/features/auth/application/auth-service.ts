@@ -35,6 +35,14 @@ export class AuthService {
     return cookie
   }
 
+  async logout(sessionId: string): Promise<Cookie> {
+    await this.sessionRepo.delete(sessionId)
+
+    const cookie = this.sessionRepo.createCookie(undefined)
+
+    return cookie
+  }
+
   hashPassword(password: string): Promise<string> {
     return bcryptjs.hash(password, 12)
   }

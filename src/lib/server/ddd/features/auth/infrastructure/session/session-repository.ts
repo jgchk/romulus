@@ -3,5 +3,7 @@ import type { Session } from '../../domain/session'
 
 export type SessionRepository = {
   create(session: Session): Promise<string>
-  createCookie(sessionId: string): Cookie
+  delete(sessionId: string): Promise<void>
+
+  createCookie(sessionId: string | undefined): Cookie
 }

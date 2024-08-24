@@ -5,12 +5,14 @@ export const actions: Actions = {
     if (!locals.session) {
       return fail(401)
     }
-    await locals.lucia.invalidateSession(locals.session.id)
-    const sessionCookie = locals.lucia.createBlankSessionCookie()
-    cookies.set(sessionCookie.name, sessionCookie.value, {
+
+    const blankSessionCookie = await locals.services.authService.logout(locals.session.id)
+
+    cookies.set(blankSessionCookie.name, blankSessionCookie.value, {
       path: '.',
-      ...sessionCookie.attributes,
+      ...blankSessionCookie.attributes,
     })
+
     redirect(302, '/sign-in')
   },
 }
