@@ -1,6 +1,9 @@
 export class Track {
-  constructor(
-    public id: number,
-    public title: string,
-  ) {}
+  public artists: number[] = []
+
+  constructor(public title: string) {}
+
+  addArtist(artistId: number) {
+    this.artists.push(artistId)
+  }
 }
