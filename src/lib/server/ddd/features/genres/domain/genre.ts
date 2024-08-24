@@ -19,7 +19,7 @@ export type GenreUpdate = {
   }
 }
 
-type GenreConstructorParams = {
+export type GenreConstructorParams = {
   id: number
   name: string
   subtitle?: string
