@@ -2,12 +2,6 @@ import { equals } from 'ramda'
 
 import type { GenreHistory } from './genre-history'
 
-export class SelfInfluenceError extends Error {
-  constructor() {
-    super('A genre cannot influence itself')
-  }
-}
-
 export type GenreUpdate = {
   name?: string
   subtitle?: string | null

@@ -6,18 +6,6 @@ import { DrizzleGenreHistoryRepository } from '$lib/server/ddd/features/genres/i
 import type { Account, Genre } from '../../db/schema'
 import { type GenreData } from './types'
 
-export class GenreCycleError extends Error {
-  constructor(public cycle: string) {
-    super(`Cycle detected: ${cycle}`)
-  }
-}
-
-export class NoUpdatesError extends Error {
-  constructor() {
-    super('No updates were made')
-  }
-}
-
 export async function updateGenre(
   id: Genre['id'],
   data: GenreData,

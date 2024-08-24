@@ -3,12 +3,6 @@ import { z } from 'zod'
 import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
 import { nullableString } from '$lib/utils/validators'
 
-export class NotFoundError extends Error {
-  constructor() {
-    super('Genre not found')
-  }
-}
-
 export const genreSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   shortDescription: nullableString,

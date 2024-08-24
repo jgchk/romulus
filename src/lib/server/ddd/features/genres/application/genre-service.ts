@@ -1,7 +1,4 @@
-import { NotFoundError } from '$lib/server/api/genres/types'
-import { GenreCycleError, NoUpdatesError } from '$lib/server/api/genres/update'
-
-import { type GenreUpdate, SelfInfluenceError } from '../domain/genre'
+import { type GenreUpdate } from '../domain/genre'
 import { GenreHistory } from '../domain/genre-history'
 import type { GenreRepository } from '../infrastructure/genre/genre-repository'
 import type { GenreHistoryRepository } from '../infrastructure/genre-history/genre-history-repository'
@@ -11,6 +8,30 @@ export type CreateRelease = {
   art?: string
   artists: number[]
   tracks: (number | { title: string; artists: number[] })[]
+}
+
+export class SelfInfluenceError extends Error {
+  constructor() {
+    super('A genre cannot influence itself')
+  }
+}
+
+export class NotFoundError extends Error {
+  constructor() {
+    super('Genre not found')
+  }
+}
+
+export class GenreCycleError extends Error {
+  constructor(public cycle: string) {
+    super(`Cycle detected: ${cycle}`)
+  }
+}
+
+export class NoUpdatesError extends Error {
+  constructor() {
+    super('No updates were made')
+  }
 }
 
 export class GenreService {

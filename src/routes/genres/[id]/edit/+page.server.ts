@@ -3,10 +3,15 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { genreSchema, NotFoundError } from '$lib/server/api/genres/types'
-import { GenreCycleError, NoUpdatesError, updateGenre } from '$lib/server/api/genres/update'
+import { genreSchema } from '$lib/server/api/genres/types'
+import { updateGenre } from '$lib/server/api/genres/update'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { SelfInfluenceError } from '$lib/server/ddd/features/genres/domain/genre'
+import {
+  GenreCycleError,
+  NotFoundError,
+  NoUpdatesError,
+  SelfInfluenceError,
+} from '$lib/server/ddd/features/genres/application/genre-service'
 
 import type { PageServerLoad } from './$types'
 

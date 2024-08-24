@@ -3,10 +3,10 @@ import { expect } from 'vitest'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { NotFoundError } from '$lib/server/ddd/features/genres/application/genre-service'
 
 import { test } from '../../../../vitest-setup'
 import { deleteGenre } from './delete'
-import { NotFoundError } from './types'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }

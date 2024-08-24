@@ -1,10 +1,10 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
+import { NotFoundError } from '$lib/server/ddd/features/genres/application/genre-service'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import type { Account, Genre } from '../../db/schema'
-import { NotFoundError } from './types'
 
 export async function deleteGenre(
   id: Genre['id'],
