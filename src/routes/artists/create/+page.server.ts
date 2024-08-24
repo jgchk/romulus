@@ -1,8 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import ArtistsDatabase from '$lib/server/db/controllers/artists'
-
 import type { Actions, PageServerLoad } from './$types'
 
 export const load: PageServerLoad = ({ locals }) => {
