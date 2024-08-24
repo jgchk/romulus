@@ -99,9 +99,9 @@ test('should be able to log in after successful sign up', async ({
 
   await navbar.accountDropdown.click()
   await navbar.logOutButton.click()
+  await expect(navbar.accountDropdown).not.toBeVisible()
 
   await signInPage.goto()
-  await expect(signInPage.page).toHaveURL(SignInPage.url)
   await signInPage.usernameInput.fill(NEW_ACCOUNT.username)
   await signInPage.passwordInput.fill(NEW_ACCOUNT.password)
   await signInPage.submitButton.click()

@@ -4,7 +4,7 @@ type AccountProps = {
   username: string
   passwordHash: string
   darkMode?: boolean
-  permissions?: Permission[]
+  permissions?: Set<Permission>
   genreRelevanceFilter?: number
   showRelevanceTags?: boolean
   showTypeTags?: boolean
@@ -17,7 +17,7 @@ export class Account {
   public username: string
   public passwordHash: string
   public darkMode: boolean
-  public permissions: Permission[]
+  public permissions: Set<Permission>
   public genreRelevanceFilter: number
   public showRelevanceTags: boolean
   public showTypeTags: boolean
@@ -29,7 +29,7 @@ export class Account {
     this.username = props.username
     this.passwordHash = props.passwordHash
     this.darkMode = props.darkMode ?? true
-    this.permissions = props.permissions ?? []
+    this.permissions = props.permissions ?? new Set()
     this.genreRelevanceFilter = props.genreRelevanceFilter ?? 0
     this.showRelevanceTags = props.showRelevanceTags ?? false
     this.showTypeTags = props.showTypeTags ?? true
