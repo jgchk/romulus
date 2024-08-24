@@ -1,6 +1,6 @@
 import bcryptjs from 'bcryptjs'
 
-import { Account } from '../domain/account'
+import { NewAccount } from '../domain/account'
 import type { Cookie } from '../domain/cookie'
 import { Session } from '../domain/session'
 import {
@@ -22,7 +22,7 @@ export class AuthService {
   ) {}
 
   async register(username: string, password: string): Promise<Cookie | NonUniqueUsernameError> {
-    const account = new Account({
+    const account = new NewAccount({
       username,
       passwordHash: await this.hashPassword(password),
     })

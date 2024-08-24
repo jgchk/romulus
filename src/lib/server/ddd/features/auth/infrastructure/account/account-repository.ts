@@ -1,4 +1,4 @@
-import type { Account } from '../../domain/account'
+import type { CreatedAccount, NewAccount } from '../../domain/account'
 
 export class NonUniqueUsernameError extends Error {
   constructor(public username: string) {
@@ -7,6 +7,6 @@ export class NonUniqueUsernameError extends Error {
 }
 
 export type AccountRepository = {
-  findByUsername(username: string): Promise<(Account & { id: number }) | undefined>
-  create(account: Account): Promise<number | NonUniqueUsernameError>
+  findByUsername(username: string): Promise<CreatedAccount | undefined>
+  create(account: NewAccount): Promise<number | NonUniqueUsernameError>
 }

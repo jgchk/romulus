@@ -13,7 +13,7 @@ type AccountProps = {
   updatedAt?: Date
 }
 
-export class Account {
+export class NewAccount {
   public username: string
   public passwordHash: string
   public darkMode: boolean
@@ -36,5 +36,29 @@ export class Account {
     this.showNsfw = props.showNsfw ?? false
     this.createdAt = props.createdAt ?? new Date()
     this.updatedAt = props.updatedAt ?? new Date()
+  }
+}
+
+export class CreatedAccount extends NewAccount {
+  public readonly id: number
+
+  constructor(id: number, props: AccountProps) {
+    super(props)
+    this.id = id
+  }
+
+  static fromNewAccount(id: number, newAccount: NewAccount): CreatedAccount {
+    return new CreatedAccount(id, {
+      username: newAccount.username,
+      passwordHash: newAccount.passwordHash,
+      darkMode: newAccount.darkMode,
+      permissions: newAccount.permissions,
+      genreRelevanceFilter: newAccount.genreRelevanceFilter,
+      showRelevanceTags: newAccount.showRelevanceTags,
+      showTypeTags: newAccount.showTypeTags,
+      showNsfw: newAccount.showNsfw,
+      createdAt: newAccount.createdAt,
+      updatedAt: newAccount.updatedAt,
+    })
   }
 }
