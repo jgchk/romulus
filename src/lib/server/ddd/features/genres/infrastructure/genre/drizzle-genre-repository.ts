@@ -42,24 +42,22 @@ export class DrizzleGenreRepository implements GenreRepository {
       }
     }
 
-    const genre = new Genre(
-      entry.id,
-      entry.name,
-      entry.subtitle ?? undefined,
-      entry.type,
-      entry.nsfw,
-      entry.shortDescription ?? undefined,
-      entry.longDescription ?? undefined,
-      entry.notes ?? undefined,
-
+    const genre = new Genre({
+      id: entry.id,
+      name: entry.name,
+      subtitle: entry.subtitle ?? undefined,
+      type: entry.type,
+      nsfw: entry.nsfw,
+      shortDescription: entry.shortDescription ?? undefined,
+      longDescription: entry.longDescription ?? undefined,
+      notes: entry.notes ?? undefined,
       parents,
       influences,
       akas,
-
-      entry.relevance,
-      entry.createdAt,
-      entry.updatedAt,
-    )
+      relevance: entry.relevance,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    })
 
     return genre
   }

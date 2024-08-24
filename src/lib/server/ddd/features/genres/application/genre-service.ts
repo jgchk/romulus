@@ -1,7 +1,7 @@
 import { NotFoundError } from '$lib/server/api/genres/types'
-import { GenreCycleError, NoUpdatesError, SelfInfluenceError } from '$lib/server/api/genres/update'
+import { GenreCycleError, NoUpdatesError } from '$lib/server/api/genres/update'
 
-import { type GenreUpdate } from '../domain/genre'
+import { type GenreUpdate, SelfInfluenceError } from '../domain/genre'
 import { GenreHistory } from '../domain/genre-history'
 import type { GenreRepository } from '../infrastructure/genre/genre-repository'
 import type { GenreHistoryRepository } from '../infrastructure/genre-history/genre-history-repository'
@@ -26,7 +26,6 @@ export class GenreService {
     }
 
     const updatedGenre = genre.withUpdate(data)
-
     if (updatedGenre.doesInfluenceSelf()) {
       throw new SelfInfluenceError()
     }

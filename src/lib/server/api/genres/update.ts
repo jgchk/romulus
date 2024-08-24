@@ -12,12 +12,6 @@ export class GenreCycleError extends Error {
   }
 }
 
-export class SelfInfluenceError extends Error {
-  constructor() {
-    super('A genre cannot influence itself')
-  }
-}
-
 export class NoUpdatesError extends Error {
   constructor() {
     super('No updates were made')

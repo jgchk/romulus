@@ -3,11 +3,12 @@ import { expect } from 'vitest'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { SelfInfluenceError } from '$lib/server/ddd/features/genres/domain/genre'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../../vitest-setup'
 import { type GenreData, NotFoundError } from './types'
-import { GenreCycleError, NoUpdatesError, SelfInfluenceError, updateGenre } from './update'
+import { GenreCycleError, NoUpdatesError, updateGenre } from './update'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }

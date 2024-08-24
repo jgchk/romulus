@@ -2,6 +2,12 @@ import { equals } from 'ramda'
 
 import type { GenreHistory } from './genre-history'
 
+export class SelfInfluenceError extends Error {
+  constructor() {
+    super('A genre cannot influence itself')
+  }
+}
+
 export type GenreUpdate = {
   name?: string
   subtitle?: string | null
@@ -17,6 +23,27 @@ export type GenreUpdate = {
     secondary?: string[]
     tertiary?: string[]
   }
+}
+
+type GenreConstructorParams = {
+  id: number
+  name: string
+  subtitle?: string
+  type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+  nsfw: boolean
+  shortDescription?: string
+  longDescription?: string
+  notes?: string
+  parents: Set<number>
+  influences: Set<number>
+  akas: {
+    primary: string[]
+    secondary: string[]
+    tertiary: string[]
+  }
+  relevance: number
+  createdAt: Date
+  updatedAt: Date
 }
 
 export class Genre {
@@ -39,71 +66,48 @@ export class Genre {
   readonly createdAt: Date
   readonly updatedAt: Date
 
-  constructor(
-    id: number,
-    name: string,
-    subtitle: string | undefined,
-    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT',
-    nsfw: boolean,
-    shortDescription: string | undefined,
-    longDescription: string | undefined,
-    notes: string | undefined,
-    parents: Set<number>,
-    influences: Set<number>,
-    akas: {
-      primary: string[]
-      secondary: string[]
-      tertiary: string[]
-    },
-    relevance: number,
-    createdAt: Date,
-    updatedAt: Date,
-  ) {
-    this.id = id
-    this.name = name
-    this.subtitle = subtitle
-    this.type = type
-    this.nsfw = nsfw
-    this.shortDescription = shortDescription
-    this.longDescription = longDescription
-    this.notes = notes
-    this.parents = new Set(parents)
-    this.influences = new Set(influences)
+  constructor(params: GenreConstructorParams) {
+    this.id = params.id
+    this.name = params.name
+    this.subtitle = params.subtitle
+    this.type = params.type
+    this.nsfw = params.nsfw
+    this.shortDescription = params.shortDescription
+    this.longDescription = params.longDescription
+    this.notes = params.notes
+    this.parents = new Set(params.parents)
+    this.influences = new Set(params.influences)
     this.akas = {
-      primary: [...akas.primary],
-      secondary: [...akas.secondary],
-      tertiary: [...akas.tertiary],
+      primary: [...params.akas.primary],
+      secondary: [...params.akas.secondary],
+      tertiary: [...params.akas.tertiary],
     }
-    this.relevance = relevance
-    this.createdAt = new Date(createdAt)
-    this.updatedAt = new Date(updatedAt)
+    this.relevance = params.relevance
+    this.createdAt = new Date(params.createdAt)
+    this.updatedAt = new Date(params.updatedAt)
   }
 
   withUpdate(data: GenreUpdate): Genre {
-    return new Genre(
-      this.id,
-      data.name ?? this.name,
-      data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),
-      data.type ?? this.type,
-      data.nsfw ?? this.nsfw,
-      data.shortDescription === undefined
-        ? this.shortDescription
-        : (data.shortDescription ?? undefined),
-      data.longDescription === undefined
-        ? this.longDescription
-        : (data.longDescription ?? undefined),
-      data.notes === undefined ? this.notes : (data.notes ?? undefined),
-      data.parents ?? this.parents,
-      data.influences ?? this.influences,
-      {
+    return new Genre({
+      ...this,
+      ...data,
+      subtitle: data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),
+      shortDescription:
+        data.shortDescription === undefined
+          ? this.shortDescription
+          : (data.shortDescription ?? undefined),
+      longDescription:
+        data.longDescription === undefined
+          ? this.longDescription
+          : (data.longDescription ?? undefined),
+      notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
+      akas: {
         primary: data.akas?.primary ?? this.akas.primary,
         secondary: data.akas?.secondary ?? this.akas.secondary,
         tertiary: data.akas?.tertiary ?? this.akas.tertiary,
       },
-      this.relevance,
-      this.createdAt,
-      new Date(),
-    )
+      updatedAt: new Date(),
+    })
   }
 
   doesInfluenceSelf(): boolean {
