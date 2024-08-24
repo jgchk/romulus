@@ -4,26 +4,21 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import type { ITransactor } from '$lib/server/db/transactor'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { Account } from '../../db/schema'
 import type { GenreData } from './types'
 
-export type CreateGenreContext<T> = {
-  transactor: ITransactor<T>
-}
-
-export async function createGenre<T extends IDrizzleConnection>(
+export async function createGenre(
   data: GenreData,
   accountId: Account['id'],
-  transactor: ITransactor<T>,
+  dbConnection: IDrizzleConnection,
 ): Promise<number> {
   const genresDb = new GenresDatabase()
   const genreHistoryDb = new GenreHistoryDatabase()
   const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
 
-  const genre = await transactor.transaction(async (tx) => {
+  const genre = await dbConnection.transaction(async (tx) => {
     const [genre] = await genresDb.insert(
       [
         {
