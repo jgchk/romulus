@@ -3,9 +3,6 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { MusicCatalogService } from '$lib/server/ddd/application/services/catalog-service'
-import { DrizzleReleaseRepository } from '$lib/server/ddd/infrastructure/repositories/release/drizzle-release-repository'
-import { DrizzleTrackRepository } from '$lib/server/ddd/infrastructure/repositories/track/drizzle-track-repository'
 import { optionalString } from '$lib/utils/validators'
 
 import type { Actions, PageServerLoad } from './$types'
@@ -43,12 +40,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const musicCatalogService = new MusicCatalogService(
-      new DrizzleReleaseRepository(locals.dbConnection),
-      new DrizzleTrackRepository(locals.dbConnection),
-    )
-
-    const releaseId = await musicCatalogService.createRelease(form.data)
+    const releaseId = await locals.services.musicCatalogService.createRelease(form.data)
 
     return redirect(302, `/releases/${releaseId}`)
   },

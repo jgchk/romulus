@@ -28,9 +28,8 @@ export const actions: Actions = {
     }
     const name = maybeName.data
 
-    const artistsDb = new ArtistsDatabase()
-    const [artist] = await artistsDb.insert([{ name }], locals.dbConnection)
+    const artistId = await locals.services.musicCatalogService.createArtist(name)
 
-    return redirect(302, `/artists/${artist.id}`)
+    return redirect(302, `/artists/${artistId}`)
   },
 }

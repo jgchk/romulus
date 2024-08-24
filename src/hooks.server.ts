@@ -2,6 +2,10 @@ import type { Handle } from '@sveltejs/kit'
 
 import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
+import { MusicCatalogService } from '$lib/server/ddd/application/services/music-catalog-service'
+import { DrizzleArtistRepository } from '$lib/server/ddd/infrastructure/repositories/artist/drizzle-artist-repository'
+import { DrizzleReleaseRepository } from '$lib/server/ddd/infrastructure/repositories/release/drizzle-release-repository'
+import { DrizzleTrackRepository } from '$lib/server/ddd/infrastructure/repositories/track/drizzle-track-repository'
 
 const pg = getPostgresConnection()
 
@@ -12,6 +16,14 @@ process.on('sveltekit:shutdown', () => {
 export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(pg)
   event.locals.dbConnection = dbConnection
+
+  event.locals.services = {
+    musicCatalogService: new MusicCatalogService(
+      new DrizzleArtistRepository(dbConnection),
+      new DrizzleReleaseRepository(dbConnection),
+      new DrizzleTrackRepository(dbConnection),
+    ),
+  }
 
   const lucia = createLucia(dbConnection)
   event.locals.lucia = lucia
