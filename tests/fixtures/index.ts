@@ -12,6 +12,7 @@ import {
   type InsertTestGenre,
 } from '../utils'
 import { GenreTree } from './elements/genre-tree'
+import { Navbar } from './elements/navbar'
 import { ApiKeysPage } from './pages/api-keys'
 import { ApiPlaygroundPage } from './pages/api-playground'
 import { ErrorPage } from './pages/error'
@@ -141,8 +142,11 @@ export const test = base
       await use(new SignUpPage(page))
     },
   })
-  .extend<{ genreTree: GenreTree }>({
+  .extend<{ genreTree: GenreTree; navbar: Navbar }>({
     genreTree: async ({ page }, use) => {
       await use(new GenreTree(page))
+    },
+    navbar: async ({ page }, use) => {
+      await use(new Navbar(page))
     },
   })

@@ -1,11 +1,10 @@
 import { type Actions, redirect } from '@sveltejs/kit'
-import Postgres from 'postgres'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { hashPassword, passwordSchema } from '$lib/server/auth'
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { passwordSchema } from '$lib/server/auth'
+import { NonUniqueUsernameError } from '$lib/server/ddd/features/auth/infrastructure/account/account-repository'
 
 import type { PageServerLoad } from './$types'
 
@@ -28,31 +27,15 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    let account
-    try {
-      const accountsDb = new AccountsDatabase()
-      ;[account] = await accountsDb.insert(
-        [
-          {
-            username: form.data.username,
-            password: await hashPassword(form.data.password.password),
-          },
-        ],
-        locals.dbConnection,
-      )
-    } catch (error) {
-      if (
-        error instanceof Postgres.PostgresError &&
-        error.code === '23505' &&
-        error.constraint_name === 'Account_username_unique'
-      ) {
-        return setError(form, 'username', 'Username is already taken')
-      }
-      throw error
+    const maybeSessionCookie = await locals.services.authService.register(
+      form.data.username,
+      form.data.password.password,
+    )
+    if (maybeSessionCookie instanceof NonUniqueUsernameError) {
+      return setError(form, 'username', 'Username is already taken')
     }
+    const sessionCookie = maybeSessionCookie
 
-    const session = await locals.lucia.createSession(account.id, {})
-    const sessionCookie = locals.lucia.createSessionCookie(session.id)
     cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,

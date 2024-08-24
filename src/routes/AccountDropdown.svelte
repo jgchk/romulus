@@ -34,6 +34,7 @@
     use:popoverReference
     class="group/account-button h-full w-full"
     on:click={() => (open = !open)}
+    aria-label="Account Dropdown"
   >
     <div
       class="flex h-full items-center gap-1 rounded px-2 pr-1 transition group-hover/account-button:bg-gray-200 dark:group-hover/account-button:bg-gray-800"
@@ -90,7 +91,7 @@
             type="submit"
           >
             <SignOut size={18} />
-            Sign out
+            Sign Out
           </button>
         </form>
       </Card>

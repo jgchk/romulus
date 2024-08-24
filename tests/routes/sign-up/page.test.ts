@@ -14,7 +14,7 @@ const NEW_ACCOUNT = {
   password: 'test-password-sign-up',
 }
 
-test.afterAll(async ({ dbConnection }) => {
+test.afterEach(async ({ dbConnection }) => {
   await deleteAccounts([NEW_ACCOUNT.username], dbConnection)
 })
 
@@ -82,4 +82,26 @@ test('should redirect to genres page after successful sign up', async ({ signUpP
   await signUpPage.confirmPasswordInput.fill(NEW_ACCOUNT.password)
   await signUpPage.submitButton.click()
   await expect(signUpPage.page).toHaveURL(GenresPage.url)
+})
+
+test('should be able to log in after successful sign up', async ({
+  signUpPage,
+  signInPage,
+  navbar,
+}) => {
+  await signUpPage.goto()
+  await signUpPage.usernameInput.fill(NEW_ACCOUNT.username)
+  await signUpPage.passwordInput.fill(NEW_ACCOUNT.password)
+  await signUpPage.confirmPasswordInput.fill(NEW_ACCOUNT.password)
+  await signUpPage.submitButton.click()
+  await expect(signUpPage.page).toHaveURL(GenresPage.url)
+
+  await navbar.accountDropdown.click()
+  await navbar.logOutButton.click()
+
+  await signInPage.goto()
+  await signInPage.usernameInput.fill(NEW_ACCOUNT.username)
+  await signInPage.passwordInput.fill(NEW_ACCOUNT.password)
+  await signInPage.submitButton.click()
+  await expect(signInPage.page).toHaveURL(GenresPage.url)
 })
