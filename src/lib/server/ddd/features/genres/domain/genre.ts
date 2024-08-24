@@ -83,9 +83,11 @@ export class Genre {
 
   withUpdate(data: GenreUpdate): Genre {
     return new Genre({
-      ...this,
-      ...data,
+      id: this.id,
+      name: data.name ?? this.name,
       subtitle: data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),
+      type: data.type ?? this.type,
+      nsfw: data.nsfw ?? this.nsfw,
       shortDescription:
         data.shortDescription === undefined
           ? this.shortDescription
@@ -95,11 +97,15 @@ export class Genre {
           ? this.longDescription
           : (data.longDescription ?? undefined),
       notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
+      parents: data.parents ?? this.parents,
+      influences: data.influences ?? this.influences,
       akas: {
         primary: data.akas?.primary ?? this.akas.primary,
         secondary: data.akas?.secondary ?? this.akas.secondary,
         tertiary: data.akas?.tertiary ?? this.akas.tertiary,
       },
+      relevance: this.relevance,
+      createdAt: this.createdAt,
       updatedAt: new Date(),
     })
   }

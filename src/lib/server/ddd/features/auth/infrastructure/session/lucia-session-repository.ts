@@ -16,6 +16,10 @@ export class LuciaSessionRepository implements SessionRepository {
     await this.lucia.invalidateSession(sessionId)
   }
 
+  async deleteAllForAccount(accountId: number): Promise<void> {
+    await this.lucia.invalidateUserSessions(accountId)
+  }
+
   createCookie(sessionId: string): Cookie {
     const sessionCookie = this.lucia.createSessionCookie(sessionId)
     return new Cookie(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)

@@ -1,0 +1,291 @@
+File: ./src/lib/server/ddd/features/auth/application/auth-service.ts
+Contents:
+import bcryptjs from 'bcryptjs'
+
+import { Account } from '../domain/account'
+import type { Cookie } from '../domain/cookie'
+import { Session } from '../domain/session'
+import {
+  type AccountRepository,
+  NonUniqueUsernameError,
+} from '../infrastructure/account/account-repository'
+import type { SessionRepository } from '../infrastructure/session/session-repository'
+
+export class InvalidLoginError extends Error {
+  constructor() {
+    super('Incorrect username or password')
+  }
+}
+
+export class AuthService {
+  constructor(
+    private accountRepo: AccountRepository,
+    private sessionRepo: SessionRepository,
+  ) {}
+
+  async register(username: string, password: string): Promise<Cookie | NonUniqueUsernameError> {
+    const account = new Account({
+      username,
+      passwordHash: await this.hashPassword(password),
+    })
+
+    const maybeAccountId = await this.accountRepo.create(account)
+    if (maybeAccountId instanceof NonUniqueUsernameError) {
+      return maybeAccountId
+    }
+    const accountId = maybeAccountId
+
+    const session = new Session(accountId)
+    const sessionId = await this.sessionRepo.create(session)
+
+    const cookie = this.sessionRepo.createCookie(sessionId)
+
+    return cookie
+  }
+
+  async login(username: string, password: string): Promise<Cookie | InvalidLoginError> {
+    const account = await this.accountRepo.findByUsername(username)
+    if (!account) {
+      // spend some time to "waste" some time
+      // this makes brute forcing harder
+      await this.hashPassword(password)
+      return new InvalidLoginError()
+    }
+
+    const validPassword = await this.checkPassword(password, account.passwordHash)
+    if (!validPassword) {
+      return new InvalidLoginError()
+    }
+
+    const session = new Session(account.id)
+    const sessionId = await this.sessionRepo.create(session)
+
+    const cookie = this.sessionRepo.createCookie(sessionId)
+
+    return cookie
+  }
+
+  async logout(sessionId: string): Promise<Cookie> {
+    await this.sessionRepo.delete(sessionId)
+
+    const cookie = this.sessionRepo.createCookie(undefined)
+
+    return cookie
+  }
+
+  hashPassword(password: string): Promise<string> {
+    return bcryptjs.hash(password, 12)
+  }
+
+  checkPassword(password: string, hash: string): Promise<boolean> {
+    return bcryptjs.compare(password, hash)
+  }
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/domain/account.ts
+Contents:
+type Permission = 'EDIT_GENRES' | 'EDIT_RELEASES' | 'EDIT_ARTISTS'
+
+type AccountProps = {
+  username: string
+  passwordHash: string
+  darkMode?: boolean
+  permissions?: Set<Permission>
+  genreRelevanceFilter?: number
+  showRelevanceTags?: boolean
+  showTypeTags?: boolean
+  showNsfw?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export class Account {
+  public username: string
+  public passwordHash: string
+  public darkMode: boolean
+  public permissions: Set<Permission>
+  public genreRelevanceFilter: number
+  public showRelevanceTags: boolean
+  public showTypeTags: boolean
+  public showNsfw: boolean
+  public createdAt: Date
+  public updatedAt: Date
+
+  constructor(props: AccountProps) {
+    this.username = props.username
+    this.passwordHash = props.passwordHash
+    this.darkMode = props.darkMode ?? true
+    this.permissions = props.permissions ?? new Set()
+    this.genreRelevanceFilter = props.genreRelevanceFilter ?? 0
+    this.showRelevanceTags = props.showRelevanceTags ?? false
+    this.showTypeTags = props.showTypeTags ?? true
+    this.showNsfw = props.showNsfw ?? false
+    this.createdAt = props.createdAt ?? new Date()
+    this.updatedAt = props.updatedAt ?? new Date()
+  }
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/domain/cookie.ts
+Contents:
+export class Cookie {
+  constructor(
+    public name: string,
+    public value: string,
+    public attributes: CookieAttributes,
+  ) {}
+}
+
+type CookieAttributes = {
+  secure?: boolean
+  path?: string
+  domain?: string
+  sameSite?: 'lax' | 'strict' | 'none'
+  httpOnly?: boolean
+  maxAge?: number
+  expires?: Date
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/domain/session.ts
+Contents:
+export class Session {
+  constructor(public accountId: number) {}
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/infrastructure/account/account-repository.ts
+Contents:
+import type { Account } from '../../domain/account'
+
+export class NonUniqueUsernameError extends Error {
+  constructor(public username: string) {
+    super('Username is already taken')
+  }
+}
+
+export type AccountRepository = {
+  findByUsername(username: string): Promise<(Account & { id: number }) | undefined>
+  create(account: Account): Promise<number | NonUniqueUsernameError>
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/infrastructure/account/drizzle-account-repository.ts
+Contents:
+import Postgres from 'postgres'
+
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { accounts } from '$lib/server/db/schema'
+
+import { Account } from '../../domain/account'
+import { type AccountRepository, NonUniqueUsernameError } from './account-repository'
+
+export class DrizzleAccountRepository implements AccountRepository {
+  constructor(private db: IDrizzleConnection) {}
+
+  async findByUsername(username: string): Promise<(Account & { id: number }) | undefined> {
+    const entry = await this.db.query.accounts.findFirst({
+      where: (accounts, { eq }) => eq(accounts.username, username),
+    })
+    if (!entry) return
+
+    const account = new Account({
+      username: entry.username,
+      passwordHash: entry.password,
+      darkMode: entry.darkMode,
+      permissions: new Set(entry.permissions ?? []),
+      genreRelevanceFilter: entry.genreRelevanceFilter,
+      showRelevanceTags: entry.showRelevanceTags,
+      showTypeTags: entry.showTypeTags,
+      showNsfw: entry.showNsfw,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    })
+
+    return { ...account, id: entry.id }
+  }
+
+  async create(account: Account): Promise<number | NonUniqueUsernameError> {
+    try {
+      const [{ accountId }] = await this.db
+        .insert(accounts)
+        .values([
+          {
+            username: account.username,
+            password: account.passwordHash,
+            darkMode: account.darkMode,
+            permissions: [...account.permissions],
+            genreRelevanceFilter: account.genreRelevanceFilter,
+            showRelevanceTags: account.showRelevanceTags,
+            showTypeTags: account.showTypeTags,
+            showNsfw: account.showNsfw,
+            createdAt: account.createdAt,
+            updatedAt: account.updatedAt,
+          },
+        ])
+        .returning({ accountId: accounts.id })
+
+      return accountId
+    } catch (error) {
+      if (
+        error instanceof Postgres.PostgresError &&
+        error.code === '23505' &&
+        error.constraint_name === 'Account_username_unique'
+      ) {
+        return new NonUniqueUsernameError(account.username)
+      }
+      throw error
+    }
+  }
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/infrastructure/session/lucia-session-repository.ts
+Contents:
+import type { AppLucia } from '$lib/server/auth'
+
+import { Cookie } from '../../domain/cookie'
+import type { Session } from '../../domain/session'
+import type { SessionRepository } from './session-repository'
+
+export class LuciaSessionRepository implements SessionRepository {
+  constructor(private lucia: AppLucia) {}
+
+  async create(session: Session): Promise<string> {
+    const output = await this.lucia.createSession(session.accountId, {})
+    return output.id
+  }
+
+  async delete(sessionId: string): Promise<void> {
+    await this.lucia.invalidateSession(sessionId)
+  }
+
+  createCookie(sessionId: string): Cookie {
+    const sessionCookie = this.lucia.createSessionCookie(sessionId)
+    return new Cookie(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+  }
+}
+
+---
+
+File: ./src/lib/server/ddd/features/auth/infrastructure/session/session-repository.ts
+Contents:
+import type { Cookie } from '../../domain/cookie'
+import type { Session } from '../../domain/session'
+
+export type SessionRepository = {
+  create(session: Session): Promise<string>
+  delete(sessionId: string): Promise<void>
+
+  createCookie(sessionId: string | undefined): Cookie
+}
+
+---
+

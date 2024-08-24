@@ -15,6 +15,12 @@ export class InvalidLoginError extends Error {
   }
 }
 
+export class AccountNotFoundError extends Error {
+  constructor(public accountId: number) {
+    super('Account not found')
+  }
+}
+
 export class AuthService {
   constructor(
     private accountRepo: AccountRepository,
@@ -67,6 +73,30 @@ export class AuthService {
     await this.sessionRepo.delete(sessionId)
 
     const cookie = this.sessionRepo.createCookie(undefined)
+
+    return cookie
+  }
+
+  async resetPassword(
+    accountId: number,
+    newPassword: string,
+  ): Promise<Cookie | AccountNotFoundError> {
+    const account = await this.accountRepo.findById(accountId)
+    if (!account) {
+      return new AccountNotFoundError(accountId)
+    }
+
+    const updatedAccount = account.withUpdate({
+      passwordHash: await this.hashPassword(newPassword),
+    })
+    await this.accountRepo.update(accountId, updatedAccount)
+
+    await this.sessionRepo.deleteAllForAccount(accountId)
+
+    const session = new Session(account.id)
+    const sessionId = await this.sessionRepo.create(session)
+
+    const cookie = this.sessionRepo.createCookie(sessionId)
 
     return cookie
   }

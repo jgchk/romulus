@@ -5,9 +5,9 @@ import { encodeHex } from 'oslo/encoding'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { hashPassword, passwordSchema } from '$lib/server/auth'
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { passwordSchema } from '$lib/server/auth'
 import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
+import { AccountNotFoundError } from '$lib/server/ddd/features/auth/application/auth-service'
 
 import type { PageServerLoad } from './$types'
 
@@ -47,17 +47,15 @@ export const actions: Actions = {
       return error(400, 'Invalid or expired token')
     }
 
-    await locals.lucia.invalidateUserSessions(token.userId)
-
-    const accountsDb = new AccountsDatabase()
-    await accountsDb.update(
+    const maybeSessionCookie = await locals.services.authService.resetPassword(
       token.userId,
-      { password: await hashPassword(form.data.password) },
-      locals.dbConnection,
+      form.data.password,
     )
+    if (maybeSessionCookie instanceof AccountNotFoundError) {
+      return error(400, 'No account found for token')
+    }
+    const sessionCookie = maybeSessionCookie
 
-    const session = await locals.lucia.createSession(token.userId, {})
-    const sessionCookie = locals.lucia.createSessionCookie(session.id)
     cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,
