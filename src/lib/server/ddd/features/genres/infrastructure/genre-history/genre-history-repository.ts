@@ -1,4 +1,4 @@
-import type { GenreHistory } from '$lib/server/ddd/domain/genre-history'
+import type { GenreHistory } from '../../domain/genre-history'
 
 export type GenreHistoryRepository = {
   findLatestByGenreId(genreId: number): Promise<GenreHistory | undefined>

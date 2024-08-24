@@ -7,7 +7,7 @@ declare global {
     interface Locals {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       services: {
-        musicCatalogService: import('$lib/server/ddd/application/services/music-catalog-service').MusicCatalogService
+        musicCatalogService: import('$lib/server/ddd/features/music-catalog/application/music-catalog-service').MusicCatalogService
       }
       user: import('lucia').User | undefined
       session: import('lucia').Session | undefined

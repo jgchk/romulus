@@ -1,7 +1,7 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { artists } from '$lib/server/db/schema'
-import type { Artist } from '$lib/server/ddd/domain/artist'
 
+import type { Artist } from '../../domain/artist'
 import type { ArtistRepository } from './artist-repository'
 
 export class DrizzleArtistRepository implements ArtistRepository {

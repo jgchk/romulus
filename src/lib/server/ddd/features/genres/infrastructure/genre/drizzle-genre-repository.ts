@@ -2,9 +2,9 @@ import { eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { genreAkas, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
-import { Genre } from '$lib/server/ddd/domain/genre'
-import { GenreTree } from '$lib/server/ddd/domain/genre-tree'
 
+import { Genre } from '../../domain/genre'
+import { GenreTree } from '../../domain/genre-tree'
 import type { GenreRepository } from './genre-repository'
 
 export class DrizzleGenreRepository implements GenreRepository {

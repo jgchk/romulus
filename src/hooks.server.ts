@@ -2,10 +2,10 @@ import type { Handle } from '@sveltejs/kit'
 
 import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
-import { MusicCatalogService } from '$lib/server/ddd/application/services/music-catalog-service'
-import { DrizzleArtistRepository } from '$lib/server/ddd/infrastructure/repositories/artist/drizzle-artist-repository'
-import { DrizzleReleaseRepository } from '$lib/server/ddd/infrastructure/repositories/release/drizzle-release-repository'
-import { DrizzleTrackRepository } from '$lib/server/ddd/infrastructure/repositories/track/drizzle-track-repository'
+import { MusicCatalogService } from '$lib/server/ddd/features/music-catalog/application/music-catalog-service'
+import { DrizzleArtistRepository } from '$lib/server/ddd/features/music-catalog/infrastructure/artist/drizzle-artist-repository'
+import { DrizzleReleaseRepository } from '$lib/server/ddd/features/music-catalog/infrastructure/release/drizzle-release-repository'
+import { DrizzleTrackRepository } from '$lib/server/ddd/features/music-catalog/infrastructure/track/drizzle-track-repository'
 
 const pg = getPostgresConnection()
 

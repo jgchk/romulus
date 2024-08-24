@@ -1,7 +1,7 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { trackArtists, tracks } from '$lib/server/db/schema'
-import type { Track } from '$lib/server/ddd/domain/track'
 
+import type { Track } from '../../domain/track'
 import type { TrackRepository } from './track-repository'
 
 export class DrizzleTrackRepository implements TrackRepository {

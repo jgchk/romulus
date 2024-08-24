@@ -1,10 +1,10 @@
 import { NotFoundError } from '$lib/server/api/genres/types'
 import { GenreCycleError, NoUpdatesError, SelfInfluenceError } from '$lib/server/api/genres/update'
 
-import { type GenreUpdate } from '../../domain/genre'
-import { GenreHistory } from '../../domain/genre-history'
-import type { GenreRepository } from '../../infrastructure/repositories/genre/genre-repository'
-import type { GenreHistoryRepository } from '../../infrastructure/repositories/genre-history/genre-history-repository'
+import { type GenreUpdate } from '../domain/genre'
+import { GenreHistory } from '../domain/genre-history'
+import type { GenreRepository } from '../infrastructure/genre/genre-repository'
+import type { GenreHistoryRepository } from '../infrastructure/genre-history/genre-history-repository'
 
 export type CreateRelease = {
   title: string
