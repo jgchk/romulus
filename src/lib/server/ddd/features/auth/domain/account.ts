@@ -46,19 +46,4 @@ export class CreatedAccount extends NewAccount {
     super(props)
     this.id = id
   }
-
-  static fromNewAccount(id: number, newAccount: NewAccount): CreatedAccount {
-    return new CreatedAccount(id, {
-      username: newAccount.username,
-      passwordHash: newAccount.passwordHash,
-      darkMode: newAccount.darkMode,
-      permissions: newAccount.permissions,
-      genreRelevanceFilter: newAccount.genreRelevanceFilter,
-      showRelevanceTags: newAccount.showRelevanceTags,
-      showTypeTags: newAccount.showTypeTags,
-      showNsfw: newAccount.showNsfw,
-      createdAt: newAccount.createdAt,
-      updatedAt: newAccount.updatedAt,
-    })
-  }
 }
