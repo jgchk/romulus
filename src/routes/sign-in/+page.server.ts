@@ -3,8 +3,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { checkPassword, hashPassword } from '$lib/server/auth'
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
+import { InvalidLoginError } from '$lib/server/ddd/features/auth/application/auth-service'
 
 import type { PageServerLoad } from './$types'
 
@@ -30,22 +29,15 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const accountsDb = new AccountsDatabase()
-    const account = await accountsDb.findByUsername(form.data.username, locals.dbConnection)
-    if (!account) {
-      // spend some time to "waste" some time
-      // this makes brute forcing harder
-      await hashPassword(form.data.password)
+    const maybeSessionCookie = await locals.services.authService.login(
+      form.data.username,
+      form.data.password,
+    )
+    if (maybeSessionCookie instanceof InvalidLoginError) {
       return setError(form, 'Incorrect username or password')
     }
+    const sessionCookie = maybeSessionCookie
 
-    const validPassword = await checkPassword(form.data.password, account.password)
-    if (!validPassword) {
-      return setError(form, 'Incorrect username or password')
-    }
-
-    const session = await locals.lucia.createSession(account.id, {})
-    const sessionCookie = locals.lucia.createSessionCookie(session.id)
     cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,

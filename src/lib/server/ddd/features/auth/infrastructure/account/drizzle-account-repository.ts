@@ -3,11 +3,33 @@ import Postgres from 'postgres'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts } from '$lib/server/db/schema'
 
-import type { Account } from '../../domain/account'
+import { Account } from '../../domain/account'
 import { type AccountRepository, NonUniqueUsernameError } from './account-repository'
 
 export class DrizzleAccountRepository implements AccountRepository {
   constructor(private db: IDrizzleConnection) {}
+
+  async findByUsername(username: string): Promise<(Account & { id: number }) | undefined> {
+    const entry = await this.db.query.accounts.findFirst({
+      where: (accounts, { eq }) => eq(accounts.username, username),
+    })
+    if (!entry) return
+
+    const account = new Account({
+      username: entry.username,
+      passwordHash: entry.password,
+      darkMode: entry.darkMode,
+      permissions: entry.permissions ?? [],
+      genreRelevanceFilter: entry.genreRelevanceFilter,
+      showRelevanceTags: entry.showRelevanceTags,
+      showTypeTags: entry.showTypeTags,
+      showNsfw: entry.showNsfw,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    })
+
+    return { ...account, id: entry.id }
+  }
 
   async create(account: Account): Promise<number | NonUniqueUsernameError> {
     try {

@@ -7,5 +7,6 @@ export class NonUniqueUsernameError extends Error {
 }
 
 export type AccountRepository = {
+  findByUsername(username: string): Promise<(Account & { id: number }) | undefined>
   create(account: Account): Promise<number | NonUniqueUsernameError>
 }
