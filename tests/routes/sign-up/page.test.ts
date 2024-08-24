@@ -2,7 +2,6 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
-import { SignInPage } from '../../fixtures/pages/sign-in'
 import { deleteAccounts } from '../../utils'
 
 const EXISTING_ACCOUNT = {
