@@ -1,6 +1,6 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { releaseArtists, releases, releaseTracks } from '$lib/server/db/schema'
-import type { Release } from '$lib/server/ddd/domain/release/release'
+import type { Release } from '$lib/server/ddd/domain/release'
 
 import type { ReleaseRepository } from './release-repository'
 

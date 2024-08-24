@@ -1,4 +1,4 @@
-import type { Track } from '../../../domain/track/track'
+import type { Track } from '../../../domain/track'
 
 export type TrackRepository = {
   create(track: Track): Promise<number>
