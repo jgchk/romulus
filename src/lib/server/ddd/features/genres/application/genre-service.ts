@@ -25,28 +25,28 @@ export class GenreService {
       throw new NotFoundError()
     }
 
-    genre.update(data)
+    const updatedGenre = genre.withUpdate(data)
 
-    if (genre.doesInfluenceSelf()) {
+    if (updatedGenre.doesInfluenceSelf()) {
       throw new SelfInfluenceError()
     }
 
     const lastGenreHistory = await this.genreHistoryRepo.findLatestByGenreId(id)
-    if (lastGenreHistory && !genre.isChangedFrom(lastGenreHistory)) {
+    if (lastGenreHistory && !updatedGenre.isChangedFrom(lastGenreHistory)) {
       throw new NoUpdatesError()
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
-    genreTree.updateGenre(id, genre)
+    genreTree.updateGenre(id, updatedGenre)
 
     const cycle = genreTree.findCycle()
     if (cycle) {
       throw new GenreCycleError(cycle)
     }
 
-    await this.genreRepo.update(id, genre)
+    await this.genreRepo.update(id, updatedGenre)
 
-    const genreHistory = GenreHistory.fromGenre(genre, 'UPDATE', accountId)
+    const genreHistory = GenreHistory.fromGenre(updatedGenre, 'UPDATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
   }
 }
