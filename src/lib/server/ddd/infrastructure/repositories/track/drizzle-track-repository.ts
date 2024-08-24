@@ -4,7 +4,7 @@ import type { Track } from '$lib/server/ddd/domain/track/track'
 
 import type { TrackRepository } from './track-repository'
 
-export default class DrizzleReleaseRepository implements TrackRepository {
+export class DrizzleTrackRepository implements TrackRepository {
   constructor(private db: IDrizzleConnection) {}
 
   async create(track: Track): Promise<number> {

@@ -3,7 +3,7 @@ import { Track } from '../../domain/track/track'
 import type { ReleaseRepository } from '../../infrastructure/repositories/release/release-repository'
 import type { TrackRepository } from '../../infrastructure/repositories/track/track-repository'
 
-export type CreateReleaseWithTracksInput = {
+export type CreateRelease = {
   title: string
   art?: string
   artists: number[]
@@ -16,7 +16,7 @@ export class MusicCatalogService {
     private trackRepo: TrackRepository,
   ) {}
 
-  async createReleaseWithTracks(input: CreateReleaseWithTracksInput): Promise<number> {
+  async createRelease(input: CreateRelease): Promise<number> {
     const release = new Release(input.title, input.art)
 
     for (const artist of input.artists) {

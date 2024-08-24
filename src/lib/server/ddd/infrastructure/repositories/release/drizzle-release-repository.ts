@@ -4,7 +4,7 @@ import type { Release } from '$lib/server/ddd/domain/release/release'
 
 import type { ReleaseRepository } from './release-repository'
 
-export default class DrizzleReleaseRepository implements ReleaseRepository {
+export class DrizzleReleaseRepository implements ReleaseRepository {
   constructor(private db: IDrizzleConnection) {}
 
   async create(release: Release): Promise<number> {
