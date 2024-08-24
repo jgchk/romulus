@@ -26,7 +26,7 @@ export class GenreService {
     }
 
     const updatedGenre = genre.withUpdate(data)
-    if (updatedGenre.doesInfluenceSelf()) {
+    if (updatedGenre.hasSelfInfluence()) {
       throw new SelfInfluenceError()
     }
 

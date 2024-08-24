@@ -110,7 +110,7 @@ export class Genre {
     })
   }
 
-  doesInfluenceSelf(): boolean {
+  hasSelfInfluence(): boolean {
     return this.influences.has(this.id)
   }
 
