@@ -2,10 +2,17 @@ import { describe, expect } from 'vitest'
 
 import { createLucia } from '$lib/server/auth'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { passwordResetTokens } from '$lib/server/db/schema'
 
 import { test } from '../../../../../../vitest-setup'
-import { AuthService, InvalidLoginError } from '../application/auth-service'
+import {
+  AuthService,
+  ExpiredPasswordResetTokenError,
+  InvalidLoginError,
+  PasswordResetTokenNotFoundError,
+} from '../application/auth-service'
 import { Cookie } from '../domain/cookie'
+import { PasswordResetToken } from '../domain/password-reset-token'
 import { NonUniqueUsernameError } from '../infrastructure/account/account-repository'
 import { DrizzleAccountRepository } from '../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../infrastructure/hash/bcrypt-hash-repository'
@@ -206,5 +213,78 @@ describe('logout', () => {
 
     expect(result).toBeInstanceOf(Cookie)
     expect(result.value).toBe('') // Expect an empty cookie value
+  })
+})
+
+describe('checkPasswordResetToken', () => {
+  test('should return valid PasswordResetToken for a valid token', async ({ dbConnection }) => {
+    const authService = setupAuthService(dbConnection)
+    const accountRepo = new DrizzleAccountRepository(dbConnection)
+    const sha256HashRepo = new Sha256HashRepository()
+
+    // Create a user
+    await authService.register('testuser', 'password123')
+    const user = await accountRepo.findByUsername('testuser')
+    if (!user) {
+      expect.fail('User not found')
+    }
+
+    // Create a password reset token
+    const token = 'valid_token'
+    const tokenHash = await sha256HashRepo.hash(token)
+    const expiresAt = new Date(Date.now() + 3600000) // 1 hour from now
+    await dbConnection.insert(passwordResetTokens).values({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    })
+
+    // Check the token
+    const result = await authService.checkPasswordResetToken(token)
+
+    expect(result).toBeInstanceOf(PasswordResetToken)
+    expect((result as PasswordResetToken).accountId).toBe(user.id)
+    expect((result as PasswordResetToken).tokenHash).toBe(tokenHash)
+    expect((result as PasswordResetToken).expiresAt).toEqual(expiresAt)
+  })
+
+  test('should return PasswordResetTokenNotFoundError for a non-existent token', async ({
+    dbConnection,
+  }) => {
+    const authService = setupAuthService(dbConnection)
+
+    const result = await authService.checkPasswordResetToken('non_existent_token')
+
+    expect(result).toBeInstanceOf(PasswordResetTokenNotFoundError)
+  })
+
+  test('should return ExpiredPasswordResetTokenError for an expired token', async ({
+    dbConnection,
+  }) => {
+    const authService = setupAuthService(dbConnection)
+    const accountRepo = new DrizzleAccountRepository(dbConnection)
+    const sha256HashRepo = new Sha256HashRepository()
+
+    // Create a user
+    await authService.register('testuser', 'password123')
+    const user = await accountRepo.findByUsername('testuser')
+    if (!user) {
+      expect.fail('User not found')
+    }
+
+    // Create an expired password reset token
+    const token = 'expired_token'
+    const tokenHash = await sha256HashRepo.hash(token)
+    const expiresAt = new Date(Date.now() - 1000) // 1 second ago
+    await dbConnection.insert(passwordResetTokens).values({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    })
+
+    // Check the token
+    const result = await authService.checkPasswordResetToken(token)
+
+    expect(result).toBeInstanceOf(ExpiredPasswordResetTokenError)
   })
 })
