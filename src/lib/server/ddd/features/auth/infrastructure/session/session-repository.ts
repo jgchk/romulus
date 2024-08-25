@@ -1,8 +1,9 @@
 import type { Cookie } from '../../domain/cookie'
-import type { Session } from '../../domain/session'
+import type { CreatedSession, NewSession } from '../../domain/session'
 
 export type SessionRepository = {
-  create(session: Session): Promise<string>
+  findById(sessionId: string): Promise<CreatedSession | undefined>
+  create(session: NewSession): Promise<string>
   delete(sessionId: string): Promise<void>
   deleteAllForAccount(accountId: number): Promise<void>
 

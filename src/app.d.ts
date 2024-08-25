@@ -12,7 +12,7 @@ declare global {
         genreService: import('$lib/server/ddd/features/genres/application/genre-service').GenreService
       }
       user: import('lucia').User | undefined
-      session: import('lucia').Session | undefined
+      session: Pick<import('lucia').Session, 'id'> | undefined
       lucia: import('$lib/server/auth').AppLucia
     }
     // interface PageData {}

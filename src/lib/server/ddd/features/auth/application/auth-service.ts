@@ -1,7 +1,9 @@
+import type { CreatedAccount } from '../domain/account'
 import { NewAccount } from '../domain/account'
 import type { Cookie } from '../domain/cookie'
 import type { PasswordResetToken } from '../domain/password-reset-token'
-import { Session } from '../domain/session'
+import type { CreatedSession } from '../domain/session'
+import { NewSession } from '../domain/session'
 import {
   type AccountRepository,
   NonUniqueUsernameError,
@@ -55,7 +57,7 @@ export class AuthService {
     }
     const accountId = maybeAccountId
 
-    const session = new Session(accountId)
+    const session = new NewSession(accountId)
     const sessionId = await this.sessionRepo.create(session)
 
     const cookie = this.sessionRepo.createCookie(sessionId)
@@ -77,7 +79,7 @@ export class AuthService {
       return new InvalidLoginError()
     }
 
-    const session = new Session(account.id)
+    const session = new NewSession(account.id)
     const sessionId = await this.sessionRepo.create(session)
 
     const cookie = this.sessionRepo.createCookie(sessionId)
@@ -91,6 +93,40 @@ export class AuthService {
     const cookie = this.sessionRepo.createCookie(undefined)
 
     return cookie
+  }
+
+  async validateSession(sessionId: string | undefined): Promise<{
+    account: CreatedAccount | undefined
+    session: CreatedSession | undefined
+    cookie: Cookie | undefined
+  }> {
+    if (!sessionId) {
+      return { account: undefined, session: undefined, cookie: undefined }
+    }
+
+    const session = await this.sessionRepo.findById(sessionId)
+
+    if (!session) {
+      // Session was not found, clear the cookie
+      const cookie = this.sessionRepo.createCookie(undefined)
+      return { account: undefined, session: undefined, cookie }
+    }
+
+    const account = await this.accountRepo.findById(session.accountId)
+    if (!account) {
+      // Session was found, but account was not, clear the cookie
+      const cookie = this.sessionRepo.createCookie(undefined)
+      return { account: undefined, session: undefined, cookie }
+    }
+
+    if (session.wasJustExtended) {
+      // Session was found and extended, update the cookie
+      const cookie = this.sessionRepo.createCookie(session.id)
+      return { account, session, cookie }
+    }
+
+    // Session was found and doesn't need updated
+    return { account, session, cookie: undefined }
   }
 
   async checkPasswordResetToken(
@@ -129,7 +165,7 @@ export class AuthService {
 
     await this.passwordResetTokenRepo.deleteByTokenHash(passwordResetToken.tokenHash)
 
-    const session = new Session(account.id)
+    const session = new NewSession(account.id)
     const sessionId = await this.sessionRepo.create(session)
 
     const cookie = this.sessionRepo.createCookie(sessionId)

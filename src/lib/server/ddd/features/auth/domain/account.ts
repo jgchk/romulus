@@ -1,6 +1,6 @@
-type Permission = 'EDIT_GENRES' | 'EDIT_RELEASES' | 'EDIT_ARTISTS'
+export type Permission = 'EDIT_GENRES' | 'EDIT_RELEASES' | 'EDIT_ARTISTS'
 
-type AccountProps = {
+export type AccountProps = {
   username: string
   passwordHash: string
   darkMode?: boolean
@@ -45,6 +45,21 @@ export class NewAccount {
       updatedAt: new Date(),
     })
   }
+
+  unmarshal(): AccountProps {
+    return {
+      username: this.username,
+      passwordHash: this.passwordHash,
+      darkMode: this.darkMode,
+      permissions: this.permissions,
+      genreRelevanceFilter: this.genreRelevanceFilter,
+      showRelevanceTags: this.showRelevanceTags,
+      showTypeTags: this.showTypeTags,
+      showNsfw: this.showNsfw,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
+  }
 }
 
 export class CreatedAccount extends NewAccount {
@@ -53,5 +68,12 @@ export class CreatedAccount extends NewAccount {
   constructor(id: number, props: AccountProps) {
     super(props)
     this.id = id
+  }
+
+  unmarshal(): AccountProps & { id: number } {
+    return {
+      ...super.unmarshal(),
+      id: this.id,
+    }
   }
 }

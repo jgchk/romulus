@@ -56,26 +56,29 @@ export const handle: Handle = async ({ event, resolve }) => {
     return resolve(event)
   }
 
-  const { session, user } = await lucia.validateSession(sessionId)
+  const { account, session, cookie } =
+    await event.locals.services.authService.validateSession(sessionId)
 
-  if (session?.fresh) {
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    event.cookies.set(sessionCookie.name, sessionCookie.value, {
+  event.locals.user =
+    account === undefined
+      ? undefined
+      : {
+          ...account,
+          permissions: [...account.permissions],
+        }
+  event.locals.session =
+    session === undefined
+      ? undefined
+      : {
+          id: session.id,
+        }
+
+  if (cookie) {
+    event.cookies.set(cookie.name, cookie.value, {
       path: '.',
-      ...sessionCookie.attributes,
+      ...cookie.attributes,
     })
   }
-
-  if (!session) {
-    const sessionCookie = lucia.createBlankSessionCookie()
-    event.cookies.set(sessionCookie.name, sessionCookie.value, {
-      path: '.',
-      ...sessionCookie.attributes,
-    })
-  }
-
-  event.locals.user = user ?? undefined
-  event.locals.session = session ?? undefined
 
   const response = await resolve(event)
 
