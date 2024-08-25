@@ -95,7 +95,9 @@ export class AuthService {
 
   async checkPasswordResetToken(
     verificationToken: string,
-  ): Promise<PasswordResetToken | ExpiredPasswordResetTokenError> {
+  ): Promise<
+    PasswordResetToken | PasswordResetTokenNotFoundError | ExpiredPasswordResetTokenError
+  > {
     const tokenHash = await this.passwordResetTokenHashRepo.hash(verificationToken)
     const token = await this.passwordResetTokenRepo.findByTokenHash(tokenHash)
 
