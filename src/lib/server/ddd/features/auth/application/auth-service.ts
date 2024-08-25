@@ -121,9 +121,7 @@ export class AuthService {
       return new AccountNotFoundError(passwordResetToken.accountId)
     }
 
-    const updatedAccount = account.withUpdate({
-      passwordHash: await this.passwordHashRepo.hash(newPassword),
-    })
+    const updatedAccount = account.resetPassword(await this.passwordHashRepo.hash(newPassword))
     await this.accountRepo.update(passwordResetToken.accountId, updatedAccount)
 
     // Sign out the account everywhere
