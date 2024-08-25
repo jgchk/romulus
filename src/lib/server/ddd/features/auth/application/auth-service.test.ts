@@ -73,7 +73,18 @@ test('should hash the password before storing', async ({ dbConnection }) => {
 test('should create a session for the new user', async ({ dbConnection }) => {
   const authService = setupAuthService(dbConnection)
 
-  const result = await authService.register('sessionuser', 'password123')
+  await authService.register('sessionuser', 'password123')
 
-  expect(result).toBeInstanceOf(Cookie)
+  const createdAccount = await dbConnection.query.accounts.findFirst({
+    where: (accounts, { eq }) => eq(accounts.username, 'sessionuser'),
+  })
+  if (!createdAccount) {
+    expect.fail('Account not found')
+  }
+
+  const createdSession = await dbConnection.query.sessions.findFirst({
+    where: (sessions, { eq }) => eq(sessions.userId, createdAccount.id),
+  })
+
+  expect(createdSession).toBeDefined()
 })
