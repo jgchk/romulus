@@ -42,6 +42,7 @@ export class NewAccount {
     return new NewAccount({
       ...this,
       passwordHash: newPasswordHash,
+      updatedAt: new Date(),
     })
   }
 }
