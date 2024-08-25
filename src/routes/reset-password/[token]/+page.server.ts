@@ -1,24 +1,23 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { isWithinExpirationDate } from 'oslo'
-import { sha256 } from 'oslo/crypto'
-import { encodeHex } from 'oslo/encoding'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { passwordSchema } from '$lib/server/auth'
-import { PasswordResetTokensDatabase } from '$lib/server/db/controllers/password-reset-tokens'
-import { AccountNotFoundError } from '$lib/server/ddd/features/auth/application/auth-service'
+import {
+  AccountNotFoundError,
+  ExpiredPasswordResetTokenError,
+  PasswordResetTokenNotFoundError,
+} from '$lib/server/ddd/features/auth/application/auth-service'
 
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-  const verificationToken = params.token
-  const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
-
-  const passwordResetTokensDb = new PasswordResetTokensDatabase()
-  const token = await passwordResetTokensDb.findByTokenHash(tokenHash, locals.dbConnection)
-
-  if (!token || !isWithinExpirationDate(token.expiresAt)) {
+  const maybeToken = await locals.services.authService.checkPasswordResetToken(params.token)
+  if (
+    maybeToken instanceof PasswordResetTokenNotFoundError ||
+    maybeToken instanceof ExpiredPasswordResetTokenError
+  ) {
+    // Don't indicate whether the token is invalid or expired for security
     return error(400, 'Invalid or expired token')
   }
 
@@ -35,20 +34,22 @@ export const actions: Actions = {
     }
 
     const verificationToken = params.token
-    const tokenHash = encodeHex(await sha256(new TextEncoder().encode(verificationToken)))
-
-    const passwordResetTokensDb = new PasswordResetTokensDatabase()
-    const token = await passwordResetTokensDb.findByTokenHash(tokenHash, locals.dbConnection)
-    if (token) {
-      await passwordResetTokensDb.deleteByTokenHash(tokenHash, locals.dbConnection)
+    if (verificationToken === undefined) {
+      return error(400, 'Password reset token is required')
     }
 
-    if (!token || !isWithinExpirationDate(token.expiresAt)) {
+    const maybeToken = await locals.services.authService.checkPasswordResetToken(verificationToken)
+    if (
+      maybeToken instanceof PasswordResetTokenNotFoundError ||
+      maybeToken instanceof ExpiredPasswordResetTokenError
+    ) {
+      // Don't indicate whether the token is invalid or expired for security
       return error(400, 'Invalid or expired token')
     }
+    const token = maybeToken
 
     const maybeSessionCookie = await locals.services.authService.resetPassword(
-      token.userId,
+      token,
       form.data.password,
     )
     if (maybeSessionCookie instanceof AccountNotFoundError) {
