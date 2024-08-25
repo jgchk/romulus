@@ -4,6 +4,8 @@ import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 import { AuthService } from '$lib/server/ddd/features/auth/application/auth-service'
 import { DrizzleAccountRepository } from '$lib/server/ddd/features/auth/infrastructure/account/drizzle-account-repository'
+import { BcryptHashRepository } from '$lib/server/ddd/features/auth/infrastructure/hash/bcrypt-hash-repository'
+import { Sha256HashRepository } from '$lib/server/ddd/features/auth/infrastructure/hash/sha256-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/ddd/features/auth/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
 import { LuciaSessionRepository } from '$lib/server/ddd/features/auth/infrastructure/session/lucia-session-repository'
 import { GenreService } from '$lib/server/ddd/features/genres/application/genre-service'
@@ -32,6 +34,8 @@ export const handle: Handle = async ({ event, resolve }) => {
       new DrizzleAccountRepository(dbConnection),
       new LuciaSessionRepository(lucia),
       new DrizzlePasswordResetTokenRepository(dbConnection),
+      new BcryptHashRepository(),
+      new Sha256HashRepository(),
     ),
     musicCatalogService: new MusicCatalogService(
       new DrizzleArtistRepository(dbConnection),

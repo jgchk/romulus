@@ -1,7 +1,3 @@
-import bcryptjs from 'bcryptjs'
-import { sha256 } from 'oslo/crypto'
-import { encodeHex } from 'oslo/encoding'
-
 import { NewAccount } from '../domain/account'
 import type { Cookie } from '../domain/cookie'
 import type { PasswordResetToken } from '../domain/password-reset-token'
@@ -10,6 +6,7 @@ import {
   type AccountRepository,
   NonUniqueUsernameError,
 } from '../infrastructure/account/account-repository'
+import type { HashRepository } from '../infrastructure/hash/hash-repository'
 import type { PasswordResetTokenRepository } from '../infrastructure/password-reset-token/password-reset-token-repository'
 import type { SessionRepository } from '../infrastructure/session/session-repository'
 
@@ -42,12 +39,14 @@ export class AuthService {
     private accountRepo: AccountRepository,
     private sessionRepo: SessionRepository,
     private passwordResetTokenRepo: PasswordResetTokenRepository,
+    private passwordHashRepo: HashRepository,
+    private passwordResetTokenHashRepo: HashRepository,
   ) {}
 
   async register(username: string, password: string): Promise<Cookie | NonUniqueUsernameError> {
     const account = new NewAccount({
       username,
-      passwordHash: await this.hashPassword(password),
+      passwordHash: await this.passwordHashRepo.hash(password),
     })
 
     const maybeAccountId = await this.accountRepo.create(account)
@@ -69,11 +68,11 @@ export class AuthService {
     if (!account) {
       // spend some time to "waste" some time
       // this makes brute forcing harder
-      await this.hashPassword(password)
+      await this.passwordHashRepo.hash(password)
       return new InvalidLoginError()
     }
 
-    const validPassword = await this.checkPassword(password, account.passwordHash)
+    const validPassword = await this.passwordHashRepo.compare(password, account.passwordHash)
     if (!validPassword) {
       return new InvalidLoginError()
     }
@@ -97,7 +96,7 @@ export class AuthService {
   async checkPasswordResetToken(
     verificationToken: string,
   ): Promise<PasswordResetToken | ExpiredPasswordResetTokenError> {
-    const tokenHash = await this.hashPasswordResetToken(verificationToken)
+    const tokenHash = await this.passwordResetTokenHashRepo.hash(verificationToken)
     const token = await this.passwordResetTokenRepo.findByTokenHash(tokenHash)
 
     if (!token) {
@@ -121,7 +120,7 @@ export class AuthService {
     }
 
     const updatedAccount = account.withUpdate({
-      passwordHash: await this.hashPassword(newPassword),
+      passwordHash: await this.passwordHashRepo.hash(newPassword),
     })
     await this.accountRepo.update(passwordResetToken.accountId, updatedAccount)
 
@@ -136,17 +135,5 @@ export class AuthService {
     const cookie = this.sessionRepo.createCookie(sessionId)
 
     return cookie
-  }
-
-  private hashPassword(password: string): Promise<string> {
-    return bcryptjs.hash(password, 12)
-  }
-
-  private checkPassword(password: string, hash: string): Promise<boolean> {
-    return bcryptjs.compare(password, hash)
-  }
-
-  private async hashPasswordResetToken(token: string): Promise<string> {
-    return encodeHex(await sha256(new TextEncoder().encode(token)))
   }
 }
