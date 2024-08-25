@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import Postgres from 'postgres'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts } from '$lib/server/db/schema'
@@ -77,11 +76,7 @@ export class DrizzleAccountRepository implements AccountRepository {
 
       return accountId
     } catch (error) {
-      if (
-        error instanceof Postgres.PostgresError &&
-        error.code === '23505' &&
-        error.constraint_name === 'Account_username_unique'
-      ) {
+      if (isPostgresError(error, '23505', 'Account_username_unique')) {
         return new NonUniqueUsernameError(account.username)
       }
       throw error
@@ -104,4 +99,15 @@ export class DrizzleAccountRepository implements AccountRepository {
       })
       .where(eq(accounts.id, id))
   }
+}
+
+function isPostgresError(error: unknown, code: string, constraint: string): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === code &&
+    (('constraint' in error && error.constraint === constraint) ||
+      ('constraint_name' in error && error.constraint_name === constraint))
+  )
 }
