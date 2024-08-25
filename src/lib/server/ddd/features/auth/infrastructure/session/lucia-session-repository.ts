@@ -20,8 +20,12 @@ export class LuciaSessionRepository implements SessionRepository {
     await this.lucia.invalidateUserSessions(accountId)
   }
 
-  createCookie(sessionId: string): Cookie {
-    const sessionCookie = this.lucia.createSessionCookie(sessionId)
+  createCookie(sessionId: string | undefined): Cookie {
+    const sessionCookie =
+      sessionId === undefined
+        ? this.lucia.createBlankSessionCookie()
+        : this.lucia.createSessionCookie(sessionId)
+
     return new Cookie(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
   }
 }
