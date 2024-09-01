@@ -31,7 +31,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.lucia = lucia
 
   event.locals.services = {
-    authService: new AuthenticationService(
+    authentication: new AuthenticationService(
       new DrizzleAccountRepository(dbConnection),
       new LuciaSessionRepository(lucia),
       new DrizzlePasswordResetTokenRepository(dbConnection),
@@ -59,7 +59,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   const { account, session, cookie } =
-    await event.locals.services.authService.validateSession(sessionId)
+    await event.locals.services.authentication.validateSession(sessionId)
 
   event.locals.user =
     account === undefined

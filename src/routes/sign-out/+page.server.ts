@@ -6,7 +6,7 @@ export const actions: Actions = {
       return fail(401)
     }
 
-    const blankSessionCookie = await locals.services.authService.logout(locals.session.id)
+    const blankSessionCookie = await locals.services.authentication.logout(locals.session.id)
 
     cookies.set(blankSessionCookie.name, blankSessionCookie.value, {
       path: '.',

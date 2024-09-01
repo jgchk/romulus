@@ -51,7 +51,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const verificationToken = await locals.services.authService.requestPasswordReset(id)
+    const verificationToken = await locals.services.authentication.requestPasswordReset(id)
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }

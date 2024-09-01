@@ -10,7 +10,7 @@ import { passwordSchema } from '$lib/server/layers/features/authentication/prese
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-  const maybeToken = await locals.services.authService.checkPasswordResetToken(params.token)
+  const maybeToken = await locals.services.authentication.checkPasswordResetToken(params.token)
   if (
     maybeToken instanceof PasswordResetTokenNotFoundError ||
     maybeToken instanceof PasswordResetTokenExpiredError
@@ -36,7 +36,8 @@ export const actions: Actions = {
       return error(400, 'Password reset token is required')
     }
 
-    const maybeToken = await locals.services.authService.checkPasswordResetToken(verificationToken)
+    const maybeToken =
+      await locals.services.authentication.checkPasswordResetToken(verificationToken)
     if (
       maybeToken instanceof PasswordResetTokenNotFoundError ||
       maybeToken instanceof PasswordResetTokenExpiredError
@@ -46,7 +47,7 @@ export const actions: Actions = {
     }
     const token = maybeToken
 
-    const maybeSessionCookie = await locals.services.authService.resetPassword(
+    const maybeSessionCookie = await locals.services.authentication.resetPassword(
       token,
       form.data.password,
     )

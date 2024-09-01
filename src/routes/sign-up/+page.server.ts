@@ -27,7 +27,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.services.authService.register(
+    const maybeSessionCookie = await locals.services.authentication.register(
       form.data.username,
       form.data.password.password,
     )
