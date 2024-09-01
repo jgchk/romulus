@@ -7,7 +7,7 @@ declare global {
     interface Locals {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       services: {
-        authService: import('$lib/server/layers/features/auth/application/auth-service').AuthService
+        authService: import('$lib/server/layers/features/authentication/application/auth-service').AuthService
         musicCatalogService: import('$lib/server/layers/features/music-catalog/application/music-catalog-service').MusicCatalogService
         genreService: import('$lib/server/layers/features/genres/application/genre-service').GenreService
       }
