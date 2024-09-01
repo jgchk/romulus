@@ -20,7 +20,7 @@ import type { NonUniqueUsernameError } from './errors/non-unique-username'
 import type { PasswordResetTokenExpiredError } from './errors/password-reset-token-expired'
 import type { PasswordResetTokenNotFoundError } from './errors/password-reset-token-not-found'
 
-export class AuthService {
+export class AuthenticationService {
   registerCommand: RegisterCommand
   loginCommand: LoginCommand
   logoutCommand: LogoutCommand

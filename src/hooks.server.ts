@@ -2,7 +2,7 @@ import type { Handle } from '@sveltejs/kit'
 
 import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
-import { AuthService } from '$lib/server/layers/features/authentication/application/auth-service'
+import { AuthenticationService } from '$lib/server/layers/features/authentication/application/authentication-service'
 import { DrizzleAccountRepository } from '$lib/server/layers/features/authentication/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { Sha256HashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/sha256-hash-repository'
@@ -31,7 +31,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.lucia = lucia
 
   event.locals.services = {
-    authService: new AuthService(
+    authService: new AuthenticationService(
       new DrizzleAccountRepository(dbConnection),
       new LuciaSessionRepository(lucia),
       new DrizzlePasswordResetTokenRepository(dbConnection),
