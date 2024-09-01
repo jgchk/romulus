@@ -9,7 +9,10 @@ declare global {
       services: {
         api: import('$lib/server/features/api/application/api-service').ApiService
         authentication: import('$lib/server/features/authentication/application/authentication-service').AuthenticationService
-        musicCatalog: import('$lib/server/features/music-catalog/application/music-catalog-service').MusicCatalogService
+        musicCatalog: {
+          commands: import('$lib/server/features/music-catalog/commands/command-service').MusicCatalogCommandService
+          queries: import('$lib/server/features/music-catalog/queries/query-service').MusicCatalogQueryService
+        }
         genre: import('$lib/server/features/genres/application/genre-service').GenreService
       }
       user: import('lucia').User | undefined

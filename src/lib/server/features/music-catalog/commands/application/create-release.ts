@@ -1,7 +1,7 @@
-import { Release } from '../../domain/entities/release'
-import { Track } from '../../domain/entities/track'
-import type { ReleaseRepository } from '../../domain/repositories/release-repository'
-import type { TrackRepository } from '../../domain/repositories/track-repository'
+import { Release } from '../domain/entities/release'
+import { Track } from '../domain/entities/track'
+import type { ReleaseRepository } from '../domain/repositories/release-repository'
+import type { TrackRepository } from '../domain/repositories/track-repository'
 
 export type CreateRelease = {
   title: string

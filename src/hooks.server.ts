@@ -14,10 +14,11 @@ import { Sha256HashRepository } from '$lib/server/features/common/infrastructure
 import { GenreService } from '$lib/server/features/genres/application/genre-service'
 import { DrizzleGenreRepository } from '$lib/server/features/genres/infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '$lib/server/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
-import { MusicCatalogService } from '$lib/server/features/music-catalog/application/music-catalog-service'
-import { DrizzleArtistRepository } from '$lib/server/features/music-catalog/infrastructure/artist/drizzle-artist-repository'
-import { DrizzleReleaseRepository } from '$lib/server/features/music-catalog/infrastructure/release/drizzle-release-repository'
-import { DrizzleTrackRepository } from '$lib/server/features/music-catalog/infrastructure/track/drizzle-track-repository'
+import { MusicCatalogCommandService } from '$lib/server/features/music-catalog/commands/command-service'
+import { DrizzleArtistRepository } from '$lib/server/features/music-catalog/commands/infrastructure/artist/drizzle-artist-repository'
+import { DrizzleReleaseRepository } from '$lib/server/features/music-catalog/commands/infrastructure/release/drizzle-release-repository'
+import { DrizzleTrackRepository } from '$lib/server/features/music-catalog/commands/infrastructure/track/drizzle-track-repository'
+import { MusicCatalogQueryService } from '$lib/server/features/music-catalog/queries/query-service'
 
 const pg = getPostgresConnection()
 
@@ -41,11 +42,14 @@ export const handle: Handle = async ({ event, resolve }) => {
       new Sha256HashRepository(),
       new CryptoTokenGenerator(),
     ),
-    musicCatalog: new MusicCatalogService(
-      new DrizzleArtistRepository(dbConnection),
-      new DrizzleReleaseRepository(dbConnection),
-      new DrizzleTrackRepository(dbConnection),
-    ),
+    musicCatalog: {
+      commands: new MusicCatalogCommandService(
+        new DrizzleArtistRepository(dbConnection),
+        new DrizzleReleaseRepository(dbConnection),
+        new DrizzleTrackRepository(dbConnection),
+      ),
+      queries: new MusicCatalogQueryService(dbConnection),
+    },
     genre: new GenreService(
       new DrizzleGenreRepository(dbConnection),
       new DrizzleGenreHistoryRepository(dbConnection),

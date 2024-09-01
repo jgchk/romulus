@@ -26,7 +26,7 @@ export const actions: Actions = {
     }
     const name = maybeName.data
 
-    const artistId = await locals.services.musicCatalog.createArtist(name)
+    const artistId = await locals.services.musicCatalog.commands.createArtist(name)
 
     return redirect(302, `/artists/${artistId}`)
   },

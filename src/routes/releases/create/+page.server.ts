@@ -40,7 +40,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const releaseId = await locals.services.musicCatalog.createRelease(form.data)
+    const releaseId = await locals.services.musicCatalog.commands.createRelease(form.data)
 
     return redirect(302, `/releases/${releaseId}`)
   },

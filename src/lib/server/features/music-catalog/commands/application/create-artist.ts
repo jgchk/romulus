@@ -1,5 +1,5 @@
-import { Artist } from '../../domain/entities/artist'
-import type { ArtistRepository } from '../../domain/repositories/artist-repository'
+import { Artist } from '../domain/entities/artist'
+import type { ArtistRepository } from '../domain/repositories/artist-repository'
 
 export class CreateArtistCommand {
   constructor(private artistRepo: ArtistRepository) {}
