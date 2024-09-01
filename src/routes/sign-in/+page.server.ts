@@ -3,7 +3,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { InvalidLoginError } from '$lib/server/ddd/features/auth/application/errors/invalid-login'
+import { InvalidLoginError } from '$lib/server/layers/features/auth/application/errors/invalid-login'
 
 import type { PageServerLoad } from './$types'
 

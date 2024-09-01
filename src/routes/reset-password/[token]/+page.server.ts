@@ -3,9 +3,9 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { passwordSchema } from '$lib/server/auth'
-import { AccountNotFoundError } from '$lib/server/ddd/features/auth/application/errors/account-not-found'
-import { PasswordResetTokenExpiredError } from '$lib/server/ddd/features/auth/application/errors/password-reset-token-expired'
-import { PasswordResetTokenNotFoundError } from '$lib/server/ddd/features/auth/application/errors/password-reset-token-not-found'
+import { AccountNotFoundError } from '$lib/server/layers/features/auth/application/errors/account-not-found'
+import { PasswordResetTokenExpiredError } from '$lib/server/layers/features/auth/application/errors/password-reset-token-expired'
+import { PasswordResetTokenNotFoundError } from '$lib/server/layers/features/auth/application/errors/password-reset-token-not-found'
 
 import type { PageServerLoad } from './$types'
 

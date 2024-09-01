@@ -4,18 +4,18 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts, genreParents, genres } from '$lib/server/db/schema'
 
 import { test } from '../../../../../../vitest-setup'
+import type { GenreConstructorParams } from '../domain/genre'
+import { Genre } from '../domain/genre'
+import { GenreHistory } from '../domain/genre-history'
+import { DrizzleGenreRepository } from '../infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '../infrastructure/genre-history/drizzle-genre-history-repository'
 import {
   GenreCycleError,
   GenreService,
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '../application/genre-service'
-import type { GenreConstructorParams } from '../domain/genre'
-import { Genre } from '../domain/genre'
-import { GenreHistory } from '../domain/genre-history'
-import { DrizzleGenreRepository } from '../infrastructure/genre/drizzle-genre-repository'
-import { DrizzleGenreHistoryRepository } from '../infrastructure/genre-history/drizzle-genre-history-repository'
+} from './genre-service'
 
 const createBasicGenre = (id: number, name: string): GenreConstructorParams => ({
   id,

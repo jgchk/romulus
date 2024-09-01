@@ -3,13 +3,13 @@ import { expect } from 'vitest'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { createGenreHistoryEntry } from '$lib/server/genres'
 import {
   GenreCycleError,
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/ddd/features/genres/application/genre-service'
-import { createGenreHistoryEntry } from '$lib/server/genres'
+} from '$lib/server/layers/features/genres/application/genre-service'
 
 import { test } from '../../../../vitest-setup'
 import { type GenreData } from './types'

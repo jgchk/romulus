@@ -1,7 +1,7 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { GenreService } from '$lib/server/ddd/features/genres/application/genre-service'
-import { DrizzleGenreRepository } from '$lib/server/ddd/features/genres/infrastructure/genre/drizzle-genre-repository'
-import { DrizzleGenreHistoryRepository } from '$lib/server/ddd/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
+import { GenreService } from '$lib/server/layers/features/genres/application/genre-service'
+import { DrizzleGenreRepository } from '$lib/server/layers/features/genres/infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '$lib/server/layers/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
 
 import type { Account, Genre } from '../../db/schema'
 import { type GenreData } from './types'
