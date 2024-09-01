@@ -13,7 +13,6 @@ declare global {
       }
       user: import('lucia').User | undefined
       session: Pick<import('lucia').Session, 'id'> | undefined
-      lucia: import('$lib/server/auth').AppLucia
     }
     // interface PageData {}
     // interface PageState {}
