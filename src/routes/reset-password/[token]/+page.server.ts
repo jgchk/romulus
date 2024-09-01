@@ -2,10 +2,10 @@ import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { AccountNotFoundError } from '$lib/server/layers/features/authentication/application/errors/account-not-found'
-import { PasswordResetTokenExpiredError } from '$lib/server/layers/features/authentication/application/errors/password-reset-token-expired'
-import { PasswordResetTokenNotFoundError } from '$lib/server/layers/features/authentication/application/errors/password-reset-token-not-found'
-import { passwordSchema } from '$lib/server/layers/features/authentication/presentation/schemas/password'
+import { AccountNotFoundError } from '$lib/server/features/authentication/application/errors/account-not-found'
+import { PasswordResetTokenExpiredError } from '$lib/server/features/authentication/application/errors/password-reset-token-expired'
+import { PasswordResetTokenNotFoundError } from '$lib/server/features/authentication/application/errors/password-reset-token-not-found'
+import { passwordSchema } from '$lib/server/features/authentication/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
 

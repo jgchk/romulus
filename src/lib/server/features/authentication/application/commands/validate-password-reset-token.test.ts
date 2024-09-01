@@ -2,7 +2,7 @@ import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../vitest-setup'
 import { Sha256HashRepository } from '../../../common/infrastructure/repositories/hash/sha256-hash-repository'
 import { NewAccount } from '../../domain/entities/account'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'

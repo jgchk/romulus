@@ -1,6 +1,6 @@
-import { ApiService } from './layers/features/api/application/api-service'
-import { DrizzleApiKeyRepository } from './layers/features/api/infrastructure/repositories/api-key/drizzle-api-key'
-import { Sha256HashRepository } from './layers/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { ApiService } from './features/api/application/api-service'
+import { DrizzleApiKeyRepository } from './features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { Sha256HashRepository } from './features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 export async function checkApiAuth(
   request: Request,

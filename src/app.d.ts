@@ -7,10 +7,10 @@ declare global {
     interface Locals {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       services: {
-        api: import('$lib/server/layers/features/api/application/api-service').ApiService
-        authentication: import('$lib/server/layers/features/authentication/application/authentication-service').AuthenticationService
-        musicCatalog: import('$lib/server/layers/features/music-catalog/application/music-catalog-service').MusicCatalogService
-        genre: import('$lib/server/layers/features/genres/application/genre-service').GenreService
+        api: import('$lib/server/features/api/application/api-service').ApiService
+        authentication: import('$lib/server/features/authentication/application/authentication-service').AuthenticationService
+        musicCatalog: import('$lib/server/features/music-catalog/application/music-catalog-service').MusicCatalogService
+        genre: import('$lib/server/features/genres/application/genre-service').GenreService
       }
       user: import('lucia').User | undefined
       session: Pick<import('lucia').Session, 'id'> | undefined

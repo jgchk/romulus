@@ -3,7 +3,7 @@ import { expect } from 'vitest'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts, genreParents, genres } from '$lib/server/db/schema'
 
-import { test } from '../../../../../../vitest-setup'
+import { test } from '../../../../../vitest-setup'
 import type { GenreConstructorParams } from '../domain/genre'
 import { Genre } from '../domain/genre'
 import { GenreHistory } from '../domain/genre-history'

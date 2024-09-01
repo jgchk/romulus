@@ -3,7 +3,7 @@ import { expect } from 'vitest'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { NotFoundError } from '$lib/server/layers/features/genres/application/genre-service'
+import { NotFoundError } from '$lib/server/features/genres/application/genre-service'
 
 import { test } from '../../../../vitest-setup'
 import { deleteGenre } from './delete'

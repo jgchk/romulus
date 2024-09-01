@@ -8,8 +8,8 @@ import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influe
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import type { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
+import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { createGenreHistoryEntry } from '$lib/server/genres'
-import { BcryptHashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
   akas?: { primary?: string[]; secondary?: string[]; tertiary?: string[] }

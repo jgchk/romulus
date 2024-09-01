@@ -11,7 +11,7 @@ import {
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/layers/features/genres/application/genre-service'
+} from '$lib/server/features/genres/application/genre-service'
 
 import type { PageServerLoad } from './$types'
 

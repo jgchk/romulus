@@ -2,7 +2,7 @@ import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../vitest-setup'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'

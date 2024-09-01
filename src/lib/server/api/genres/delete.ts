@@ -1,8 +1,8 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
+import { NotFoundError } from '$lib/server/features/genres/application/genre-service'
 import { createGenreHistoryEntry } from '$lib/server/genres'
-import { NotFoundError } from '$lib/server/layers/features/genres/application/genre-service'
 
 import type { Account, Genre } from '../../db/schema'
 
