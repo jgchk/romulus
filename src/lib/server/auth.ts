@@ -1,5 +1,4 @@
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
-import bcryptjs from 'bcryptjs'
 import { type InferSelectModel } from 'drizzle-orm'
 import type { PgDatabase } from 'drizzle-orm/pg-core'
 import { Lucia } from 'lucia'
@@ -42,8 +41,6 @@ export const createLucia = (db: PgDatabase<any, any, any>) => {
 
   return lucia
 }
-
-export const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, 12)
 
 export async function checkApiAuth(
   request: Request,

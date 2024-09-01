@@ -1,6 +1,5 @@
 import { type InferInsertModel } from 'drizzle-orm'
 
-import { hashPassword } from '$lib/server/auth'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
@@ -10,6 +9,7 @@ import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import type { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
 import { createGenreHistoryEntry } from '$lib/server/genres'
+import { BcryptHashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
   akas?: { primary?: string[]; secondary?: string[]; tertiary?: string[] }
@@ -22,10 +22,12 @@ export const createAccounts = async (
   accounts_: InferInsertModel<typeof accounts>[],
   connection: IDrizzleConnection,
 ): Promise<Account[]> => {
+  const hashRepository = new BcryptHashRepository()
+
   const hashedAccounts = await Promise.all(
     accounts_.map(async (account) => ({
       ...account,
-      password: await hashPassword(account.password),
+      password: await hashRepository.hash(account.password),
     })),
   )
 
