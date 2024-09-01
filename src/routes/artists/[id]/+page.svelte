@@ -12,7 +12,7 @@
 
   <h3 class="mt-4 text-lg">Releases</h3>
   <div class="flex flex-wrap items-start justify-start gap-2">
-    {#each data.releases as release (release.id)}
+    {#each data.artist.releases as release (release.id)}
       <Release {...release} />
     {/each}
   </div>

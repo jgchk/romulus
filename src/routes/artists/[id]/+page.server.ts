@@ -1,9 +1,6 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import getManyReleases from '$lib/server/api/releases/get-many'
-import ArtistsDatabase from '$lib/server/db/controllers/artists'
-
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -13,21 +10,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const artistsDb = new ArtistsDatabase()
-  const maybeArtist = await artistsDb.findById(
-    id,
-    { include: ['tracks-full'] },
-    locals.dbConnection,
-  )
-  if (!maybeArtist) {
+  const { artist } = await locals.services.musicCatalog.queries.getArtist(id)
+
+  if (!artist) {
     return error(404, { message: 'Artist not found' })
   }
-  const artist = maybeArtist
 
-  const { data: releases } = await getManyReleases(
-    { include: ['artists-full'], filter: { artists: [id] } },
-    locals.dbConnection,
-  )
-
-  return { artist, releases }
+  return { artist }
 }
