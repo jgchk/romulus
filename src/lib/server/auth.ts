@@ -6,7 +6,6 @@ import { generateIdFromEntropySize, Lucia } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 import { sha256 } from 'oslo/crypto'
 import { encodeHex } from 'oslo/encoding'
-import { z } from 'zod'
 
 import { omit } from '$lib/utils/object'
 
@@ -15,16 +14,6 @@ import type { IDrizzleConnection } from './db/connection'
 import { ApiKeysDatabase } from './db/controllers/api-keys'
 import { PasswordResetTokensDatabase } from './db/controllers/password-reset-tokens'
 import { accounts, sessions } from './db/schema'
-
-export const passwordSchema = z
-  .object({
-    password: z.string().min(8).max(72),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
 
 declare module 'lucia' {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

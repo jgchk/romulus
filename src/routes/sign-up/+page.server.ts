@@ -3,8 +3,8 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { passwordSchema } from '$lib/server/auth'
 import { NonUniqueUsernameError } from '$lib/server/layers/features/auth/application/errors/non-unique-username'
+import { passwordSchema } from '$lib/server/layers/features/auth/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
 
