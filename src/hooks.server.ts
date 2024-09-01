@@ -44,7 +44,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       new DrizzleReleaseRepository(dbConnection),
       new DrizzleTrackRepository(dbConnection),
     ),
-    genreService: new GenreService(
+    genre: new GenreService(
       new DrizzleGenreRepository(dbConnection),
       new DrizzleGenreHistoryRepository(dbConnection),
     ),

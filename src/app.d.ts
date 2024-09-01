@@ -9,7 +9,7 @@ declare global {
       services: {
         authentication: import('$lib/server/layers/features/authentication/application/authentication-service').AuthenticationService
         musicCatalog: import('$lib/server/layers/features/music-catalog/application/music-catalog-service').MusicCatalogService
-        genreService: import('$lib/server/layers/features/genres/application/genre-service').GenreService
+        genre: import('$lib/server/layers/features/genres/application/genre-service').GenreService
       }
       user: import('lucia').User | undefined
       session: Pick<import('lucia').Session, 'id'> | undefined
