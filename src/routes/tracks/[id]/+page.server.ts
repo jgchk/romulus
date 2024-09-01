@@ -2,7 +2,6 @@ import { error, fail } from '@sveltejs/kit'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import TracksDatabase from '$lib/server/db/controllers/tracks'
 import { releaseTracks, tracks } from '$lib/server/db/schema'
 
 import type { Actions, PageServerLoad } from './$types'
@@ -14,16 +13,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const tracksDb = new TracksDatabase()
-  const maybeTrack = await tracksDb.findById(
-    id,
-    { include: ['releases-full'] },
-    locals.dbConnection,
-  )
-  if (!maybeTrack) {
+  const { track } = await locals.services.musicCatalog.queries.getTrack(id)
+
+  if (!track) {
     return error(404, { message: 'Track not found' })
   }
-  const track = maybeTrack
 
   return { track }
 }
