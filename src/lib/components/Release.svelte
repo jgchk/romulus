@@ -2,7 +2,7 @@
   import CoverArt from './CoverArt.svelte'
 
   export let id: number
-  export let art: string | null
+  export let art: string | null | undefined = undefined
   export let title: string
   export let artists: { id: number; name: string }[]
 </script>

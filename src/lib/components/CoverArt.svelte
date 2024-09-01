@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tw } from '$lib/utils/dom'
 
-  export let art: string | null
+  export let art: string | null | undefined
   export let title: string
   export let artists: string[]
 
