@@ -3,9 +3,10 @@ import { eq } from 'drizzle-orm'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts } from '$lib/server/db/schema'
 
-import type { NewAccount } from '../../domain/account'
-import { CreatedAccount } from '../../domain/account'
-import { type AccountRepository, NonUniqueUsernameError } from './account-repository'
+import type { NewAccount } from '../../domain/entities/account'
+import { CreatedAccount } from '../../domain/entities/account'
+import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
+import { type AccountRepository } from '../../domain/repositories/account'
 
 export class DrizzleAccountRepository implements AccountRepository {
   constructor(private db: IDrizzleConnection) {}
@@ -54,7 +55,7 @@ export class DrizzleAccountRepository implements AccountRepository {
     return account
   }
 
-  async create(account: NewAccount): Promise<number | NonUniqueUsernameError> {
+  async create(account: NewAccount): Promise<CreatedAccount | NonUniqueUsernameError> {
     try {
       const [{ accountId }] = await this.db
         .insert(accounts)
@@ -74,7 +75,7 @@ export class DrizzleAccountRepository implements AccountRepository {
         ])
         .returning({ accountId: accounts.id })
 
-      return accountId
+      return new CreatedAccount(accountId, account)
     } catch (error) {
       if (isPostgresError(error, '23505', 'Account_username_unique')) {
         return new NonUniqueUsernameError(account.username)

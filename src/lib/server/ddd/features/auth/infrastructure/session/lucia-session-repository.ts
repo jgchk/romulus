@@ -1,9 +1,9 @@
 import type { AppLucia } from '$lib/server/auth'
 
-import { Cookie } from '../../domain/cookie'
-import type { NewSession } from '../../domain/session'
-import { CreatedSession } from '../../domain/session'
-import type { SessionRepository } from './session-repository'
+import { Cookie } from '../../domain/entities/cookie'
+import type { NewSession } from '../../domain/entities/session'
+import { CreatedSession } from '../../domain/entities/session'
+import type { SessionRepository } from '../../domain/repositories/session'
 
 export class LuciaSessionRepository implements SessionRepository {
   constructor(private lucia: AppLucia) {}
@@ -14,9 +14,14 @@ export class LuciaSessionRepository implements SessionRepository {
     return new CreatedSession(session.id, session.userId, session.fresh)
   }
 
-  async create(session: NewSession): Promise<string> {
+  async findByAccountId(accountId: number): Promise<CreatedSession[]> {
+    const sessions = await this.lucia.getUserSessions(accountId)
+    return sessions.map((session) => new CreatedSession(session.id, session.userId, session.fresh))
+  }
+
+  async create(session: NewSession): Promise<CreatedSession> {
     const output = await this.lucia.createSession(session.accountId, {})
-    return output.id
+    return new CreatedSession(output.id, output.userId, output.fresh)
   }
 
   async delete(sessionId: string): Promise<void> {

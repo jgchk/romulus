@@ -3,11 +3,19 @@ import { eq } from 'drizzle-orm'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { passwordResetTokens } from '$lib/server/db/schema'
 
-import { PasswordResetToken } from '../../domain/password-reset-token'
-import type { PasswordResetTokenRepository } from './password-reset-token-repository'
+import { PasswordResetToken } from '../../domain/entities/password-reset-token'
+import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
 
 export class DrizzlePasswordResetTokenRepository implements PasswordResetTokenRepository {
   constructor(private db: IDrizzleConnection) {}
+
+  async create(token: PasswordResetToken): Promise<void> {
+    await this.db.insert(passwordResetTokens).values({
+      tokenHash: token.tokenHash,
+      userId: token.accountId,
+      expiresAt: token.expiresAt,
+    })
+  }
 
   async findByTokenHash(tokenHash: string): Promise<PasswordResetToken | undefined> {
     const entry = await this.db.query.passwordResetTokens.findFirst({

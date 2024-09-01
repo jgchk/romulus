@@ -1,6 +1,7 @@
-import type { PasswordResetToken } from '../../domain/password-reset-token'
+import type { PasswordResetToken } from '../entities/password-reset-token'
 
 export type PasswordResetTokenRepository = {
+  create(token: PasswordResetToken): Promise<void>
   findByTokenHash(tokenHash: string): Promise<PasswordResetToken | undefined>
   deleteByTokenHash(tokenHash: string): Promise<void>
 }

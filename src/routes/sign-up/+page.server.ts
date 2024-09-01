@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { passwordSchema } from '$lib/server/auth'
-import { NonUniqueUsernameError } from '$lib/server/ddd/features/auth/infrastructure/account/account-repository'
+import { NonUniqueUsernameError } from '$lib/server/ddd/features/auth/application/errors/non-unique-username'
 
 import type { PageServerLoad } from './$types'
 

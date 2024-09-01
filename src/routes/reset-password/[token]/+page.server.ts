@@ -3,11 +3,9 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { passwordSchema } from '$lib/server/auth'
-import {
-  AccountNotFoundError,
-  ExpiredPasswordResetTokenError,
-  PasswordResetTokenNotFoundError,
-} from '$lib/server/ddd/features/auth/application/auth-service'
+import { AccountNotFoundError } from '$lib/server/ddd/features/auth/application/errors/account-not-found'
+import { PasswordResetTokenExpiredError } from '$lib/server/ddd/features/auth/application/errors/password-reset-token-expired'
+import { PasswordResetTokenNotFoundError } from '$lib/server/ddd/features/auth/application/errors/password-reset-token-not-found'
 
 import type { PageServerLoad } from './$types'
 
@@ -15,7 +13,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeToken = await locals.services.authService.checkPasswordResetToken(params.token)
   if (
     maybeToken instanceof PasswordResetTokenNotFoundError ||
-    maybeToken instanceof ExpiredPasswordResetTokenError
+    maybeToken instanceof PasswordResetTokenExpiredError
   ) {
     // Don't indicate whether the token is invalid or expired for security
     return error(400, 'Invalid or expired token')
@@ -41,7 +39,7 @@ export const actions: Actions = {
     const maybeToken = await locals.services.authService.checkPasswordResetToken(verificationToken)
     if (
       maybeToken instanceof PasswordResetTokenNotFoundError ||
-      maybeToken instanceof ExpiredPasswordResetTokenError
+      maybeToken instanceof PasswordResetTokenExpiredError
     ) {
       // Don't indicate whether the token is invalid or expired for security
       return error(400, 'Invalid or expired token')
