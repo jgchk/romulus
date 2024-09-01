@@ -8,7 +8,7 @@ declare global {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       services: {
         authentication: import('$lib/server/layers/features/authentication/application/authentication-service').AuthenticationService
-        musicCatalogService: import('$lib/server/layers/features/music-catalog/application/music-catalog-service').MusicCatalogService
+        musicCatalog: import('$lib/server/layers/features/music-catalog/application/music-catalog-service').MusicCatalogService
         genreService: import('$lib/server/layers/features/genres/application/genre-service').GenreService
       }
       user: import('lucia').User | undefined

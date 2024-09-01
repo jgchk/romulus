@@ -39,7 +39,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       new Sha256HashRepository(),
       new CryptoTokenGenerator(),
     ),
-    musicCatalogService: new MusicCatalogService(
+    musicCatalog: new MusicCatalogService(
       new DrizzleArtistRepository(dbConnection),
       new DrizzleReleaseRepository(dbConnection),
       new DrizzleTrackRepository(dbConnection),
