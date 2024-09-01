@@ -6,9 +6,11 @@ import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../domain/repositories/session'
+import type { TokenGenerator } from '../domain/repositories/token-generator'
 import { LoginCommand } from './commands/login'
 import { LogoutCommand } from './commands/logout'
 import { RegisterCommand } from './commands/register'
+import { RequestPasswordResetCommand } from './commands/request-password-reset'
 import { ResetPasswordCommand } from './commands/reset-password'
 import { ValidatePasswordResetTokenCommand } from './commands/validate-password-reset-token'
 import { ValidateSessionCommand } from './commands/validate-session'
@@ -23,6 +25,7 @@ export class AuthService {
   loginCommand: LoginCommand
   logoutCommand: LogoutCommand
   validateSessionCommand: ValidateSessionCommand
+  requestPasswordResetCommand: RequestPasswordResetCommand
   validatePasswordResetTokenCommand: ValidatePasswordResetTokenCommand
   resetPasswordCommand: ResetPasswordCommand
 
@@ -32,11 +35,17 @@ export class AuthService {
     passwordResetTokenRepo: PasswordResetTokenRepository,
     passwordHashRepo: HashRepository,
     passwordResetTokenHashRepo: HashRepository,
+    passwordResetTokenGeneratorRepo: TokenGenerator,
   ) {
     this.registerCommand = new RegisterCommand(accountRepo, sessionRepo, passwordHashRepo)
     this.loginCommand = new LoginCommand(accountRepo, sessionRepo, passwordHashRepo)
     this.logoutCommand = new LogoutCommand(sessionRepo)
     this.validateSessionCommand = new ValidateSessionCommand(accountRepo, sessionRepo)
+    this.requestPasswordResetCommand = new RequestPasswordResetCommand(
+      passwordResetTokenRepo,
+      passwordResetTokenGeneratorRepo,
+      passwordResetTokenHashRepo,
+    )
     this.validatePasswordResetTokenCommand = new ValidatePasswordResetTokenCommand(
       passwordResetTokenRepo,
       passwordResetTokenHashRepo,
@@ -67,6 +76,10 @@ export class AuthService {
     cookie: Cookie | undefined
   }> {
     return this.validateSessionCommand.execute(sessionId)
+  }
+
+  requestPasswordReset(accountId: number): Promise<string> {
+    return this.requestPasswordResetCommand.execute(accountId)
   }
 
   checkPasswordResetToken(

@@ -31,4 +31,8 @@ export class DrizzlePasswordResetTokenRepository implements PasswordResetTokenRe
   async deleteByTokenHash(tokenHash: string): Promise<void> {
     await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash))
   }
+
+  async deleteByAccountId(accountId: number): Promise<void> {
+    await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, accountId))
+  }
 }

@@ -8,6 +8,7 @@ import { BcryptHashRepository } from '$lib/server/layers/features/auth/infrastru
 import { Sha256HashRepository } from '$lib/server/layers/features/auth/infrastructure/hash/sha256-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/layers/features/auth/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
 import { LuciaSessionRepository } from '$lib/server/layers/features/auth/infrastructure/session/lucia-session-repository'
+import { CryptoTokenGenerator } from '$lib/server/layers/features/auth/infrastructure/token/crypto-token-generator'
 import { GenreService } from '$lib/server/layers/features/genres/application/genre-service'
 import { DrizzleGenreRepository } from '$lib/server/layers/features/genres/infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '$lib/server/layers/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
@@ -36,6 +37,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       new DrizzlePasswordResetTokenRepository(dbConnection),
       new BcryptHashRepository(),
       new Sha256HashRepository(),
+      new CryptoTokenGenerator(),
     ),
     musicCatalogService: new MusicCatalogService(
       new DrizzleArtistRepository(dbConnection),

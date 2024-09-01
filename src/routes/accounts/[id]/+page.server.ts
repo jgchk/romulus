@@ -1,7 +1,6 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { createPasswordResetToken } from '$lib/server/auth'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 
@@ -52,7 +51,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const verificationToken = await createPasswordResetToken(id, locals.dbConnection)
+    const verificationToken = await locals.services.authService.requestPasswordReset(id)
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }
