@@ -1,6 +1,5 @@
 import { describe, expect } from 'vitest'
 
-import { createLucia } from '$lib/server/auth'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
 import { test } from '../../../../../../../vitest-setup'
@@ -12,6 +11,7 @@ import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-a
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { Sha256HashRepository } from '../../infrastructure/hash/sha256-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/password-reset-token/drizzle-password-reset-token-repository'
+import { createLucia } from '../../infrastructure/session/lucia'
 import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
 import { AccountNotFoundError } from '../errors/account-not-found'
 import { InvalidLoginError } from '../errors/invalid-login'

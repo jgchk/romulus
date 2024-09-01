@@ -1,12 +1,12 @@
 import type { Handle } from '@sveltejs/kit'
 
-import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 import { AuthenticationService } from '$lib/server/layers/features/authentication/application/authentication-service'
 import { DrizzleAccountRepository } from '$lib/server/layers/features/authentication/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { Sha256HashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/sha256-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/layers/features/authentication/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
+import { createLucia } from '$lib/server/layers/features/authentication/infrastructure/session/lucia'
 import { LuciaSessionRepository } from '$lib/server/layers/features/authentication/infrastructure/session/lucia-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/layers/features/authentication/infrastructure/token/crypto-token-generator'
 import { GenreService } from '$lib/server/layers/features/genres/application/genre-service'

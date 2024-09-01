@@ -1,9 +1,8 @@
-import type { AppLucia } from '$lib/server/auth'
-
 import { Cookie } from '../../domain/entities/cookie'
 import type { NewSession } from '../../domain/entities/session'
 import { CreatedSession } from '../../domain/entities/session'
 import type { SessionRepository } from '../../domain/repositories/session'
+import type { AppLucia } from './lucia'
 
 export class LuciaSessionRepository implements SessionRepository {
   constructor(private lucia: AppLucia) {}

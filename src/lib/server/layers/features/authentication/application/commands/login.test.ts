@@ -1,6 +1,5 @@
 import { describe, expect } from 'vitest'
 
-import { createLucia } from '$lib/server/auth'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
 import { test } from '../../../../../../../vitest-setup'
@@ -8,6 +7,7 @@ import { NewAccount } from '../../domain/entities/account'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
+import { createLucia } from '../../infrastructure/session/lucia'
 import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
 import { InvalidLoginError } from '../errors/invalid-login'
 import { LoginCommand } from './login'
