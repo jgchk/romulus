@@ -2,7 +2,7 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { artists } from '$lib/server/db/schema'
 
 import type { Artist } from '../../domain/entities/artist'
-import type { ArtistRepository } from './artist-repository'
+import type { ArtistRepository } from '../../domain/repositories/artist-repository'
 
 export class DrizzleArtistRepository implements ArtistRepository {
   constructor(private db: IDrizzleConnection) {}

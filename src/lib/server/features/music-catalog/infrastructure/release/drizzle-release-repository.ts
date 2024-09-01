@@ -2,7 +2,7 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { releaseArtists, releases, releaseTracks } from '$lib/server/db/schema'
 
 import type { Release } from '../../domain/entities/release'
-import type { ReleaseRepository } from './release-repository'
+import type { ReleaseRepository } from '../../domain/repositories/release-repository'
 
 export class DrizzleReleaseRepository implements ReleaseRepository {
   constructor(private db: IDrizzleConnection) {}

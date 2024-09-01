@@ -1,9 +1,9 @@
 import { Artist } from '../domain/entities/artist'
 import { Release } from '../domain/entities/release'
 import { Track } from '../domain/entities/track'
-import type { ArtistRepository } from '../infrastructure/artist/artist-repository'
-import type { ReleaseRepository } from '../infrastructure/release/release-repository'
-import type { TrackRepository } from '../infrastructure/track/track-repository'
+import type { ArtistRepository } from '../domain/repositories/artist-repository'
+import type { ReleaseRepository } from '../domain/repositories/release-repository'
+import type { TrackRepository } from '../domain/repositories/track-repository'
 
 export type CreateRelease = {
   title: string
