@@ -1,8 +1,8 @@
 import { createDate, TimeSpan } from 'oslo'
 
+import type { HashRepository } from '../../../common/domain/repositories/hash'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
-import type { HashRepository } from '../../domain/repositories/hash'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
 import type { TokenGenerator } from '../../domain/repositories/token-generator'
 

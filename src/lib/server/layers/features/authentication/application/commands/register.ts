@@ -1,9 +1,9 @@
+import type { HashRepository } from '../../../common/domain/repositories/hash'
 import { NewAccount } from '../../domain/entities/account'
 import type { Cookie } from '../../domain/entities/cookie'
 import { NewSession } from '../../domain/entities/session'
 import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { type AccountRepository } from '../../domain/repositories/account'
-import type { HashRepository } from '../../domain/repositories/hash'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { NonUniqueUsernameError } from '../errors/non-unique-username'
 

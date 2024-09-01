@@ -1,5 +1,6 @@
-import { hashApiKey } from './api-keys'
-import { ApiKeysDatabase } from './db/controllers/api-keys'
+import { ApiService } from './layers/features/api/application/api-service'
+import { DrizzleApiKeyRepository } from './layers/features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { Sha256HashRepository } from './layers/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 export async function checkApiAuth(
   request: Request,
@@ -14,10 +15,11 @@ export async function checkApiAuth(
     return false
   }
 
-  const keyHash = await hashApiKey(key)
-  const apiKeysDb = new ApiKeysDatabase()
-  const maybeExistingKey = await apiKeysDb.findByKeyHash(keyHash, locals.dbConnection)
-  return maybeExistingKey !== undefined
+  const apiService = new ApiService(
+    new DrizzleApiKeyRepository(locals.dbConnection),
+    new Sha256HashRepository(),
+  )
+  return apiService.validateApiKey(key)
 }
 
 function getKeyFromHeaders(request: Request) {

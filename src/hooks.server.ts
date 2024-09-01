@@ -1,14 +1,16 @@
 import type { Handle } from '@sveltejs/kit'
 
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
+import { ApiService } from '$lib/server/layers/features/api/application/api-service'
+import { DrizzleApiKeyRepository } from '$lib/server/layers/features/api/infrastructure/repositories/api-key/drizzle-api-key'
 import { AuthenticationService } from '$lib/server/layers/features/authentication/application/authentication-service'
 import { DrizzleAccountRepository } from '$lib/server/layers/features/authentication/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/bcrypt-hash-repository'
-import { Sha256HashRepository } from '$lib/server/layers/features/authentication/infrastructure/hash/sha256-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/layers/features/authentication/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
 import { createLucia } from '$lib/server/layers/features/authentication/infrastructure/session/lucia'
 import { LuciaSessionRepository } from '$lib/server/layers/features/authentication/infrastructure/session/lucia-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/layers/features/authentication/infrastructure/token/crypto-token-generator'
+import { Sha256HashRepository } from '$lib/server/layers/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { GenreService } from '$lib/server/layers/features/genres/application/genre-service'
 import { DrizzleGenreRepository } from '$lib/server/layers/features/genres/infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '$lib/server/layers/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
@@ -30,6 +32,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const lucia = createLucia(dbConnection)
 
   event.locals.services = {
+    api: new ApiService(new DrizzleApiKeyRepository(dbConnection), new Sha256HashRepository()),
     authentication: new AuthenticationService(
       new DrizzleAccountRepository(dbConnection),
       new LuciaSessionRepository(lucia),

@@ -1,7 +1,7 @@
+import type { HashRepository } from '../../../common/domain/repositories/hash'
 import type { Cookie } from '../../domain/entities/cookie'
 import { NewSession } from '../../domain/entities/session'
 import type { AccountRepository } from '../../domain/repositories/account'
-import type { HashRepository } from '../../domain/repositories/hash'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { InvalidLoginError } from '../errors/invalid-login'
 

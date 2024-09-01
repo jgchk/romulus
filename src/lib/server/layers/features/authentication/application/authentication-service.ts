@@ -1,9 +1,9 @@
+import type { HashRepository } from '../../common/domain/repositories/hash'
 import type { CreatedAccount } from '../domain/entities/account'
 import type { Cookie } from '../domain/entities/cookie'
 import type { PasswordResetToken } from '../domain/entities/password-reset-token'
 import type { CreatedSession } from '../domain/entities/session'
 import type { AccountRepository } from '../domain/repositories/account'
-import type { HashRepository } from '../domain/repositories/hash'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../domain/repositories/session'
 import type { TokenGenerator } from '../domain/repositories/token-generator'
@@ -21,13 +21,13 @@ import type { PasswordResetTokenExpiredError } from './errors/password-reset-tok
 import type { PasswordResetTokenNotFoundError } from './errors/password-reset-token-not-found'
 
 export class AuthenticationService {
-  registerCommand: RegisterCommand
-  loginCommand: LoginCommand
-  logoutCommand: LogoutCommand
-  validateSessionCommand: ValidateSessionCommand
-  requestPasswordResetCommand: RequestPasswordResetCommand
-  validatePasswordResetTokenCommand: ValidatePasswordResetTokenCommand
-  resetPasswordCommand: ResetPasswordCommand
+  private registerCommand: RegisterCommand
+  private loginCommand: LoginCommand
+  private logoutCommand: LogoutCommand
+  private validateSessionCommand: ValidateSessionCommand
+  private requestPasswordResetCommand: RequestPasswordResetCommand
+  private validatePasswordResetTokenCommand: ValidatePasswordResetTokenCommand
+  private resetPasswordCommand: ResetPasswordCommand
 
   constructor(
     accountRepo: AccountRepository,

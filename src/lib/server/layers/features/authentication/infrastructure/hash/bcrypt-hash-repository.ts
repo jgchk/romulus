@@ -1,6 +1,6 @@
 import bcryptjs from 'bcryptjs'
 
-import type { HashRepository } from '../../domain/repositories/hash'
+import type { HashRepository } from '../../../common/domain/repositories/hash'
 
 export class BcryptHashRepository implements HashRepository {
   hash(input: string): Promise<string> {
