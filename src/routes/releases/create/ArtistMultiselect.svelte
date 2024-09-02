@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { createQuery } from '@tanstack/svelte-query'
+  import { createQuery, keepPreviousData } from '@tanstack/svelte-query'
   import { createEventDispatcher } from 'svelte'
+  import { derived, writable } from 'svelte/store'
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
-  import type { Artist } from '$lib/server/db/schema'
+  import type { SearchArtistsResult } from '$lib/server/features/music-catalog/queries/application/search-artists'
+  import type { Timeout } from '$lib/utils/types'
 
   import type { ArtistMultiselectProps } from './ArtistMultiselect'
 
@@ -11,28 +13,26 @@
 
   export let value: NonNullable<$$Props['value']> = []
 
-  const valuesQuery = createQuery({
-    queryKey: ['artists', { ids: value }],
-    queryFn: () => (value.length === 0 ? [] : fetchArtists(value)),
-  })
+  let filter = ''
 
-  const optionsQuery = createQuery({
-    queryKey: ['artists', {}],
-    queryFn: () => fetchArtists(),
-  })
+  let debouncedFilter = writable(filter)
+  let timeout: Timeout
+  $: {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      $debouncedFilter = filter
+    }, 250)
+  }
 
-  // let filter = ''
-  //
-  // let debouncedFilter = filter
-  // let timeout: Timeout
-  // $: {
-  //   clearTimeout(timeout)
-  //   timeout = setTimeout(() => {
-  //     debouncedFilter = filter
-  //   }, 250)
-  // }
+  const optionsQuery = createQuery(
+    derived(debouncedFilter, ($debouncedFilter) => ({
+      queryKey: ['artists', 'search', { name: $debouncedFilter }],
+      queryFn: () => fetchArtists($debouncedFilter),
+      placeholderData: keepPreviousData,
+    })),
+  )
 
-  $: values = ($valuesQuery.data ?? []).map((artist) => ({ value: artist.id, label: artist.name }))
+  $: values = value.map((artist) => ({ value: artist.id, label: artist.name }))
 
   $: options = ($optionsQuery.data ?? []).map((artist) => ({
     value: artist.id,
@@ -40,17 +40,15 @@
   }))
 
   const dispatch = createEventDispatcher<{
-    change: { value: number[] }
+    change: { value: NonNullable<$$Props['value']> }
   }>()
 
-  async function fetchArtists(ids?: number[]) {
-    const url = new URL('/api/artists', window.location.origin)
-    if (ids?.length) {
-      ids.forEach((id) => url.searchParams.append('ids', id.toString()))
-    }
+  async function fetchArtists(nameQuery: string) {
+    const url = new URL('/api/artists/search', window.location.origin)
+    url.searchParams.set('name', nameQuery)
 
-    const { data } = await fetch(url).then((res) => res.json() as Promise<{ data: Artist[] }>)
-    return data
+    const { artists } = await fetch(url).then((res) => res.json() as Promise<SearchArtistsResult>)
+    return artists
   }
 </script>
 
@@ -58,9 +56,11 @@
   value={values}
   virtual
   {options}
+  bind:filter
   on:change={(e) => {
-    value = e.detail.value.map((v) => v.value)
-    dispatch('change', { value })
+    const newValue = e.detail.value.map((v) => ({ id: v.value, name: v.label }))
+    value = newValue
+    dispatch('change', { value: newValue })
   }}
   on:blur
   {...$$restProps}

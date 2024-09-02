@@ -3,18 +3,25 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
+import type { CreateReleaseRequest } from '$lib/server/features/music-catalog/commands/application/create-release'
 import { optionalString } from '$lib/utils/validators'
 
 import type { Actions, PageServerLoad } from './$types'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
-  artists: z.number().int().array().min(1, 'At least one artist is required'),
+  artists: z
+    .object({ id: z.number().int(), name: z.string() })
+    .array()
+    .min(1, 'At least one artist is required'),
   art: optionalString,
   tracks: z
     .object({
       title: z.string().min(1, 'Title is required'),
-      artists: z.number().int().array().min(1, 'At least one artist is required'),
+      artists: z
+        .object({ id: z.number().int(), name: z.string() })
+        .array()
+        .min(1, 'At least one artist is required'),
     })
     .array(),
 })
@@ -40,7 +47,17 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const releaseId = await locals.services.musicCatalog.commands.createRelease(form.data)
+    const createReleaseRequest: CreateReleaseRequest = {
+      ...form.data,
+      artists: form.data.artists.map((artist) => artist.id),
+      tracks: form.data.tracks.map((track) => ({
+        ...track,
+        artists: track.artists.map((artist) => artist.id),
+      })),
+    }
+
+    const releaseId =
+      await locals.services.musicCatalog.commands.createRelease(createReleaseRequest)
 
     return redirect(302, `/releases/${releaseId}`)
   },
