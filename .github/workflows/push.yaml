@@ -131,3 +131,15 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.docker_tags.outputs.TAGS }}
+
+  deploy-staging:
+    needs: [lint, test-unit, test-e2e]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Deploy to DigitalOcean App Platform
+        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }}
