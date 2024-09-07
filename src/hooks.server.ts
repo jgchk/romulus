@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit'
 
-import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
+import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/postgres'
 import { ApiService } from '$lib/server/features/api/application/api-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
 import { AuthenticationService } from '$lib/server/features/authentication/application/authentication-service'
@@ -21,6 +21,7 @@ import { DrizzleTrackRepository } from '$lib/server/features/music-catalog/comma
 import { MusicCatalogQueryService } from '$lib/server/features/music-catalog/queries/query-service'
 
 const pg = getPostgresConnection()
+await migrate(getDbConnection(pg))
 
 process.on('sveltekit:shutdown', () => {
   void pg.end()
