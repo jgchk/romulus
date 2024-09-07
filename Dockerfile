@@ -15,6 +15,5 @@ RUN pnpm run build
 FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
-COPY --from=build /app/src/lib/server/db/migrations /app/build/server/migrations
 EXPOSE 8000
 CMD [ "node", "build" ]
