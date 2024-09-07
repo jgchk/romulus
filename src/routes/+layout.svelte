@@ -73,16 +73,18 @@
           class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
           >Random</a
         >
-        <a
-          href="/releases"
-          class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
-          >Releases</a
-        >
-        <a
-          href="/artists"
-          class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
-          >Artists</a
-        >
+        {#if $user?.permissions?.includes('EDIT_RELEASES')}
+          <a
+            href="/releases"
+            class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
+            >Releases</a
+          >
+          <a
+            href="/artists"
+            class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
+            >Artists</a
+          >
+        {/if}
       </Card>
 
       <Card
