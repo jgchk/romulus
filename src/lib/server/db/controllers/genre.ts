@@ -608,40 +608,47 @@ export class GenresDatabase {
         nsfw: true,
         updatedAt: true,
       },
-      orderBy: (genres_1, { asc }) => asc(genres_1.name),
+      orderBy: (genres, { asc }) => asc(genres.name),
       with: {
         akas: {
           columns: { name: true },
           orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
         },
-        parents: {
-          columns: { parentId: true },
-          with: {
-            parent: {
-              columns: { name: true },
-            },
-          },
-        },
-        children: {
-          columns: { childId: true },
-          with: {
-            child: {
-              columns: { name: true },
-            },
-          },
-        },
       },
     })
 
-    return results.map(({ akas, parents, children, ...genre }) => ({
+    const parentChildren = await conn.query.genreParents.findMany({
+      columns: {
+        parentId: true,
+        childId: true,
+      },
+    })
+
+    const genresMap = new Map(
+      results.map((genre) => [
+        genre.id,
+        {
+          ...genre,
+          parents: [] as { id: number; name: string }[],
+          children: [] as { id: number; name: string }[],
+        },
+      ]),
+    )
+
+    for (const { parentId, childId } of parentChildren) {
+      const parent = genresMap.get(parentId)
+      const child = genresMap.get(childId)
+      if (parent && child) {
+        parent.children.push({ id: childId, name: child.name })
+        child.parents.push({ id: parentId, name: parent.name })
+      }
+    }
+
+    return [...genresMap.values()].map(({ akas, parents, children, ...genre }) => ({
       ...genre,
       akas: akas.map((aka) => aka.name),
-      parents: parents
-        .sort((a, b) => a.parent.name.localeCompare(b.parent.name))
-        .map((parent) => parent.parentId),
-      children: children
-        .sort((a_1, b_1) => a_1.child.name.localeCompare(b_1.child.name))
-        .map((child) => child.childId),
+      parents: parents.sort((a, b) => a.name.localeCompare(b.name)).map((parent) => parent.id),
+      children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
     }))
   }
 
