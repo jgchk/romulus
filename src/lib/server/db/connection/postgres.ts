@@ -29,7 +29,7 @@ export async function migrate(db = getDbConnection()) {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const migrationsFolder = path.join(__dirname, '../migrations')
 
-  console.log('Migrating database...')
+  console.log('Migrating database with migrations from:', migrationsFolder)
 
   await drizzleMigrate(db, { migrationsFolder })
 
