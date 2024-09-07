@@ -3,8 +3,13 @@ import type { Handle } from '@sveltejs/kit'
 import { createLucia } from '$lib/server/auth'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 
+const pg = getPostgresConnection()
+
+process.on('sveltekit:shutdown', () => {
+  void pg.end()
+})
+
 export const handle: Handle = async ({ event, resolve }) => {
-  const pg = getPostgresConnection()
   const dbConnection = getDbConnection(pg)
   event.locals.dbConnection = dbConnection
 
@@ -41,8 +46,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.session = session ?? undefined
 
   const response = await resolve(event)
-
-  await pg.end()
 
   return response
 }
