@@ -571,27 +571,6 @@ export class GenresDatabase {
     }))
   }
 
-  async findAllSimple(
-    conn: IDrizzleConnection,
-  ): Promise<(Pick<Genre, 'id' | 'name'> & { parents: number[] })[]> {
-    const results = await conn.query.genres.findMany({
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        parents: {
-          columns: { parentId: true },
-        },
-      },
-    })
-
-    return results.map(({ parents, ...genre }) => ({
-      ...genre,
-      parents: parents.map((parent) => parent.parentId),
-    }))
-  }
-
   async findAllTree(conn: IDrizzleConnection): Promise<
     (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'updatedAt'> & {
       akas: GenreAka['name'][]
@@ -660,9 +639,5 @@ export class GenresDatabase {
   async deleteByIds(ids: Genre['id'][], conn: IDrizzleConnection): Promise<void> {
     if (ids.length === 0) return
     await conn.delete(genres).where(inArray(genres.id, ids))
-  }
-
-  async deleteAll(conn: IDrizzleConnection): Promise<void> {
-    await conn.delete(genres)
   }
 }
