@@ -16,15 +16,6 @@ export class AccountsDatabase {
     })
   }
 
-  findByUsername(
-    username: Account['username'],
-    conn: IDrizzleConnection,
-  ): Promise<Account | undefined> {
-    return conn.query.accounts.findFirst({
-      where: eq(accounts.username, username),
-    })
-  }
-
   async update(
     id: number,
     update: Partial<InsertAccount>,
