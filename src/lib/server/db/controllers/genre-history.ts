@@ -66,28 +66,6 @@ export class GenreHistoryDatabase {
     })
   }
 
-  findLatestByGenreId(
-    genreId: GenreHistory['treeGenreId'],
-    conn: IDrizzleConnection,
-  ): Promise<
-    (GenreHistory & { akas: Pick<GenreHistoryAka, 'name' | 'relevance' | 'order'>[] }) | undefined
-  > {
-    return conn.query.genreHistory.findFirst({
-      where: eq(genreHistory.treeGenreId, genreId),
-      orderBy: desc(genreHistory.createdAt),
-      with: {
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-          orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
-        },
-      },
-    })
-  }
-
   findPreviousByGenreId(
     genreId: GenreHistory['treeGenreId'],
     createdAt: Date,
@@ -192,9 +170,5 @@ export class GenreHistoryDatabase {
   ): Promise<void> {
     if (genreIds.length === 0) return
     await conn.delete(genreHistory).where(inArray(genreHistory.treeGenreId, genreIds))
-  }
-
-  async deleteAll(conn: IDrizzleConnection): Promise<void> {
-    await conn.delete(genreHistory)
   }
 }
