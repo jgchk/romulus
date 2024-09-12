@@ -2,18 +2,13 @@ import { CreateArtistCommand } from './application/create-artist'
 import { CreateReleaseCommand, type CreateReleaseRequest } from './application/create-release'
 import type { ArtistRepository } from './domain/repositories/artist-repository'
 import type { ReleaseRepository } from './domain/repositories/release-repository'
-import type { TrackRepository } from './domain/repositories/track-repository'
 
 export class MusicCatalogCommandService {
   private createReleaseCommand: CreateReleaseCommand
   private createArtistCommand: CreateArtistCommand
 
-  constructor(
-    artistRepo: ArtistRepository,
-    releaseRepo: ReleaseRepository,
-    trackRepo: TrackRepository,
-  ) {
-    this.createReleaseCommand = new CreateReleaseCommand(releaseRepo, trackRepo)
+  constructor(artistRepo: ArtistRepository, releaseRepo: ReleaseRepository) {
+    this.createReleaseCommand = new CreateReleaseCommand(releaseRepo)
     this.createArtistCommand = new CreateArtistCommand(artistRepo)
   }
 

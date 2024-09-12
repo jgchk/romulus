@@ -1,17 +1,19 @@
+import type { Track } from './track'
+
 export class Release {
-  public artists: number[] = []
-  public tracks: number[] = []
+  public readonly artists: number[] = []
+  public readonly tracks: Track[] = []
 
   constructor(
-    public title: string,
-    public art?: string,
+    public readonly title: string,
+    public readonly art?: string,
   ) {}
 
   addArtist(artistId: number) {
     this.artists.push(artistId)
   }
 
-  addTrack(trackId: number) {
-    this.tracks.push(trackId)
+  addTrack(track: Track) {
+    this.tracks.push(track)
   }
 }

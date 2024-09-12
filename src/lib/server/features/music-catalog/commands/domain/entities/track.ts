@@ -1,7 +1,7 @@
 export class Track {
-  public artists: number[] = []
+  public readonly artists: number[] = []
 
-  constructor(public title: string) {}
+  constructor(public readonly title: string) {}
 
   addArtist(artistId: number) {
     this.artists.push(artistId)
