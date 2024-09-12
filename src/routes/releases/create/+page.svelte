@@ -29,7 +29,7 @@
 
     <InputGroup errors={$errors.artists?._errors}>
       <Label for="artists">Artists</Label>
-      <ArtistMultiselect bind:value={$form.artists} {...$constraints.artists} />
+      <ArtistMultiselect bind:value={$form.artists} />
     </InputGroup>
 
     <InputGroup errors={$errors.art}>
@@ -53,7 +53,7 @@
 
           <InputGroup>
             <Label for="tracks[{i}].artists">Artists</Label>
-            <ArtistMultiselect bind:value={track.artists} {...$constraints.tracks?.artists} />
+            <ArtistMultiselect bind:value={track.artists} />
           </InputGroup>
         </div>
         <IconButton

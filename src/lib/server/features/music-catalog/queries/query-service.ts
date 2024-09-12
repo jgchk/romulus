@@ -5,9 +5,11 @@ import { GetAllReleasesQuery, type GetAllReleasesResult } from './application/ge
 import { GetArtistQuery, type GetArtistResult } from './application/get-artist'
 import { GetReleaseQuery, type GetReleaseResult } from './application/get-release'
 import { GetTrackQuery, type GetTrackResult } from './application/get-track'
+import { SearchArtistsQuery, type SearchArtistsResult } from './application/search-artists'
 
 export class MusicCatalogQueryService {
   private getAllArtistsQuery: GetAllArtistsQuery
+  private searchArtistsQuery: SearchArtistsQuery
   private getArtistQuery: GetArtistQuery
   private getAllReleasesQuery: GetAllReleasesQuery
   private getReleaseQuery: GetReleaseQuery
@@ -15,6 +17,7 @@ export class MusicCatalogQueryService {
 
   constructor(db: IDrizzleConnection) {
     this.getAllArtistsQuery = new GetAllArtistsQuery(db)
+    this.searchArtistsQuery = new SearchArtistsQuery(db)
     this.getArtistQuery = new GetArtistQuery(db)
     this.getAllReleasesQuery = new GetAllReleasesQuery(db)
     this.getReleaseQuery = new GetReleaseQuery(db)
@@ -23,6 +26,10 @@ export class MusicCatalogQueryService {
 
   getAllArtists(): Promise<GetAllArtistsResult> {
     return this.getAllArtistsQuery.execute()
+  }
+
+  searchArtists(nameQuery: string): Promise<SearchArtistsResult> {
+    return this.searchArtistsQuery.execute(nameQuery)
   }
 
   getArtist(id: number): Promise<GetArtistResult> {

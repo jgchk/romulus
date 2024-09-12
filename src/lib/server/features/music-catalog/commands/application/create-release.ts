@@ -3,7 +3,7 @@ import { Track } from '../domain/entities/track'
 import type { ReleaseRepository } from '../domain/repositories/release-repository'
 import type { TrackRepository } from '../domain/repositories/track-repository'
 
-export type CreateRelease = {
+export type CreateReleaseRequest = {
   title: string
   art?: string
   artists: number[]
@@ -16,7 +16,7 @@ export class CreateReleaseCommand {
     private trackRepo: TrackRepository,
   ) {}
 
-  async execute(input: CreateRelease): Promise<number> {
+  async execute(input: CreateReleaseRequest): Promise<number> {
     const release = new Release(input.title, input.art)
 
     for (const artist of input.artists) {
