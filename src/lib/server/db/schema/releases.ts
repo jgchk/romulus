@@ -66,6 +66,7 @@ export type Track = InferSelectModel<typeof tracks>
 export const tracks = pgTable('Track', {
   id: serial('id').primaryKey().notNull(),
   title: text('title').notNull(),
+  durationMs: integer('duration_ms'),
 })
 
 export const tracksRelations = relations(tracks, ({ many }) => ({

@@ -37,6 +37,7 @@ export class DrizzleReleaseRepository implements ReleaseRepository {
           .values(
             release.tracks.map((track) => ({
               title: track.title,
+              durationMs: track.durationMs?.value,
             })),
           )
           .returning({ trackId: tracks.id })

@@ -3,33 +3,13 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import type { CreateReleaseRequest } from '$lib/server/features/music-catalog/commands/application/create-release'
+import type { CreateReleaseRequest } from '$lib/server/features/music-catalog/commands/application/commands/create-release'
+import { InvalidTrackError } from '$lib/server/features/music-catalog/commands/application/errors/invalid-track-error'
 import { NonexistentDateError } from '$lib/server/features/music-catalog/commands/domain/errors/nonexistent-date'
 import { ReleaseDatePrecisionError } from '$lib/server/features/music-catalog/commands/domain/errors/release-date-precision'
 import { optionalString } from '$lib/utils/validators'
 
 import type { Actions, PageServerLoad } from './$types'
-
-const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  artists: z
-    .object({ id: z.number().int(), name: z.string() })
-    .array()
-    .min(1, 'At least one artist is required'),
-  art: optionalString,
-  year: z.number().int().optional(),
-  month: z.number().int().min(1).max(12).optional(),
-  day: z.number().int().min(1).max(31).optional(),
-  tracks: z
-    .object({
-      title: z.string().min(1, 'Title is required'),
-      artists: z
-        .object({ id: z.number().int(), name: z.string() })
-        .array()
-        .min(1, 'At least one artist is required'),
-    })
-    .array(),
-})
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.user?.permissions?.includes('EDIT_RELEASES')) {
@@ -66,14 +46,32 @@ export const actions: Actions = {
     }
 
     const createReleaseRequest: CreateReleaseRequest = {
-      ...form.data,
+      title: form.data.title,
       art: form.data.art,
       releaseDate,
       artists: form.data.artists.map((artist) => artist.id),
-      tracks: form.data.tracks.map((track) => ({
-        ...track,
+      tracks: [],
+    }
+
+    for (const [i, track] of form.data.tracks.entries()) {
+      const durationMs: number | undefined = undefined
+      if (track.duration.length > 0) {
+        try {
+          return convertToMilliseconds(track.duration)
+        } catch {
+          return setError(
+            form,
+            `tracks[${i}].duration`,
+            'Invalid duration format. Must be in the format HH:MM:SS',
+          )
+        }
+      }
+
+      createReleaseRequest.tracks.push({
+        title: track.title,
         artists: track.artists.map((artist) => artist.id),
-      })),
+        durationMs,
+      })
     }
 
     const releaseId =
@@ -85,7 +83,54 @@ export const actions: Actions = {
     if (releaseId instanceof NonexistentDateError) {
       return setError(form, 'day', 'Must be a real date')
     }
+    if (releaseId instanceof InvalidTrackError) {
+      return setError(form, `tracks[${releaseId.index}].duration`, releaseId.originalError.message)
+    }
 
     return redirect(302, `/releases/${releaseId}`)
   },
+}
+
+const schema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  artists: z
+    .object({ id: z.number().int(), name: z.string() })
+    .array()
+    .min(1, 'At least one artist is required'),
+  art: optionalString,
+  year: z.number().int().optional(),
+  month: z.number().int().min(1).max(12).optional(),
+  day: z.number().int().min(1).max(31).optional(),
+  tracks: z
+    .object({
+      title: z.string().min(1, 'Title is required'),
+      artists: z
+        .object({ id: z.number().int(), name: z.string() })
+        .array()
+        .min(1, 'At least one artist is required'),
+      duration: z.string(),
+    })
+    .array(),
+})
+
+function convertToMilliseconds(input: string): number {
+  const parts = input.split(':')
+  let hours = 0
+  let minutes = 0
+  let seconds = 0
+
+  if (parts.length === 3) {
+    hours = parseFloat(parts[0])
+    minutes = parseFloat(parts[1])
+    seconds = parseFloat(parts[2])
+  } else if (parts.length === 2) {
+    minutes = parseFloat(parts[0])
+    seconds = parseFloat(parts[1])
+  } else if (parts.length === 1) {
+    seconds = parseFloat(parts[0])
+  } else {
+    throw new Error('Invalid input format')
+  }
+
+  return (hours * 3600 + minutes * 60 + seconds) * 1000
 }

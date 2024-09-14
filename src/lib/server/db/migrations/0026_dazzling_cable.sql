@@ -1,0 +1,1 @@
+ALTER TABLE "Track" ADD COLUMN "duration_ms" integer;

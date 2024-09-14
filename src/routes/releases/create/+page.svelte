@@ -69,7 +69,7 @@
     {#each $form.tracks as track, i}
       <div class="flex items-center rounded-lg border p-4 dark:border-gray-800">
         <div class="flex-1">
-          <InputGroup>
+          <InputGroup errors={$errors.tracks?.[i].title}>
             <Label for="tracks[{i}].title">Title</Label>
             <Input
               type="text"
@@ -79,11 +79,21 @@
             />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
             <Label for="tracks[{i}].artists">Artists</Label>
             <ArtistMultiselect bind:value={track.artists} />
           </InputGroup>
         </div>
+
+        <InputGroup errors={$errors.tracks?.[i].duration}>
+          <Label for="tracks[{i}].duration">Duration</Label>
+          <Input
+            id="tracks[{i}].duration"
+            bind:value={track.duration}
+            {...$constraints.tracks?.duration}
+          />
+        </InputGroup>
+
         <IconButton
           tooltip="Remove track"
           on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
@@ -93,7 +103,7 @@
     {/each}
     <IconButton
       tooltip="Add track"
-      on:click={() => ($form.tracks = [...$form.tracks, { title: '', artists: [] }])}
+      on:click={() => ($form.tracks = [...$form.tracks, { title: '', artists: [], duration: '' }])}
       ><Plus /></IconButton
     >
 
