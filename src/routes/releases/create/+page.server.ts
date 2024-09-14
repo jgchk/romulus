@@ -54,10 +54,10 @@ export const actions: Actions = {
     }
 
     for (const [i, track] of form.data.tracks.entries()) {
-      const durationMs: number | undefined = undefined
+      let durationMs: number | undefined = undefined
       if (track.duration.length > 0) {
         try {
-          return convertToMilliseconds(track.duration)
+          durationMs = convertToMilliseconds(track.duration)
         } catch {
           return setError(
             form,
