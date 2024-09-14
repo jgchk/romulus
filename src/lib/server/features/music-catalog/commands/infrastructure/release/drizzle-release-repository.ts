@@ -31,32 +31,34 @@ export class DrizzleReleaseRepository implements ReleaseRepository {
         })),
       )
 
-      const trackIds = await tx
-        .insert(tracks)
-        .values(
-          release.tracks.map((track) => ({
-            title: track.title,
+      if (release.tracks.length > 0) {
+        const trackIds = await tx
+          .insert(tracks)
+          .values(
+            release.tracks.map((track) => ({
+              title: track.title,
+            })),
+          )
+          .returning({ trackId: tracks.id })
+
+        await tx.insert(trackArtists).values(
+          trackIds.flatMap(({ trackId }, i) =>
+            release.tracks[i].artists.map((artistId, j) => ({
+              trackId,
+              artistId,
+              order: j,
+            })),
+          ),
+        )
+
+        await tx.insert(releaseTracks).values(
+          trackIds.map(({ trackId }, i) => ({
+            releaseId,
+            trackId,
+            order: i,
           })),
         )
-        .returning({ trackId: tracks.id })
-
-      await tx.insert(trackArtists).values(
-        trackIds.flatMap(({ trackId }, i) =>
-          release.tracks[i].artists.map((artistId, j) => ({
-            trackId,
-            artistId,
-            order: j,
-          })),
-        ),
-      )
-
-      await tx.insert(releaseTracks).values(
-        trackIds.map(({ trackId }, i) => ({
-          releaseId,
-          trackId,
-          order: i,
-        })),
-      )
+      }
 
       return releaseId
     })

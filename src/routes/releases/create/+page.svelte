@@ -8,6 +8,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import NumberInput from '$lib/atoms/NumberInput.svelte'
 
   import type { PageData } from './$types'
   import ArtistMultiselect from './ArtistMultiselect.svelte'
@@ -35,6 +36,33 @@
     <InputGroup errors={$errors.art}>
       <Label for="art">Art</Label>
       <Input id="art" bind:value={$form.art} {...$constraints.art} />
+    </InputGroup>
+
+    <InputGroup errors={$errors.year ?? $errors.month ?? $errors.day}>
+      <Label for="releaseDate">Release Date</Label>
+      <div class="flex space-x-2">
+        <NumberInput
+          id="releaseDate.year"
+          bind:value={$form.year}
+          placeholder="YYYY"
+          class="w-1/4"
+          {...$constraints.year}
+        />
+        <NumberInput
+          id="releaseDate.month"
+          bind:value={$form.month}
+          placeholder="MM"
+          class="w-1/4"
+          {...$constraints.month}
+        />
+        <NumberInput
+          id="releaseDate.day"
+          bind:value={$form.day}
+          placeholder="DD"
+          class="w-1/4"
+          {...$constraints.day}
+        />
+      </div>
     </InputGroup>
 
     <h2 class="text-lg font-bold">Tracks</h2>

@@ -1,3 +1,4 @@
+import type { ReleaseDate } from '../value-objects/release-date'
 import type { Track } from './track'
 
 export class Release {
@@ -6,7 +7,8 @@ export class Release {
 
   constructor(
     public readonly title: string,
-    public readonly art?: string,
+    public readonly art: string | undefined,
+    public readonly releaseDate: ReleaseDate | undefined,
   ) {}
 
   addArtist(artistId: number) {
