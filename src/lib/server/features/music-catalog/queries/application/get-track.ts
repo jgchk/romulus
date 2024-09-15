@@ -9,6 +9,10 @@ export type GetTrackResult = {
           id: number
           title: string
         }[]
+        releaseIssues: {
+          id: number
+          title: string
+        }[]
       }
     | undefined
 }
@@ -32,6 +36,17 @@ export class GetTrackQuery {
             },
           },
         },
+        releaseIssues: {
+          columns: {},
+          with: {
+            releaseIssue: {
+              columns: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -46,6 +61,10 @@ export class GetTrackQuery {
         releases: result.releases.map((r) => ({
           id: r.release.id,
           title: r.release.title,
+        })),
+        releaseIssues: result.releaseIssues.map((ri) => ({
+          id: ri.releaseIssue.id,
+          title: ri.releaseIssue.title,
         })),
       },
     }

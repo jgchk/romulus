@@ -2,6 +2,7 @@ import { type InferInsertModel, type InferSelectModel, relations } from 'drizzle
 import { integer, pgTable, primaryKey, serial, text } from 'drizzle-orm/pg-core'
 
 import { artists } from './artists'
+import { releaseIssueTracks } from './release-issues'
 import { releaseTracks } from './releases'
 
 export type InsertTrack = InferInsertModel<typeof tracks>
@@ -15,6 +16,7 @@ export const tracks = pgTable('Track', {
 export const tracksRelations = relations(tracks, ({ many }) => ({
   artists: many(trackArtists),
   releases: many(releaseTracks),
+  releaseIssues: many(releaseIssueTracks),
 }))
 
 export type InsertTrackArtist = InferInsertModel<typeof trackArtists>
