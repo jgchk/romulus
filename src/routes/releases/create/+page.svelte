@@ -4,6 +4,7 @@
 
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
+  import Chip from '$lib/atoms/Chip.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
@@ -80,82 +81,91 @@
     <h2 class="mb-1 mt-4 text-lg font-bold">Tracks</h2>
     <div class="space-y-2">
       {#each $form.tracks as track, i}
-        <div class="flex items-center gap-2 rounded-lg border p-4 dark:border-gray-800">
+        <div class="rounded-lg border p-4 dark:border-gray-800">
+          <div class="flex items-center gap-2">
+            {#if 'id' in track}
+              <InputGroup errors={$errors.tracks?.[i].title ?? $errors.tracks?.[i].id}>
+                <Label for="tracks[{i}].title">Title</Label>
+                <TrackAutocomplete
+                  id="tracks[{i}].title"
+                  bind:value={track.data.title}
+                  on:select={({ detail: { track } }) => {
+                    $form.tracks[i] = {
+                      id: track.id,
+                      data: {
+                        ...track,
+                        duration:
+                          track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                      },
+                      overrides: {},
+                    }
+                  }}
+                />
+              </InputGroup>
+
+              <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
+                <Label for="tracks[{i}].artists">Artists</Label>
+                <ArtistMultiselect bind:value={track.data.artists} disabled />
+              </InputGroup>
+
+              <InputGroup errors={$errors.tracks?.[i].duration}>
+                <Label for="tracks[{i}].duration">Duration</Label>
+                <Input
+                  id="tracks[{i}].duration"
+                  class="w-24"
+                  bind:value={track.data.duration}
+                  disabled
+                  {...$constraints.tracks?.duration}
+                />
+              </InputGroup>
+            {:else}
+              <InputGroup errors={$errors.tracks?.[i].title}>
+                <Label for="tracks[{i}].title">Title</Label>
+                <TrackAutocomplete
+                  id="tracks[{i}].title"
+                  bind:value={track.title}
+                  on:select={({ detail: { track } }) => {
+                    $form.tracks[i] = {
+                      id: track.id,
+                      data: {
+                        ...track,
+                        duration:
+                          track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                      },
+                      overrides: {},
+                    }
+                  }}
+                />
+              </InputGroup>
+
+              <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
+                <Label for="tracks[{i}].artists">Artists</Label>
+                <ArtistMultiselect bind:value={track.artists} />
+              </InputGroup>
+
+              <InputGroup errors={$errors.tracks?.[i].duration}>
+                <Label for="tracks[{i}].duration">Duration</Label>
+                <Input
+                  id="tracks[{i}].duration"
+                  class="w-24"
+                  bind:value={track.duration}
+                  {...$constraints.tracks?.duration}
+                />
+              </InputGroup>
+            {/if}
+
+            <IconButton
+              tooltip="Remove track"
+              on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
+              ><Trash /></IconButton
+            >
+          </div>
+
           {#if 'id' in track}
-            <InputGroup errors={$errors.tracks?.[i].title ?? $errors.tracks?.[i].id}>
-              <Label for="tracks[{i}].title">Title</Label>
-              <TrackAutocomplete
-                id="tracks[{i}].title"
-                bind:value={track.data.title}
-                on:select={({ detail: { track } }) => {
-                  $form.tracks[i] = {
-                    id: track.id,
-                    data: {
-                      ...track,
-                      duration:
-                        track.durationMs !== undefined ? convertToString(track.durationMs) : '',
-                    },
-                    overrides: {},
-                  }
-                }}
-              />
-            </InputGroup>
-
-            <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
-              <Label for="tracks[{i}].artists">Artists</Label>
-              <ArtistMultiselect bind:value={track.data.artists} disabled />
-            </InputGroup>
-
-            <InputGroup errors={$errors.tracks?.[i].duration}>
-              <Label for="tracks[{i}].duration">Duration</Label>
-              <Input
-                id="tracks[{i}].duration"
-                class="w-24"
-                bind:value={track.data.duration}
-                disabled
-                {...$constraints.tracks?.duration}
-              />
-            </InputGroup>
+            <Chip class="dark:bg-primary-800 dark:text-primary-200" text="Existing" />
           {:else}
-            <InputGroup errors={$errors.tracks?.[i].title}>
-              <Label for="tracks[{i}].title">Title</Label>
-              <TrackAutocomplete
-                id="tracks[{i}].title"
-                bind:value={track.title}
-                on:select={({ detail: { track } }) => {
-                  $form.tracks[i] = {
-                    id: track.id,
-                    data: {
-                      ...track,
-                      duration:
-                        track.durationMs !== undefined ? convertToString(track.durationMs) : '',
-                    },
-                    overrides: {},
-                  }
-                }}
-              />
-            </InputGroup>
-
-            <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
-              <Label for="tracks[{i}].artists">Artists</Label>
-              <ArtistMultiselect bind:value={track.artists} />
-            </InputGroup>
-
-            <InputGroup errors={$errors.tracks?.[i].duration}>
-              <Label for="tracks[{i}].duration">Duration</Label>
-              <Input
-                id="tracks[{i}].duration"
-                class="w-24"
-                bind:value={track.duration}
-                {...$constraints.tracks?.duration}
-              />
-            </InputGroup>
+            <Chip class="dark:bg-secondary-800 dark:text-secondary-200" text="New" />
           {/if}
-          <IconButton
-            tooltip="Remove track"
-            on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
-            ><Trash /></IconButton
-          >
         </div>
       {/each}
 
