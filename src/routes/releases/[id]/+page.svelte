@@ -1,15 +1,24 @@
 <script lang="ts">
+  import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import CoverArt from '$lib/components/CoverArt.svelte'
+  import { getUserContext } from '$lib/contexts/user'
 
   import type { PageData } from './$types'
 
   export let data: PageData
+
+  const user = getUserContext()
 </script>
 
 <Card class="h-full w-full space-y-2 p-4">
-  <LinkButton href="/releases/{data.release.id}/issues/create">Create Release Issue</LinkButton>
+  {#if $user?.permissions?.includes('EDIT_RELEASES')}
+    <LinkButton href="/releases/{data.release.id}/issues/create">Create Release Issue</LinkButton>
+    <form method="POST" action="?/delete">
+      <Button type="submit" color="error">Delete Release</Button>
+    </form>
+  {/if}
 
   <div class="flex gap-2">
     <div class="flex-1">

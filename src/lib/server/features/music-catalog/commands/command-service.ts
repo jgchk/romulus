@@ -7,6 +7,7 @@ import {
   CreateReleaseIssueCommand,
   type CreateReleaseIssueRequest,
 } from './application/commands/create-release-issue'
+import { DeleteReleaseCommand } from './application/commands/delete-release'
 import type { ArtistRepository } from './domain/repositories/artist-repository'
 import type { ReleaseIssueRepository } from './domain/repositories/release-issue-repository'
 import type { ReleaseRepository } from './domain/repositories/release-repository'
@@ -15,6 +16,7 @@ import type { TrackRepository } from './domain/repositories/track-repository'
 export class MusicCatalogCommandService {
   private createArtistCommand: CreateArtistCommand
   private createReleaseCommand: CreateReleaseCommand
+  private deleteReleaseCommand: DeleteReleaseCommand
   private createReleaseIssueCommand: CreateReleaseIssueCommand
 
   constructor(
@@ -25,6 +27,7 @@ export class MusicCatalogCommandService {
   ) {
     this.createArtistCommand = new CreateArtistCommand(artistRepo)
     this.createReleaseCommand = new CreateReleaseCommand(releaseRepo, trackRepo)
+    this.deleteReleaseCommand = new DeleteReleaseCommand(releaseRepo)
     this.createReleaseIssueCommand = new CreateReleaseIssueCommand(releaseIssueRepo, trackRepo)
   }
 
@@ -34,6 +37,10 @@ export class MusicCatalogCommandService {
 
   createRelease(input: CreateReleaseRequest) {
     return this.createReleaseCommand.execute(input)
+  }
+
+  deleteRelease(releaseId: number) {
+    return this.deleteReleaseCommand.execute(releaseId)
   }
 
   createReleaseIssue(input: CreateReleaseIssueRequest) {

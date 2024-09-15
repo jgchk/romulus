@@ -58,6 +58,10 @@ export class DrizzleReleaseRepository implements ReleaseRepository {
     return releaseId
   }
 
+  async delete(releaseId: number): Promise<void> {
+    await this.db.delete(releases).where(eq(releases.id, releaseId))
+  }
+
   private async insertTrack(track: Track, tx: IDrizzleConnection) {
     const [{ trackId }] = await tx
       .insert(tracks)
