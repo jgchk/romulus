@@ -2,6 +2,7 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 
 import { GetAllArtistsQuery } from './application/get-all-artists'
 import { GetAllReleasesQuery } from './application/get-all-releases'
+import { GetAllTracksQuery } from './application/get-all-tracks'
 import { GetArtistQuery } from './application/get-artist'
 import { GetReleaseQuery } from './application/get-release'
 import { GetReleaseIssueQuery } from './application/get-release-issue'
@@ -16,6 +17,7 @@ export class MusicCatalogQueryService {
   private getAllReleasesQuery: GetAllReleasesQuery
   private getReleaseQuery: GetReleaseQuery
   private getReleaseIssueQuery: GetReleaseIssueQuery
+  private getAllTracksQuery: GetAllTracksQuery
   private getTrackQuery: GetTrackQuery
   private searchTracksQuery: SearchTracksQuery
 
@@ -26,6 +28,7 @@ export class MusicCatalogQueryService {
     this.getAllReleasesQuery = new GetAllReleasesQuery(db)
     this.getReleaseQuery = new GetReleaseQuery(db)
     this.getReleaseIssueQuery = new GetReleaseIssueQuery(db)
+    this.getAllTracksQuery = new GetAllTracksQuery(db)
     this.getTrackQuery = new GetTrackQuery(db)
     this.searchTracksQuery = new SearchTracksQuery(db)
   }
@@ -52,6 +55,10 @@ export class MusicCatalogQueryService {
 
   getReleaseIssue(id: number) {
     return this.getReleaseIssueQuery.execute(id)
+  }
+
+  getAllTracks() {
+    return this.getAllTracksQuery.execute()
   }
 
   getTrack(id: number) {
