@@ -15,7 +15,7 @@
 
 <span
   class={tw(
-    'pointer-events-none rounded-full bg-gray-200 px-1 py-0.5 text-xs font-bold text-gray-500 transition dark:bg-gray-800',
+    'pointer-events-none rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-bold text-gray-500 transition dark:bg-gray-800',
     class_,
   )}
   use:tooltipAction={{ content: tooltip, enabled: !!tooltip }}
