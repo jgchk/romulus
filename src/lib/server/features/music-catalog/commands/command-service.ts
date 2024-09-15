@@ -9,6 +9,7 @@ import {
 } from './application/commands/create-release-issue'
 import { DeleteArtistCommand } from './application/commands/delete-artist'
 import { DeleteReleaseCommand } from './application/commands/delete-release'
+import { DeleteTrackCommand } from './application/commands/delete-track'
 import type { ArtistRepository } from './domain/repositories/artist-repository'
 import type { ReleaseIssueRepository } from './domain/repositories/release-issue-repository'
 import type { ReleaseRepository } from './domain/repositories/release-repository'
@@ -20,6 +21,7 @@ export class MusicCatalogCommandService {
   private createReleaseCommand: CreateReleaseCommand
   private deleteReleaseCommand: DeleteReleaseCommand
   private createReleaseIssueCommand: CreateReleaseIssueCommand
+  private deleteTrackCommand: DeleteTrackCommand
 
   constructor(
     artistRepo: ArtistRepository,
@@ -32,6 +34,7 @@ export class MusicCatalogCommandService {
     this.createReleaseCommand = new CreateReleaseCommand(releaseRepo, trackRepo)
     this.deleteReleaseCommand = new DeleteReleaseCommand(releaseRepo)
     this.createReleaseIssueCommand = new CreateReleaseIssueCommand(releaseIssueRepo, trackRepo)
+    this.deleteTrackCommand = new DeleteTrackCommand(trackRepo)
   }
 
   createArtist(name: string) {
@@ -52,5 +55,9 @@ export class MusicCatalogCommandService {
 
   createReleaseIssue(input: CreateReleaseIssueRequest) {
     return this.createReleaseIssueCommand.execute(input)
+  }
+
+  deleteTrack(trackId: number) {
+    return this.deleteTrackCommand.execute(trackId)
   }
 }

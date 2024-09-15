@@ -1,8 +1,5 @@
-import { error, fail } from '@sveltejs/kit'
-import { eq } from 'drizzle-orm'
+import { error, redirect } from '@sveltejs/kit'
 import { z } from 'zod'
-
-import { releaseTracks, tracks } from '$lib/server/db/schema'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -23,9 +20,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 }
 
 export const actions: Actions = {
-  merge: async ({ locals, params, request }) => {
-    if (locals.user?.id !== 1) {
-      return error(401, 'Unauthorized')
+  delete: async ({ params, locals, setHeaders }) => {
+    if (!locals.user?.permissions?.includes('EDIT_RELEASES')) {
+      return error(403, { message: 'You do not have permission to delete tracks' })
     }
 
     const maybeId = z.coerce.number().int().safeParse(params.id)
@@ -34,23 +31,9 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const data = await request.formData()
+    await locals.services.musicCatalog.commands.deleteTrack(id)
 
-    const maybeOtherId = z.coerce.number().int().safeParse(data.get('id'))
-    if (!maybeOtherId.success) {
-      return fail(400, {
-        action: 'merge' as const,
-        errors: { name: maybeOtherId.error.errors.map((err) => err.message) },
-      })
-    }
-    const otherId = maybeOtherId.data
-
-    await locals.dbConnection.transaction(async (tx) => {
-      // make all releaseTracks pointing to otherTrack.id point to track.id
-      await tx.update(releaseTracks).set({ trackId: id }).where(eq(releaseTracks.trackId, otherId))
-
-      // delete otherTrack
-      await tx.delete(tracks).where(eq(tracks.id, otherId))
-    })
+    setHeaders({ Location: '/tracks' })
+    return redirect(303, '/tracks')
   },
 }

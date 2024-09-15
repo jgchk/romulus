@@ -1,4 +1,7 @@
+import { eq } from 'drizzle-orm'
+
 import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { tracks } from '$lib/server/db/schema'
 
 import { Track } from '../../domain/aggregates/track'
 import type { TrackRepository } from '../../domain/repositories/track-repository'
@@ -32,5 +35,9 @@ export class DrizzleTrackRepository implements TrackRepository {
       result.artists.map((a) => a.artistId),
       durationMs,
     )
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.db.delete(tracks).where(eq(tracks.id, id))
   }
 }
