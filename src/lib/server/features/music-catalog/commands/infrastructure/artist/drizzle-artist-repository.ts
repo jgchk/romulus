@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm'
+
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { artists } from '$lib/server/db/schema'
 
@@ -20,5 +22,9 @@ export class DrizzleArtistRepository implements ArtistRepository {
     })
 
     return artistId
+  }
+
+  async delete(artistId: number): Promise<void> {
+    await this.db.delete(artists).where(eq(artists.id, artistId))
   }
 }
