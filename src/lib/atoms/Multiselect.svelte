@@ -247,6 +247,10 @@
         inputRef?.focus()
       }}
       on:loadMore={() => handleLoadMore()}
-    />
+    >
+      <svelte:fragment slot="option" let:option>
+        <slot name="option" {option} />
+      </svelte:fragment>
+    </OptionsDropdown>
   {/if}
 </div>
