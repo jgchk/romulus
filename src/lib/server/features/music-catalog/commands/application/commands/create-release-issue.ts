@@ -1,16 +1,17 @@
-import { Release } from '../../domain/aggregates/release'
-import { ReleaseTrack } from '../../domain/aggregates/release/release-track'
+import { ReleaseIssue } from '../../domain/aggregates/release-issue'
+import { ReleaseIssueTrack } from '../../domain/aggregates/release-issue/release-issue-track'
 import { Track } from '../../domain/aggregates/track'
 import type { NonexistentDateError } from '../../domain/errors/nonexistent-date'
 import type { ReleaseDatePrecisionError } from '../../domain/errors/release-date-precision'
-import type { ReleaseRepository } from '../../domain/repositories/release-repository'
+import type { ReleaseIssueRepository } from '../../domain/repositories/release-issue-repository'
 import type { TrackRepository } from '../../domain/repositories/track-repository'
 import { Duration } from '../../domain/value-objects/duration'
 import { ReleaseDate } from '../../domain/value-objects/release-date'
 import { InvalidTrackError } from '../errors/invalid-track'
 import { NonexistentTrackError } from '../errors/nonexistent-track'
 
-export type CreateReleaseRequest = {
+export type CreateReleaseIssueRequest = {
+  releaseId: number
   title: string
   art: string | undefined
   releaseDate: { year: number; month?: number; day?: number } | undefined
@@ -24,14 +25,14 @@ type TrackReference = {
   overrides?: { title?: string; artists?: number[]; durationMs?: number }
 }
 
-export class CreateReleaseCommand {
+export class CreateReleaseIssueCommand {
   constructor(
-    private releaseRepo: ReleaseRepository,
+    private releaseIssueRepo: ReleaseIssueRepository,
     private trackRepo: TrackRepository,
   ) {}
 
   async execute(
-    input: CreateReleaseRequest,
+    input: CreateReleaseIssueRequest,
   ): Promise<
     | number
     | ReleaseDatePrecisionError
@@ -48,10 +49,10 @@ export class CreateReleaseCommand {
       return releaseDate
     }
 
-    const release = new Release(input.title, input.art, releaseDate)
+    const releaseIssue = new ReleaseIssue(input.releaseId, input.title, input.art, releaseDate)
 
     for (const artist of input.artists) {
-      release.addArtist(artist)
+      releaseIssue.addArtist(artist)
     }
 
     for (const [i, track] of input.tracks.entries()) {
@@ -61,7 +62,7 @@ export class CreateReleaseCommand {
           return new NonexistentTrackError(i, track.id)
         }
 
-        const releaseTrack = new ReleaseTrack(track_)
+        const releaseIssueTrack = new ReleaseIssueTrack(track_)
 
         if (track.overrides !== undefined) {
           const durationMs =
@@ -73,14 +74,14 @@ export class CreateReleaseCommand {
             return new InvalidTrackError(i, durationMs)
           }
 
-          releaseTrack.override({
+          releaseIssueTrack.override({
             title: track.overrides.title,
             artists: track.overrides.artists,
             durationMs,
           })
         }
 
-        release.addTrack(releaseTrack)
+        releaseIssue.addTrack(releaseIssueTrack)
       } else {
         const durationMs =
           track.durationMs !== undefined ? Duration.create(track.durationMs) : undefined
@@ -91,15 +92,15 @@ export class CreateReleaseCommand {
 
         const track_ = new Track(undefined, track.title, track.artists, durationMs)
 
-        const releaseTrack = new ReleaseTrack(track_)
+        const releaseIssueTrack = new ReleaseIssueTrack(track_)
 
-        release.addTrack(releaseTrack)
+        releaseIssue.addTrack(releaseIssueTrack)
       }
     }
 
-    const releaseId = await this.releaseRepo.create(release)
+    const releaseIssueId = await this.releaseIssueRepo.create(releaseIssue)
 
-    return releaseId
+    return releaseIssueId
   }
 }
 

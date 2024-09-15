@@ -10,8 +10,8 @@
   import Label from '$lib/atoms/Label.svelte'
   import NumberInput from '$lib/atoms/NumberInput.svelte'
 
-  import ArtistMultiselect from '../ArtistMultiselect.svelte'
-  import TrackAutocomplete from '../TrackAutocomplete.svelte'
+  import ArtistMultiselect from '../../../ArtistMultiselect.svelte'
+  import TrackAutocomplete from '../../../TrackAutocomplete.svelte'
   import type { PageData } from './$types'
 
   export let data: PageData

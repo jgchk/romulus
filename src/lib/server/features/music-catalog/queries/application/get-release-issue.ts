@@ -1,7 +1,7 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-export type GetReleaseResult = {
-  release:
+export type GetReleaseIssueResult = {
+  releaseIssue:
     | {
         id: number
         title: string
@@ -14,20 +14,20 @@ export type GetReleaseResult = {
           id: number
           title: string
         }[]
-        issues: {
+        release: {
           id: number
           title: string
-        }[]
+        }
       }
     | undefined
 }
 
-export class GetReleaseQuery {
+export class GetReleaseIssueQuery {
   constructor(private db: IDrizzleConnection) {}
 
-  async execute(id: number): Promise<GetReleaseResult> {
-    const result = await this.db.query.releases.findFirst({
-      where: (releases, { eq }) => eq(releases.id, id),
+  async execute(id: number): Promise<GetReleaseIssueResult> {
+    const result = await this.db.query.releaseIssues.findFirst({
+      where: (releaseIssues, { eq }) => eq(releaseIssues.id, id),
       with: {
         artists: {
           orderBy: (artists, { asc }) => asc(artists.order),
@@ -53,7 +53,7 @@ export class GetReleaseQuery {
             },
           },
         },
-        issues: {
+        release: {
           columns: {
             id: true,
             title: true,
@@ -63,11 +63,11 @@ export class GetReleaseQuery {
     })
 
     if (!result) {
-      return { release: undefined }
+      return { releaseIssue: undefined }
     }
 
     return {
-      release: {
+      releaseIssue: {
         id: result.id,
         title: result.title,
         art: result.art ?? undefined,
@@ -79,10 +79,10 @@ export class GetReleaseQuery {
           id: track.track.id,
           title: track.track.title,
         })),
-        issues: result.issues.map((issue) => ({
-          id: issue.id,
-          title: issue.title,
-        })),
+        release: {
+          id: result.release.id,
+          title: result.release.title,
+        },
       },
     }
   }

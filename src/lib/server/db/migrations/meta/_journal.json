@@ -197,6 +197,13 @@
       "when": 1726347952774,
       "tag": "0027_outgoing_alice",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1726410279828,
+      "tag": "0028_lyrical_scourge",
+      "breakpoints": true
     }
   ]
 }
