@@ -1,4 +1,4 @@
-import type { ReleaseDate } from '../value-objects/release-date'
+import type { ReleaseDate } from '../../value-objects/release-date'
 import type { ReleaseTrack } from './release-track'
 
 export class Release {

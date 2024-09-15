@@ -1,4 +1,4 @@
-import { Artist } from '../../domain/entities/artist'
+import { Artist } from '../../domain/aggregates/artist'
 import type { ArtistRepository } from '../../domain/repositories/artist-repository'
 
 export class CreateArtistCommand {

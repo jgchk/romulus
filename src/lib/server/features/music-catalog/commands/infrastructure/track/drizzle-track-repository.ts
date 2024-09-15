@@ -1,6 +1,6 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-import { Track } from '../../domain/entities/track'
+import { Track } from '../../domain/aggregates/track'
 import type { TrackRepository } from '../../domain/repositories/track-repository'
 import { Duration } from '../../domain/value-objects/duration'
 

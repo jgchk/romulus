@@ -1,4 +1,4 @@
-import type { Track } from '../entities/track'
+import type { Track } from '../aggregates/track'
 
 export type TrackRepository = {
   get(id: number): Promise<Track | undefined>

@@ -9,8 +9,8 @@ import {
   tracks,
 } from '$lib/server/db/schema'
 
-import type { Release } from '../../domain/entities/release'
-import type { Track } from '../../domain/entities/track'
+import type { Release } from '../../domain/aggregates/release'
+import type { Track } from '../../domain/aggregates/track'
 import type { ReleaseRepository } from '../../domain/repositories/release-repository'
 
 export class DrizzleReleaseRepository implements ReleaseRepository {
