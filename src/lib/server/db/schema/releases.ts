@@ -92,6 +92,9 @@ export const releaseTracks = pgTable(
       })
       .notNull(),
     order: integer('order').notNull(),
+
+    title: text('title'),
+    durationMs: integer('duration_ms'),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.releaseId, table.trackId] }),

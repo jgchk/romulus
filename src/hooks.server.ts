@@ -17,6 +17,7 @@ import { DrizzleGenreHistoryRepository } from '$lib/server/features/genres/infra
 import { MusicCatalogCommandService } from '$lib/server/features/music-catalog/commands/command-service'
 import { DrizzleArtistRepository } from '$lib/server/features/music-catalog/commands/infrastructure/artist/drizzle-artist-repository'
 import { DrizzleReleaseRepository } from '$lib/server/features/music-catalog/commands/infrastructure/release/drizzle-release-repository'
+import { DrizzleTrackRepository } from '$lib/server/features/music-catalog/commands/infrastructure/track/drizzle-track-repository'
 import { MusicCatalogQueryService } from '$lib/server/features/music-catalog/queries/query-service'
 
 const pg = getPostgresConnection()
@@ -46,6 +47,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       commands: new MusicCatalogCommandService(
         new DrizzleArtistRepository(dbConnection),
         new DrizzleReleaseRepository(dbConnection),
+        new DrizzleTrackRepository(dbConnection),
       ),
       queries: new MusicCatalogQueryService(dbConnection),
     },

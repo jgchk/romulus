@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm'
+
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import {
   releaseArtists,
@@ -8,6 +10,7 @@ import {
 } from '$lib/server/db/schema'
 
 import type { Release } from '../../domain/entities/release'
+import type { Track } from '../../domain/entities/track'
 import type { ReleaseRepository } from '../../domain/repositories/release-repository'
 
 export class DrizzleReleaseRepository implements ReleaseRepository {
@@ -31,39 +34,66 @@ export class DrizzleReleaseRepository implements ReleaseRepository {
         })),
       )
 
-      if (release.tracks.length > 0) {
-        const trackIds = await tx
-          .insert(tracks)
-          .values(
-            release.tracks.map((track) => ({
-              title: track.title,
-              durationMs: track.durationMs?.value,
-            })),
-          )
-          .returning({ trackId: tracks.id })
+      for (const [i, track] of release.tracks.entries()) {
+        let trackId = track.track.id
+        if (trackId === undefined) {
+          trackId = await this.insertTrack(track.track, tx)
+        } else {
+          await this.updateTrack(trackId, track.track, tx)
+        }
 
-        await tx.insert(trackArtists).values(
-          trackIds.flatMap(({ trackId }, i) =>
-            release.tracks[i].artists.map((artistId, j) => ({
-              trackId,
-              artistId,
-              order: j,
-            })),
-          ),
-        )
+        await tx.insert(releaseTracks).values({
+          releaseId,
+          trackId,
+          order: i,
 
-        await tx.insert(releaseTracks).values(
-          trackIds.map(({ trackId }, i) => ({
-            releaseId,
-            trackId,
-            order: i,
-          })),
-        )
+          title: track.overrides.title,
+          durationMs: track.overrides.durationMs?.value,
+        })
       }
 
       return releaseId
     })
 
     return releaseId
+  }
+
+  private async insertTrack(track: Track, tx: IDrizzleConnection) {
+    const [{ trackId }] = await tx
+      .insert(tracks)
+      .values({
+        title: track.title,
+        durationMs: track.durationMs?.value,
+      })
+      .returning({ trackId: tracks.id })
+
+    await tx.insert(trackArtists).values(
+      track.artists.map((artistId, i) => ({
+        trackId,
+        artistId,
+        order: i,
+      })),
+    )
+
+    return trackId
+  }
+
+  private async updateTrack(trackId: number, track: Track, tx: IDrizzleConnection) {
+    await tx
+      .update(tracks)
+      .set({
+        title: track.title,
+        durationMs: track.durationMs?.value,
+      })
+      .where(eq(tracks.id, trackId))
+
+    await tx.delete(trackArtists).where(eq(trackArtists.trackId, trackId))
+    await tx.insert(trackArtists).values(
+      track.artists.map((artistId, i) => ({
+        trackId,
+        artistId,
+        order: i,
+      })),
+    )
   }
 }

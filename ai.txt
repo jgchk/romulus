@@ -1,0 +1,1107 @@
+File: src/lib/server/features/music-catalog/commands/application/commands/create-artist.ts
+Contents:
+import { Artist } from '../../domain/entities/artist'
+import type { ArtistRepository } from '../../domain/repositories/artist-repository'
+
+export class CreateArtistCommand {
+  constructor(private artistRepo: ArtistRepository) {}
+
+  async execute(name: string): Promise<number> {
+    const artist = new Artist(name)
+
+    const artistId = await this.artistRepo.create(artist)
+
+    return artistId
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/application/commands/create-release.ts
+Contents:
+import { Release } from '../../domain/entities/release'
+import { ReleaseTrack } from '../../domain/entities/release-track'
+import { Track } from '../../domain/entities/track'
+import type { NonexistentDateError } from '../../domain/errors/nonexistent-date'
+import type { ReleaseDatePrecisionError } from '../../domain/errors/release-date-precision'
+import type { ReleaseRepository } from '../../domain/repositories/release-repository'
+import type { TrackRepository } from '../../domain/repositories/track-repository'
+import { Duration } from '../../domain/value-objects/duration'
+import { ReleaseDate } from '../../domain/value-objects/release-date'
+import { InvalidTrackError } from '../errors/invalid-track-error'
+
+export type CreateReleaseRequest = {
+  title: string
+  art: string | undefined
+  releaseDate: { year: number; month?: number; day?: number } | undefined
+  artists: number[]
+  tracks: (NewTrack | TrackReference)[]
+}
+
+type NewTrack = { title: string; artists: number[]; durationMs: number | undefined }
+type TrackReference = {
+  id: number
+  overrides?: { title?: string; artists?: number[]; durationMs?: number }
+}
+
+export class CreateReleaseCommand {
+  constructor(
+    private releaseRepo: ReleaseRepository,
+    private trackRepo: TrackRepository,
+  ) {}
+
+  async execute(
+    input: CreateReleaseRequest,
+  ): Promise<number | ReleaseDatePrecisionError | NonexistentDateError | InvalidTrackError> {
+    const releaseDate =
+      input.releaseDate !== undefined
+        ? ReleaseDate.create(input.releaseDate.year, input.releaseDate.month, input.releaseDate.day)
+        : undefined
+
+    if (releaseDate instanceof Error) {
+      return releaseDate
+    }
+
+    const release = new Release(input.title, input.art, releaseDate)
+
+    for (const artist of input.artists) {
+      release.addArtist(artist)
+    }
+
+    for (const [i, track] of input.tracks.entries()) {
+      if (isTrackReference(track)) {
+        const track_ = await this.trackRepo.get(track.id)
+
+        const releaseTrack = new ReleaseTrack(track_)
+
+        if (track.overrides !== undefined) {
+          const durationMs =
+            track.overrides.durationMs !== undefined
+              ? Duration.create(track.overrides.durationMs)
+              : undefined
+
+          if (durationMs instanceof Error) {
+            return new InvalidTrackError(i, durationMs)
+          }
+
+          releaseTrack.override({
+            title: track.overrides.title,
+            artists: track.overrides.artists,
+            durationMs,
+          })
+        }
+
+        release.addTrack(releaseTrack)
+      } else {
+        const durationMs =
+          track.durationMs !== undefined ? Duration.create(track.durationMs) : undefined
+
+        if (durationMs instanceof Error) {
+          return new InvalidTrackError(i, durationMs)
+        }
+
+        const track_ = new Track(undefined, track.title, track.artists, durationMs)
+
+        const releaseTrack = new ReleaseTrack(track_)
+
+        release.addTrack(releaseTrack)
+      }
+    }
+
+    const releaseId = await this.releaseRepo.create(release)
+
+    return releaseId
+  }
+}
+
+function isTrackReference(track: NewTrack | TrackReference): track is TrackReference {
+  return 'id' in track
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/application/errors/base.ts
+Contents:
+import { CustomError } from '$lib/utils/error'
+
+export class ApplicationError extends CustomError {
+  private readonly __tag = 'ApplicationError'
+
+  constructor(name: string, message: string) {
+    super(name, message)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/application/errors/invalid-track-error.ts
+Contents:
+import type { NonintegerDurationError } from '../../domain/errors/duration-integer'
+import type { NegativeDurationError } from '../../domain/errors/negative-duration'
+import { ApplicationError } from './base'
+
+export class InvalidTrackError extends ApplicationError {
+  constructor(
+    public readonly index: number,
+    public readonly originalError: NonintegerDurationError | NegativeDurationError,
+  ) {
+    super('InvalidTrackError', `Invalid track at index ${index}: ${originalError.message}`)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/command-service.ts
+Contents:
+import { CreateArtistCommand } from './application/commands/create-artist'
+import {
+  CreateReleaseCommand,
+  type CreateReleaseRequest,
+} from './application/commands/create-release'
+import type { ArtistRepository } from './domain/repositories/artist-repository'
+import type { ReleaseRepository } from './domain/repositories/release-repository'
+import type { TrackRepository } from './domain/repositories/track-repository'
+
+export class MusicCatalogCommandService {
+  private createReleaseCommand: CreateReleaseCommand
+  private createArtistCommand: CreateArtistCommand
+
+  constructor(
+    artistRepo: ArtistRepository,
+    releaseRepo: ReleaseRepository,
+    trackRepo: TrackRepository,
+  ) {
+    this.createReleaseCommand = new CreateReleaseCommand(releaseRepo, trackRepo)
+    this.createArtistCommand = new CreateArtistCommand(artistRepo)
+  }
+
+  createRelease(input: CreateReleaseRequest) {
+    return this.createReleaseCommand.execute(input)
+  }
+
+  createArtist(name: string) {
+    return this.createArtistCommand.execute(name)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/entities/artist.ts
+Contents:
+export class Artist {
+  constructor(public name: string) {}
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/entities/release-track.ts
+Contents:
+import type { Duration } from '../value-objects/duration'
+import type { Track } from './track'
+
+export class ReleaseTrack {
+  constructor(
+    public readonly track: Track,
+    public readonly overrides: {
+      title?: string
+      artists?: number[]
+      durationMs?: Duration
+    } = {},
+  ) {}
+
+  override(overrides: { title?: string; artists?: number[]; durationMs?: Duration }) {
+    if (overrides.title !== undefined) {
+      this.overrides.title = overrides.title
+    }
+    if (overrides.artists !== undefined) {
+      this.overrides.artists = overrides.artists
+    }
+    if (overrides.durationMs !== undefined) {
+      this.overrides.durationMs = overrides.durationMs
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/entities/release.ts
+Contents:
+import type { ReleaseDate } from '../value-objects/release-date'
+import type { ReleaseTrack } from './release-track'
+
+export class Release {
+  public readonly artists: number[] = []
+  public readonly tracks: ReleaseTrack[] = []
+
+  constructor(
+    public readonly title: string,
+    public readonly art: string | undefined,
+    public readonly releaseDate: ReleaseDate | undefined,
+  ) {}
+
+  addArtist(artistId: number) {
+    this.artists.push(artistId)
+  }
+
+  addTrack(track: ReleaseTrack) {
+    this.tracks.push(track)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/entities/track.ts
+Contents:
+import type { Duration } from '../value-objects/duration'
+
+export class Track {
+  constructor(
+    public readonly id: number | undefined,
+    public readonly title: string,
+    public readonly artists: number[],
+    public readonly durationMs: Duration | undefined,
+  ) {}
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/errors/base.ts
+Contents:
+import { CustomError } from '$lib/utils/error'
+
+export class DomainError extends CustomError {
+  private readonly __tag = 'DomainError'
+
+  constructor(name: string, message: string) {
+    super(name, message)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/errors/duration-integer.ts
+Contents:
+import { DomainError } from './base'
+
+export class NonintegerDurationError extends DomainError {
+  constructor(public readonly duration: number) {
+    super('NonintegerDurationError', 'Duration must be an integer')
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/errors/negative-duration.ts
+Contents:
+import { DomainError } from './base'
+
+export class NegativeDurationError extends DomainError {
+  constructor(public readonly duration: number) {
+    super('NegativeDurationError', 'Duration cannot be negative')
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/errors/nonexistent-date.ts
+Contents:
+import { DomainError } from './base'
+
+export class NonexistentDateError extends DomainError {
+  constructor(
+    public readonly year: number,
+    public readonly month?: number,
+    public readonly day?: number,
+  ) {
+    super(
+      'NonexistentDateError',
+      `Date is not a real calendar date (Year: ${year}, Month: ${month}, Day: ${day})`,
+    )
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/errors/release-date-precision.ts
+Contents:
+import { DomainError } from './base'
+
+export class ReleaseDatePrecisionError extends DomainError {
+  constructor(
+    public readonly year: number,
+    public readonly month: undefined,
+    public readonly day: number,
+  ) {
+    super(
+      'ReleaseDatePrecisionError',
+      `Invalid release date precision (Year: ${year}, Month: ${month}, Day: ${day}). Cannot set a release day without a month.`,
+    )
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/repositories/artist-repository.ts
+Contents:
+import type { Artist } from '../entities/artist'
+
+export type ArtistRepository = {
+  create(artist: Artist): Promise<number>
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/repositories/release-repository.ts
+Contents:
+import type { Release } from '../entities/release'
+
+export type ReleaseRepository = {
+  create(release: Release): Promise<number>
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/repositories/track-repository.ts
+Contents:
+import type { Track } from '../entities/track'
+
+export type TrackRepository = {
+  get(id: number): Promise<Track | undefined>
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/value-objects/duration.ts
+Contents:
+import { NonintegerDurationError } from '../errors/duration-integer'
+import { NegativeDurationError } from '../errors/negative-duration'
+
+export class Duration {
+  private constructor(public readonly value: number) {}
+
+  static create(value: number): Duration | NonintegerDurationError | NegativeDurationError {
+    if (value < 0) {
+      return new NegativeDurationError(value)
+    }
+
+    if (value % 1 !== 0) {
+      return new NonintegerDurationError(value)
+    }
+
+    return new Duration(value)
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/domain/value-objects/release-date.ts
+Contents:
+import { NonexistentDateError } from '../errors/nonexistent-date'
+import { ReleaseDatePrecisionError } from '../errors/release-date-precision'
+
+export type IReleaseDate =
+  | {
+      year: number
+      month: number
+      day: number
+    }
+  | {
+      year: number
+      month: number
+      day?: undefined
+    }
+  | {
+      year: number
+      month?: undefined
+      day?: undefined
+    }
+
+export class ReleaseDate {
+  private constructor(public readonly value: IReleaseDate) {}
+
+  static create(
+    year: number,
+    month: number | undefined,
+    day: number | undefined,
+  ): ReleaseDate | ReleaseDatePrecisionError | NonexistentDateError {
+    const releaseDate = ReleaseDate.parse(year, month, day)
+    if (releaseDate instanceof ReleaseDatePrecisionError) {
+      return releaseDate
+    }
+
+    if (!ReleaseDate.isValidDate(releaseDate)) {
+      return new NonexistentDateError(year, month, day)
+    }
+
+    return new ReleaseDate(releaseDate)
+  }
+
+  private static parse(
+    year: number,
+    month: number | undefined,
+    day: number | undefined,
+  ): IReleaseDate | ReleaseDatePrecisionError {
+    if (month !== undefined) {
+      if (day !== undefined) {
+        return { year, month, day }
+      } else {
+        return { year, month, day }
+      }
+    } else {
+      if (day !== undefined) {
+        return new ReleaseDatePrecisionError(year, month, day)
+      } else {
+        return { year, month, day }
+      }
+    }
+  }
+
+  private static isValidDate(releaseDate: IReleaseDate) {
+    const { year, month, day } = releaseDate
+
+    if (month === undefined) {
+      return true
+    }
+
+    if (month < 1 || month > 12) {
+      return false
+    }
+
+    if (day === undefined) {
+      return true
+    }
+
+    const date = new Date(year, month - 1, day)
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/infrastructure/artist/drizzle-artist-repository.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { artists } from '$lib/server/db/schema'
+
+import type { Artist } from '../../domain/entities/artist'
+import type { ArtistRepository } from '../../domain/repositories/artist-repository'
+
+export class DrizzleArtistRepository implements ArtistRepository {
+  constructor(private db: IDrizzleConnection) {}
+
+  async create(artist: Artist): Promise<number> {
+    const artistId = await this.db.transaction(async (tx) => {
+      const [{ artistId }] = await tx
+        .insert(artists)
+        .values({
+          name: artist.name,
+        })
+        .returning({ artistId: artists.id })
+
+      return artistId
+    })
+
+    return artistId
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/infrastructure/release/drizzle-release-repository.ts
+Contents:
+import { eq } from 'drizzle-orm'
+
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+import {
+  releaseArtists,
+  releases,
+  releaseTracks,
+  trackArtists,
+  tracks,
+} from '$lib/server/db/schema'
+
+import type { Release } from '../../domain/entities/release'
+import type { Track } from '../../domain/entities/track'
+import type { ReleaseRepository } from '../../domain/repositories/release-repository'
+
+export class DrizzleReleaseRepository implements ReleaseRepository {
+  constructor(private db: IDrizzleConnection) {}
+
+  async create(release: Release): Promise<number> {
+    const releaseId = await this.db.transaction(async (tx) => {
+      const [{ releaseId }] = await tx
+        .insert(releases)
+        .values({
+          title: release.title,
+          art: release.art,
+        })
+        .returning({ releaseId: releases.id })
+
+      await tx.insert(releaseArtists).values(
+        release.artists.map((artistId, i) => ({
+          releaseId,
+          artistId,
+          order: i,
+        })),
+      )
+
+      for (const [i, track] of release.tracks.entries()) {
+        let trackId = track.track.id
+        if (trackId === undefined) {
+          trackId = await this.insertTrack(track.track, tx)
+        } else {
+          await this.updateTrack(trackId, track.track, tx)
+        }
+
+        await tx.insert(releaseTracks).values({
+          releaseId,
+          trackId,
+          order: i,
+
+          title: track.overrides.title,
+          durationMs: track.overrides.durationMs?.value,
+        })
+      }
+
+      return releaseId
+    })
+
+    return releaseId
+  }
+
+  private async insertTrack(track: Track, tx: IDrizzleConnection) {
+    const [{ trackId }] = await tx
+      .insert(tracks)
+      .values({
+        title: track.title,
+        durationMs: track.durationMs?.value,
+      })
+      .returning({ trackId: tracks.id })
+
+    await tx.insert(trackArtists).values(
+      track.artists.map((artistId, i) => ({
+        trackId,
+        artistId,
+        order: i,
+      })),
+    )
+
+    return trackId
+  }
+
+  private async updateTrack(trackId: number, track: Track, tx: IDrizzleConnection) {
+    await tx
+      .update(tracks)
+      .set({
+        title: track.title,
+        durationMs: track.durationMs?.value,
+      })
+      .where(eq(tracks.id, trackId))
+
+    await tx.delete(trackArtists).where(eq(trackArtists.trackId, trackId))
+    await tx.insert(trackArtists).values(
+      track.artists.map((artistId, i) => ({
+        trackId,
+        artistId,
+        order: i,
+      })),
+    )
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/commands/infrastructure/track/drizzle-track-repository.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+import { Track } from '../../domain/entities/track'
+import type { TrackRepository } from '../../domain/repositories/track-repository'
+import { Duration } from '../../domain/value-objects/duration'
+
+export class DrizzleTrackRepository implements TrackRepository {
+  constructor(private db: IDrizzleConnection) {}
+
+  async get(id: number): Promise<Track | undefined> {
+    const result = await this.db.query.tracks.findFirst({
+      where: (tracks, { eq }) => eq(tracks.id, id),
+      with: {
+        artists: {
+          columns: { artistId: true },
+          orderBy: (trackArtists, { asc }) => asc(trackArtists.order),
+        },
+      },
+    })
+
+    if (result === undefined) return
+
+    const durationMs = result.durationMs !== null ? Duration.create(result.durationMs) : undefined
+
+    return new Track(
+      id,
+      result.title,
+      result.artists.map((a) => a.artistId),
+      durationMs,
+    )
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/get-all-artists.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type GetAllArtistsResult = {
+  artists: {
+    id: number
+    name: string
+  }[]
+}
+
+export class GetAllArtistsQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(): Promise<GetAllArtistsResult> {
+    const results = await this.db.query.artists.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+    })
+
+    return {
+      artists: results.map((release) => ({
+        id: release.id,
+        name: release.name,
+      })),
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/get-all-releases.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type GetAllReleasesResult = {
+  releases: {
+    id: number
+    title: string
+    art?: string
+    artists: {
+      id: number
+      name: string
+    }[]
+  }[]
+}
+
+export class GetAllReleasesQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(): Promise<GetAllReleasesResult> {
+    const results = await this.db.query.releases.findMany({
+      with: {
+        artists: {
+          orderBy: (artists, { asc }) => asc(artists.order),
+          columns: {},
+          with: {
+            artist: {
+              columns: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return {
+      releases: results.map((release) => ({
+        id: release.id,
+        title: release.title,
+        art: release.art ?? undefined,
+        artists: release.artists.map((artist) => ({
+          id: artist.artist.id,
+          name: artist.artist.name,
+        })),
+      })),
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/get-artist.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type GetArtistResult = {
+  artist:
+    | {
+        id: number
+        name: string
+        releases: {
+          id: number
+          title: string
+          art?: string
+          artists: {
+            id: number
+            name: string
+          }[]
+        }[]
+      }
+    | undefined
+}
+
+export class GetArtistQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(id: number): Promise<GetArtistResult> {
+    const result = await this.db.query.artists.findFirst({
+      where: (artists, { eq }) => eq(artists.id, id),
+      with: {
+        releases: {
+          columns: {},
+          with: {
+            release: {
+              columns: {
+                id: true,
+                title: true,
+                art: true,
+              },
+              with: {
+                artists: {
+                  orderBy: (artists, { asc }) => asc(artists.order),
+                  columns: {},
+                  with: {
+                    artist: {
+                      columns: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!result) {
+      return { artist: undefined }
+    }
+
+    return {
+      artist: {
+        id: result.id,
+        name: result.name,
+        releases: result.releases.map((release) => ({
+          id: release.release.id,
+          title: release.release.title,
+          art: release.release.art ?? undefined,
+          artists: release.release.artists.map((artist) => ({
+            id: artist.artist.id,
+            name: artist.artist.name,
+          })),
+        })),
+      },
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/get-release.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type GetReleaseResult = {
+  release:
+    | {
+        id: number
+        title: string
+        art?: string
+        artists: {
+          id: number
+          name: string
+        }[]
+        tracks: {
+          id: number
+          title: string
+        }[]
+      }
+    | undefined
+}
+
+export class GetReleaseQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(id: number): Promise<GetReleaseResult> {
+    const result = await this.db.query.releases.findFirst({
+      where: (releases, { eq }) => eq(releases.id, id),
+      with: {
+        artists: {
+          orderBy: (artists, { asc }) => asc(artists.order),
+          columns: {},
+          with: {
+            artist: {
+              columns: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        tracks: {
+          orderBy: (tracks, { asc }) => asc(tracks.order),
+          columns: {},
+          with: {
+            track: {
+              columns: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!result) {
+      return { release: undefined }
+    }
+
+    return {
+      release: {
+        id: result.id,
+        title: result.title,
+        art: result.art ?? undefined,
+        artists: result.artists.map((artist) => ({
+          id: artist.artist.id,
+          name: artist.artist.name,
+        })),
+        tracks: result.tracks.map((track) => ({
+          id: track.track.id,
+          title: track.track.title,
+        })),
+      },
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/get-track.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type GetTrackResult = {
+  track:
+    | {
+        id: number
+        title: string
+        releases: {
+          id: number
+          title: string
+        }[]
+      }
+    | undefined
+}
+
+export class GetTrackQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(id: number): Promise<GetTrackResult> {
+    const result = await this.db.query.tracks.findFirst({
+      where: (tracks, { eq }) => eq(tracks.id, id),
+      columns: { id: true, title: true },
+      with: {
+        releases: {
+          columns: {},
+          with: {
+            release: {
+              columns: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!result) {
+      return { track: undefined }
+    }
+
+    return {
+      track: {
+        id: result.id,
+        title: result.title,
+        releases: result.releases.map((r) => ({
+          id: r.release.id,
+          title: r.release.title,
+        })),
+      },
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/search-artists.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type SearchArtistsResult = {
+  artists: {
+    id: number
+    name: string
+  }[]
+}
+
+export class SearchArtistsQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(nameQuery: string): Promise<SearchArtistsResult> {
+    const results = await this.db.query.artists.findMany({
+      where: (artists, { ilike }) => ilike(artists.name, `${nameQuery}%`),
+      columns: {
+        id: true,
+        name: true,
+      },
+    })
+
+    return {
+      artists: results.map((release) => ({
+        id: release.id,
+        name: release.name,
+      })),
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/application/search-tracks.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+export type SearchTracksResult = {
+  tracks: {
+    id: number
+    title: string
+    artists: {
+      id: number
+      name: string
+    }[]
+  }[]
+}
+
+export class SearchTracksQuery {
+  constructor(private db: IDrizzleConnection) {}
+
+  async execute(titleQuery: string): Promise<SearchTracksResult> {
+    const results = await this.db.query.tracks.findMany({
+      where: (tracks, { ilike }) => ilike(tracks.title, `${titleQuery}%`),
+      columns: {
+        id: true,
+        title: true,
+      },
+      with: {
+        artists: {
+          columns: {},
+          with: {
+            artist: {
+              columns: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return {
+      tracks: results.map((track) => ({
+        id: track.id,
+        title: track.title,
+        artists: track.artists.map((trackArtist) => ({
+          id: trackArtist.artist.id,
+          name: trackArtist.artist.name,
+        })),
+      })),
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/music-catalog/queries/query-service.ts
+Contents:
+import type { IDrizzleConnection } from '$lib/server/db/connection'
+
+import { GetAllArtistsQuery } from './application/get-all-artists'
+import { GetAllReleasesQuery } from './application/get-all-releases'
+import { GetArtistQuery } from './application/get-artist'
+import { GetReleaseQuery } from './application/get-release'
+import { GetTrackQuery } from './application/get-track'
+import { SearchArtistsQuery } from './application/search-artists'
+import { SearchTracksQuery } from './application/search-tracks'
+
+export class MusicCatalogQueryService {
+  private getAllArtistsQuery: GetAllArtistsQuery
+  private searchArtistsQuery: SearchArtistsQuery
+  private getArtistQuery: GetArtistQuery
+  private getAllReleasesQuery: GetAllReleasesQuery
+  private getReleaseQuery: GetReleaseQuery
+  private getTrackQuery: GetTrackQuery
+  private searchTracksQuery: SearchTracksQuery
+
+  constructor(db: IDrizzleConnection) {
+    this.getAllArtistsQuery = new GetAllArtistsQuery(db)
+    this.searchArtistsQuery = new SearchArtistsQuery(db)
+    this.getArtistQuery = new GetArtistQuery(db)
+    this.getAllReleasesQuery = new GetAllReleasesQuery(db)
+    this.getReleaseQuery = new GetReleaseQuery(db)
+    this.getTrackQuery = new GetTrackQuery(db)
+    this.searchTracksQuery = new SearchTracksQuery(db)
+  }
+
+  getAllArtists() {
+    return this.getAllArtistsQuery.execute()
+  }
+
+  searchArtists(nameQuery: string) {
+    return this.searchArtistsQuery.execute(nameQuery)
+  }
+
+  getArtist(id: number) {
+    return this.getArtistQuery.execute(id)
+  }
+
+  getAllReleases() {
+    return this.getAllReleasesQuery.execute()
+  }
+
+  getRelease(id: number) {
+    return this.getReleaseQuery.execute(id)
+  }
+
+  getTrack(id: number) {
+    return this.getTrackQuery.execute(id)
+  }
+
+  searchTracks(titleQuery: string) {
+    return this.searchTracksQuery.execute(titleQuery)
+  }
+}
+
+---
+

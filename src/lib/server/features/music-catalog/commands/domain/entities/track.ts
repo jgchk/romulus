@@ -1,14 +1,10 @@
 import type { Duration } from '../value-objects/duration'
 
 export class Track {
-  public readonly artists: number[] = []
-
   constructor(
+    public readonly id: number | undefined,
     public readonly title: string,
+    public readonly artists: number[],
     public readonly durationMs: Duration | undefined,
   ) {}
-
-  addArtist(artistId: number) {
-    this.artists.push(artistId)
-  }
 }

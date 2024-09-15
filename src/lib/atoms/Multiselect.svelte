@@ -7,7 +7,6 @@
   import { flip, offset } from '@floating-ui/dom'
   import { CaretDown } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
-  import { fade } from 'svelte/transition'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
@@ -18,6 +17,7 @@
   import { diceCoefficient } from '$lib/utils/string'
 
   import type { MultiselectProps, Option, OptionData } from './Multiselect'
+  import OptionsDropdown from './OptionsDropdown.svelte'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Slots = {
@@ -237,57 +237,16 @@
   </div>
 
   {#if open}
-    <div
-      role="listbox"
-      class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-      transition:fade={{ duration: 75 }}
-      tabindex="-1"
-      on:keydown={handleKeyDown}
-      use:popoverElement
-    >
-      {#if filteredOptions.length === 0}
-        <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
-          No results
-        </div>
-      {:else}
-        {#each filteredOptions as option, i (option.value)}
-          <button
-            type="button"
-            class={tw(
-              'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
-              focusedIndex === i && 'border-secondary-500',
-            )}
-            tabindex="-1"
-            on:click={() => {
-              handleSelect(option)
-              inputRef?.focus()
-            }}
-            on:mouseenter={() => (focusedIndex = i)}
-            data-testId="multiselect__option"
-          >
-            {#if $$slots.option}
-              <slot name="option" {option} />
-            {:else}
-              {option.label}
-            {/if}
-          </button>
-        {/each}
-
-        {#if hasMore}
-          <button
-            type="button"
-            class={tw(
-              'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
-              focusedIndex === filteredOptions.length && 'border-secondary-500',
-            )}
-            tabindex="-1"
-            on:click={() => handleLoadMore()}
-            on:mouseenter={() => (focusedIndex = filteredOptions.length)}
-          >
-            Load More...
-          </button>
-        {/if}
-      {/if}
-    </div>
+    <OptionsDropdown
+      options={filteredOptions}
+      {popoverElement}
+      bind:focusedIndex
+      {hasMore}
+      on:select={({ detail: { option } }) => {
+        handleSelect(option)
+        inputRef?.focus()
+      }}
+      on:loadMore={() => handleLoadMore()}
+    />
   {/if}
 </div>

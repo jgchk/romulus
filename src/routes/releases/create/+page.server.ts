@@ -4,7 +4,8 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import type { CreateReleaseRequest } from '$lib/server/features/music-catalog/commands/application/commands/create-release'
-import { InvalidTrackError } from '$lib/server/features/music-catalog/commands/application/errors/invalid-track-error'
+import { InvalidTrackError } from '$lib/server/features/music-catalog/commands/application/errors/invalid-track'
+import { NonexistentTrackError } from '$lib/server/features/music-catalog/commands/application/errors/nonexistent-track'
 import { NonexistentDateError } from '$lib/server/features/music-catalog/commands/domain/errors/nonexistent-date'
 import { ReleaseDatePrecisionError } from '$lib/server/features/music-catalog/commands/domain/errors/release-date-precision'
 import { optionalString } from '$lib/utils/validators'
@@ -54,24 +55,29 @@ export const actions: Actions = {
     }
 
     for (const [i, track] of form.data.tracks.entries()) {
-      let durationMs: number | undefined = undefined
-      if (track.duration.length > 0) {
-        try {
-          durationMs = convertToMilliseconds(track.duration)
-        } catch {
-          return setError(
-            form,
-            `tracks[${i}].duration`,
-            'Invalid duration format. Must be in the format HH:MM:SS',
-          )
+      if ('id' in track) {
+        // TODO: add override properties
+        createReleaseRequest.tracks.push({ id: track.id })
+      } else {
+        let durationMs: number | undefined = undefined
+        if (track.duration.length > 0) {
+          try {
+            durationMs = convertToMilliseconds(track.duration)
+          } catch {
+            return setError(
+              form,
+              `tracks[${i}].duration`,
+              'Invalid duration format. Must be in the format HH:MM:SS',
+            )
+          }
         }
-      }
 
-      createReleaseRequest.tracks.push({
-        title: track.title,
-        artists: track.artists.map((artist) => artist.id),
-        durationMs,
-      })
+        createReleaseRequest.tracks.push({
+          title: track.title,
+          artists: track.artists.map((artist) => artist.id),
+          durationMs,
+        })
+      }
     }
 
     const releaseId =
@@ -82,6 +88,9 @@ export const actions: Actions = {
     }
     if (releaseId instanceof NonexistentDateError) {
       return setError(form, 'day', 'Must be a real date')
+    }
+    if (releaseId instanceof NonexistentTrackError) {
+      return setError(form, `tracks[${releaseId.index}].id`, 'Track does not exist')
     }
     if (releaseId instanceof InvalidTrackError) {
       return setError(form, `tracks[${releaseId.index}].duration`, releaseId.originalError.message)
@@ -110,6 +119,28 @@ const schema = z.object({
         .min(1, 'At least one artist is required'),
       duration: z.string(),
     })
+    .or(
+      z.object({
+        id: z.number().int(),
+        data: z.object({
+          title: z.string().min(1, 'Title is required'),
+          artists: z
+            .object({ id: z.number().int(), name: z.string() })
+            .array()
+            .min(1, 'At least one artist is required'),
+          duration: z.string(),
+        }),
+        overrides: z.object({
+          title: optionalString,
+          artists: z
+            .object({ id: z.number().int(), name: z.string() })
+            .array()
+            .min(1, 'At least one artist is required')
+            .optional(),
+          duration: optionalString,
+        }),
+      }),
+    )
     .array(),
 })
 

@@ -1,11 +1,12 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-import { GetAllArtistsQuery, type GetAllArtistsResult } from './application/get-all-artists'
-import { GetAllReleasesQuery, type GetAllReleasesResult } from './application/get-all-releases'
-import { GetArtistQuery, type GetArtistResult } from './application/get-artist'
-import { GetReleaseQuery, type GetReleaseResult } from './application/get-release'
-import { GetTrackQuery, type GetTrackResult } from './application/get-track'
-import { SearchArtistsQuery, type SearchArtistsResult } from './application/search-artists'
+import { GetAllArtistsQuery } from './application/get-all-artists'
+import { GetAllReleasesQuery } from './application/get-all-releases'
+import { GetArtistQuery } from './application/get-artist'
+import { GetReleaseQuery } from './application/get-release'
+import { GetTrackQuery } from './application/get-track'
+import { SearchArtistsQuery } from './application/search-artists'
+import { SearchTracksQuery } from './application/search-tracks'
 
 export class MusicCatalogQueryService {
   private getAllArtistsQuery: GetAllArtistsQuery
@@ -14,6 +15,7 @@ export class MusicCatalogQueryService {
   private getAllReleasesQuery: GetAllReleasesQuery
   private getReleaseQuery: GetReleaseQuery
   private getTrackQuery: GetTrackQuery
+  private searchTracksQuery: SearchTracksQuery
 
   constructor(db: IDrizzleConnection) {
     this.getAllArtistsQuery = new GetAllArtistsQuery(db)
@@ -22,29 +24,34 @@ export class MusicCatalogQueryService {
     this.getAllReleasesQuery = new GetAllReleasesQuery(db)
     this.getReleaseQuery = new GetReleaseQuery(db)
     this.getTrackQuery = new GetTrackQuery(db)
+    this.searchTracksQuery = new SearchTracksQuery(db)
   }
 
-  getAllArtists(): Promise<GetAllArtistsResult> {
+  getAllArtists() {
     return this.getAllArtistsQuery.execute()
   }
 
-  searchArtists(nameQuery: string): Promise<SearchArtistsResult> {
+  searchArtists(nameQuery: string) {
     return this.searchArtistsQuery.execute(nameQuery)
   }
 
-  getArtist(id: number): Promise<GetArtistResult> {
+  getArtist(id: number) {
     return this.getArtistQuery.execute(id)
   }
 
-  getAllReleases(): Promise<GetAllReleasesResult> {
+  getAllReleases() {
     return this.getAllReleasesQuery.execute()
   }
 
-  getRelease(id: number): Promise<GetReleaseResult> {
+  getRelease(id: number) {
     return this.getReleaseQuery.execute(id)
   }
 
-  getTrack(id: number): Promise<GetTrackResult> {
+  getTrack(id: number) {
     return this.getTrackQuery.execute(id)
+  }
+
+  searchTracks(titleQuery: string) {
+    return this.searchTracksQuery.execute(titleQuery)
   }
 }

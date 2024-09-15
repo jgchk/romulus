@@ -12,6 +12,7 @@
 
   import type { PageData } from './$types'
   import ArtistMultiselect from './ArtistMultiselect.svelte'
+  import TrackAutocomplete from './TrackAutocomplete.svelte'
 
   export let data: PageData
 
@@ -19,6 +20,17 @@
     dataType: 'json',
     taintedMessage: true,
   })
+
+  function convertToString(ms: number): string {
+    const seconds = Math.floor(ms / 1000)
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const remainingSeconds = seconds % 60
+    if (hours === 0) {
+      return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`
+    }
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
+  }
 </script>
 
 <Card class="h-full w-full p-4">
@@ -68,14 +80,59 @@
     <h2 class="text-lg font-bold">Tracks</h2>
     {#each $form.tracks as track, i}
       <div class="flex items-center rounded-lg border p-4 dark:border-gray-800">
-        <div class="flex-1">
+        {#if 'id' in track}
+          <div>
+            <InputGroup errors={$errors.tracks?.[i].title ?? $errors.tracks?.[i].id}>
+              <Label for="tracks[{i}].title">Title</Label>
+              <TrackAutocomplete
+                id="tracks[{i}].title"
+                bind:value={track.data.title}
+                on:select={({ detail: { track } }) => {
+                  $form.tracks[i] = {
+                    id: track.id,
+                    data: {
+                      ...track,
+                      duration:
+                        track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                    },
+                    overrides: {},
+                  }
+                }}
+              />
+            </InputGroup>
+
+            <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
+              <Label for="tracks[{i}].artists">Artists</Label>
+              <ArtistMultiselect bind:value={track.data.artists} disabled />
+            </InputGroup>
+
+            <InputGroup errors={$errors.tracks?.[i].duration}>
+              <Label for="tracks[{i}].duration">Duration</Label>
+              <Input
+                id="tracks[{i}].duration"
+                bind:value={track.data.duration}
+                disabled
+                {...$constraints.tracks?.duration}
+              />
+            </InputGroup>
+          </div>
+        {:else}
           <InputGroup errors={$errors.tracks?.[i].title}>
             <Label for="tracks[{i}].title">Title</Label>
-            <Input
-              type="text"
+            <TrackAutocomplete
               id="tracks[{i}].title"
               bind:value={track.title}
-              {...$constraints.tracks?.title}
+              on:select={({ detail: { track } }) => {
+                $form.tracks[i] = {
+                  id: track.id,
+                  data: {
+                    ...track,
+                    duration:
+                      track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                  },
+                  overrides: {},
+                }
+              }}
             />
           </InputGroup>
 
@@ -83,17 +140,16 @@
             <Label for="tracks[{i}].artists">Artists</Label>
             <ArtistMultiselect bind:value={track.artists} />
           </InputGroup>
-        </div>
 
-        <InputGroup errors={$errors.tracks?.[i].duration}>
-          <Label for="tracks[{i}].duration">Duration</Label>
-          <Input
-            id="tracks[{i}].duration"
-            bind:value={track.duration}
-            {...$constraints.tracks?.duration}
-          />
-        </InputGroup>
-
+          <InputGroup errors={$errors.tracks?.[i].duration}>
+            <Label for="tracks[{i}].duration">Duration</Label>
+            <Input
+              id="tracks[{i}].duration"
+              bind:value={track.duration}
+              {...$constraints.tracks?.duration}
+            />
+          </InputGroup>
+        {/if}
         <IconButton
           tooltip="Remove track"
           on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
