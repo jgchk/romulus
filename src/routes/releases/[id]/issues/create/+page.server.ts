@@ -68,8 +68,17 @@ export const actions: Actions = {
 
     for (const [i, track] of form.data.tracks.entries()) {
       if ('id' in track) {
-        // TODO: add override properties
-        createReleaseIssueRequest.tracks.push({ id: track.id })
+        createReleaseIssueRequest.tracks.push({
+          id: track.id,
+          overrides: {
+            title: track.overrides.title,
+            artists: track.overrides.artists?.map((artist) => artist.id),
+            durationMs:
+              track.overrides.duration !== undefined
+                ? convertToMilliseconds(track.overrides.duration)
+                : undefined,
+          },
+        })
       } else {
         let durationMs: number | undefined = undefined
         if (track.duration.length > 0) {
