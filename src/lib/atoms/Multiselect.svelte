@@ -249,7 +249,11 @@
       on:loadMore={() => handleLoadMore()}
     >
       <svelte:fragment slot="option" let:option>
-        <slot name="option" {option} />
+        {#if $$slots.option}
+          <slot name="option" {option} />
+        {:else}
+          {option.label}
+        {/if}
       </svelte:fragment>
     </OptionsDropdown>
   {/if}
