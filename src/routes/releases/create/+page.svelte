@@ -124,6 +124,7 @@
                 <TrackAutocomplete
                   id="tracks[{i}].title"
                   value={track.title}
+                  autofocus
                   on:input={(e) => {
                     $form.tracks[i] = { ...$form.tracks[i], title: e.detail.value }
                   }}
