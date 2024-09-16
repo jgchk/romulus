@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
+  import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Release from '$lib/components/Release.svelte'
   import { getUserContext } from '$lib/contexts/user'
 
@@ -13,6 +14,7 @@
 
 <Card class="h-full w-full p-4">
   {#if $user?.permissions?.includes('EDIT_RELEASES')}
+    <LinkButton href="/releases/create?artist={data.artist.id}">Add Release</LinkButton>
     <form method="POST" action="?/delete">
       <Button type="submit" color="error">Delete Artist</Button>
     </form>

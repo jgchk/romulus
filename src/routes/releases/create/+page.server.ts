@@ -12,13 +12,42 @@ import { optionalString } from '$lib/utils/validators'
 
 import type { Actions, PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   if (!locals.user?.permissions?.includes('EDIT_RELEASES')) {
     return error(403, { message: 'You do not have permission to create releases' })
   }
 
-  const form = await superValidate(zod(schema))
+  const artists = await getInitialArtists(url, locals)
+
+  const form = await superValidate({ artists }, zod(schema), { errors: false })
+
   return { form }
+}
+
+async function getInitialArtists(url: URL, locals: App.Locals) {
+  const maybeArtistId = z.coerce
+    .number()
+    .int()
+    .optional()
+    .safeParse(url.searchParams.get('artist') ?? undefined)
+
+  if (maybeArtistId.success === false) {
+    return []
+  }
+
+  const artistId = maybeArtistId.data
+
+  if (artistId === undefined) {
+    return []
+  }
+
+  const { artist } = await locals.services.musicCatalog.queries.getArtist(artistId)
+
+  if (artist === undefined) {
+    return []
+  }
+
+  return [{ id: artist.id, name: artist.name }]
 }
 
 export const actions: Actions = {
