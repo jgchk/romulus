@@ -51,6 +51,7 @@
   }
 
   const dispatch = createEventDispatcher<{
+    input: { value: string }
     select: { option: O }
   }>()
 
@@ -124,7 +125,7 @@
       on:click={() => (open = true)}
       on:focus={() => (open = true)}
       on:blur
-      on:input
+      on:input={(e) => dispatch('input', { value: e.currentTarget.value })}
       bind:this={inputRef}
       {disabled}
     />

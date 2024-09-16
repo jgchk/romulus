@@ -88,7 +88,7 @@
                 <Label for="tracks[{i}].title">Title</Label>
                 <TrackAutocomplete
                   id="tracks[{i}].title"
-                  bind:value={track.data.title}
+                  value={track.data.title}
                   on:select={({ detail: { track } }) => {
                     $form.tracks[i] = {
                       id: track.id,
@@ -123,7 +123,10 @@
                 <Label for="tracks[{i}].title">Title</Label>
                 <TrackAutocomplete
                   id="tracks[{i}].title"
-                  bind:value={track.title}
+                  value={track.title}
+                  on:input={(e) => {
+                    $form.tracks[i] = { ...$form.tracks[i], title: e.detail.value }
+                  }}
                   on:select={({ detail: { track } }) => {
                     $form.tracks[i] = {
                       id: track.id,
@@ -140,7 +143,12 @@
 
               <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
                 <Label for="tracks[{i}].artists">Artists</Label>
-                <ArtistMultiselect bind:value={track.artists} />
+                <ArtistMultiselect
+                  value={track.artists}
+                  on:change={(e) => {
+                    $form.tracks[i] = { ...$form.tracks[i], artists: e.detail.value }
+                  }}
+                />
               </InputGroup>
 
               <InputGroup errors={$errors.tracks?.[i].duration}>
@@ -148,7 +156,10 @@
                 <Input
                   id="tracks[{i}].duration"
                   class="w-24"
-                  bind:value={track.duration}
+                  value={track.duration}
+                  on:input={(e) => {
+                    $form.tracks[i] = { ...$form.tracks[i], duration: e.currentTarget.value }
+                  }}
                   {...$constraints.tracks?.duration}
                 />
               </InputGroup>

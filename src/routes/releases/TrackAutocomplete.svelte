@@ -49,8 +49,10 @@
 </script>
 
 <Autocomplete
-  bind:value
+  {value}
   {options}
+  on:input={(e) => (value = e.detail.value)}
+  on:input
   on:select={(e) => dispatch('select', { track: e.detail.option.value })}
   {...$$restProps}
 />
