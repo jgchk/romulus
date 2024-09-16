@@ -12,6 +12,7 @@
   import NumberInput from '$lib/atoms/NumberInput.svelte'
 
   import ArtistMultiselect from '../ArtistMultiselect.svelte'
+  import MonthSelect from '../MonthSelect.svelte'
   import TrackAutocomplete from '../TrackAutocomplete.svelte'
   import type { PageData } from './$types'
 
@@ -61,11 +62,11 @@
           class="w-1/4"
           {...$constraints.year}
         />
-        <NumberInput
+        <MonthSelect
           id="releaseDate.month"
           bind:value={$form.month}
           placeholder="MM"
-          class="w-1/4"
+          class="w-32"
           {...$constraints.month}
         />
         <NumberInput
