@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Plus, Trash } from 'phosphor-svelte'
-  import { superForm } from 'sveltekit-superforms'
 
+  import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
   import Chip from '$lib/atoms/Chip.svelte'
@@ -14,14 +14,13 @@
   import ArtistMultiselect from '../ArtistMultiselect.svelte'
   import MonthSelect from '../MonthSelect.svelte'
   import TrackAutocomplete from '../TrackAutocomplete.svelte'
-  import type { PageData } from './$types'
+  import type { ActionData, PageData } from './$types'
+  import { ReleaseFormStore } from './state'
 
   export let data: PageData
+  export let form: ActionData
 
-  const { form, errors, constraints, delayed, enhance } = superForm(data.form, {
-    dataType: 'json',
-    taintedMessage: true,
-  })
+  const store = new ReleaseFormStore(data.initialState)
 
   function convertToString(ms: number): string {
     const seconds = Math.floor(ms / 1000)
@@ -36,142 +35,144 @@
 </script>
 
 <Card class="h-full w-full p-4">
-  <form method="POST" use:enhance>
-    <InputGroup errors={$errors.title}>
+  <form
+    method="POST"
+    use:enhance={({ formData }) => {
+      formData.set('data', JSON.stringify(store.toServerInput()))
+    }}
+  >
+    <InputGroup errors={form?.errors.title}>
       <Label for="title">Title</Label>
-      <Input id="title" bind:value={$form.title} {...$constraints.title} />
+      <Input
+        id="title"
+        value={$store.title}
+        on:input={(e) => store.setTitle(e.currentTarget.value)}
+      />
     </InputGroup>
 
-    <InputGroup errors={$errors.artists?._errors}>
+    <InputGroup errors={form?.errors.artists}>
       <Label for="artists">Artists</Label>
-      <ArtistMultiselect bind:value={$form.artists} />
+      <ArtistMultiselect
+        value={$store.artists}
+        on:change={(e) => store.setArtists(e.detail.value)}
+      />
     </InputGroup>
 
-    <InputGroup errors={$errors.art}>
+    <InputGroup errors={form?.errors.art}>
       <Label for="art">Art</Label>
-      <Input id="art" bind:value={$form.art} {...$constraints.art} />
+      <Input
+        id="art"
+        value={$store.art ?? ''}
+        on:input={(e) => store.setArt(e.currentTarget.value)}
+      />
     </InputGroup>
 
-    <InputGroup errors={$errors.year ?? $errors.month ?? $errors.day}>
+    <InputGroup errors={form?.errors.year ?? form?.errors.month ?? form?.errors.day}>
       <Label for="releaseDate">Release Date</Label>
       <div class="flex space-x-2">
         <NumberInput
           id="releaseDate.year"
-          bind:value={$form.year}
+          value={$store.year}
+          on:input={(e) => store.setYear(e.detail)}
           placeholder="YYYY"
           class="w-1/4"
-          {...$constraints.year}
         />
         <MonthSelect
           id="releaseDate.month"
-          bind:value={$form.month}
+          value={$store.month}
+          on:input={(e) => store.setMonth(e.detail)}
           placeholder="MM"
           class="w-32"
-          {...$constraints.month}
         />
         <NumberInput
           id="releaseDate.day"
-          bind:value={$form.day}
+          value={$store.day}
+          on:input={(e) => store.setDay(e.detail)}
           placeholder="DD"
           class="w-1/4"
-          {...$constraints.day}
         />
       </div>
     </InputGroup>
 
     <h2 class="mb-1 mt-4 text-lg font-bold">Tracks</h2>
     <div class="space-y-2">
-      {#each $form.tracks as track, i}
+      {#each $store.tracks as track, i}
         <div class="rounded-lg border p-4 dark:border-gray-800">
-          <div class="flex items-center gap-2">
+          <div class="flex items-start gap-2">
             {#if 'id' in track}
-              <InputGroup errors={$errors.tracks?.[i].title ?? $errors.tracks?.[i].id}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.title ?? form?.errors.tracks?.[i]?.id}>
                 <Label for="tracks[{i}].title">Title</Label>
                 <TrackAutocomplete
                   id="tracks[{i}].title"
                   value={track.data.title}
-                  on:select={({ detail: { track } }) => {
-                    $form.tracks[i] = {
-                      id: track.id,
-                      data: {
-                        ...track,
-                        duration:
-                          track.durationMs !== undefined ? convertToString(track.durationMs) : '',
-                      },
-                      overrides: {},
-                    }
-                  }}
+                  on:input={(e) => store.track(i).setTitle(e.detail.value)}
+                  on:select={({ detail: { track } }) =>
+                    store.track(i).useExistingTrack(track.id, {
+                      title: track.title,
+                      artists: track.artists,
+                      duration:
+                        track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                    })}
                 />
               </InputGroup>
 
-              <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.artists}>
                 <Label for="tracks[{i}].artists">Artists</Label>
-                <ArtistMultiselect bind:value={track.data.artists} disabled />
+                <ArtistMultiselect
+                  value={track.data.artists}
+                  on:change={(e) => store.track(i).setArtists(e.detail.value)}
+                />
               </InputGroup>
 
-              <InputGroup errors={$errors.tracks?.[i].duration}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.duration}>
                 <Label for="tracks[{i}].duration">Duration</Label>
                 <Input
                   id="tracks[{i}].duration"
                   class="w-24"
-                  bind:value={track.data.duration}
-                  disabled
-                  {...$constraints.tracks?.duration}
+                  value={track.data.duration}
+                  on:input={(e) => store.track(i).setDuration(e.currentTarget.value)}
                 />
               </InputGroup>
             {:else}
-              <InputGroup errors={$errors.tracks?.[i].title}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.title}>
                 <Label for="tracks[{i}].title">Title</Label>
                 <TrackAutocomplete
                   id="tracks[{i}].title"
                   value={track.title}
                   autofocus
-                  on:input={(e) => {
-                    $form.tracks[i] = { ...$form.tracks[i], title: e.detail.value }
-                  }}
-                  on:select={({ detail: { track } }) => {
-                    $form.tracks[i] = {
-                      id: track.id,
-                      data: {
-                        ...track,
-                        duration:
-                          track.durationMs !== undefined ? convertToString(track.durationMs) : '',
-                      },
-                      overrides: {},
-                    }
-                  }}
+                  on:input={(e) => store.track(i).setTitle(e.detail.value)}
+                  on:select={({ detail: { track } }) =>
+                    store.track(i).useExistingTrack(track.id, {
+                      title: track.title,
+                      artists: track.artists,
+                      duration:
+                        track.durationMs !== undefined ? convertToString(track.durationMs) : '',
+                    })}
                 />
               </InputGroup>
 
-              <InputGroup errors={$errors.tracks?.[i].artists?._errors}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.artists}>
                 <Label for="tracks[{i}].artists">Artists</Label>
                 <ArtistMultiselect
                   value={track.artists}
-                  on:change={(e) => {
-                    $form.tracks[i] = { ...$form.tracks[i], artists: e.detail.value }
-                  }}
+                  on:change={(e) => store.track(i).setArtists(e.detail.value)}
                 />
               </InputGroup>
 
-              <InputGroup errors={$errors.tracks?.[i].duration}>
+              <InputGroup errors={form?.errors.tracks?.[i]?.duration}>
                 <Label for="tracks[{i}].duration">Duration</Label>
                 <Input
                   id="tracks[{i}].duration"
                   class="w-24"
                   value={track.duration}
-                  on:input={(e) => {
-                    $form.tracks[i] = { ...$form.tracks[i], duration: e.currentTarget.value }
-                  }}
-                  {...$constraints.tracks?.duration}
+                  on:input={(e) => store.track(i).setDuration(e.currentTarget.value)}
                 />
               </InputGroup>
             {/if}
 
-            <IconButton
-              tooltip="Remove track"
-              on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
-              ><Trash /></IconButton
-            >
+            <IconButton tooltip="Remove track" on:click={() => store.track(i).remove()}>
+              <Trash />
+            </IconButton>
           </div>
 
           {#if 'id' in track}
@@ -182,14 +183,11 @@
         </div>
       {/each}
 
-      <IconButton
-        tooltip="Add track"
-        on:click={() =>
-          ($form.tracks = [...$form.tracks, { title: '', artists: [], duration: '' }])}
-        ><Plus /></IconButton
-      >
+      <IconButton tooltip="Add track" on:click={() => store.addTrack()}>
+        <Plus />
+      </IconButton>
     </div>
 
-    <Button type="submit" class="mt-4" loading={$delayed}>Create</Button>
+    <Button type="submit" class="mt-4">Create</Button>
   </form>
 </Card>
