@@ -25,7 +25,6 @@
     "@electric-sql/pglite": "^0.2.0",
     "@floating-ui/dom": "^1.6.10",
     "@lucia-auth/adapter-drizzle": "^1.1.0",
-    "@neondatabase/serverless": "^0.9.4",
     "@tanstack/svelte-query": "^5.52.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/ramda": "^0.30.1",
