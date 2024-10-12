@@ -11,7 +11,6 @@
   import Label from '$lib/atoms/Label.svelte'
   import NumberInput from '$lib/atoms/NumberInput.svelte'
 
-  import ArtistAutocomplete from '../ArtistAutocomplete.svelte'
   import ArtistMultiselect from '../ArtistMultiselect.svelte'
   import MonthSelect from '../MonthSelect.svelte'
   import TrackAutocomplete from '../TrackAutocomplete.svelte'
@@ -57,7 +56,6 @@
         value={$store.artists}
         on:change={(e) => store.setArtists(e.detail.value)}
       />
-      <ArtistAutocomplete on:select={(e) => store.setArtists([e.detail])} />
     </InputGroup>
 
     <InputGroup errors={form?.errors.art}>
@@ -100,7 +98,7 @@
     <div class="space-y-2">
       {#each $store.tracks as track, i}
         <div class="rounded-lg border p-4 dark:border-gray-800">
-          <div class="flex items-start gap-2">
+          <div class="flex flex-wrap items-start gap-2">
             {#if 'id' in track}
               <InputGroup errors={form?.errors.tracks?.[i]?.title ?? form?.errors.tracks?.[i]?.id}>
                 <Label for="tracks[{i}].title">Title</Label>

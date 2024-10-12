@@ -265,7 +265,7 @@
               {#if $$slots.selected}
                 <slot name="selected" option={v} />
               {:else}
-                <div>
+                <div class="text-nowrap">
                   {v.label}
                 </div>
               {/if}
