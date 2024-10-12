@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query'
+  import { createEventDispatcher } from 'svelte'
   import { derived, writable } from 'svelte/store'
 
   import type { AutocompleteProps } from '$lib/atoms/Autocomplete'
@@ -8,7 +9,7 @@
   import type { Timeout } from '$lib/utils/types'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type $$Props = Omit<AutocompleteProps<number>, 'options'>
+  type $$Props = Omit<AutocompleteProps<number>, 'options' | 'value'>
 
   let value = ''
 
@@ -41,13 +42,23 @@
     const { artists } = await fetch(url).then((res) => res.json() as Promise<SearchArtistsResult>)
     return artists
   }
+
+  const dispatch = createEventDispatcher<{
+    input: { value: string }
+    select: SearchArtistsResult['artists'][number]
+  }>()
 </script>
 
 <Autocomplete
   {value}
   {options}
-  on:input={(e) => (value = e.detail.value)}
-  on:input
-  on:select
+  on:input={(e) => {
+    value = e.detail.value
+    dispatch('input', e.detail)
+  }}
+  on:select={(e) => {
+    value = e.detail.option.value.name
+    dispatch('select', e.detail.option.value)
+  }}
   {...$$restProps}
 />
