@@ -105,6 +105,14 @@
     dispatch('change', { value })
   }
 
+  function handleReorder(from: number, to: number) {
+    const newValue = [...value]
+    const [removed] = newValue.splice(from, 1)
+    newValue.splice(to, 0, removed)
+    value = newValue
+    dispatch('change', { value })
+  }
+
   const handleLoadMore = () => {
     dispatch('loadMore')
   }
@@ -178,7 +186,7 @@
   >
     {#if value.length > 0}
       <div class="flex items-center gap-1 pl-1">
-        {#each value as v (v.value)}
+        {#each value as v, index (v.value)}
           <button
             type="button"
             class="rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
@@ -189,6 +197,28 @@
             }}
             tabindex="-1"
             data-testId="multiselect__selected"
+            draggable="true"
+            on:dragstart={(e) => {
+              if (!e.dataTransfer) {
+                console.error('Drag failed: dataTransfer is not available')
+                return
+              }
+
+              e.dataTransfer?.setData('text/plain', index.toString())
+            }}
+            on:dragover={(e) => {
+              e.preventDefault()
+            }}
+            on:drop={(e) => {
+              if (!e.dataTransfer) {
+                console.error('Drop failed: dataTransfer is not available')
+                return
+              }
+
+              e.preventDefault()
+              const fromIndex = parseInt(e.dataTransfer.getData('text/plain'))
+              handleReorder(fromIndex, index)
+            }}
           >
             {#if $$slots.selected}
               <slot name="selected" option={v} />
