@@ -5,10 +5,14 @@
 
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
   import { flip, offset } from '@floating-ui/dom'
-  import { CaretDown } from 'phosphor-svelte'
+  import { CaretDown, DotsSixVertical, Trash } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
   import { flip as flipAnimation } from 'svelte/animate'
-  import { dndzone, overrideItemIdKeyNameBeforeInitialisingDndZones } from 'svelte-dnd-action'
+  import {
+    dragHandle,
+    dragHandleZone,
+    overrideItemIdKeyNameBeforeInitialisingDndZones,
+  } from 'svelte-dnd-action'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
@@ -171,7 +175,20 @@
     middleware: [offset(4), flip()],
   })
 
-  overrideItemIdKeyNameBeforeInitialisingDndZones('value')
+  try {
+    overrideItemIdKeyNameBeforeInitialisingDndZones('value')
+  } catch (e) {
+    if (
+      typeof e === 'object' &&
+      e !== null &&
+      'message' in e &&
+      e.message === 'can only override the id key before initialising any dndzone'
+    ) {
+      // ignore
+    } else {
+      throw e
+    }
+  }
 
   const flipDurationMs = 75
 </script>
@@ -193,7 +210,12 @@
     {#if value.length > 0}
       <div
         class="flex items-center gap-1 pl-1"
-        use:dndzone={{ items: value, flipDurationMs }}
+        use:dragHandleZone={{
+          items: value,
+          flipDurationMs,
+          dropTargetStyle: {},
+          dropTargetClasses: ['rounded', 'outline', 'outline-1', 'outline-primary-500'],
+        }}
         on:consider={(e) => {
           value = e.detail.items
         }}
@@ -203,15 +225,10 @@
         }}
       >
         {#each value as v, index (v.value)}
-          <button
-            type="button"
-            class="rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
-            use:tooltip={{ content: 'Remove' }}
+          <div
+            role="option"
+            class="flex overflow-hidden rounded-[3px] border border-gray-400 bg-gray-300 text-xs font-medium transition hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
             animate:flipAnimation={{ duration: flipDurationMs }}
-            on:click={() => {
-              handleRemove(v)
-              inputRef?.focus()
-            }}
             tabindex="-1"
             data-testId="multiselect__selected"
             on:dragstart={(e) => {
@@ -236,14 +253,34 @@
               handleReorder(fromIndex, index)
             }}
           >
-            {#if $$slots.selected}
-              <slot name="selected" option={v} />
-            {:else}
-              <div>
-                {v.label}
-              </div>
-            {/if}
-          </button>
+            <div
+              use:dragHandle
+              aria-label="drag-handle for {v.label}"
+              class="flex w-5 items-center justify-center border-r border-gray-400 transition dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
+              use:tooltip={{ content: 'Drag to reorder' }}
+            >
+              <DotsSixVertical />
+            </div>
+            <div class="px-1.5 py-0.5">
+              {#if $$slots.selected}
+                <slot name="selected" option={v} />
+              {:else}
+                <div>
+                  {v.label}
+                </div>
+              {/if}
+            </div>
+            <button
+              class="flex w-5 items-center justify-center border-l border-gray-400 transition hover:border-error-800 hover:bg-error-500 dark:border-gray-600 dark:text-gray-400 dark:hover:text-error-200"
+              use:tooltip={{ content: 'Remove' }}
+              on:click={() => {
+                handleRemove(v)
+                inputRef?.focus()
+              }}
+            >
+              <Trash />
+            </button>
+          </div>
         {/each}
       </div>
     {/if}
