@@ -7,6 +7,8 @@
   import { flip, offset } from '@floating-ui/dom'
   import { CaretDown } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
+  import { flip as flipAnimation } from 'svelte/animate'
+  import { dndzone, overrideItemIdKeyNameBeforeInitialisingDndZones } from 'svelte-dnd-action'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
@@ -168,6 +170,10 @@
   const [popoverReference, popoverElement] = createPopoverActions({
     middleware: [offset(4), flip()],
   })
+
+  overrideItemIdKeyNameBeforeInitialisingDndZones('value')
+
+  const flipDurationMs = 75
 </script>
 
 <div
@@ -185,19 +191,29 @@
     class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
   >
     {#if value.length > 0}
-      <div class="flex items-center gap-1 pl-1">
+      <div
+        class="flex items-center gap-1 pl-1"
+        use:dndzone={{ items: value, flipDurationMs }}
+        on:consider={(e) => {
+          value = e.detail.items
+        }}
+        on:finalize={(e) => {
+          value = e.detail.items
+          dispatch('change', { value })
+        }}
+      >
         {#each value as v, index (v.value)}
           <button
             type="button"
             class="rounded-[3px] border border-gray-400 bg-gray-300 px-1.5 py-0.5 text-xs font-medium transition hover:border-error-800 hover:bg-error-500 hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
             use:tooltip={{ content: 'Remove' }}
+            animate:flipAnimation={{ duration: flipDurationMs }}
             on:click={() => {
               handleRemove(v)
               inputRef?.focus()
             }}
             tabindex="-1"
             data-testId="multiselect__selected"
-            draggable="true"
             on:dragstart={(e) => {
               if (!e.dataTransfer) {
                 console.error('Drag failed: dataTransfer is not available')
