@@ -227,6 +227,7 @@
         {#each value as v, index (v.value)}
           <div
             role="option"
+            aria-selected="true"
             class="flex overflow-hidden rounded-[3px] border border-gray-400 bg-gray-300 text-xs font-medium transition hover:bg-opacity-75 dark:border-gray-600 dark:bg-gray-700"
             animate:flipAnimation={{ duration: flipDurationMs }}
             tabindex="-1"
