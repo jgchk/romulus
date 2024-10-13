@@ -262,7 +262,7 @@
             >
               <DotsSixVertical />
             </div>
-            <div class="px-1.5 py-0.5">
+            <div class="px-1.5 py-0.5" data-testId="multiselect__selected__label">
               {#if $$slots.selected}
                 <slot name="selected" option={v} />
               {:else}

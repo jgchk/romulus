@@ -353,7 +353,7 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
   )
 
   await user.click(input)
-  const selected = queryAllByTestId('multiselect__selected')
+  const selected = queryAllByTestId('multiselect__selected__label')
   await waitFor(() => {
     expect(selected[0].children[0]).toHaveClass('blur-sm')
   })
@@ -378,7 +378,7 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
   )
 
   await user.click(input)
-  const selected = queryAllByTestId('multiselect__selected')
+  const selected = queryAllByTestId('multiselect__selected__label')
   await waitFor(() => {
     expect(selected[0].children[0]).not.toHaveClass('blur-sm')
   })
@@ -403,7 +403,7 @@ it('does not blur selected non-NSFW options', async () => {
   )
 
   await user.click(input)
-  const selected = queryAllByTestId('multiselect__selected')
+  const selected = queryAllByTestId('multiselect__selected__label')
   await waitFor(() => {
     expect(selected[0].children[0]).not.toHaveClass('blur-sm')
   })
