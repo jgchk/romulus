@@ -1,5 +1,5 @@
 import { ReleaseIssue } from '../../domain/aggregates/release-issue'
-import { ReleaseIssueTrack } from '../../domain/aggregates/release-issue/release-issue-track'
+import { ReleaseIssueTrack } from '../../domain/aggregates/release-issue-track'
 import { Track } from '../../domain/aggregates/track'
 import type { NonexistentDateError } from '../../domain/errors/nonexistent-date'
 import type { ReleaseDatePrecisionError } from '../../domain/errors/release-date-precision'
