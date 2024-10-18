@@ -21,7 +21,7 @@ export class ReleaseFormStore implements Readable<ReleaseFormState> {
 
   subscribe(
     run: Subscriber<ReleaseFormState>,
-    invalidate?: Invalidator<ReleaseFormState> | undefined,
+    invalidate?: Invalidator<ReleaseFormState>,
   ): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }

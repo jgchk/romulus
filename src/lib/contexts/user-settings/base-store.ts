@@ -38,10 +38,7 @@ export class BaseUserSettingsStore implements Writable<UserSettings> {
     })
   }
 
-  subscribe(
-    run: Subscriber<UserSettings>,
-    invalidate?: Invalidator<UserSettings> | undefined,
-  ): Unsubscriber {
+  subscribe(run: Subscriber<UserSettings>, invalidate?: Invalidator<UserSettings>): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }
 

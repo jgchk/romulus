@@ -53,10 +53,7 @@ export default class UserSettingsStore implements IUserSettingsStore {
     this.store.update(updater)
   }
 
-  subscribe(
-    run: Subscriber<UserSettings>,
-    invalidate?: Invalidator<UserSettings> | undefined,
-  ): Unsubscriber {
+  subscribe(run: Subscriber<UserSettings>, invalidate?: Invalidator<UserSettings>): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }
 }
