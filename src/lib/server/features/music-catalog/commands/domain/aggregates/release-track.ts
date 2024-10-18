@@ -1,5 +1,5 @@
-import type { Duration } from '../../value-objects/duration'
-import type { Track } from '../track'
+import type { Duration } from '../value-objects/duration'
+import type { Track } from './track'
 
 export class ReleaseTrack {
   constructor(

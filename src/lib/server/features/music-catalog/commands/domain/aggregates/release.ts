@@ -1,5 +1,5 @@
 import type { ReleaseDate } from '../value-objects/release-date'
-import type { ReleaseTrack } from './release/release-track'
+import type { ReleaseTrack } from './release-track'
 
 export class Release {
   public readonly artists: number[] = []
