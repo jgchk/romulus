@@ -1,4 +1,4 @@
-import type { Duration } from '../../value-objects/duration'
+import type { Duration } from '../value-objects/duration'
 
 export class Track {
   constructor(
