@@ -274,6 +274,7 @@
             <button
               class="flex w-5 items-center justify-center border-l border-gray-400 transition hover:border-error-800 hover:bg-error-500 dark:border-gray-600 dark:text-gray-400 dark:hover:text-error-200"
               use:tooltip={{ content: 'Remove' }}
+              aria-label="Remove {v.label}"
               on:click={() => {
                 handleRemove(v)
                 inputRef?.focus()

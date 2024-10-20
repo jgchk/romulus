@@ -115,7 +115,7 @@ export class GenreForm {
   async clearParents() {
     const selectedParent = this.selectedParents.first()
     while (await selectedParent.isVisible()) {
-      await selectedParent.click()
+      await selectedParent.getByRole('button', { name: 'Remove' }).click()
     }
   }
 
@@ -132,7 +132,7 @@ export class GenreForm {
   async clearInfluences() {
     const selectedInfluence = this.selectedInfluences.first()
     while (await selectedInfluence.isVisible()) {
-      await selectedInfluence.click()
+      await selectedInfluence.getByRole('button', { name: 'Remove' }).click()
     }
   }
 }
