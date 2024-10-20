@@ -121,36 +121,34 @@ describe('resetPassword', () => {
     expect(result).toBeInstanceOf(AccountNotFoundError)
   })
 
-  test(
-    'should delete all current sessions for the account after password reset',
-    async ({ dbConnection }) => {
-      const {
-        resetPassword,
-        createAccount,
-        createPasswordResetToken,
-        loginAccount,
-        getAccountSessions,
-      } = setupCommand({
-        dbConnection,
-      })
-      const account = await createAccount({ username: 'testaccount', password: 'oldpassword' })
-      const passwordResetToken = await createPasswordResetToken(account.id)
+  test('should delete all current sessions for the account after password reset', async ({
+    dbConnection,
+  }) => {
+    const {
+      resetPassword,
+      createAccount,
+      createPasswordResetToken,
+      loginAccount,
+      getAccountSessions,
+    } = setupCommand({
+      dbConnection,
+    })
+    const account = await createAccount({ username: 'testaccount', password: 'oldpassword' })
+    const passwordResetToken = await createPasswordResetToken(account.id)
 
-      // Create multiple sessions for the account
-      await loginAccount({ username: 'testaccount', password: 'oldpassword' })
-      await loginAccount({ username: 'testaccount', password: 'oldpassword' })
-      const preResetSessions = await getAccountSessions('testaccount')
-      expect(preResetSessions).toHaveLength(2)
+    // Create multiple sessions for the account
+    await loginAccount({ username: 'testaccount', password: 'oldpassword' })
+    await loginAccount({ username: 'testaccount', password: 'oldpassword' })
+    const preResetSessions = await getAccountSessions('testaccount')
+    expect(preResetSessions).toHaveLength(2)
 
-      // Reset the password
-      await resetPassword.execute(passwordResetToken, 'newpassword')
+    // Reset the password
+    await resetPassword.execute(passwordResetToken, 'newpassword')
 
-      // Check if all current sessions for the account were deleted (except for the new one)
-      const postResetSessions = await getAccountSessions('testaccount')
-      expect(postResetSessions).toHaveLength(1)
-    },
-    { timeout: 10000 },
-  )
+    // Check if all current sessions for the account were deleted (except for the new one)
+    const postResetSessions = await getAccountSessions('testaccount')
+    expect(postResetSessions).toHaveLength(1)
+  })
 
   test('should delete the password reset token after successful reset', async ({
     dbConnection,
