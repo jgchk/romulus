@@ -10,6 +10,8 @@
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { searchGenres, type SimpleGenre } from '$lib/types/genres'
   import type { Timeout } from '$lib/utils/types'
+  import { tw } from '$lib/utils/dom'
+  import { tooltip } from '$lib/actions/tooltip'
 
   export let filter = ''
   export let genres: SimpleGenre[]
@@ -46,7 +48,10 @@
     <VirtualList items={results} let:item={match} height="300px">
       <button
         type="button"
-        class="block text-left text-gray-700 transition hover:font-bold dark:text-gray-400"
+        class={tw(
+            "block text-left text-gray-700 transition hover:font-bold dark:text-gray-400 px-2",
+            match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm'
+        )}
         on:click={() => dispatch('select', match.genre)}
       >
         {match.genre.name}
@@ -61,6 +66,12 @@
         {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
           {' '}
           <GenreTypeChip type={match.genre.type} />
+        {/if}
+        {#if match.genre.nsfw}
+          <span
+            class="align-super text-xs font-bold text-error-500 transition dark:text-error-700"
+            use:tooltip={{ content: 'NSFW' }}>N</span
+          >
         {/if}
       </button>
     </VirtualList>
