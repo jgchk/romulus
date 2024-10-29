@@ -49,8 +49,8 @@
       <button
         type="button"
         class={tw(
-            "block text-left text-gray-700 transition hover:font-bold dark:text-gray-400 px-2",
-            match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm'
+          'block px-2 text-left text-gray-700 transition hover:font-bold dark:text-gray-400',
+          match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
         on:click={() => dispatch('select', match.genre)}
       >
