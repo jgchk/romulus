@@ -3,7 +3,7 @@
   import RomcodeNode from './RomcodeNode.svelte'
 
   export let data: string
-  export let genres: { id: number; name: string }[]
+  export let genres: { id: number; name: string; nsfw: boolean }[]
 
   $: root = parser(data)
 </script>

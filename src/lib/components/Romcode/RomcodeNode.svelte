@@ -3,7 +3,7 @@
   import type { Node } from './types'
 
   export let node: Node
-  export let genres: { id: number; name: string }[]
+  export let genres: { id: number; name: string; nsfw: boolean }[]
 </script>
 
 {#if node.type === 'Root'}
