@@ -1,0 +1,8 @@
+name: Push
+
+on:
+  pull-request:
+
+jobs:
+  validation:
+    uses: ./.github/workflows/validation.yaml
