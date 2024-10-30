@@ -1,5 +1,4 @@
 <script lang="ts">
-    
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { tw } from '$lib/utils/dom'
   import { tooltip } from '$lib/actions/tooltip'
@@ -9,14 +8,14 @@
   export let genres: { id: number; name: string }[]
 
   $: genre = genres.find((genre) => genre.id === id)
-    
+
   const userSettings = getUserSettingsContext()
 </script>
 
-<a href={genre ? `/genres/${id}` : `/genre/${id}/history`} class={tw(
-      "underline inline-block",
-      genre.nsfw && !$userSettings.showNsfw && 'blur-sm'
-    )}>
+<a
+  href={genre ? `/genres/${id}` : `/genre/${id}/history`}
+  class={tw('inline-block underline', genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}
+>
   {#if text}
     {text}
   {:else if genre}
@@ -28,7 +27,7 @@
 
 {#if genre.nsfw}
   <span
-    class="align-super text-xs font-bold text-error-500 transition dark:text-error-700 no-underline"
+    class="align-super text-xs font-bold text-error-500 no-underline transition dark:text-error-700"
     use:tooltip={{ content: 'NSFW' }}>N</span
   >
 {/if}
