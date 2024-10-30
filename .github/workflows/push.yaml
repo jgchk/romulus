@@ -2,8 +2,8 @@ name: Push
 
 on:
   push:
-    branches-ignore:
-      - next-js
+    branches:
+      - main
 
 env:
   NODE_VERSION: 20.x
@@ -42,7 +42,6 @@ jobs:
   deploy-staging:
     needs: [validation]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
