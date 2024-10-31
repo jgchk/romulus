@@ -8,7 +8,7 @@ import {
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/features/genres/application/genre-service'
+} from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../../vitest-setup'

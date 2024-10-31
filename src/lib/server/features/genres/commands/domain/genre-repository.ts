@@ -1,5 +1,5 @@
-import type { Genre } from '../../domain/genre'
-import type { GenreTree } from '../../domain/genre-tree'
+import type { Genre } from './genre'
+import type { GenreTree } from './genre-tree'
 
 export type GenreRepository = {
   findById(id: number): Promise<Genre | undefined>

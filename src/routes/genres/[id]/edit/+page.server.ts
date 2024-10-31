@@ -11,7 +11,7 @@ import {
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/features/genres/application/genre-service'
+} from '$lib/server/features/genres/commands/application/commands/update-genre'
 
 import type { PageServerLoad } from './$types'
 

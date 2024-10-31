@@ -4,8 +4,8 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { genreAkas, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 
 import { Genre } from '../../domain/genre'
+import type { GenreRepository } from '../../domain/genre-repository'
 import { GenreTree } from '../../domain/genre-tree'
-import type { GenreRepository } from './genre-repository'
 
 export class DrizzleGenreRepository implements GenreRepository {
   constructor(private db: IDrizzleConnection) {}
