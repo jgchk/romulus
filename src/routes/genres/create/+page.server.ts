@@ -2,7 +2,6 @@ import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { createGenre } from '$lib/server/api/genres/create'
 import { genreSchema } from '$lib/server/api/genres/types'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -34,8 +33,32 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const genreId = await createGenre(form.data, user.id, locals.dbConnection)
+    const genreData = {
+      ...form.data,
+      subtitle: form.data.subtitle ?? undefined,
+      shortDescription: form.data.shortDescription ?? undefined,
+      longDescription: form.data.longDescription ?? undefined,
+      notes: form.data.notes ?? undefined,
+      relevance: form.data.relevance ?? UNSET_GENRE_RELEVANCE,
+      parents: new Set(form.data.parents),
+      influences: new Set(form.data.influencedBy),
+      akas: {
+        primary: form.data.primaryAkas?.length
+          ? form.data.primaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+        secondary: form.data.secondaryAkas?.length
+          ? form.data.secondaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+        tertiary: form.data.tertiaryAkas?.length
+          ? form.data.tertiaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
 
-    redirect(302, `/genres/${genreId}`)
+    const { id } = await locals.services.genre.createGenre(genreData, user.id)
+
+    redirect(302, `/genres/${id}`)
   },
 }
