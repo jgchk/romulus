@@ -34,9 +34,9 @@ export class UpdateGenreCommand {
       throw new GenreCycleError(cycle)
     }
 
-    await this.genreRepo.update(id, updatedGenre)
+    await this.genreRepo.save(updatedGenre)
 
-    const genreHistory = GenreHistory.fromGenre(updatedGenre, 'UPDATE', accountId)
+    const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
   }
 }

@@ -84,7 +84,63 @@ export class DrizzleGenreRepository implements GenreRepository {
     return tree
   }
 
-  async update(id: number, genre: Genre): Promise<void> {
+  async save(genre: Genre): Promise<{ id: number }> {
+    if (genre.id === undefined) {
+      return this.create(genre)
+    } else {
+      return this.update(genre.id, genre)
+    }
+  }
+
+  private async create(genre: Genre): Promise<{ id: number }> {
+    return this.db.transaction(async (tx) => {
+      const [{ id }] = await tx
+        .insert(genres)
+        .values({
+          name: genre.name,
+          subtitle: genre.subtitle,
+          type: genre.type,
+          nsfw: genre.nsfw,
+          shortDescription: genre.shortDescription,
+          longDescription: genre.longDescription,
+          notes: genre.notes,
+          relevance: genre.relevance,
+          updatedAt: genre.updatedAt,
+        })
+        .returning({ id: genres.id })
+
+      const akas = [
+        ...genre.akas.primary.map((name, order) => ({ genreId: id, name, relevance: 3, order })),
+        ...genre.akas.secondary.map((name, order) => ({ genreId: id, name, relevance: 2, order })),
+        ...genre.akas.tertiary.map((name, order) => ({ genreId: id, name, relevance: 1, order })),
+      ]
+      if (akas.length > 0) {
+        await tx.insert(genreAkas).values(akas)
+      }
+
+      if (genre.parents.size > 0) {
+        await tx.insert(genreParents).values(
+          [...genre.parents].map((parentId) => ({
+            parentId,
+            childId: id,
+          })),
+        )
+      }
+
+      if (genre.influences.size > 0) {
+        await tx.insert(genreInfluences).values(
+          [...genre.influences].map((influencerId) => ({
+            influencerId,
+            influencedId: id,
+          })),
+        )
+      }
+
+      return { id }
+    })
+  }
+
+  private async update(id: number, genre: Genre): Promise<{ id: number }> {
     await this.db.transaction(async (tx) => {
       await tx
         .update(genres)
@@ -131,5 +187,7 @@ export class DrizzleGenreRepository implements GenreRepository {
         )
       }
     })
+
+    return { id }
   }
 }

@@ -7,6 +7,11 @@ export class GenreTree {
     this.map = new Map(nodes.map((node) => [node.id, node]))
   }
 
+  insertGenre(genre: Genre) {
+    const id = -1
+    this.map.set(id, new GenreTreeNode(id, genre.name, genre.parents))
+  }
+
   updateGenre(id: number, genre: Genre) {
     this.map.set(id, new GenreTreeNode(id, genre.name, genre.parents))
   }

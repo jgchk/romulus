@@ -1,6 +1,8 @@
+import { CreateGenreCommand } from './application/commands/create-genre'
 import { UpdateGenreCommand } from './application/commands/update-genre'
-import type { GenreUpdate } from './domain/genre'
+import type { GenreConstructorParams, GenreUpdate } from './domain/genre'
 import type { GenreHistoryRepository } from './domain/genre-history-repository'
+import type { GenreRelevanceVoteRepository } from './domain/genre-relevance-vote-repository'
 import type { GenreRepository } from './domain/genre-repository'
 
 export type CreateRelease = {
@@ -11,10 +13,24 @@ export type CreateRelease = {
 }
 
 export class GenreService {
+  private createGenreCommand: CreateGenreCommand
   private updateGenreCommand: UpdateGenreCommand
 
-  constructor(genreRepo: GenreRepository, genreHistoryRepo: GenreHistoryRepository) {
+  constructor(
+    genreRepo: GenreRepository,
+    genreHistoryRepo: GenreHistoryRepository,
+    genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
+  ) {
+    this.createGenreCommand = new CreateGenreCommand(
+      genreRepo,
+      genreHistoryRepo,
+      genreRelevanceVoteRepo,
+    )
     this.updateGenreCommand = new UpdateGenreCommand(genreRepo, genreHistoryRepo)
+  }
+
+  async createGenre(data: GenreConstructorParams, accountId: number) {
+    return this.createGenreCommand.execute(data, accountId)
   }
 
   async updateGenre(id: number, data: GenreUpdate, accountId: number) {

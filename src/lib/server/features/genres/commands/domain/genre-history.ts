@@ -24,7 +24,12 @@ export class GenreHistory {
     public accountId: number | undefined,
   ) {}
 
-  static fromGenre(genre: Genre, operation: 'CREATE' | 'UPDATE' | 'DELETE', accountId: number) {
+  static fromGenre(
+    id: number,
+    genre: Genre,
+    operation: 'CREATE' | 'UPDATE' | 'DELETE',
+    accountId: number,
+  ) {
     return new GenreHistory(
       genre.name,
       genre.subtitle,
@@ -36,7 +41,7 @@ export class GenreHistory {
       genre.parents,
       genre.influences,
       genre.akas,
-      genre.id,
+      id,
       genre.createdAt,
       operation,
       accountId,
