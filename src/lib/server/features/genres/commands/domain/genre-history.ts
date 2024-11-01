@@ -42,7 +42,7 @@ export class GenreHistory {
       genre.influences,
       genre.akas,
       id,
-      genre.createdAt,
+      new Date(),
       operation,
       accountId,
     )
