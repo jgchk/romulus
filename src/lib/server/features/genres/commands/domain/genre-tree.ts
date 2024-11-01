@@ -1,7 +1,7 @@
 import type { Genre } from './genre'
 
 export class GenreTree {
-  private map: Map<number, GenreTreeNode>
+  map: Map<number, GenreTreeNode>
 
   constructor(nodes: GenreTreeNode[]) {
     this.map = new Map(nodes.map((node) => [node.id, node]))
@@ -14,6 +14,40 @@ export class GenreTree {
 
   updateGenre(id: number, genre: Genre) {
     this.map.set(id, new GenreTreeNode(id, genre.name, genre.parents))
+  }
+
+  deleteGenre(id: number) {
+    this.moveGenreChildrenUnderParents(id)
+    this.map.delete(id)
+  }
+
+  private moveGenreChildrenUnderParents(id: number) {
+    const genre = this.map.get(id)
+    if (!genre) return
+
+    const children = this.getGenreChildren(id)
+    for (const childId of children) {
+      const child = this.map.get(childId)
+      if (!child) continue
+
+      child.parents.delete(id)
+
+      for (const parentId of genre.parents) {
+        child.parents.add(parentId)
+      }
+    }
+  }
+
+  getGenreChildren(id: number): Set<number> {
+    const children = new Set<number>()
+
+    for (const node of this.map.values()) {
+      if (node.parents.has(id)) {
+        children.add(node.id)
+      }
+    }
+
+    return children
   }
 
   findCycle(): string | undefined {

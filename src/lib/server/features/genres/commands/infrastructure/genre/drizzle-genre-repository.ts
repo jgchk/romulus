@@ -62,28 +62,6 @@ export class DrizzleGenreRepository implements GenreRepository {
     return genre
   }
 
-  async getGenreTree(): Promise<GenreTree> {
-    const nodes = await this.db.query.genres.findMany({
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        parents: { columns: { parentId: true } },
-      },
-    })
-
-    const tree = new GenreTree(
-      nodes.map((node) => ({
-        id: node.id,
-        name: node.name,
-        parents: new Set(node.parents.map((p) => p.parentId)),
-      })),
-    )
-
-    return tree
-  }
-
   async save(genre: Genre): Promise<{ id: number }> {
     if (genre.id === undefined) {
       return this.create(genre)
@@ -189,5 +167,49 @@ export class DrizzleGenreRepository implements GenreRepository {
     })
 
     return { id }
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.db.delete(genres).where(eq(genres.id, id))
+  }
+
+  async getGenreTree(): Promise<GenreTree> {
+    const nodes = await this.db.query.genres.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+      with: {
+        parents: { columns: { parentId: true } },
+      },
+    })
+
+    const tree = new GenreTree(
+      nodes.map((node) => ({
+        id: node.id,
+        name: node.name,
+        parents: new Set(node.parents.map((p) => p.parentId)),
+      })),
+    )
+
+    return tree
+  }
+
+  async saveGenreTree(genreTree: GenreTree): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx.delete(genreParents)
+
+      const genreTreeNodes = [...genreTree.map.values()]
+      if (genreTreeNodes.length === 0) return
+
+      await tx.insert(genreParents).values(
+        genreTreeNodes.flatMap((node) =>
+          [...node.parents].map((parentId) => ({
+            parentId,
+            childId: node.id,
+          })),
+        ),
+      )
+    })
   }
 }
