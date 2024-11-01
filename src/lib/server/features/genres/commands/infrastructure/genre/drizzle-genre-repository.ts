@@ -124,12 +124,12 @@ export class DrizzleGenreRepository implements GenreRepository {
         .update(genres)
         .set({
           name: genre.name,
-          subtitle: genre.subtitle,
+          subtitle: genre.subtitle ?? null,
           type: genre.type,
           nsfw: genre.nsfw,
-          shortDescription: genre.shortDescription,
-          longDescription: genre.longDescription,
-          notes: genre.notes,
+          shortDescription: genre.shortDescription ?? null,
+          longDescription: genre.longDescription ?? null,
+          notes: genre.notes ?? null,
           relevance: genre.relevance,
           updatedAt: genre.updatedAt,
         })
