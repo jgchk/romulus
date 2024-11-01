@@ -199,17 +199,13 @@ export class DrizzleGenreRepository implements GenreRepository {
     await this.db.transaction(async (tx) => {
       await tx.delete(genreParents)
 
-      const genreTreeNodes = [...genreTree.map.values()]
-      if (genreTreeNodes.length === 0) return
-
-      await tx.insert(genreParents).values(
-        genreTreeNodes.flatMap((node) =>
-          [...node.parents].map((parentId) => ({
-            parentId,
-            childId: node.id,
-          })),
-        ),
+      const parentChildNodes = [...genreTree.map.values()].flatMap((node) =>
+        [...node.parents].map((parentId) => ({ parentId, childId: node.id })),
       )
+
+      if (parentChildNodes.length === 0) return
+
+      await tx.insert(genreParents).values(parentChildNodes)
     })
   }
 }
