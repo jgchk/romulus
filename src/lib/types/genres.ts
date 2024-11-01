@@ -75,6 +75,7 @@ export type SimpleGenre = {
   relevance: number
   parents: number[]
   children: number[]
+  nsfw: boolean
 }
 
 export type SearchGenre = Pick<SimpleGenre, 'id' | 'name' | 'subtitle' | 'akas'>

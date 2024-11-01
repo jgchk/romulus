@@ -2,6 +2,7 @@
   import { MagnifyingGlass, X } from 'phosphor-svelte'
   import { createEventDispatcher } from 'svelte'
 
+  import { tooltip } from '$lib/actions/tooltip'
   import Dialog from '$lib/atoms/Dialog.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
@@ -9,9 +10,8 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { searchGenres, type SimpleGenre } from '$lib/types/genres'
-  import type { Timeout } from '$lib/utils/types'
   import { tw } from '$lib/utils/dom'
-  import { tooltip } from '$lib/actions/tooltip'
+  import type { Timeout } from '$lib/utils/types'
 
   export let filter = ''
   export let genres: SimpleGenre[]
@@ -49,8 +49,8 @@
       <button
         type="button"
         class={tw(
-            "block text-left text-gray-700 transition hover:font-bold dark:text-gray-400 px-2",
-            match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm'
+          'block px-2 text-left text-gray-700 transition hover:font-bold dark:text-gray-400',
+          match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
         on:click={() => dispatch('select', match.genre)}
       >

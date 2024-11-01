@@ -3,10 +3,12 @@ import { expect } from 'vitest'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { NotFoundError } from '$lib/server/features/genres/application/genre-service'
+import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 
-import { test } from '../../../../vitest-setup'
-import { deleteGenre } from './delete'
+import { test } from '../../../../../../../vitest-setup'
+import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
+import { DeleteGenreCommand } from './delete-genre'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
@@ -19,7 +21,12 @@ test('should delete the genre', async ({ dbConnection }) => {
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await deleteGenre(genre.id, account.id, dbConnection)
+  const deleteGenreCommand = new DeleteGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await deleteGenreCommand.execute(genre.id, account.id)
 
   const genres = await genresDb.findAllIds(dbConnection)
   expect(genres).toHaveLength(0)
@@ -29,17 +36,33 @@ test('should throw NotFoundError if genre not found', async ({ dbConnection }) =
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await expect(deleteGenre(0, account.id, dbConnection)).rejects.toThrow(NotFoundError)
+  const deleteGenreCommand = new DeleteGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await expect(deleteGenreCommand.execute(0, account.id)).rejects.toThrow(NotFoundError)
 })
 
 test('should create a genre history entry', async ({ dbConnection }) => {
+  const pastDate = new Date('2000-01-01')
   const genresDb = new GenresDatabase()
-  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+  const [genre] = await genresDb.insert(
+    [getTestGenre({ createdAt: pastDate, updatedAt: pastDate })],
+    dbConnection,
+  )
 
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await deleteGenre(genre.id, account.id, dbConnection)
+  const beforeExecute = new Date()
+  const deleteGenreCommand = new DeleteGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await deleteGenreCommand.execute(genre.id, account.id)
+  const afterExecute = new Date()
 
   const genreHistoryDb = new GenreHistoryDatabase()
   const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
@@ -66,6 +89,10 @@ test('should create a genre history entry', async ({ dbConnection }) => {
       type: 'STYLE',
     },
   ])
+
+  expect(genreHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[0].createdAt).not.toEqual(pastDate)
 })
 
 test("should move child genres under deleted genre's parents", async ({ dbConnection }) => {
@@ -82,7 +109,12 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await deleteGenre(child.id, account.id, dbConnection)
+  const deleteGenreCommand = new DeleteGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await deleteGenreCommand.execute(child.id, account.id)
 
   const genres = await genresDb.findAll({ include: ['parents'] }, dbConnection)
   expect(genres.results).toEqual([
@@ -100,12 +132,25 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
 })
 
 test('should create history entries for children that were moved', async ({ dbConnection }) => {
+  const pastDate = new Date('2000-01-01')
   const genresDb = new GenresDatabase()
   const [parent, child, grandchild] = await genresDb.insert(
     [
-      getTestGenre({ id: 0, name: 'Parent' }),
-      getTestGenre({ id: 1, name: 'Child', parents: [0] }),
-      getTestGenre({ id: 2, name: 'Grandchild', parents: [1] }),
+      getTestGenre({ id: 0, name: 'Parent', createdAt: pastDate, updatedAt: pastDate }),
+      getTestGenre({
+        id: 1,
+        name: 'Child',
+        parents: [0],
+        createdAt: pastDate,
+        updatedAt: pastDate,
+      }),
+      getTestGenre({
+        id: 2,
+        name: 'Grandchild',
+        parents: [1],
+        createdAt: pastDate,
+        updatedAt: pastDate,
+      }),
     ],
     dbConnection,
   )
@@ -113,7 +158,14 @@ test('should create history entries for children that were moved', async ({ dbCo
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await deleteGenre(child.id, account.id, dbConnection)
+  const beforeExecute = new Date()
+  const deleteGenreCommand = new DeleteGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await deleteGenreCommand.execute(child.id, account.id)
+  const afterExecute = new Date()
 
   const genreHistoryDb = new GenreHistoryDatabase()
 
@@ -144,6 +196,9 @@ test('should create history entries for children that were moved', async ({ dbCo
       type: 'STYLE',
     },
   ])
+  expect(childHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(childHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(childHistory[0].createdAt).not.toEqual(pastDate)
 
   const grandchildHistory = await genreHistoryDb.findByGenreId(grandchild.id, dbConnection)
   expect(grandchildHistory).toEqual([
@@ -169,4 +224,7 @@ test('should create history entries for children that were moved', async ({ dbCo
       type: 'STYLE',
     },
   ])
+  expect(grandchildHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(grandchildHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(grandchildHistory[0].createdAt).not.toEqual(pastDate)
 })

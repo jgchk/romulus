@@ -13,7 +13,7 @@ declare global {
           commands: import('$lib/server/features/music-catalog/commands/command-service').MusicCatalogCommandService
           queries: import('$lib/server/features/music-catalog/queries/query-service').MusicCatalogQueryService
         }
-        genre: import('$lib/server/features/genres/application/genre-service').GenreService
+        genre: import('$lib/server/features/genres/commands/genre-service').GenreService
       }
       user: import('lucia').User | undefined
       session: Pick<import('lucia').Session, 'id'> | undefined

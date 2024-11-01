@@ -11,9 +11,10 @@ import { createLucia } from '$lib/server/features/authentication/infrastructure/
 import { LuciaSessionRepository } from '$lib/server/features/authentication/infrastructure/session/lucia-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/authentication/infrastructure/token/crypto-token-generator'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
-import { GenreService } from '$lib/server/features/genres/application/genre-service'
-import { DrizzleGenreRepository } from '$lib/server/features/genres/infrastructure/genre/drizzle-genre-repository'
-import { DrizzleGenreHistoryRepository } from '$lib/server/features/genres/infrastructure/genre-history/drizzle-genre-history-repository'
+import { GenreService } from '$lib/server/features/genres/commands/genre-service'
+import { DrizzleGenreRelevanceVoteRepository } from '$lib/server/features/genres/commands/infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreRepository } from '$lib/server/features/genres/commands/infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '$lib/server/features/genres/commands/infrastructure/genre-history/drizzle-genre-history-repository'
 import { MusicCatalogCommandService } from '$lib/server/features/music-catalog/commands/command-service'
 import { DrizzleArtistRepository } from '$lib/server/features/music-catalog/commands/infrastructure/artist/drizzle-artist-repository'
 import { DrizzleReleaseRepository } from '$lib/server/features/music-catalog/commands/infrastructure/release/drizzle-release-repository'
@@ -56,6 +57,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     genre: new GenreService(
       new DrizzleGenreRepository(dbConnection),
       new DrizzleGenreHistoryRepository(dbConnection),
+      new DrizzleGenreRelevanceVoteRepository(dbConnection),
     ),
   }
 

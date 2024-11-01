@@ -8,18 +8,20 @@ import {
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/features/genres/application/genre-service'
+  UpdateGenreCommand,
+} from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
-import { test } from '../../../../vitest-setup'
-import { type GenreData } from './types'
-import { updateGenre } from './update'
+import { test } from '../../../../../../../vitest-setup'
+import type { GenreUpdate } from '../../domain/genre'
+import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
 }
 
-const GENRE_UPDATE: GenreData = Object.freeze({
+const GENRE_UPDATE: GenreUpdate = Object.freeze({
   name: 'Updated Genre',
   shortDescription: 'Updated short desc',
   longDescription: 'Updated long desc',
@@ -27,8 +29,8 @@ const GENRE_UPDATE: GenreData = Object.freeze({
   type: 'META',
   subtitle: 'Updated subtitle',
   nsfw: true,
-  parents: [3, 4],
-  influencedBy: [5, 6],
+  parents: new Set([3, 4]),
+  influencedBy: new Set([5, 6]),
   relevance: 99,
   primaryAkas: '',
   secondaryAkas: '',
@@ -42,22 +44,28 @@ test('should update the genre', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await updateGenre(
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await updateGenreCommand.execute(
     genre.id,
     {
-      ...genre,
       name: 'Updated Genre',
-      primaryAkas: 'primary-one, primary-two',
-      secondaryAkas: 'secondary-one, secondary-two',
-      tertiaryAkas: 'tertiary-one, tertiary-two',
+      akas: {
+        primary: ['primary-one', 'primary-two'],
+        secondary: ['secondary-one', 'secondary-two'],
+        tertiary: ['tertiary-one', 'tertiary-two'],
+      },
     },
     account.id,
-    dbConnection,
   )
 
   const {
     results: [updatedGenre],
   } = await genresDb.findAll({ filter: { ids: [genre.id] }, include: ['akas'] }, dbConnection)
+
   expect(updatedGenre).toEqual(
     expect.objectContaining({
       id: genre.id,
@@ -72,46 +80,71 @@ test('should update the genre', async ({ dbConnection }) => {
 })
 
 test('should create a history entry', async ({ dbConnection }) => {
+  const pastDate = new Date('2000-01-01')
   const genresDb = new GenresDatabase()
-  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+  const [genre] = await genresDb.insert(
+    [getTestGenre({ createdAt: pastDate, updatedAt: pastDate })],
+    dbConnection,
+  )
 
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await updateGenre(
-    genre.id,
-    {
-      ...genre,
-      name: 'Updated Genre',
-      primaryAkas: 'primary-one, primary-two',
-      secondaryAkas: 'secondary-one, secondary-two',
-      tertiaryAkas: 'tertiary-one, tertiary-two',
-    },
-    account.id,
-    dbConnection,
+  const beforeExecute = new Date()
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  const {
-    results: [updatedGenre],
-  } = await genresDb.findAll({ filter: { ids: [genre.id] }, include: ['akas'] }, dbConnection)
-  expect(updatedGenre).toEqual(
-    expect.objectContaining({
-      id: genre.id,
+  await updateGenreCommand.execute(
+    genre.id,
+    {
       name: 'Updated Genre',
       akas: {
         primary: ['primary-one', 'primary-two'],
         secondary: ['secondary-one', 'secondary-two'],
         tertiary: ['tertiary-one', 'tertiary-two'],
       },
+    },
+    account.id,
+  )
+  const afterExecute = new Date()
+
+  const genreHistoryDb = new GenreHistoryDatabase()
+  const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
+
+  expect(genreHistory).toHaveLength(1)
+  expect(genreHistory[0]).toEqual(
+    expect.objectContaining({
+      accountId: account.id,
+      operation: 'UPDATE',
+      name: 'Updated Genre',
+      akas: [
+        { name: 'primary-one' },
+        { name: 'primary-two' },
+        { name: 'secondary-one' },
+        { name: 'secondary-two' },
+        { name: 'tertiary-one' },
+        { name: 'tertiary-two' },
+      ],
     }),
   )
+
+  expect(genreHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[0].createdAt).not.toEqual(pastDate)
 })
 
 test('should throw NotFoundError if genre is not found', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  await expect(updateGenre(0, GENRE_UPDATE, account.id, dbConnection)).rejects.toThrow(
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
+  await expect(updateGenreCommand.execute(0, GENRE_UPDATE, account.id)).rejects.toThrow(
     NotFoundError,
   )
 })
@@ -123,8 +156,17 @@ test('should throw GenreCycleError if a 1-cycle is detected', async ({ dbConnect
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   await expect(
-    updateGenre(genre.id, { ...GENRE_UPDATE, parents: [genre.id] }, account.id, dbConnection),
+    updateGenreCommand.execute(
+      genre.id,
+      { ...GENRE_UPDATE, parents: new Set([genre.id]) },
+      account.id,
+    ),
   ).rejects.toThrow(GenreCycleError)
 })
 
@@ -138,8 +180,17 @@ test('should throw GenreCycleError if a 2-cycle is detected', async ({ dbConnect
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   await expect(
-    updateGenre(parent.id, { ...GENRE_UPDATE, parents: [child.id] }, account.id, dbConnection),
+    updateGenreCommand.execute(
+      parent.id,
+      { ...GENRE_UPDATE, parents: new Set([child.id]) },
+      account.id,
+    ),
   ).rejects.toThrow(GenreCycleError)
 })
 
@@ -157,8 +208,17 @@ test('should throw GenreCycleError if a 3-cycle is detected', async ({ dbConnect
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   await expect(
-    updateGenre(parent.id, { ...GENRE_UPDATE, parents: [grandchild.id] }, account.id, dbConnection),
+    updateGenreCommand.execute(
+      parent.id,
+      { ...GENRE_UPDATE, parents: new Set([grandchild.id]) },
+      account.id,
+    ),
   ).rejects.toThrow(GenreCycleError)
 })
 
@@ -169,8 +229,17 @@ test('should throw SelfInfluenceError if genre influences itself', async ({ dbCo
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   await expect(
-    updateGenre(genre.id, { ...GENRE_UPDATE, influencedBy: [genre.id] }, account.id, dbConnection),
+    updateGenreCommand.execute(
+      genre.id,
+      { ...GENRE_UPDATE, influences: new Set([genre.id]) },
+      account.id,
+    ),
   ).rejects.toThrow(SelfInfluenceError)
 })
 
@@ -188,17 +257,22 @@ test('should throw NoUpdatesError if no changes are made', async ({ dbConnection
     connection: dbConnection,
   })
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   await expect(
-    updateGenre(
+    updateGenreCommand.execute(
       genre.id,
       {
-        ...genre,
-        primaryAkas: '',
-        secondaryAkas: '',
-        tertiaryAkas: '',
+        akas: {
+          primary: [],
+          secondary: [],
+          tertiary: [],
+        },
       },
       account.id,
-      dbConnection,
     ),
   ).rejects.toThrow(NoUpdatesError)
 })
@@ -217,17 +291,22 @@ test('should not create a history entry if no changes are detected', async ({ db
     connection: dbConnection,
   })
 
+  const updateGenreCommand = new UpdateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+  )
+
   try {
-    await updateGenre(
+    await updateGenreCommand.execute(
       genre.id,
       {
-        ...genre,
-        primaryAkas: '',
-        secondaryAkas: '',
-        tertiaryAkas: '',
+        akas: {
+          primary: [],
+          secondary: [],
+          tertiary: [],
+        },
       },
       account.id,
-      dbConnection,
     )
   } catch {
     // ignore

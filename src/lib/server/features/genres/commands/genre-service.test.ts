@@ -4,18 +4,18 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { accounts, genreParents, genres } from '$lib/server/db/schema'
 
 import { test } from '../../../../../vitest-setup'
-import type { GenreConstructorParams } from '../domain/genre'
-import { Genre } from '../domain/genre'
-import { GenreHistory } from '../domain/genre-history'
-import { DrizzleGenreRepository } from '../infrastructure/genre/drizzle-genre-repository'
-import { DrizzleGenreHistoryRepository } from '../infrastructure/genre-history/drizzle-genre-history-repository'
 import {
   GenreCycleError,
-  GenreService,
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from './genre-service'
+} from './application/commands/update-genre'
+import { Genre, type GenreConstructorParams } from './domain/genre'
+import { GenreHistory } from './domain/genre-history'
+import { GenreService } from './genre-service'
+import { DrizzleGenreRelevanceVoteRepository } from './infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreRepository } from './infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from './infrastructure/genre-history/drizzle-genre-history-repository'
 
 const createBasicGenre = (id: number, name: string): GenreConstructorParams => ({
   id,
@@ -57,7 +57,8 @@ const createTestAccount = async (dbConnection: IDrizzleConnection) => {
 test('should update a genre successfully', async ({ dbConnection }) => {
   const genresRepo = new DrizzleGenreRepository(dbConnection)
   const genreHistoryRepo = new DrizzleGenreHistoryRepository(dbConnection)
-  const genreService = new GenreService(genresRepo, genreHistoryRepo)
+  const genreRelevanceVoteRepo = new DrizzleGenreRelevanceVoteRepository(dbConnection)
+  const genreService = new GenreService(genresRepo, genreHistoryRepo, genreRelevanceVoteRepo)
 
   const accountId = await createTestAccount(dbConnection)
 
@@ -78,7 +79,8 @@ test('should update a genre successfully', async ({ dbConnection }) => {
 test('should throw NotFoundError if genre does not exist', async ({ dbConnection }) => {
   const genresRepo = new DrizzleGenreRepository(dbConnection)
   const genreHistoryRepo = new DrizzleGenreHistoryRepository(dbConnection)
-  const genreService = new GenreService(genresRepo, genreHistoryRepo)
+  const genreRelevanceVoteRepo = new DrizzleGenreRelevanceVoteRepository(dbConnection)
+  const genreService = new GenreService(genresRepo, genreHistoryRepo, genreRelevanceVoteRepo)
 
   const accountId = await createTestAccount(dbConnection)
 
@@ -90,7 +92,8 @@ test('should throw NotFoundError if genre does not exist', async ({ dbConnection
 test('should throw SelfInfluenceError if genre influences itself', async ({ dbConnection }) => {
   const genresRepo = new DrizzleGenreRepository(dbConnection)
   const genreHistoryRepo = new DrizzleGenreHistoryRepository(dbConnection)
-  const genreService = new GenreService(genresRepo, genreHistoryRepo)
+  const genreRelevanceVoteRepo = new DrizzleGenreRelevanceVoteRepository(dbConnection)
+  const genreService = new GenreService(genresRepo, genreHistoryRepo, genreRelevanceVoteRepo)
 
   const accountId = await createTestAccount(dbConnection)
 
@@ -106,17 +109,19 @@ test('should throw SelfInfluenceError if genre influences itself', async ({ dbCo
 test('should throw NoUpdatesError if no changes were made', async ({ dbConnection }) => {
   const genresRepo = new DrizzleGenreRepository(dbConnection)
   const genreHistoryRepo = new DrizzleGenreHistoryRepository(dbConnection)
-  const genreService = new GenreService(genresRepo, genreHistoryRepo)
+  const genreRelevanceVoteRepo = new DrizzleGenreRelevanceVoteRepository(dbConnection)
+  const genreService = new GenreService(genresRepo, genreHistoryRepo, genreRelevanceVoteRepo)
 
   const accountId = await createTestAccount(dbConnection)
+  const genreId = 1
 
   // Insert a genre
-  const genreData = createBasicGenre(1, 'Unchanged Genre')
+  const genreData = createBasicGenre(genreId, 'Unchanged Genre')
   await dbConnection.insert(genres).values(genreData)
 
   // Create an initial history entry
   const genre = new Genre(genreData)
-  await genreHistoryRepo.create(GenreHistory.fromGenre(genre, 'CREATE', accountId))
+  await genreHistoryRepo.create(GenreHistory.fromGenre(genreId, genre, 'CREATE', accountId))
 
   const genreUpdate = { name: 'Unchanged Genre' }
   await expect(genreService.updateGenre(1, genreUpdate, accountId)).rejects.toThrow(NoUpdatesError)
@@ -125,7 +130,8 @@ test('should throw NoUpdatesError if no changes were made', async ({ dbConnectio
 test('should throw GenreCycleError if a cycle is detected', async ({ dbConnection }) => {
   const genresRepo = new DrizzleGenreRepository(dbConnection)
   const genreHistoryRepo = new DrizzleGenreHistoryRepository(dbConnection)
-  const genreService = new GenreService(genresRepo, genreHistoryRepo)
+  const genreRelevanceVoteRepo = new DrizzleGenreRelevanceVoteRepository(dbConnection)
+  const genreService = new GenreService(genresRepo, genreHistoryRepo, genreRelevanceVoteRepo)
 
   const accountId = await createTestAccount(dbConnection)
 

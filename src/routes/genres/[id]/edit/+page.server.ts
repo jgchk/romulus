@@ -4,14 +4,13 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
-import { updateGenre } from '$lib/server/api/genres/update'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import {
   GenreCycleError,
   NotFoundError,
   NoUpdatesError,
   SelfInfluenceError,
-} from '$lib/server/features/genres/application/genre-service'
+} from '$lib/server/features/genres/commands/application/commands/update-genre'
 
 import type { PageServerLoad } from './$types'
 
@@ -73,8 +72,25 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
+    const genreUpdate = {
+      ...form.data,
+      parents: new Set(form.data.parents),
+      influences: new Set(form.data.influencedBy),
+      akas: {
+        primary: form.data.primaryAkas?.length
+          ? form.data.primaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+        secondary: form.data.secondaryAkas?.length
+          ? form.data.secondaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+        tertiary: form.data.tertiaryAkas?.length
+          ? form.data.tertiaryAkas?.split(',').map((aka) => aka.trim())
+          : [],
+      },
+    }
+
     try {
-      await updateGenre(id, form.data, user.id, locals.dbConnection)
+      await locals.services.genre.updateGenre(id, genreUpdate, user.id)
     } catch (e) {
       if (e instanceof NotFoundError) {
         return error(404, { message: 'Genre not found' })

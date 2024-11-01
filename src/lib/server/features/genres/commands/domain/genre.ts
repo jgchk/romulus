@@ -20,7 +20,7 @@ export type GenreUpdate = {
 }
 
 export type GenreConstructorParams = {
-  id: number
+  id?: number
   name: string
   subtitle?: string
   type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
@@ -41,7 +41,7 @@ export type GenreConstructorParams = {
 }
 
 export class Genre {
-  readonly id: number
+  readonly id: number | undefined
   readonly name: string
   readonly subtitle: string | undefined
   readonly type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
@@ -111,6 +111,7 @@ export class Genre {
   }
 
   hasSelfInfluence(): boolean {
+    if (this.id === undefined) return false
     return this.influences.has(this.id)
   }
 

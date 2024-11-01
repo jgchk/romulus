@@ -4,11 +4,10 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { deleteGenre } from '$lib/server/api/genres/delete'
 import { setRelevanceVote } from '$lib/server/api/genres/relevance/vote'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
-import { NotFoundError } from '$lib/server/features/genres/application/genre-service'
+import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isNotNull } from '$lib/utils/types'
@@ -98,7 +97,7 @@ export const actions: Actions = {
     const id = maybeId.data
 
     try {
-      await deleteGenre(id, user.id, locals.dbConnection)
+      await locals.services.genre.deleteGenre(id, user.id)
     } catch (err) {
       if (err instanceof NotFoundError) {
         return error(404, 'Genre not found')
