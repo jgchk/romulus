@@ -99,10 +99,11 @@
             class="w-full"
             value={$form.primaryAkas ?? ''}
             on:input={(e) => ($form.primaryAkas = e.currentTarget.value)}
-            on:blur={() => {$form.primaryAkas = $form.primaryAkas.split(',')
-              .map(value => value.trim())
-              .filter(value => value !== "")
-              .join(', ');
+            on:blur={() => {
+              $form.primaryAkas = $form.primaryAkas?.split(',')
+                .map(value => value.trim())
+                .filter(value => value !== "")
+                .join(', ') ?? undefined;
             }}
             autofocus={autoFocus === 'primaryAkas'}
             {...$constraints.primaryAkas}
@@ -121,10 +122,11 @@
             class="w-full"
             value={$form.secondaryAkas ?? ''}
             on:input={(e) => ($form.secondaryAkas = e.currentTarget.value)}
-            on:blur={() => {$form.secondaryAkas = $form.secondaryAkas.split(',')
-              .map(value => value.trim())
-              .filter(value => value !== "")
-              .join(', ');
+            on:blur={() => {
+              $form.secondaryAkas = $form.secondaryAkas?.split(',')
+                .map(value => value.trim())
+                .filter(value => value !== "")
+                .join(', ') ?? undefined;
             }}
             autofocus={autoFocus === 'secondaryAkas'}
             {...$constraints.secondaryAkas}
@@ -143,10 +145,11 @@
             class="w-full"
             value={$form.tertiaryAkas ?? ''}
             on:input={(e) => ($form.tertiaryAkas = e.currentTarget.value)}
-            on:blur={() => {$form.tertiaryAkas = $form.tertiaryAkas.split(',')
-              .map(value => value.trim())
-              .filter(value => value !== "")
-              .join(', ');
+            on:blur={() => {
+              $form.tertiaryAkas = $form.tertiaryAkas?.split(',')
+                .map(value => value.trim())
+                .filter(value => value !== "")
+                .join(', ') ?? undefined;
             }}
             autofocus={autoFocus === 'tertiaryAkas'}
             {...$constraints.tertiaryAkas}
