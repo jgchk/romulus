@@ -80,12 +80,17 @@ test('should update the genre', async ({ dbConnection }) => {
 })
 
 test('should create a history entry', async ({ dbConnection }) => {
+  const pastDate = new Date('2000-01-01')
   const genresDb = new GenresDatabase()
-  const [genre] = await genresDb.insert([getTestGenre()], dbConnection)
+  const [genre] = await genresDb.insert(
+    [getTestGenre({ createdAt: pastDate, updatedAt: pastDate })],
+    dbConnection,
+  )
 
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
+  const beforeExecute = new Date()
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
@@ -103,6 +108,7 @@ test('should create a history entry', async ({ dbConnection }) => {
     },
     account.id,
   )
+  const afterExecute = new Date()
 
   const genreHistoryDb = new GenreHistoryDatabase()
   const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
@@ -123,6 +129,10 @@ test('should create a history entry', async ({ dbConnection }) => {
       ],
     }),
   )
+
+  expect(genreHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[0].createdAt).not.toEqual(pastDate)
 })
 
 test('should throw NotFoundError if genre is not found', async ({ dbConnection }) => {

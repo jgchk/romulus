@@ -184,6 +184,7 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
 })
 
 test('should insert a history entry', async ({ dbConnection }) => {
+  const pastDate = new Date('2000-01-01')
   const genreData: GenreConstructorParams = {
     name: 'Test',
     subtitle: undefined,
@@ -200,8 +201,8 @@ test('should insert a history entry', async ({ dbConnection }) => {
     influences: new Set([]),
     relevance: UNSET_GENRE_RELEVANCE,
     nsfw: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: pastDate,
+    updatedAt: pastDate,
   }
 
   const accountsDb = new AccountsDatabase()
@@ -215,6 +216,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
     dbConnection,
   )
 
+  const beforeExecute = new Date()
   const createGenreCommand = new CreateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
@@ -222,6 +224,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
   )
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
+  const afterExecute = new Date()
 
   const genreHistoryDb = new GenreHistoryDatabase()
   const genreHistory = await genreHistoryDb.findByGenreId(id, dbConnection)
@@ -248,6 +251,10 @@ test('should insert a history entry', async ({ dbConnection }) => {
       },
     },
   ])
+
+  expect(genreHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[0].createdAt).not.toEqual(pastDate)
 })
 
 test('should insert a relevance vote when relevance is set', async ({ dbConnection }) => {
