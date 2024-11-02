@@ -34,8 +34,13 @@ export class UpdateGenreCommand {
       throw new GenreCycleError(cycle)
     }
 
-    if (updatedGenre.hasDuplicateAkas()) {
-      throw new DuplicateAkasError()
+    const duplicateAkas = updatedGenre.findDuplicateAkas()
+    if (duplicateAkas === 1) {
+      throw new DuplicatePrimaryAkaError()
+    } else if (duplicateAkas === 2) {
+      throw new DuplicateSecondaryAkaError()
+    } else if (duplicateAkas === 3) {
+      throw new DuplicateTertiaryAkaError()
     }
 
     await this.genreRepo.save(updatedGenre)
@@ -51,9 +56,21 @@ export class SelfInfluenceError extends ApplicationError {
   }
 }
 
-export class DuplicateAkasError extends ApplicationError {
+export class DuplicatePrimaryAkaError extends ApplicationError {
   constructor() {
-    super('DuplicateAkasError', 'A genre cannot have duplicate akas')
+    super('DuplicatePrimaryAkaError', 'Primary akas contains a duplicate')
+  }
+}
+
+export class DuplicateSecondaryAkaError extends ApplicationError {
+  constructor() {
+    super('DuplicateSecondaryAkaError', 'Secondary akas contains a duplicate')
+  }
+}
+
+export class DuplicateTertiaryAkaError extends ApplicationError {
+  constructor() {
+    super('DuplicateTertiaryAkaError', 'Tertiary akas contains a duplicate')
   }
 }
 
