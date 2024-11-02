@@ -76,7 +76,7 @@
         class="w-full"
         value={$form.subtitle ?? ''}
         on:input={(e) => ($form.subtitle = e.currentTarget.value)}
-        on:blur={() => ($form.subtitle = $form.subtitle.trim())}
+        on:blur={() => ($form.subtitle = $form.subtitle?.trim() ?? null)}
         autofocus={autoFocus === 'subtitle'}
         {...$constraints.subtitle}
       />
@@ -105,7 +105,7 @@
                   ?.split(',')
                   .map((value) => value.trim())
                   .filter((value) => value !== '')
-                  .join(', ') ?? undefined
+                  .join(', ') ?? null
             }}
             autofocus={autoFocus === 'primaryAkas'}
             {...$constraints.primaryAkas}
@@ -130,7 +130,7 @@
                   ?.split(',')
                   .map((value) => value.trim())
                   .filter((value) => value !== '')
-                  .join(', ') ?? undefined
+                  .join(', ') ?? null
             }}
             autofocus={autoFocus === 'secondaryAkas'}
             {...$constraints.secondaryAkas}
@@ -155,7 +155,7 @@
                   ?.split(',')
                   .map((value) => value.trim())
                   .filter((value) => value !== '')
-                  .join(', ') ?? undefined
+                  .join(', ') ?? null
             }}
             autofocus={autoFocus === 'tertiaryAkas'}
             {...$constraints.tertiaryAkas}
