@@ -2,8 +2,8 @@ import { intersection } from 'ramda'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import {
+  type FindAllFilter,
   type FindAllGenre,
-  type FindAllParams,
   type FindAllSortField,
   type FindAllSortOrder,
   GenresDatabase,
@@ -12,29 +12,31 @@ import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import type { GenreType } from '$lib/types/genres'
 
-export type GetManyGenresParams<I extends FindAllInclude> = {
+export type GetAllGenresParams<I extends FindAllInclude> = {
   skip?: number
   limit?: number
   include?: I[]
-  filter?: {
-    name?: string
-    subtitle?: string | null
-    type?: GenreType
-    relevance?: number | null
-    nsfw?: boolean
-    shortDescription?: string | null
-    longDescription?: string | null
-    notes?: string | null
-    createdAt?: Date
-    updatedAt?: Date
-    createdBy?: number
-    parents?: number[]
-    ancestors?: number[]
-  }
+  filter?: GetAllGenresFilter
   sort?: {
     field?: FindAllSortField
     order?: FindAllSortOrder
   }
+}
+
+type GetAllGenresFilter = {
+  name?: string
+  subtitle?: string | null
+  type?: GenreType
+  relevance?: number | null
+  nsfw?: boolean
+  shortDescription?: string | null
+  longDescription?: string | null
+  notes?: string | null
+  createdAt?: Date
+  updatedAt?: Date
+  createdBy?: number
+  parents?: number[]
+  ancestors?: number[]
 }
 
 export type GetAllGenresResult<I extends FindAllInclude = never> = {
@@ -52,38 +54,15 @@ export class GetAllGenresQuery {
     skip = 0,
     limit = 25,
     include = [],
-    filter = {},
+    filter: inputFilter = {},
     sort = {},
-  }: GetManyGenresParams<I>): Promise<GetAllGenresResult> {
+  }: GetAllGenresParams<I>): Promise<GetAllGenresResult> {
     const genresDb = new GenresDatabase()
 
-    const filter_: FindAllParams<I>['filter'] = filter
-
-    if (filter.createdBy !== undefined) {
-      const ids = await this.getCreatedByFilterGenreIds(filter.createdBy)
-      filter_.ids = ids
-    }
-
-    if (filter.parents !== undefined) {
-      const ids = await this.getParentsFilterGenreIds(filter.parents)
-      if (filter_.ids !== undefined) {
-        filter_.ids = intersection(filter_.ids, ids)
-      } else {
-        filter_.ids = ids
-      }
-    }
-
-    if (filter.ancestors !== undefined) {
-      const ids = await this.getAncestorsFilterGenreIds(filter.ancestors)
-      if (filter_.ids !== undefined) {
-        filter_.ids = intersection(filter_.ids, ids)
-      } else {
-        filter_.ids = ids
-      }
-    }
+    const databaseFilter = await this.constructDatabaseFilter(inputFilter)
 
     const { results, total } = await genresDb.findAll(
-      { skip, limit, include, filter: filter_, sort },
+      { skip, limit, include, filter: databaseFilter, sort },
       this.db,
     )
 
@@ -91,6 +70,35 @@ export class GetAllGenresQuery {
       data: results,
       pagination: { skip, limit, total },
     }
+  }
+
+  private async constructDatabaseFilter(inputFilter: GetAllGenresFilter) {
+    const databaseFilter: FindAllFilter = inputFilter
+
+    if (inputFilter.createdBy !== undefined) {
+      const ids = await this.getCreatedByFilterGenreIds(inputFilter.createdBy)
+      databaseFilter.ids = ids
+    }
+
+    if (inputFilter.parents !== undefined) {
+      const ids = await this.getParentsFilterGenreIds(inputFilter.parents)
+      if (databaseFilter.ids !== undefined) {
+        databaseFilter.ids = intersection(databaseFilter.ids, ids)
+      } else {
+        databaseFilter.ids = ids
+      }
+    }
+
+    if (inputFilter.ancestors !== undefined) {
+      const ids = await this.getAncestorsFilterGenreIds(inputFilter.ancestors)
+      if (databaseFilter.ids !== undefined) {
+        databaseFilter.ids = intersection(databaseFilter.ids, ids)
+      } else {
+        databaseFilter.ids = ids
+      }
+    }
+
+    return databaseFilter
   }
 
   private async getCreatedByFilterGenreIds(accountId: number): Promise<number[]> {
