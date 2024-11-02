@@ -62,7 +62,11 @@
         name="name"
         class="w-full"
         bind:value={$form.name}
+<<<<<<< HEAD
+        on:blur={() => ($form.name = $form.name.trim())}
+=======
         on:blur={() => $form.name = $form.name.trim()}
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
         autofocus={autoFocus === 'name'}
         {...$constraints.name}
       />
@@ -76,7 +80,11 @@
         class="w-full"
         value={$form.subtitle ?? ''}
         on:input={(e) => ($form.subtitle = e.currentTarget.value)}
+<<<<<<< HEAD
+        on:blur={() => ($form.subtitle = $form.subtitle.trim())}
+=======
         on:blur={() => $form.subtitle = $form.subtitle.trim()}
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
         autofocus={autoFocus === 'subtitle'}
         {...$constraints.subtitle}
       />
@@ -100,10 +108,19 @@
             value={$form.primaryAkas ?? ''}
             on:input={(e) => ($form.primaryAkas = e.currentTarget.value)}
             on:blur={() => {
+<<<<<<< HEAD
+              $form.primaryAkas =
+                $form.primaryAkas
+                  ?.split(',')
+                  .map((value) => value.trim())
+                  .filter((value) => value !== '')
+                  .join(', ') ?? undefined
+=======
               $form.primaryAkas = $form.primaryAkas?.split(',')
                 .map(value => value.trim())
                 .filter(value => value !== "")
                 .join(', ') ?? undefined;
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
             }}
             autofocus={autoFocus === 'primaryAkas'}
             {...$constraints.primaryAkas}
@@ -123,10 +140,19 @@
             value={$form.secondaryAkas ?? ''}
             on:input={(e) => ($form.secondaryAkas = e.currentTarget.value)}
             on:blur={() => {
+<<<<<<< HEAD
+              $form.secondaryAkas =
+                $form.secondaryAkas
+                  ?.split(',')
+                  .map((value) => value.trim())
+                  .filter((value) => value !== '')
+                  .join(', ') ?? undefined
+=======
               $form.secondaryAkas = $form.secondaryAkas?.split(',')
                 .map(value => value.trim())
                 .filter(value => value !== "")
                 .join(', ') ?? undefined;
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
             }}
             autofocus={autoFocus === 'secondaryAkas'}
             {...$constraints.secondaryAkas}
@@ -146,10 +172,19 @@
             value={$form.tertiaryAkas ?? ''}
             on:input={(e) => ($form.tertiaryAkas = e.currentTarget.value)}
             on:blur={() => {
+<<<<<<< HEAD
+              $form.tertiaryAkas =
+                $form.tertiaryAkas
+                  ?.split(',')
+                  .map((value) => value.trim())
+                  .filter((value) => value !== '')
+                  .join(', ') ?? undefined
+=======
               $form.tertiaryAkas = $form.tertiaryAkas?.split(',')
                 .map(value => value.trim())
                 .filter(value => value !== "")
                 .join(', ') ?? undefined;
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
             }}
             autofocus={autoFocus === 'tertiaryAkas'}
             {...$constraints.tertiaryAkas}

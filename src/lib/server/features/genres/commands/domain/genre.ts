@@ -72,9 +72,17 @@ export class Genre {
     this.parents = new Set(params.parents)
     this.influences = new Set(params.influences)
     this.akas = {
+<<<<<<< HEAD
+      primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
+      secondary: [
+        ...params.akas.secondary.map((item) => item.trim()).filter((item) => item !== ''),
+      ],
+      tertiary: [...params.akas.tertiary.map((item) => item.trim()).filter((item) => item !== '')],
+=======
       primary: [...params.akas.primary.map(item => item.trim()).filter(item => item !== '')],
       secondary: [...params.akas.secondary.map(item => item.trim()).filter(item => item !== '')],
       tertiary: [...params.akas.tertiary.map(item => item.trim()).filter(item => item !== '')],
+>>>>>>> 692e35ff102ebcfd988bb199f7a9394f4b50e422
     }
     this.relevance = params.relevance
     this.createdAt = new Date(params.createdAt)
