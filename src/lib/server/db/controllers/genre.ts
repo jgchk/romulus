@@ -29,23 +29,25 @@ export type FindAllParams<I extends FindAllInclude> = {
   skip?: number
   limit?: number
   include?: I[]
-  filter?: {
-    ids?: number[]
-    name?: string
-    subtitle?: string | null
-    type?: GenreType
-    relevance?: number | null
-    nsfw?: boolean
-    shortDescription?: string | null
-    longDescription?: string | null
-    notes?: string | null
-    createdAt?: Date
-    updatedAt?: Date
-  }
+  filter?: FindAllFilter
   sort?: {
     field?: FindAllSortField
     order?: FindAllSortOrder
   }
+}
+
+export type FindAllFilter = {
+  ids?: number[]
+  name?: string
+  subtitle?: string | null
+  type?: GenreType
+  relevance?: number | null
+  nsfw?: boolean
+  shortDescription?: string | null
+  longDescription?: string | null
+  notes?: string | null
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export const FIND_ALL_INCLUDE = ['parents', 'influencedBy', 'akas'] as const

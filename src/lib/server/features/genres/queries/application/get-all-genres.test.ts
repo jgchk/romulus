@@ -5,22 +5,24 @@ import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/control
 import { createGenreHistoryEntry } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import { test } from '../../../../vitest-setup'
-import getManyGenres from './get-many'
+import { test } from '../../../../../../vitest-setup'
+import { GetAllGenresQuery } from './get-all-genres'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
 }
 
 test('should have a default limit', async ({ dbConnection }) => {
-  const result = await getManyGenres({}, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({})
   expect(result.pagination.limit).toBe(25)
 })
 
 test('should return an empty array of genres when there are no genres in the DB', async ({
   dbConnection,
 }) => {
-  const result = await getManyGenres({}, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({})
   expect(result.data).toEqual([])
   expect(result.pagination.total).toBe(0)
 })
@@ -31,7 +33,8 @@ test('should return an array of genres when there are genres in the DB', async (
   const genresDb = new GenresDatabase()
   await genresDb.insert([getTestGenre()], dbConnection)
 
-  const result = await getManyGenres({}, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({})
   expect(result.data).toEqual([
     {
       id: 1,
@@ -63,7 +66,8 @@ test('should paginate the results', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ skip: 2, limit: 2 }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ skip: 2, limit: 2 })
 
   expect(result).toEqual({
     data: [
@@ -84,7 +88,8 @@ test('should handle a limit that is larger than the number of genres in the DB',
   const genresDb = new GenresDatabase()
   await genresDb.insert([getTestGenre({ name: 'Test' })], dbConnection)
 
-  const result = await getManyGenres({ limit: 10 }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ limit: 10 })
 
   expect(result).toEqual({
     data: [expect.objectContaining({ name: 'Test' })],
@@ -102,7 +107,8 @@ test('should handle a skip that is larger than the number of genres in the DB', 
   const genresDb = new GenresDatabase()
   await genresDb.insert([getTestGenre()], dbConnection)
 
-  const result = await getManyGenres({ skip: 10 }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ skip: 10 })
 
   expect(result).toEqual({
     data: [],
@@ -118,7 +124,8 @@ test('should handle a limit of 0', async ({ dbConnection }) => {
   const genresDb = new GenresDatabase()
   await genresDb.insert([getTestGenre()], dbConnection)
 
-  const result = await getManyGenres({ limit: 0 }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ limit: 0 })
 
   expect(result).toEqual({
     data: [],
@@ -137,7 +144,8 @@ test('should include parent ids when requested', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ include: ['parents'] }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ include: ['parents'] })
 
   expect(result.data).toEqual([
     expect.objectContaining({
@@ -161,7 +169,8 @@ test('should include influencedBy ids when requested', async ({ dbConnection }) 
     dbConnection,
   )
 
-  const result = await getManyGenres({ include: ['influencedBy'] }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ include: ['influencedBy'] })
 
   expect(result.data).toEqual([
     expect.objectContaining({
@@ -198,7 +207,8 @@ test('should include akas when requested', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ include: ['akas'] }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ include: ['akas'] })
 
   expect(result.data).toEqual([
     expect.objectContaining({
@@ -227,7 +237,8 @@ test('should allow filtering on name by exact match', async ({ dbConnection }) =
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { name: 'Test 2' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { name: 'Test 2' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
@@ -244,7 +255,8 @@ test('should allow filtering on subtitle by exact match', async ({ dbConnection 
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { subtitle: 'Test Subtitle' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { subtitle: 'Test Subtitle' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
 })
@@ -261,7 +273,8 @@ test('should allow filtering on subtitle by empty string', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { subtitle: '' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { subtitle: '' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -282,7 +295,8 @@ test('should allow filtering on subtitle by null', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { subtitle: null } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { subtitle: null } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -301,7 +315,8 @@ test('should allow filtering on type by exact match', async ({ dbConnection }) =
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { type: 'META' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { type: 'META' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
@@ -316,7 +331,8 @@ test('should allow filtering on relevance by exact match', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { relevance: 2 } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { relevance: 2 } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
@@ -332,7 +348,8 @@ test('should allow filtering on relevance by unset value', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { relevance: UNSET_GENRE_RELEVANCE } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { relevance: UNSET_GENRE_RELEVANCE } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 2' }),
@@ -351,7 +368,8 @@ test('should allow filtering on relevance by null', async ({ dbConnection }) => 
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { relevance: null } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { relevance: null } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 2' }),
@@ -366,7 +384,8 @@ test('should allow filtering on NSFW by exact match', async ({ dbConnection }) =
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { nsfw: false } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { nsfw: false } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 2' })])
 })
@@ -383,7 +402,8 @@ test('should allow filtering on shortDescription by exact match', async ({ dbCon
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { shortDescription: 'Short' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { shortDescription: 'Short' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
 })
@@ -400,7 +420,8 @@ test('should allow filtering on shortDescription by empty string', async ({ dbCo
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { shortDescription: '' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { shortDescription: '' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -421,7 +442,8 @@ test('should allow filtering on shortDescription by null', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { shortDescription: null } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { shortDescription: null } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -442,7 +464,8 @@ test('should allow filtering on longDescription by exact match', async ({ dbConn
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { longDescription: 'Long' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { longDescription: 'Long' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
 })
@@ -459,7 +482,8 @@ test('should allow filtering on longDescription by empty string', async ({ dbCon
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { longDescription: '' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { longDescription: '' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -480,7 +504,8 @@ test('should allow filtering on longDescription by null', async ({ dbConnection 
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { longDescription: null } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { longDescription: null } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -501,7 +526,8 @@ test('should allow filtering on notes by exact match', async ({ dbConnection }) 
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { notes: 'Notes' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { notes: 'Notes' } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
 })
@@ -518,7 +544,8 @@ test('should allow filtering on notes by empty string', async ({ dbConnection })
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { notes: '' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { notes: '' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -539,7 +566,8 @@ test('should allow filtering on notes by null', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { notes: null } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { notes: null } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
@@ -561,7 +589,8 @@ test('should allow filtering on createdAt by exact match', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { createdAt: date1 } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { createdAt: date1 } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
@@ -579,7 +608,8 @@ test('should allow filtering on updatedAt by exact match', async ({ dbConnection
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { updatedAt: date1 } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { updatedAt: date1 } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
@@ -610,7 +640,8 @@ test('should allow filtering by createdBy', async ({ dbConnection }) => {
     connection: dbConnection,
   })
 
-  const result = await getManyGenres({ filter: { createdBy: account.id } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { createdBy: account.id } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
@@ -639,10 +670,8 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
     ),
   )
 
-  const result = await getManyGenres(
-    { filter: { name: 'Test 1', createdBy: account.id } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { name: 'Test 1', createdBy: account.id } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
@@ -654,7 +683,8 @@ test('should allow filtering by parent id', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { parents: [0] } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { parents: [0] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child' })])
 })
@@ -673,7 +703,8 @@ test('should allow filtering by multiple parent ids', async ({ dbConnection }) =
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { parents: [0, 1] } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { parents: [0, 1] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child 4' })])
 })
@@ -712,10 +743,8 @@ test('should allow filtering by parents and createdBy', async ({ dbConnection })
     ),
   )
 
-  const result = await getManyGenres(
-    { filter: { parents: [0, 1], createdBy: account.id } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { parents: [0, 1], createdBy: account.id } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child 7' })])
 })
@@ -736,7 +765,8 @@ test('should return no results when filtering by parents and createdBy with no m
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { parents: [0, 1], createdBy: 1 } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { parents: [0, 1], createdBy: 1 } })
 
   expect(result.data).toEqual([])
 })
@@ -755,7 +785,8 @@ test('should allow filtering by ancestor id', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { ancestors: [0] } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { ancestors: [0] } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Parent' }),
@@ -781,7 +812,8 @@ test('should allow filtering by multiple ancestor ids', async ({ dbConnection })
     dbConnection,
   )
 
-  const result = await getManyGenres({ filter: { ancestors: [0, 4] } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ filter: { ancestors: [0, 4] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Grandchild' })])
 })
@@ -797,7 +829,8 @@ test('should allow sorting by id', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'id' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'id' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -817,7 +850,8 @@ test('should allow sorting by id in ascending order', async ({ dbConnection }) =
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'id', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'id', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -837,7 +871,8 @@ test('should allow sorting by id in descending order', async ({ dbConnection }) 
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'id', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'id', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -857,7 +892,8 @@ test('should sort by id by default', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({}, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({})
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -873,7 +909,8 @@ test('should allow sorting by name', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'name' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'name' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -889,7 +926,8 @@ test('should allow sorting by name in ascending order', async ({ dbConnection })
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'name', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'name', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -905,7 +943,8 @@ test('should allow sorting by name in descending order', async ({ dbConnection }
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'name', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'name', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'C' }),
@@ -925,7 +964,8 @@ test('should allow sorting by subtitle', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'subtitle' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'subtitle' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -945,7 +985,8 @@ test('should allow sorting by subtitle in ascending order', async ({ dbConnectio
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'subtitle', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'subtitle', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -965,7 +1006,8 @@ test('should allow sorting by subtitle in descending order', async ({ dbConnecti
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'subtitle', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'subtitle', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -985,7 +1027,8 @@ test('should allow sorting by type', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'type' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'type' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1005,7 +1048,8 @@ test('should allow sorting by type in ascending order', async ({ dbConnection })
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'type', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'type', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1025,7 +1069,8 @@ test('should allow sorting by type in descending order', async ({ dbConnection }
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'type', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'type', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'C' }),
@@ -1045,7 +1090,8 @@ test('should allow sorting by relevance', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'relevance' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'relevance' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1065,7 +1111,8 @@ test('should allow sorting by relevance in ascending order', async ({ dbConnecti
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'relevance', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'relevance', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1085,7 +1132,8 @@ test('should allow sorting by relevance in descending order', async ({ dbConnect
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'relevance', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'relevance', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1105,7 +1153,8 @@ test('should allow sorting by NSFW', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'nsfw' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'nsfw' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1125,7 +1174,8 @@ test('should allow sorting by NSFW in ascending order', async ({ dbConnection })
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'nsfw', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'nsfw', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1145,7 +1195,8 @@ test('should allow sorting by NSFW in descending order', async ({ dbConnection }
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'nsfw', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'nsfw', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'C' }),
@@ -1165,7 +1216,8 @@ test('should allow sorting by shortDescription', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'shortDescription' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'shortDescription' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1185,10 +1237,8 @@ test('should allow sorting by shortDescription in ascending order', async ({ dbC
     dbConnection,
   )
 
-  const result = await getManyGenres(
-    { sort: { field: 'shortDescription', order: 'asc' } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'shortDescription', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1208,10 +1258,8 @@ test('should allow sorting by shortDescription in descending order', async ({ db
     dbConnection,
   )
 
-  const result = await getManyGenres(
-    { sort: { field: 'shortDescription', order: 'desc' } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'shortDescription', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1231,7 +1279,8 @@ test('should allow sorting by longDescription', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'longDescription' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'longDescription' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1251,10 +1300,8 @@ test('should allow sorting by longDescription in ascending order', async ({ dbCo
     dbConnection,
   )
 
-  const result = await getManyGenres(
-    { sort: { field: 'longDescription', order: 'asc' } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'longDescription', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1274,10 +1321,8 @@ test('should allow sorting by longDescription in descending order', async ({ dbC
     dbConnection,
   )
 
-  const result = await getManyGenres(
-    { sort: { field: 'longDescription', order: 'desc' } },
-    dbConnection,
-  )
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'longDescription', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1297,7 +1342,8 @@ test('should allow sorting by notes', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'notes' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'notes' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1317,7 +1363,8 @@ test('should allow sorting by notes in ascending order', async ({ dbConnection }
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'notes', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'notes', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'B' }),
@@ -1337,7 +1384,8 @@ test('should allow sorting by notes in descending order', async ({ dbConnection 
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'notes', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'notes', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1361,7 +1409,8 @@ test('should allow sorting by createdAt', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'createdAt' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'createdAt' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1385,7 +1434,8 @@ test('should allow sorting by createdAt in ascending order', async ({ dbConnecti
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'createdAt', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'createdAt', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1409,7 +1459,8 @@ test('should allow sorting by createdAt in descending order', async ({ dbConnect
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'createdAt', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'createdAt', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'C' }),
@@ -1433,7 +1484,8 @@ test('should allow sorting by updatedAt', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'updatedAt' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'updatedAt' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1457,7 +1509,8 @@ test('should allow sorting by updatedAt in ascending order', async ({ dbConnecti
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'updatedAt', order: 'asc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'updatedAt', order: 'asc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'A' }),
@@ -1481,7 +1534,8 @@ test('should allow sorting by updatedAt in descending order', async ({ dbConnect
     dbConnection,
   )
 
-  const result = await getManyGenres({ sort: { field: 'updatedAt', order: 'desc' } }, dbConnection)
+  const query = new GetAllGenresQuery(dbConnection)
+  const result = await query.execute({ sort: { field: 'updatedAt', order: 'desc' } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'C' }),
