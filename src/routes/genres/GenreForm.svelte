@@ -78,6 +78,9 @@
         on:input={(e) => ($form.subtitle = e.currentTarget.value)}
         on:blur={() => ($form.subtitle = $form.subtitle.trim())}
         autofocus={autoFocus === 'subtitle'}
+        {...$constraints.subtitle}
+      />
+    </InputGroup>
 
     <fieldset
       class="rounded border border-solid border-gray-200 p-3 pt-2 transition dark:border-gray-800"
