@@ -62,8 +62,8 @@ export class Genre {
 
   constructor(params: GenreConstructorParams) {
     this.id = params.id
-    this.name = params.name
-    this.subtitle = params.subtitle
+    this.name = params.name.trim()
+    this.subtitle = params.subtitle?.trim()
     this.type = params.type
     this.nsfw = params.nsfw
     this.shortDescription = params.shortDescription
@@ -72,9 +72,11 @@ export class Genre {
     this.parents = new Set(params.parents)
     this.influences = new Set(params.influences)
     this.akas = {
-      primary: [...params.akas.primary],
-      secondary: [...params.akas.secondary],
-      tertiary: [...params.akas.tertiary],
+      primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
+      secondary: [
+        ...params.akas.secondary.map((item) => item.trim()).filter((item) => item !== ''),
+      ],
+      tertiary: [...params.akas.tertiary.map((item) => item.trim()).filter((item) => item !== '')],
     }
     this.relevance = params.relevance
     this.createdAt = new Date(params.createdAt)
