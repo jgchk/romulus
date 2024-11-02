@@ -34,6 +34,10 @@ export class UpdateGenreCommand {
       throw new GenreCycleError(cycle)
     }
 
+    if (updatedGenre.hasDuplicateAkas()) {
+      throw new DuplicateAkasError()
+    }
+
     await this.genreRepo.save(updatedGenre)
 
     const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
@@ -44,6 +48,12 @@ export class UpdateGenreCommand {
 export class SelfInfluenceError extends ApplicationError {
   constructor() {
     super('SelfInfluenceError', 'A genre cannot influence itself')
+  }
+}
+
+export class DuplicateAkasError extends ApplicationError {
+  constructor() {
+    super('DuplicateAkasError', 'A genre cannot have duplicate akas')
   }
 }
 

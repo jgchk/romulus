@@ -117,6 +117,18 @@ export class Genre {
     return this.influences.has(this.id)
   }
 
+  hasDuplicateAkas(): boolean {
+    const set = new Set<string>()
+    const flatAkas = Object.values(this.akas).flat()
+    for (const aka of flatAkas) {
+      if (set.has(aka)) {
+        return true
+      }
+      set.add(aka)
+    }
+    return false
+  }
+
   isChangedFrom(genreHistory: GenreHistory): boolean {
     return (
       this.name !== genreHistory.name ||

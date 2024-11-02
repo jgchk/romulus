@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { genreSchema } from '$lib/server/api/genres/types'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import {
+  DuplicateAkasError,
   GenreCycleError,
   NotFoundError,
   NoUpdatesError,
@@ -98,6 +99,8 @@ export const actions: Actions = {
         return setError(form, 'parents._errors', `Cycle detected: ${e.cycle}`)
       } else if (e instanceof SelfInfluenceError) {
         return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+      } else if (e instanceof DuplicateAkasError) {
+        return setError(form, 'tertiaryAkas', 'A genre cannot have duplicate akas')
       } else if (e instanceof NoUpdatesError) {
         return redirect(302, `/genres/${id}`)
       } else {
