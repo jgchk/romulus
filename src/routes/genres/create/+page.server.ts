@@ -57,7 +57,7 @@ export const actions: Actions = {
       updatedAt: new Date(),
     }
 
-    const { id } = await locals.services.genre.createGenre(genreData, user.id)
+    const { id } = await locals.services.genre.commands.createGenre(genreData, user.id)
 
     redirect(302, `/genres/${id}`)
   },

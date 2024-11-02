@@ -1,6 +1,5 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 
-import getManyGenres from '$lib/server/api/genres/get-many'
 import { checkApiAuth } from '$lib/server/auth'
 
 import { parseQueryParams } from './utils'
@@ -11,7 +10,15 @@ export const GET = (async ({
   request,
 }: {
   url: URL
-  locals: Pick<App.Locals, 'dbConnection' | 'user'>
+  locals: {
+    dbConnection: App.Locals['dbConnection']
+    user: App.Locals['user']
+    services: {
+      genre: {
+        queries: App.Locals['services']['genre']['queries']
+      }
+    }
+  }
   request: Request
 }) => {
   const isAuthed = await checkApiAuth(request, locals)
@@ -25,7 +32,7 @@ export const GET = (async ({
   }
   const data = maybeData.data
 
-  const result = await getManyGenres(data, locals.dbConnection)
+  const result = await locals.services.genre.queries.getAllGenres(data)
 
   return json(result)
 }) satisfies RequestHandler

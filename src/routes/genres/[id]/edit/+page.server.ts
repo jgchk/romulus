@@ -91,7 +91,7 @@ export const actions: Actions = {
     }
 
     try {
-      await locals.services.genre.updateGenre(id, genreUpdate, user.id)
+      await locals.services.genre.commands.updateGenre(id, genreUpdate, user.id)
     } catch (e) {
       if (e instanceof NotFoundError) {
         return error(404, { message: 'Genre not found' })

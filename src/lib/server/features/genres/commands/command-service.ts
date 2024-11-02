@@ -13,7 +13,7 @@ export type CreateRelease = {
   tracks: (number | { title: string; artists: number[] })[]
 }
 
-export class GenreService {
+export class GenreCommandService {
   private createGenreCommand: CreateGenreCommand
   private updateGenreCommand: UpdateGenreCommand
   private deleteGenreCommand: DeleteGenreCommand

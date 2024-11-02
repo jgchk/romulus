@@ -3,6 +3,7 @@ import { expect } from 'vitest'
 import { hashApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 
 import { test } from '../../../vitest-setup'
 import { GET } from './+server'
@@ -11,7 +12,11 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
   try {
     await GET({
       url: new URL('http://localhost/api/genres'),
-      locals: { dbConnection, user: undefined },
+      locals: {
+        dbConnection,
+        user: undefined,
+        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+      },
       request: new Request('http://localhost/api/genres'),
     })
     expect.fail('Expected an error to be thrown')
@@ -24,7 +29,11 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
   try {
     await GET({
       url: new URL('http://localhost/api/genres'),
-      locals: { dbConnection, user: undefined },
+      locals: {
+        dbConnection,
+        user: undefined,
+        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+      },
       request: new Request('http://localhost/api/genres', {
         headers: { authorization: 'Bearer' },
       }),
@@ -39,7 +48,11 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
   try {
     await GET({
       url: new URL('http://localhost/api/genres'),
-      locals: { dbConnection, user: undefined },
+      locals: {
+        dbConnection,
+        user: undefined,
+        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+      },
       request: new Request('http://localhost/api/genres', {
         headers: { authorization: 'Bearer 000-000-000' },
       }),
@@ -68,7 +81,11 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
   try {
     await GET({
       url: new URL('http://localhost/api/genres'),
-      locals: { dbConnection, user: undefined },
+      locals: {
+        dbConnection,
+        user: undefined,
+        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+      },
       request: new Request('http://localhost/api/genres', {
         headers: { authorization: 'Bearer 000-000-000' },
       }),

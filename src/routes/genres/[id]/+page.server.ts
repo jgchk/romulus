@@ -97,7 +97,7 @@ export const actions: Actions = {
     const id = maybeId.data
 
     try {
-      await locals.services.genre.deleteGenre(id, user.id)
+      await locals.services.genre.commands.deleteGenre(id, user.id)
     } catch (err) {
       if (err instanceof NotFoundError) {
         return error(404, 'Genre not found')
