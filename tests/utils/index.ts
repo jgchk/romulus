@@ -4,9 +4,7 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { GenreInfluencesDatabase } from '$lib/server/db/controllers/genre-influences'
-import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
-import type { accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import { type accounts, genreInfluences, genreParents, type genres } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { createGenreHistoryEntry } from '$lib/server/genres'
@@ -50,8 +48,6 @@ export const createGenres = async (
 
   const outputGenres = await connection.transaction(async (tx) => {
     const genresDb = new GenresDatabase()
-    const genreParentsDb = new GenreParentsDatabase()
-    const genreInfluencesDb = new GenreInfluencesDatabase()
 
     const createdGenres = await genresDb.insert(
       data.map((genre) => ({
@@ -92,7 +88,7 @@ export const createGenres = async (
     })
 
     if (parentRelations.length > 0) {
-      await genreParentsDb.insert(parentRelations, tx)
+      await tx.insert(genreParents).values(parentRelations)
     }
 
     const influenceRelations: InferInsertModel<typeof genreInfluences>[] = data.flatMap((genre) => {
@@ -117,7 +113,7 @@ export const createGenres = async (
     })
 
     if (influenceRelations.length > 0) {
-      await genreInfluencesDb.insert(influenceRelations, tx)
+      await tx.insert(genreInfluences).values(influenceRelations)
     }
 
     const outputGenres = await genresDb.findByIds(

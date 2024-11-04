@@ -42,11 +42,4 @@ export class GenreRelevanceVotesDatabase {
       ),
     })
   }
-
-  async deleteByGenreId(
-    genreId: GenreRelevanceVote['genreId'],
-    conn: IDrizzleConnection,
-  ): Promise<void> {
-    await conn.delete(genreRelevanceVotes).where(eq(genreRelevanceVotes.genreId, genreId))
-  }
 }

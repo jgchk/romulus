@@ -2,7 +2,6 @@ import { intersection } from 'ramda'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { GenreParentsDatabase } from '$lib/server/db/controllers/genre-parents'
 import { type Genre } from '$lib/server/db/schema'
 import { type GenreType } from '$lib/types/genres'
 
@@ -139,9 +138,12 @@ export class GetAllGenresQuery {
   }
 
   private async getParentsFilterGenreIds(parents: number[]): Promise<number[]> {
-    const genreParentsDb = new GenreParentsDatabase()
     const allParentChildren = await Promise.all(
-      parents.map((parentId) => genreParentsDb.findByParentId(parentId, this.db)),
+      parents.map((parentId) => {
+        return this.db.query.genreParents.findMany({
+          where: (genreParents, { eq }) => eq(genreParents.parentId, parentId),
+        })
+      }),
     )
     const childIds = allParentChildren
       .map((parentChildren) => parentChildren.map((child) => child.childId))
@@ -150,8 +152,7 @@ export class GetAllGenresQuery {
   }
 
   private async getAncestorsFilterGenreIds(ancestors: number[]): Promise<number[]> {
-    const genreParentsDb = new GenreParentsDatabase()
-    const allParentChildren = await genreParentsDb.findAll(this.db)
+    const allParentChildren = await this.db.query.genreParents.findMany()
     const parentsMap = allParentChildren.reduce(
       (acc, val) => {
         acc[val.parentId] = acc[val.parentId] ?? []
