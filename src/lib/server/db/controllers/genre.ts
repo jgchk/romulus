@@ -355,12 +355,6 @@ export class GenresDatabase {
     }
   }
 
-  findByIdSimple(id: Genre['id'], conn: IDrizzleConnection): Promise<Genre | undefined> {
-    return conn.query.genres.findFirst({
-      where: eq(genres.id, id),
-    })
-  }
-
   findByIdDetail(
     id: Genre['id'],
     conn: IDrizzleConnection,

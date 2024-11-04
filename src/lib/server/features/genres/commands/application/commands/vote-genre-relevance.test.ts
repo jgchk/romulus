@@ -37,7 +37,7 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
   const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
   expect(relevanceVotes).toHaveLength(0)
 
-  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(UNSET_GENRE_RELEVANCE)
 })
 
@@ -67,7 +67,7 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
     expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 2 }),
   ])
 
-  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(2)
 })
 
@@ -97,7 +97,7 @@ test('should calculate median relevance correctly', async ({ dbConnection }) => 
   await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
   await voteGenreRelevance.execute(genre.id, 5, accounts[4].id)
 
-  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(3)
 })
 
@@ -125,6 +125,6 @@ test('should round median relevance to nearest integer', async ({ dbConnection }
   await voteGenreRelevance.execute(genre.id, 3, accounts[2].id)
   await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
 
-  const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
+  const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(3)
 })
