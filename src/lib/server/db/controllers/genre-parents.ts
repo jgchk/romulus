@@ -16,8 +16,4 @@ export class GenreParentsDatabase {
       where: eq(genreParents.parentId, parentId),
     })
   }
-
-  findAll(conn: IDrizzleConnection): Promise<GenreParent[]> {
-    return conn.query.genreParents.findMany()
-  }
 }

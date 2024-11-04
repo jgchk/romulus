@@ -150,8 +150,7 @@ export class GetAllGenresQuery {
   }
 
   private async getAncestorsFilterGenreIds(ancestors: number[]): Promise<number[]> {
-    const genreParentsDb = new GenreParentsDatabase()
-    const allParentChildren = await genreParentsDb.findAll(this.db)
+    const allParentChildren = await this.db.query.genreParents.findMany()
     const parentsMap = allParentChildren.reduce(
       (acc, val) => {
         acc[val.parentId] = acc[val.parentId] ?? []
