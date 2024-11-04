@@ -1,7 +1,5 @@
 import { and, eq } from 'drizzle-orm'
 
-import { hasUpdate, makeUpdate } from '$lib/utils/db'
-
 import type { IDrizzleConnection } from '../connection'
 import { type GenreParent, genreParents, type InsertGenreParent } from '../schema'
 
@@ -31,27 +29,5 @@ export class GenreParentsDatabase {
 
   findAll(conn: IDrizzleConnection): Promise<GenreParent[]> {
     return conn.query.genreParents.findMany()
-  }
-
-  async update(
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-    update: Partial<InsertGenreParent>,
-    conn: IDrizzleConnection,
-  ): Promise<GenreParent> {
-    if (!hasUpdate(update)) {
-      const genreParent = await this.find(parentId, childId, conn)
-      if (!genreParent)
-        throw new Error(`Genre Parent not found: { parentId: ${parentId}, childId: ${childId} }`)
-      return genreParent
-    }
-
-    const [genreParent] = await conn
-      .update(genreParents)
-      .set(makeUpdate(update))
-      .where(and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)))
-      .returning()
-
-    return genreParent
   }
 }
