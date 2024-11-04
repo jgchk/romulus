@@ -574,10 +574,6 @@ export class GenresDatabase {
     }))
   }
 
-  async deleteById(id: Genre['id'], conn: IDrizzleConnection): Promise<void> {
-    await conn.delete(genres).where(eq(genres.id, id))
-  }
-
   async deleteByIds(ids: Genre['id'][], conn: IDrizzleConnection): Promise<void> {
     if (ids.length === 0) return
     await conn.delete(genres).where(inArray(genres.id, ids))
