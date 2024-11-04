@@ -11,6 +11,7 @@
     "test": "pnpm run test:unit run && pnpm run test:e2e",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "lint": "prettier --check . && pnpm check && tsc --noEmit && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:dev": "NODE_ENV=development playwright test",
