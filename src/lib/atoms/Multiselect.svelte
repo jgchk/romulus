@@ -44,6 +44,7 @@
   export let id: $$Props['id'] = undefined
   export let placeholder: $$Props['placeholder'] = undefined
   export let disabled = false
+  export let reorderable = false
 
   let class_: $$Props['class'] = undefined
   export { class_ as class }
@@ -254,14 +255,16 @@
               handleReorder(fromIndex, index)
             }}
           >
-            <div
-              use:dragHandle
-              aria-label="drag-handle for {v.label}"
-              class="flex w-5 items-center justify-center border-r border-gray-400 transition dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
-              use:tooltip={{ content: 'Drag to reorder' }}
-            >
-              <DotsSixVertical />
-            </div>
+            {#if reorderable}
+              <div
+                use:dragHandle
+                aria-label="drag-handle for {v.label}"
+                class="flex w-5 items-center justify-center border-r border-gray-400 transition dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
+                use:tooltip={{ content: 'Drag to reorder' }}
+              >
+                <DotsSixVertical />
+              </div>
+            {/if}
             <div class="px-1.5 py-0.5" data-testId="multiselect__selected__label">
               {#if $$slots.selected}
                 <slot name="selected" option={v} />

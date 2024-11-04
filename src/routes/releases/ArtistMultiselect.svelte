@@ -56,6 +56,7 @@
   value={values}
   virtual
   {options}
+  reorderable
   bind:filter
   on:change={(e) => {
     const newValue = e.detail.value.map((v) => ({ id: v.value, name: v.label }))

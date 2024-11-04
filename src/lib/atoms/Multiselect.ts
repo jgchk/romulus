@@ -10,6 +10,7 @@ export type MultiselectProps<T> = {
   placeholder?: string
   disabled?: boolean
   class?: string
+  reorderable?: boolean
 }
 
 export type OptionValue = string | number | symbol
