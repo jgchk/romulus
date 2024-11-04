@@ -5,8 +5,9 @@ import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/control
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import { test } from '../../../../../vitest-setup'
-import { setRelevanceVote } from './vote'
+import { test } from '../../../../../../../vitest-setup'
+import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
+import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
   return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
@@ -27,7 +28,11 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
     dbConnection,
   )
 
-  await setRelevanceVote(genre.id, UNSET_GENRE_RELEVANCE, account.id, dbConnection)
+  const voteGenreRelevance = new VoteGenreRelevanceCommand(
+    new DrizzleGenreRelevanceVoteRepository(dbConnection),
+  )
+
+  await voteGenreRelevance.execute(genre.id, UNSET_GENRE_RELEVANCE, account.id)
 
   const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
   expect(relevanceVotes).toHaveLength(0)
@@ -51,7 +56,11 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
     dbConnection,
   )
 
-  await setRelevanceVote(genre.id, 2, account.id, dbConnection)
+  const voteGenreRelevance = new VoteGenreRelevanceCommand(
+    new DrizzleGenreRelevanceVoteRepository(dbConnection),
+  )
+
+  await voteGenreRelevance.execute(genre.id, 2, account.id)
 
   const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
   expect(relevanceVotes).toEqual([
@@ -78,11 +87,15 @@ test('should calculate median relevance correctly', async ({ dbConnection }) => 
     dbConnection,
   )
 
-  await setRelevanceVote(genre.id, 1, accounts[0].id, dbConnection)
-  await setRelevanceVote(genre.id, 2, accounts[1].id, dbConnection)
-  await setRelevanceVote(genre.id, 3, accounts[2].id, dbConnection)
-  await setRelevanceVote(genre.id, 4, accounts[3].id, dbConnection)
-  await setRelevanceVote(genre.id, 5, accounts[4].id, dbConnection)
+  const voteGenreRelevance = new VoteGenreRelevanceCommand(
+    new DrizzleGenreRelevanceVoteRepository(dbConnection),
+  )
+
+  await voteGenreRelevance.execute(genre.id, 1, accounts[0].id)
+  await voteGenreRelevance.execute(genre.id, 2, accounts[1].id)
+  await voteGenreRelevance.execute(genre.id, 3, accounts[2].id)
+  await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
+  await voteGenreRelevance.execute(genre.id, 5, accounts[4].id)
 
   const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(3)
@@ -103,10 +116,14 @@ test('should round median relevance to nearest integer', async ({ dbConnection }
     dbConnection,
   )
 
-  await setRelevanceVote(genre.id, 1, accounts[0].id, dbConnection)
-  await setRelevanceVote(genre.id, 2, accounts[1].id, dbConnection)
-  await setRelevanceVote(genre.id, 3, accounts[2].id, dbConnection)
-  await setRelevanceVote(genre.id, 4, accounts[3].id, dbConnection)
+  const voteGenreRelevance = new VoteGenreRelevanceCommand(
+    new DrizzleGenreRelevanceVoteRepository(dbConnection),
+  )
+
+  await voteGenreRelevance.execute(genre.id, 1, accounts[0].id)
+  await voteGenreRelevance.execute(genre.id, 2, accounts[1].id)
+  await voteGenreRelevance.execute(genre.id, 3, accounts[2].id)
+  await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
 
   const updatedGenre = await genresDb.findByIdSimple(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(3)

@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
@@ -12,6 +13,17 @@ import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzl
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { CreateGenreCommand } from './create-genre'
+import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
+
+function setup(dbConnection: IDrizzleConnection) {
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+
+  return createGenreCommand
+}
 
 test('should return the created genre id', async ({ dbConnection }) => {
   const genreData: GenreConstructorParams = {
@@ -45,11 +57,7 @@ test('should return the created genre id', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
+  const createGenreCommand = setup(dbConnection)
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
@@ -88,11 +96,7 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
+  const createGenreCommand = setup(dbConnection)
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
@@ -148,11 +152,7 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
+  const createGenreCommand = setup(dbConnection)
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
@@ -217,12 +217,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
   )
 
   const beforeExecute = new Date()
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
-
+  const createGenreCommand = setup(dbConnection)
   const { id } = await createGenreCommand.execute(genreData, account.id)
   const afterExecute = new Date()
 
@@ -289,11 +284,7 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
+  const createGenreCommand = setup(dbConnection)
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
@@ -348,11 +339,7 @@ test('should not insert a relevance vote when relevance is unset', async ({ dbCo
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
+  const createGenreCommand = setup(dbConnection)
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 

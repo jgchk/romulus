@@ -1,17 +1,15 @@
-import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
-
 import { Genre, type GenreConstructorParams } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
-import type { GenreRelevanceVoteRepository } from '../../domain/genre-relevance-vote-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
 import { GenreCycleError, SelfInfluenceError } from './update-genre'
+import type { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 export class CreateGenreCommand {
   constructor(
     private genreRepo: GenreRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
+    private voteGenreRelevanceCommand: VoteGenreRelevanceCommand,
   ) {}
 
   async execute(data: GenreConstructorParams, accountId: number): Promise<{ id: number }> {
@@ -34,9 +32,8 @@ export class CreateGenreCommand {
     const genreHistory = GenreHistory.fromGenre(id, genre, 'CREATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
 
-    if (data.relevance !== UNSET_GENRE_RELEVANCE) {
-      await this.genreRelevanceVoteRepo.save(id, accountId, data.relevance)
-    }
+    // TODO: Remove this from the command and instead call the two commands from the BFFE function
+    await this.voteGenreRelevanceCommand.execute(id, data.relevance, accountId)
 
     return { id }
   }

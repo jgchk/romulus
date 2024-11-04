@@ -11,6 +11,10 @@ import { createLucia } from '$lib/server/features/authentication/infrastructure/
 import { LuciaSessionRepository } from '$lib/server/features/authentication/infrastructure/session/lucia-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/authentication/infrastructure/token/crypto-token-generator'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CreateGenreCommand } from '$lib/server/features/genres/commands/application/commands/create-genre'
+import { DeleteGenreCommand } from '$lib/server/features/genres/commands/application/commands/delete-genre'
+import { UpdateGenreCommand } from '$lib/server/features/genres/commands/application/commands/update-genre'
+import { VoteGenreRelevanceCommand } from '$lib/server/features/genres/commands/application/commands/vote-genre-relevance'
 import { GenreCommandService } from '$lib/server/features/genres/commands/command-service'
 import { DrizzleGenreRelevanceVoteRepository } from '$lib/server/features/genres/commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '$lib/server/features/genres/commands/infrastructure/genre/drizzle-genre-repository'
@@ -57,9 +61,20 @@ export const handle: Handle = async ({ event, resolve }) => {
     },
     genre: {
       commands: new GenreCommandService(
-        new DrizzleGenreRepository(dbConnection),
-        new DrizzleGenreHistoryRepository(dbConnection),
-        new DrizzleGenreRelevanceVoteRepository(dbConnection),
+        new CreateGenreCommand(
+          new DrizzleGenreRepository(dbConnection),
+          new DrizzleGenreHistoryRepository(dbConnection),
+          new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+        ),
+        new UpdateGenreCommand(
+          new DrizzleGenreRepository(dbConnection),
+          new DrizzleGenreHistoryRepository(dbConnection),
+        ),
+        new DeleteGenreCommand(
+          new DrizzleGenreRepository(dbConnection),
+          new DrizzleGenreHistoryRepository(dbConnection),
+        ),
+        new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
       ),
       queries: new GenreQueryService(dbConnection),
     },

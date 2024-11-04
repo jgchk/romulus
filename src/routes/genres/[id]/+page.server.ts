@@ -4,7 +4,6 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { setRelevanceVote } from '$lib/server/api/genres/relevance/vote'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
@@ -79,7 +78,11 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    await setRelevanceVote(id, form.data.relevanceVote, locals.user.id, locals.dbConnection)
+    await locals.services.genre.commands.voteGenreRelevance(
+      id,
+      form.data.relevanceVote,
+      locals.user.id,
+    )
 
     return { form }
   },
