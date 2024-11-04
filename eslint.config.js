@@ -81,6 +81,7 @@ export default tseslint.config(
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
+      'svelte/button-has-type': ['error'],
     },
   },
 )
