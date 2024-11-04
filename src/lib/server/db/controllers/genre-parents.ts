@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
 import { type GenreParent, genreParents, type InsertGenreParent } from '../schema'
@@ -6,16 +6,6 @@ import { type GenreParent, genreParents, type InsertGenreParent } from '../schem
 export class GenreParentsDatabase {
   insert(data: InsertGenreParent[], conn: IDrizzleConnection): Promise<GenreParent[]> {
     return conn.insert(genreParents).values(data).returning()
-  }
-
-  find(
-    parentId: GenreParent['parentId'],
-    childId: GenreParent['childId'],
-    conn: IDrizzleConnection,
-  ): Promise<GenreParent | undefined> {
-    return conn.query.genreParents.findFirst({
-      where: and(eq(genreParents.parentId, parentId), eq(genreParents.childId, childId)),
-    })
   }
 
   findByParentId(
