@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-actor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check actor
+        if: github.actor != 'jgchk'
+        run: |
+          echo "Error: Only the repository owner can run this workflow"
+          exit 1
+
+  deploy:
+    needs: check-actor
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Deploy to DigitalOcean
+        env:
+          DOCKER_IMAGE: jgchk/romulus:main
+          DOCKER_NAME: romulus
+          HOST: ${{ secrets.DROPLET_HOST }}
+          USERNAME: ${{ secrets.DROPLET_USERNAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+        run: |
+          # SSH into the droplet and run commands
+          ssh $USERNAME@$HOST << ENDSSH
+            # Pull the latest image
+            docker pull $DOCKER_IMAGE
+
+            # Stop and remove the existing container (if it exists)
+            docker stop $DOCKER_NAME || true
+            docker rm $DOCKER_NAME || true
+
+            # Run the new container
+            docker run -d \
+              --name $DOCKER_NAME \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              -e DATABASE_URL='${DATABASE_URL}' \
+              $DOCKER_IMAGE
+
+            # Clean up old images
+            docker image prune -f
+          ENDSSH
