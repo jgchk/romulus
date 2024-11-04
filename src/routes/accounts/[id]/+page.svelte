@@ -30,7 +30,7 @@
         {/if}
       {/if}
 
-      <GenresTable {form} {data} />
+      <GenresTable {data} />
     </div>
   </Card>
 </div>

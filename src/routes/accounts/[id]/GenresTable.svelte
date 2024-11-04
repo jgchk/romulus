@@ -1,14 +1,10 @@
 <script lang="ts">
   import GenreLink from '$lib/components/GenreLink.svelte'
-  import { getUserContext } from '$lib/contexts/user'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
-  import type { ActionData, PageData } from './$types'
+  import type { PageData } from './$types'
 
   export let data: PageData
-  export let form: ActionData
-
-  const user = getUserContext()
 </script>
 
 <div class="py-2">
