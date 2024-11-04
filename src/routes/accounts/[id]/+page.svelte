@@ -1,11 +1,8 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
-  import Loader from '$lib/atoms/Loader.svelte'
-  import GenreLink from '$lib/components/GenreLink.svelte'
   import { getUserContext } from '$lib/contexts/user'
-  import { toPrettyDate } from '$lib/utils/datetime'
-  import { capitalize, pageTitle } from '$lib/utils/string'
+  import { pageTitle } from '$lib/utils/string'
 
   import type { ActionData, PageData } from './$types'
   import GenresTable from './GenresTable.svelte'

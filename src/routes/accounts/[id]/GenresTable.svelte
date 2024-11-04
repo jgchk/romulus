@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Button from '$lib/atoms/Button.svelte'
-  import Card from '$lib/atoms/Card.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { toPrettyDate } from '$lib/utils/datetime'
