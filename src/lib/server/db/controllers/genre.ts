@@ -421,60 +421,6 @@ export class GenresDatabase {
     })
   }
 
-  async findByIdHistory(
-    id: Genre['id'],
-    conn: IDrizzleConnection,
-  ): Promise<
-    | (Genre & {
-        akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-        parents: number[]
-        children: number[]
-        influencedBy: number[]
-        influences: number[]
-      })
-    | undefined
-  > {
-    const result = await conn.query.genres.findFirst({
-      where: eq(genres.id, id),
-      with: {
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-        },
-        parents: {
-          columns: { parentId: true },
-        },
-        children: {
-          columns: { childId: true },
-        },
-        influencedBy: {
-          columns: {
-            influencerId: true,
-          },
-        },
-        influences: {
-          columns: {
-            influencedId: true,
-          },
-        },
-      },
-    })
-
-    if (!result) return undefined
-
-    return {
-      ...result,
-
-      parents: result.parents.map(({ parentId }) => parentId),
-      children: result.children.map(({ childId }) => childId),
-      influencedBy: result.influencedBy.map(({ influencerId }) => influencerId),
-      influences: result.influences.map(({ influencedId }) => influencedId),
-    }
-  }
-
   async findByIdEdit(
     id: Genre['id'],
     conn: IDrizzleConnection,
