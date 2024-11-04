@@ -16,27 +16,16 @@ export class VoteGenreRelevanceCommand {
     if (relevance === UNSET_GENRE_RELEVANCE) {
       // TODO: remove UNSET_GENRE_RELEVANCE from everything but the infrastructure layer. move this implicit deletion to an explicit delete command
       await this.genreRelevanceVoteRepo.delete(genreId, accountId)
-
-      const allRelevanceVotes = await this.genreRelevanceVoteRepo.findByGenreId(genreId)
-
-      const newRelevance = this.calculateRelevance(allRelevanceVotes)
-      if (newRelevance instanceof Error) {
-        return newRelevance
+    } else {
+      const genreRelevance = GenreRelevance.create(relevance)
+      if (genreRelevance instanceof Error) {
+        return genreRelevance
       }
 
-      await this.genreRelevanceVoteRepo.saveRelevance(genreId, newRelevance)
+      const relevanceVote = new GenreRelevanceVote(genreId, accountId, genreRelevance)
 
-      return
+      await this.genreRelevanceVoteRepo.save(relevanceVote)
     }
-
-    const genreRelevance = GenreRelevance.create(relevance)
-    if (genreRelevance instanceof Error) {
-      return genreRelevance
-    }
-
-    const relevanceVote = new GenreRelevanceVote(genreId, accountId, genreRelevance)
-
-    await this.genreRelevanceVoteRepo.save(relevanceVote)
 
     const allRelevanceVotes = await this.genreRelevanceVoteRepo.findByGenreId(genreId)
 
