@@ -23,6 +23,7 @@
   <div class="flex-1" />
 
   <button
+    type="button"
     on:click={() => copyTextToClipboard(makeGenreTag(id))}
     class="text-sm text-gray-400 hover:underline"
   >

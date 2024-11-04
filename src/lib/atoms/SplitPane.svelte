@@ -111,6 +111,7 @@
     <slot name="left" />
   </div>
   <button
+    type="button"
     class={tw(
       'group hidden w-px cursor-col-resize rounded-full bg-transparent px-1 py-[6px] transition hover:bg-primary-100 md:block dark:hover:bg-primary-950',
       active && 'bg-primary-100 dark:bg-primary-950',

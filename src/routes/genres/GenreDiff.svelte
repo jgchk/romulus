@@ -462,6 +462,7 @@
   </div>
   {#if overflows}
     <button
+      type="button"
       class="group w-full p-1 text-sm text-gray-500 transition hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
       on:click={() => (expanded = !expanded)}
     >

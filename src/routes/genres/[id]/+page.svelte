@@ -84,6 +84,7 @@
           {#if $user?.permissions?.includes('EDIT_GENRES')}
             {' '}
             <button
+              type="button"
               class="text-xs text-primary-500 hover:underline"
               on:click={() => (isVoting = !isVoting)}
             >
@@ -94,7 +95,11 @@
         <div class="genre-relevance">
           {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
             None set.{' '}
-            <button class="text-primary-500 hover:underline" on:click={() => (isVoting = true)}>
+            <button
+              type="button"
+              class="text-primary-500 hover:underline"
+              on:click={() => (isVoting = true)}
+            >
               Vote.
             </button>
           {:else}
