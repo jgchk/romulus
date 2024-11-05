@@ -80,16 +80,6 @@ export class GenresDatabase {
     })
   }
 
-  async findAllIds(conn: IDrizzleConnection): Promise<number[]> {
-    const results = await conn.query.genres.findMany({
-      columns: {
-        id: true,
-      },
-    })
-
-    return results.map(({ id }) => id)
-  }
-
   findByIdDetail(
     id: Genre['id'],
     conn: IDrizzleConnection,

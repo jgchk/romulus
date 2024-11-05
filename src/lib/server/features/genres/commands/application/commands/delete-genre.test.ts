@@ -29,7 +29,8 @@ test('should delete the genre', async ({ dbConnection }) => {
 
   await deleteGenreCommand.execute(genre.id, account.id)
 
-  const genres = await genresDb.findAllIds(dbConnection)
+  const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
+  const { data: genres } = await getAllGenresQuery.execute()
   expect(genres).toHaveLength(0)
 })
 
