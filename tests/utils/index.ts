@@ -4,7 +4,13 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { type accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import {
+  type accounts,
+  type Genre,
+  genreInfluences,
+  genreParents,
+  genres,
+} from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { createGenreHistoryEntry } from '$lib/server/genres'
@@ -116,7 +122,7 @@ export const createGenres = async (
       await tx.insert(genreInfluences).values(influenceRelations)
     }
 
-    const outputGenres = await genresDb.findByIds(
+    const outputGenres = await findGenresByIds(
       createdGenres.map((genre) => genre.id),
       tx,
     )
@@ -136,6 +142,39 @@ export const createGenres = async (
   })
 
   return outputGenres
+}
+
+async function findGenresByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
+  if (ids.length === 0) return []
+
+  const results = await conn.query.genres.findMany({
+    where: inArray(genres.id, ids),
+    with: {
+      akas: {
+        columns: {
+          name: true,
+          relevance: true,
+          order: true,
+        },
+      },
+      parents: {
+        columns: {
+          parentId: true,
+        },
+      },
+      influencedBy: {
+        columns: {
+          influencerId: true,
+        },
+      },
+    },
+  })
+
+  return results.map((genre) => ({
+    ...genre,
+    parents: genre.parents.map(({ parentId }) => parentId),
+    influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
+  }))
 }
 
 export const deleteGenres = async (ids: number[], dbConnection: IDrizzleConnection) => {

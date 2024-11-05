@@ -471,48 +471,6 @@ export class GenresDatabase {
     })
   }
 
-  async findByIds(
-    ids: Genre['id'][],
-    conn: IDrizzleConnection,
-  ): Promise<
-    (Genre & {
-      akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
-      parents: number[]
-      influencedBy: number[]
-    })[]
-  > {
-    if (ids.length === 0) return []
-
-    const results = await conn.query.genres.findMany({
-      where: inArray(genres.id, ids),
-      with: {
-        akas: {
-          columns: {
-            name: true,
-            relevance: true,
-            order: true,
-          },
-        },
-        parents: {
-          columns: {
-            parentId: true,
-          },
-        },
-        influencedBy: {
-          columns: {
-            influencerId: true,
-          },
-        },
-      },
-    })
-
-    return results.map((genre) => ({
-      ...genre,
-      parents: genre.parents.map(({ parentId }) => parentId),
-      influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
-    }))
-  }
-
   async findAllTree(conn: IDrizzleConnection): Promise<
     (Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'relevance' | 'nsfw' | 'updatedAt'> & {
       akas: GenreAka['name'][]
