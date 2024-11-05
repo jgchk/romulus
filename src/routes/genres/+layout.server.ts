@@ -1,11 +1,9 @@
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { ifDefined } from '$lib/utils/types'
 
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ locals, cookies }) => {
-  const genresDb = new GenresDatabase()
-  const genres = genresDb.findAllTree(locals.dbConnection)
+  const genres = locals.services.genre.queries.getGenreTree()
 
   const leftPaneSize = ifDefined(cookies.get('genres.leftPaneSize'), (v) => {
     const value = Number.parseInt(v)
