@@ -2,7 +2,6 @@ import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
@@ -23,21 +22,20 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const relevanceVotesDb = new GenreRelevanceVotesDatabase()
-  await relevanceVotesDb.upsert(
-    { genreId: genre.id, accountId: account.id, relevance: 1, updatedAt: new Date() },
-    dbConnection,
-  )
-
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
   )
+  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
+
+  await voteGenreRelevance.execute(genre.id, 1, account.id)
+
+  const relevanceVotesBeforeDeletion = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
+  expect(relevanceVotesBeforeDeletion).toHaveLength(1)
 
   await voteGenreRelevance.execute(genre.id, UNSET_GENRE_RELEVANCE, account.id)
 
-  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
-  const relevanceVotes = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
-  expect(relevanceVotes).toHaveLength(0)
+  const relevanceVotesAfterDeletion = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
+  expect(relevanceVotesAfterDeletion).toHaveLength(0)
 
   const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
   expect(updatedGenre?.relevance).toBe(UNSET_GENRE_RELEVANCE)
@@ -52,21 +50,22 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const relevanceVotesDb = new GenreRelevanceVotesDatabase()
-  await relevanceVotesDb.upsert(
-    { genreId: genre.id, accountId: account.id, relevance: 1, updatedAt: new Date() },
-    dbConnection,
-  )
-
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
   )
+  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
+
+  await voteGenreRelevance.execute(genre.id, 1, account.id)
+
+  const relevanceVotesBeforeVote = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
+  expect(relevanceVotesBeforeVote).toEqual([
+    expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 1 }),
+  ])
 
   await voteGenreRelevance.execute(genre.id, 2, account.id)
 
-  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
-  const relevanceVotes = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
-  expect(relevanceVotes).toEqual([
+  const relevanceVotesAfterVote = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
+  expect(relevanceVotesAfterVote).toEqual([
     expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 2 }),
   ])
 
