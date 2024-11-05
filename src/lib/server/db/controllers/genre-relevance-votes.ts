@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { omit } from 'ramda'
 
 import type { IDrizzleConnection } from '../connection'
@@ -27,19 +27,6 @@ export class GenreRelevanceVotesDatabase {
   findByGenreId(genreId: number, conn: IDrizzleConnection): Promise<GenreRelevanceVote[]> {
     return conn.query.genreRelevanceVotes.findMany({
       where: eq(genreRelevanceVotes.genreId, genreId),
-    })
-  }
-
-  findByGenreIdAndAccountId(
-    genreId: GenreRelevanceVote['genreId'],
-    accountId: GenreRelevanceVote['accountId'],
-    conn: IDrizzleConnection,
-  ): Promise<GenreRelevanceVote | undefined> {
-    return conn.query.genreRelevanceVotes.findFirst({
-      where: and(
-        eq(genreRelevanceVotes.genreId, genreId),
-        eq(genreRelevanceVotes.accountId, accountId),
-      ),
     })
   }
 }

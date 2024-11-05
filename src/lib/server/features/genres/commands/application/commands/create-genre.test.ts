@@ -4,10 +4,10 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
+import { GetGenreRelevanceVoteByAccountQuery } from '../../../queries/application/get-genre-relevance-vote-by-account'
 import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
@@ -288,12 +288,8 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
-  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
-  const genreRelevanceVote = await genreRelevanceVotesDb.findByGenreIdAndAccountId(
-    id,
-    account.id,
-    dbConnection,
-  )
+  const getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(dbConnection)
+  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(id, account.id)
   expect(genreRelevanceVote).toEqual({
     genreId: id,
     accountId: account.id,
@@ -343,12 +339,8 @@ test('should not insert a relevance vote when relevance is unset', async ({ dbCo
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
-  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
-  const genreRelevanceVote = await genreRelevanceVotesDb.findByGenreIdAndAccountId(
-    id,
-    account.id,
-    dbConnection,
-  )
+  const getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(dbConnection)
+  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(id, account.id)
   expect(genreRelevanceVote).toBeUndefined()
 
   const genresDb = new GenresDatabase()

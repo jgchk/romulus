@@ -34,8 +34,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await genreRelevanceVotesDb
-      .findByGenreIdAndAccountId(id, locals.user.id, locals.dbConnection)
+    relevanceVote = await locals.services.genre.queries
+      .getGenreRelevanceVoteByAccount(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
