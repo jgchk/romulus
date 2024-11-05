@@ -2,7 +2,6 @@ import type { SQL } from 'drizzle-orm'
 import { and, asc, count, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 
 import { type GenreType, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
-import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
 import type { IDrizzleConnection } from '../connection'
 import {
@@ -138,55 +137,6 @@ export class GenresDatabase {
         parents: genre.parents.map(({ parentId }) => parentId),
       }))
     })
-  }
-
-  async update(
-    id: Genre['id'],
-    update: Partial<ExtendedInsertGenre>,
-    conn: IDrizzleConnection,
-  ): Promise<
-    Genre & {
-      akas: Omit<GenreAka, 'genreId'>[]
-      parents: number[]
-      influencedBy: number[]
-    }
-  > {
-    if (update.akas) {
-      await conn.delete(genreAkas).where(eq(genreAkas.genreId, id))
-      if (update.akas.length > 0) {
-        await conn.insert(genreAkas).values(update.akas.map((aka) => ({ ...aka, genreId: id })))
-      }
-    }
-
-    if (update.parents) {
-      await conn.delete(genreParents).where(eq(genreParents.childId, id))
-      if (update.parents.length > 0) {
-        await conn
-          .insert(genreParents)
-          .values(update.parents.map((parentId) => ({ parentId, childId: id })))
-      }
-    }
-
-    if (update.influencedBy) {
-      await conn.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))
-      if (update.influencedBy.length > 0) {
-        await conn
-          .insert(genreInfluences)
-          .values(update.influencedBy.map((influencerId) => ({ influencerId, influencedId: id })))
-      }
-    }
-
-    if (!hasUpdate(update)) {
-      const genre = await this.findByIdEdit(id, conn)
-      if (!genre) throw new Error(`Genre not found: ${id}`)
-      return genre
-    }
-
-    await conn.update(genres).set(makeUpdate(update)).where(eq(genres.id, id))
-
-    const genre = await this.findByIdEdit(id, conn)
-    if (!genre) throw new Error(`Genre not found: ${id}`)
-    return genre
   }
 
   async findAllIds(conn: IDrizzleConnection): Promise<number[]> {
