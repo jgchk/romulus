@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm'
 import { omit } from 'ramda'
 
 import type { IDrizzleConnection } from '../connection'
@@ -22,11 +21,5 @@ export class GenreRelevanceVotesDatabase {
       })
       .returning()
     return vote
-  }
-
-  findByGenreId(genreId: number, conn: IDrizzleConnection): Promise<GenreRelevanceVote[]> {
-    return conn.query.genreRelevanceVotes.findMany({
-      where: eq(genreRelevanceVotes.genreId, genreId),
-    })
   }
 }

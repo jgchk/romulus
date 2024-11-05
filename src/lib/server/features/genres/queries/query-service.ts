@@ -6,18 +6,21 @@ import {
   type GetAllGenresQueryInput,
 } from './application/get-all-genres'
 import { GetGenreRelevanceVoteByAccountQuery } from './application/get-genre-relevance-vote-by-account'
+import { GetGenreRelevanceVotesByGenreQuery } from './application/get-genre-relevance-votes-by-genre'
 import { GetGenreTreeQuery } from './application/get-genre-tree'
 import { GetRandomGenreIdQuery } from './application/get-random-genre-id'
 
 export class GenreQueryService {
   private getAllGenresQuery: GetAllGenresQuery
   private getGenreRelevanceVoteByAccountQuery: GetGenreRelevanceVoteByAccountQuery
+  private getGenreRelevanceVotesByGenreQuery: GetGenreRelevanceVotesByGenreQuery
   private getGenreTreeQuery: GetGenreTreeQuery
   private getRandomGenreIdQuery: GetRandomGenreIdQuery
 
   constructor(db: IDrizzleConnection) {
     this.getAllGenresQuery = new GetAllGenresQuery(db)
     this.getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(db)
+    this.getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(db)
     this.getGenreTreeQuery = new GetGenreTreeQuery(db)
     this.getRandomGenreIdQuery = new GetRandomGenreIdQuery(db)
   }
@@ -30,6 +33,10 @@ export class GenreQueryService {
 
   async getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
     return this.getGenreRelevanceVoteByAccountQuery.execute(genreId, accountId)
+  }
+
+  async getGenreRelevanceVotesByGenre(genreId: number) {
+    return this.getGenreRelevanceVotesByGenreQuery.execute(genreId)
   }
 
   async getGenreTree() {

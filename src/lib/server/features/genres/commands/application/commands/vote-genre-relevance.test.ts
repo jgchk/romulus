@@ -6,6 +6,7 @@ import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-re
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
+import { GetGenreRelevanceVotesByGenreQuery } from '../../../queries/application/get-genre-relevance-votes-by-genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
@@ -34,7 +35,8 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
 
   await voteGenreRelevance.execute(genre.id, UNSET_GENRE_RELEVANCE, account.id)
 
-  const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
+  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
+  const relevanceVotes = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotes).toHaveLength(0)
 
   const updatedGenre = await genresDb.findByIdDetail(genre.id, dbConnection)
@@ -62,7 +64,8 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
 
   await voteGenreRelevance.execute(genre.id, 2, account.id)
 
-  const relevanceVotes = await relevanceVotesDb.findByGenreId(genre.id, dbConnection)
+  const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
+  const relevanceVotes = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotes).toEqual([
     expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 2 }),
   ])

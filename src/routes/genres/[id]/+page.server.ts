@@ -5,7 +5,6 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
@@ -27,9 +26,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     return error(404, 'Genre not found')
   }
 
-  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
-  const relevanceVotes = await genreRelevanceVotesDb
-    .findByGenreId(id, locals.dbConnection)
+  const relevanceVotes = await locals.services.genre.queries
+    .getGenreRelevanceVotesByGenre(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
