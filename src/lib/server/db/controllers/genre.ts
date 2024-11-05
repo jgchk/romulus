@@ -573,9 +573,4 @@ export class GenresDatabase {
       children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
     }))
   }
-
-  async deleteByIds(ids: Genre['id'][], conn: IDrizzleConnection): Promise<void> {
-    if (ids.length === 0) return
-    await conn.delete(genres).where(inArray(genres.id, ids))
-  }
 }

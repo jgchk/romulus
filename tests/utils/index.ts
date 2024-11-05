@@ -1,10 +1,10 @@
-import { type InferInsertModel } from 'drizzle-orm'
+import { inArray, type InferInsertModel } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-import { type accounts, genreInfluences, genreParents, type genres } from '$lib/server/db/schema'
+import { type accounts, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { createGenreHistoryEntry } from '$lib/server/genres'
@@ -139,8 +139,9 @@ export const createGenres = async (
 }
 
 export const deleteGenres = async (ids: number[], dbConnection: IDrizzleConnection) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.deleteByIds(ids, dbConnection)
+  if (ids.length === 0) return
+
+  await dbConnection.delete(genres).where(inArray(genres.id, ids))
 
   const genreHistoryDb = new GenreHistoryDatabase()
   await genreHistoryDb.deleteByGenreIds(ids, dbConnection)
