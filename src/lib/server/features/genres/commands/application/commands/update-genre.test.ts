@@ -13,6 +13,7 @@ import {
 import { createGenreHistoryEntry } from '$lib/server/genres'
 
 import { test } from '../../../../../../../vitest-setup'
+import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import type { GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
@@ -62,9 +63,13 @@ test('should update the genre', async ({ dbConnection }) => {
     account.id,
   )
 
+  const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
   const {
-    results: [updatedGenre],
-  } = await genresDb.findAll({ filter: { ids: [genre.id] }, include: ['akas'] }, dbConnection)
+    data: [updatedGenre],
+  } = await getAllGenresQuery.execute({
+    filter: { name: 'Updated Genre' },
+    include: ['akas'],
+  })
 
   expect(updatedGenre).toEqual(
     expect.objectContaining({

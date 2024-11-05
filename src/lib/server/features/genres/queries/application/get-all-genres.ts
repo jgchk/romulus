@@ -82,7 +82,7 @@ export class GetAllGenresQuery {
     include = [],
     filter: inputFilter = {},
     sort = {},
-  }: GetAllGenresQueryInput<I>): Promise<GetAllGenresQueryResult> {
+  }: GetAllGenresQueryInput<I>): Promise<GetAllGenresQueryResult<I>> {
     const databaseFilter = await this.constructDatabaseFilter(inputFilter)
 
     const { results, total } = await this.drizzleGetAllGenresQuery.execute({

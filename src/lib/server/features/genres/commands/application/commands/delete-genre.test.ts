@@ -6,6 +6,7 @@ import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 
 import { test } from '../../../../../../../vitest-setup'
+import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { DeleteGenreCommand } from './delete-genre'
@@ -116,8 +117,9 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
 
   await deleteGenreCommand.execute(child.id, account.id)
 
-  const genres = await genresDb.findAll({ include: ['parents'] }, dbConnection)
-  expect(genres.results).toEqual([
+  const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
+  const genres = await getAllGenresQuery.execute({ include: ['parents'] })
+  expect(genres.data).toEqual([
     expect.objectContaining({
       id: 0,
       name: 'Parent',
