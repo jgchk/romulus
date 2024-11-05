@@ -1,7 +1,5 @@
 import { asc, desc, eq, inArray } from 'drizzle-orm'
 
-import { type GenreType } from '$lib/types/genres'
-
 import type { IDrizzleConnection } from '../connection'
 import {
   type Account,
@@ -21,62 +19,6 @@ export type ExtendedInsertGenre = InsertGenre & {
   akas: Omit<InsertGenreAka, 'genreId'>[]
   parents: number[]
   influencedBy: number[]
-}
-
-export type FindAllParams<I extends FindAllInclude> = {
-  skip?: number
-  limit?: number
-  include?: I[]
-  filter?: FindAllFilter
-  sort?: {
-    field?: FindAllSortField
-    order?: FindAllSortOrder
-  }
-}
-
-export type FindAllFilter = {
-  ids?: number[]
-  name?: string
-  subtitle?: string | null
-  type?: GenreType
-  relevance?: number | null
-  nsfw?: boolean
-  shortDescription?: string | null
-  longDescription?: string | null
-  notes?: string | null
-  createdAt?: Date
-  updatedAt?: Date
-}
-
-export const FIND_ALL_INCLUDE = ['parents', 'influencedBy', 'akas'] as const
-export type FindAllInclude = (typeof FIND_ALL_INCLUDE)[number]
-
-export const FIND_ALL_SORT_FIELD = [
-  'id',
-  'name',
-  'subtitle',
-  'type',
-  'relevance',
-  'nsfw',
-  'shortDescription',
-  'longDescription',
-  'notes',
-  'createdAt',
-  'updatedAt',
-] as const
-export type FindAllSortField = (typeof FIND_ALL_SORT_FIELD)[number]
-
-export const FIND_ALL_SORT_ORDER = ['asc', 'desc'] as const
-export type FindAllSortOrder = (typeof FIND_ALL_SORT_ORDER)[number]
-
-export type FindAllGenre<T extends FindAllInclude> = Genre & {
-  [K in T]: K extends 'parents'
-    ? number[]
-    : K extends 'influencedBy'
-      ? number[]
-      : K extends 'akas'
-        ? { primary: string[]; secondary: string[]; tertiary: string[] }
-        : never
 }
 
 export class GenresDatabase {

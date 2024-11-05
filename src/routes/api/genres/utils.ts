@@ -1,11 +1,22 @@
 import { z } from 'zod'
 
-import {
-  FIND_ALL_INCLUDE,
-  FIND_ALL_SORT_FIELD,
-  FIND_ALL_SORT_ORDER,
-} from '$lib/server/db/controllers/genre'
 import { GENRE_TYPES, genreRelevance } from '$lib/types/genres'
+
+const FIND_ALL_INCLUDE = ['parents', 'influencedBy', 'akas'] as const
+const FIND_ALL_SORT_FIELD = [
+  'id',
+  'name',
+  'subtitle',
+  'type',
+  'relevance',
+  'nsfw',
+  'shortDescription',
+  'longDescription',
+  'notes',
+  'createdAt',
+  'updatedAt',
+] as const
+const FIND_ALL_SORT_ORDER = ['asc', 'desc'] as const
 
 const schema = z.object({
   skip: z.coerce.number().int().optional(),
