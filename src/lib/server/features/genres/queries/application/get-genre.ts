@@ -1,7 +1,9 @@
 import { asc, eq } from 'drizzle-orm'
+import { uniq } from 'ramda'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { type Genre, genreAkas, genreHistory, genres } from '$lib/server/db/schema'
+import { isNotNull } from '$lib/utils/types'
 
 export type GetGenreResult = {
   id: number
@@ -46,11 +48,9 @@ export type GetGenreResult = {
     subtitle: string | null
     nsfw: boolean
   }[]
-  history: {
-    account: {
-      id: number
-      username: string
-    } | null
+  contributors: {
+    id: number
+    username: string
   }[]
 }
 
@@ -58,7 +58,7 @@ export class GetGenreQuery {
   constructor(private db: IDrizzleConnection) {}
 
   async execute(id: Genre['id']): Promise<GetGenreResult | undefined> {
-    const result = await this.db.query.genres.findFirst({
+    const genre = await this.db.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
@@ -109,19 +109,30 @@ export class GetGenreQuery {
       },
     })
 
-    if (!result) return undefined
+    if (!genre) return undefined
 
     return {
-      ...result,
+      id: genre.id,
+      name: genre.name,
+      subtitle: genre.subtitle,
+      type: genre.type,
+      relevance: genre.relevance,
+      nsfw: genre.nsfw,
+      shortDescription: genre.shortDescription,
+      longDescription: genre.longDescription,
+      notes: genre.notes,
+      createdAt: genre.createdAt,
+      updatedAt: genre.updatedAt,
       akas: {
-        primary: result.akas.filter((aka) => aka.relevance === 3).map((aka) => aka.name),
-        secondary: result.akas.filter((aka) => aka.relevance === 2).map((aka) => aka.name),
-        tertiary: result.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
+        primary: genre.akas.filter((aka) => aka.relevance === 3).map((aka) => aka.name),
+        secondary: genre.akas.filter((aka) => aka.relevance === 2).map((aka) => aka.name),
+        tertiary: genre.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
       },
-      parents: result.parents.map((parent) => parent.parent),
-      children: result.children.map((child) => child.child),
-      influencedBy: result.influencedBy.map((influence) => influence.influencer),
-      influences: result.influences.map((influence) => influence.influenced),
+      parents: genre.parents.map((parent) => parent.parent),
+      children: genre.children.map((child) => child.child),
+      influencedBy: genre.influencedBy.map((influence) => influence.influencer),
+      influences: genre.influences.map((influence) => influence.influenced),
+      contributors: uniq(genre.history.map((history) => history.account).filter(isNotNull)),
     }
   }
 }

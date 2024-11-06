@@ -1,5 +1,4 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { uniq } from 'ramda'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
@@ -7,7 +6,6 @@ import { z } from 'zod'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
-import { isNotNull } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
 import { relevanceVoteSchema } from './utils'
@@ -35,7 +33,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
-  const { akas, parents, children, influencedBy, influences, history, ...rest } = maybeGenre
+  const { akas, parents, children, influencedBy, influences, ...rest } = maybeGenre
   const genre = {
     ...rest,
     akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
@@ -45,11 +43,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     influences: influences.sort((a, b) => a.name.localeCompare(b.name)),
   }
 
-  const contributors = uniq(history.map((item) => item.account).filter(isNotNull))
-
   const relevanceVoteForm = await superValidate({ relevanceVote }, zod(relevanceVoteSchema))
 
-  return { genre, relevanceVotes, relevanceVoteForm, contributors }
+  return { genre, relevanceVotes, relevanceVoteForm }
 }
 
 export const actions: Actions = {

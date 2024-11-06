@@ -123,12 +123,10 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
-    history: [
+    contributors: [
       {
-        account: {
-          id: account.id,
-          username: account.username,
-        },
+        id: account.id,
+        username: account.username,
       },
     ],
   })
@@ -193,12 +191,10 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
     },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
-    history: [
+    contributors: [
       {
-        account: {
-          id: account.id,
-          username: account.username,
-        },
+        id: account.id,
+        username: account.username,
       },
     ],
   })
