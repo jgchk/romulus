@@ -1,4 +1,4 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { type Genre, genreAkas, genreHistory, genres } from '$lib/server/db/schema'
@@ -15,7 +15,11 @@ export type GetGenreResult = {
   notes: string | null
   createdAt: Date
   updatedAt: Date
-  akas: { name: string }[]
+  akas: {
+    primary: string[]
+    secondary: string[]
+    tertiary: string[]
+  }
   parents: {
     parent: {
       id: number
@@ -61,13 +65,13 @@ export type GetGenreResult = {
 export class GetGenreQuery {
   constructor(private db: IDrizzleConnection) {}
 
-  execute(id: Genre['id']): Promise<GetGenreResult | undefined> {
-    return this.db.query.genres.findFirst({
+  async execute(id: Genre['id']): Promise<GetGenreResult | undefined> {
+    const result = await this.db.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
         akas: {
-          columns: { name: true },
-          orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
+          columns: { name: true, relevance: true },
+          orderBy: asc(genreAkas.order),
         },
         parents: {
           columns: {},
@@ -112,5 +116,16 @@ export class GetGenreQuery {
         },
       },
     })
+
+    if (!result) return undefined
+
+    return {
+      ...result,
+      akas: {
+        primary: result.akas.filter((aka) => aka.relevance === 3).map((aka) => aka.name),
+        secondary: result.akas.filter((aka) => aka.relevance === 2).map((aka) => aka.name),
+        tertiary: result.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
+      },
+    }
   }
 }

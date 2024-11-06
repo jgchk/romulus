@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const { akas, parents, children, influencedBy, influences, history, ...rest } = maybeGenre
   const genre = {
     ...rest,
-    akas: akas.map((aka) => aka.name),
+    akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
     parents: parents.map((parent) => parent.parent).sort((a, b) => a.name.localeCompare(b.name)),
     children: children.map((child) => child.child).sort((a, b) => a.name.localeCompare(b.name)),
     influencedBy: influencedBy
