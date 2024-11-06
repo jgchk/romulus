@@ -2,11 +2,11 @@ import { expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
+import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreRelevanceVoteByAccountQuery } from '../../../queries/application/get-genre-relevance-vote-by-account'
 import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
@@ -100,8 +100,8 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
-  const genresDb = new GenresDatabase()
-  const genre = await genresDb.findByIdEdit(id, dbConnection)
+  const getGenreQuery = new GetGenreQuery(dbConnection)
+  const genre = await getGenreQuery.execute(id)
   expect(genre).toEqual({
     id: expect.any(Number) as number,
     name: 'Test',
@@ -111,7 +111,9 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     longDescription: null,
     notes: null,
     parents: [],
+    children: [],
     influencedBy: [],
+    influences: [],
     relevance: 99,
     nsfw: false,
     akas: {
@@ -121,6 +123,14 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
+    history: [
+      {
+        account: {
+          id: account.id,
+          username: account.username,
+        },
+      },
+    ],
   })
 })
 
@@ -160,8 +170,8 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
 
   const { id } = await createGenreCommand.execute(genreData, account.id)
 
-  const genresDb = new GenresDatabase()
-  const genre = await genresDb.findByIdEdit(id, dbConnection)
+  const getGenreQuery = new GetGenreQuery(dbConnection)
+  const genre = await getGenreQuery.execute(id)
   expect(genre).toEqual({
     id: expect.any(Number) as number,
     name: 'Test',
@@ -171,7 +181,9 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
     longDescription: null,
     notes: null,
     parents: [],
+    children: [],
     influencedBy: [],
+    influences: [],
     relevance: 99,
     nsfw: false,
     akas: {
@@ -181,6 +193,14 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
     },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
+    history: [
+      {
+        account: {
+          id: account.id,
+          username: account.username,
+        },
+      },
+    ],
   })
 })
 
@@ -299,8 +319,8 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
     updatedAt: expect.any(Date) as Date,
   })
 
-  const genresDb = new GenresDatabase()
-  const genre = await genresDb.findByIdEdit(id, dbConnection)
+  const getGenreQuery = new GetGenreQuery(dbConnection)
+  const genre = await getGenreQuery.execute(id)
   expect(genre?.relevance).toBe(1)
 })
 
@@ -344,7 +364,7 @@ test('should not insert a relevance vote when relevance is unset', async ({ dbCo
   const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(id, account.id)
   expect(genreRelevanceVote).toBeUndefined()
 
-  const genresDb = new GenresDatabase()
-  const genre = await genresDb.findByIdEdit(id, dbConnection)
+  const getGenreQuery = new GetGenreQuery(dbConnection)
+  const genre = await getGenreQuery.execute(id)
   expect(genre?.relevance).toBe(99)
 })
