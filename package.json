@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "pnpm run test:unit run && pnpm run test:e2e",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "lint": "prettier --check . && pnpm check && tsc --noEmit && eslint .",
+    "lint": "prettier --check . && pnpm check && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
