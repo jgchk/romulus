@@ -38,18 +38,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const data = {
     ...genre,
-    primaryAkas: akas
-      .filter((aka) => aka.relevance === 3)
-      .map((aka) => aka.name)
-      .join(', '),
-    secondaryAkas: akas
-      .filter((aka) => aka.relevance === 2)
-      .map((aka) => aka.name)
-      .join(', '),
-    tertiaryAkas: akas
-      .filter((aka) => aka.relevance === 1)
-      .map((aka) => aka.name)
-      .join(', '),
+    primaryAkas: akas.primary.join(', '),
+    secondaryAkas: akas.secondary.join(', '),
+    tertiaryAkas: akas.tertiary.join(', '),
   }
 
   const form = await superValidate(data, zod(genreSchema))

@@ -114,7 +114,11 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     influencedBy: [],
     relevance: 99,
     nsfw: false,
-    akas: [],
+    akas: {
+      primary: [],
+      secondary: [],
+      tertiary: [],
+    },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
   })
@@ -170,14 +174,11 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
     influencedBy: [],
     relevance: 99,
     nsfw: false,
-    akas: [
-      { name: 'primary one', relevance: 3, order: 0 },
-      { name: 'primary two', relevance: 3, order: 1 },
-      { name: 'secondary one', relevance: 2, order: 0 },
-      { name: 'secondary two', relevance: 2, order: 1 },
-      { name: 'tertiary one', relevance: 1, order: 0 },
-      { name: 'tertiary two', relevance: 1, order: 1 },
-    ],
+    akas: {
+      primary: ['primary one', 'primary two'],
+      secondary: ['secondary one', 'secondary two'],
+      tertiary: ['tertiary one', 'tertiary two'],
+    },
     createdAt: expect.any(Date) as Date,
     updatedAt: expect.any(Date) as Date,
   })

@@ -1,7 +1,7 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
-import { type Genre, type GenreAka, genreAkas, genres } from '../schema'
+import { type Genre, genreAkas, genres } from '../schema'
 
 export class GenresDatabase {
   async findByIdEdit(
@@ -9,7 +9,11 @@ export class GenresDatabase {
     conn: IDrizzleConnection,
   ): Promise<
     | (Genre & {
-        akas: Pick<GenreAka, 'name' | 'relevance' | 'order'>[]
+        akas: {
+          primary: string[]
+          secondary: string[]
+          tertiary: string[]
+        }
         parents: number[]
         influencedBy: number[]
       })
@@ -22,9 +26,8 @@ export class GenresDatabase {
           columns: {
             name: true,
             relevance: true,
-            order: true,
           },
-          orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
+          orderBy: asc(genreAkas.order),
         },
         parents: {
           columns: {
@@ -43,6 +46,11 @@ export class GenresDatabase {
 
     return {
       ...result,
+      akas: {
+        primary: result.akas.filter((aka) => aka.relevance === 3).map((aka) => aka.name),
+        secondary: result.akas.filter((aka) => aka.relevance === 2).map((aka) => aka.name),
+        tertiary: result.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
+      },
       parents: result.parents.map(({ parentId }) => parentId),
       influencedBy: result.influencedBy.map(({ influencerId }) => influencerId),
     }
