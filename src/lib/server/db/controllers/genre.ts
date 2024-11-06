@@ -1,75 +1,9 @@
 import { asc, desc, eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
-import { type Account, type Genre, type GenreAka, genreAkas, genreHistory, genres } from '../schema'
+import { type Genre, type GenreAka, genreAkas, genres } from '../schema'
 
 export class GenresDatabase {
-  findByIdDetail(
-    id: Genre['id'],
-    conn: IDrizzleConnection,
-  ): Promise<
-    | (Genre & {
-        akas: Pick<GenreAka, 'name'>[]
-        parents: { parent: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
-        children: { child: Pick<Genre, 'id' | 'name' | 'type'> }[]
-        influencedBy: { influencer: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
-        influences: { influenced: Pick<Genre, 'id' | 'name' | 'type' | 'subtitle' | 'nsfw'> }[]
-        history: { account: Pick<Account, 'id' | 'username'> | null }[]
-      })
-    | undefined
-  > {
-    return conn.query.genres.findFirst({
-      where: eq(genres.id, id),
-      with: {
-        akas: {
-          columns: { name: true },
-          orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
-        },
-        parents: {
-          columns: {},
-          with: {
-            parent: {
-              columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
-            },
-          },
-        },
-        children: {
-          columns: {},
-          with: {
-            child: {
-              columns: { id: true, name: true, type: true },
-            },
-          },
-        },
-        influencedBy: {
-          columns: {},
-          with: {
-            influencer: {
-              columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
-            },
-          },
-        },
-        influences: {
-          columns: {},
-          with: {
-            influenced: {
-              columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
-            },
-          },
-        },
-        history: {
-          columns: {},
-          orderBy: [asc(genreHistory.createdAt)],
-          with: {
-            account: {
-              columns: { id: true, username: true },
-            },
-          },
-        },
-      },
-    })
-  }
-
   async findByIdEdit(
     id: Genre['id'],
     conn: IDrizzleConnection,

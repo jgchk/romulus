@@ -4,7 +4,6 @@ import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
@@ -20,8 +19,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genresDb = new GenresDatabase()
-  const maybeGenre = await genresDb.findByIdDetail(id, locals.dbConnection)
+  const maybeGenre = await locals.services.genre.queries.getGenre(id)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
