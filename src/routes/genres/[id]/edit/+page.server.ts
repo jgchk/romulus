@@ -36,8 +36,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const data = {
     ...genre,
-    parents: genre.parents.map((parent) => parent.parent.id),
-    influencedBy: genre.influencedBy.map((influencer) => influencer.influencer.id),
+    parents: genre.parents.map((parent) => parent.id),
+    influencedBy: genre.influencedBy.map((influencer) => influencer.id),
     primaryAkas: akas.primary.join(', '),
     secondaryAkas: akas.secondary.join(', '),
     tertiaryAkas: akas.tertiary.join(', '),

@@ -21,38 +21,30 @@ export type GetGenreResult = {
     tertiary: string[]
   }
   parents: {
-    parent: {
-      id: number
-      name: string
-      type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-      subtitle: string | null
-      nsfw: boolean
-    }
+    id: number
+    name: string
+    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+    subtitle: string | null
+    nsfw: boolean
   }[]
   children: {
-    child: {
-      id: number
-      name: string
-      type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-    }
+    id: number
+    name: string
+    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
   }[]
   influencedBy: {
-    influencer: {
-      id: number
-      name: string
-      type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-      subtitle: string | null
-      nsfw: boolean
-    }
+    id: number
+    name: string
+    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+    subtitle: string | null
+    nsfw: boolean
   }[]
   influences: {
-    influenced: {
-      id: number
-      name: string
-      type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-      subtitle: string | null
-      nsfw: boolean
-    }
+    id: number
+    name: string
+    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+    subtitle: string | null
+    nsfw: boolean
   }[]
   history: {
     account: {
@@ -126,6 +118,10 @@ export class GetGenreQuery {
         secondary: result.akas.filter((aka) => aka.relevance === 2).map((aka) => aka.name),
         tertiary: result.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
       },
+      parents: result.parents.map((parent) => parent.parent),
+      children: result.children.map((child) => child.child),
+      influencedBy: result.influencedBy.map((influence) => influence.influencer),
+      influences: result.influences.map((influence) => influence.influenced),
     }
   }
 }

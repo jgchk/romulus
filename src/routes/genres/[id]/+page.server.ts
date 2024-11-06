@@ -39,14 +39,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const genre = {
     ...rest,
     akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
-    parents: parents.map((parent) => parent.parent).sort((a, b) => a.name.localeCompare(b.name)),
-    children: children.map((child) => child.child).sort((a, b) => a.name.localeCompare(b.name)),
-    influencedBy: influencedBy
-      .map((influencedBy) => influencedBy.influencer)
-      .sort((a, b) => a.name.localeCompare(b.name)),
-    influences: influences
-      .map((influences) => influences.influenced)
-      .sort((a, b) => a.name.localeCompare(b.name)),
+    parents: parents.sort((a, b) => a.name.localeCompare(b.name)),
+    children: children.sort((a, b) => a.name.localeCompare(b.name)),
+    influencedBy: influencedBy.sort((a, b) => a.name.localeCompare(b.name)),
+    influences: influences.sort((a, b) => a.name.localeCompare(b.name)),
   }
 
   const contributors = uniq(history.map((item) => item.account).filter(isNotNull))
