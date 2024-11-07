@@ -1,4 +1,4 @@
-import { eq, inArray } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { hasUpdate, makeUpdate } from '$lib/utils/db'
 
@@ -34,13 +34,5 @@ export class AccountsDatabase {
       .returning()
 
     return account
-  }
-
-  async deleteByUsername(
-    usernames: Account['username'][],
-    conn: IDrizzleConnection,
-  ): Promise<void> {
-    if (usernames.length === 0) return
-    await conn.delete(accounts).where(inArray(accounts.username, usernames))
   }
 }

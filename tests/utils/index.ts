@@ -3,7 +3,7 @@ import { inArray, type InferInsertModel } from 'drizzle-orm'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import {
-  type accounts,
+  accounts,
   type Genre,
   type GenreAka,
   genreAkas,
@@ -44,8 +44,8 @@ export const createAccounts = async (
 }
 
 export const deleteAccounts = async (usernames: string[], connection: IDrizzleConnection) => {
-  const accountsDb = new AccountsDatabase()
-  await accountsDb.deleteByUsername(usernames, connection)
+  if (usernames.length === 0) return
+  await connection.delete(accounts).where(inArray(accounts.username, usernames))
 }
 
 export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]
