@@ -141,18 +141,17 @@ export const actions = {
     const apiKeyId = maybeApiKeyId.data
 
     const apiKeysDb = new ApiKeysDatabase()
-    const accountApiKeys = await apiKeysDb.findByAccountId(accountId, locals.dbConnection)
-    const isOwnApiKey = accountApiKeys.some((key) => key.id === apiKeyId)
+    const apiKey = await apiKeysDb.findById(apiKeyId, locals.dbConnection)
+
+    const apiKeyExists = !!apiKey
+    if (!apiKeyExists) {
+      // Do not error if the key does not exist, just pretend we deleted it
+      return
+    }
+
+    const isOwnApiKey = apiKey.accountId === accountId
     if (!isOwnApiKey) {
-      const existingApiKey = await apiKeysDb.findById(apiKeyId, locals.dbConnection)
-      const doesKeyExist = existingApiKey !== undefined
-      if (!doesKeyExist) {
-        // Do not error if the key does not exist, just pretend we deleted it
-        return
-      } else {
-        // If the key does exist and it's not ours, throw an error
-        return error(401, 'Unauthorized')
-      }
+      return error(401, 'Unauthorized')
     }
 
     await apiKeysDb.deleteById(apiKeyId, locals.dbConnection)
