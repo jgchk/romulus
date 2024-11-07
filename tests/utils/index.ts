@@ -8,6 +8,8 @@ import {
   type Genre,
   type GenreAka,
   genreAkas,
+  genreHistory,
+  genreHistoryAkas,
   genreInfluences,
   genreParents,
   genres,
@@ -16,7 +18,7 @@ import {
 } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
-import { createGenreHistoryEntry } from '$lib/server/genres'
+import type { GenreOperation } from '$lib/types/genres'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
   akas?: { primary?: string[]; secondary?: string[]; tertiary?: string[] }
@@ -240,6 +242,57 @@ async function findGenresByIds(ids: Genre['id'][], conn: IDrizzleConnection) {
     parents: genre.parents.map(({ parentId }) => parentId),
     influencedBy: genre.influencedBy.map(({ influencerId }) => influencerId),
   }))
+}
+
+async function createGenreHistoryEntry({
+  genre,
+  accountId,
+  operation,
+  connection,
+}: {
+  genre: Pick<
+    Genre,
+    'id' | 'name' | 'type' | 'shortDescription' | 'longDescription' | 'notes' | 'subtitle' | 'nsfw'
+  > & {
+    parents: number[]
+    influencedBy: number[]
+    akas: Omit<InferInsertModel<typeof genreHistoryAkas>, 'genreId'>[]
+  }
+  accountId: number
+  operation: GenreOperation
+  connection: IDrizzleConnection
+}) {
+  const data = [
+    {
+      name: genre.name,
+      type: genre.type,
+      shortDescription: genre.shortDescription,
+      longDescription: genre.longDescription,
+      notes: genre.notes,
+      parentGenreIds: genre.parents,
+      influencedByGenreIds: genre.influencedBy,
+      treeGenreId: genre.id,
+      nsfw: genre.nsfw,
+      operation,
+      accountId,
+      subtitle: genre.subtitle,
+      akas: genre.akas,
+    },
+  ]
+
+  return connection.transaction(async (tx) => {
+    const values = await tx.insert(genreHistory).values(data).returning()
+
+    const akas = data.flatMap((entry, i) =>
+      entry.akas.map((aka) => ({ ...aka, genreId: values[i].id })),
+    )
+
+    if (akas.length > 0) {
+      await tx.insert(genreHistoryAkas).values(akas)
+    }
+
+    return values
+  })
 }
 
 export const deleteGenres = async (ids: number[], dbConnection: IDrizzleConnection) => {

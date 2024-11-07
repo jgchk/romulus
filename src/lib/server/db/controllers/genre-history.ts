@@ -9,8 +9,6 @@ import {
   genreHistory,
   type GenreHistoryAka,
   genreHistoryAkas,
-  type InsertGenreHistory,
-  type InsertGenreHistoryAka,
 } from '../schema'
 
 export type FindAllParams = {
@@ -23,25 +21,6 @@ export type FindAllParams = {
 }
 
 export class GenreHistoryDatabase {
-  insert(
-    data: (InsertGenreHistory & { akas: Omit<InsertGenreHistoryAka, 'genreId'>[] })[],
-    conn: IDrizzleConnection,
-  ): Promise<GenreHistory[]> {
-    return conn.transaction(async (tx) => {
-      const values = await tx.insert(genreHistory).values(data).returning()
-
-      const akas = data.flatMap((entry, i) =>
-        entry.akas.map((aka) => ({ ...aka, genreId: values[i].id })),
-      )
-
-      if (akas.length > 0) {
-        await tx.insert(genreHistoryAkas).values(akas)
-      }
-
-      return values
-    })
-  }
-
   findLatest(conn: IDrizzleConnection): Promise<
     (GenreHistory & {
       akas: Pick<GenreHistoryAka, 'name'>[]
