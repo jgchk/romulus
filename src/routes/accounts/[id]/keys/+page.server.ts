@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/application/commands/delete-api-key'
 
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
 
@@ -106,9 +107,13 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+      services: {
+        api: App.Locals['services']['api']
+      }
     }
     request: RequestEvent['request']
   }) => {
+    console.log('yoyoyo', locals.user)
     if (!locals.user) {
       return error(401, 'Unauthorized')
     }
@@ -131,7 +136,7 @@ export const actions = {
 
     const data = await request.formData()
 
-    const maybeApiKeyId = z.coerce.number().safeParse(data.get('id'))
+    const maybeApiKeyId = z.coerce.number().int().safeParse(data.get('id'))
     if (!maybeApiKeyId.success) {
       return fail(400, {
         action: 'delete' as const,
@@ -140,20 +145,9 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const apiKey = await apiKeysDb.findById(apiKeyId, locals.dbConnection)
-
-    const apiKeyExists = !!apiKey
-    if (!apiKeyExists) {
-      // Do not error if the key does not exist, just pretend we deleted it
-      return
-    }
-
-    const isOwnApiKey = apiKey.accountId === accountId
-    if (!isOwnApiKey) {
+    const result = await locals.services.api.deleteApiKey(apiKeyId, accountId)
+    if (result instanceof UnauthorizedApiKeyDeletionError) {
       return error(401, 'Unauthorized')
     }
-
-    await apiKeysDb.deleteById(apiKeyId, locals.dbConnection)
   },
 } satisfies Actions

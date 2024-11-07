@@ -343,7 +343,16 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: '1' },
-        locals: { dbConnection, user: undefined },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -358,7 +367,16 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 2 } },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -368,10 +386,25 @@ describe('delete', () => {
   })
 
   test('should throw error if account id is not a number', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
     try {
       await actions.delete({
         params: { id: 'test' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: account.id },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -384,7 +417,16 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -408,7 +450,16 @@ describe('delete', () => {
 
     await actions.delete({
       params: { id: account.id.toString() },
-      locals: { dbConnection, user: { id: account.id } },
+      locals: {
+        dbConnection,
+        user: { id: account.id },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
@@ -437,7 +488,16 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: account1.id.toString() },
-        locals: { dbConnection, user: { id: account1.id } },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
       expect.fail('should throw error')
@@ -458,7 +518,16 @@ describe('delete', () => {
 
     const res = await actions.delete({
       params: { id: account.id.toString() },
-      locals: { dbConnection, user: { id: account.id } },
+      locals: {
+        dbConnection,
+        user: { id: account.id },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -480,7 +549,16 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: account.id.toString() },
-        locals: { dbConnection, user: { id: account.id } },
+        locals: {
+          dbConnection,
+          user: { id: account.id },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
     } catch {
