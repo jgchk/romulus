@@ -2,7 +2,6 @@ import { inArray, type InferInsertModel } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import {
   type accounts,
   type Genre,
@@ -299,7 +298,5 @@ export const deleteGenres = async (ids: number[], dbConnection: IDrizzleConnecti
   if (ids.length === 0) return
 
   await dbConnection.delete(genres).where(inArray(genres.id, ids))
-
-  const genreHistoryDb = new GenreHistoryDatabase()
-  await genreHistoryDb.deleteByGenreIds(ids, dbConnection)
+  await dbConnection.delete(genreHistory).where(inArray(genreHistory.treeGenreId, ids))
 }
