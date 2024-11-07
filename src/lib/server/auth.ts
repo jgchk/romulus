@@ -1,5 +1,5 @@
-import { ApiService } from './features/api/application/api-service'
-import { DrizzleApiKeyRepository } from './features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { ApiCommandService } from './features/api/commands/command-service'
+import { DrizzleApiKeyRepository } from './features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { Sha256HashRepository } from './features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 export async function checkApiAuth(
@@ -15,7 +15,7 @@ export async function checkApiAuth(
     return false
   }
 
-  const apiService = new ApiService(
+  const apiService = new ApiCommandService(
     new DrizzleApiKeyRepository(locals.dbConnection),
     new Sha256HashRepository(),
   )

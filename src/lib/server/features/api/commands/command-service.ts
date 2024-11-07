@@ -1,10 +1,10 @@
 import type { HashRepository } from '../../common/domain/repositories/hash'
-import type { ApiKeyRepository } from '../domain/repositories/api-key'
-import { CreateApiKeyCommand } from './commands/create-api-key'
-import { DeleteApiKeyCommand } from './commands/delete-api-key'
-import { ValidateApiKeyCommand } from './commands/validate-api-key'
+import { CreateApiKeyCommand } from './application/commands/create-api-key'
+import { DeleteApiKeyCommand } from './application/commands/delete-api-key'
+import { ValidateApiKeyCommand } from './application/commands/validate-api-key'
+import type { ApiKeyRepository } from './domain/repositories/api-key'
 
-export class ApiService {
+export class ApiCommandService {
   private createApiKeyCommand: CreateApiKeyCommand
   private deleteApiKeyCommand: DeleteApiKeyCommand
   private validateApiKeyCommand: ValidateApiKeyCommand

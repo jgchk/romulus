@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test'
 
 import { apiKeys } from '$lib/server/db/schema'
-import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
-import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 
 import { test } from '../../../../fixtures'
 

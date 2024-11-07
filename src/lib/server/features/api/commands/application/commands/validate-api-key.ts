@@ -1,4 +1,4 @@
-import type { HashRepository } from '../../../common/domain/repositories/hash'
+import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { ApiKeyRepository } from '../../domain/repositories/api-key'
 
 export class ValidateApiKeyCommand {

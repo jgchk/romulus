@@ -1,10 +1,8 @@
 import { error, fail } from '@sveltejs/kit'
-import { pick } from 'ramda'
 import { z } from 'zod'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
-import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/application/commands/delete-api-key'
+import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/commands/application/commands/delete-api-key'
 
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
 
@@ -16,6 +14,11 @@ export const load = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+    services: {
+      api: {
+        queries: App.Locals['services']['api']['queries']
+      }
+    }
   }
 }) => {
   if (!locals.user) {
@@ -39,10 +42,9 @@ export const load = (async ({
   }
   const account = maybeAccount
 
-  const apiKeysDb = new ApiKeysDatabase()
-  const keys = await apiKeysDb.findByAccountId(account.id, locals.dbConnection)
+  const keys = await locals.services.api.queries.getApiKeysByAccount(account.id)
 
-  return { keys: keys.map((key) => pick(['id', 'name', 'createdAt'], key)) }
+  return { keys }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -56,7 +58,9 @@ export const actions = {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       services: {
-        api: App.Locals['services']['api']
+        api: {
+          commands: App.Locals['services']['api']['commands']
+        }
       }
     }
     request: RequestEvent['request']
@@ -93,7 +97,7 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const insertedKey = await locals.services.api.createApiKey(name, account.id)
+    const insertedKey = await locals.services.api.commands.createApiKey(name, account.id)
 
     return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
   },
@@ -108,12 +112,13 @@ export const actions = {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       services: {
-        api: App.Locals['services']['api']
+        api: {
+          commands: App.Locals['services']['api']['commands']
+        }
       }
     }
     request: RequestEvent['request']
   }) => {
-    console.log('yoyoyo', locals.user)
     if (!locals.user) {
       return error(401, 'Unauthorized')
     }
@@ -145,7 +150,7 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    const result = await locals.services.api.deleteApiKey(apiKeyId, accountId)
+    const result = await locals.services.api.commands.deleteApiKey(apiKeyId, accountId)
     if (result instanceof UnauthorizedApiKeyDeletionError) {
       return error(401, 'Unauthorized')
     }

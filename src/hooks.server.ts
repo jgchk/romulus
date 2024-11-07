@@ -1,8 +1,9 @@
 import type { Handle } from '@sveltejs/kit'
 
 import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/postgres'
-import { ApiService } from '$lib/server/features/api/application/api-service'
-import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
+import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { AuthenticationService } from '$lib/server/features/authentication/application/authentication-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
@@ -41,7 +42,13 @@ export const handle: Handle = async ({ event, resolve }) => {
   const lucia = createLucia(dbConnection)
 
   event.locals.services = {
-    api: new ApiService(new DrizzleApiKeyRepository(dbConnection), new Sha256HashRepository()),
+    api: {
+      commands: new ApiCommandService(
+        new DrizzleApiKeyRepository(dbConnection),
+        new Sha256HashRepository(),
+      ),
+      queries: new ApiQueryService(dbConnection),
+    },
     authentication: new AuthenticationService(
       new DrizzleAccountRepository(dbConnection),
       new LuciaSessionRepository(lucia),

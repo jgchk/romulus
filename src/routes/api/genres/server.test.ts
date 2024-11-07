@@ -1,8 +1,8 @@
 import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
-import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 
 import { test } from '../../../vitest-setup'
