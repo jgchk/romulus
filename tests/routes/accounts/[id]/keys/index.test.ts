@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { apiKeys } from '$lib/server/db/schema'
 import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
 
@@ -12,8 +12,7 @@ const TEST_ACCOUNT = {
 }
 
 test.afterEach(async ({ dbConnection }) => {
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.deleteAll(dbConnection)
+  await dbConnection.delete(apiKeys)
 })
 
 test('should create a new API key', async ({ withAccount, signInPage, apiKeysPage, page }) => {

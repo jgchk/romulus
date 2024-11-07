@@ -20,8 +20,4 @@ export class ApiKeysDatabase {
   async deleteById(id: ApiKey['id'], conn: IDrizzleConnection): Promise<void> {
     await conn.delete(apiKeys).where(eq(apiKeys.id, id))
   }
-
-  async deleteAll(conn: IDrizzleConnection): Promise<void> {
-    await conn.delete(apiKeys)
-  }
 }
