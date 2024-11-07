@@ -1,6 +1,8 @@
 import { expect } from '@playwright/test'
 
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
 
 import { test } from '../../../../fixtures'
 
@@ -40,11 +42,8 @@ test('should delete an API key', async ({
 }) => {
   const account = await withAccount(TEST_ACCOUNT)
 
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.insert(
-    [{ name: 'test-key', keyHash: '000-000', accountId: account.id }],
-    dbConnection,
-  )
+  const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+  await createApiKey.execute('test-key', account.id)
 
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)

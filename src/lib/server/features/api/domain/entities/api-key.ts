@@ -1,3 +1,7 @@
 export class ApiKey {
-  constructor(public keyHash: string) {}
+  constructor(
+    public readonly name: string,
+    public readonly accountId: number,
+    public readonly keyHash: string,
+  ) {}
 }

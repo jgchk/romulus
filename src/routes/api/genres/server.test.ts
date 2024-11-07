@@ -1,8 +1,8 @@
 import { expect } from 'vitest'
 
-import { hashApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
 import { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 
 import { test } from '../../../vitest-setup'
@@ -72,11 +72,8 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
     dbConnection,
   )
 
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.insert(
-    [{ name: 'test-key', keyHash: await hashApiKey('000-000-000'), accountId: account.id }],
-    dbConnection,
-  )
+  const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+  const apiKey = await createApiKey.execute('test-key', account.id)
 
   try {
     await GET({
@@ -87,7 +84,7 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
         services: { genre: { queries: new GenreQueryService(dbConnection) } },
       },
       request: new Request('http://localhost/api/genres', {
-        headers: { authorization: 'Bearer 000-000-000' },
+        headers: { authorization: `Bearer ${apiKey.key}` },
       }),
     })
   } catch {

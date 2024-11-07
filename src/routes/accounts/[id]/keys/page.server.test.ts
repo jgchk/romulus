@@ -3,6 +3,10 @@ import { describe, expect } from 'vitest'
 import { checkApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { ApiService } from '$lib/server/features/api/application/api-service'
+import { CreateApiKeyCommand } from '$lib/server/features/api/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/infrastructure/repositories/api-key/drizzle-api-key'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../vitest-setup'
 import { actions, load } from './+page.server'
@@ -59,7 +63,7 @@ describe('load', () => {
 
   test('should return account keys', async ({ dbConnection }) => {
     const accountsDb = new AccountsDatabase()
-    await accountsDb.insert(
+    const [account1, account2] = await accountsDb.insert(
       [
         { id: 1, username: 'test-user-1', password: 'test-password-1' },
         { id: 2, username: 'test-user-2', password: 'test-password-2' },
@@ -67,16 +71,14 @@ describe('load', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert(
-      [
-        { accountId: 1, name: 'test-key-1', keyHash: 'test-key-1-hash' },
-        { accountId: 2, name: 'test-key-2', keyHash: 'test-key-2-hash' },
-      ],
-      dbConnection,
-    )
+    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    await createApiKey.execute('test-key-1', account1.id)
+    await createApiKey.execute('test-key-2', account2.id)
 
-    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+    const result = await load({
+      params: { id: account1.id.toString() },
+      locals: { dbConnection, user: { id: account1.id } },
+    })
 
     expect(result).toEqual({
       keys: [{ id: 1, name: 'test-key-1', createdAt: expect.any(Date) as Date }],
@@ -92,26 +94,14 @@ describe('load', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert(
-      [
-        {
-          accountId: account.id,
-          name: 'test-key-1',
-          keyHash: 'test-key-1-hash',
-          createdAt: new Date(),
-        },
-        {
-          accountId: account.id,
-          name: 'test-key-2',
-          keyHash: 'test-key-2-hash',
-          createdAt: new Date(new Date().getTime() + 1000000),
-        },
-      ],
-      dbConnection,
-    )
+    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    await createApiKey.execute('test-key-1', account.id)
+    await createApiKey.execute('test-key-2', account.id)
 
-    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+    const result = await load({
+      params: { id: account.id.toString() },
+      locals: { dbConnection, user: { id: account.id } },
+    })
 
     expect(result).toEqual({
       keys: [
@@ -127,7 +117,16 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: undefined },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -142,7 +141,16 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 2 } },
+        locals: {
+          dbConnection,
+          user: { id: 2 },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -155,7 +163,16 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: 'test' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -168,7 +185,16 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            api: new ApiService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -189,7 +215,16 @@ describe('create', () => {
 
     await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
@@ -220,7 +255,16 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
@@ -245,7 +289,16 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -266,7 +319,16 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          api: new ApiService(
+            new DrizzleApiKeyRepository(dbConnection),
+            new Sha256HashRepository(),
+          ),
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -338,11 +400,8 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [apiKey] = await apiKeysDb.insert(
-      [{ name: 'test-api-key', keyHash: '000-000', accountId: account.id }],
-      dbConnection,
-    )
+    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    const apiKey = await createApiKey.execute('test-key-1', account.id)
 
     const formData = new FormData()
     formData.set('id', apiKey.id.toString())
@@ -353,6 +412,7 @@ describe('delete', () => {
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
+    const apiKeysDb = new ApiKeysDatabase()
     const keys = await apiKeysDb.findByAccountId(account.id, dbConnection)
     expect(keys).toEqual([])
   })
@@ -367,14 +427,9 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [, apiKey2] = await apiKeysDb.insert(
-      [
-        { name: 'test-api-key-1', keyHash: '000-001', accountId: account1.id },
-        { name: 'test-api-key-2', keyHash: '000-002', accountId: account2.id },
-      ],
-      dbConnection,
-    )
+    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    await createApiKey.execute('test-api-key-1', account1.id)
+    const apiKey2 = await createApiKey.execute('test-api-key-2', account2.id)
 
     const formData = new FormData()
     formData.set('id', apiKey2.id.toString())

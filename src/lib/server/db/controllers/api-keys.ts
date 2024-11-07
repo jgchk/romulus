@@ -1,13 +1,9 @@
 import { desc, eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../connection'
-import { type ApiKey, apiKeys, type InsertApiKey } from '../schema'
+import { type ApiKey, apiKeys } from '../schema'
 
 export class ApiKeysDatabase {
-  insert(data: InsertApiKey[], conn: IDrizzleConnection): Promise<ApiKey[]> {
-    return conn.insert(apiKeys).values(data).returning()
-  }
-
   findById(id: ApiKey['id'], conn: IDrizzleConnection): Promise<ApiKey | undefined> {
     return conn.query.apiKeys.findFirst({
       where: eq(apiKeys.id, id),

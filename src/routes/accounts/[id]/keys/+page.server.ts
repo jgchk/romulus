@@ -2,7 +2,6 @@ import { error, fail } from '@sveltejs/kit'
 import { pick } from 'ramda'
 import { z } from 'zod'
 
-import { generateApiKey, hashApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
 
@@ -55,6 +54,9 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+      services: {
+        api: App.Locals['services']['api']
+      }
     }
     request: RequestEvent['request']
   }) => {
@@ -90,16 +92,9 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const key = generateApiKey()
-    const keyHash = await hashApiKey(key)
+    const insertedKey = await locals.services.api.createApiKey(name, account.id)
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [insertedKey] = await apiKeysDb.insert(
-      [{ accountId: account.id, name, keyHash }],
-      locals.dbConnection,
-    )
-
-    return { success: true, id: insertedKey.id, name, key }
+    return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
   },
 
   delete: async ({
