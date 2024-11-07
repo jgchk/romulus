@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, lt } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm'
 
 import type { GenreOperation } from '$lib/types/genres'
 
@@ -21,47 +21,6 @@ export type FindAllParams = {
 }
 
 export class GenreHistoryDatabase {
-  findLatest(conn: IDrizzleConnection): Promise<
-    (GenreHistory & {
-      akas: Pick<GenreHistoryAka, 'name'>[]
-      account: Pick<Account, 'id' | 'username'> | null
-    })[]
-  > {
-    return conn.query.genreHistory.findMany({
-      orderBy: (genreHistory, { desc }) => desc(genreHistory.createdAt),
-      with: {
-        akas: {
-          columns: { name: true },
-          orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
-        },
-        account: {
-          columns: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-      limit: 100,
-    })
-  }
-
-  findPreviousByGenreId(
-    genreId: GenreHistory['treeGenreId'],
-    createdAt: Date,
-    conn: IDrizzleConnection,
-  ): Promise<(GenreHistory & { akas: Pick<GenreHistoryAka, 'name'>[] }) | undefined> {
-    return conn.query.genreHistory.findFirst({
-      where: and(eq(genreHistory.treeGenreId, genreId), lt(genreHistory.createdAt, createdAt)),
-      orderBy: desc(genreHistory.createdAt),
-      with: {
-        akas: {
-          columns: { name: true },
-          orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
-        },
-      },
-    })
-  }
-
   findByGenreId(
     genreId: GenreHistory['treeGenreId'],
     conn: IDrizzleConnection,

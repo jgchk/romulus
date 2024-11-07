@@ -9,6 +9,7 @@ import { GetGenreQuery } from './application/get-genre'
 import { GetGenreRelevanceVoteByAccountQuery } from './application/get-genre-relevance-vote-by-account'
 import { GetGenreRelevanceVotesByGenreQuery } from './application/get-genre-relevance-votes-by-genre'
 import { GetGenreTreeQuery } from './application/get-genre-tree'
+import { GetLatestGenreUpdatesQuery } from './application/get-latest-genre-updates'
 import { GetRandomGenreIdQuery } from './application/get-random-genre-id'
 
 export class GenreQueryService {
@@ -17,6 +18,7 @@ export class GenreQueryService {
   private getGenreRelevanceVotesByGenreQuery: GetGenreRelevanceVotesByGenreQuery
   private getGenreTreeQuery: GetGenreTreeQuery
   private getGenreQuery: GetGenreQuery
+  private getLatestGenreUpdatesQuery: GetLatestGenreUpdatesQuery
   private getRandomGenreIdQuery: GetRandomGenreIdQuery
 
   constructor(db: IDrizzleConnection) {
@@ -25,32 +27,35 @@ export class GenreQueryService {
     this.getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(db)
     this.getGenreTreeQuery = new GetGenreTreeQuery(db)
     this.getGenreQuery = new GetGenreQuery(db)
+    this.getLatestGenreUpdatesQuery = new GetLatestGenreUpdatesQuery(db)
     this.getRandomGenreIdQuery = new GetRandomGenreIdQuery(db)
   }
 
-  async getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(
-    input: GetAllGenresQueryInput<I>,
-  ) {
+  getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(input: GetAllGenresQueryInput<I>) {
     return this.getAllGenresQuery.execute(input)
   }
 
-  async getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
+  getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
     return this.getGenreRelevanceVoteByAccountQuery.execute(genreId, accountId)
   }
 
-  async getGenreRelevanceVotesByGenre(genreId: number) {
+  getGenreRelevanceVotesByGenre(genreId: number) {
     return this.getGenreRelevanceVotesByGenreQuery.execute(genreId)
   }
 
-  async getGenreTree() {
+  getGenreTree() {
     return this.getGenreTreeQuery.execute()
   }
 
-  async getGenre(genreId: number) {
+  getGenre(genreId: number) {
     return this.getGenreQuery.execute(genreId)
   }
 
-  async getRandomGenreId() {
+  getLatestGenreUpdates() {
+    return this.getLatestGenreUpdatesQuery.execute()
+  }
+
+  getRandomGenreId() {
     return this.getRandomGenreIdQuery.execute()
   }
 }
