@@ -1,15 +1,9 @@
-import { and, asc, count, desc, eq, inArray } from 'drizzle-orm'
+import { and, count, desc, eq, inArray } from 'drizzle-orm'
 
 import type { GenreOperation } from '$lib/types/genres'
 
 import type { IDrizzleConnection } from '../connection'
-import {
-  type Account,
-  type GenreHistory,
-  genreHistory,
-  type GenreHistoryAka,
-  genreHistoryAkas,
-} from '../schema'
+import { type GenreHistory, genreHistory } from '../schema'
 
 export type FindAllParams = {
   skip?: number
@@ -21,33 +15,6 @@ export type FindAllParams = {
 }
 
 export class GenreHistoryDatabase {
-  findByGenreId(
-    genreId: GenreHistory['treeGenreId'],
-    conn: IDrizzleConnection,
-  ): Promise<
-    (GenreHistory & {
-      akas: Pick<GenreHistoryAka, 'name'>[]
-      account: Pick<Account, 'id' | 'username'> | null
-    })[]
-  > {
-    return conn.query.genreHistory.findMany({
-      where: (genreHistory, { eq }) => eq(genreHistory.treeGenreId, genreId),
-      orderBy: asc(genreHistory.createdAt),
-      with: {
-        akas: {
-          columns: { name: true },
-          orderBy: [desc(genreHistoryAkas.relevance), asc(genreHistoryAkas.order)],
-        },
-        account: {
-          columns: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-    })
-  }
-
   findByAccountId(
     accountId: NonNullable<GenreHistory['accountId']>,
     conn: IDrizzleConnection,

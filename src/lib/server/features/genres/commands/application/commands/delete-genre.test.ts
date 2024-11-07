@@ -1,12 +1,12 @@
 import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
+import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
@@ -93,8 +93,8 @@ test('should create a genre history entry', async ({ dbConnection }) => {
   await deleteGenreCommand.execute(genre.id, account.id)
   const afterExecute = new Date()
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
+  const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+  const genreHistory = await getGenreHistoryQuery.execute(genre.id)
   expect(genreHistory).toHaveLength(2)
   expect(genreHistory[1]).toEqual({
     account: {
@@ -208,12 +208,11 @@ test('should create history entries for children that were moved', async ({ dbCo
   await deleteGenreCommand.execute(child.id, account.id)
   const afterExecute = new Date()
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-
-  const parentHistory = await genreHistoryDb.findByGenreId(parent.id, dbConnection)
+  const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+  const parentHistory = await getGenreHistoryQuery.execute(parent.id)
   expect(parentHistory).toHaveLength(1)
 
-  const childHistory = await genreHistoryDb.findByGenreId(child.id, dbConnection)
+  const childHistory = await getGenreHistoryQuery.execute(child.id)
   expect(childHistory).toHaveLength(2)
   expect(childHistory[1]).toEqual({
     account: {
@@ -240,7 +239,7 @@ test('should create history entries for children that were moved', async ({ dbCo
   expect(childHistory[1].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
   expect(childHistory[1].createdAt).not.toEqual(pastDate)
 
-  const grandchildHistory = await genreHistoryDb.findByGenreId(grandchild.id, dbConnection)
+  const grandchildHistory = await getGenreHistoryQuery.execute(grandchild.id)
   expect(grandchildHistory).toHaveLength(2)
   expect(grandchildHistory[1]).toEqual({
     account: {

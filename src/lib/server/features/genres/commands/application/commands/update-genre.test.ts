@@ -1,7 +1,6 @@
 import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import {
   GenreCycleError,
   NotFoundError,
@@ -13,6 +12,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
+import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import type { GenreConstructorParams, GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
@@ -141,8 +141,8 @@ test('should create a history entry', async ({ dbConnection }) => {
   )
   const afterExecute = new Date()
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
+  const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+  const genreHistory = await getGenreHistoryQuery.execute(genre.id)
 
   expect(genreHistory).toHaveLength(2)
   expect(genreHistory[1]).toEqual(
@@ -151,12 +151,12 @@ test('should create a history entry', async ({ dbConnection }) => {
       operation: 'UPDATE',
       name: 'Updated Genre',
       akas: [
-        { name: 'primary-one' },
-        { name: 'primary-two' },
-        { name: 'secondary-one' },
-        { name: 'secondary-two' },
-        { name: 'tertiary-one' },
-        { name: 'tertiary-two' },
+        'primary-one',
+        'primary-two',
+        'secondary-one',
+        'secondary-two',
+        'tertiary-one',
+        'tertiary-two',
       ],
     }),
   )
@@ -355,7 +355,7 @@ test('should not create a history entry if no changes are detected', async ({ db
     // ignore
   }
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const genreHistory = await genreHistoryDb.findByGenreId(genre.id, dbConnection)
+  const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+  const genreHistory = await getGenreHistoryQuery.execute(genre.id)
   expect(genreHistory).toHaveLength(1)
 })

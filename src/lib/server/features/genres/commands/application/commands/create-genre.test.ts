@@ -2,11 +2,11 @@ import { expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
 import { GetGenreQuery } from '../../../queries/application/get-genre'
+import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import { GetGenreRelevanceVoteByAccountQuery } from '../../../queries/application/get-genre-relevance-vote-by-account'
 import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
@@ -238,8 +238,8 @@ test('should insert a history entry', async ({ dbConnection }) => {
   const { id } = await createGenreCommand.execute(genreData, account.id)
   const afterExecute = new Date()
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const genreHistory = await genreHistoryDb.findByGenreId(id, dbConnection)
+  const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+  const genreHistory = await getGenreHistoryQuery.execute(id)
   expect(genreHistory).toEqual([
     {
       id: expect.any(Number) as number,

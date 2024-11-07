@@ -6,6 +6,7 @@ import {
   type GetAllGenresQueryInput,
 } from './application/get-all-genres'
 import { GetGenreQuery } from './application/get-genre'
+import { GetGenreHistoryQuery } from './application/get-genre-history'
 import { GetGenreRelevanceVoteByAccountQuery } from './application/get-genre-relevance-vote-by-account'
 import { GetGenreRelevanceVotesByGenreQuery } from './application/get-genre-relevance-votes-by-genre'
 import { GetGenreTreeQuery } from './application/get-genre-tree'
@@ -14,6 +15,7 @@ import { GetRandomGenreIdQuery } from './application/get-random-genre-id'
 
 export class GenreQueryService {
   private getAllGenresQuery: GetAllGenresQuery
+  private getGenreHistoryQuery: GetGenreHistoryQuery
   private getGenreRelevanceVoteByAccountQuery: GetGenreRelevanceVoteByAccountQuery
   private getGenreRelevanceVotesByGenreQuery: GetGenreRelevanceVotesByGenreQuery
   private getGenreTreeQuery: GetGenreTreeQuery
@@ -23,6 +25,7 @@ export class GenreQueryService {
 
   constructor(db: IDrizzleConnection) {
     this.getAllGenresQuery = new GetAllGenresQuery(db)
+    this.getGenreHistoryQuery = new GetGenreHistoryQuery(db)
     this.getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(db)
     this.getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(db)
     this.getGenreTreeQuery = new GetGenreTreeQuery(db)
@@ -33,6 +36,10 @@ export class GenreQueryService {
 
   getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(input: GetAllGenresQueryInput<I>) {
     return this.getAllGenresQuery.execute(input)
+  }
+
+  getGenreHistory(genreId: number) {
+    return this.getGenreHistoryQuery.execute(genreId)
   }
 
   getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
