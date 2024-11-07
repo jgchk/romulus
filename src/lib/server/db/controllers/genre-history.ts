@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray } from 'drizzle-orm'
+import { and, count, eq, inArray } from 'drizzle-orm'
 
 import type { GenreOperation } from '$lib/types/genres'
 
@@ -15,31 +15,6 @@ export type FindAllParams = {
 }
 
 export class GenreHistoryDatabase {
-  findByAccountId(
-    accountId: NonNullable<GenreHistory['accountId']>,
-    conn: IDrizzleConnection,
-  ): Promise<
-    Pick<
-      GenreHistory,
-      'id' | 'name' | 'type' | 'subtitle' | 'operation' | 'createdAt' | 'treeGenreId' | 'nsfw'
-    >[]
-  > {
-    return conn.query.genreHistory.findMany({
-      where: eq(genreHistory.accountId, accountId),
-      columns: {
-        id: true,
-        name: true,
-        type: true,
-        subtitle: true,
-        operation: true,
-        createdAt: true,
-        treeGenreId: true,
-        nsfw: true,
-      },
-      orderBy: desc(genreHistory.createdAt),
-    })
-  }
-
   async findAll(
     { skip, limit, filter = {} }: FindAllParams,
     conn: IDrizzleConnection,

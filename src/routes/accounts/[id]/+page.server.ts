@@ -2,7 +2,6 @@ import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -22,8 +21,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   const account = maybeAccount
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const history = await genreHistoryDb.findByAccountId(id, locals.dbConnection)
+  const history = await locals.services.genre.queries.getGenreHistoryByAccount(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
