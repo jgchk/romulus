@@ -1,6 +1,5 @@
 import {
   get,
-  type Invalidator,
   type Readable,
   type Subscriber,
   type Unsubscriber,
@@ -19,10 +18,7 @@ export class ReleaseFormStore implements Readable<ReleaseFormState> {
     })
   }
 
-  subscribe(
-    run: Subscriber<ReleaseFormState>,
-    invalidate?: Invalidator<ReleaseFormState>,
-  ): Unsubscriber {
+  subscribe(run: Subscriber<ReleaseFormState>, invalidate?: () => void): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }
 

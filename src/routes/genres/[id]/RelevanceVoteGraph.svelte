@@ -107,7 +107,7 @@
       <div
         class={cn('h-5 rounded-r', relevanceData[relevance].color)}
         style="width: {percentage * 100}%"
-      />
+      ></div>
     {/if}
 
     <div

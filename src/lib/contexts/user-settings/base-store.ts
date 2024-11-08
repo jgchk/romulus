@@ -1,6 +1,5 @@
 import {
   get,
-  type Invalidator,
   type Subscriber,
   type Unsubscriber,
   type Updater,
@@ -38,7 +37,7 @@ export class BaseUserSettingsStore implements Writable<UserSettings> {
     })
   }
 
-  subscribe(run: Subscriber<UserSettings>, invalidate?: Invalidator<UserSettings>): Unsubscriber {
+  subscribe(run: Subscriber<UserSettings>, invalidate?: () => void): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }
 

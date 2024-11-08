@@ -84,6 +84,6 @@
   <slot />
 
   {#if tooltip_ !== undefined}
-    <div class="absolute left-0 top-0 h-full w-full" use:tooltip={{ content: tooltip_ }} />
+    <div class="absolute left-0 top-0 h-full w-full" use:tooltip={{ content: tooltip_ }}></div>
   {/if}
 </button>

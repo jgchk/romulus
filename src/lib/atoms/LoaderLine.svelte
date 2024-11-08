@@ -13,7 +13,7 @@
 >
   <div
     class="line absolute -left-[80%] top-0 h-full rounded-full bg-current will-change-[left,_right]"
-  />
+  ></div>
 </div>
 
 <style>

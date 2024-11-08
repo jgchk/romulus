@@ -14,7 +14,6 @@ const setup = (
   options: { userSettings?: Partial<UserSettings> } = {},
 ) => {
   const returned = render(RomcodeGenreLink, {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     props,
     context: new Map([
       [

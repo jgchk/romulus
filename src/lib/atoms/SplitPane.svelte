@@ -111,6 +111,7 @@
     <slot name="left" />
   </div>
   <button
+    aria-label="Resize"
     type="button"
     class={tw(
       'group hidden w-px cursor-col-resize rounded-full bg-transparent px-1 py-[6px] transition hover:bg-primary-100 md:block dark:hover:bg-primary-950',
@@ -125,7 +126,7 @@
         'h-full w-px bg-transparent transition group-hover:bg-primary-300 dark:group-hover:bg-primary-700',
         active && 'bg-primary-300 dark:bg-gray-800',
       )}
-    />
+    ></div>
   </button>
   <div
     class={cn(

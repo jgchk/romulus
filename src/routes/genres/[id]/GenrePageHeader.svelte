@@ -20,7 +20,7 @@
     {/if}
   </h1>
 
-  <div class="flex-1" />
+  <div class="flex-1"></div>
 
   <button
     type="button"

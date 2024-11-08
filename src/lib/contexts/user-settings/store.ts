@@ -1,4 +1,4 @@
-import { type Invalidator, type Subscriber, type Unsubscriber, type Updater } from 'svelte/store'
+import { type Subscriber, type Unsubscriber, type Updater } from 'svelte/store'
 
 import { browser } from '$app/environment'
 
@@ -52,7 +52,7 @@ export default class UserSettingsStore implements IUserSettingsStore {
     this.store.update(updater)
   }
 
-  subscribe(run: Subscriber<UserSettings>, invalidate?: Invalidator<UserSettings>): Unsubscriber {
+  subscribe(run: Subscriber<UserSettings>, invalidate?: () => void): Unsubscriber {
     return this.store.subscribe(run, invalidate)
   }
 }

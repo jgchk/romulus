@@ -7,7 +7,7 @@ import GenrePageHeader from './GenrePageHeader.svelte'
 
 function setup(props: ComponentProps<GenrePageHeader>) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   const returned = render(GenrePageHeader, props)
 
   return {

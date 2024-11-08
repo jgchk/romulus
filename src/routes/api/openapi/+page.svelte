@@ -19,5 +19,5 @@
 </svelte:head>
 
 <Card class="h-full w-full overflow-auto bg-white dark:bg-white">
-  <div id="swagger-ui-container" />
+  <div id="swagger-ui-container"></div>
 </Card>

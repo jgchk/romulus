@@ -36,7 +36,6 @@ function setup(
 ) {
   const user = userEvent.setup()
   const rendered = render(GenreDiff, {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     props,
     context: new Map([
       [

@@ -193,9 +193,9 @@
           {#if data.genre.shortDescription}
             {#await data.streamed.genres}
               <div class="w-[75%] space-y-2 pt-1">
-                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
-                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
-                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
+                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
+                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
+                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
               </div>
             {:then genres}
               <Romcode data={data.genre.shortDescription} {genres} />
@@ -222,9 +222,9 @@
           {#if data.genre.longDescription}
             {#await data.streamed.genres}
               <div class="w-[75%] space-y-2 pt-1">
-                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
-                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
-                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
+                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
+                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
+                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
               </div>
             {:then genres}
               <Romcode data={data.genre.longDescription} {genres} />
@@ -252,9 +252,9 @@
             {#if showNotes}
               {#await data.streamed.genres}
                 <div class="w-[75%] space-y-2 pt-1">
-                  <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded" />
-                  <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded" />
-                  <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded" />
+                  <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
+                  <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
+                  <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
                 </div>
               {:then genres}
                 <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
@@ -294,7 +294,7 @@
         <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
       {/if}
       <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
-      <div class="flex-1" />
+      <div class="flex-1"></div>
       {#if $user?.permissions?.includes('EDIT_GENRES')}
         <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
       {/if}

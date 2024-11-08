@@ -11,7 +11,7 @@ import GenreForm from './GenreForm.svelte'
 
 function setup(props: ComponentProps<GenreForm>) {
   const user = userEvent.setup()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   const returned = render(GenreForm, props)
 
   return {

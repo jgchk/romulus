@@ -457,7 +457,7 @@
     {#if overflows && !expanded}
       <div
         class="absolute bottom-0 h-4 w-full bg-gradient-to-t from-gray-200 to-transparent transition dark:from-gray-800"
-      />
+      ></div>
     {/if}
   </div>
   {#if overflows}

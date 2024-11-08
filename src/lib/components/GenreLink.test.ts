@@ -16,7 +16,6 @@ function setup(
   const user = userEvent.setup()
 
   const returned = render(GenreLink, {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     props,
     context: new Map([
       [

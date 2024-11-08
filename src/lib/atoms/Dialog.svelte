@@ -25,12 +25,13 @@
 
 <div {role} class="fixed inset-0 z-40 flex items-center justify-center p-4 backdrop-blur-sm">
   <button
+    aria-label="Close dialog"
     type="button"
     class="absolute h-full w-full cursor-default bg-black opacity-50"
     on:click={close}
     transition:fade={{ duration: 125 }}
     tabindex="-1"
-  />
+  ></button>
 
   <div
     class={tw(

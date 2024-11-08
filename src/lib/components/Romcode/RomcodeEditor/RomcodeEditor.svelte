@@ -1,8 +1,9 @@
 <script lang="ts" context="module">
-  enum Tab {
-    EDIT,
-    VIEW,
-  }
+  const Tabs = Object.freeze({
+    EDIT: 'Edit',
+    VIEW: 'View',
+  })
+  type Tab = (typeof Tabs)[keyof typeof Tabs]
 </script>
 
 <script lang="ts">
@@ -25,7 +26,7 @@
   let class_: string | undefined = undefined
   export { class_ as class }
 
-  let tab: Tab = Tab.EDIT
+  let tab: Tab = Tabs.EDIT
   let showGenreDialog: boolean | string = false
 
   let ta: HTMLTextAreaElement | undefined
@@ -93,7 +94,7 @@
     class_,
   )}
 >
-  {#if tab === Tab.EDIT}
+  {#if tab === Tabs.EDIT}
     <div class="flex flex-1 flex-col">
       <div
         class="flex border-b border-gray-300 bg-gray-100 transition dark:border-gray-700 dark:bg-gray-900"
@@ -132,9 +133,10 @@
         on:blur
         {disabled}
         {autofocus}
-      />
+      >
+      </textarea>
     </div>
-  {:else if tab === Tab.VIEW}
+  {:else if tab === Tabs.VIEW}
     <div class="flex-1 overflow-auto px-2 py-1">
       <Romcode data={value} {genres} />
     </div>
@@ -146,20 +148,20 @@
     <button
       class={cn(
         'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-200 active:bg-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:active:bg-gray-700',
-        tab === Tab.EDIT ? 'font-bold' : 'font-medium',
+        tab === Tabs.EDIT ? 'font-bold' : 'font-medium',
       )}
       type="button"
-      on:click={() => (tab = Tab.EDIT)}
+      on:click={() => (tab = Tabs.EDIT)}
     >
       Edit
     </button>
     <button
       class={cn(
         'border-r border-gray-200 px-2 py-1 text-xs uppercase text-gray-400 transition hover:bg-gray-200 active:bg-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:active:bg-gray-700',
-        tab === Tab.VIEW ? 'font-bold' : 'font-medium',
+        tab === Tabs.VIEW ? 'font-bold' : 'font-medium',
       )}
       type="button"
-      on:click={() => (tab = Tab.VIEW)}
+      on:click={() => (tab = Tabs.VIEW)}
     >
       View
     </button>
