@@ -1,4 +1,3 @@
-
 import type { IDrizzleConnection } from '../connection'
 import { type Account, accounts, type InsertAccount } from '../schema'
 
