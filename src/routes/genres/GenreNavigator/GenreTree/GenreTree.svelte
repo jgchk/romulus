@@ -65,7 +65,7 @@
 
   {#if isAnyTopLevelExpanded}
     <div class="w-full border-t border-gray-200 transition dark:border-gray-800">
-      <Button class="w-full rounded-none" kind="text" on:click={() => treeState.collapseAll()}>
+      <Button class="w-full rounded-none" kind="text" onClick={() => treeState.collapseAll()}>
         Collapse All
       </Button>
     </div>

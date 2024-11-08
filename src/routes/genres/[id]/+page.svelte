@@ -296,7 +296,7 @@
       <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
       <div class="flex-1"></div>
       {#if $user?.permissions?.includes('EDIT_GENRES')}
-        <Button kind="text" color="error" on:click={() => (isDeleting = true)}>Delete</Button>
+        <Button kind="text" color="error" onClick={() => (isDeleting = true)}>Delete</Button>
       {/if}
     </Footer>
   </div>
@@ -312,7 +312,7 @@
       <form method="POST" action="?/delete" use:enhance>
         <Button kind="solid" color="error" type="submit">Delete</Button>
       </form>
-      <Button kind="text" on:click={() => (isDeleting = false)}>Cancel</Button>
+      <Button kind="text" onClick={() => (isDeleting = false)}>Cancel</Button>
     </svelte:fragment>
   </Dialog>
 {/if}

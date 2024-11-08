@@ -49,7 +49,7 @@
     </p>
   </div>
 
-  <Button on:click={() => (showCreateDialog = true)}>Create an API key</Button>
+  <Button onClick={() => (showCreateDialog = true)}>Create an API key</Button>
 
   {#if data.keys.length === 0 && !createdKey}
     <div
@@ -112,7 +112,7 @@
                 Created on {toPrettyDate(key.createdAt)}
               </div>
             </div>
-            <Button color="error" kind="outline" on:click={() => (showDeleteDialog = key)}
+            <Button color="error" kind="outline" onClick={() => (showDeleteDialog = key)}
               >Delete</Button
             >
           </div>

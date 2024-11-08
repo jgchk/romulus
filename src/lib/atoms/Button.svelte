@@ -1,10 +1,10 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type C = typeof SvelteComponentTyped<any, any, any>
+  type C = typeof SvelteComponent<any, any, any>
 </script>
 
-<script lang="ts" generics="C extends typeof SvelteComponentTyped<any, any, any>">
-  import type { SvelteComponentTyped } from 'svelte'
+<script lang="ts" generics="C extends typeof SvelteComponent<any, any, any>">
+  import type { Snippet, SvelteComponent } from 'svelte'
   import { scale } from 'svelte/transition'
 
   import { tooltip } from '$lib/actions/tooltip'
@@ -13,23 +13,39 @@
 
   import Loader from './Loader.svelte'
 
-  export let disabled = false
-  export let type: 'button' | 'submit' = 'button'
-  export let kind: 'solid' | 'outline' | 'text' = 'solid'
-  export let align: 'left' | 'center' | 'right' = 'center'
-  export let loading = false
-  let class_: string | undefined = undefined
-  export { class_ as class }
-  let tooltip_: string | undefined = undefined
-  export { tooltip_ as tooltip }
-  export let color: 'primary' | 'secondary' | 'error' = 'primary'
+  type Props = {
+    disabled?: boolean
+    type?: 'button' | 'submit'
+    kind?: 'solid' | 'outline' | 'text'
+    align?: 'left' | 'center' | 'right'
+    loading?: boolean
+    class?: string | undefined
+    tooltip?: string | undefined
+    color?: 'primary' | 'secondary' | 'error'
+    icon?: C | undefined
+    iconClass?: string | undefined
+    children?: Snippet
+    onClick?: () => void
+  }
 
-  export let icon: C | undefined = undefined
-  export let iconClass: string | undefined = undefined
+  let {
+    disabled = false,
+    type = 'button',
+    kind = 'solid',
+    align = 'center',
+    loading = false,
+    class: class_,
+    tooltip: tooltip_,
+    color = 'primary',
+    icon,
+    iconClass,
+    children,
+    onClick,
+  }: Props = $props()
 </script>
 
 <button
-  on:click
+  onclick={onClick}
   {disabled}
   {type}
   aria-label={tooltip_}
@@ -73,15 +89,16 @@
         {#if loading}
           <Loader />
         {:else}
+          {@const SvelteComponent = icon}
           <div class="absolute" transition:scale|local={{ duration: 150 }}>
-            <svelte:component this={icon} class={iconClass} />
+            <SvelteComponent class={iconClass} />
           </div>
         {/if}
       </div>
     </div>
   {/if}
 
-  <slot />
+  {@render children?.()}
 
   {#if tooltip_ !== undefined}
     <div class="absolute left-0 top-0 h-full w-full" use:tooltip={{ content: tooltip_ }}></div>

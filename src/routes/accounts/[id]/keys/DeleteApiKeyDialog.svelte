@@ -38,6 +38,6 @@
       <input type="hidden" name="id" value={deletingKey.id} />
       <Button kind="solid" color="error" type="submit">Delete</Button>
     </form>
-    <Button kind="text" on:click={() => dispatch('close')}>Cancel</Button>
+    <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
   </svelte:fragment>
 </Dialog>

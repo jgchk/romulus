@@ -58,7 +58,7 @@
 
   {#if isSearching}
     <div class="flex justify-center border-b border-gray-200 transition dark:border-gray-800">
-      <Button kind="text" class="w-full rounded-none" on:click={() => searchStore.clearFilter()}>
+      <Button kind="text" class="w-full rounded-none" onClick={() => searchStore.clearFilter()}>
         Back to Tree
       </Button>
     </div>

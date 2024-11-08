@@ -43,7 +43,7 @@
 
     <svelte:fragment slot="buttons">
       <Button type="submit">Create</Button>
-      <Button kind="text" on:click={() => dispatch('close')}>Cancel</Button>
+      <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
     </svelte:fragment>
   </Dialog>
 </form>

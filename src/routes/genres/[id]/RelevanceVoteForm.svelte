@@ -37,7 +37,7 @@
         {...$constraints.relevanceVote}
       />
       <Button kind="solid" type="submit" loading={$delayed}>Vote</Button>
-      <Button kind="text" type="button" on:click={() => dispatch('close')}>Cancel</Button>
+      <Button kind="text" type="button" onClick={() => dispatch('close')}>Cancel</Button>
     </div>
   </InputGroup>
 </form>

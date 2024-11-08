@@ -317,14 +317,14 @@
 
     <svelte:fragment slot="buttons">
       <Button
-        on:click={() => {
+        onClick={() => {
           topLevelConfirmation = 'confirmed'
           submit()
         }}
       >
         Yes
       </Button>
-      <Button kind="text" on:click={() => (topLevelConfirmation = undefined)}>No</Button>
+      <Button kind="text" onClick={() => (topLevelConfirmation = undefined)}>No</Button>
     </svelte:fragment>
   </Dialog>
 {/if}
