@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { getStringParam } from '$lib/utils/params'
+import { getIntParam, getStringParam } from '$lib/utils/params'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -47,7 +47,10 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   const maybeOrder = getStringParam(url, 'order')
   const order = maybeOrder && isOrderOption(maybeOrder) ? maybeOrder : 'desc'
 
-  return { account, numCreated, numUpdated, numDeleted, history, sort, order }
+  const page = getIntParam(url, 'page') ?? 1
+  const limit = getIntParam(url, 'limit') ?? 30
+
+  return { account, numCreated, numUpdated, numDeleted, history, sort, order, page, limit }
 }
 
 export const actions: Actions = {
