@@ -6,7 +6,7 @@ export class Cookie {
   ) {}
 }
 
-type CookieAttributes = {
+export type CookieAttributes = {
   secure?: boolean
   path?: string
   domain?: string

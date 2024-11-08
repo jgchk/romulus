@@ -1,25 +1,28 @@
 import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../../../../vitest-setup'
 import { NewAccount } from '../../domain/entities/account'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
-import { createLucia } from '../../infrastructure/session/lucia'
-import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
+import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
+import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { LoginCommand } from './login'
 import { LogoutCommand } from './logout'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
-  const sessionRepo = new LuciaSessionRepository(createLucia(options.dbConnection))
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
+  const sessionTokenHashRepo = new Sha256HashRepository()
 
-  const logout = new LogoutCommand(sessionRepo)
+  const logout = new LogoutCommand(sessionRepo, sessionTokenHashRepo)
 
   async function createLoggedInAccount(loggedInAccount: { username: string; password: string }) {
     const accountRepo = new DrizzleAccountRepository(options.dbConnection)
     const passwordHashRepo = new BcryptHashRepository()
+    const sessionTokenGenerator = new CryptoTokenGenerator()
 
     await accountRepo.create(
       new NewAccount({
@@ -28,7 +31,13 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
       }),
     )
 
-    const login = new LoginCommand(accountRepo, sessionRepo, passwordHashRepo)
+    const login = new LoginCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
     const cookie = await login.execute(loggedInAccount.username, loggedInAccount.password)
 
     if (!(cookie instanceof Cookie)) {

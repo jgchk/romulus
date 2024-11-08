@@ -2,12 +2,12 @@ import { type Actions, fail, redirect } from '@sveltejs/kit'
 
 export const actions: Actions = {
   default: async ({ locals, cookies }) => {
-    if (!locals.session) {
+    if (!locals.sessionToken) {
       return fail(401)
     }
 
     const blankSessionCookie = await locals.services.authentication.commands.logout(
-      locals.session.id,
+      locals.sessionToken,
     )
 
     cookies.set(blankSessionCookie.name, blankSessionCookie.value, {

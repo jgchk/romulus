@@ -1,6 +1,5 @@
 <script lang="ts">
   import { offset } from '@floating-ui/dom'
-  import type { User } from 'lucia'
   import { CaretDown, Key, MoonStars, SignOut, Sun, UserCircle } from 'phosphor-svelte'
 
   import { enhance } from '$app/forms'
@@ -11,7 +10,7 @@
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
-  export let account: User
+  export let account: { id: number; username: string }
 
   let open = false
 

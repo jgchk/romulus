@@ -1,13 +1,13 @@
 import type { Cookie } from '../entities/cookie'
-import type { CreatedSession, NewSession } from '../entities/session'
+import type { Session } from '../entities/session'
 
 export type SessionRepository = {
-  findById(sessionId: string): Promise<CreatedSession | undefined>
-  findByAccountId(accountId: number): Promise<CreatedSession[]>
+  findByTokenHash(tokenHash: string): Promise<Session | undefined>
+  findByAccountId(accountId: number): Promise<Session[]>
 
-  create(session: NewSession): Promise<CreatedSession>
-  delete(sessionId: string): Promise<void>
+  save(session: Session): Promise<void>
+  delete(tokenHash: string): Promise<void>
   deleteAllForAccount(accountId: number): Promise<void>
 
-  createCookie(sessionId: string | undefined): Cookie
+  createCookie(session: { token: string; expiresAt: Date } | undefined): Cookie
 }

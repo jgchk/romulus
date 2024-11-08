@@ -11,8 +11,8 @@ import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/password-reset-token/drizzle-password-reset-token-repository'
-import { createLucia } from '../../infrastructure/session/lucia'
-import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
+import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
+import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { AccountNotFoundError } from '../errors/account-not-found'
 import { InvalidLoginError } from '../errors/invalid-login'
 import { LoginCommand } from './login'
@@ -20,15 +20,19 @@ import { ResetPasswordCommand } from './reset-password'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new LuciaSessionRepository(createLucia(options.dbConnection))
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
   const passwordResetTokenRepo = new DrizzlePasswordResetTokenRepository(options.dbConnection)
   const passwordHashRepo = new BcryptHashRepository()
+  const sessionTokenHashRepo = new Sha256HashRepository()
+  const sessionTokenGenerator = new CryptoTokenGenerator()
 
   const resetPassword = new ResetPasswordCommand(
     accountRepo,
     sessionRepo,
     passwordResetTokenRepo,
     passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
   )
 
   async function createAccount(data: { username: string; password: string }) {
@@ -47,7 +51,13 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   }
 
   async function loginAccount(data: { username: string; password: string }) {
-    const login = new LoginCommand(accountRepo, sessionRepo, passwordHashRepo)
+    const login = new LoginCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
     const result = await login.execute(data.username, data.password)
     return result
   }

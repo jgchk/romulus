@@ -1,9 +1,14 @@
-import { generateIdFromEntropySize } from 'lucia'
 import { sha256 } from 'oslo/crypto'
 import { encodeHex } from 'oslo/encoding'
 
+import { CryptoTokenGenerator } from './features/authentication/commands/infrastructure/token/crypto-token-generator'
+
 export function generateApiKey(): string {
-  return generateIdFromEntropySize(25) // 40 character
+  const token = new CryptoTokenGenerator().generate(40)
+  if (token instanceof Error) {
+    throw token
+  }
+  return token
 }
 
 export async function hashApiKey(key: string): Promise<string> {

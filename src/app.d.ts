@@ -24,8 +24,14 @@ declare global {
           queries: import('$lib/server/features/genres/queries/query-service').GenreQueryService
         }
       }
-      user: import('lucia').User | undefined
-      session: Pick<import('lucia').Session, 'id'> | undefined
+      user:
+        | ({
+            id: number
+            username: string
+            permissions: import('$lib/server/features/authentication/commands/domain/entities/account').Permission[]
+          } & import('$lib/contexts/user-settings/types').UserSettings)
+        | undefined
+      sessionToken: string | undefined
     }
     // interface PageData {}
     // interface PageState {}

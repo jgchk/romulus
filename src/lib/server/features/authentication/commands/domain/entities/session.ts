@@ -1,13 +1,7 @@
-export class NewSession {
-  constructor(public accountId: number) {}
-}
-
-export class CreatedSession extends NewSession {
+export class Session {
   constructor(
-    public id: string,
     public accountId: number,
-    public wasJustExtended = false,
-  ) {
-    super(accountId)
-  }
+    public tokenHash: string,
+    public expiresAt: Date,
+  ) {}
 }

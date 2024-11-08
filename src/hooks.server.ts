@@ -8,8 +8,7 @@ import { AuthenticationCommandService } from '$lib/server/features/authenticatio
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/commands/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
-import { createLucia } from '$lib/server/features/authentication/commands/infrastructure/session/lucia'
-import { LuciaSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/lucia-session-repository'
+import { DrizzleSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/drizzle-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
@@ -36,11 +35,11 @@ process.on('sveltekit:shutdown', () => {
   void pg.end()
 })
 
+const SESSION_COOKIE_NAME = 'auth_session'
+
 export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(pg)
   event.locals.dbConnection = dbConnection
-
-  const lucia = createLucia(dbConnection)
 
   event.locals.services = {
     api: {
@@ -53,9 +52,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     authentication: {
       commands: new AuthenticationCommandService(
         new DrizzleAccountRepository(dbConnection),
-        new LuciaSessionRepository(lucia),
+        new DrizzleSessionRepository(
+          dbConnection,
+          process.env.NODE_ENV === 'production',
+          SESSION_COOKIE_NAME,
+        ),
         new DrizzlePasswordResetTokenRepository(dbConnection),
         new BcryptHashRepository(),
+        new Sha256HashRepository(),
+        new CryptoTokenGenerator(),
         new Sha256HashRepository(),
         new CryptoTokenGenerator(),
       ),
@@ -91,29 +96,29 @@ export const handle: Handle = async ({ event, resolve }) => {
     },
   }
 
-  const sessionId = event.cookies.get(lucia.sessionCookieName)
+  const sessionToken = event.cookies.get(SESSION_COOKIE_NAME)
+  event.locals.sessionToken = sessionToken
 
-  if (!sessionId) {
+  if (!sessionToken) {
     event.locals.user = undefined
-    event.locals.session = undefined
     return resolve(event)
   }
 
-  const { account, session, cookie } =
-    await event.locals.services.authentication.commands.validateSession(sessionId)
+  const { account, cookie } =
+    await event.locals.services.authentication.commands.validateSession(sessionToken)
 
   event.locals.user =
     account === undefined
       ? undefined
       : {
-          ...account,
+          id: account.id,
+          username: account.username,
           permissions: [...account.permissions],
-        }
-  event.locals.session =
-    session === undefined
-      ? undefined
-      : {
-          id: session.id,
+          genreRelevanceFilter: account.genreRelevanceFilter,
+          showRelevanceTags: account.showRelevanceTags,
+          showTypeTags: account.showTypeTags,
+          showNsfw: account.showNsfw,
+          darkMode: account.darkMode,
         }
 
   if (cookie) {

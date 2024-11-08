@@ -13,7 +13,7 @@ const schema = z.object({
 })
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (locals.session) {
+  if (locals.user) {
     return redirect(302, '/')
   }
 

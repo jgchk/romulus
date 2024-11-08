@@ -1,8 +1,10 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { Cookie } from '../../domain/entities/cookie'
-import { NewSession } from '../../domain/entities/session'
+import { Session } from '../../domain/entities/session'
+import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
+import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { InvalidLoginError } from '../errors/invalid-login'
 
 export class LoginCommand {
@@ -10,6 +12,8 @@ export class LoginCommand {
     private accountRepo: AccountRepository,
     private sessionRepo: SessionRepository,
     private passwordHashRepo: HashRepository,
+    private sessionTokenHashRepo: HashRepository,
+    private sessionTokenGenerator: TokenGenerator,
   ) {}
 
   async execute(username: string, password: string): Promise<Cookie | InvalidLoginError> {
@@ -26,9 +30,21 @@ export class LoginCommand {
       return new InvalidLoginError()
     }
 
-    const session = await this.sessionRepo.create(new NewSession(account.id))
+    const token = this.sessionTokenGenerator.generate(20)
+    if (token instanceof InvalidTokenLengthError) {
+      throw token // should never happen
+    }
 
-    const cookie = this.sessionRepo.createCookie(session.id)
+    const tokenHash = await this.sessionTokenHashRepo.hash(token)
+    const session = new Session(
+      account.id,
+      tokenHash,
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+    )
+
+    await this.sessionRepo.save(session)
+
+    const cookie = this.sessionRepo.createCookie({ token, expiresAt: session.expiresAt })
 
     return cookie
   }

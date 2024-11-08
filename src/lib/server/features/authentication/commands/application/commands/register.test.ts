@@ -1,22 +1,31 @@
 import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../../../../vitest-setup'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
-import { createLucia } from '../../infrastructure/session/lucia'
-import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
+import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
+import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { NonUniqueUsernameError } from '../errors/non-unique-username'
 import { RegisterCommand } from './register'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new LuciaSessionRepository(createLucia(options.dbConnection))
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
   const passwordHashRepo = new BcryptHashRepository()
+  const sessionTokenHashRepo = new Sha256HashRepository()
+  const sessionTokenGenerator = new CryptoTokenGenerator()
 
-  const register = new RegisterCommand(accountRepo, sessionRepo, passwordHashRepo)
+  const register = new RegisterCommand(
+    accountRepo,
+    sessionRepo,
+    passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
+  )
 
   async function getAccount(username: string) {
     const account = await accountRepo.findByUsername(username)

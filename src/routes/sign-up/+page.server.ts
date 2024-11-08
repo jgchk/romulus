@@ -11,7 +11,7 @@ import type { PageServerLoad } from './$types'
 const schema = z.object({ username: z.string().min(3).max(72), password: passwordSchema })
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (locals.session) {
+  if (locals.user) {
     return redirect(302, '/')
   }
 

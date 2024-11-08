@@ -33,10 +33,24 @@ export class AuthenticationCommandService {
     passwordHashRepo: HashRepository,
     passwordResetTokenHashRepo: HashRepository,
     passwordResetTokenGeneratorRepo: TokenGenerator,
+    sessionTokenHashRepo: HashRepository,
+    sessionTokenGenerator: TokenGenerator,
   ) {
-    this.loginCommand = new LoginCommand(accountRepo, sessionRepo, passwordHashRepo)
-    this.logoutCommand = new LogoutCommand(sessionRepo)
-    this.registerCommand = new RegisterCommand(accountRepo, sessionRepo, passwordHashRepo)
+    this.loginCommand = new LoginCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
+    this.logoutCommand = new LogoutCommand(sessionRepo, sessionTokenHashRepo)
+    this.registerCommand = new RegisterCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
     this.requestPasswordResetCommand = new RequestPasswordResetCommand(
       passwordResetTokenRepo,
       passwordResetTokenGeneratorRepo,
@@ -47,21 +61,27 @@ export class AuthenticationCommandService {
       sessionRepo,
       passwordResetTokenRepo,
       passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
     )
     this.updateUserSettingsCommand = new UpdateUserSettingsCommand(accountRepo)
     this.validatePasswordResetTokenCommand = new ValidatePasswordResetTokenCommand(
       passwordResetTokenRepo,
       passwordResetTokenHashRepo,
     )
-    this.validateSessionCommand = new ValidateSessionCommand(accountRepo, sessionRepo)
+    this.validateSessionCommand = new ValidateSessionCommand(
+      accountRepo,
+      sessionRepo,
+      sessionTokenHashRepo,
+    )
   }
 
   login(username: string, password: string) {
     return this.loginCommand.execute(username, password)
   }
 
-  logout(sessionId: string) {
-    return this.logoutCommand.execute(sessionId)
+  logout(sessionToken: string) {
+    return this.logoutCommand.execute(sessionToken)
   }
 
   register(username: string, password: string) {
@@ -84,7 +104,7 @@ export class AuthenticationCommandService {
     return this.validatePasswordResetTokenCommand.execute(verificationToken)
   }
 
-  validateSession(sessionId: string | undefined) {
-    return this.validateSessionCommand.execute(sessionId)
+  validateSession(sessionToken: string | undefined) {
+    return this.validateSessionCommand.execute(sessionToken)
   }
 }

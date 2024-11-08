@@ -1,6 +1,8 @@
+import type { HashRepository } from '$lib/server/features/common/domain/repositories/hash'
+
 import type { CreatedAccount } from '../../domain/entities/account'
 import type { Cookie } from '../../domain/entities/cookie'
-import type { CreatedSession } from '../../domain/entities/session'
+import type { Session } from '../../domain/entities/session'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
 
@@ -8,18 +10,21 @@ export class ValidateSessionCommand {
   constructor(
     private accountRepo: AccountRepository,
     private sessionRepo: SessionRepository,
+    private sessionTokenHashRepo: HashRepository,
   ) {}
 
-  async execute(sessionId: string | undefined): Promise<{
+  async execute(sessionToken: string | undefined): Promise<{
     account: CreatedAccount | undefined
-    session: CreatedSession | undefined
+    session: Session | undefined
     cookie: Cookie | undefined
   }> {
-    if (!sessionId) {
+    if (!sessionToken) {
       return { account: undefined, session: undefined, cookie: undefined }
     }
 
-    const session = await this.sessionRepo.findById(sessionId)
+    const tokenHash = await this.sessionTokenHashRepo.hash(sessionToken)
+
+    const session = await this.sessionRepo.findByTokenHash(tokenHash)
 
     if (!session) {
       // Session was not found, clear the cookie
@@ -34,9 +39,19 @@ export class ValidateSessionCommand {
       return { account: undefined, session: undefined, cookie }
     }
 
-    if (session.wasJustExtended) {
-      // Session was found and extended, update the cookie
-      const cookie = this.sessionRepo.createCookie(session.id)
+    if (Date.now() >= session.expiresAt.getTime()) {
+      await this.sessionRepo.delete(tokenHash)
+      const cookie = this.sessionRepo.createCookie(undefined)
+      return { account: undefined, session: undefined, cookie }
+    }
+
+    if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
+      session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+      await this.sessionRepo.save(session)
+      const cookie = this.sessionRepo.createCookie({
+        token: sessionToken,
+        expiresAt: session.expiresAt,
+      })
       return { account, session, cookie }
     }
 

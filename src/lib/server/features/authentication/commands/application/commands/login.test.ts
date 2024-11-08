@@ -1,14 +1,15 @@
 import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../../../../vitest-setup'
 import { NewAccount } from '../../domain/entities/account'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
-import { createLucia } from '../../infrastructure/session/lucia'
-import { LuciaSessionRepository } from '../../infrastructure/session/lucia-session-repository'
+import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
+import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { InvalidLoginError } from '../errors/invalid-login'
 import { LoginCommand } from './login'
 
@@ -17,8 +18,10 @@ async function setupCommand(options: {
   existingAccount?: { username: string; password: string }
 }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new LuciaSessionRepository(createLucia(options.dbConnection))
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
   const passwordHashRepo = new BcryptHashRepository()
+  const sessionTokenHashRepo = new Sha256HashRepository()
+  const sessionTokenGenerator = new CryptoTokenGenerator()
 
   if (options.existingAccount) {
     await accountRepo.create(
@@ -29,7 +32,13 @@ async function setupCommand(options: {
     )
   }
 
-  const login = new LoginCommand(accountRepo, sessionRepo, passwordHashRepo)
+  const login = new LoginCommand(
+    accountRepo,
+    sessionRepo,
+    passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
+  )
 
   async function getAccountSessions(username: string) {
     const account = await accountRepo.findByUsername(username)
