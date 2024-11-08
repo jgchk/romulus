@@ -27,10 +27,9 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
-
   const account = maybeAccount
 
-  const history = await locals.services.genres.queries.getHistoryByAccount(id)
+  const history = await locals.services.genre.queries.getGenreHistoryByAccount(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
