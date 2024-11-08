@@ -1,8 +1,14 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+
   import { tw } from '$lib/utils/dom'
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    class?: string
+    children?: Snippet
+  }
+
+  let { class: class_, children }: Props = $props()
 </script>
 
 <div
@@ -11,5 +17,5 @@
     class_,
   )}
 >
-  <slot />
+  {@render children?.()}
 </div>
