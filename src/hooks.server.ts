@@ -4,7 +4,7 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
-import { AuthenticationService } from '$lib/server/features/authentication/application/authentication-service'
+import { AuthenticationService } from '$lib/server/features/authentication/commands/application/authentication-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/infrastructure/password-reset-token/drizzle-password-reset-token-repository'

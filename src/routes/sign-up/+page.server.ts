@@ -3,7 +3,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { NonUniqueUsernameError } from '$lib/server/features/authentication/application/errors/non-unique-username'
+import { NonUniqueUsernameError } from '$lib/server/features/authentication/commands/application/errors/non-unique-username'
 import { passwordSchema } from '$lib/server/features/authentication/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
