@@ -1,7 +1,5 @@
 import { eq } from 'drizzle-orm'
 
-import { hasUpdate, makeUpdate } from '$lib/utils/db'
-
 import type { IDrizzleConnection } from '../connection'
 import { type Account, accounts, type InsertAccount } from '../schema'
 
@@ -14,25 +12,5 @@ export class AccountsDatabase {
     return conn.query.accounts.findFirst({
       where: eq(accounts.id, id),
     })
-  }
-
-  async update(
-    id: number,
-    update: Partial<InsertAccount>,
-    conn: IDrizzleConnection,
-  ): Promise<Account> {
-    if (!hasUpdate(update)) {
-      const account = await this.findById(id, conn)
-      if (!account) throw new Error(`Account not found: ${id}`)
-      return account
-    }
-
-    const [account] = await conn
-      .update(accounts)
-      .set(makeUpdate(update))
-      .where(eq(accounts.id, id))
-      .returning()
-
-    return account
   }
 }

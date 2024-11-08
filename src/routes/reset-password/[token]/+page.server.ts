@@ -10,7 +10,7 @@ import { passwordSchema } from '$lib/server/features/authentication/presentation
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-  const maybeToken = await locals.services.authentication.checkPasswordResetToken(params.token)
+  const maybeToken = await locals.services.authentication.validatePasswordResetToken(params.token)
   if (
     maybeToken instanceof PasswordResetTokenNotFoundError ||
     maybeToken instanceof PasswordResetTokenExpiredError
@@ -37,7 +37,7 @@ export const actions: Actions = {
     }
 
     const maybeToken =
-      await locals.services.authentication.checkPasswordResetToken(verificationToken)
+      await locals.services.authentication.validatePasswordResetToken(verificationToken)
     if (
       maybeToken instanceof PasswordResetTokenNotFoundError ||
       maybeToken instanceof PasswordResetTokenExpiredError

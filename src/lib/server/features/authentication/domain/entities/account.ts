@@ -46,6 +46,18 @@ export class NewAccount {
     })
   }
 
+  updateSettings(
+    settings: Partial<
+      Pick<AccountProps, 'genreRelevanceFilter' | 'showRelevanceTags' | 'showTypeTags' | 'showNsfw'>
+    >,
+  ): NewAccount {
+    return new NewAccount({
+      ...this,
+      ...settings,
+      updatedAt: new Date(),
+    })
+  }
+
   unmarshal(): AccountProps {
     return {
       username: this.username,
