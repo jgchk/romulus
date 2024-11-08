@@ -17,7 +17,7 @@
   export let path: number[]
   export let treeRef: HTMLElement | undefined
 
-  const genre = $treeState.genres.get(id)
+  $: genre = $treeState.genres.get(id)
 
   $: isSelected = $treeState.selectedPath && equals($treeState.selectedPath, path)
   $: isExpanded = $treeState.expanded.has(path.join('-'))
