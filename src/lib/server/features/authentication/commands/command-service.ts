@@ -1,22 +1,22 @@
-import type { HashRepository } from '../../../common/domain/repositories/hash'
-import type { PasswordResetToken } from '../domain/entities/password-reset-token'
-import type { AccountRepository } from '../domain/repositories/account'
-import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
-import type { SessionRepository } from '../domain/repositories/session'
-import type { TokenGenerator } from '../domain/repositories/token-generator'
-import { LoginCommand } from './commands/login'
-import { LogoutCommand } from './commands/logout'
-import { RegisterCommand } from './commands/register'
-import { RequestPasswordResetCommand } from './commands/request-password-reset'
-import { ResetPasswordCommand } from './commands/reset-password'
+import type { HashRepository } from '../../common/domain/repositories/hash'
+import { LoginCommand } from './application/commands/login'
+import { LogoutCommand } from './application/commands/logout'
+import { RegisterCommand } from './application/commands/register'
+import { RequestPasswordResetCommand } from './application/commands/request-password-reset'
+import { ResetPasswordCommand } from './application/commands/reset-password'
 import {
   UpdateUserSettingsCommand,
   type UpdateUserSettingsInput,
-} from './commands/update-user-settings'
-import { ValidatePasswordResetTokenCommand } from './commands/validate-password-reset-token'
-import { ValidateSessionCommand } from './commands/validate-session'
+} from './application/commands/update-user-settings'
+import { ValidatePasswordResetTokenCommand } from './application/commands/validate-password-reset-token'
+import { ValidateSessionCommand } from './application/commands/validate-session'
+import type { PasswordResetToken } from './domain/entities/password-reset-token'
+import type { AccountRepository } from './domain/repositories/account'
+import type { PasswordResetTokenRepository } from './domain/repositories/password-reset-token'
+import type { SessionRepository } from './domain/repositories/session'
+import type { TokenGenerator } from './domain/repositories/token-generator'
 
-export class AuthenticationService {
+export class AuthenticationCommandService {
   private loginCommand: LoginCommand
   private logoutCommand: LogoutCommand
   private registerCommand: RegisterCommand

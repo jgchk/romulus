@@ -12,7 +12,7 @@ declare global {
           queries: import('$lib/server/features/api/queries/query-service').ApiQueryService
         }
         authentication: {
-          commands: import('$lib/server/features/authentication/commands/application/authentication-service').AuthenticationService
+          commands: import('$lib/server/features/authentication/commands/command-service').AuthenticationCommandService
         }
         musicCatalog: {
           commands: import('$lib/server/features/music-catalog/commands/command-service').MusicCatalogCommandService

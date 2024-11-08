@@ -4,7 +4,7 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
-import { AuthenticationService } from '$lib/server/features/authentication/commands/application/authentication-service'
+import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/commands/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
@@ -50,7 +50,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       queries: new ApiQueryService(dbConnection),
     },
     authentication: {
-      commands: new AuthenticationService(
+      commands: new AuthenticationCommandService(
         new DrizzleAccountRepository(dbConnection),
         new LuciaSessionRepository(lucia),
         new DrizzlePasswordResetTokenRepository(dbConnection),
