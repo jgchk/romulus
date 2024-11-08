@@ -6,8 +6,11 @@
   import { toast } from './toast'
   import Toast from './Toast.svelte'
 
-  export let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    class?: string
+  }
+
+  let { class: class_ }: Props = $props()
 
   const IN_DURATION = 200
   const OUT_DURATION = 175

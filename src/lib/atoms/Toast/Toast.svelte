@@ -2,6 +2,7 @@
   import { CheckCircle, Info, Warning, X, XCircle } from 'phosphor-svelte'
   import { onMount } from 'svelte'
   import { linear } from 'svelte/easing'
+  import { run } from 'svelte/legacy'
   import { tweened } from 'svelte/motion'
 
   import { cn } from '$lib/utils/dom'
@@ -9,16 +10,22 @@
   import type { Toast } from './toast'
   import { toast, ToastDefaults } from './toast'
 
-  export let item: Toast
-  $: duration = item.duration ?? ToastDefaults.duration
-  $: variant = item.variant ?? 'info'
+  type Props = {
+    item: Toast
+  }
 
-  const progress = tweened(0, { duration, easing: linear })
+  let { item }: Props = $props()
+  let duration = $derived(item.duration ?? ToastDefaults.duration)
+  let variant = $derived(item.variant ?? 'info')
+
+  const progress = $derived(tweened(0, { duration, easing: linear }))
 
   const close = () => toast.hide(item.id)
-  $: if ($progress === 1) {
-    close()
-  }
+  run(() => {
+    if ($progress === 1) {
+      close()
+    }
+  })
 
   const pause = () => {
     void progress.set($progress, { duration: 0 })
@@ -31,10 +38,10 @@
   onMount(() => resume())
 </script>
 
-<div role="alert" on:mouseenter={pause} on:mouseleave={resume} class="group/container flex shadow">
+<div role="alert" onmouseenter={pause} onmouseleave={resume} class="group/container flex shadow">
   <button
     type="button"
-    on:click={close}
+    onclick={close}
     class={cn(
       'center group/button w-10 rounded-l-lg border border-r-0 transition',
       variant === 'info' &&
@@ -76,7 +83,7 @@
       {#if typeof item.msg === 'string'}
         {item.msg}
       {:else}
-        <svelte:component this={item.msg} {...item.props} toast={item} />
+        <item.msg {...item.props} toast={item} />
       {/if}
     </div>
 
@@ -85,7 +92,7 @@
         value={$progress}
         class={cn('absolute -bottom-px h-px', variant)}
         style="width: calc(100% - 3px)"
-      />
+      ></progress>
     {/if}
   </div>
 </div>
