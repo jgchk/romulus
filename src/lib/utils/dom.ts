@@ -2,20 +2,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { toast } from '$lib/atoms/Toast/toast'
 
-export const isVisible = (ele: HTMLElement, container: HTMLElement) => {
-  const rect = ele.getBoundingClientRect()
-  const containerRect = container.getBoundingClientRect()
-
-  // if rect is above container
-  if (rect.top <= containerRect.top) {
-    // check that some of bottom intersects
-    return containerRect.top - rect.top <= rect.height
-  }
-
-  // check that some of top intersects
-  return rect.bottom - containerRect.bottom <= rect.height
-}
-
 export const isFullyVisible = (ele: HTMLElement, container: HTMLElement) => {
   const rect = ele.getBoundingClientRect()
   const containerRect = container.getBoundingClientRect()

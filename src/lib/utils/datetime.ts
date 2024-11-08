@@ -1,11 +1,6 @@
-export const ONE_SECOND = 1000
-export const ONE_MINUTE = ONE_SECOND * 60
-export const ONE_HOUR = ONE_MINUTE * 60
-export const ONE_DAY = ONE_HOUR * 24
-
-export const MINUTES_IN_DAY = 1440
-export const MINUTES_IN_MONTH = 43_200
-export const MINUTES_IN_YEAR = 525_600
+const MINUTES_IN_DAY = 1440
+const MINUTES_IN_MONTH = 43_200
+const MINUTES_IN_YEAR = 525_600
 
 export const getTimeSinceShort = (date: Date) => {
   const milliseconds = Date.now() - date.getTime()

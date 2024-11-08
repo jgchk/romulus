@@ -48,7 +48,7 @@ type ShowFunc = <T extends ToastMsg>(
 ) => number
 type HideFunc = (id: number) => void
 
-export const createToast = (): ToastStore => {
+const createToast = (): ToastStore => {
   let lastId = 0
   const store = writable<Toast[]>([])
 

@@ -1,7 +1,6 @@
-import { distance as levenshteinDistance } from 'fastest-levenshtein'
 import { stringSimilarity as diceCoefficient } from 'string-similarity-js'
 
-export { diceCoefficient, levenshteinDistance }
+export { diceCoefficient }
 
 export const toAscii = (str: string) => str.normalize('NFD').replaceAll(/\p{Diacritic}/gu, '')
 

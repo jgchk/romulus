@@ -5,7 +5,7 @@ import type { Action } from './types'
 
 export type TooltipProps = Partial<TippyProps> & { enabled?: boolean }
 
-export const TooltipDefaults = {
+const TooltipDefaults = {
   arrow: true,
   duration: 100,
   delay: 300,
