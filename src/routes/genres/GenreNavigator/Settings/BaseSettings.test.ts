@@ -16,13 +16,8 @@ function setup(props: Partial<ComponentProps<BaseSettings>> = {}) {
     ...props,
   })
 
-  const onChange = vi.fn()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-  returned.component.$on('change', (e) => onChange(e.detail))
-
   return {
     user,
-    onChange,
     ...returned,
   }
 }
@@ -33,7 +28,8 @@ it('should include a control to set the relevance filter', () => {
 })
 
 it('should call onChange when the relevance filter is changed', async () => {
-  const { user, getByLabelText, getByRole, onChange } = setup({ genreRelevanceFilter: 0 })
+  const onChange = vi.fn()
+  const { user, getByLabelText, getByRole } = setup({ genreRelevanceFilter: 0, onChange })
 
   await user.click(getByLabelText('Relevance Filter'))
   await user.selectOptions(getByRole('listbox'), '1')
@@ -48,7 +44,8 @@ it('should include a control to toggle relevance tags', () => {
 })
 
 it('should call onChange when the relevance tags toggle is clicked', async () => {
-  const { user, getByLabelText, onChange } = setup({ showRelevanceTags: true })
+  const onChange = vi.fn()
+  const { user, getByLabelText } = setup({ showRelevanceTags: true, onChange })
 
   await user.click(getByLabelText('Show Relevance Tags'))
 
@@ -62,7 +59,8 @@ it('should include a control to toggle type tags', () => {
 })
 
 it('should call onChange when the type tags toggle is clicked', async () => {
-  const { user, getByLabelText, onChange } = setup({ showTypeTags: true })
+  const onChange = vi.fn()
+  const { user, getByLabelText } = setup({ showTypeTags: true, onChange })
 
   await user.click(getByLabelText('Show Type Tags'))
 
@@ -76,7 +74,8 @@ it('should include a control to toggle the visiblity of NSFW genres', () => {
 })
 
 it('should call onChange when the NSFW genres toggle is clicked', async () => {
-  const { user, getByLabelText, onChange } = setup({ showNsfw: true })
+  const onChange = vi.fn()
+  const { user, getByLabelText } = setup({ showNsfw: true, onChange })
 
   await user.click(getByLabelText('Show NSFW Genres'))
 
