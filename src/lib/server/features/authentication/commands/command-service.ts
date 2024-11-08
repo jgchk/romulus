@@ -1,4 +1,5 @@
 import type { HashRepository } from '../../common/domain/repositories/hash'
+import type { TokenGenerator } from '../../common/domain/token-generator'
 import { LoginCommand } from './application/commands/login'
 import { LogoutCommand } from './application/commands/logout'
 import { RegisterCommand } from './application/commands/register'
@@ -14,7 +15,6 @@ import type { PasswordResetToken } from './domain/entities/password-reset-token'
 import type { AccountRepository } from './domain/repositories/account'
 import type { PasswordResetTokenRepository } from './domain/repositories/password-reset-token'
 import type { SessionRepository } from './domain/repositories/session'
-import type { TokenGenerator } from './domain/repositories/token-generator'
 
 export class AuthenticationCommandService {
   private loginCommand: LoginCommand

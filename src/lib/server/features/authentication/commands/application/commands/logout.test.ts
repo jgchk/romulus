@@ -4,12 +4,12 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../../../../vitest-setup'
+import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
 import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
-import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { LoginCommand } from './login'
 import { LogoutCommand } from './logout'
 

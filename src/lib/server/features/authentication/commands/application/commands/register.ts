@@ -1,4 +1,5 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
+import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import { NewAccount } from '../../domain/entities/account'
 import type { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
@@ -6,7 +7,6 @@ import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-lengt
 import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { type AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { NonUniqueUsernameError } from '../errors/non-unique-username'
 
 export class RegisterCommand {

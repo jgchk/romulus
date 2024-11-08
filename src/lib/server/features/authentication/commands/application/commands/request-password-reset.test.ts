@@ -4,13 +4,13 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 
 import { test } from '../../../../../../../vitest-setup'
 import { Sha256HashRepository } from '../../../../common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/password-reset-token/drizzle-password-reset-token-repository'
-import { CryptoTokenGenerator } from '../../infrastructure/token/crypto-token-generator'
 import { RequestPasswordResetCommand } from './request-password-reset'
 
 function setup(dbConnection: IDrizzleConnection) {

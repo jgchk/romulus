@@ -1,5 +1,5 @@
-import type { TokenGenerator } from '../../authentication/commands/domain/repositories/token-generator'
 import type { HashRepository } from '../../common/domain/repositories/hash'
+import type { TokenGenerator } from '../../common/domain/token-generator'
 import { CreateApiKeyCommand } from './application/commands/create-api-key'
 import { DeleteApiKeyCommand } from './application/commands/delete-api-key'
 import { ValidateApiKeyCommand } from './application/commands/validate-api-key'

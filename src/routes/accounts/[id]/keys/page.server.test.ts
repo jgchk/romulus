@@ -7,9 +7,9 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { GetApiKeysByAccountQuery } from '$lib/server/features/api/queries/application/get-api-keys-by-account'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
-import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
 import { test } from '../../../../vitest-setup'
 import { actions, load } from './+page.server'

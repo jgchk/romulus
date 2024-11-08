@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
+import { InvalidTokenLengthError } from '../../../authentication/commands/domain/errors/invalid-token-length'
+import type { TokenGenerator } from '../../domain/token-generator'
 import { CryptoTokenGenerator } from './crypto-token-generator'
 
 describe('CryptoTokenGenerator', () => {

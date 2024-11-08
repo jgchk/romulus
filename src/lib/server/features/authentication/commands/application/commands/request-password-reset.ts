@@ -1,10 +1,10 @@
 import { createDate, TimeSpan } from 'oslo'
 
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
+import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
 
 export class RequestPasswordResetCommand {
   constructor(

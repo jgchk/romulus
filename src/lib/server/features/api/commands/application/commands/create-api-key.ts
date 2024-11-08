@@ -1,5 +1,5 @@
-import type { TokenGenerator } from '$lib/server/features/authentication/commands/domain/repositories/token-generator'
 import type { HashRepository } from '$lib/server/features/common/domain/repositories/hash'
+import type { TokenGenerator } from '$lib/server/features/common/domain/token-generator'
 
 import { ApiKey } from '../../domain/entities/api-key'
 import type { ApiKeyRepository } from '../../domain/repositories/api-key'

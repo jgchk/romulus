@@ -3,8 +3,8 @@ import { expect } from '@playwright/test'
 import { apiKeys } from '$lib/server/db/schema'
 import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
-import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
 import { test } from '../../../../fixtures'
 

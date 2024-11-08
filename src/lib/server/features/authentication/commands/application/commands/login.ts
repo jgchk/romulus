@@ -1,10 +1,10 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
+import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import type { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { InvalidLoginError } from '../errors/invalid-login'
 
 export class LoginCommand {
