@@ -2,7 +2,7 @@ import './app.css'
 
 import * as matchers from '@testing-library/jest-dom/matchers'
 import { sql } from 'drizzle-orm'
-import { afterAll, afterEach, beforeEach, expect, test as base, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, expect, test as base, vi } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/pglite'
@@ -15,6 +15,12 @@ declare module 'vitest' {
     extends jest.Matchers<void, T>,
       matchers.TestingLibraryMatchers<T, void> {}
 }
+
+beforeAll(() => {
+  Element.prototype.animate = vi
+    .fn()
+    .mockImplementation(() => ({ cancel: vi.fn(), finished: Promise.resolve() }))
+})
 
 beforeEach(() => {
   const raf = (fn: (date: Date) => void) => setTimeout(() => fn(new Date()), 16)
