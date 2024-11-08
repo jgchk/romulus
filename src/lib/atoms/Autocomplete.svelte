@@ -1,11 +1,10 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = unknown
   type O = AutocompleteOption<T>
 </script>
 
 <script lang="ts" generics="T, O extends AutocompleteOption<T>">
   import { flip, offset } from '@floating-ui/dom'
-  import { createEventDispatcher } from 'svelte'
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
@@ -15,49 +14,51 @@
   import type { AutocompleteOption, AutocompleteProps } from './Autocomplete'
   import OptionsDropdown from './OptionsDropdown.svelte'
 
-  type $$Props = AutocompleteProps<T, O>
+  let open = $state(false)
+  let focusedIndex = $state(0)
 
-  export let value: $$Props['value']
-  export let options: $$Props['options']
-  export let id: $$Props['id'] = undefined
-  export let placeholder: $$Props['placeholder'] = undefined
-  export let disabled: $$Props['disabled'] = false
-  export let autofocus: $$Props['autofocus'] = false
+  type Props = AutocompleteProps<T, O>
 
-  let class_: $$Props['class'] = undefined
-  export { class_ as class }
+  let {
+    value = $bindable(),
+    options,
+    id,
+    placeholder,
+    disabled = false,
+    autofocus = false,
+    class: class_,
+    errors: propErrors,
+    onInput,
+    onSelect,
+  }: Props = $props()
 
-  let open = false
-  let focusedIndex = 0
-
-  let propErrors: string[] | undefined = undefined
-  export { propErrors as errors }
   const contextErrors = getInputGroupErrors()
-  $: errors = propErrors ?? ($contextErrors && $contextErrors.length > 0)
+  let errors = $derived(propErrors ?? ($contextErrors && $contextErrors.length > 0))
 
-  let inputRef: HTMLInputElement | undefined
+  let inputRef: HTMLInputElement | undefined = $state()
 
-  $: lastIndex = options.length - 1
+  let lastIndex = $derived(options.length - 1)
 
   // prevent focusedIndex from being out of bounds
-  $: focusedIndex = Math.min(focusedIndex, lastIndex)
+  $effect(() => {
+    focusedIndex = Math.min(focusedIndex, lastIndex)
+  })
 
   // reset focusedIndex when closing
-  $: if (!open) {
-    focusedIndex = 0
-  }
+  $effect(() => {
+    if (!open) {
+      focusedIndex = 0
+    }
+  })
 
-  $: if (value.length > 0) {
-    open = true
-  }
-
-  const dispatch = createEventDispatcher<{
-    input: { value: string }
-    select: { option: O }
-  }>()
+  $effect(() => {
+    if (value.length > 0) {
+      open = true
+    }
+  })
 
   const handleSelect = (option: O) => {
-    dispatch('select', { option })
+    onSelect?.(option)
   }
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -112,7 +113,7 @@
   <div
     class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
   >
-    <!-- svelte-ignore a11y-autofocus -->
+    <!-- svelte-ignore a11y_autofocus -->
     <input
       {id}
       class={cn(
@@ -123,11 +124,10 @@
       type="text"
       autocomplete="off"
       bind:value
-      on:keydown={handleKeyDown}
-      on:click={() => (open = true)}
-      on:focus={() => (open = true)}
-      on:blur
-      on:input={(e) => dispatch('input', { value: e.currentTarget.value })}
+      onkeydown={handleKeyDown}
+      onclick={() => (open = true)}
+      onfocus={() => (open = true)}
+      oninput={(e) => onInput?.(e.currentTarget.value)}
       bind:this={inputRef}
       {disabled}
       {autofocus}

@@ -44,6 +44,7 @@
   }
 
   const dispatch = createEventDispatcher<{
+    input: { value: string }
     select: { track: SearchTracksResult['tracks'][number] }
   }>()
 </script>
@@ -51,8 +52,10 @@
 <Autocomplete
   {value}
   {options}
-  on:input={(e) => (value = e.detail.value)}
-  on:input
-  on:select={(e) => dispatch('select', { track: e.detail.option.value })}
+  onInput={(newValue) => {
+    value = newValue
+    dispatch('input', { value: newValue })
+  }}
+  onSelect={(option) => dispatch('select', { track: option.value })}
   {...$$restProps}
 />

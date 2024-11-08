@@ -6,6 +6,9 @@ export type AutocompleteProps<T, O extends AutocompleteOption<T> = AutocompleteO
   class?: string
   disabled?: boolean
   autofocus?: boolean
+  errors?: string[]
+  onInput?: (value: string) => void
+  onSelect?: (option: O) => void
 }
 
 export type AutocompleteOption<T> = { value: T; label: string }
