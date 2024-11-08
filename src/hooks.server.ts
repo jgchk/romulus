@@ -5,12 +5,12 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { AuthenticationService } from '$lib/server/features/authentication/commands/application/authentication-service'
-import { DrizzleAccountRepository } from '$lib/server/features/authentication/infrastructure/account/drizzle-account-repository'
-import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
-import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
-import { createLucia } from '$lib/server/features/authentication/infrastructure/session/lucia'
-import { LuciaSessionRepository } from '$lib/server/features/authentication/infrastructure/session/lucia-session-repository'
-import { CryptoTokenGenerator } from '$lib/server/features/authentication/infrastructure/token/crypto-token-generator'
+import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
+import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
+import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/commands/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
+import { createLucia } from '$lib/server/features/authentication/commands/infrastructure/session/lucia'
+import { LuciaSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/lucia-session-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CreateGenreCommand } from '$lib/server/features/genres/commands/application/commands/create-genre'
 import { DeleteGenreCommand } from '$lib/server/features/genres/commands/application/commands/delete-genre'
@@ -49,14 +49,16 @@ export const handle: Handle = async ({ event, resolve }) => {
       ),
       queries: new ApiQueryService(dbConnection),
     },
-    authentication: new AuthenticationService(
-      new DrizzleAccountRepository(dbConnection),
-      new LuciaSessionRepository(lucia),
-      new DrizzlePasswordResetTokenRepository(dbConnection),
-      new BcryptHashRepository(),
-      new Sha256HashRepository(),
-      new CryptoTokenGenerator(),
-    ),
+    authentication: {
+      commands: new AuthenticationService(
+        new DrizzleAccountRepository(dbConnection),
+        new LuciaSessionRepository(lucia),
+        new DrizzlePasswordResetTokenRepository(dbConnection),
+        new BcryptHashRepository(),
+        new Sha256HashRepository(),
+        new CryptoTokenGenerator(),
+      ),
+    },
     musicCatalog: {
       commands: new MusicCatalogCommandService(
         new DrizzleArtistRepository(dbConnection),
@@ -96,7 +98,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   const { account, session, cookie } =
-    await event.locals.services.authentication.validateSession(sessionId)
+    await event.locals.services.authentication.commands.validateSession(sessionId)
 
   event.locals.user =
     account === undefined

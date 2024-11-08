@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { NonUniqueUsernameError } from '$lib/server/features/authentication/commands/application/errors/non-unique-username'
-import { passwordSchema } from '$lib/server/features/authentication/presentation/schemas/password'
+import { passwordSchema } from '$lib/server/features/authentication/commands/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
 
@@ -27,7 +27,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.services.authentication.register(
+    const maybeSessionCookie = await locals.services.authentication.commands.register(
       form.data.username,
       form.data.password.password,
     )

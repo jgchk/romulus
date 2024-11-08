@@ -2,7 +2,7 @@ import { describe, expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 
-import { test } from '../../../../../../vitest-setup'
+import { test } from '../../../../../../../vitest-setup'
 import { NewAccount } from '../../domain/entities/account'
 import { Cookie } from '../../domain/entities/cookie'
 import { NewSession } from '../../domain/entities/session'

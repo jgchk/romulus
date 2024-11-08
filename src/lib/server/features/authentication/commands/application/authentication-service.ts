@@ -1,4 +1,4 @@
-import type { HashRepository } from '../../common/domain/repositories/hash'
+import type { HashRepository } from '../../../common/domain/repositories/hash'
 import type { PasswordResetToken } from '../domain/entities/password-reset-token'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'

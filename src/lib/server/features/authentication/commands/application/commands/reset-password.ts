@@ -1,4 +1,4 @@
-import type { HashRepository } from '../../../common/domain/repositories/hash'
+import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { Cookie } from '../../domain/entities/cookie'
 import type { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { NewSession } from '../../domain/entities/session'

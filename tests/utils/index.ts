@@ -16,7 +16,7 @@ import {
   type InsertGenreAka,
 } from '$lib/server/db/schema'
 import { type Account } from '$lib/server/db/schema'
-import { BcryptHashRepository } from '$lib/server/features/authentication/infrastructure/hash/bcrypt-hash-repository'
+import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
 import type { GenreOperation } from '$lib/types/genres'
 
 export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'> & {
