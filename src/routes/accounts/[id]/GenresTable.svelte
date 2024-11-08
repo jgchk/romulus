@@ -3,15 +3,15 @@
 
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
+  import Input from '$lib/atoms/Input.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
 
+  import LimitSelect from '../../genres/table/LimitSelect.svelte'
   import type { PageData } from './$types'
   import ColumnHeader from './ColumnHeader.svelte'
-  import Input from '$lib/atoms/Input.svelte'
-  import LimitSelect from '../../genres/table/LimitSelect.svelte'
 
   export let data: PageData
 
