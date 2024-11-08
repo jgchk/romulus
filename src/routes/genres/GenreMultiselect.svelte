@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
-
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
@@ -15,6 +13,7 @@
   export let value: $$Props['value']
   export let genres: $$Props['genres']
   export let exclude: $$Props['exclude'] = []
+  export let onChange: $$Props['onChange'] = undefined
 
   $: excludeSet = new Set(exclude)
 
@@ -57,10 +56,6 @@
     }))
     .slice(0, 100)
 
-  const dispatch = createEventDispatcher<{
-    change: { value: number[] }
-  }>()
-
   const userSettings = getUserSettingsContext()
 </script>
 
@@ -71,7 +66,7 @@
   {options}
   on:change={(e) => {
     value = e.detail.value.map((v) => v.value)
-    dispatch('change', { value })
+    onChange?.(value)
   }}
   on:blur
   {...$$restProps}

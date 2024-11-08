@@ -6,6 +6,7 @@ export type GenreMultiselectProps = Omit<MultiselectProps<unknown>, 'value' | 'o
   value: number[]
   genres: MultiselectGenre[]
   exclude?: number[]
+  onChange?: (value: number[]) => void
 }
 
 export type MultiselectGenre = SearchGenre & Pick<Genre, 'type' | 'nsfw'>
