@@ -42,6 +42,7 @@ const mockGenre = {
   nsfw: false,
   createdAt: new Date(),
   updatedAt: new Date(),
+  contributors: [],
 }
 
 async function setup(
@@ -70,7 +71,6 @@ async function setup(
         },
         relevanceVotes: new Map(),
         relevanceVoteForm,
-        contributors: [],
         ...props?.data,
       },
     },

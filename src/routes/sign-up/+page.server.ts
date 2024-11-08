@@ -3,15 +3,15 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { NonUniqueUsernameError } from '$lib/server/features/authentication/application/errors/non-unique-username'
-import { passwordSchema } from '$lib/server/features/authentication/presentation/schemas/password'
+import { NonUniqueUsernameError } from '$lib/server/features/authentication/commands/application/errors/non-unique-username'
+import { passwordSchema } from '$lib/server/features/authentication/commands/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
 
 const schema = z.object({ username: z.string().min(3).max(72), password: passwordSchema })
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (locals.session) {
+  if (locals.user) {
     return redirect(302, '/')
   }
 
@@ -27,7 +27,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.services.authentication.register(
+    const maybeSessionCookie = await locals.services.authentication.commands.register(
       form.data.username,
       form.data.password.password,
     )

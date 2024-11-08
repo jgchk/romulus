@@ -1,4 +1,3 @@
-import type { User } from 'lucia'
 import { type Invalidator, type Subscriber, type Unsubscriber, type Updater } from 'svelte/store'
 
 import { browser } from '$app/environment'
@@ -14,7 +13,7 @@ import { DEFAULT_USER_SETTINGS, type IUserSettingsStore, type UserSettings } fro
 export default class UserSettingsStore implements IUserSettingsStore {
   store: BaseUserSettingsStore
 
-  constructor(initialUser: User | undefined) {
+  constructor(initialUser: ({ id: number } & UserSettings) | undefined) {
     if (initialUser) {
       const repository = new RemoteUserSettingsRepository(initialUser.id)
       this.store = new BaseUserSettingsStore(initialUser, repository)
@@ -28,7 +27,7 @@ export default class UserSettingsStore implements IUserSettingsStore {
     }
   }
 
-  updateUser(user: User | undefined): void {
+  updateUser(user: ({ id: number } & UserSettings) | undefined): void {
     if (user) {
       const repository = new RemoteUserSettingsRepository(user.id)
       this.store.setRepository(repository)

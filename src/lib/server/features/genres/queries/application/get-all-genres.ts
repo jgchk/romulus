@@ -1,7 +1,6 @@
 import { intersection } from 'ramda'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { type Genre } from '$lib/server/db/schema'
 import { type GenreType } from '$lib/types/genres'
 
@@ -82,7 +81,7 @@ export class GetAllGenresQuery {
     include = [],
     filter: inputFilter = {},
     sort = {},
-  }: GetAllGenresQueryInput<I>): Promise<GetAllGenresQueryResult> {
+  }: GetAllGenresQueryInput<I> = {}): Promise<GetAllGenresQueryResult<I>> {
     const databaseFilter = await this.constructDatabaseFilter(inputFilter)
 
     const { results, total } = await this.drizzleGetAllGenresQuery.execute({
@@ -129,11 +128,12 @@ export class GetAllGenresQuery {
   }
 
   private async getCreatedByFilterGenreIds(accountId: number): Promise<number[]> {
-    const genreHistoryDb = new GenreHistoryDatabase()
-    const { results: history } = await genreHistoryDb.findAll(
-      { filter: { accountId, operation: 'CREATE' } },
-      this.db,
-    )
+    const history = await this.db.query.genreHistory.findMany({
+      where: (genreHistory, { and, eq }) =>
+        and(eq(genreHistory.accountId, accountId), eq(genreHistory.operation, 'CREATE')),
+      columns: { treeGenreId: true },
+    })
+
     return history.map((h) => h.treeGenreId)
   }
 

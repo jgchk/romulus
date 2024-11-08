@@ -14,6 +14,9 @@ export const GET = (async ({
     dbConnection: App.Locals['dbConnection']
     user: App.Locals['user']
     services: {
+      api: {
+        commands: App.Locals['services']['api']['commands']
+      }
       genre: {
         queries: App.Locals['services']['genre']['queries']
       }

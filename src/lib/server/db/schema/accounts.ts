@@ -22,7 +22,7 @@ export const accounts = pgTable('Account', {
 export type InsertSession = InferInsertModel<typeof sessions>
 export type Session = InferSelectModel<typeof sessions>
 export const sessions = pgTable('Session', {
-  id: text('id').primaryKey(),
+  tokenHash: text('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => accounts.id, {

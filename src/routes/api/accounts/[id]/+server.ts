@@ -1,8 +1,6 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit'
-import { omit } from 'ramda'
 import { z } from 'zod'
 
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
@@ -34,20 +32,13 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   }
   const data = maybeData.data
 
-  const accountsDb = new AccountsDatabase()
-  const account = await accountsDb
-    .update(
-      id,
-      {
-        genreRelevanceFilter: data.genreRelevanceFilter,
-        showTypeTags: data.showTypeTags,
-        showRelevanceTags: data.showRelevanceTags,
-        darkMode: data.darkMode,
-        showNsfw: data.showNsfw,
-      },
-      locals.dbConnection,
-    )
-    .then((res) => omit(['password'], res))
+  await locals.services.authentication.commands.updateUserSettings(id, {
+    genreRelevanceFilter: data.genreRelevanceFilter,
+    showTypeTags: data.showTypeTags,
+    showRelevanceTags: data.showRelevanceTags,
+    darkMode: data.darkMode,
+    showNsfw: data.showNsfw,
+  })
 
-  return json(account)
+  return json({ success: true })
 }

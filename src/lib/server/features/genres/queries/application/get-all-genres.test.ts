@@ -1,15 +1,34 @@
 import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { type ExtendedInsertGenre, GenresDatabase } from '$lib/server/db/controllers/genre'
-import { createGenreHistoryEntry } from '$lib/server/genres'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../vitest-setup'
+import { CreateGenreCommand } from '../../commands/application/commands/create-genre'
+import { VoteGenreRelevanceCommand } from '../../commands/application/commands/vote-genre-relevance'
+import type { GenreConstructorParams } from '../../commands/domain/genre'
+import { DrizzleGenreRelevanceVoteRepository } from '../../commands/infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreRepository } from '../../commands/infrastructure/genre/drizzle-genre-repository'
+import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/genre-history/drizzle-genre-history-repository'
 import { GetAllGenresQuery } from './get-all-genres'
 
-function getTestGenre(data?: Partial<ExtendedInsertGenre>): ExtendedInsertGenre {
-  return { name: 'Test', akas: [], parents: [], influencedBy: [], updatedAt: new Date(), ...data }
+function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
+  return {
+    name: 'Test',
+    type: 'STYLE',
+    nsfw: false,
+    parents: new Set(),
+    influences: new Set(),
+    akas: {
+      primary: [],
+      secondary: [],
+      tertiary: [],
+    },
+    relevance: UNSET_GENRE_RELEVANCE,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...data,
+  }
 }
 
 test('should have a default limit', async ({ dbConnection }) => {
@@ -30,8 +49,15 @@ test('should return an empty array of genres when there are no genres in the DB'
 test('should return an array of genres when there are genres in the DB', async ({
   dbConnection,
 }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert([getTestGenre()], dbConnection)
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await createGenreCommand.execute(getTestGenre(), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({})
@@ -54,16 +80,22 @@ test('should return an array of genres when there are genres in the DB', async (
 })
 
 test('should paginate the results', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1' }),
       getTestGenre({ name: 'Test 2' }),
       getTestGenre({ name: 'Test 3' }),
       getTestGenre({ name: 'Test 4' }),
       getTestGenre({ name: 'Test 5' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -85,8 +117,15 @@ test('should paginate the results', async ({ dbConnection }) => {
 test('should handle a limit that is larger than the number of genres in the DB', async ({
   dbConnection,
 }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert([getTestGenre({ name: 'Test' })], dbConnection)
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await createGenreCommand.execute(getTestGenre({ name: 'Test' }), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ limit: 10 })
@@ -104,8 +143,15 @@ test('should handle a limit that is larger than the number of genres in the DB',
 test('should handle a skip that is larger than the number of genres in the DB', async ({
   dbConnection,
 }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert([getTestGenre()], dbConnection)
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await createGenreCommand.execute(getTestGenre(), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ skip: 10 })
@@ -121,8 +167,15 @@ test('should handle a skip that is larger than the number of genres in the DB', 
 })
 
 test('should handle a limit of 0', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert([getTestGenre()], dbConnection)
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await createGenreCommand.execute(getTestGenre(), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ limit: 0 })
@@ -138,10 +191,18 @@ test('should handle a limit of 0', async ({ dbConnection }) => {
 })
 
 test('should include parent ids when requested', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'Test 1', parents: [2] }), getTestGenre({ name: 'Test 2', parents: [] })],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const test1 = await createGenreCommand.execute(getTestGenre({ name: 'Test 1' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Test 2', parents: new Set([test1.id]) }),
+    account.id,
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -150,23 +211,28 @@ test('should include parent ids when requested', async ({ dbConnection }) => {
   expect(result.data).toEqual([
     expect.objectContaining({
       name: 'Test 1',
-      parents: [2],
+      parents: [],
     }),
     expect.objectContaining({
       name: 'Test 2',
-      parents: [],
+      parents: [test1.id],
     }),
   ])
 })
 
 test('should include influencedBy ids when requested', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ name: 'Test 1', influencedBy: [2] }),
-      getTestGenre({ name: 'Test 2', influencedBy: [] }),
-    ],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const test1 = await createGenreCommand.execute(getTestGenre({ name: 'Test 1' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Test 2', influences: new Set([test1.id]) }),
+    account.id,
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -175,37 +241,36 @@ test('should include influencedBy ids when requested', async ({ dbConnection }) 
   expect(result.data).toEqual([
     expect.objectContaining({
       name: 'Test 1',
-      influencedBy: [2],
+      influencedBy: [],
     }),
     expect.objectContaining({
       name: 'Test 2',
-      influencedBy: [],
+      influencedBy: [test1.id],
     }),
   ])
 })
 
 test('should include akas when requested', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({
-        name: 'Test 1',
-        akas: [
-          { relevance: 1, order: 1, name: 'tertiary-two' },
-          { relevance: 1, order: 0, name: 'tertiary-one' },
-          { relevance: 2, order: 1, name: 'secondary-two' },
-          { relevance: 2, order: 0, name: 'secondary-one' },
-          { relevance: 3, order: 0, name: 'primary-one' },
-          { relevance: 3, order: 1, name: 'primary-two' },
-        ],
-      }),
-      getTestGenre({
-        name: 'Test 2',
-        influencedBy: [],
-      }),
-    ],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
+  await createGenreCommand.execute(
+    getTestGenre({
+      name: 'Test 1',
+      akas: {
+        primary: ['primary-one', 'primary-two'],
+        secondary: ['secondary-one', 'secondary-two'],
+        tertiary: ['tertiary-one', 'tertiary-two'],
+      },
+    }),
+    account.id,
+  )
+  await createGenreCommand.execute(getTestGenre({ name: 'Test 2' }), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ include: ['akas'] })
@@ -231,11 +296,16 @@ test('should include akas when requested', async ({ dbConnection }) => {
 })
 
 test('should allow filtering on name by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
+  await createGenreCommand.execute(getTestGenre({ name: 'Test 1' }), account.id)
+  await createGenreCommand.execute(getTestGenre({ name: 'Test 2' }), account.id)
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ filter: { name: 'Test 2' } })
@@ -244,33 +314,43 @@ test('should allow filtering on name by exact match', async ({ dbConnection }) =
 })
 
 test('should allow filtering on subtitle by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', subtitle: '' }),
-      getTestGenre({ name: 'Test 2', subtitle: null }),
-      getTestGenre({ name: 'Test 3', subtitle: undefined }),
-      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', subtitle: undefined }),
+      getTestGenre({ name: 'Test 3', subtitle: 'Test Subtitle' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ filter: { subtitle: 'Test Subtitle' } })
 
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 3' })])
 })
 
 test('should allow filtering on subtitle by empty string', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', subtitle: '' }),
-      getTestGenre({ name: 'Test 2', subtitle: null }),
-      getTestGenre({ name: 'Test 3', subtitle: undefined }),
-      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', subtitle: undefined }),
+      getTestGenre({ name: 'Test 3', subtitle: 'Test Subtitle' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -279,20 +359,24 @@ test('should allow filtering on subtitle by empty string', async ({ dbConnection
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on subtitle by null', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', subtitle: '' }),
-      getTestGenre({ name: 'Test 2', subtitle: null }),
-      getTestGenre({ name: 'Test 3', subtitle: undefined }),
-      getTestGenre({ name: 'Test 4', subtitle: 'Test Subtitle' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', subtitle: undefined }),
+      getTestGenre({ name: 'Test 3', subtitle: 'Test Subtitle' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -301,18 +385,23 @@ test('should allow filtering on subtitle by null', async ({ dbConnection }) => {
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on type by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', type: 'STYLE' }),
       getTestGenre({ name: 'Test 2', type: 'META' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -322,13 +411,19 @@ test('should allow filtering on type by exact match', async ({ dbConnection }) =
 })
 
 test('should allow filtering on relevance by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', relevance: 1 }),
       getTestGenre({ name: 'Test 2', relevance: 2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -338,14 +433,20 @@ test('should allow filtering on relevance by exact match', async ({ dbConnection
 })
 
 test('should allow filtering on relevance by unset value', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', relevance: 1 }),
       getTestGenre({ name: 'Test 2', relevance: UNSET_GENRE_RELEVANCE }),
       getTestGenre({ name: 'Test 3', relevance: undefined }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -358,14 +459,20 @@ test('should allow filtering on relevance by unset value', async ({ dbConnection
 })
 
 test('should allow filtering on relevance by null', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', relevance: 1 }),
       getTestGenre({ name: 'Test 2', relevance: UNSET_GENRE_RELEVANCE }),
       getTestGenre({ name: 'Test 3', relevance: undefined }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -378,10 +485,19 @@ test('should allow filtering on relevance by null', async ({ dbConnection }) => 
 })
 
 test('should allow filtering on NSFW by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'Test 1', nsfw: true }), getTestGenre({ name: 'Test 2', nsfw: false })],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [
+      getTestGenre({ name: 'Test 1', nsfw: true }),
+      getTestGenre({ name: 'Test 2', nsfw: false }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -391,33 +507,43 @@ test('should allow filtering on NSFW by exact match', async ({ dbConnection }) =
 })
 
 test('should allow filtering on shortDescription by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', shortDescription: '' }),
-      getTestGenre({ name: 'Test 2', shortDescription: null }),
-      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
-      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 3', shortDescription: 'Short' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ filter: { shortDescription: 'Short' } })
 
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 3' })])
 })
 
 test('should allow filtering on shortDescription by empty string', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', shortDescription: '' }),
-      getTestGenre({ name: 'Test 2', shortDescription: null }),
-      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
-      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 3', shortDescription: 'Short' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -426,20 +552,24 @@ test('should allow filtering on shortDescription by empty string', async ({ dbCo
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on shortDescription by null', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', shortDescription: '' }),
-      getTestGenre({ name: 'Test 2', shortDescription: null }),
-      getTestGenre({ name: 'Test 3', shortDescription: undefined }),
-      getTestGenre({ name: 'Test 4', shortDescription: 'Short' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', shortDescription: undefined }),
+      getTestGenre({ name: 'Test 3', shortDescription: 'Short' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -448,38 +578,47 @@ test('should allow filtering on shortDescription by null', async ({ dbConnection
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on longDescription by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', longDescription: '' }),
-      getTestGenre({ name: 'Test 2', longDescription: null }),
-      getTestGenre({ name: 'Test 3', longDescription: undefined }),
-      getTestGenre({ name: 'Test 4', longDescription: 'Long' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', longDescription: undefined }),
+      getTestGenre({ name: 'Test 3', longDescription: 'Long' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ filter: { longDescription: 'Long' } })
 
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 3' })])
 })
 
 test('should allow filtering on longDescription by empty string', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', longDescription: '' }),
-      getTestGenre({ name: 'Test 2', longDescription: null }),
-      getTestGenre({ name: 'Test 3', longDescription: undefined }),
-      getTestGenre({ name: 'Test 4', longDescription: 'Long' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', longDescription: undefined }),
+      getTestGenre({ name: 'Test 3', longDescription: 'Long' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -488,20 +627,24 @@ test('should allow filtering on longDescription by empty string', async ({ dbCon
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on longDescription by null', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', longDescription: '' }),
-      getTestGenre({ name: 'Test 2', longDescription: null }),
-      getTestGenre({ name: 'Test 3', longDescription: undefined }),
-      getTestGenre({ name: 'Test 4', longDescription: 'Long' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', longDescription: undefined }),
+      getTestGenre({ name: 'Test 3', longDescription: 'Long' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -510,38 +653,47 @@ test('should allow filtering on longDescription by null', async ({ dbConnection 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on notes by exact match', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', notes: '' }),
-      getTestGenre({ name: 'Test 2', notes: null }),
-      getTestGenre({ name: 'Test 3', notes: undefined }),
-      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', notes: undefined }),
+      getTestGenre({ name: 'Test 3', notes: 'Notes' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ filter: { notes: 'Notes' } })
 
-  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 4' })])
+  expect(result.data).toEqual([expect.objectContaining({ name: 'Test 3' })])
 })
 
 test('should allow filtering on notes by empty string', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', notes: '' }),
-      getTestGenre({ name: 'Test 2', notes: null }),
-      getTestGenre({ name: 'Test 3', notes: undefined }),
-      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', notes: undefined }),
+      getTestGenre({ name: 'Test 3', notes: 'Notes' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -550,20 +702,24 @@ test('should allow filtering on notes by empty string', async ({ dbConnection })
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
 test('should allow filtering on notes by null', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', notes: '' }),
-      getTestGenre({ name: 'Test 2', notes: null }),
-      getTestGenre({ name: 'Test 3', notes: undefined }),
-      getTestGenre({ name: 'Test 4', notes: 'Notes' }),
-    ],
-    dbConnection,
+      getTestGenre({ name: 'Test 2', notes: undefined }),
+      getTestGenre({ name: 'Test 3', notes: 'Notes' }),
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -572,7 +728,6 @@ test('should allow filtering on notes by null', async ({ dbConnection }) => {
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Test 1' }),
     expect.objectContaining({ name: 'Test 2' }),
-    expect.objectContaining({ name: 'Test 3' }),
   ])
 })
 
@@ -580,13 +735,19 @@ test('should allow filtering on createdAt by exact match', async ({ dbConnection
   const date1 = new Date()
   const date2 = new Date(date1.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', createdAt: date1 }),
       getTestGenre({ name: 'Test 2', createdAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -599,13 +760,19 @@ test('should allow filtering on updatedAt by exact match', async ({ dbConnection
   const date1 = new Date()
   const date2 = new Date(date1.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'Test 1', updatedAt: date1 }),
       getTestGenre({ name: 'Test 2', updatedAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -615,58 +782,44 @@ test('should allow filtering on updatedAt by exact match', async ({ dbConnection
 })
 
 test('should allow filtering by createdBy', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  const [genre1, genre2] = await genresDb.insert(
-    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
-    dbConnection,
-  )
-
   const accountsDb = new AccountsDatabase()
-  const [account] = await accountsDb.insert(
-    [{ username: 'Testing', password: 'Pass' }],
+  const [account1, account2] = await accountsDb.insert(
+    [
+      { username: 'Account 1', password: 'Pass' },
+      { username: 'Account 2', password: 'Pass' },
+    ],
     dbConnection,
   )
 
-  await createGenreHistoryEntry({
-    genre: genre1,
-    accountId: account.id,
-    operation: 'CREATE',
-    connection: dbConnection,
-  })
-  await createGenreHistoryEntry({
-    genre: genre2,
-    accountId: account.id,
-    operation: 'UPDATE',
-    connection: dbConnection,
-  })
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await createGenreCommand.execute(getTestGenre({ name: 'Test 1' }), account1.id)
+  await createGenreCommand.execute(getTestGenre({ name: 'Test 2' }), account2.id)
 
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { createdBy: account.id } })
+  const result = await query.execute({ filter: { createdBy: account1.id } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Test 1' })])
 })
 
 test('should allow filtering by both createdBy and name', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  const genres = await genresDb.insert(
-    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })],
-    dbConnection,
-  )
-
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert(
     [{ username: 'Testing', password: 'Pass' }],
     dbConnection,
   )
 
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
   await Promise.all(
-    genres.map((genre) =>
-      createGenreHistoryEntry({
-        genre,
-        accountId: account.id,
-        operation: 'CREATE',
-        connection: dbConnection,
-      }),
+    [getTestGenre({ name: 'Test 1' }), getTestGenre({ name: 'Test 2' })].map((genre) =>
+      createGenreCommand.execute(genre, account.id),
     ),
   )
 
@@ -677,74 +830,104 @@ test('should allow filtering by both createdBy and name', async ({ dbConnection 
 })
 
 test('should allow filtering by parent id', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ id: 0, name: 'Parent' }), getTestGenre({ id: 1, name: 'Child', parents: [0] })],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const parent = await createGenreCommand.execute(getTestGenre({ name: 'Parent' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child', parents: new Set([parent.id]) }),
+    account.id,
   )
 
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { parents: [0] } })
+  const result = await query.execute({ filter: { parents: [parent.id] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child' })])
 })
 
 test('should allow filtering by multiple parent ids', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 0, name: 'Parent 1' }),
-      getTestGenre({ id: 1, name: 'Parent 2' }),
-      getTestGenre({ id: 2, name: 'Child 1' }),
-      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
-      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
-      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
-    ],
-    dbConnection,
+  const accountId = new AccountsDatabase()
+  const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const parent1 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 1' }), account.id)
+  const parent2 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 2' }), account.id)
+  await createGenreCommand.execute(getTestGenre({ name: 'Child 1' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 2', parents: new Set([parent1.id]) }),
+    account.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 3', parents: new Set([parent2.id]) }),
+    account.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 4', parents: new Set([parent1.id, parent2.id]) }),
+    account.id,
   )
 
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { parents: [0, 1] } })
+  const result = await query.execute({ filter: { parents: [parent1.id, parent2.id] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child 4' })])
 })
 
 test('should allow filtering by parents and createdBy', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  const genres = await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account1, account2] = await accountsDb.insert(
     [
-      getTestGenre({ id: 0, name: 'Parent 1' }),
-      getTestGenre({ id: 1, name: 'Parent 2' }),
-      getTestGenre({ id: 2, name: 'Child 1' }),
-      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
-      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
-      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
-      getTestGenre({ id: 6, name: 'Child 5', parents: [0] }),
-      getTestGenre({ id: 7, name: 'Child 6', parents: [1] }),
-      getTestGenre({ id: 8, name: 'Child 7', parents: [0, 1] }),
+      { username: 'Account 1', password: 'Pass' },
+      { username: 'Account 2', password: 'Pass' },
     ],
     dbConnection,
   )
 
-  const accountsDb = new AccountsDatabase()
-  const [account] = await accountsDb.insert(
-    [{ username: 'Testing', password: 'Pass' }],
-    dbConnection,
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
-
-  await Promise.all(
-    genres.slice(genres.findIndex((genre) => genre.name === 'Child 5')).map((genre) =>
-      createGenreHistoryEntry({
-        genre,
-        accountId: account.id,
-        operation: 'CREATE',
-        connection: dbConnection,
-      }),
-    ),
+  const parent1 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 1' }), account1.id)
+  const parent2 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 2' }), account1.id)
+  await createGenreCommand.execute(getTestGenre({ name: 'Child 1' }), account1.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 2', parents: new Set([parent1.id]) }),
+    account1.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 3', parents: new Set([parent2.id]) }),
+    account1.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 4', parents: new Set([parent1.id, parent2.id]) }),
+    account1.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 5', parents: new Set([parent1.id]) }),
+    account2.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 6', parents: new Set([parent2.id]) }),
+    account2.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 7', parents: new Set([parent1.id, parent2.id]) }),
+    account2.id,
   )
 
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { parents: [0, 1], createdBy: account.id } })
+  const result = await query.execute({
+    filter: { parents: [parent1.id, parent2.id], createdBy: account2.id },
+  })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Child 7' })])
 })
@@ -752,41 +935,80 @@ test('should allow filtering by parents and createdBy', async ({ dbConnection })
 test('should return no results when filtering by parents and createdBy with no matches', async ({
   dbConnection,
 }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account1, account2] = await accountsDb.insert(
     [
-      getTestGenre({ id: 0, name: 'Parent 1' }),
-      getTestGenre({ id: 1, name: 'Parent 2' }),
-      getTestGenre({ id: 2, name: 'Child 1' }),
-      getTestGenre({ id: 3, name: 'Child 2', parents: [0] }),
-      getTestGenre({ id: 4, name: 'Child 3', parents: [1] }),
-      getTestGenre({ id: 5, name: 'Child 4', parents: [0, 1] }),
+      { username: 'Account 1', password: 'Pass' },
+      { username: 'Account 2', password: 'Pass' },
     ],
     dbConnection,
   )
 
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const parent1 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 1' }), account1.id)
+  const parent2 = await createGenreCommand.execute(getTestGenre({ name: 'Parent 2' }), account1.id)
+  await createGenreCommand.execute(getTestGenre({ name: 'Child 1' }), account1.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 2', parents: new Set([parent1.id]) }),
+    account1.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 3', parents: new Set([parent2.id]) }),
+    account1.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 4', parents: new Set([parent1.id, parent2.id]) }),
+    account1.id,
+  )
+
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { parents: [0, 1], createdBy: 1 } })
+  const result = await query.execute({
+    filter: { parents: [parent1.id, parent2.id], createdBy: account2.id },
+  })
 
   expect(result.data).toEqual([])
 })
 
 test('should allow filtering by ancestor id', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 0, name: 'Grandparent' }),
-      getTestGenre({ id: 1, name: 'Parent', parents: [0] }),
-      getTestGenre({ id: 2, name: 'Child', parents: [1] }),
-      getTestGenre({ id: 3, name: 'Grandchild', parents: [2] }),
-      getTestGenre({ id: 4, name: 'Other 1' }),
-      getTestGenre({ id: 5, name: 'Other 2', parents: [4] }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
   )
 
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const grandparent = await createGenreCommand.execute(
+    getTestGenre({ name: 'Grandparent' }),
+    account.id,
+  )
+  const parent = await createGenreCommand.execute(
+    getTestGenre({ name: 'Parent', parents: new Set([grandparent.id]) }),
+    account.id,
+  )
+  const child = await createGenreCommand.execute(
+    getTestGenre({ name: 'Child', parents: new Set([parent.id]) }),
+    account.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Grandchild', parents: new Set([child.id]) }),
+    account.id,
+  )
+  const other1 = await createGenreCommand.execute(getTestGenre({ name: 'Other 1' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Other 2', parents: new Set([other1.id]) }),
+    account.id,
+  )
+
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { ancestors: [0] } })
+  const result = await query.execute({ filter: { ancestors: [grandparent.id] } })
 
   expect(result.data).toEqual([
     expect.objectContaining({ name: 'Parent' }),
@@ -796,117 +1018,185 @@ test('should allow filtering by ancestor id', async ({ dbConnection }) => {
 })
 
 test('should allow filtering by multiple ancestor ids', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 0, name: 'Grandparent 1' }),
-      getTestGenre({ id: 1, name: 'Parent 1', parents: [0] }),
-      getTestGenre({ id: 2, name: 'Child 1', parents: [1] }),
-      getTestGenre({ id: 3, name: 'Grandparent 2' }),
-      getTestGenre({ id: 4, name: 'Parent 2', parents: [3] }),
-      getTestGenre({ id: 5, name: 'Child 2', parents: [4] }),
-      getTestGenre({ id: 6, name: 'Grandchild', parents: [2, 5] }),
-      getTestGenre({ id: 7, name: 'Other 1' }),
-      getTestGenre({ id: 8, name: 'Other 2', parents: [2] }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
   )
 
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  const grandparent1 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Grandparent 1' }),
+    account.id,
+  )
+  const parent1 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Parent 1', parents: new Set([grandparent1.id]) }),
+    account.id,
+  )
+  const child1 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 1', parents: new Set([parent1.id]) }),
+    account.id,
+  )
+  const grandparent2 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Grandparent 2' }),
+    account.id,
+  )
+  const parent2 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Parent 2', parents: new Set([grandparent2.id]) }),
+    account.id,
+  )
+  const child2 = await createGenreCommand.execute(
+    getTestGenre({ name: 'Child 2', parents: new Set([parent2.id]) }),
+    account.id,
+  )
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Grandchild', parents: new Set([child1.id, child2.id]) }),
+    account.id,
+  )
+  await createGenreCommand.execute(getTestGenre({ name: 'Other 1' }), account.id)
+  await createGenreCommand.execute(
+    getTestGenre({ name: 'Other 2', parents: new Set([child1.id]) }),
+    account.id,
+  )
+
   const query = new GetAllGenresQuery(dbConnection)
-  const result = await query.execute({ filter: { ancestors: [0, 4] } })
+  const result = await query.execute({ filter: { ancestors: [grandparent1.id, parent2.id] } })
 
   expect(result.data).toEqual([expect.objectContaining({ name: 'Grandchild' })])
 })
 
 test('should allow sorting by id', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 2, name: 'A' }),
-      getTestGenre({ id: 0, name: 'B' }),
-      getTestGenre({ id: 1, name: 'C' }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'C' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ sort: { field: 'id' } })
 
   expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
     expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'C' }),
-    expect.objectContaining({ name: 'A' }),
   ])
 })
 
 test('should allow sorting by id in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 2, name: 'A' }),
-      getTestGenre({ id: 0, name: 'B' }),
-      getTestGenre({ id: 1, name: 'C' }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'C' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ sort: { field: 'id', order: 'asc' } })
 
   expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
     expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'C' }),
-    expect.objectContaining({ name: 'A' }),
   ])
 })
 
 test('should allow sorting by id in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 2, name: 'A' }),
-      getTestGenre({ id: 0, name: 'B' }),
-      getTestGenre({ id: 1, name: 'C' }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'C' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({ sort: { field: 'id', order: 'desc' } })
 
   expect(result.data).toEqual([
-    expect.objectContaining({ name: 'A' }),
     expect.objectContaining({ name: 'C' }),
     expect.objectContaining({ name: 'B' }),
+    expect.objectContaining({ name: 'A' }),
   ])
 })
 
 test('should sort by id by default', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [
-      getTestGenre({ id: 2, name: 'A' }),
-      getTestGenre({ id: 0, name: 'B' }),
-      getTestGenre({ id: 1, name: 'C' }),
-    ],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'C' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
   const result = await query.execute({})
 
   expect(result.data).toEqual([
+    expect.objectContaining({ name: 'A' }),
     expect.objectContaining({ name: 'B' }),
     expect.objectContaining({ name: 'C' }),
-    expect.objectContaining({ name: 'A' }),
   ])
 })
 
 test('should allow sorting by name', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'A' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -920,10 +1210,21 @@ test('should allow sorting by name', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by name in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'A' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -937,10 +1238,21 @@ test('should allow sorting by name in ascending order', async ({ dbConnection })
 })
 
 test('should allow sorting by name in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
-    [getTestGenre({ name: 'C' }), getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' })],
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
     dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
+    [getTestGenre({ name: 'A' }), getTestGenre({ name: 'B' }), getTestGenre({ name: 'C' })].map(
+      (genre) => createGenreCommand.execute(genre, account.id),
+    ),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -954,14 +1266,23 @@ test('should allow sorting by name in descending order', async ({ dbConnection }
 })
 
 test('should allow sorting by subtitle', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', subtitle: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', subtitle: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -975,14 +1296,23 @@ test('should allow sorting by subtitle', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by subtitle in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', subtitle: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', subtitle: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -996,14 +1326,23 @@ test('should allow sorting by subtitle in ascending order', async ({ dbConnectio
 })
 
 test('should allow sorting by subtitle in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', subtitle: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', subtitle: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1017,14 +1356,23 @@ test('should allow sorting by subtitle in descending order', async ({ dbConnecti
 })
 
 test('should allow sorting by type', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', type: 'META' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', type: 'SCENE' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1038,14 +1386,23 @@ test('should allow sorting by type', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by type in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', type: 'META' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', type: 'SCENE' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1059,14 +1416,23 @@ test('should allow sorting by type in ascending order', async ({ dbConnection })
 })
 
 test('should allow sorting by type in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', type: 'META' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', type: 'SCENE' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1080,14 +1446,23 @@ test('should allow sorting by type in descending order', async ({ dbConnection }
 })
 
 test('should allow sorting by relevance', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', relevance: 2 }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', relevance: 1 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1101,14 +1476,23 @@ test('should allow sorting by relevance', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by relevance in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', relevance: 2 }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', relevance: 1 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1122,14 +1506,23 @@ test('should allow sorting by relevance in ascending order', async ({ dbConnecti
 })
 
 test('should allow sorting by relevance in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', relevance: 2 }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', relevance: 1 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1143,14 +1536,23 @@ test('should allow sorting by relevance in descending order', async ({ dbConnect
 })
 
 test('should allow sorting by NSFW', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', nsfw: true }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', nsfw: false }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1164,14 +1566,23 @@ test('should allow sorting by NSFW', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by NSFW in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', nsfw: true }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', nsfw: false }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1185,14 +1596,23 @@ test('should allow sorting by NSFW in ascending order', async ({ dbConnection })
 })
 
 test('should allow sorting by NSFW in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', nsfw: true }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', nsfw: false }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1206,14 +1626,23 @@ test('should allow sorting by NSFW in descending order', async ({ dbConnection }
 })
 
 test('should allow sorting by shortDescription', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', shortDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', shortDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1227,14 +1656,23 @@ test('should allow sorting by shortDescription', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by shortDescription in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', shortDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', shortDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1248,14 +1686,23 @@ test('should allow sorting by shortDescription in ascending order', async ({ dbC
 })
 
 test('should allow sorting by shortDescription in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', shortDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', shortDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1269,14 +1716,23 @@ test('should allow sorting by shortDescription in descending order', async ({ db
 })
 
 test('should allow sorting by longDescription', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', longDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', longDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1290,14 +1746,23 @@ test('should allow sorting by longDescription', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by longDescription in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', longDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', longDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1311,14 +1776,23 @@ test('should allow sorting by longDescription in ascending order', async ({ dbCo
 })
 
 test('should allow sorting by longDescription in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', longDescription: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', longDescription: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1332,14 +1806,23 @@ test('should allow sorting by longDescription in descending order', async ({ dbC
 })
 
 test('should allow sorting by notes', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', notes: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', notes: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1353,14 +1836,23 @@ test('should allow sorting by notes', async ({ dbConnection }) => {
 })
 
 test('should allow sorting by notes in ascending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', notes: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', notes: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1374,14 +1866,23 @@ test('should allow sorting by notes in ascending order', async ({ dbConnection }
 })
 
 test('should allow sorting by notes in descending order', async ({ dbConnection }) => {
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', notes: 'B' }),
       getTestGenre({ name: 'A' }),
       getTestGenre({ name: 'B', notes: 'A' }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1399,14 +1900,23 @@ test('should allow sorting by createdAt', async ({ dbConnection }) => {
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', createdAt: date3 }),
       getTestGenre({ name: 'A', createdAt: date1 }),
       getTestGenre({ name: 'B', createdAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1424,14 +1934,23 @@ test('should allow sorting by createdAt in ascending order', async ({ dbConnecti
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', createdAt: date3 }),
       getTestGenre({ name: 'A', createdAt: date1 }),
       getTestGenre({ name: 'B', createdAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1449,14 +1968,23 @@ test('should allow sorting by createdAt in descending order', async ({ dbConnect
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', createdAt: date3 }),
       getTestGenre({ name: 'A', createdAt: date1 }),
       getTestGenre({ name: 'B', createdAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1474,14 +2002,23 @@ test('should allow sorting by updatedAt', async ({ dbConnection }) => {
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', updatedAt: date3 }),
       getTestGenre({ name: 'A', updatedAt: date1 }),
       getTestGenre({ name: 'B', updatedAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1499,14 +2036,23 @@ test('should allow sorting by updatedAt in ascending order', async ({ dbConnecti
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', updatedAt: date3 }),
       getTestGenre({ name: 'A', updatedAt: date1 }),
       getTestGenre({ name: 'B', updatedAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)
@@ -1524,14 +2070,23 @@ test('should allow sorting by updatedAt in descending order', async ({ dbConnect
   const date2 = new Date(date1.getTime() + 1000)
   const date3 = new Date(date2.getTime() + 1000)
 
-  const genresDb = new GenresDatabase()
-  await genresDb.insert(
+  const accountsDb = new AccountsDatabase()
+  const [account] = await accountsDb.insert(
+    [{ username: 'Account', password: 'Pass' }],
+    dbConnection,
+  )
+
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+  await Promise.all(
     [
       getTestGenre({ name: 'C', updatedAt: date3 }),
       getTestGenre({ name: 'A', updatedAt: date1 }),
       getTestGenre({ name: 'B', updatedAt: date2 }),
-    ],
-    dbConnection,
+    ].map((genre) => createGenreCommand.execute(genre, account.id)),
   )
 
   const query = new GetAllGenresQuery(dbConnection)

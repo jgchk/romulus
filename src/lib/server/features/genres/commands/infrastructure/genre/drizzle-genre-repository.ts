@@ -83,6 +83,7 @@ export class DrizzleGenreRepository implements GenreRepository {
           longDescription: genre.longDescription,
           notes: genre.notes,
           relevance: genre.relevance,
+          createdAt: genre.createdAt,
           updatedAt: genre.updatedAt,
         })
         .returning({ id: genres.id })

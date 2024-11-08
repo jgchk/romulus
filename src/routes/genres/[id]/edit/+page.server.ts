@@ -4,7 +4,6 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
 import {
   DuplicatePrimaryAkaError,
   DuplicateSecondaryAkaError,
@@ -28,8 +27,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const genresDb = new GenresDatabase()
-  const maybeGenre = await genresDb.findByIdEdit(id, locals.dbConnection)
+  const maybeGenre = await locals.services.genre.queries.getGenre(id)
   if (!maybeGenre) {
     return error(404, { message: 'Genre not found' })
   }
@@ -38,18 +36,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const data = {
     ...genre,
-    primaryAkas: akas
-      .filter((aka) => aka.relevance === 3)
-      .map((aka) => aka.name)
-      .join(', '),
-    secondaryAkas: akas
-      .filter((aka) => aka.relevance === 2)
-      .map((aka) => aka.name)
-      .join(', '),
-    tertiaryAkas: akas
-      .filter((aka) => aka.relevance === 1)
-      .map((aka) => aka.name)
-      .join(', '),
+    parents: genre.parents.map((parent) => parent.id),
+    influencedBy: genre.influencedBy.map((influencer) => influencer.id),
+    primaryAkas: akas.primary.join(', '),
+    secondaryAkas: akas.secondary.join(', '),
+    tertiaryAkas: akas.tertiary.join(', '),
   }
 
   const form = await superValidate(data, zod(genreSchema))

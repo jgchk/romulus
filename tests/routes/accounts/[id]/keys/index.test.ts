@@ -1,6 +1,10 @@
 import { expect } from '@playwright/test'
 
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { apiKeys } from '$lib/server/db/schema'
+import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
 import { test } from '../../../../fixtures'
 
@@ -10,8 +14,7 @@ const TEST_ACCOUNT = {
 }
 
 test.afterEach(async ({ dbConnection }) => {
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.deleteAll(dbConnection)
+  await dbConnection.delete(apiKeys)
 })
 
 test('should create a new API key', async ({ withAccount, signInPage, apiKeysPage, page }) => {
@@ -40,11 +43,12 @@ test('should delete an API key', async ({
 }) => {
   const account = await withAccount(TEST_ACCOUNT)
 
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.insert(
-    [{ name: 'test-key', keyHash: '000-000', accountId: account.id }],
-    dbConnection,
+  const createApiKey = new CreateApiKeyCommand(
+    new DrizzleApiKeyRepository(dbConnection),
+    new CryptoTokenGenerator(),
+    new Sha256HashRepository(),
   )
+  await createApiKey.execute('test-key', account.id)
 
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)

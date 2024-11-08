@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test'
+import { eq } from 'drizzle-orm'
 
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { genres } from '$lib/server/db/schema'
 
 import { test } from '../../../fixtures'
 import { GenreTreeGenre } from '../../../fixtures/elements/genre-tree'
@@ -15,9 +16,9 @@ const TEST_ACCOUNT = {
 export default function operationsTests() {
   test.describe('operations', () => {
     test.afterEach(async ({ dbConnection }) => {
-      // delete created-genre
-      const genresDb = new GenresDatabase()
-      const createdGenres = await genresDb.findByName('Genre', dbConnection)
+      const createdGenres = await dbConnection.query.genres.findMany({
+        where: eq(genres.name, 'Genre'),
+      })
       await deleteGenres(
         createdGenres.map((genre) => genre.id),
         dbConnection,

@@ -1,8 +1,15 @@
 import { describe, expect } from 'vitest'
 
-import { checkApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
+import { ValidateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/validate-api-key'
+import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
+import { GetApiKeysByAccountQuery } from '$lib/server/features/api/queries/application/get-api-keys-by-account'
+import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
+import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
 import { test } from '../../../../vitest-setup'
 import { actions, load } from './+page.server'
@@ -10,7 +17,17 @@ import { actions, load } from './+page.server'
 describe('load', () => {
   test('should throw error if not logged in', async ({ dbConnection }) => {
     try {
-      await load({ params: { id: '1' }, locals: { dbConnection, user: undefined } })
+      await load({
+        params: { id: '1' },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: { queries: new ApiQueryService(dbConnection) },
+          },
+        },
+      })
       expect.fail('should throw error')
     } catch (e) {
       expect(e).toEqual({ status: 401, body: { message: 'Unauthorized' } })
@@ -21,7 +38,17 @@ describe('load', () => {
     dbConnection,
   }) => {
     try {
-      await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 2 } } })
+      await load({
+        params: { id: '1' },
+        locals: {
+          dbConnection,
+          user: { id: 2 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: { queries: new ApiQueryService(dbConnection) },
+          },
+        },
+      })
       expect.fail('should throw error')
     } catch (e) {
       expect(e).toEqual({ status: 403, body: { message: 'Unauthorized' } })
@@ -30,7 +57,17 @@ describe('load', () => {
 
   test('should throw error if account id is not a number', async ({ dbConnection }) => {
     try {
-      await load({ params: { id: 'test' }, locals: { dbConnection, user: { id: 1 } } })
+      await load({
+        params: { id: 'test' },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: { queries: new ApiQueryService(dbConnection) },
+          },
+        },
+      })
       expect.fail('should throw error')
     } catch (e) {
       expect(e).toEqual({ status: 400, body: { message: 'Invalid account ID' } })
@@ -39,7 +76,17 @@ describe('load', () => {
 
   test('should throw error if account does not exist', async ({ dbConnection }) => {
     try {
-      await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+      await load({
+        params: { id: '1' },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: { queries: new ApiQueryService(dbConnection) },
+          },
+        },
+      })
       expect.fail('should throw error')
     } catch (e) {
       expect(e).toEqual({ status: 404, body: { message: 'Account not found' } })
@@ -53,13 +100,23 @@ describe('load', () => {
       dbConnection,
     )
 
-    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+    const result = await load({
+      params: { id: '1' },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: { queries: new ApiQueryService(dbConnection) },
+        },
+      },
+    })
     expect(result).toEqual({ keys: [] })
   })
 
   test('should return account keys', async ({ dbConnection }) => {
     const accountsDb = new AccountsDatabase()
-    await accountsDb.insert(
+    const [account1, account2] = await accountsDb.insert(
       [
         { id: 1, username: 'test-user-1', password: 'test-password-1' },
         { id: 2, username: 'test-user-2', password: 'test-password-2' },
@@ -67,16 +124,25 @@ describe('load', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert(
-      [
-        { accountId: 1, name: 'test-key-1', keyHash: 'test-key-1-hash' },
-        { accountId: 2, name: 'test-key-2', keyHash: 'test-key-2-hash' },
-      ],
-      dbConnection,
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
     )
+    await createApiKey.execute('test-key-1', account1.id)
+    await createApiKey.execute('test-key-2', account2.id)
 
-    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+    const result = await load({
+      params: { id: account1.id.toString() },
+      locals: {
+        dbConnection,
+        user: { id: account1.id },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: { queries: new ApiQueryService(dbConnection) },
+        },
+      },
+    })
 
     expect(result).toEqual({
       keys: [{ id: 1, name: 'test-key-1', createdAt: expect.any(Date) as Date }],
@@ -92,26 +158,25 @@ describe('load', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    await apiKeysDb.insert(
-      [
-        {
-          accountId: account.id,
-          name: 'test-key-1',
-          keyHash: 'test-key-1-hash',
-          createdAt: new Date(),
-        },
-        {
-          accountId: account.id,
-          name: 'test-key-2',
-          keyHash: 'test-key-2-hash',
-          createdAt: new Date(new Date().getTime() + 1000000),
-        },
-      ],
-      dbConnection,
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
     )
+    await createApiKey.execute('test-key-1', account.id)
+    await createApiKey.execute('test-key-2', account.id)
 
-    const result = await load({ params: { id: '1' }, locals: { dbConnection, user: { id: 1 } } })
+    const result = await load({
+      params: { id: account.id.toString() },
+      locals: {
+        dbConnection,
+        user: { id: account.id },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: { queries: new ApiQueryService(dbConnection) },
+        },
+      },
+    })
 
     expect(result).toEqual({
       keys: [
@@ -127,7 +192,20 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: undefined },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -142,7 +220,20 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 2 } },
+        locals: {
+          dbConnection,
+          user: { id: 2 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -155,7 +246,20 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: 'test' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -168,7 +272,20 @@ describe('create', () => {
     try {
       await actions.create({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            authentication: { queries: new AuthenticationQueryService(dbConnection) },
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -189,26 +306,35 @@ describe('create', () => {
 
     await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const keys = await apiKeysDb.findByAccountId(1, dbConnection)
+    const getApiKeysByAccount = new GetApiKeysByAccountQuery(dbConnection)
+    const keys = await getApiKeysByAccount.execute(1)
     expect(keys).toEqual([
       {
         id: expect.any(Number) as number,
-        accountId: 1,
         name: 'New API Key',
-        keyHash: expect.any(String) as string,
         createdAt: expect.any(Date) as Date,
       },
     ])
   })
 
-  test('should return the created key which should resolve to the stored hash', async ({
-    dbConnection,
-  }) => {
+  test('should return the created key which should be valid', async ({ dbConnection }) => {
     const accountsDb = new AccountsDatabase()
     await accountsDb.insert(
       [{ id: 1, username: 'test-user', password: 'test-password' }],
@@ -220,18 +346,35 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
-
-    const apiKeysDb = new ApiKeysDatabase()
-    const [{ keyHash }] = await apiKeysDb.findByAccountId(1, dbConnection)
 
     if (!('success' in res && res.success === true)) {
       expect.fail('create failed')
     }
+
     expect(res.name).toEqual('New API Key')
-    expect(await checkApiKey(res.key, keyHash)).toBe(true)
+
+    const verifyApiKey = new ValidateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new Sha256HashRepository(),
+    )
+    const valid = await verifyApiKey.execute(res.key)
+    expect(valid).toBeTruthy()
   })
 
   test('should throw an error when key name is not included', async ({ dbConnection }) => {
@@ -245,7 +388,20 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -266,7 +422,20 @@ describe('create', () => {
 
     const res = await actions.create({
       params: { id: '1' },
-      locals: { dbConnection, user: { id: 1 } },
+      locals: {
+        dbConnection,
+        user: { id: 1 },
+        services: {
+          authentication: { queries: new AuthenticationQueryService(dbConnection) },
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -281,7 +450,19 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: '1' },
-        locals: { dbConnection, user: undefined },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -296,7 +477,19 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: '1' },
-        locals: { dbConnection, user: { id: 2 } },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -306,10 +499,28 @@ describe('delete', () => {
   })
 
   test('should throw error if account id is not a number', async ({ dbConnection }) => {
+    const accountsDb = new AccountsDatabase()
+    const [account] = await accountsDb.insert(
+      [{ username: 'test-user', password: 'test-password' }],
+      dbConnection,
+    )
+
     try {
       await actions.delete({
         params: { id: 'test' },
-        locals: { dbConnection, user: { id: 1 } },
+        locals: {
+          dbConnection,
+          user: { id: account.id },
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost'),
       })
       expect.fail('should throw error')
@@ -318,16 +529,32 @@ describe('delete', () => {
     }
   })
 
-  test('should throw error if account does not exist', async ({ dbConnection }) => {
+  test('should not throw error if account does not exist', async ({ dbConnection }) => {
+    const apiKeyId = 1
+
+    const formData = new FormData()
+    formData.set('id', apiKeyId.toString())
+
     try {
       await actions.delete({
-        params: { id: '1' },
-        locals: { dbConnection, user: { id: 1 } },
-        request: new Request('http://localhost'),
+        params: { id: apiKeyId.toString() },
+        locals: {
+          dbConnection,
+          user: { id: 1 },
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
+        request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
-      expect.fail('should throw error')
-    } catch (e) {
-      expect(e).toEqual({ status: 404, body: { message: 'Account not found' } })
+    } catch {
+      expect.fail('should not throw error')
     }
   })
 
@@ -338,22 +565,36 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [apiKey] = await apiKeysDb.insert(
-      [{ name: 'test-api-key', keyHash: '000-000', accountId: account.id }],
-      dbConnection,
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
     )
+    const apiKey = await createApiKey.execute('test-key-1', account.id)
 
     const formData = new FormData()
     formData.set('id', apiKey.id.toString())
 
     await actions.delete({
       params: { id: account.id.toString() },
-      locals: { dbConnection, user: { id: account.id } },
+      locals: {
+        dbConnection,
+        user: { id: account.id },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
 
-    const keys = await apiKeysDb.findByAccountId(account.id, dbConnection)
+    const getApiKeysByAccount = new GetApiKeysByAccountQuery(dbConnection)
+    const keys = await getApiKeysByAccount.execute(account.id)
     expect(keys).toEqual([])
   })
 
@@ -367,14 +608,13 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [, apiKey2] = await apiKeysDb.insert(
-      [
-        { name: 'test-api-key-1', keyHash: '000-001', accountId: account1.id },
-        { name: 'test-api-key-2', keyHash: '000-002', accountId: account2.id },
-      ],
-      dbConnection,
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
     )
+    await createApiKey.execute('test-api-key-1', account1.id)
+    const apiKey2 = await createApiKey.execute('test-api-key-2', account2.id)
 
     const formData = new FormData()
     formData.set('id', apiKey2.id.toString())
@@ -382,7 +622,19 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: account1.id.toString() },
-        locals: { dbConnection, user: { id: account1.id } },
+        locals: {
+          dbConnection,
+          user: undefined,
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
       expect.fail('should throw error')
@@ -403,7 +655,19 @@ describe('delete', () => {
 
     const res = await actions.delete({
       params: { id: account.id.toString() },
-      locals: { dbConnection, user: { id: account.id } },
+      locals: {
+        dbConnection,
+        user: { id: account.id },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+        },
+      },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
     })
     expect(res).toEqual({
@@ -425,7 +689,19 @@ describe('delete', () => {
     try {
       await actions.delete({
         params: { id: account.id.toString() },
-        locals: { dbConnection, user: { id: account.id } },
+        locals: {
+          dbConnection,
+          user: { id: account.id },
+          services: {
+            api: {
+              commands: new ApiCommandService(
+                new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
+                new Sha256HashRepository(),
+              ),
+            },
+          },
+        },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
     } catch {

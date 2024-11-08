@@ -273,12 +273,12 @@
         </div>
       {/if}
 
-      {#if data.contributors.length}
+      {#if data.genre.contributors.length}
         <div>
           <Label>Contributors</Label>
           <div class="genre-contributors">
             <CommaList
-              items={data.contributors}
+              items={data.genre.contributors}
               let:item
               class="text-gray-600 transition dark:text-gray-400"
             >
