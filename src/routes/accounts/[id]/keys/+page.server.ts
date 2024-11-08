@@ -1,7 +1,6 @@
 import { error, fail } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/commands/application/commands/delete-api-key'
 
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
@@ -15,6 +14,9 @@ export const load = (async ({
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
     services: {
+      authentication: {
+        queries: App.Locals['services']['authentication']['queries']
+      }
       api: {
         queries: App.Locals['services']['api']['queries']
       }
@@ -35,8 +37,7 @@ export const load = (async ({
     return error(403, 'Unauthorized')
   }
 
-  const accountsDb = new AccountsDatabase()
-  const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
@@ -58,6 +59,9 @@ export const actions = {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       services: {
+        authentication: {
+          queries: App.Locals['services']['authentication']['queries']
+        }
         api: {
           commands: App.Locals['services']['api']['commands']
         }
@@ -79,8 +83,7 @@ export const actions = {
       return error(403, 'Unauthorized')
     }
 
-    const accountsDb = new AccountsDatabase()
-    const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+    const maybeAccount = await locals.services.authentication.queries.getAccount(id)
     if (!maybeAccount) {
       return error(404, 'Account not found')
     }
@@ -119,7 +122,6 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
-    console.log({ request })
     if (!locals.user) {
       return error(401, 'Unauthorized')
     }
@@ -145,13 +147,9 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    console.log('ayo')
-
     const result = await locals.services.api.commands.deleteApiKey(apiKeyId, accountId)
     if (result instanceof UnauthorizedApiKeyDeletionError) {
       return error(401, 'Unauthorized')
     }
-
-    return { success: true }
   },
 } satisfies Actions
