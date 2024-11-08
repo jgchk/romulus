@@ -119,6 +119,7 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
+    console.log({ request })
     if (!locals.user) {
       return error(401, 'Unauthorized')
     }
@@ -133,12 +134,6 @@ export const actions = {
       return error(401, 'Unauthorized')
     }
 
-    const accountsDb = new AccountsDatabase()
-    const maybeAccount = await accountsDb.findById(accountId, locals.dbConnection)
-    if (!maybeAccount) {
-      return error(404, 'Account not found')
-    }
-
     const data = await request.formData()
 
     const maybeApiKeyId = z.coerce.number().int().safeParse(data.get('id'))
@@ -150,9 +145,13 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
+    console.log('ayo')
+
     const result = await locals.services.api.commands.deleteApiKey(apiKeyId, accountId)
     if (result instanceof UnauthorizedApiKeyDeletionError) {
       return error(401, 'Unauthorized')
     }
+
+    return { success: true }
   },
 } satisfies Actions

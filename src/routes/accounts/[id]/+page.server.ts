@@ -1,8 +1,6 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-
 import type { Actions, PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -12,8 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const accountsDb = new AccountsDatabase()
-  const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')

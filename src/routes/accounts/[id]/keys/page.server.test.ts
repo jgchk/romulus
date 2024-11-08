@@ -479,10 +479,15 @@ describe('delete', () => {
     }
   })
 
-  test('should throw error if account does not exist', async ({ dbConnection }) => {
+  test('should not throw error if account does not exist', async ({ dbConnection }) => {
+    const apiKeyId = 1
+
+    const formData = new FormData()
+    formData.set('id', apiKeyId.toString())
+
     try {
       await actions.delete({
-        params: { id: '1' },
+        params: { id: apiKeyId.toString() },
         locals: {
           dbConnection,
           user: { id: 1 },
@@ -495,11 +500,10 @@ describe('delete', () => {
             },
           },
         },
-        request: new Request('http://localhost'),
+        request: new Request('http://localhost', { method: 'POST', body: formData }),
       })
-      expect.fail('should throw error')
-    } catch (e) {
-      expect(e).toEqual({ status: 404, body: { message: 'Account not found' } })
+    } catch {
+      expect.fail('should not throw error')
     }
   })
 

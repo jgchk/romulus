@@ -13,6 +13,7 @@ declare global {
         }
         authentication: {
           commands: import('$lib/server/features/authentication/commands/command-service').AuthenticationCommandService
+          queries: import('$lib/server/features/authentication/queries/query-service').AuthenticationQueryService
         }
         musicCatalog: {
           commands: import('$lib/server/features/music-catalog/commands/command-service').MusicCatalogCommandService

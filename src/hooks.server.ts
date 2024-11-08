@@ -11,6 +11,7 @@ import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authen
 import { createLucia } from '$lib/server/features/authentication/commands/infrastructure/session/lucia'
 import { LuciaSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/lucia-session-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
+import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CreateGenreCommand } from '$lib/server/features/genres/commands/application/commands/create-genre'
 import { DeleteGenreCommand } from '$lib/server/features/genres/commands/application/commands/delete-genre'
@@ -58,6 +59,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         new Sha256HashRepository(),
         new CryptoTokenGenerator(),
       ),
+      queries: new AuthenticationQueryService(dbConnection),
     },
     musicCatalog: {
       commands: new MusicCatalogCommandService(
