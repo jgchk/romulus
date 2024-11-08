@@ -19,7 +19,7 @@ export type GetGenreTreeResult = {
 export class GetGenreTreeQuery {
   constructor(private db: IDrizzleConnection) {}
 
-  async execute() {
+  async execute(): Promise<GetGenreTreeResult> {
     const results = await this.db.query.genres.findMany({
       columns: {
         id: true,

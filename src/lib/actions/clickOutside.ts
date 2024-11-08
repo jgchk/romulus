@@ -3,9 +3,7 @@ import { withProps } from '$lib/utils/object'
 import type { Action } from './types'
 
 export type ClickOutsideHandler = (event: ClickOutsideEvent) => void
-export type ClickOutsideEvent = MouseEvent & {
-  outside: Node
-}
+type ClickOutsideEvent = MouseEvent & { outside: Node }
 
 export const clickOutside: Action<ClickOutsideHandler> = (
   node: Node,

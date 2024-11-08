@@ -2,7 +2,7 @@ import { equals } from 'ramda'
 
 import type { TreeGenre } from './state'
 
-export type TreeSearchNode = {
+type TreeSearchNode = {
   id: number
   path: number[]
 }

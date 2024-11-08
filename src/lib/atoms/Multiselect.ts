@@ -20,11 +20,11 @@ export type OptionData = { value: OptionValue }
 export type Option<T extends OptionData> = T extends { data: any }
   ? DataOption<T['value'], T['data']>
   : PlainOption<T['value']>
-export type PlainOption<V extends OptionValue> = {
+type PlainOption<V extends OptionValue> = {
   value: V
   label: string
 }
-export type DataOption<V extends OptionValue, Data> = {
+type DataOption<V extends OptionValue, Data> = {
   value: V
   label: string
   data: Data

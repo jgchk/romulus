@@ -1,6 +1,5 @@
 export type Node = Root | Paragraph | Text | Bold | Italic | GenreLink | Link
 export type Parent = Root | Paragraph | Bold | Italic
-export type Child = Paragraph | Text | GenreLink | Link
 
 export type Root = { type: 'Root'; children: Paragraph[] }
 export type Paragraph = {

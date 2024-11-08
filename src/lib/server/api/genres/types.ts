@@ -23,4 +23,3 @@ export const genreSchema = z.object({
 })
 
 export type GenreSchema = typeof genreSchema
-export type GenreData = z.infer<typeof genreSchema>

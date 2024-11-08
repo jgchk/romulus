@@ -4,13 +4,6 @@ import type { UpdateGenreCommand } from './application/commands/update-genre'
 import type { VoteGenreRelevanceCommand } from './application/commands/vote-genre-relevance'
 import type { GenreConstructorParams, GenreUpdate } from './domain/genre'
 
-export type CreateRelease = {
-  title: string
-  art?: string
-  artists: number[]
-  tracks: (number | { title: string; artists: number[] })[]
-}
-
 export class GenreCommandService {
   constructor(
     private createGenreCommand: CreateGenreCommand,

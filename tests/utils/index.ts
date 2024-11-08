@@ -25,7 +25,6 @@ export type InsertTestGenre = Omit<InferInsertModel<typeof genres>, 'updatedAt'>
   influences?: string[]
 }
 
-export type CreatedAccount = Awaited<ReturnType<typeof createAccounts>>[number]
 export const createAccounts = async (
   accounts_: InferInsertModel<typeof accounts>[],
   connection: IDrizzleConnection,
@@ -48,7 +47,6 @@ export const deleteAccounts = async (usernames: string[], connection: IDrizzleCo
   await connection.delete(accounts).where(inArray(accounts.username, usernames))
 }
 
-export type CreatedGenre = Awaited<ReturnType<typeof createGenres>>[number]
 export const createGenres = async (
   data: InsertTestGenre[],
   accountId: number,

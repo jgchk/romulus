@@ -17,15 +17,15 @@ export type Toast = {
   hide: () => void
 } & ToastOptions
 
-export type ToastOptions = {
+type ToastOptions = {
   duration?: number
   variant?: ToastVariant
   props?: any
 }
 
-export type ToastVariant = 'info' | 'success' | 'error' | 'warning'
+type ToastVariant = 'info' | 'success' | 'error' | 'warning'
 
-export type ToastStore = Writable<Toast[]> & {
+type ToastStore = Writable<Toast[]> & {
   show: ShowFunc
   success: ShowFunc
   error: ShowFunc
