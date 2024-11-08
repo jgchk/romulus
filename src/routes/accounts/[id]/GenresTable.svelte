@@ -2,9 +2,9 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
-  import ColumnHeader from './ColumnHeader.svelte'
 
   import type { PageData } from './$types'
+  import ColumnHeader from './ColumnHeader.svelte'
 
   export let data: PageData
 
