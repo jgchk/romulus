@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Copy, Warning } from 'phosphor-svelte'
-  import { createEventDispatcher } from 'svelte'
 
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
@@ -13,19 +12,24 @@
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
   import DeleteApiKeyDialog from './DeleteApiKeyDialog.svelte'
 
-  export let data: PageData
-  export let form: ActionData
-  export let disableFormSubmission = false
+  type Props = {
+    data: PageData
+    form: ActionData
+    disableFormSubmission?: boolean
+    onCreate?: (name: string) => void
+    onDelete?: (id: number) => void
+  }
 
-  let showCreateDialog = false
-  let showDeleteDialog: false | { id: number; name: string } = false
+  let { data, form, disableFormSubmission = false, onCreate, onDelete }: Props = $props()
 
-  $: createdKey =
+  let showCreateDialog = $state(false)
+  let showDeleteDialog: false | { id: number; name: string } = $state(false)
+
+  let createdKey = $derived(
     form && 'success' in form && form.success
       ? { id: form.id, name: form.name, key: form.key }
-      : null
-
-  const dispatch = createEventDispatcher<{ create: { name: string }; delete: { id: number } }>()
+      : null,
+  )
 </script>
 
 <svelte:head>
@@ -57,7 +61,7 @@
           <button
             type="button"
             class="text-primary-500 hover:underline"
-            on:click={() => (showCreateDialog = true)}>Create one!</button
+            onclick={() => (showCreateDialog = true)}>Create one!</button
           >
         </div>
       </div>
@@ -122,7 +126,7 @@
   <CreateApiKeyDialog
     {form}
     {disableFormSubmission}
-    on:create={(e) => dispatch('create', e.detail)}
+    on:create={(e) => onCreate?.(e.detail.name)}
     on:close={() => (showCreateDialog = false)}
   />
 {/if}
@@ -132,7 +136,7 @@
   <DeleteApiKeyDialog
     {deletingKey}
     {disableFormSubmission}
-    on:delete={() => dispatch('delete', { id: deletingKey.id })}
+    on:delete={() => onDelete?.(deletingKey.id)}
     on:close={() => (showDeleteDialog = false)}
   />
 {/if}

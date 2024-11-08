@@ -28,4 +28,4 @@
   const dispatch = createEventDispatcher<{ change: Option<number> }>()
 </script>
 
-<Select bind:value {options} on:change={(e) => dispatch('change', e.detail)} {...$$restProps} />
+<Select bind:value {options} onChange={(option) => dispatch('change', option)} {...$$restProps} />
