@@ -3,10 +3,21 @@ import { z } from 'zod'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
+import { getStringParam } from '$lib/utils/params'
 
 import type { Actions, PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+const SORT_OPTIONS = ['genre', 'change', 'date'] as const
+const ORDER_OPTIONS = ['asc', 'desc'] as const
+
+type SortOption = (typeof SORT_OPTIONS)[number]
+type OrderOption = (typeof ORDER_OPTIONS)[number]
+
+const isSortOption = (t: string): t is SortOption => (SORT_OPTIONS as readonly string[]).includes(t)
+const isOrderOption = (t: string): t is OrderOption =>
+  (ORDER_OPTIONS as readonly string[]).includes(t)
+
+export const load: PageServerLoad = async ({ params, locals, url }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)
   if (!maybeId.success) {
     return error(400, { message: 'Invalid account ID' })
@@ -35,7 +46,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     history.filter((h) => h.operation === 'DELETE').map((h) => h.treeGenreId),
   ).size
 
-  return { account, numCreated, numUpdated, numDeleted, history }
+  const maybeSort = getStringParam(url, 'sort')
+  const sort = maybeSort && isSortOption(maybeSort) ? maybeSort : 'date'
+
+  const maybeOrder = getStringParam(url, 'order')
+  const order = maybeOrder && isOrderOption(maybeOrder) ? maybeOrder : 'desc'
+
+  return { account, numCreated, numUpdated, numDeleted, history, sort, order }
 }
 
 export const actions: Actions = {
