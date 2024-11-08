@@ -15,18 +15,8 @@
 <a
   href={genre ? `/genres/${id}` : `/genre/${id}/history`}
   class={tw('inline-block underline', genre?.nsfw && !$userSettings.showNsfw && 'blur-sm')}
->
-  {#if text}
-    {text}
-  {:else if genre}
-    {genre.name}
-  {:else}
-    {'<Deleted Genre>'}
-  {/if}
-</a>
-
-{#if genre?.nsfw}
-  <span
+  >{#if text}{text}{:else if genre}{genre.name}{:else}{'<Deleted Genre>'}{/if}</a
+>{#if genre?.nsfw}{' '}<span
     class="align-super text-xs font-bold text-error-500 no-underline transition dark:text-error-700"
     use:tooltip={{ content: 'NSFW' }}>N</span
   >

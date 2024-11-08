@@ -7,8 +7,14 @@ declare global {
     interface Locals {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       services: {
-        api: import('$lib/server/features/api/application/api-service').ApiService
-        authentication: import('$lib/server/features/authentication/application/authentication-service').AuthenticationService
+        api: {
+          commands: import('$lib/server/features/api/commands/command-service').ApiCommandService
+          queries: import('$lib/server/features/api/queries/query-service').ApiQueryService
+        }
+        authentication: {
+          commands: import('$lib/server/features/authentication/commands/command-service').AuthenticationCommandService
+          queries: import('$lib/server/features/authentication/queries/query-service').AuthenticationQueryService
+        }
         musicCatalog: {
           commands: import('$lib/server/features/music-catalog/commands/command-service').MusicCatalogCommandService
           queries: import('$lib/server/features/music-catalog/queries/query-service').MusicCatalogQueryService
@@ -18,8 +24,14 @@ declare global {
           queries: import('$lib/server/features/genres/queries/query-service').GenreQueryService
         }
       }
-      user: import('lucia').User | undefined
-      session: Pick<import('lucia').Session, 'id'> | undefined
+      user:
+        | ({
+            id: number
+            username: string
+            permissions: import('$lib/server/features/authentication/commands/domain/entities/account').Permission[]
+          } & import('$lib/contexts/user-settings/types').UserSettings)
+        | undefined
+      sessionToken: string | undefined
     }
     // interface PageData {}
     // interface PageState {}

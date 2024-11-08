@@ -1,8 +1,11 @@
 import { expect } from 'vitest'
 
-import { hashApiKey } from '$lib/server/api-keys'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
+import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
+import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
+import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 import { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 
 import { test } from '../../../vitest-setup'
@@ -15,7 +18,16 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
       locals: {
         dbConnection,
         user: undefined,
-        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+          genre: { queries: new GenreQueryService(dbConnection) },
+        },
       },
       request: new Request('http://localhost/api/genres'),
     })
@@ -32,7 +44,16 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
       locals: {
         dbConnection,
         user: undefined,
-        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+          genre: { queries: new GenreQueryService(dbConnection) },
+        },
       },
       request: new Request('http://localhost/api/genres', {
         headers: { authorization: 'Bearer' },
@@ -51,7 +72,16 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
       locals: {
         dbConnection,
         user: undefined,
-        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+          genre: { queries: new GenreQueryService(dbConnection) },
+        },
       },
       request: new Request('http://localhost/api/genres', {
         headers: { authorization: 'Bearer 000-000-000' },
@@ -72,11 +102,12 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
     dbConnection,
   )
 
-  const apiKeysDb = new ApiKeysDatabase()
-  await apiKeysDb.insert(
-    [{ name: 'test-key', keyHash: await hashApiKey('000-000-000'), accountId: account.id }],
-    dbConnection,
+  const createApiKey = new CreateApiKeyCommand(
+    new DrizzleApiKeyRepository(dbConnection),
+    new CryptoTokenGenerator(),
+    new Sha256HashRepository(),
   )
+  const apiKey = await createApiKey.execute('test-key', account.id)
 
   try {
     await GET({
@@ -84,10 +115,19 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
       locals: {
         dbConnection,
         user: undefined,
-        services: { genre: { queries: new GenreQueryService(dbConnection) } },
+        services: {
+          api: {
+            commands: new ApiCommandService(
+              new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
+              new Sha256HashRepository(),
+            ),
+          },
+          genre: { queries: new GenreQueryService(dbConnection) },
+        },
       },
       request: new Request('http://localhost/api/genres', {
-        headers: { authorization: 'Bearer 000-000-000' },
+        headers: { authorization: `Bearer ${apiKey.key}` },
       }),
     })
   } catch {

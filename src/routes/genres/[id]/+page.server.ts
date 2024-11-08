@@ -1,15 +1,11 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { uniq } from 'ramda'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
-import { GenreRelevanceVotesDatabase } from '$lib/server/db/controllers/genre-relevance-votes'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
-import { isNotNull } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
 import { relevanceVoteSchema } from './utils'
@@ -21,43 +17,35 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genresDb = new GenresDatabase()
-  const maybeGenre = await genresDb.findByIdDetail(id, locals.dbConnection)
+  const maybeGenre = await locals.services.genre.queries.getGenre(id)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
 
-  const genreRelevanceVotesDb = new GenreRelevanceVotesDatabase()
-  const relevanceVotes = await genreRelevanceVotesDb
-    .findByGenreId(id, locals.dbConnection)
+  const relevanceVotes = await locals.services.genre.queries
+    .getGenreRelevanceVotesByGenre(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await genreRelevanceVotesDb
-      .findByGenreIdAndAccountId(id, locals.user.id, locals.dbConnection)
+    relevanceVote = await locals.services.genre.queries
+      .getGenreRelevanceVoteByAccount(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
 
-  const { akas, parents, children, influencedBy, influences, history, ...rest } = maybeGenre
+  const { akas, parents, children, influencedBy, influences, ...rest } = maybeGenre
   const genre = {
     ...rest,
-    akas: akas.map((aka) => aka.name),
-    parents: parents.map((parent) => parent.parent).sort((a, b) => a.name.localeCompare(b.name)),
-    children: children.map((child) => child.child).sort((a, b) => a.name.localeCompare(b.name)),
-    influencedBy: influencedBy
-      .map((influencedBy) => influencedBy.influencer)
-      .sort((a, b) => a.name.localeCompare(b.name)),
-    influences: influences
-      .map((influences) => influences.influenced)
-      .sort((a, b) => a.name.localeCompare(b.name)),
+    akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
+    parents: parents.sort((a, b) => a.name.localeCompare(b.name)),
+    children: children.sort((a, b) => a.name.localeCompare(b.name)),
+    influencedBy: influencedBy.sort((a, b) => a.name.localeCompare(b.name)),
+    influences: influences.sort((a, b) => a.name.localeCompare(b.name)),
   }
-
-  const contributors = uniq(history.map((item) => item.account).filter(isNotNull))
 
   const relevanceVoteForm = await superValidate({ relevanceVote }, zod(relevanceVoteSchema))
 
-  return { genre, relevanceVotes, relevanceVoteForm, contributors }
+  return { genre, relevanceVotes, relevanceVoteForm }
 }
 
 export const actions: Actions = {

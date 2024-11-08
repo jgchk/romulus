@@ -1,8 +1,6 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
-
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -12,13 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const genreHistory = await genreHistoryDb.findByGenreId(id, locals.dbConnection)
+  const genreHistory = await locals.services.genre.queries.getGenreHistory(id)
 
-  return {
-    genreHistory: genreHistory.map(({ akas, ...entry }) => ({
-      ...entry,
-      akas: akas.map((aka) => aka.name),
-    })),
-  }
+  return { genreHistory }
 }

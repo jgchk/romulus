@@ -2,15 +2,17 @@ import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { AccountNotFoundError } from '$lib/server/features/authentication/application/errors/account-not-found'
-import { PasswordResetTokenExpiredError } from '$lib/server/features/authentication/application/errors/password-reset-token-expired'
-import { PasswordResetTokenNotFoundError } from '$lib/server/features/authentication/application/errors/password-reset-token-not-found'
-import { passwordSchema } from '$lib/server/features/authentication/presentation/schemas/password'
+import { AccountNotFoundError } from '$lib/server/features/authentication/commands/application/errors/account-not-found'
+import { PasswordResetTokenExpiredError } from '$lib/server/features/authentication/commands/application/errors/password-reset-token-expired'
+import { PasswordResetTokenNotFoundError } from '$lib/server/features/authentication/commands/application/errors/password-reset-token-not-found'
+import { passwordSchema } from '$lib/server/features/authentication/commands/presentation/schemas/password'
 
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-  const maybeToken = await locals.services.authentication.checkPasswordResetToken(params.token)
+  const maybeToken = await locals.services.authentication.commands.validatePasswordResetToken(
+    params.token,
+  )
   if (
     maybeToken instanceof PasswordResetTokenNotFoundError ||
     maybeToken instanceof PasswordResetTokenExpiredError
@@ -37,7 +39,7 @@ export const actions: Actions = {
     }
 
     const maybeToken =
-      await locals.services.authentication.checkPasswordResetToken(verificationToken)
+      await locals.services.authentication.commands.validatePasswordResetToken(verificationToken)
     if (
       maybeToken instanceof PasswordResetTokenNotFoundError ||
       maybeToken instanceof PasswordResetTokenExpiredError
@@ -47,7 +49,7 @@ export const actions: Actions = {
     }
     const token = maybeToken
 
-    const maybeSessionCookie = await locals.services.authentication.resetPassword(
+    const maybeSessionCookie = await locals.services.authentication.commands.resetPassword(
       token,
       form.data.password,
     )

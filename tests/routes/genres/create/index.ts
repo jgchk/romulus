@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test'
+import { eq } from 'drizzle-orm'
 
-import { GenresDatabase } from '$lib/server/db/controllers/genre'
+import { genres } from '$lib/server/db/schema'
 
 import { test } from '../../../fixtures'
 import { GenreDiffEntry } from '../../../fixtures/elements/genre-diff'
@@ -16,8 +17,9 @@ export default function createGenrePageTests() {
   test.describe('create', () => {
     test.afterEach(async ({ dbConnection }) => {
       // delete created-genre
-      const genresDb = new GenresDatabase()
-      const createdGenres = await genresDb.findByName('created-genre', dbConnection)
+      const createdGenres = await dbConnection.query.genres.findMany({
+        where: eq(genres.name, 'created-genre'),
+      })
       await deleteGenres(
         createdGenres.map((genre) => genre.id),
         dbConnection,

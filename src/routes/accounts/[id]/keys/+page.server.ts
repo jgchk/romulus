@@ -1,10 +1,7 @@
 import { error, fail } from '@sveltejs/kit'
-import { pick } from 'ramda'
 import { z } from 'zod'
 
-import { generateApiKey, hashApiKey } from '$lib/server/api-keys'
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { ApiKeysDatabase } from '$lib/server/db/controllers/api-keys'
+import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/commands/application/commands/delete-api-key'
 
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
 
@@ -16,6 +13,14 @@ export const load = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+    services: {
+      authentication: {
+        queries: App.Locals['services']['authentication']['queries']
+      }
+      api: {
+        queries: App.Locals['services']['api']['queries']
+      }
+    }
   }
 }) => {
   if (!locals.user) {
@@ -32,17 +37,15 @@ export const load = (async ({
     return error(403, 'Unauthorized')
   }
 
-  const accountsDb = new AccountsDatabase()
-  const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
   const account = maybeAccount
 
-  const apiKeysDb = new ApiKeysDatabase()
-  const keys = await apiKeysDb.findByAccountId(account.id, locals.dbConnection)
+  const keys = await locals.services.api.queries.getApiKeysByAccount(account.id)
 
-  return { keys: keys.map((key) => pick(['id', 'name', 'createdAt'], key)) }
+  return { keys }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -55,6 +58,14 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+      services: {
+        authentication: {
+          queries: App.Locals['services']['authentication']['queries']
+        }
+        api: {
+          commands: App.Locals['services']['api']['commands']
+        }
+      }
     }
     request: RequestEvent['request']
   }) => {
@@ -72,8 +83,7 @@ export const actions = {
       return error(403, 'Unauthorized')
     }
 
-    const accountsDb = new AccountsDatabase()
-    const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+    const maybeAccount = await locals.services.authentication.queries.getAccount(id)
     if (!maybeAccount) {
       return error(404, 'Account not found')
     }
@@ -90,16 +100,9 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const key = generateApiKey()
-    const keyHash = await hashApiKey(key)
+    const insertedKey = await locals.services.api.commands.createApiKey(name, account.id)
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const [insertedKey] = await apiKeysDb.insert(
-      [{ accountId: account.id, name, keyHash }],
-      locals.dbConnection,
-    )
-
-    return { success: true, id: insertedKey.id, name, key }
+    return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
   },
 
   delete: async ({
@@ -111,6 +114,11 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+      services: {
+        api: {
+          commands: App.Locals['services']['api']['commands']
+        }
+      }
     }
     request: RequestEvent['request']
   }) => {
@@ -128,15 +136,9 @@ export const actions = {
       return error(401, 'Unauthorized')
     }
 
-    const accountsDb = new AccountsDatabase()
-    const maybeAccount = await accountsDb.findById(accountId, locals.dbConnection)
-    if (!maybeAccount) {
-      return error(404, 'Account not found')
-    }
-
     const data = await request.formData()
 
-    const maybeApiKeyId = z.coerce.number().safeParse(data.get('id'))
+    const maybeApiKeyId = z.coerce.number().int().safeParse(data.get('id'))
     if (!maybeApiKeyId.success) {
       return fail(400, {
         action: 'delete' as const,
@@ -145,21 +147,9 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    const apiKeysDb = new ApiKeysDatabase()
-    const accountApiKeys = await apiKeysDb.findByAccountId(accountId, locals.dbConnection)
-    const isOwnApiKey = accountApiKeys.some((key) => key.id === apiKeyId)
-    if (!isOwnApiKey) {
-      const existingApiKey = await apiKeysDb.findById(apiKeyId, locals.dbConnection)
-      const doesKeyExist = existingApiKey !== undefined
-      if (!doesKeyExist) {
-        // Do not error if the key does not exist, just pretend we deleted it
-        return
-      } else {
-        // If the key does exist and it's not ours, throw an error
-        return error(401, 'Unauthorized')
-      }
+    const result = await locals.services.api.commands.deleteApiKey(apiKeyId, accountId)
+    if (result instanceof UnauthorizedApiKeyDeletionError) {
+      return error(401, 'Unauthorized')
     }
-
-    await apiKeysDb.deleteById(apiKeyId, locals.dbConnection)
   },
 } satisfies Actions

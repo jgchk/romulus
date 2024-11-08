@@ -1,8 +1,6 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { GenreHistoryDatabase } from '$lib/server/db/controllers/genre-history'
 import { getStringParam } from '$lib/utils/params'
 
 import type { Actions, PageServerLoad } from './$types'
@@ -24,8 +22,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
   const id = maybeId.data
 
-  const accountsDb = new AccountsDatabase()
-  const maybeAccount = await accountsDb.findById(id, locals.dbConnection)
+  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')
@@ -33,8 +30,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 
   const account = maybeAccount
 
-  const genreHistoryDb = new GenreHistoryDatabase()
-  const history = await genreHistoryDb.findByAccountId(id, locals.dbConnection)
+  const history = await locals.services.genres.queries.getHistoryByAccount(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
@@ -68,7 +64,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const verificationToken = await locals.services.authentication.requestPasswordReset(id)
+    const verificationToken = await locals.services.authentication.commands.requestPasswordReset(id)
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }

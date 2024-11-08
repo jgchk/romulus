@@ -17,10 +17,10 @@
 
 <div class="h-full w-full overflow-auto p-4">
   <div class="max-w-lg space-y-3">
-    {#each data.genreHistory as entry (entry.id)}
+    {#each data.genreHistory as entry (entry.genre.id)}
       <GenreDiff
         previousHistory={entry.previousHistory}
-        currentHistory={entry}
+        currentHistory={entry.genre}
         genres={data.streamed.genres}
       />
     {/each}
