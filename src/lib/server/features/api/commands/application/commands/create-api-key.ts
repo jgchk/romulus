@@ -1,4 +1,5 @@
-import { generateApiKey, hashApiKey } from '$lib/server/api-keys'
+import type { TokenGenerator } from '$lib/server/features/authentication/commands/domain/repositories/token-generator'
+import type { HashRepository } from '$lib/server/features/common/domain/repositories/hash'
 
 import { ApiKey } from '../../domain/entities/api-key'
 import type { ApiKeyRepository } from '../../domain/repositories/api-key'
@@ -10,11 +11,19 @@ export type CreateApiKeyResult = {
 }
 
 export class CreateApiKeyCommand {
-  constructor(private apiKeyRepo: ApiKeyRepository) {}
+  constructor(
+    private apiKeyRepo: ApiKeyRepository,
+    private apiKeyTokenGenerator: TokenGenerator,
+    private apiKeyHashRepo: HashRepository,
+  ) {}
 
   async execute(name: string, accountId: number): Promise<CreateApiKeyResult> {
-    const key = generateApiKey()
-    const keyHash = await hashApiKey(key)
+    const key = this.apiKeyTokenGenerator.generate(40)
+    if (key instanceof Error) {
+      throw key
+    }
+
+    const keyHash = await this.apiKeyHashRepo.hash(key)
 
     const apiKey = new ApiKey(name, accountId, keyHash)
 

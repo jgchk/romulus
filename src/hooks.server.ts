@@ -45,6 +45,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     api: {
       commands: new ApiCommandService(
         new DrizzleApiKeyRepository(dbConnection),
+        new CryptoTokenGenerator(),
         new Sha256HashRepository(),
       ),
       queries: new ApiQueryService(dbConnection),

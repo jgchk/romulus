@@ -1,10 +1,14 @@
-import { ApiCommandService } from './features/api/commands/command-service'
-import { DrizzleApiKeyRepository } from './features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
-import { Sha256HashRepository } from './features/common/infrastructure/repositories/hash/sha256-hash-repository'
-
 export async function checkApiAuth(
   request: Request,
-  locals: Pick<App.Locals, 'user' | 'dbConnection'>,
+  locals: {
+    user: App.Locals['user']
+    dbConnection: App.Locals['dbConnection']
+    services: {
+      api: {
+        commands: App.Locals['services']['api']['commands']
+      }
+    }
+  },
 ): Promise<boolean> {
   if (locals.user) {
     return true
@@ -15,11 +19,7 @@ export async function checkApiAuth(
     return false
   }
 
-  const apiService = new ApiCommandService(
-    new DrizzleApiKeyRepository(locals.dbConnection),
-    new Sha256HashRepository(),
-  )
-  return apiService.validateApiKey(key)
+  return locals.services.api.commands.validateApiKey(key)
 }
 
 function getKeyFromHeaders(request: Request) {

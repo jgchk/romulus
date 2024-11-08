@@ -3,6 +3,8 @@ import { expect } from '@playwright/test'
 import { apiKeys } from '$lib/server/db/schema'
 import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
+import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
+import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
 import { test } from '../../../../fixtures'
 
@@ -41,7 +43,11 @@ test('should delete an API key', async ({
 }) => {
   const account = await withAccount(TEST_ACCOUNT)
 
-  const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+  const createApiKey = new CreateApiKeyCommand(
+    new DrizzleApiKeyRepository(dbConnection),
+    new CryptoTokenGenerator(),
+    new Sha256HashRepository(),
+  )
   await createApiKey.execute('test-key', account.id)
 
   await signInPage.goto()

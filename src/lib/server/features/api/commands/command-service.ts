@@ -1,3 +1,4 @@
+import type { TokenGenerator } from '../../authentication/commands/domain/repositories/token-generator'
 import type { HashRepository } from '../../common/domain/repositories/hash'
 import { CreateApiKeyCommand } from './application/commands/create-api-key'
 import { DeleteApiKeyCommand } from './application/commands/delete-api-key'
@@ -9,8 +10,16 @@ export class ApiCommandService {
   private deleteApiKeyCommand: DeleteApiKeyCommand
   private validateApiKeyCommand: ValidateApiKeyCommand
 
-  constructor(apiKeyRepo: ApiKeyRepository, apiKeyHashRepo: HashRepository) {
-    this.createApiKeyCommand = new CreateApiKeyCommand(apiKeyRepo)
+  constructor(
+    apiKeyRepo: ApiKeyRepository,
+    apiKeyTokenGenerator: TokenGenerator,
+    apiKeyHashRepo: HashRepository,
+  ) {
+    this.createApiKeyCommand = new CreateApiKeyCommand(
+      apiKeyRepo,
+      apiKeyTokenGenerator,
+      apiKeyHashRepo,
+    )
     this.deleteApiKeyCommand = new DeleteApiKeyCommand(apiKeyRepo)
     this.validateApiKeyCommand = new ValidateApiKeyCommand(apiKeyRepo, apiKeyHashRepo)
   }

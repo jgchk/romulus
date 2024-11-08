@@ -7,6 +7,7 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { GetApiKeysByAccountQuery } from '$lib/server/features/api/queries/application/get-api-keys-by-account'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
+import { CryptoTokenGenerator } from '$lib/server/features/authentication/commands/infrastructure/token/crypto-token-generator'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 
@@ -123,7 +124,11 @@ describe('load', () => {
       dbConnection,
     )
 
-    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
+    )
     await createApiKey.execute('test-key-1', account1.id)
     await createApiKey.execute('test-key-2', account2.id)
 
@@ -153,7 +158,11 @@ describe('load', () => {
       dbConnection,
     )
 
-    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
+    )
     await createApiKey.execute('test-key-1', account.id)
     await createApiKey.execute('test-key-2', account.id)
 
@@ -191,6 +200,7 @@ describe('create', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -218,6 +228,7 @@ describe('create', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -243,6 +254,7 @@ describe('create', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -268,6 +280,7 @@ describe('create', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -301,6 +314,7 @@ describe('create', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -340,6 +354,7 @@ describe('create', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -381,6 +396,7 @@ describe('create', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -414,6 +430,7 @@ describe('create', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -440,6 +457,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -466,6 +484,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -496,6 +515,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -525,6 +545,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -544,7 +565,11 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
+    )
     const apiKey = await createApiKey.execute('test-key-1', account.id)
 
     const formData = new FormData()
@@ -559,6 +584,7 @@ describe('delete', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -582,7 +608,11 @@ describe('delete', () => {
       dbConnection,
     )
 
-    const createApiKey = new CreateApiKeyCommand(new DrizzleApiKeyRepository(dbConnection))
+    const createApiKey = new CreateApiKeyCommand(
+      new DrizzleApiKeyRepository(dbConnection),
+      new CryptoTokenGenerator(),
+      new Sha256HashRepository(),
+    )
     await createApiKey.execute('test-api-key-1', account1.id)
     const apiKey2 = await createApiKey.execute('test-api-key-2', account2.id)
 
@@ -599,6 +629,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
@@ -631,6 +662,7 @@ describe('delete', () => {
           api: {
             commands: new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
+              new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
           },
@@ -664,6 +696,7 @@ describe('delete', () => {
             api: {
               commands: new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
+                new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
             },
