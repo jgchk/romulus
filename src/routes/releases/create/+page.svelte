@@ -73,7 +73,7 @@
         <NumberInput
           id="releaseDate.year"
           value={$store.year}
-          on:input={(e) => store.setYear(e.detail)}
+          onInput={(value) => store.setYear(value)}
           placeholder="YYYY"
           class="w-1/4"
         />
@@ -87,7 +87,7 @@
         <NumberInput
           id="releaseDate.day"
           value={$store.day}
-          on:input={(e) => store.setDay(e.detail)}
+          onInput={(value) => store.setDay(value)}
           placeholder="DD"
           class="w-1/4"
         />
