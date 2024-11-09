@@ -6,7 +6,11 @@
   import type { PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
+
+  let { data }: Props = $props()
 
   treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
