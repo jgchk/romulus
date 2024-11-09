@@ -7,9 +7,13 @@
   import GenrePageHeader from '../GenrePageHeader.svelte'
   import type { PageData } from './$types'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
 
-  $: latestEntry = data.genreHistory.at(-1)
+  let { data }: Props = $props()
+
+  let latestEntry = $derived(data.genreHistory.at(-1))
 </script>
 
 <svelte:head>
