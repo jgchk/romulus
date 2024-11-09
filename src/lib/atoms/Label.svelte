@@ -1,13 +1,17 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+
   import { tw } from '$lib/utils/dom'
 
-  let for_: string | undefined = undefined
-  export { for_ as for }
+  type Props = {
+    for?: string
+    class?: string
+    children?: Snippet
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { for: for_, class: class_, children }: Props = $props()
 </script>
 
 <label class={tw('text-sm text-gray-600 transition dark:text-gray-400', class_)} for={for_}>
-  <slot />
+  {@render children?.()}
 </label>
