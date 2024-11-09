@@ -13,11 +13,14 @@
   import type { PageData } from './$types'
   import ColumnHeader from './ColumnHeader.svelte'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
 
-  let visibleHistory: Awaited<PageData['history']> = []
-  $: {
-    visibleHistory = data.history.sort((a, b) => {
+  let { data }: Props = $props()
+
+  let visibleHistory: Awaited<PageData['history']> = $derived.by(() => {
+    let val = data.history.sort((a, b) => {
       switch (data.sort) {
         case 'genre':
           return a.name.localeCompare(b.name)
@@ -29,18 +32,11 @@
     })
 
     if (data.order === 'desc') {
-      visibleHistory = visibleHistory.reverse()
+      val = val.reverse()
     }
 
-    visibleHistory = visibleHistory.slice((data.page - 1) * data.limit, data.page * data.limit)
-  }
-
-  $: totalPages = Math.ceil(data.history.length / data.limit)
-
-  $: firstPageHref = withPage($page.url.searchParams, 1)
-  $: lastPageHref = withPage($page.url.searchParams, totalPages)
-  $: previousPageHref = withPage($page.url.searchParams, data.page - 1)
-  $: nextPageHref = withPage($page.url.searchParams, data.page + 1)
+    return val.slice((data.page - 1) * data.limit, data.page * data.limit)
+  })
 
   function withPage(searchParams: URLSearchParams, page: number) {
     const params = new URLSearchParams(searchParams)
@@ -54,6 +50,12 @@
     params.set('page', '1')
     return '?' + params.toString()
   }
+
+  let totalPages = $derived(Math.ceil(data.history.length / data.limit))
+  let firstPageHref = $derived(withPage($page.url.searchParams, 1))
+  let lastPageHref = $derived(withPage($page.url.searchParams, totalPages))
+  let previousPageHref = $derived(withPage($page.url.searchParams, data.page - 1))
+  let nextPageHref = $derived(withPage($page.url.searchParams, data.page + 1))
 </script>
 
 <div class="py-2">
