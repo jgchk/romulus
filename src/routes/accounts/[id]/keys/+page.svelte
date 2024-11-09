@@ -93,7 +93,7 @@
               <IconButton
                 class="flex-shrink-0 text-success-600 dark:text-success-300"
                 tooltip="Copy"
-                on:click={() => copyTextToClipboard(createdKey.key)}
+                onClick={() => copyTextToClipboard(createdKey.key)}
               >
                 <Copy />
               </IconButton>

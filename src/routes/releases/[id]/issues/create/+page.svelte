@@ -152,14 +152,14 @@
         {/if}
         <IconButton
           tooltip="Remove track"
-          on:click={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
+          onClick={() => ($form.tracks = $form.tracks.filter((_, j) => j !== i))}
           ><Trash /></IconButton
         >
       </div>
     {/each}
     <IconButton
       tooltip="Add track"
-      on:click={() => ($form.tracks = [...$form.tracks, { title: '', artists: [], duration: '' }])}
+      onClick={() => ($form.tracks = [...$form.tracks, { title: '', artists: [], duration: '' }])}
       ><Plus /></IconButton
     >
 

@@ -36,10 +36,10 @@
 <Dialog title="Insert a genre link" on:close>
   <div class="flex items-center space-x-1">
     <Input class="flex-1" bind:value={filter} />
-    <IconButton tooltip="Search" on:click={() => (debouncedFilter = filter)}>
+    <IconButton tooltip="Search" onClick={() => (debouncedFilter = filter)}>
       <MagnifyingGlass />
     </IconButton>
-    <IconButton tooltip="Close" on:click={() => dispatch('close')}>
+    <IconButton tooltip="Close" onClick={() => dispatch('close')}>
       <X />
     </IconButton>
   </div>

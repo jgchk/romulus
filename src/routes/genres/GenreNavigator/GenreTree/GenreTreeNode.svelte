@@ -49,7 +49,7 @@
         size="sm"
         tooltip={isExpanded ? 'Collapse' : 'Expand'}
         class={cn('ml-1 flex-shrink-0 text-gray-500', genre.children.length === 0 && 'invisible')}
-        on:click={() => treeState.setExpanded(path, !isExpanded)}
+        onClick={() => treeState.setExpanded(path, !isExpanded)}
       >
         <CaretRight class={cn('transition', isExpanded && 'rotate-90')} />
       </IconButton>

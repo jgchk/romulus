@@ -1,5 +1,6 @@
 <script lang="ts">
   import { IconContext } from 'phosphor-svelte'
+  import type { Snippet } from 'svelte'
   import { scale } from 'svelte/transition'
 
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
@@ -7,17 +8,31 @@
 
   import Loader from './Loader.svelte'
 
-  export let tooltip: string
-  export let disabled = false
-  export let type: 'button' | 'submit' = 'button'
-  export let size: 'sm' | 'md' | 'lg' = 'md'
-  export let loading = false
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    tooltip: string
+    disabled?: boolean
+    type?: 'button' | 'submit'
+    size?: 'sm' | 'md' | 'lg'
+    loading?: boolean
+    class?: string
+    children?: Snippet
+    onClick?: () => void
+  }
+
+  let {
+    tooltip,
+    disabled = false,
+    type = 'button',
+    size = 'md',
+    loading = false,
+    class: class_,
+    children,
+    onClick,
+  }: Props = $props()
 </script>
 
 <button
-  on:click
+  onclick={onClick}
   {disabled}
   {type}
   class={tw(
@@ -42,7 +57,7 @@
     {:else}
       <div class="absolute h-full w-full" transition:scale|local={{ duration: 150 }}>
         <IconContext values={{ size: '100%' }}>
-          <slot />
+          {@render children?.()}
         </IconContext>
       </div>
     {/if}

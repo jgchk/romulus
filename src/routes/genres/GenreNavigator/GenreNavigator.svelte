@@ -42,7 +42,7 @@
         }}
       />
     </div>
-    <IconButton tooltip="Genre Settings" on:click={() => (showSettings = !showSettings)}>
+    <IconButton tooltip="Genre Settings" onClick={() => (showSettings = !showSettings)}>
       <GearSix />
     </IconButton>
   </div>

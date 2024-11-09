@@ -170,7 +170,7 @@
               </InputGroup>
             {/if}
 
-            <IconButton tooltip="Remove track" on:click={() => store.track(i).remove()}>
+            <IconButton tooltip="Remove track" onClick={() => store.track(i).remove()}>
               <Trash />
             </IconButton>
           </div>
@@ -183,7 +183,7 @@
         </div>
       {/each}
 
-      <IconButton tooltip="Add track" on:click={() => store.addTrack()}>
+      <IconButton tooltip="Add track" onClick={() => store.addTrack()}>
         <Plus />
       </IconButton>
     </div>

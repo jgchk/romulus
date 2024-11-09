@@ -99,16 +99,16 @@
       <div
         class="flex border-b border-gray-300 bg-gray-100 transition dark:border-gray-700 dark:bg-gray-900"
       >
-        <IconButton class="rounded-none" tooltip="Bold" on:click={() => handleBold()}>
+        <IconButton class="rounded-none" tooltip="Bold" onClick={() => handleBold()}>
           <TextB />
         </IconButton>
-        <IconButton class="rounded-none" tooltip="Italic" on:click={() => handleItalic()}>
+        <IconButton class="rounded-none" tooltip="Italic" onClick={() => handleItalic()}>
           <TextItalic />
         </IconButton>
         <IconButton
           class="rounded-none"
           tooltip="Insert genre link"
-          on:click={() => {
+          onClick={() => {
             if (!ta) {
               showGenreDialog = true
               return
