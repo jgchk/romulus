@@ -3,10 +3,12 @@
   import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
-  export let relevance: number
+  type Props = {
+    relevance: number
+    class?: string
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { relevance, class: class_ }: Props = $props()
 </script>
 
 {#if relevance === UNSET_GENRE_RELEVANCE}
