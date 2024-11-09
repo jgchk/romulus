@@ -1,8 +1,11 @@
 <script lang="ts">
   import { cn } from '$lib/utils/dom'
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    class?: string
+  }
+
+  let { class: class_ }: Props = $props()
 </script>
 
 <div
