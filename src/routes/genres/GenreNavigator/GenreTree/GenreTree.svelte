@@ -6,39 +6,49 @@
   import { getNewPath, isPathValid } from './path'
   import { type TreeGenre, treeState } from './state'
 
-  export let genres: TreeGenre[]
-
-  $: treeState.setGenres(genres)
-
-  $: topLevelGenres = genres.filter((genre) => genre.parents.length === 0)
-
-  $: if ($treeState.selectedId !== undefined) {
-    if (
-      $treeState.selectedPath === undefined ||
-      !isPathValid($treeState.genres, $treeState.selectedId, $treeState.selectedPath)
-    ) {
-      const newPath = getNewPath(
-        $treeState.genres,
-        $treeState.expanded,
-        undefined,
-        $treeState.selectedId,
-      )
-      treeState.setSelectedPath(newPath?.path)
-    }
+  type Props = {
+    genres: TreeGenre[]
   }
 
-  $: isAnyTopLevelExpanded = [...$treeState.expanded].some((key) => {
-    const isTopLevel = !key.includes('-')
-    if (!isTopLevel) return false
+  let { genres }: Props = $props()
 
-    const genre = genres.find((genre) => genre.id === parseInt(key))
-    if (!genre) return false
-
-    const hasChildren = genre.children.length > 0
-    return hasChildren
+  $effect(() => {
+    treeState.setGenres(genres)
   })
 
-  let ref: HTMLElement | undefined
+  let topLevelGenres = $derived(genres.filter((genre) => genre.parents.length === 0))
+
+  $effect(() => {
+    if ($treeState.selectedId !== undefined) {
+      if (
+        $treeState.selectedPath === undefined ||
+        !isPathValid($treeState.genres, $treeState.selectedId, $treeState.selectedPath)
+      ) {
+        const newPath = getNewPath(
+          $treeState.genres,
+          $treeState.expanded,
+          undefined,
+          $treeState.selectedId,
+        )
+        treeState.setSelectedPath(newPath?.path)
+      }
+    }
+  })
+
+  let isAnyTopLevelExpanded = $derived(
+    [...$treeState.expanded].some((key) => {
+      const isTopLevel = !key.includes('-')
+      if (!isTopLevel) return false
+
+      const genre = genres.find((genre) => genre.id === parseInt(key))
+      if (!genre) return false
+
+      const hasChildren = genre.children.length > 0
+      return hasChildren
+    }),
+  )
+
+  let ref: HTMLElement | undefined = $state()
 
   const user = getUserContext()
 </script>
