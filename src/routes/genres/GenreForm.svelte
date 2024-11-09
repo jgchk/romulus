@@ -62,7 +62,7 @@
         name="name"
         class="w-full"
         bind:value={$form.name}
-        on:blur={() => ($form.name = $form.name.trim())}
+        onBlur={() => ($form.name = $form.name.trim())}
         autofocus={autoFocus === 'name'}
         {...$constraints.name}
       />
@@ -75,8 +75,8 @@
         name="subtitle"
         class="w-full"
         value={$form.subtitle ?? ''}
-        on:input={(e) => ($form.subtitle = e.currentTarget.value)}
-        on:blur={() => ($form.subtitle = $form.subtitle?.trim() ?? null)}
+        onInput={(e) => ($form.subtitle = e.currentTarget.value)}
+        onBlur={() => ($form.subtitle = $form.subtitle?.trim() ?? null)}
         autofocus={autoFocus === 'subtitle'}
         {...$constraints.subtitle}
       />
@@ -98,8 +98,8 @@
             name="primary-akas"
             class="w-full"
             value={$form.primaryAkas ?? ''}
-            on:input={(e) => ($form.primaryAkas = e.currentTarget.value)}
-            on:blur={() => {
+            onInput={(e) => ($form.primaryAkas = e.currentTarget.value)}
+            onBlur={() => {
               $form.primaryAkas =
                 $form.primaryAkas
                   ?.split(',')
@@ -123,8 +123,8 @@
             name="secondary-akas"
             class="w-full"
             value={$form.secondaryAkas ?? ''}
-            on:input={(e) => ($form.secondaryAkas = e.currentTarget.value)}
-            on:blur={() => {
+            onInput={(e) => ($form.secondaryAkas = e.currentTarget.value)}
+            onBlur={() => {
               $form.secondaryAkas =
                 $form.secondaryAkas
                   ?.split(',')
@@ -148,8 +148,8 @@
             name="tertiary-akas"
             class="w-full"
             value={$form.tertiaryAkas ?? ''}
-            on:input={(e) => ($form.tertiaryAkas = e.currentTarget.value)}
-            on:blur={() => {
+            onInput={(e) => ($form.tertiaryAkas = e.currentTarget.value)}
+            onBlur={() => {
               $form.tertiaryAkas =
                 $form.tertiaryAkas
                   ?.split(',')

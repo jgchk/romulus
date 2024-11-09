@@ -124,7 +124,7 @@
       max={totalPages}
       value={data.page.toString()}
       class="w-20"
-      on:input={(e) => {
+      onInput={(e) => {
         const value = Number(e.currentTarget.value)
         if (value < 1 || value > totalPages || Number.isNaN(value)) {
           return

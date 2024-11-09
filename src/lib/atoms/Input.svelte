@@ -5,56 +5,70 @@
 
   import { getInputGroupErrors } from './InputGroup'
 
-  export let value = ''
-  export let type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' = 'text'
-  export let name: string | undefined = undefined
-  export let id: string | undefined = undefined
-  export let disabled = false
-  export let placeholder: string | undefined = undefined
-  export let autofocus = false
-  export let pattern: string | undefined = undefined
-  export let min: string | number | undefined = undefined
-  export let max: string | number | undefined = undefined
-  export let required = false
-  export let step: number | string | undefined = undefined
-  export let minlength: number | undefined = undefined
-  export let maxlength: number | undefined = undefined
-  export let autocomplete: FullAutoFill | undefined = 'off'
-  export let ariaLabel: string | undefined = undefined
-
-  let class_: string | undefined = undefined
-  export { class_ as class }
-
-  let propErrors: string[] | undefined = undefined
-  export { propErrors as errors }
-  const contextErrors = getInputGroupErrors()
-  $: errors = propErrors ?? ($contextErrors && $contextErrors.length > 0)
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type $$Events = {
-    input: Event & {
-      currentTarget: EventTarget & HTMLInputElement
-    }
-    focus: FocusEvent & {
-      currentTarget: EventTarget & HTMLInputElement
-    }
-    keydown: KeyboardEvent & {
-      currentTarget: EventTarget & HTMLInputElement
-    }
-    blur: FocusEvent & {
-      currentTarget: EventTarget & HTMLInputElement
-    }
+  type Props = {
+    value?: string
+    type?: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url'
+    name?: string
+    id?: string
+    disabled?: boolean
+    placeholder?: string
+    autofocus?: boolean
+    pattern?: string
+    min?: string | number
+    max?: string | number
+    required?: boolean
+    step?: number | string
+    minlength?: number
+    maxlength?: number
+    autocomplete?: FullAutoFill
+    ariaLabel?: string
+    class?: string
+    errors?: string[]
+    onInput?: (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => void
+    onFocus?: (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => void
+    onKeyDown?: (e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }) => void
+    onBlur?: (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => void
   }
+
+  let {
+    value = $bindable(''),
+    type = 'text',
+    name,
+    id,
+    disabled = false,
+    placeholder,
+    autofocus = false,
+    pattern,
+    min,
+    max,
+    required = false,
+    step,
+    minlength,
+    maxlength,
+    autocomplete = 'off',
+    ariaLabel,
+    class: class_,
+    errors: propErrors,
+    onInput,
+    onFocus,
+    onKeyDown,
+    onBlur,
+  }: Props = $props()
+
+  const contextErrors = getInputGroupErrors()
+  let errors = $derived(propErrors ?? ($contextErrors && $contextErrors.length > 0))
 </script>
 
-<!-- svelte-ignore a11y-autofocus -->
+<!-- svelte-ignore a11y_autofocus -->
 <input
   {value}
-  on:input
-  on:input={(e) => (value = e.currentTarget.value)}
-  on:focus
-  on:keydown
-  on:blur
+  oninput={(e) => {
+    value = e.currentTarget.value
+    onInput?.(e)
+  }}
+  onfocus={onFocus}
+  onkeydown={onKeyDown}
+  onblur={onBlur}
   {type}
   {name}
   {id}

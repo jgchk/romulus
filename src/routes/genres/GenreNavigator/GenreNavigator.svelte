@@ -33,9 +33,9 @@
         ariaLabel="Search Genres"
         class="w-full"
         value={$searchStore.filter}
-        on:input={(e) => searchStore.setFilter(e.currentTarget.value)}
+        onInput={(e) => searchStore.setFilter(e.currentTarget.value)}
         placeholder="Search genres..."
-        on:keydown={(e) => {
+        onKeyDown={(e) => {
           if (e.key === 'Enter') {
             searchStore.setFilterImmediately(e.currentTarget.value)
           }

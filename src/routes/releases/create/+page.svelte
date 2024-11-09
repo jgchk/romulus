@@ -46,7 +46,7 @@
       <Input
         id="title"
         value={$store.title}
-        on:input={(e) => store.setTitle(e.currentTarget.value)}
+        onInput={(e) => store.setTitle(e.currentTarget.value)}
       />
     </InputGroup>
 
@@ -63,7 +63,7 @@
       <Input
         id="art"
         value={$store.art ?? ''}
-        on:input={(e) => store.setArt(e.currentTarget.value)}
+        onInput={(e) => store.setArt(e.currentTarget.value)}
       />
     </InputGroup>
 
@@ -130,7 +130,7 @@
                   id="tracks[{i}].duration"
                   class="w-24"
                   value={track.data.duration}
-                  on:input={(e) => store.track(i).setDuration(e.currentTarget.value)}
+                  onInput={(e) => store.track(i).setDuration(e.currentTarget.value)}
                 />
               </InputGroup>
             {:else}
@@ -165,7 +165,7 @@
                   id="tracks[{i}].duration"
                   class="w-24"
                   value={track.duration}
-                  on:input={(e) => store.track(i).setDuration(e.currentTarget.value)}
+                  onInput={(e) => store.track(i).setDuration(e.currentTarget.value)}
                 />
               </InputGroup>
             {/if}

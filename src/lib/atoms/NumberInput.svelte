@@ -3,7 +3,9 @@
 
   import Input from './Input.svelte'
 
-  type $$Props = Omit<ComponentProps<Input>, 'type' | 'value'> & { value: number | undefined }
+  type $$Props = Omit<ComponentProps<typeof Input>, 'type' | 'value'> & {
+    value: number | undefined
+  }
 
   export let value: $$Props['value'] = undefined
 
@@ -16,4 +18,4 @@
   }
 </script>
 
-<Input type="number" value={value?.toString() ?? ''} on:input={handleInput} {...$$restProps} />
+<Input type="number" value={value?.toString() ?? ''} onInput={handleInput} {...$$restProps} />
