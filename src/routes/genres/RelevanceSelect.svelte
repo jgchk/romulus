@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { type ComponentProps, createEventDispatcher } from 'svelte'
+  import { type ComponentProps } from 'svelte'
 
-  import type { Option } from '$lib/atoms/Select'
   import Select from '$lib/atoms/Select.svelte'
   import {
     getGenreRelevanceText,
@@ -11,9 +10,9 @@
   } from '$lib/types/genres'
   import { range } from '$lib/utils/array'
 
-  type $$Props = Omit<ComponentProps<Select<number>>, 'options'>
+  type Props = Omit<ComponentProps<Select<number>>, 'options'>
 
-  export let value: $$Props['value'] = undefined
+  let { value = $bindable(undefined), ...rest }: Props = $props()
 
   const options = [
     ...range(MIN_GENRE_RELEVANCE, MAX_GENRE_RELEVANCE + 1)
@@ -24,8 +23,6 @@
       })),
     { value: UNSET_GENRE_RELEVANCE, label: 'Unset' },
   ]
-
-  const dispatch = createEventDispatcher<{ change: Option<number> }>()
 </script>
 
-<Select bind:value {options} onChange={(option) => dispatch('change', option)} {...$$restProps} />
+<Select bind:value {options} {...rest} />
