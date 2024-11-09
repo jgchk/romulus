@@ -16,10 +16,14 @@
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
 
-  export let genres: Promise<TreeGenre[]>
+  type Props = {
+    genres: Promise<TreeGenre[]>
+  }
 
-  let showSettings = false
-  $: isSearching = $searchStore.debouncedFilter
+  let { genres }: Props = $props()
+
+  let showSettings = $state(false)
+  let isSearching = $derived($searchStore.debouncedFilter)
 
   const user = getUserContext()
 </script>
