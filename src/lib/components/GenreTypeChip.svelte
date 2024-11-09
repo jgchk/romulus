@@ -3,10 +3,12 @@
   import { type GenreType } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    type: GenreType
+    class?: string
+  }
 
-  export let type: GenreType
+  let { type, class: class_ }: Props = $props()
 
   const GenreTypeChipNames: Record<GenreType, string> = {
     MOVEMENT: 'Mvmt',
