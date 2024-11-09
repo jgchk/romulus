@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   import { writable } from 'svelte/store'
 
   import { tw } from '$lib/utils/dom'
@@ -6,14 +7,22 @@
   import ErrorText from './ErrorText.svelte'
   import { setInputGroupErrors } from './InputGroup'
 
-  export let layout: 'vertical' | 'horizontal' = 'vertical'
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    layout?: 'vertical' | 'horizontal'
+    class?: string
+    errors?: string[]
+    children?: Snippet
+  }
 
-  export let errors: string[] | undefined = undefined
+  let { layout = 'vertical', class: class_, errors, children }: Props = $props()
 
   const errorsStore = writable<string[] | undefined>(errors)
-  $: errorsStore.set(errors)
+
+  errorsStore.set(errors)
+  $effect(() => {
+    errorsStore.set(errors)
+  })
+
   setInputGroupErrors(errorsStore)
 </script>
 
@@ -24,6 +33,6 @@
     class_,
   )}
 >
-  <slot />
+  {@render children?.()}
   <ErrorText {errors} />
 </div>
