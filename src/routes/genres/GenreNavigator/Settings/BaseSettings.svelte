@@ -33,7 +33,7 @@
   <Checkbox
     id="show-relevance-tags"
     checked={showRelevanceTags}
-    on:change={(e) => onChange?.({ showRelevanceTags: e.currentTarget.checked })}
+    onChange={(checked) => onChange?.({ showRelevanceTags: checked })}
   />
   <Label for="show-relevance-tags">Show Relevance Tags</Label>
 </InputGroup>
@@ -42,7 +42,7 @@
   <Checkbox
     id="show-type-tags"
     checked={showTypeTags}
-    on:change={(e) => onChange?.({ showTypeTags: e.currentTarget.checked })}
+    onChange={(checked) => onChange?.({ showTypeTags: checked })}
   />
   <Label for="show-type-tags">Show Type Tags</Label>
 </InputGroup>
@@ -51,7 +51,7 @@
   <Checkbox
     id="show-nsfw"
     checked={showNsfw}
-    on:change={(e) => onChange?.({ showNsfw: e.currentTarget.checked })}
+    onChange={(checked) => onChange?.({ showNsfw: checked })}
   />
   <Label for="show-nsfw">Show NSFW Genres</Label>
 </InputGroup>
