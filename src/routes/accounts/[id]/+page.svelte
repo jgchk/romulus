@@ -7,8 +7,12 @@
   import type { ActionData, PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
-  export let data: PageData
-  export let form: ActionData
+  type Props = {
+    data: PageData
+    form: ActionData
+  }
+
+  let { data, form }: Props = $props()
 
   const user = getUserContext()
 </script>
