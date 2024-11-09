@@ -5,18 +5,21 @@
 
   import RelevanceSelect from '../../RelevanceSelect.svelte'
 
-  export let genreRelevanceFilter: number
-  export let showRelevanceTags: boolean
-  export let showTypeTags: boolean
-  export let showNsfw: boolean
-  export let onChange:
-    | ((value: {
-        genreRelevanceFilter?: number
-        showRelevanceTags?: boolean
-        showTypeTags?: boolean
-        showNsfw?: boolean
-      }) => void)
-    | undefined = undefined
+  type Props = {
+    genreRelevanceFilter: number
+    showRelevanceTags: boolean
+    showTypeTags: boolean
+    showNsfw: boolean
+    onChange?: (value: {
+      genreRelevanceFilter?: number
+      showRelevanceTags?: boolean
+      showTypeTags?: boolean
+      showNsfw?: boolean
+    }) => void
+  }
+
+  let { genreRelevanceFilter, showRelevanceTags, showTypeTags, showNsfw, onChange }: Props =
+    $props()
 </script>
 
 <InputGroup>

@@ -11,5 +11,5 @@
   showRelevanceTags={$userSettings.showRelevanceTags}
   showTypeTags={$userSettings.showTypeTags}
   showNsfw={$userSettings.showNsfw}
-  on:change={(e) => userSettings.update((prev) => ({ ...prev, ...e.detail }))}
+  onChange={(updates) => userSettings.update((prev) => ({ ...prev, ...updates }))}
 />

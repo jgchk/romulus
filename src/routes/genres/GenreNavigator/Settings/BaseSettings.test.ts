@@ -5,7 +5,7 @@ import { expect, it, vi } from 'vitest'
 
 import BaseSettings from './BaseSettings.svelte'
 
-function setup(props: Partial<ComponentProps<BaseSettings>> = {}) {
+function setup(props: Partial<ComponentProps<typeof BaseSettings>> = {}) {
   const user = userEvent.setup()
 
   const returned = render(BaseSettings, {
