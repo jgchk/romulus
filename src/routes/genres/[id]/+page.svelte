@@ -118,7 +118,7 @@
             <RelevanceVoteForm
               voteForm={data.relevanceVoteForm}
               class="mt-1"
-              on:close={() => (isVoting = false)}
+              onClose={() => (isVoting = false)}
             />
             <div class="mt-4 max-w-sm space-y-0.5">
               <Label>Results</Label>

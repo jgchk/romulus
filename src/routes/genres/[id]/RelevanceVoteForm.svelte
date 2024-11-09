@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
   import { superForm } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -9,18 +8,19 @@
   import RelevanceSelect from '../RelevanceSelect.svelte'
   import type { PageData } from './$types'
 
-  export let voteForm: PageData['relevanceVoteForm']
+  type Props = {
+    voteForm: PageData['relevanceVoteForm']
+    class?: string
+    onClose?: () => void
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
-
-  const dispatch = createEventDispatcher<{ close: undefined }>()
+  let { voteForm, class: class_, onClose }: Props = $props()
 
   const { form, errors, constraints, delayed, enhance } = superForm(voteForm, {
     dataType: 'json',
     onUpdate: ({ result }) => {
       if (result.type === 'success') {
-        dispatch('close')
+        onClose?.()
       }
     },
   })
@@ -37,7 +37,7 @@
         {...$constraints.relevanceVote}
       />
       <Button kind="solid" type="submit" loading={$delayed}>Vote</Button>
-      <Button kind="text" type="button" onClick={() => dispatch('close')}>Cancel</Button>
+      <Button kind="text" type="button" onClick={() => onClose?.()}>Cancel</Button>
     </div>
   </InputGroup>
 </form>
