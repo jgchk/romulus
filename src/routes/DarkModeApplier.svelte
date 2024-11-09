@@ -4,13 +4,15 @@
 
   const userSettings = getUserSettingsContext()
 
-  $: if (browser) {
-    if ($userSettings.darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
+  $effect(() => {
+    if (browser) {
+      if ($userSettings.darkMode) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
     }
-  }
+  })
 </script>
 
 <svelte:head>
