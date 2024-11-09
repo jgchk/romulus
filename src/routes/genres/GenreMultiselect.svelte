@@ -64,14 +64,13 @@
   virtual
   bind:filter
   {options}
-  on:change={(e) => {
-    value = e.detail.value.map((v) => v.value)
+  onChange={(newValue) => {
+    value = newValue.map((v) => v.value)
     onChange?.(value)
   }}
-  on:blur
   {...$$restProps}
 >
-  <svelte:fragment slot="selected" let:option>
+  {#snippet selected({ option })}
     <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
       <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}{' '}<span
           class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
@@ -80,9 +79,9 @@
         <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
       {/if}
     </div>
-  </svelte:fragment>
+  {/snippet}
 
-  <svelte:fragment slot="option" let:option>
+  {#snippet option({ option })}
     <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
       {option.data.genre.name}
       {#if option.data.genre.subtitle}
@@ -100,5 +99,5 @@
         <GenreTypeChip type={option.data.genre.type} />
       {/if}
     </div>
-  </svelte:fragment>
+  {/snippet}
 </Multiselect>

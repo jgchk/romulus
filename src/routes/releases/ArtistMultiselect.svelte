@@ -58,11 +58,10 @@
   {options}
   reorderable
   bind:filter
-  on:change={(e) => {
-    const newValue = e.detail.value.map((v) => ({ id: v.value, name: v.label }))
+  onChange={(nv) => {
+    const newValue = nv.map((v) => ({ id: v.value, name: v.label }))
     value = newValue
     dispatch('change', { value: newValue })
   }}
-  on:blur
   {...$$restProps}
 />

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type InternalOption = Option<OptionData>
   type Value = InternalOption['value']
 </script>
@@ -6,7 +6,6 @@
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
   import { flip, offset } from '@floating-ui/dom'
   import { CaretDown, DotsSixVertical, Trash } from 'phosphor-svelte'
-  import { createEventDispatcher } from 'svelte'
   import { flip as flipAnimation } from 'svelte/animate'
   import {
     dragHandle,
@@ -25,43 +24,40 @@
   import type { MultiselectProps, Option, OptionData } from './Multiselect'
   import OptionsDropdown from './OptionsDropdown.svelte'
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type $$Slots = {
-    default: never
-    selected: { option: InternalOption }
-    option: { option: InternalOption }
-  }
+  type Props = MultiselectProps<InternalOption>
 
-  type $$Props = MultiselectProps<InternalOption>
+  let {
+    value = [],
+    options = [],
+    hasMore = false,
+    open = false,
+    filter = $bindable(''),
+    virtual = false,
+    focusedIndex = 0,
+    id,
+    placeholder,
+    disabled = false,
+    reorderable = false,
+    class: class_,
+    errors: propErrors,
+    selected: selectedSnippet,
+    option: optionSnippet,
 
-  export let value: NonNullable<$$Props['value']> = []
-  export let options: NonNullable<$$Props['options']> = []
-  export let hasMore = false
-  export let open = false
-  export let filter = ''
-  export let virtual = false
-  export let focusedIndex = 0
-  export let id: $$Props['id'] = undefined
-  export let placeholder: $$Props['placeholder'] = undefined
-  export let disabled = false
-  export let reorderable = false
+    onLoadMore,
+    onChange,
+  }: Props = $props()
 
-  let class_: $$Props['class'] = undefined
-  export { class_ as class }
-
-  let propErrors: string[] | undefined = undefined
-  export { propErrors as errors }
   const contextErrors = getInputGroupErrors()
-  $: errors = propErrors ?? ($contextErrors && $contextErrors.length > 0)
+  let errors = $derived(propErrors ?? ($contextErrors && $contextErrors.length > 0))
 
   let inputRef: HTMLInputElement | undefined
 
-  $: selectedValues = new Set<Value>(value.map((v) => v.value))
+  let selectedValues = $derived(new Set<Value>(value.map((v) => v.value)))
 
-  $: isValueSelected = (value: Value) => selectedValues.has(value)
+  let isValueSelected = $derived((value: Value) => selectedValues.has(value))
 
-  $: filteredOptions = (
-    virtual || !filter
+  let filteredOptions = $derived(
+    (virtual || !filter
       ? options
       : sortBy(
           options,
@@ -74,24 +70,24 @@
             }
           },
         )
-  ).filter((option) => !isValueSelected(option.value))
+    ).filter((option) => !isValueSelected(option.value)),
+  )
 
-  $: lastIndex = hasMore ? filteredOptions.length : filteredOptions.length - 1
+  let lastIndex = $derived(hasMore ? filteredOptions.length : filteredOptions.length - 1)
 
   // prevent focusedIndex from being out of bounds
-  $: if (filteredOptions) {
-    focusedIndex = Math.min(focusedIndex, lastIndex)
-  }
+  $effect(() => {
+    if (filteredOptions) {
+      focusedIndex = Math.min(focusedIndex, lastIndex)
+    }
+  })
 
   // reset focusedIndex when closing
-  $: if (!open) {
-    focusedIndex = 0
-  }
-
-  const dispatch = createEventDispatcher<{
-    loadMore: undefined
-    change: { value: InternalOption[] }
-  }>()
+  $effect(() => {
+    if (!open) {
+      focusedIndex = 0
+    }
+  })
 
   const handleSelect = (option: InternalOption) => {
     filter = ''
@@ -104,12 +100,12 @@
 
   const handleAdd = (option: InternalOption) => {
     value = [...value, option]
-    dispatch('change', { value })
+    onChange?.(value)
   }
 
   const handleRemove = (option: InternalOption) => {
     value = value.filter((v) => v.value !== option.value)
-    dispatch('change', { value })
+    onChange?.(value)
   }
 
   function handleReorder(from: number, to: number) {
@@ -117,16 +113,18 @@
     const [removed] = newValue.splice(from, 1)
     newValue.splice(to, 0, removed)
     value = newValue
-    dispatch('change', { value })
+    onChange?.(value)
   }
 
   const handleLoadMore = () => {
-    dispatch('loadMore')
+    onLoadMore?.()
   }
 
-  $: if (filter.length > 0) {
-    open = true
-  }
+  $effect(() => {
+    if (filter.length > 0) {
+      open = true
+    }
+  })
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Tab') {
@@ -217,12 +215,12 @@
           dropTargetStyle: {},
           dropTargetClasses: ['rounded', 'outline', 'outline-1', 'outline-primary-500'],
         }}
-        on:consider={(e) => {
+        onconsider={(e) => {
           value = e.detail.items
         }}
-        on:finalize={(e) => {
+        onfinalize={(e) => {
           value = e.detail.items
-          dispatch('change', { value })
+          onChange?.(value)
         }}
       >
         {#each value as v, index (v.value)}
@@ -233,7 +231,7 @@
             animate:flipAnimation={{ duration: flipDurationMs }}
             tabindex="-1"
             data-testId="multiselect__selected"
-            on:dragstart={(e) => {
+            ondragstart={(e) => {
               if (!e.dataTransfer) {
                 console.error('Drag failed: dataTransfer is not available')
                 return
@@ -241,10 +239,10 @@
 
               e.dataTransfer?.setData('text/plain', index.toString())
             }}
-            on:dragover={(e) => {
+            ondragover={(e) => {
               e.preventDefault()
             }}
-            on:drop={(e) => {
+            ondrop={(e) => {
               if (!e.dataTransfer) {
                 console.error('Drop failed: dataTransfer is not available')
                 return
@@ -266,8 +264,8 @@
               </div>
             {/if}
             <div class="px-1.5 py-0.5" data-testId="multiselect__selected__label">
-              {#if $$slots.selected}
-                <slot name="selected" option={v} />
+              {#if selectedSnippet}
+                {@render selectedSnippet({ option: v })}
               {:else}
                 <div class="text-nowrap">
                   {v.label}
@@ -279,7 +277,7 @@
               class="flex w-5 items-center justify-center border-l border-gray-400 transition hover:border-error-800 hover:bg-error-500 dark:border-gray-600 dark:text-gray-400 dark:hover:text-error-200"
               use:tooltip={{ content: 'Remove' }}
               aria-label="Remove {v.label}"
-              on:click={() => {
+              onclick={() => {
                 handleRemove(v)
                 inputRef?.focus()
               }}
@@ -301,10 +299,9 @@
       type="text"
       autocomplete="off"
       bind:value={filter}
-      on:keydown={handleKeyDown}
-      on:click={() => (open = true)}
-      on:focus={() => (open = true)}
-      on:blur
+      onkeydown={handleKeyDown}
+      onclick={() => (open = true)}
+      onfocus={() => (open = true)}
       bind:this={inputRef}
       {disabled}
     />
@@ -313,7 +310,7 @@
       class="px-2"
       type="button"
       tabindex="-1"
-      on:click={(e) => {
+      onclick={(e) => {
         e.currentTarget.blur()
         open = !open
         if (open) {
@@ -338,8 +335,8 @@
       on:loadMore={() => handleLoadMore()}
     >
       <svelte:fragment slot="option" let:option>
-        {#if $$slots.option}
-          <slot name="option" {option} />
+        {#if optionSnippet}
+          {@render optionSnippet({ option })}
         {:else}
           {option.label}
         {/if}

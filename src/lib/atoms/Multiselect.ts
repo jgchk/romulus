@@ -1,3 +1,5 @@
+import type { Snippet } from 'svelte'
+
 export type MultiselectProps<T> = {
   value?: T[]
   options?: T[]
@@ -11,6 +13,12 @@ export type MultiselectProps<T> = {
   disabled?: boolean
   class?: string
   reorderable?: boolean
+  errors?: string[]
+  selected?: Snippet<[{ option: T }]>
+  option?: Snippet<[{ option: T }]>
+
+  onLoadMore?: () => void
+  onChange?: (value: T[]) => void
 }
 
 export type OptionValue = string | number | symbol
