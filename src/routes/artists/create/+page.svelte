@@ -7,7 +7,11 @@
 
   import type { ActionData } from './$types'
 
-  export let form: ActionData
+  type Props = {
+    form: ActionData
+  }
+
+  let { form }: Props = $props()
 </script>
 
 <Card class="h-full w-full p-4">
