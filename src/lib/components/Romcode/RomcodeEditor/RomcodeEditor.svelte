@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const Tabs = Object.freeze({
     EDIT: 'Edit',
     VIEW: 'View',
@@ -8,7 +8,6 @@
 
 <script lang="ts">
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
-  import { createEventDispatcher } from 'svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
   import { makeGenreTag, type SimpleGenre } from '$lib/types/genres'
@@ -17,22 +16,34 @@
   import Romcode from '../Romcode.svelte'
   import GenreSearchDialog from './GenreSearchDialog.svelte'
 
-  export let id: string | undefined = undefined
-  export let value = ''
-  export let genres: SimpleGenre[]
-  export let disabled = false
-  export let autofocus = false
+  type Props = {
+    id?: string
+    value?: string
+    genres: SimpleGenre[]
+    disabled?: boolean
+    autofocus?: boolean
+    class?: string
+    onChange?: (value: string) => void
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let {
+    id,
+    value = $bindable(''),
+    genres,
+    disabled = false,
+    autofocus = false,
+    class: class_,
+    onChange,
+  }: Props = $props()
 
-  let tab: Tab = Tabs.EDIT
-  let showGenreDialog: boolean | string = false
+  let tab: Tab = $state(Tabs.EDIT)
+  let showGenreDialog: boolean | string = $state(false)
 
-  let ta: HTMLTextAreaElement | undefined
+  let ta: HTMLTextAreaElement | undefined = $state()
 
-  const dispatch = createEventDispatcher<{ change: string }>()
-  $: dispatch('change', value)
+  $effect(() => {
+    onChange?.(value)
+  })
 
   function handleInsertGenreTag(id: number) {
     const genreTag = makeGenreTag(id)
@@ -124,13 +135,12 @@
         </IconButton>
       </div>
 
-      <!-- svelte-ignore a11y-autofocus -->
+      <!-- svelte-ignore a11y_autofocus -->
       <textarea
         bind:this={ta}
         {id}
         class="flex-1 resize-none bg-black bg-opacity-[0.04] p-1.5 transition hover:bg-opacity-[0.07] focus:outline-none dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
         bind:value
-        on:blur
         {disabled}
         {autofocus}
       >
@@ -151,7 +161,7 @@
         tab === Tabs.EDIT ? 'font-bold' : 'font-medium',
       )}
       type="button"
-      on:click={() => (tab = Tabs.EDIT)}
+      onclick={() => (tab = Tabs.EDIT)}
     >
       Edit
     </button>
@@ -161,7 +171,7 @@
         tab === Tabs.VIEW ? 'font-bold' : 'font-medium',
       )}
       type="button"
-      on:click={() => (tab = Tabs.VIEW)}
+      onclick={() => (tab = Tabs.VIEW)}
     >
       View
     </button>

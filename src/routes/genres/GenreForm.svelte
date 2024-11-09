@@ -240,7 +240,7 @@
           class="w-full"
           id="short-description"
           value={$form.shortDescription ?? ''}
-          on:change={(e) => ($form.shortDescription = e.detail)}
+          onChange={(value) => ($form.shortDescription = value)}
           genres={[]}
           disabled
         />
@@ -249,7 +249,7 @@
           class="w-full"
           id="short-description"
           value={$form.shortDescription ?? ''}
-          on:change={(e) => ($form.shortDescription = e.detail)}
+          onChange={(value) => ($form.shortDescription = value)}
           {genres}
           autofocus={autoFocus === 'shortDescription'}
         />
@@ -263,7 +263,7 @@
           class="w-full"
           id="long-description"
           value={$form.longDescription ?? ''}
-          on:change={(e) => ($form.longDescription = e.detail)}
+          onChange={(value) => ($form.longDescription = value)}
           genres={[]}
           disabled
         />
@@ -272,7 +272,7 @@
           class="w-full"
           id="long-description"
           value={$form.longDescription ?? ''}
-          on:change={(e) => ($form.longDescription = e.detail)}
+          onChange={(value) => ($form.longDescription = value)}
           {genres}
           autofocus={autoFocus === 'longDescription'}
         />
@@ -286,7 +286,7 @@
           class="w-full"
           id="notes"
           value={$form.notes ?? ''}
-          on:change={(e) => ($form.notes = e.detail)}
+          onChange={(value) => ($form.notes = value)}
           genres={[]}
           disabled
         />
@@ -295,7 +295,7 @@
           class="w-full"
           id="notes"
           value={$form.notes ?? ''}
-          on:change={(e) => ($form.notes = e.detail)}
+          onChange={(value) => ($form.notes = value)}
           {genres}
           autofocus={autoFocus === 'notes'}
         />
