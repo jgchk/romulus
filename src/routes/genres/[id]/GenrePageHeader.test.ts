@@ -5,7 +5,7 @@ import { expect, it } from 'vitest'
 
 import GenrePageHeader from './GenrePageHeader.svelte'
 
-function setup(props: ComponentProps<GenrePageHeader>) {
+function setup(props: ComponentProps<typeof GenrePageHeader>) {
   const user = userEvent.setup()
 
   const returned = render(GenrePageHeader, props)
