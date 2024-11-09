@@ -10,7 +10,7 @@ import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-set
 import GenreLink from './GenreLink.svelte'
 
 function setup(
-  props: ComponentProps<GenreLink>,
+  props: ComponentProps<typeof GenreLink>,
   options: { userSettings?: Partial<UserSettings> } = {},
 ) {
   const user = userEvent.setup()

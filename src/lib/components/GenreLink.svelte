@@ -6,14 +6,16 @@
 
   import GenreTypeChip from './GenreTypeChip.svelte'
 
-  export let id: number
-  export let name: string
-  export let subtitle: string | null = null
-  export let type: GenreType | undefined = undefined
-  export let nsfw: boolean
+  type Props = {
+    id: number
+    name: string
+    subtitle?: string | null
+    type?: GenreType
+    nsfw: boolean
+    class?: string
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { id, name, subtitle, type, nsfw, class: class_ }: Props = $props()
 
   const userSettings = getUserSettingsContext()
 </script>
