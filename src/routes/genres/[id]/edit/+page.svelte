@@ -4,7 +4,11 @@
   import GenreForm from '../../GenreForm.svelte'
   import type { PageData } from './$types'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
+
+  let { data }: Props = $props()
 </script>
 
 <svelte:head>
