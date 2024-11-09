@@ -17,8 +17,12 @@
   import type { ActionData, PageData } from './$types'
   import { ReleaseFormStore } from './state'
 
-  export let data: PageData
-  export let form: ActionData
+  type Props = {
+    data: PageData
+    form: ActionData
+  }
+
+  let { data, form }: Props = $props()
 
   const store = new ReleaseFormStore(data.initialState)
 
