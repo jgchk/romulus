@@ -14,7 +14,11 @@
   import TrackAutocomplete from '../../../TrackAutocomplete.svelte'
   import type { PageData } from './$types'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
+
+  let { data }: Props = $props()
 
   const { form, errors, constraints, delayed, enhance } = superForm(data.form, {
     dataType: 'json',
