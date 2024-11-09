@@ -10,7 +10,7 @@ import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-set
 import GenreSearchResult from './GenreSearchResult.svelte'
 
 function setup(
-  props: ComponentProps<GenreSearchResult>,
+  props: ComponentProps<typeof GenreSearchResult>,
   options: { userSettings?: Partial<UserSettings> } = {},
 ) {
   const user = userEvent.setup()
