@@ -5,12 +5,15 @@
 
   import type { PageData } from './$types'
 
-  export let label: string
-  export let sort: string
-  export let data: PageData
+  type Props = {
+    label: string
+    sort: string
+    data: PageData
+  }
 
-  let href = ''
-  $: {
+  let { label, sort, data }: Props = $props()
+
+  let href = $derived.by(() => {
     const params = new URLSearchParams($page.url.searchParams)
 
     params.set('sort', sort)
@@ -23,8 +26,8 @@
       params.set('order', 'asc')
     }
 
-    href = '?' + params.toString()
-  }
+    return '?' + params.toString()
+  })
 </script>
 
 <a class="flex items-center gap-1" {href}>
