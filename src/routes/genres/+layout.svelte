@@ -27,12 +27,12 @@
   on:resize={(e) => (leftPaneSize = e.detail)}
   onSmallScreenCollapseto={$page.url.pathname === '/genres' ? 'left' : 'right'}
 >
-  <svelte:fragment slot="left">
+  {#snippet left()}
     <GenreNavigator genres={data.streamed.genres} />
-  </svelte:fragment>
-  <svelte:fragment slot="right">
+  {/snippet}
+  {#snippet right()}
     <Card class="h-full overflow-auto">
       <slot />
     </Card>
-  </svelte:fragment>
+  {/snippet}
 </SplitPane>

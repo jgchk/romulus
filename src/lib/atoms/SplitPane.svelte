@@ -1,28 +1,40 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type PartialTouchEvent = { touches: Record<number, { clientX: number }> }
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, type Snippet } from 'svelte'
 
   import { cn, tw, unfocus } from '$lib/utils/dom'
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    class?: string
+    defaultSize?: number
+    minSize?: number
+    maxSize?: number
+    onSmallScreenCollapseto?: 'left' | 'right'
+    leftSize?: number
+    left?: Snippet
+    right?: Snippet
+  }
 
-  export let defaultSize: number | undefined = undefined
-  export let minSize = 50
-  export let maxSize: number | undefined = undefined
-  export let onSmallScreenCollapseto: 'left' | 'right' = 'left'
+  let {
+    class: class_,
+    defaultSize,
+    minSize = 50,
+    maxSize,
+    onSmallScreenCollapseto = 'left',
+    leftSize = $bindable(getDefaultSize(defaultSize, minSize, maxSize)),
+    left,
+    right,
+  }: Props = $props()
 
-  export let leftSize = getDefaultSize(defaultSize, minSize, maxSize)
-
-  let active = false
+  let active = $state(false)
   let pos = 0
 
-  let containerRef: HTMLElement | undefined
-  let leftRef: HTMLElement | undefined
-  let rightRef: HTMLElement | undefined
+  let containerRef: HTMLElement | undefined = $state()
+  let leftRef: HTMLElement | undefined = $state()
+  let rightRef: HTMLElement | undefined = $state()
 
   const dispatch = createEventDispatcher<{ resize: number }>()
 
@@ -94,9 +106,9 @@
 </script>
 
 <svelte:document
-  on:mouseup={handleTouchEnd}
-  on:mousemove={handleMouseMove}
-  on:touchmove={handleTouchMove}
+  onmouseup={handleTouchEnd}
+  onmousemove={handleMouseMove}
+  ontouchmove={handleTouchMove}
 />
 
 <div class={tw('flex', class_)} bind:this={containerRef}>
@@ -108,7 +120,7 @@
     style={leftSize === undefined ? undefined : `width: ${leftSize}px;`}
     bind:this={leftRef}
   >
-    <slot name="left" />
+    {@render left?.()}
   </div>
   <button
     aria-label="Resize"
@@ -117,9 +129,9 @@
       'group hidden w-px cursor-col-resize rounded-full bg-transparent px-1 py-[6px] transition hover:bg-primary-100 md:block dark:hover:bg-primary-950',
       active && 'bg-primary-100 dark:bg-primary-950',
     )}
-    on:mousedown={handleMouseDown}
-    on:touchstart={handleTouchStart}
-    on:touchend={handleTouchEnd}
+    onmousedown={handleMouseDown}
+    ontouchstart={handleTouchStart}
+    ontouchend={handleTouchEnd}
   >
     <div
       class={tw(
@@ -135,6 +147,6 @@
     )}
     bind:this={rightRef}
   >
-    <slot name="right" />
+    {@render right?.()}
   </div>
 </div>
