@@ -2,10 +2,14 @@
   import { makeGenreTag } from '$lib/types/genres'
   import { copyTextToClipboard } from '$lib/utils/dom'
 
-  export let id: number
-  export let name: string
-  export let subtitle: string | null
-  export let nsfw: boolean
+  type Props = {
+    id: number
+    name: string
+    subtitle: string | null
+    nsfw: boolean
+  }
+
+  let { id, name, subtitle, nsfw }: Props = $props()
 </script>
 
 <div class="flex items-center border-b border-gray-200 p-4 transition dark:border-gray-800">
@@ -24,7 +28,7 @@
 
   <button
     type="button"
-    on:click={() => copyTextToClipboard(makeGenreTag(id))}
+    onclick={() => copyTextToClipboard(makeGenreTag(id))}
     class="text-sm text-gray-400 hover:underline"
   >
     {makeGenreTag(id)}
