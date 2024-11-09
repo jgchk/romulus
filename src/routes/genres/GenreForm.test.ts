@@ -9,7 +9,7 @@ import { genreSchema } from '$lib/server/api/genres/types'
 
 import GenreForm from './GenreForm.svelte'
 
-function setup(props: ComponentProps<GenreForm>) {
+function setup(props: ComponentProps<typeof GenreForm>) {
   const user = userEvent.setup()
 
   const returned = render(GenreForm, props)

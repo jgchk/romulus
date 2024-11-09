@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -21,15 +20,18 @@
   import GenreTypeSelect from './GenreTypeSelect.svelte'
   import RelevanceSelect from './RelevanceSelect.svelte'
 
-  export let id: number | undefined = undefined
-  export let data: SuperValidated<Infer<GenreSchema>>
-  export let autoFocus: GenreFormField = 'name'
-  export let showRelevance = false
-  export let genres: Promise<TreeGenre[]>
+  type Props = {
+    id?: number
+    data: SuperValidated<Infer<GenreSchema>>
+    autoFocus?: GenreFormField
+    showRelevance?: boolean
+    genres: Promise<TreeGenre[]>
+    onSubmit?: () => void
+  }
 
-  let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = undefined
+  let { id, data, autoFocus = 'name', showRelevance = false, genres, onSubmit }: Props = $props()
 
-  const dispatch = createEventDispatcher<{ submit: undefined }>()
+  let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = $state(undefined)
 
   const { form, errors, constraints, delayed, enhance, submit } = superForm(data, {
     dataType: 'json',
@@ -42,7 +44,7 @@
         return
       }
 
-      dispatch('submit')
+      onSubmit?.()
     },
 
     onUpdated: ({ form }) => {
