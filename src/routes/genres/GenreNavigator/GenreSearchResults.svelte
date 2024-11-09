@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 </script>
 
 <script lang="ts">
@@ -10,9 +10,13 @@
   import type { TreeGenre } from './GenreTree/state'
   import { searchStore } from './state'
 
-  export let genres: TreeGenre[]
+  type Props = {
+    genres: TreeGenre[]
+  }
 
-  $: matches = searchGenres(genres, $searchStore.debouncedFilter)
+  let { genres }: Props = $props()
+
+  let matches = $derived(searchGenres(genres, $searchStore.debouncedFilter))
 
   const user = getUserContext()
 </script>
