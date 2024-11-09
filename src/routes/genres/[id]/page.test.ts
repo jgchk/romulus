@@ -46,8 +46,8 @@ const mockGenre = {
 }
 
 async function setup(
-  props: Omit<Partial<ComponentProps<GenrePage>>, 'data'> & {
-    data?: Partial<ComponentProps<GenrePage>['data']>
+  props: Omit<Partial<ComponentProps<typeof GenrePage>>, 'data'> & {
+    data?: Partial<ComponentProps<typeof GenrePage>['data']>
   } = {},
   options: { userSettings?: Partial<UserSettings> } = {},
 ) {

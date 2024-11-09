@@ -35,17 +35,20 @@
     | 'treeGenreId'
   > & { akas: string[]; account: { id: number; username: string } | null }
 
-  export let previousHistory: Omit<HistorySubset, 'account'> | undefined
-  export let currentHistory: HistorySubset
-  export let genres: LayoutData['streamed']['genres']
+  type Props = {
+    previousHistory: Omit<HistorySubset, 'account'> | undefined
+    currentHistory: HistorySubset
+    genres: LayoutData['streamed']['genres']
+  }
 
-  let expanded = false
+  let { previousHistory, currentHistory, genres }: Props = $props()
+
+  let expanded = $state(false)
 
   const SHORT_HEIGHT = 220
 
-  let body: HTMLElement | undefined
-  let scrollHeight = 0
-  $: overflows = scrollHeight > SHORT_HEIGHT
+  let body: HTMLElement | undefined = $state()
+  let scrollHeight = $state(0)
 
   const userSettings = getUserSettingsContext()
 
@@ -57,23 +60,6 @@
 
     cb()
   })
-
-  $: changed = {
-    name: getAction(previousHistory, currentHistory, (h) => h.name),
-    subtitle: getAction(previousHistory, currentHistory, (h) => h.subtitle),
-    type: getAction(previousHistory, currentHistory, (h) => h.type),
-    nsfw: getAction(previousHistory, currentHistory, (h) => h.nsfw),
-    shortDescription: getAction(previousHistory, currentHistory, (h) => h.shortDescription),
-    longDescription: getAction(previousHistory, currentHistory, (h) => h.longDescription),
-    notes: getAction(previousHistory, currentHistory, (h) => h.notes),
-    akas: getAction(previousHistory, currentHistory, (h) => h.akas),
-    parentGenreIds: getAction(previousHistory, currentHistory, (h) => new Set(h.parentGenreIds)),
-    influencedByGenreIds: getAction(
-      previousHistory,
-      currentHistory,
-      (h) => new Set(h.influencedByGenreIds),
-    ),
-  }
 
   type DiffAction = 'create' | 'update' | 'delete' | null
 
@@ -118,6 +104,23 @@
       }
     }
   }
+  let overflows = $derived(scrollHeight > SHORT_HEIGHT)
+  let changed = $derived({
+    name: getAction(previousHistory, currentHistory, (h) => h.name),
+    subtitle: getAction(previousHistory, currentHistory, (h) => h.subtitle),
+    type: getAction(previousHistory, currentHistory, (h) => h.type),
+    nsfw: getAction(previousHistory, currentHistory, (h) => h.nsfw),
+    shortDescription: getAction(previousHistory, currentHistory, (h) => h.shortDescription),
+    longDescription: getAction(previousHistory, currentHistory, (h) => h.longDescription),
+    notes: getAction(previousHistory, currentHistory, (h) => h.notes),
+    akas: getAction(previousHistory, currentHistory, (h) => h.akas),
+    parentGenreIds: getAction(previousHistory, currentHistory, (h) => new Set(h.parentGenreIds)),
+    influencedByGenreIds: getAction(
+      previousHistory,
+      currentHistory,
+      (h) => new Set(h.influencedByGenreIds),
+    ),
+  })
 </script>
 
 <div
@@ -239,51 +242,54 @@
               </div>
             {:then genres}
               {#if changed.parentGenreIds === 'delete'}
-                <CommaList
-                  items={currentHistory.parentGenreIds ?? []}
-                  let:item={id}
-                  class="block text-gray-500"
-                >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="line-through hover:underline" href="/genres/{genre.id}"
-                      >{genre.name}</a
-                    >
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                <CommaList items={currentHistory.parentGenreIds ?? []} class="block text-gray-500">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {:else if changed.parentGenreIds === 'update'}
-                <CommaList items={currentHistory.parentGenreIds ?? []} let:item={id} class="block">
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                <CommaList items={currentHistory.parentGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
                 <CommaList
                   items={previousHistory?.parentGenreIds ?? []}
-                  let:item={id}
                   class="block text-gray-500"
                 >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="line-through hover:underline" href="/genres/{genre.id}"
-                      >{genre.name}</a
-                    >
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {:else}
-                <CommaList items={currentHistory.parentGenreIds ?? []} let:item={id} class="block">
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                <CommaList items={currentHistory.parentGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {/if}
             {/await}
@@ -305,57 +311,55 @@
               {#if changed.influencedByGenreIds === 'delete'}
                 <CommaList
                   items={currentHistory.influencedByGenreIds ?? []}
-                  let:item={id}
                   class="block text-gray-500"
                 >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="line-through hover:underline" href="/genres/{genre.id}"
-                      >{genre.name}</a
-                    >
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {:else if changed.influencedByGenreIds === 'update'}
-                <CommaList
-                  items={currentHistory.influencedByGenreIds ?? []}
-                  let:item={id}
-                  class="block"
-                >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                <CommaList items={currentHistory.influencedByGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
                 <CommaList
                   items={previousHistory?.influencedByGenreIds ?? []}
-                  let:item={id}
                   class="block text-gray-500"
                 >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="line-through hover:underline" href="/genres/{genre.id}"
-                      >{genre.name}</a
-                    >
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {:else}
-                <CommaList
-                  items={currentHistory.influencedByGenreIds ?? []}
-                  let:item={id}
-                  class="block"
-                >
-                  {@const genre = genres.find((g) => g.id === id)}
-                  {#if genre}
-                    <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
-                  {:else}
-                    <span class="text-gray-500 line-through">Deleted</span>
-                  {/if}
+                <CommaList items={currentHistory.influencedByGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
                 </CommaList>
               {/if}
             {/await}
@@ -464,7 +468,7 @@
     <button
       type="button"
       class="group w-full p-1 text-sm text-gray-500 transition hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
-      on:click={() => (expanded = !expanded)}
+      onclick={() => (expanded = !expanded)}
     >
       <div
         class="flex w-full items-center justify-center gap-1 rounded-sm bg-transparent p-0.5 transition group-hover:bg-gray-300 dark:group-hover:bg-gray-700"

@@ -15,7 +15,7 @@
   Any applications or scripts using this key will no longer be able to access the Romulus API. You
   cannot undo this action.
 
-  <svelte:fragment slot="buttons">
+  {#snippet buttons()}
     <form
       method="POST"
       action="?/delete"
@@ -39,5 +39,5 @@
       <Button kind="solid" color="error" type="submit">Delete</Button>
     </form>
     <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
-  </svelte:fragment>
+  {/snippet}
 </Dialog>

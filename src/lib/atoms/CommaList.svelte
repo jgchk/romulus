@@ -1,21 +1,25 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = unknown
 </script>
 
 <script lang="ts" generics="T extends unknown">
-  export let items: T[]
+  import type { Snippet } from 'svelte'
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    items: T[]
+    class?: string
+    separator?: string
+    separatorClass?: string
+    children?: Snippet<[{ item: T; i: number }]>
+  }
 
-  export let separator = ', '
-  export let separatorClass: string | undefined = undefined
+  let { items, class: class_, separator = ', ', separatorClass, children }: Props = $props()
 </script>
 
 <span class={class_}
-  >{#each items as item, i}{#if $$slots.default}<slot
-        {item}
-        {i}
-      />{:else}{item}{/if}{#if i < items.length - 1}<span class={separatorClass}>{separator}</span
+  >{#each items as item, i}{#if children}{@render children?.({
+        item,
+        i,
+      })}{:else}{item}{/if}{#if i < items.length - 1}<span class={separatorClass}>{separator}</span
       >{/if}{/each}</span
 >

@@ -41,9 +41,9 @@
       <Input id="api-key-name" name="name" class="w-full" required autofocus />
     </InputGroup>
 
-    <svelte:fragment slot="buttons">
+    {#snippet buttons()}
       <Button type="submit">Create</Button>
       <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
-    </svelte:fragment>
+    {/snippet}
   </Dialog>
 </form>

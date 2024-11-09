@@ -315,7 +315,7 @@
   <Dialog role="alertdialog" title="Submit top level genre?">
     You are submitting a top level genre. Are you sure you want to continue?
 
-    <svelte:fragment slot="buttons">
+    {#snippet buttons()}
       <Button
         onClick={() => {
           topLevelConfirmation = 'confirmed'
@@ -325,6 +325,6 @@
         Yes
       </Button>
       <Button kind="text" onClick={() => (topLevelConfirmation = undefined)}>No</Button>
-    </svelte:fragment>
+    {/snippet}
   </Dialog>
 {/if}

@@ -23,11 +23,15 @@
   import RelevanceVoteForm from './RelevanceVoteForm.svelte'
   import RelevanceVoteGraph from './RelevanceVoteGraph.svelte'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
 
-  let isVoting = false
-  let showNotes = false
-  let isDeleting = false
+  let { data }: Props = $props()
+
+  let isVoting = $state(false)
+  let showNotes = $state(false)
+  let isDeleting = $state(false)
 
   const user = getUserContext()
   const userSettings = getUserSettingsContext()
@@ -86,7 +90,7 @@
             <button
               type="button"
               class="text-xs text-primary-500 hover:underline"
-              on:click={() => (isVoting = !isVoting)}
+              onclick={() => (isVoting = !isVoting)}
             >
               ({isVoting ? 'Cancel' : 'Vote'})
             </button>
@@ -98,7 +102,7 @@
             <button
               type="button"
               class="text-primary-500 hover:underline"
-              on:click={() => (isVoting = true)}
+              onclick={() => (isVoting = true)}
             >
               Vote.
             </button>
@@ -130,16 +134,17 @@
           <div class="genre-parents">
             <CommaList
               items={data.genre.parents}
-              let:item={genre}
               class="text-gray-600 transition dark:text-gray-400"
             >
-              <GenreLink
-                id={genre.id}
-                name={genre.name}
-                type={genre.type}
-                subtitle={genre.subtitle}
-                nsfw={genre.nsfw}
-              />
+              {#snippet children({ item: genre })}
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                  nsfw={genre.nsfw}
+                />
+              {/snippet}
             </CommaList>
           </div>
         </div>
@@ -151,16 +156,17 @@
           <div class="genre-influences">
             <CommaList
               items={data.genre.influencedBy}
-              let:item={genre}
               class="text-gray-600 transition dark:text-gray-400"
             >
-              <GenreLink
-                id={genre.id}
-                name={genre.name}
-                type={genre.type}
-                subtitle={genre.subtitle}
-                nsfw={genre.nsfw}
-              />
+              {#snippet children({ item: genre })}
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                  nsfw={genre.nsfw}
+                />
+              {/snippet}
             </CommaList>
           </div>
         </div>
@@ -172,16 +178,17 @@
           <div class="genre-influenced">
             <CommaList
               items={data.genre.influences}
-              let:item={genre}
               class="text-gray-600 transition dark:text-gray-400"
             >
-              <GenreLink
-                id={genre.id}
-                name={genre.name}
-                type={genre.type}
-                subtitle={genre.subtitle}
-                nsfw={genre.nsfw}
-              />
+              {#snippet children({ item: genre })}
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                  nsfw={genre.nsfw}
+                />
+              {/snippet}
             </CommaList>
           </div>
         </div>
@@ -265,7 +272,7 @@
             <button
               type="button"
               class="text-primary-500 hover:underline"
-              on:click={() => (showNotes = !showNotes)}
+              onclick={() => (showNotes = !showNotes)}
             >
               {#if showNotes}Hide{:else}Show{/if} notes
             </button>
@@ -279,10 +286,11 @@
           <div class="genre-contributors">
             <CommaList
               items={data.genre.contributors}
-              let:item
               class="text-gray-600 transition dark:text-gray-400"
             >
-              <AccountLink accountId={item.id} username={item.username} />
+              {#snippet children({ item })}
+                <AccountLink accountId={item.id} username={item.username} />
+              {/snippet}
             </CommaList>
           </div>
         </div>
@@ -308,11 +316,11 @@
     title="Delete {data.genre.name}?"
     on:close={() => (isDeleting = false)}
   >
-    <svelte:fragment slot="buttons">
+    {#snippet buttons()}
       <form method="POST" action="?/delete" use:enhance>
         <Button kind="solid" color="error" type="submit">Delete</Button>
       </form>
       <Button kind="text" onClick={() => (isDeleting = false)}>Cancel</Button>
-    </svelte:fragment>
+    {/snippet}
   </Dialog>
 {/if}

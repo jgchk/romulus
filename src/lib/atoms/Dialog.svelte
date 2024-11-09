@@ -1,16 +1,20 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, type Snippet } from 'svelte'
   import type { AriaRole } from 'svelte/elements'
   import { fade, scale } from 'svelte/transition'
 
   import { trapFocus } from '$lib/actions/trapFocus'
   import { tw } from '$lib/utils/dom'
 
-  export let title: string | undefined = undefined
-  export let role: AriaRole | undefined = 'dialog'
+  type Props = {
+    title?: string
+    role?: AriaRole
+    class?: string
+    children?: Snippet
+    buttons?: Snippet
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { title, role = 'dialog', class: class_, children, buttons }: Props = $props()
 
   const dispatch = createEventDispatcher<{ close: undefined }>()
   const close = () => dispatch('close')
@@ -28,7 +32,7 @@
     aria-label="Close dialog"
     type="button"
     class="absolute h-full w-full cursor-default bg-black opacity-50"
-    on:click={close}
+    onclick={close}
     transition:fade={{ duration: 125 }}
     tabindex="-1"
   ></button>
@@ -44,17 +48,17 @@
     {#if title !== undefined}
       <h2 class="p-4 pb-0 text-lg font-semibold">{title}</h2>
     {/if}
-    {#if $$slots.default}
+    {#if children}
       <div class="flex-1 overflow-auto p-4">
-        <slot />
+        {@render children?.()}
       </div>
     {/if}
-    {#if $$slots.buttons}
+    {#if buttons}
       <div class="flex gap-1 p-4 pt-2">
-        <slot name="buttons" />
+        {@render buttons?.()}
       </div>
     {/if}
   </div>
 </div>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />

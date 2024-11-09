@@ -31,7 +31,7 @@ const mockHistory = {
 }
 
 function setup(
-  props: ComponentProps<GenreDiff>,
+  props: ComponentProps<typeof GenreDiff>,
   options: { userSettings?: Partial<UserSettings> } = {},
 ) {
   const user = userEvent.setup()
