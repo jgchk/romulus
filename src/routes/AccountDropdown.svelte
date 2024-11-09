@@ -10,9 +10,13 @@
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
-  export let account: { id: number; username: string }
+  type Props = {
+    account: { id: number; username: string }
+  }
 
-  let open = false
+  let { account }: Props = $props()
+
+  let open = $state(false)
 
   const [popoverReference, popoverElement] = createPopoverActions({
     placement: 'bottom-end',
@@ -23,7 +27,7 @@
 </script>
 
 <svelte:window
-  on:keydown={(e) => {
+  onkeydown={(e) => {
     if (e.key === 'Escape') open = false
   }}
 />
@@ -33,7 +37,7 @@
     type="button"
     use:popoverReference
     class="group/account-button h-full w-full"
-    on:click={() => (open = !open)}
+    onclick={() => (open = !open)}
     aria-label="Account Dropdown"
   >
     <div
@@ -73,7 +77,7 @@
         <button
           type="button"
           class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
-          on:click={() => {
+          onclick={() => {
             userSettings.update((prev) => ({ ...prev, darkMode: !$userSettings.darkMode }))
           }}
         >
