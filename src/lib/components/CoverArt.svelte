@@ -1,12 +1,14 @@
 <script lang="ts">
   import { tw } from '$lib/utils/dom'
 
-  export let art: string | null | undefined
-  export let title: string
-  export let artists: string[]
+  type Props = {
+    art: string | null | undefined
+    title: string
+    artists: string[]
+    class?: string
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { art, title, artists, class: class_ }: Props = $props()
 
   const placeholderArt = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='208' height='208' viewBox='0 0 208 208'%3E%3Crect width='208' height='208' fill='%23cccccc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='24' fill='%23666666'%3ENo Image%3C/text%3E%3C/svg%3E`
 
