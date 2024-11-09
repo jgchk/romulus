@@ -2,10 +2,14 @@
   import { parser } from './parser'
   import RomcodeNode from './RomcodeNode.svelte'
 
-  export let data: string
-  export let genres: { id: number; name: string; nsfw: boolean }[]
+  type Props = {
+    data: string
+    genres: { id: number; name: string; nsfw: boolean }[]
+  }
 
-  $: root = parser(data)
+  let { data, genres }: Props = $props()
+
+  let root = $derived(parser(data))
 </script>
 
 <RomcodeNode node={root} {genres} />
