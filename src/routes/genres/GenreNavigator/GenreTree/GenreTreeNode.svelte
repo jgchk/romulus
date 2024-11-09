@@ -10,29 +10,36 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
+  import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
   import { treeState } from './state'
 
-  export let id: number
-  export let path: number[]
-  export let treeRef: HTMLElement | undefined
-
-  $: genre = $treeState.genres.get(id)
-
-  $: isSelected = $treeState.selectedPath && equals($treeState.selectedPath, path)
-  $: isExpanded = $treeState.expanded.has(path.join('-'))
-
-  let ref: HTMLElement | undefined
-  $: if (isSelected && ref && treeRef && browser) {
-    const ref_ = ref
-    const treeRef_ = treeRef
-    setTimeout(() => {
-      const visible = isFullyVisible(ref_, treeRef_)
-      if (!visible) {
-        ref_.scrollIntoView()
-      }
-    }, 250)
+  type Props = {
+    id: number
+    path: number[]
+    treeRef: HTMLElement | undefined
   }
+
+  let { id, path, treeRef }: Props = $props()
+
+  let genre = $derived($treeState.genres.get(id))
+
+  let isSelected = $derived($treeState.selectedPath && equals($treeState.selectedPath, path))
+  let isExpanded = $derived($treeState.expanded.has(path.join('-')))
+
+  let ref: HTMLElement | undefined = $state()
+  $effect(() => {
+    if (isSelected && ref && treeRef && browser) {
+      const ref_ = ref
+      const treeRef_ = treeRef
+      setTimeout(() => {
+        const visible = isFullyVisible(ref_, treeRef_)
+        if (!visible) {
+          ref_.scrollIntoView()
+        }
+      }, 250)
+    }
+  })
 
   const userSettings = getUserSettingsContext()
 </script>
@@ -63,7 +70,7 @@
             : 'text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white',
           genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
-        on:click={() => {
+        onclick={() => {
           treeState.setSelectedId(id)
           treeState.setSelectedPath(path)
         }}
@@ -107,7 +114,7 @@
       <ul transition:slide|local={{ axis: 'y' }}>
         {#each genre.children as childId (childId)}
           {@const childPath = [...path, childId]}
-          <svelte:self id={childId} path={childPath} {treeRef} />
+          <GenreTreeNode id={childId} path={childPath} {treeRef} />
         {/each}
       </ul>
     {/if}
