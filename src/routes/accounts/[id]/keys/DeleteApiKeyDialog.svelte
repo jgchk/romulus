@@ -1,17 +1,19 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
-
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import Dialog from '$lib/atoms/Dialog.svelte'
 
-  export let deletingKey: { id: number; name: string }
-  export let disableFormSubmission = false
+  type Props = {
+    deletingKey: { id: number; name: string }
+    disableFormSubmission?: boolean
+    onClose?: () => void
+    onDelete?: () => void
+  }
 
-  const dispatch = createEventDispatcher<{ close: undefined; delete: undefined }>()
+  let { deletingKey, disableFormSubmission = false, onClose, onDelete }: Props = $props()
 </script>
 
-<Dialog title="Delete {deletingKey.name}?" role="alertdialog" on:close={() => dispatch('close')}>
+<Dialog title="Delete {deletingKey.name}?" role="alertdialog" on:close={() => onClose?.()}>
   Any applications or scripts using this key will no longer be able to access the Romulus API. You
   cannot undo this action.
 
@@ -19,17 +21,17 @@
     <form
       method="POST"
       action="?/delete"
-      on:submit={(e) => {
+      onsubmit={(e) => {
         if (disableFormSubmission) {
           e.preventDefault()
         }
 
-        dispatch('delete')
+        onDelete?.()
       }}
       use:enhance={() => {
         return ({ result, update }) => {
           if (result.type === 'success') {
-            dispatch('close')
+            onClose?.()
           }
           void update()
         }
@@ -38,6 +40,6 @@
       <input type="hidden" name="id" value={deletingKey.id} />
       <Button kind="solid" color="error" type="submit">Delete</Button>
     </form>
-    <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
+    <Button kind="text" onClick={() => onClose?.()}>Cancel</Button>
   {/snippet}
 </Dialog>

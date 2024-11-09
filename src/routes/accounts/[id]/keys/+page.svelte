@@ -136,7 +136,7 @@
   <DeleteApiKeyDialog
     {deletingKey}
     {disableFormSubmission}
-    on:delete={() => onDelete?.(deletingKey.id)}
-    on:close={() => (showDeleteDialog = false)}
+    onDelete={() => onDelete?.(deletingKey.id)}
+    onClose={() => (showDeleteDialog = false)}
   />
 {/if}
