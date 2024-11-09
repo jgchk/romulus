@@ -1,12 +1,27 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+
   import { cn, tw } from '$lib/utils/dom'
 
-  export let href: string | undefined = undefined
-  export let kind: 'solid' | 'outline' | 'text' = 'solid'
-  export let align: 'left' | 'center' | 'right' = 'center'
-  let class_: string | undefined = undefined
-  export { class_ as class }
-  export let color: 'primary' | 'secondary' | 'error' = 'primary'
+  type Props = {
+    href?: string
+    kind?: 'solid' | 'outline' | 'text'
+    align?: 'left' | 'center' | 'right'
+    class?: string
+    color?: 'primary' | 'secondary' | 'error'
+    children?: Snippet
+    onClick?: () => void
+  }
+
+  let {
+    href,
+    kind = 'solid',
+    align = 'center',
+    class: class_,
+    color = 'primary',
+    children,
+    onClick,
+  }: Props = $props()
 </script>
 
 <a
@@ -44,7 +59,7 @@
 
     class_,
   )}
-  on:click
+  onclick={onClick}
 >
-  <slot />
+  {@render children?.()}
 </a>
