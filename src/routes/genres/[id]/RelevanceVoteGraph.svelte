@@ -11,8 +11,12 @@
 
   import type { PageData } from './$types'
 
-  export let votes: PageData['relevanceVotes']
-  $: totalVotes = sum([...votes.values()])
+  type Props = {
+    votes: PageData['relevanceVotes']
+  }
+
+  let { votes }: Props = $props()
+  let totalVotes = $derived(sum([...votes.values()]))
 
   const relevanceData: Record<number, { color: string; docs: string }> = {
     7: {
