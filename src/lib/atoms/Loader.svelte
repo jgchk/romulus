@@ -1,9 +1,12 @@
 <script lang="ts">
   import { tw } from '$lib/utils/dom'
 
-  export let size: number | undefined = undefined
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  type Props = {
+    size?: number
+    class?: string
+  }
+
+  let { size, class: class_ }: Props = $props()
 </script>
 
 <svg
