@@ -8,7 +8,11 @@
 
   import { searchStore } from './state'
 
-  export let match: GenreMatch<Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'nsfw'>>
+  type Props = {
+    match: GenreMatch<Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'nsfw'>>
+  }
+
+  let { match }: Props = $props()
 
   const userSettings = getUserSettingsContext()
 </script>
@@ -19,7 +23,7 @@
     'group block truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white',
     match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
   )}
-  on:click={() => searchStore.clearFilter()}
+  onclick={() => searchStore.clearFilter()}
   use:tooltip={{
     content: 'Enable NSFW genres in settings to view this genre',
     enabled: match.genre.nsfw && !$userSettings.showNsfw,
