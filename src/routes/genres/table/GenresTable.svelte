@@ -15,12 +15,15 @@
   import ColumnHeader from './ColumnHeader.svelte'
   import LimitSelect from './LimitSelect.svelte'
 
-  export let genres: Awaited<PageData['streamed']['genres']>
-  export let data: PageData
+  type Props = {
+    genres: Awaited<PageData['streamed']['genres']>
+    data: PageData
+  }
 
-  let visibleGenres: Awaited<PageData['streamed']['genres']> = []
-  $: {
-    visibleGenres = genres.sort((a, b) => {
+  let { genres, data }: Props = $props()
+
+  let visibleGenres: Awaited<PageData['streamed']['genres']> = $derived.by(() => {
+    let val = genres.sort((a, b) => {
       switch (data.sort) {
         case 'name':
           return a.name.localeCompare(b.name)
@@ -34,18 +37,11 @@
     })
 
     if (data.order === 'desc') {
-      visibleGenres = visibleGenres.reverse()
+      val = val.reverse()
     }
 
-    visibleGenres = visibleGenres.slice((data.page - 1) * data.limit, data.page * data.limit)
-  }
-
-  $: totalPages = Math.ceil(genres.length / data.limit)
-
-  $: firstPageHref = withPage($page.url.searchParams, 1)
-  $: lastPageHref = withPage($page.url.searchParams, totalPages)
-  $: previousPageHref = withPage($page.url.searchParams, data.page - 1)
-  $: nextPageHref = withPage($page.url.searchParams, data.page + 1)
+    return val.slice((data.page - 1) * data.limit, data.page * data.limit)
+  })
 
   function withPage(searchParams: URLSearchParams, page: number) {
     const params = new URLSearchParams(searchParams)
@@ -59,6 +55,12 @@
     params.set('page', '1')
     return '?' + params.toString()
   }
+
+  let totalPages = $derived(Math.ceil(genres.length / data.limit))
+  let firstPageHref = $derived(withPage($page.url.searchParams, 1))
+  let lastPageHref = $derived(withPage($page.url.searchParams, totalPages))
+  let previousPageHref = $derived(withPage($page.url.searchParams, data.page - 1))
+  let nextPageHref = $derived(withPage($page.url.searchParams, data.page + 1))
 </script>
 
 <div class="flex h-full w-full flex-col">
