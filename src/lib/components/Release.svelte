@@ -1,10 +1,14 @@
 <script lang="ts">
   import CoverArt from './CoverArt.svelte'
 
-  export let id: number
-  export let art: string | null | undefined = undefined
-  export let title: string
-  export let artists: { id: number; name: string }[]
+  type Props = {
+    id: number
+    art?: string | null
+    title: string
+    artists: { id: number; name: string }[]
+  }
+
+  let { id, art, title, artists }: Props = $props()
 </script>
 
 <div class="block rounded border p-1 transition dark:border-gray-700 dark:bg-gray-800">
