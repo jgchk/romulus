@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { AriaRole } from 'svelte/elements'
 
-  export let errors: string[] | undefined
-  export let role: AriaRole | null | undefined = 'alert'
+  type Props = {
+    errors: string[] | undefined
+    role?: AriaRole | null
+  }
+
+  let { errors, role = 'alert' }: Props = $props()
 </script>
 
 {#if errors?.length}
