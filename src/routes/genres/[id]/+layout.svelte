@@ -2,9 +2,17 @@
   import { treeState } from '../GenreNavigator/GenreTree/state'
   import type { LayoutData } from './$types'
 
-  export let data: LayoutData
+  type Props = {
+    data: LayoutData
+    children?: import('svelte').Snippet
+  }
 
-  $: treeState.setSelectedId(data.id)
+  let { data, children }: Props = $props()
+
+  treeState.setSelectedId(data.id)
+  $effect(() => {
+    treeState.setSelectedId(data.id)
+  })
 </script>
 
-<slot />
+{@render children?.()}
