@@ -13,20 +13,24 @@
   import { tw } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'
 
-  export let filter = ''
-  export let genres: SimpleGenre[]
-
-  let debouncedFilter = filter
-
-  let timeout: Timeout
-  $: {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      debouncedFilter = filter
-    }, 250)
+  type Props = {
+    filter?: string
+    genres: SimpleGenre[]
   }
 
-  $: results = searchGenres(genres, debouncedFilter)
+  let { filter = $bindable(''), genres }: Props = $props()
+
+  let debouncedFilter = $state(filter)
+
+  let timeout: Timeout | undefined
+  $effect(() => {
+    const v = filter
+    clearTimeout(timeout)
+    timeout = setTimeout(() => (debouncedFilter = v), 250)
+    return () => clearTimeout(timeout)
+  })
+
+  let results = $derived(searchGenres(genres, debouncedFilter))
 
   const dispatch = createEventDispatcher<{ close: undefined; select: SimpleGenre }>()
 
@@ -35,7 +39,16 @@
 
 <Dialog title="Insert a genre link" on:close>
   <div class="flex items-center space-x-1">
-    <Input class="flex-1" bind:value={filter} />
+    <Input
+      class="flex-1"
+      bind:value={filter}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.stopPropagation()
+          e.preventDefault()
+        }
+      }}
+    />
     <IconButton tooltip="Search" onClick={() => (debouncedFilter = filter)}>
       <MagnifyingGlass />
     </IconButton>
@@ -53,7 +66,7 @@
             'block px-2 text-left text-gray-700 transition hover:font-bold dark:text-gray-400',
             match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
           )}
-          on:click={() => dispatch('select', match.genre)}
+          onclick={() => dispatch('select', match.genre)}
         >
           {match.genre.name}
           {#if match.genre.subtitle}
