@@ -8,53 +8,55 @@
 
   import type { GenreMultiselectProps, MultiselectGenre } from './GenreMultiselect'
 
-  type $$Props = GenreMultiselectProps
+  type Props = GenreMultiselectProps
 
-  export let value: $$Props['value']
-  export let genres: $$Props['genres']
-  export let exclude: $$Props['exclude'] = []
-  export let onChange: $$Props['onChange'] = undefined
+  let { value = $bindable(), genres, exclude = [], onChange = undefined, ...rest }: Props = $props()
 
-  $: excludeSet = new Set(exclude)
+  let excludeSet = $derived(new Set(exclude))
 
-  $: values = value
-    .map((id) => {
-      const genre = genres.find((genre) => genre.id === id)
-      if (!genre) return
+  let values = $derived(
+    value
+      .map((id) => {
+        const genre = genres.find((genre) => genre.id === id)
+        if (!genre) return
 
-      const data: GenreMatch<MultiselectGenre> = {
-        id,
-        genre,
-        weight: 0,
-      }
+        const data: GenreMatch<MultiselectGenre> = {
+          id,
+          genre,
+          weight: 0,
+        }
 
-      return {
-        value: id,
-        label: genre.name,
-        data,
-      }
-    })
-    .filter(isDefined)
+        return {
+          value: id,
+          label: genre.name,
+          data,
+        }
+      })
+      .filter(isDefined),
+  )
 
-  let filter = ''
+  let filter = $state('')
 
-  let debouncedFilter = filter
-  let timeout: Timeout
-  $: {
+  let debouncedFilter = $state('')
+
+  let timeout: Timeout | undefined
+  $effect(() => {
+    const v = filter
     clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      debouncedFilter = filter
-    }, 250)
-  }
+    timeout = setTimeout(() => (debouncedFilter = v), 250)
+    return () => clearTimeout(timeout)
+  })
 
-  $: options = searchGenres(genres, debouncedFilter)
-    .filter((match) => !excludeSet.has(match.genre.id))
-    .map((match) => ({
-      value: match.genre.id,
-      label: match.genre.name,
-      data: match,
-    }))
-    .slice(0, 100)
+  let options = $derived(
+    searchGenres(genres, debouncedFilter)
+      .filter((match) => !excludeSet.has(match.genre.id))
+      .map((match) => ({
+        value: match.genre.id,
+        label: match.genre.name,
+        data: match,
+      }))
+      .slice(0, 100),
+  )
 
   const userSettings = getUserSettingsContext()
 </script>
@@ -68,7 +70,7 @@
     value = newValue.map((v) => v.value)
     onChange?.(value)
   }}
-  {...$$restProps}
+  {...rest}
 >
   {#snippet selected({ option })}
     <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
