@@ -4,10 +4,12 @@
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
   import { tw } from '$lib/utils/dom'
 
-  export let tooltip: string
+  type Props = {
+    tooltip: string
+    class?: string
+  }
 
-  let class_: string | undefined = undefined
-  export { class_ as class }
+  let { tooltip, class: class_ }: Props = $props()
 </script>
 
 <span
