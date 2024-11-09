@@ -3,19 +3,15 @@
 
   import { tw } from '$lib/utils/dom'
 
-  type $$Props = HTMLAttributes<HTMLAnchorElement> & {
+  type Props = HTMLAttributes<HTMLAnchorElement> & {
     accountId: number
     username: string
     class?: string
   }
 
-  export let accountId: $$Props['accountId']
-  export let username: $$Props['username']
+  let { accountId, username, class: class_, ...rest }: Props = $props()
 
-  let class_: $$Props['class'] = undefined
-  export { class_ as class }
-
-  $: isSpecial = accountId === 3
+  let isSpecial = $derived(accountId === 3)
 </script>
 
 <a
@@ -27,5 +23,5 @@
     class_,
   )}
   href="/accounts/{accountId}"
-  {...$$restProps}><span class="hover:underline">{username}</span></a
+  {...rest}><span class="hover:underline">{username}</span></a
 >
