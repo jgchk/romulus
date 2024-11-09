@@ -3,11 +3,15 @@
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { tw } from '$lib/utils/dom'
 
-  export let id: number
-  export let text: string | undefined = undefined
-  export let genres: { id: number; name: string; nsfw: boolean }[]
+  type Props = {
+    id: number
+    text?: string
+    genres: { id: number; name: string; nsfw: boolean }[]
+  }
 
-  $: genre = genres.find((genre) => genre.id === id)
+  let { id, text, genres }: Props = $props()
+
+  let genre = $derived(genres.find((genre) => genre.id === id))
 
   const userSettings = getUserSettingsContext()
 </script>

@@ -10,7 +10,7 @@ import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-set
 import RomcodeGenreLink from './RomcodeGenreLink.svelte'
 
 const setup = (
-  props: ComponentProps<RomcodeGenreLink>,
+  props: ComponentProps<typeof RomcodeGenreLink>,
   options: { userSettings?: Partial<UserSettings> } = {},
 ) => {
   const returned = render(RomcodeGenreLink, {
