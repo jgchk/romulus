@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+
   import { browser } from '$app/environment'
   import { page } from '$app/stores'
   import Card from '$lib/atoms/Card.svelte'
@@ -7,20 +9,26 @@
   import type { LayoutData } from './$types'
   import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
 
-  export let data: LayoutData
-
-  let windowWidth = 0
-
-  let leftPaneSize = data.leftPaneSize ?? 300
-  $: if (browser) {
-    document.cookie = `genres.leftPaneSize=${leftPaneSize}; path=/; max-age=31536000`
+  type Props = {
+    data: LayoutData
+    children?: Snippet
   }
+
+  let { data, children }: Props = $props()
+
+  let windowWidth = $state(0)
+
+  let leftPaneSize = $state(data.leftPaneSize ?? 300)
+  $effect(() => {
+    if (browser) {
+      document.cookie = `genres.leftPaneSize=${leftPaneSize}; path=/; max-age=31536000`
+    }
+  })
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
 
 <SplitPane
-  defaultSize={leftPaneSize}
   minSize={200}
   maxSize={windowWidth - 300}
   class="h-full pt-0"
@@ -32,7 +40,7 @@
   {/snippet}
   {#snippet right()}
     <Card class="h-full overflow-auto">
-      <slot />
+      {@render children?.()}
     </Card>
   {/snippet}
 </SplitPane>
