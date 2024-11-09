@@ -1,44 +1,57 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = unknown
 </script>
 
 <script lang="ts" generics="T extends unknown">
-  import { onMount, tick } from 'svelte'
+  import { onMount, type Snippet, tick } from 'svelte'
+  import { run } from 'svelte/legacy'
 
   import { cn } from '$lib/utils/dom'
 
-  // props
-  export let items: T[]
-  export let height: number | string = '100%'
-  export let itemHeight: number | undefined = undefined
-  export let viewportClass = ''
-  export let contentsClass = ''
+  type Props = {
+    // props
+    items: T[]
+    height?: number | string
+    itemHeight?: number
+    viewportClass?: string
+    contentsClass?: string
+    // read-only, but visible to consumers via bind:start
+    start?: number
+    end?: number
+    children?: Snippet<[{ item: T; index: number }]>
+  }
 
-  // read-only, but visible to consumers via bind:start
-  export let start = 0
-  export let end = 0
+  let {
+    items,
+    height = '100%',
+    itemHeight,
+    viewportClass = '',
+    contentsClass = '',
+    start = $bindable(0),
+    end = $bindable(0),
+    children,
+  }: Props = $props()
 
   // local state
   let heightMap: number[] = []
   let rows: HTMLCollectionOf<HTMLElement>
-  let viewport: HTMLElement
-  let contents: HTMLElement
-  let viewportHeight = 0
-  let visible: { index: number; data: T }[]
-  let mounted: boolean
+  let viewport: HTMLElement | undefined = $state()
+  let contents: HTMLElement | undefined = $state()
+  let viewportHeight = $state(0)
+  let visible: { index: number; data: T }[] = $derived(
+    items.slice(start, end).map((data, i) => {
+      return { index: i + start, data }
+    }),
+  )
+  let mounted: boolean = $state(false)
 
-  let top = 0
-  let bottom = 0
+  let top = $state(0)
+  let bottom = $state(0)
   let averageHeight: number
 
-  $: visible = items.slice(start, end).map((data, i) => {
-    return { index: i + start, data }
-  })
-
-  // whenever `items` changes, invalidate the current heightmap
-  $: if (mounted) void refresh(items, viewportHeight, itemHeight)
-
   async function refresh(items: T[], viewportHeight: number, itemHeight: number | undefined) {
+    if (!viewport) return
+
     const { scrollTop } = viewport
 
     await tick() // wait until the DOM is up to date
@@ -70,6 +83,8 @@
   }
 
   async function handleScroll() {
+    if (!viewport) return
+
     const { scrollTop } = viewport
 
     const oldStart = start
@@ -134,10 +149,15 @@
 
   // trigger initial refresh
   onMount(() => {
-    rows = contents.getElementsByClassName(
+    rows = contents?.getElementsByClassName(
       'svelte-virtual-list-row',
     ) as HTMLCollectionOf<HTMLElement>
     mounted = true
+  })
+
+  // whenever `items` changes, invalidate the current heightmap
+  run(() => {
+    if (mounted) void refresh(items, viewportHeight, itemHeight)
   })
 </script>
 
@@ -145,7 +165,7 @@
   class={cn('svelte-virtual-list-viewport', viewportClass)}
   bind:this={viewport}
   bind:offsetHeight={viewportHeight}
-  on:scroll={handleScroll}
+  onscroll={handleScroll}
   style:height
 >
   <div
@@ -156,7 +176,10 @@
   >
     {#each visible as row (row.index)}
       <div class="svelte-virtual-list-row">
-        <slot item={row.data} index={row.index}>Missing template</slot>
+        {#if children}{@render children({
+            item: row.data,
+            index: row.index,
+          })}{:else}Missing template{/if}
       </div>
     {/each}
   </div>

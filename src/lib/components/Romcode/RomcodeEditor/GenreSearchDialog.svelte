@@ -45,35 +45,37 @@
   </div>
 
   {#if results.length > 0}
-    <VirtualList items={results} let:item={match} height="300px">
-      <button
-        type="button"
-        class={tw(
-          'block px-2 text-left text-gray-700 transition hover:font-bold dark:text-gray-400',
-          match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
-        )}
-        on:click={() => dispatch('select', match.genre)}
-      >
-        {match.genre.name}
-        {#if match.genre.subtitle}
-          {' '}
-          <span class="text-sm text-gray-600">[{match.genre.subtitle}]</span>
-        {/if}
-        {#if match.matchedAka}
-          {' '}
-          <span class="text-sm">({match.matchedAka})</span>
-        {/if}
-        {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
-          {' '}
-          <GenreTypeChip type={match.genre.type} />
-        {/if}
-        {#if match.genre.nsfw}
-          <span
-            class="align-super text-xs font-bold text-error-500 transition dark:text-error-700"
-            use:tooltip={{ content: 'NSFW' }}>N</span
-          >
-        {/if}
-      </button>
+    <VirtualList items={results} height="300px">
+      {#snippet children({ item: match })}
+        <button
+          type="button"
+          class={tw(
+            'block px-2 text-left text-gray-700 transition hover:font-bold dark:text-gray-400',
+            match.genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
+          )}
+          on:click={() => dispatch('select', match.genre)}
+        >
+          {match.genre.name}
+          {#if match.genre.subtitle}
+            {' '}
+            <span class="text-sm text-gray-600">[{match.genre.subtitle}]</span>
+          {/if}
+          {#if match.matchedAka}
+            {' '}
+            <span class="text-sm">({match.matchedAka})</span>
+          {/if}
+          {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
+            {' '}
+            <GenreTypeChip type={match.genre.type} />
+          {/if}
+          {#if match.genre.nsfw}
+            <span
+              class="align-super text-xs font-bold text-error-500 transition dark:text-error-700"
+              use:tooltip={{ content: 'NSFW' }}>N</span
+            >
+          {/if}
+        </button>
+      {/snippet}
     </VirtualList>
   {:else}
     <div class="flex w-full flex-col items-center justify-center text-gray-400">

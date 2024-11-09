@@ -19,8 +19,10 @@
 
 <div aria-label="Genre Search Results" class="h-full overflow-auto p-4">
   {#if matches.length > 0}
-    <VirtualList items={matches} let:item={match}>
-      <GenreSearchResult {match} />
+    <VirtualList items={matches}>
+      {#snippet children({ item: match })}
+        <GenreSearchResult {match} />
+      {/snippet}
     </VirtualList>
   {:else}
     <div
