@@ -334,13 +334,13 @@
       }}
       on:loadMore={() => handleLoadMore()}
     >
-      <svelte:fragment slot="option" let:option>
+      {#snippet option({ option })}
         {#if optionSnippet}
           {@render optionSnippet({ option })}
         {:else}
           {option.label}
         {/if}
-      </svelte:fragment>
+      {/snippet}
     </OptionsDropdown>
   {/if}
 </div>

@@ -1,19 +1,31 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type O = { value: unknown; label: string }
 </script>
 
 <script lang="ts" generics="Option extends O">
+  import type { Snippet } from 'svelte'
   import { createEventDispatcher } from 'svelte'
   import { fade } from 'svelte/transition'
 
   import type { Action } from '$lib/actions/types'
   import { tw } from '$lib/utils/dom'
 
-  export let options: Option[]
-  export let popoverElement: Action
-  export let focusedIndex: number
-  export let hasMore = false
+  type Props = {
+    options: Option[]
+    popoverElement: Action
+    focusedIndex: number
+    hasMore?: boolean
+    option?: Snippet<[{ option: Option }]>
+  }
+
+  let {
+    options,
+    popoverElement,
+    focusedIndex = $bindable(),
+    hasMore = false,
+    option: optionSnippet,
+  }: Props = $props()
 
   const dispatch = createEventDispatcher<{
     select: { option: Option; i: number }
@@ -26,7 +38,6 @@
   class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
   transition:fade={{ duration: 75 }}
   tabindex="-1"
-  on:keydown
   use:popoverElement
 >
   {#if options.length === 0}
@@ -40,12 +51,12 @@
           focusedIndex === i && 'border-secondary-500',
         )}
         tabindex="-1"
-        on:click={() => dispatch('select', { option, i })}
-        on:mouseenter={() => (focusedIndex = i)}
+        onclick={() => dispatch('select', { option, i })}
+        onmouseenter={() => (focusedIndex = i)}
         data-testId="multiselect__option"
       >
-        {#if $$slots.option}
-          <slot name="option" {option} />
+        {#if optionSnippet}
+          {@render optionSnippet({ option })}
         {:else}
           {option.label}
         {/if}
@@ -60,8 +71,8 @@
           focusedIndex === options.length && 'border-secondary-500',
         )}
         tabindex="-1"
-        on:click={() => dispatch('loadMore')}
-        on:mouseenter={() => (focusedIndex = options.length)}
+        onclick={() => dispatch('loadMore')}
+        onmouseenter={() => (focusedIndex = options.length)}
       >
         Load More...
       </button>
