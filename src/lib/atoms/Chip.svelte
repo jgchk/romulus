@@ -4,13 +4,9 @@
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
   import { tw } from '$lib/utils/dom'
 
-  type $$Props = HTMLAttributes<HTMLSpanElement> & { text: string; tooltip?: string }
+  type Props = HTMLAttributes<HTMLSpanElement> & { text: string; tooltip?: string }
 
-  export let text: $$Props['text']
-  export let tooltip: $$Props['tooltip'] = undefined
-
-  let class_: $$Props['class'] = undefined
-  export { class_ as class }
+  let { text, tooltip, class: class_, ...rest }: Props = $props()
 </script>
 
 <span
@@ -19,7 +15,7 @@
     class_,
   )}
   use:tooltipAction={{ content: tooltip, enabled: !!tooltip }}
-  {...$$restProps}
+  {...rest}
 >
   {text}
 </span>
