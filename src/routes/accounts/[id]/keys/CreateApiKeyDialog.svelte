@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
-
   import { enhance } from '$app/forms'
   import Button from '$lib/atoms/Button.svelte'
   import Dialog from '$lib/atoms/Dialog.svelte'
@@ -10,32 +8,36 @@
 
   import type { ActionData } from './$types'
 
-  export let form: ActionData
-  export let disableFormSubmission = false
+  type Props = {
+    form: ActionData
+    disableFormSubmission?: boolean
+    onClose?: () => void
+    onCreate?: (data: { name: string }) => void
+  }
 
-  const dispatch = createEventDispatcher<{ close: undefined; create: { name: string } }>()
+  let { form, disableFormSubmission = false, onClose, onCreate }: Props = $props()
 </script>
 
 <form
   method="POST"
   action="?/create"
-  on:submit={(e) => {
+  onsubmit={(e) => {
     if (disableFormSubmission) {
       e.preventDefault()
     }
 
-    dispatch('create', { name: new FormData(e.currentTarget).get('name')?.toString() ?? '' })
+    onCreate?.({ name: new FormData(e.currentTarget).get('name')?.toString() ?? '' })
   }}
   use:enhance={() => {
     return ({ result, update }) => {
       if (result.type === 'success') {
-        dispatch('close')
+        onClose?.()
       }
       void update()
     }
   }}
 >
-  <Dialog title="Create an API key" on:close={() => dispatch('close')}>
+  <Dialog title="Create an API key" on:close={() => onClose?.()}>
     <InputGroup errors={form?.action === 'create' ? form.errors.name : undefined}>
       <Label for="api-key-name">Name</Label>
       <Input id="api-key-name" name="name" class="w-full" required autofocus />
@@ -43,7 +45,7 @@
 
     {#snippet buttons()}
       <Button type="submit">Create</Button>
-      <Button kind="text" onClick={() => dispatch('close')}>Cancel</Button>
+      <Button kind="text" onClick={() => onClose?.()}>Cancel</Button>
     {/snippet}
   </Dialog>
 </form>

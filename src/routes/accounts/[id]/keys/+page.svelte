@@ -126,8 +126,8 @@
   <CreateApiKeyDialog
     {form}
     {disableFormSubmission}
-    on:create={(e) => onCreate?.(e.detail.name)}
-    on:close={() => (showCreateDialog = false)}
+    onCreate={(data) => onCreate?.(data.name)}
+    onClose={() => (showCreateDialog = false)}
   />
 {/if}
 
