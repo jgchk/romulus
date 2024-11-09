@@ -6,10 +6,10 @@
   import Input from '$lib/atoms/Input.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
+  import LimitSelect from '$lib/components/LimitSelect.svelte'
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
 
-  import LimitSelect from '../../genres/table/LimitSelect.svelte'
   import type { PageData } from './$types'
   import ColumnHeader from './ColumnHeader.svelte'
 
@@ -141,8 +141,8 @@
     <LimitSelect
       class="w-32"
       value={data.limit}
-      on:change={(e) => {
-        const value = e.detail.value
+      onChange={(option) => {
+        const value = option.value
         if (value === undefined) {
           return
         }

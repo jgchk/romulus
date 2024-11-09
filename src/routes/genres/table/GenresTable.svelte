@@ -8,12 +8,12 @@
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
+  import LimitSelect from '$lib/components/LimitSelect.svelte'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
 
   import RelevanceChip from '../GenreNavigator/GenreTree/RelevanceChip.svelte'
   import type { PageData } from './$types'
   import ColumnHeader from './ColumnHeader.svelte'
-  import LimitSelect from './LimitSelect.svelte'
 
   type Props = {
     genres: Awaited<PageData['streamed']['genres']>
@@ -148,8 +148,8 @@
       <LimitSelect
         class="w-32"
         value={data.limit}
-        on:change={(e) => {
-          const value = e.detail.value
+        onChange={(option) => {
+          const value = option.value
           if (value === undefined) {
             return
           }
