@@ -5,7 +5,11 @@
 
   import type { PageData } from './$types'
 
-  export let data: PageData
+  type Props = {
+    data: PageData
+  }
+
+  let { data }: Props = $props()
 </script>
 
 <Card class="h-full w-full space-y-2 p-4">
