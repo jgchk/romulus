@@ -5,6 +5,7 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { LoginCommand } from '$lib/server/features/authentication/commands/application/commands/login'
+import { LogoutCommand } from '$lib/server/features/authentication/commands/application/commands/logout'
 import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
@@ -13,6 +14,7 @@ import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authen
 import { DrizzleSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/drizzle-session-repository'
 import { AuthenticationController } from '$lib/server/features/authentication/commands/presentation/controllers'
 import { LoginController } from '$lib/server/features/authentication/commands/presentation/controllers/login'
+import { LogoutController } from '$lib/server/features/authentication/commands/presentation/controllers/logout'
 import { RegisterController } from '$lib/server/features/authentication/commands/presentation/controllers/register'
 import { CookieCreator } from '$lib/server/features/authentication/commands/presentation/cookie'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
@@ -57,6 +59,13 @@ export const handle: Handle = async ({ event, resolve }) => {
           new BcryptHashRepository(),
           new Sha256HashRepository(),
           new CryptoTokenGenerator(),
+        ),
+        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
+      ),
+      new LogoutController(
+        new LogoutCommand(
+          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new Sha256HashRepository(),
         ),
         new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
       ),

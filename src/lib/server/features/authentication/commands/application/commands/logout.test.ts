@@ -6,7 +6,6 @@ import { Sha256HashRepository } from '$lib/server/features/common/infrastructure
 import { test } from '../../../../../../../vitest-setup'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
-import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
@@ -70,8 +69,7 @@ describe('logout', () => {
 
     const logoutResult = await logout.execute(userSession.token)
 
-    expect(logoutResult).toBeInstanceOf(Cookie)
-    expect(logoutResult.value).toBe('')
+    expect(logoutResult).toBeUndefined()
   })
 
   test('should delete the session on logout', async ({ dbConnection }) => {
@@ -94,7 +92,6 @@ describe('logout', () => {
 
     const result = await logout.execute('invalid_session_id')
 
-    expect(result).toBeInstanceOf(Cookie)
-    expect(result.value).toBe('')
+    expect(result).toBeUndefined()
   })
 })
