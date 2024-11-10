@@ -91,7 +91,7 @@
               <TrackAutocomplete
                 id="tracks[{i}].title"
                 bind:value={track.data.title}
-                on:select={({ detail: { track } }) => {
+                onSelect={(track) => {
                   $form.tracks[i] = {
                     id: track.id,
                     data: {
@@ -126,7 +126,7 @@
             <TrackAutocomplete
               id="tracks[{i}].title"
               bind:value={track.title}
-              on:select={({ detail: { track } }) => {
+              onSelect={(track) => {
                 $form.tracks[i] = {
                   id: track.id,
                   data: {

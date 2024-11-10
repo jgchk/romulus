@@ -106,8 +106,8 @@
                 <TrackAutocomplete
                   id="tracks[{i}].title"
                   value={track.data.title}
-                  on:input={(e) => store.track(i).setTitle(e.detail.value)}
-                  on:select={({ detail: { track } }) =>
+                  onInput={(title) => store.track(i).setTitle(title)}
+                  onSelect={(track) =>
                     store.track(i).useExistingTrack(track.id, {
                       title: track.title,
                       artists: track.artists,
@@ -141,8 +141,8 @@
                   id="tracks[{i}].title"
                   value={track.title}
                   autofocus
-                  on:input={(e) => store.track(i).setTitle(e.detail.value)}
-                  on:select={({ detail: { track } }) =>
+                  onInput={(title) => store.track(i).setTitle(title)}
+                  onSelect={(track) =>
                     store.track(i).useExistingTrack(track.id, {
                       title: track.title,
                       artists: track.artists,
