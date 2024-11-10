@@ -5,7 +5,6 @@ import { Sha256HashRepository } from '$lib/server/features/common/infrastructure
 
 import { test } from '../../../../../../../vitest-setup'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
-import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
@@ -49,7 +48,15 @@ describe('register', () => {
 
     const result = await register.execute('newaccount', 'password123')
 
-    expect(result).toBeInstanceOf(Cookie)
+    expect(result).toEqual({
+      newUserAccount: {
+        id: expect.any(Number) as number,
+      },
+      newUserSession: {
+        token: expect.any(String) as string,
+        expiresAt: expect.any(Date) as Date,
+      },
+    })
 
     const account = await getAccount('newaccount')
     expect(account).toBeDefined()

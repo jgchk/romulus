@@ -4,11 +4,15 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
+import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/commands/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/drizzle-session-repository'
+import { AuthenticationController } from '$lib/server/features/authentication/commands/presentation/controllers'
+import { RegisterController } from '$lib/server/features/authentication/commands/presentation/controllers/register'
+import { CookieCreator } from '$lib/server/features/authentication/commands/presentation/cookie'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
@@ -36,10 +40,26 @@ process.on('sveltekit:shutdown', () => {
 })
 
 const SESSION_COOKIE_NAME = 'auth_session'
+const IS_SECURE = process.env.NODE_ENV === 'production'
 
 export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(pg)
   event.locals.dbConnection = dbConnection
+
+  event.locals.controllers = {
+    authentication: new AuthenticationController(
+      new RegisterController(
+        new RegisterCommand(
+          new DrizzleAccountRepository(dbConnection),
+          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new BcryptHashRepository(),
+          new Sha256HashRepository(),
+          new CryptoTokenGenerator(),
+        ),
+        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
+      ),
+    ),
+  }
 
   event.locals.services = {
     api: {
@@ -53,11 +73,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     authentication: {
       commands: new AuthenticationCommandService(
         new DrizzleAccountRepository(dbConnection),
-        new DrizzleSessionRepository(
-          dbConnection,
-          process.env.NODE_ENV === 'production',
-          SESSION_COOKIE_NAME,
-        ),
+        new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
         new DrizzlePasswordResetTokenRepository(dbConnection),
         new BcryptHashRepository(),
         new Sha256HashRepository(),

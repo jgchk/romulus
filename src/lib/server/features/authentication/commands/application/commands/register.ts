@@ -1,13 +1,22 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import { NewAccount } from '../../domain/entities/account'
-import type { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { type AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { NonUniqueUsernameError } from '../errors/non-unique-username'
+
+export type RegisterResult = {
+  newUserAccount: {
+    id: number
+  }
+  newUserSession: {
+    token: string
+    expiresAt: Date
+  }
+}
 
 export class RegisterCommand {
   constructor(
@@ -18,7 +27,10 @@ export class RegisterCommand {
     private sessionTokenGenerator: TokenGenerator,
   ) {}
 
-  async execute(username: string, password: string): Promise<Cookie | NonUniqueUsernameError> {
+  async execute(
+    username: string,
+    password: string,
+  ): Promise<RegisterResult | NonUniqueUsernameError> {
     const newAccount = new NewAccount({
       username,
       passwordHash: await this.passwordHashRepo.hash(password),
@@ -44,8 +56,12 @@ export class RegisterCommand {
 
     await this.sessionRepo.save(session)
 
-    const cookie = this.sessionRepo.createCookie({ token, expiresAt: session.expiresAt })
-
-    return cookie
+    return {
+      newUserAccount: { id: account.id },
+      newUserSession: {
+        token,
+        expiresAt: session.expiresAt,
+      },
+    }
   }
 }

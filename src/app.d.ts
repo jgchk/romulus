@@ -6,6 +6,9 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     interface Locals {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
+      controllers: {
+        authentication: import('$lib/server/features/authentication/commands/presentation/controllers').AuthenticationController
+      }
       services: {
         api: {
           commands: import('$lib/server/features/api/commands/command-service').ApiCommandService
