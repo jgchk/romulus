@@ -16,7 +16,12 @@
   import AccountDropdown from './AccountDropdown.svelte'
   import DarkModeApplier from './DarkModeApplier.svelte'
 
-  export let data: LayoutData
+  type Props = {
+    data: LayoutData
+    children?: import('svelte').Snippet
+  }
+
+  let { data, children }: Props = $props()
 
   const user: UserStore = writable(data.user)
   const userSettings = new UserSettingsStore(data.user)
@@ -24,8 +29,15 @@
   setUserContext(user)
   setUserSettingsContext(userSettings)
 
-  $: $user = data.user
-  $: userSettings.updateUser(data.user)
+  $user = data.user
+  $effect(() => {
+    $user = data.user
+  })
+
+  userSettings.updateUser(data.user)
+  $effect(() => {
+    userSettings.updateUser(data.user)
+  })
 
   // Used to indicate when hydration is complete for Playwright tests
   // See: https://github.com/microsoft/playwright/issues/19858#issuecomment-1377088645
@@ -112,7 +124,7 @@
       </Card>
     </nav>
     <main class="flex-1 overflow-auto">
-      <slot />
+      {@render children?.()}
     </main>
 
     <Toaster class="pr-4 pt-4" />
