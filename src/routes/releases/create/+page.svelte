@@ -56,10 +56,7 @@
 
     <InputGroup errors={form?.errors.artists}>
       <Label for="artists">Artists</Label>
-      <ArtistMultiselect
-        value={$store.artists}
-        on:change={(e) => store.setArtists(e.detail.value)}
-      />
+      <ArtistMultiselect value={$store.artists} onChange={(artists) => store.setArtists(artists)} />
     </InputGroup>
 
     <InputGroup errors={form?.errors.art}>
@@ -124,7 +121,7 @@
                 <Label for="tracks[{i}].artists">Artists</Label>
                 <ArtistMultiselect
                   value={track.data.artists}
-                  on:change={(e) => store.track(i).setArtists(e.detail.value)}
+                  onChange={(artists) => store.track(i).setArtists(artists)}
                 />
               </InputGroup>
 
@@ -159,7 +156,7 @@
                 <Label for="tracks[{i}].artists">Artists</Label>
                 <ArtistMultiselect
                   value={track.artists}
-                  on:change={(e) => store.track(i).setArtists(e.detail.value)}
+                  onChange={(artists) => store.track(i).setArtists(artists)}
                 />
               </InputGroup>
 

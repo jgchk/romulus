@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query'
-  import { createEventDispatcher } from 'svelte'
-  import { derived, writable } from 'svelte/store'
+  import { derived as derivedStore, writable } from 'svelte/store'
 
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import type { SearchArtistsResult } from '$lib/server/features/music-catalog/queries/application/search-artists'
@@ -9,39 +8,38 @@
 
   import type { ArtistMultiselectProps } from './ArtistMultiselect'
 
-  type $$Props = ArtistMultiselectProps
+  type Props = ArtistMultiselectProps
 
-  export let value: NonNullable<$$Props['value']> = []
+  let { value = $bindable([]), onChange, ...rest }: Props = $props()
 
-  let filter = ''
+  let filter = $state('')
 
-  let debouncedFilter = writable(filter)
-  let timeout: Timeout
-  $: {
+  let debouncedFilter = writable('')
+
+  let timeout: Timeout | undefined
+  $effect(() => {
+    const v = filter
     clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      $debouncedFilter = filter
-    }, 250)
-  }
+    timeout = setTimeout(() => ($debouncedFilter = v), 250)
+    return () => clearTimeout(timeout)
+  })
 
   const optionsQuery = createQuery(
-    derived(debouncedFilter, ($debouncedFilter) => ({
+    derivedStore(debouncedFilter, ($debouncedFilter) => ({
       queryKey: ['artists', 'search', { name: $debouncedFilter }],
       queryFn: () => fetchArtists($debouncedFilter),
       placeholderData: keepPreviousData,
     })),
   )
 
-  $: values = value.map((artist) => ({ value: artist.id, label: artist.name }))
+  let values = $derived(value.map((artist) => ({ value: artist.id, label: artist.name })))
 
-  $: options = ($optionsQuery.data ?? []).map((artist) => ({
-    value: artist.id,
-    label: artist.name,
-  }))
-
-  const dispatch = createEventDispatcher<{
-    change: { value: NonNullable<$$Props['value']> }
-  }>()
+  let options = $derived(
+    ($optionsQuery.data ?? []).map((artist) => ({
+      value: artist.id,
+      label: artist.name,
+    })),
+  )
 
   async function fetchArtists(nameQuery: string) {
     const url = new URL('/api/artists/search', window.location.origin)
@@ -61,7 +59,7 @@
   onChange={(nv) => {
     const newValue = nv.map((v) => ({ id: v.value, name: v.label }))
     value = newValue
-    dispatch('change', { value: newValue })
+    onChange?.(newValue)
   }}
-  {...$$restProps}
+  {...rest}
 />
