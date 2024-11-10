@@ -81,7 +81,7 @@
         <MonthSelect
           id="releaseDate.month"
           value={$store.month}
-          on:input={(e) => store.setMonth(e.detail)}
+          onChange={(option) => store.setMonth(option.value)}
           placeholder="MM"
           class="w-32"
         />

@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { type ComponentProps, createEventDispatcher } from 'svelte'
+  import { type ComponentProps } from 'svelte'
 
-  import type { Option } from '$lib/atoms/Select'
   import Select from '$lib/atoms/Select.svelte'
 
-  type $$Props = Omit<ComponentProps<Select<number>>, 'options'>
+  type Props = Omit<ComponentProps<Select<number>>, 'options'>
 
-  export let value: $$Props['value'] = undefined
+  let { value = $bindable(undefined), ...rest }: Props = $props()
 
   const options = [
     { label: 'January', value: 1 },
@@ -22,8 +21,6 @@
     { label: 'November', value: 11 },
     { label: 'December', value: 12 },
   ]
-
-  const dispatch = createEventDispatcher<{ change: Option<number> }>()
 </script>
 
-<Select bind:value {options} onChange={(option) => dispatch('change', option)} {...$$restProps} />
+<Select bind:value {options} {...rest} />
