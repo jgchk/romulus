@@ -1,11 +1,20 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
-import type { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { InvalidLoginError } from '../errors/invalid-login'
+
+export type LoginResult = {
+  userAccount: {
+    id: number
+  }
+  userSession: {
+    token: string
+    expiresAt: Date
+  }
+}
 
 export class LoginCommand {
   constructor(
@@ -16,7 +25,7 @@ export class LoginCommand {
     private sessionTokenGenerator: TokenGenerator,
   ) {}
 
-  async execute(username: string, password: string): Promise<Cookie | InvalidLoginError> {
+  async execute(username: string, password: string): Promise<LoginResult | InvalidLoginError> {
     const account = await this.accountRepo.findByUsername(username)
     if (!account) {
       // spend some time to "waste" some time
@@ -44,8 +53,9 @@ export class LoginCommand {
 
     await this.sessionRepo.save(session)
 
-    const cookie = this.sessionRepo.createCookie({ token, expiresAt: session.expiresAt })
-
-    return cookie
+    return {
+      userAccount: { id: account.id },
+      userSession: { token, expiresAt: session.expiresAt },
+    }
   }
 }

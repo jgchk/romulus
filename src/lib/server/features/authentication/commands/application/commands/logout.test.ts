@@ -38,13 +38,13 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
       sessionTokenHashRepo,
       sessionTokenGenerator,
     )
-    const cookie = await login.execute(loggedInAccount.username, loggedInAccount.password)
+    const loginResult = await login.execute(loggedInAccount.username, loggedInAccount.password)
 
-    if (!(cookie instanceof Cookie)) {
-      expect.fail('Login failed')
+    if (loginResult instanceof Error) {
+      expect.fail(`Login failed: ${loginResult.message}`)
     }
 
-    return { cookie }
+    return loginResult
   }
 
   async function getAccountSessions(username: string) {
@@ -63,12 +63,12 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
 describe('logout', () => {
   test('should logout an account successfully', async ({ dbConnection }) => {
     const { logout, createLoggedInAccount } = setupCommand({ dbConnection })
-    const { cookie } = await createLoggedInAccount({
+    const { userSession } = await createLoggedInAccount({
       username: 'testaccount',
       password: 'password123',
     })
 
-    const logoutResult = await logout.execute(cookie.value)
+    const logoutResult = await logout.execute(userSession.token)
 
     expect(logoutResult).toBeInstanceOf(Cookie)
     expect(logoutResult.value).toBe('')
@@ -76,12 +76,12 @@ describe('logout', () => {
 
   test('should delete the session on logout', async ({ dbConnection }) => {
     const { logout, createLoggedInAccount, getAccountSessions } = setupCommand({ dbConnection })
-    const { cookie } = await createLoggedInAccount({
+    const { userSession } = await createLoggedInAccount({
       username: 'sessionaccount',
       password: 'password123',
     })
 
-    await logout.execute(cookie.value)
+    await logout.execute(userSession.token)
 
     const sessions = await getAccountSessions('sessionaccount')
     expect(sessions).toHaveLength(0)

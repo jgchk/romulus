@@ -112,7 +112,7 @@ describe('resetPassword', () => {
 
     // Try to login with the new password
     const loginResult = await loginAccount({ username: 'testaccount', password: 'newpassword' })
-    expect(loginResult).toBeInstanceOf(Cookie)
+    expect(loginResult).not.toBeInstanceOf(Error)
 
     // Try to login with the old password (should fail)
     const oldPasswordLoginResult = await loginAccount({

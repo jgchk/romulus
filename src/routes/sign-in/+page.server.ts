@@ -29,7 +29,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.services.authentication.commands.login(
+    const maybeSessionCookie = await locals.controllers.authentication.login(
       form.data.username,
       form.data.password,
     )

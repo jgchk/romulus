@@ -4,6 +4,7 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
+import { LoginCommand } from '$lib/server/features/authentication/commands/application/commands/login'
 import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
@@ -11,6 +12,7 @@ import { BcryptHashRepository } from '$lib/server/features/authentication/comman
 import { DrizzlePasswordResetTokenRepository } from '$lib/server/features/authentication/commands/infrastructure/password-reset-token/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '$lib/server/features/authentication/commands/infrastructure/session/drizzle-session-repository'
 import { AuthenticationController } from '$lib/server/features/authentication/commands/presentation/controllers'
+import { LoginController } from '$lib/server/features/authentication/commands/presentation/controllers/login'
 import { RegisterController } from '$lib/server/features/authentication/commands/presentation/controllers/register'
 import { CookieCreator } from '$lib/server/features/authentication/commands/presentation/cookie'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
@@ -48,6 +50,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   event.locals.controllers = {
     authentication: new AuthenticationController(
+      new LoginController(
+        new LoginCommand(
+          new DrizzleAccountRepository(dbConnection),
+          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new BcryptHashRepository(),
+          new Sha256HashRepository(),
+          new CryptoTokenGenerator(),
+        ),
+        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
+      ),
       new RegisterController(
         new RegisterCommand(
           new DrizzleAccountRepository(dbConnection),

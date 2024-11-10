@@ -6,7 +6,6 @@ import { Sha256HashRepository } from '$lib/server/features/common/infrastructure
 import { test } from '../../../../../../../vitest-setup'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
-import { Cookie } from '../../domain/entities/cookie'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/session/drizzle-session-repository'
@@ -60,7 +59,15 @@ describe('login', () => {
 
     const result = await login.execute('testaccount', 'password123')
 
-    expect(result).toBeInstanceOf(Cookie)
+    expect(result).toEqual({
+      userAccount: {
+        id: expect.any(Number) as number,
+      },
+      userSession: {
+        token: expect.any(String) as string,
+        expiresAt: expect.any(Date) as Date,
+      },
+    })
   })
 
   test('should return InvalidLoginError for incorrect password', async ({ dbConnection }) => {
