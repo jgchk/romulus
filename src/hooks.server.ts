@@ -7,6 +7,7 @@ import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { LoginCommand } from '$lib/server/features/authentication/commands/application/commands/login'
 import { LogoutCommand } from '$lib/server/features/authentication/commands/application/commands/logout'
 import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
+import { ResetPasswordCommand } from '$lib/server/features/authentication/commands/application/commands/reset-password'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
@@ -16,6 +17,7 @@ import { AuthenticationController } from '$lib/server/features/authentication/co
 import { LoginController } from '$lib/server/features/authentication/commands/presentation/controllers/login'
 import { LogoutController } from '$lib/server/features/authentication/commands/presentation/controllers/logout'
 import { RegisterController } from '$lib/server/features/authentication/commands/presentation/controllers/register'
+import { ResetPasswordController } from '$lib/server/features/authentication/commands/presentation/controllers/reset-password'
 import { CookieCreator } from '$lib/server/features/authentication/commands/presentation/cookie'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
@@ -73,6 +75,17 @@ export const handle: Handle = async ({ event, resolve }) => {
         new RegisterCommand(
           new DrizzleAccountRepository(dbConnection),
           new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new BcryptHashRepository(),
+          new Sha256HashRepository(),
+          new CryptoTokenGenerator(),
+        ),
+        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
+      ),
+      new ResetPasswordController(
+        new ResetPasswordCommand(
+          new DrizzleAccountRepository(dbConnection),
+          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new DrizzlePasswordResetTokenRepository(dbConnection),
           new BcryptHashRepository(),
           new Sha256HashRepository(),
           new CryptoTokenGenerator(),

@@ -1,6 +1,5 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
-import type { Cookie } from '../../domain/entities/cookie'
 import type { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { Session } from '../../domain/entities/session'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
@@ -8,6 +7,16 @@ import type { AccountRepository } from '../../domain/repositories/account'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { AccountNotFoundError } from '../errors/account-not-found'
+
+export type ResetPasswordResult = {
+  userAccount: {
+    id: number
+  }
+  userSession: {
+    token: string
+    expiresAt: Date
+  }
+}
 
 export class ResetPasswordCommand {
   constructor(
@@ -22,7 +31,7 @@ export class ResetPasswordCommand {
   async execute(
     passwordResetToken: PasswordResetToken,
     newPassword: string,
-  ): Promise<Cookie | AccountNotFoundError> {
+  ): Promise<ResetPasswordResult | AccountNotFoundError> {
     const account = await this.accountRepo.findById(passwordResetToken.accountId)
     if (!account) {
       return new AccountNotFoundError(passwordResetToken.accountId)
@@ -50,8 +59,9 @@ export class ResetPasswordCommand {
 
     await this.sessionRepo.save(session)
 
-    const cookie = this.sessionRepo.createCookie({ token, expiresAt: session.expiresAt })
-
-    return cookie
+    return {
+      userAccount: { id: account.id },
+      userSession: { token, expiresAt: session.expiresAt },
+    }
   }
 }

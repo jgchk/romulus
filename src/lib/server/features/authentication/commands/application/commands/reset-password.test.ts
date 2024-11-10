@@ -6,7 +6,6 @@ import { test } from '../../../../../../../vitest-setup'
 import { Sha256HashRepository } from '../../../../common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
-import { Cookie } from '../../domain/entities/cookie'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
@@ -108,7 +107,15 @@ describe('resetPassword', () => {
 
     const result = await resetPassword.execute(passwordResetToken, 'newpassword')
 
-    expect(result).toBeInstanceOf(Cookie)
+    expect(result).toEqual({
+      userAccount: {
+        id: expect.any(Number) as number,
+      },
+      userSession: {
+        token: expect.any(String) as string,
+        expiresAt: expect.any(Date) as Date,
+      },
+    })
 
     // Try to login with the new password
     const loginResult = await loginAccount({ username: 'testaccount', password: 'newpassword' })

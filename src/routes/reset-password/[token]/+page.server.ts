@@ -49,7 +49,7 @@ export const actions: Actions = {
     }
     const token = maybeToken
 
-    const maybeSessionCookie = await locals.services.authentication.commands.resetPassword(
+    const maybeSessionCookie = await locals.controllers.authentication.resetPassword(
       token,
       form.data.password,
     )
