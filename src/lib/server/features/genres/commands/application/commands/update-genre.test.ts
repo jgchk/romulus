@@ -3,7 +3,6 @@ import { expect } from 'vitest'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import {
-  GenreCycleError,
   NotFoundError,
   NoUpdatesError,
   UpdateGenreCommand,
@@ -13,6 +12,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { test } from '../../../../../../../vitest-setup'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
+import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreConstructorParams, GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
@@ -192,7 +192,7 @@ test('should throw NotFoundError if genre is not found', async ({ dbConnection }
   )
 })
 
-test('should throw GenreCycleError if a 1-cycle is detected', async ({ dbConnection }) => {
+test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
@@ -203,16 +203,16 @@ test('should throw GenreCycleError if a 1-cycle is detected', async ({ dbConnect
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await expect(
-    updateGenreCommand.execute(
-      genre.id,
-      { ...GENRE_UPDATE, parents: new Set([genre.id]) },
-      account.id,
-    ),
-  ).rejects.toThrow(GenreCycleError)
+  const result = await updateGenreCommand.execute(
+    genre.id,
+    { ...GENRE_UPDATE, parents: new Set([genre.id]) },
+    account.id,
+  )
+
+  expect(result).toBeInstanceOf(GenreCycleError)
 })
 
-test('should throw GenreCycleError if a 2-cycle is detected', async ({ dbConnection }) => {
+test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
@@ -228,16 +228,16 @@ test('should throw GenreCycleError if a 2-cycle is detected', async ({ dbConnect
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await expect(
-    updateGenreCommand.execute(
-      parent.id,
-      { ...GENRE_UPDATE, parents: new Set([child.id]) },
-      account.id,
-    ),
-  ).rejects.toThrow(GenreCycleError)
+  const result = await updateGenreCommand.execute(
+    parent.id,
+    { ...GENRE_UPDATE, parents: new Set([child.id]) },
+    account.id,
+  )
+
+  expect(result).toBeInstanceOf(GenreCycleError)
 })
 
-test('should throw GenreCycleError if a 3-cycle is detected', async ({ dbConnection }) => {
+test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
@@ -258,13 +258,13 @@ test('should throw GenreCycleError if a 3-cycle is detected', async ({ dbConnect
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await expect(
-    updateGenreCommand.execute(
-      parent.id,
-      { ...GENRE_UPDATE, parents: new Set([grandchild.id]) },
-      account.id,
-    ),
-  ).rejects.toThrow(GenreCycleError)
+  const result = await updateGenreCommand.execute(
+    parent.id,
+    { ...GENRE_UPDATE, parents: new Set([grandchild.id]) },
+    account.id,
+  )
+
+  expect(result).toBeInstanceOf(GenreCycleError)
 })
 
 test('should return SelfInfluenceError if genre influences itself', async ({ dbConnection }) => {

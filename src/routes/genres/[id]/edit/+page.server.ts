@@ -5,11 +5,11 @@ import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
 import {
-  GenreCycleError,
   NotFoundError,
   NoUpdatesError,
 } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { DuplicateAkaError } from '$lib/server/features/genres/commands/domain/errors/duplicate-aka'
+import { GenreCycleError } from '$lib/server/features/genres/commands/domain/errors/genre-cycle'
 import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
 
 import type { PageServerLoad } from './$types'
@@ -89,12 +89,12 @@ export const actions: Actions = {
       )
       if (updateResult instanceof SelfInfluenceError) {
         return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+      } else if (updateResult instanceof GenreCycleError) {
+        return setError(form, 'parents._errors', updateResult.message)
       }
     } catch (e) {
       if (e instanceof NotFoundError) {
         return error(404, { message: 'Genre not found' })
-      } else if (e instanceof GenreCycleError) {
-        return setError(form, 'parents._errors', `Cycle detected: ${e.cycle}`)
       } else if (e instanceof DuplicateAkaError) {
         return setError(form, getDuplicateAkaErrorField(e.level), e.message)
       } else if (e instanceof NoUpdatesError) {

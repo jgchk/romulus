@@ -1,10 +1,10 @@
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
+import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import { Genre, type GenreConstructorParams } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
-import { GenreCycleError } from './update-genre'
 import type { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 export class CreateGenreCommand {
@@ -17,7 +17,7 @@ export class CreateGenreCommand {
   async execute(
     data: GenreConstructorParams,
     accountId: number,
-  ): Promise<{ id: number } | SelfInfluenceError | DuplicateAkaError> {
+  ): Promise<{ id: number } | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
     const genre = Genre.create(data)
 
     if (genre instanceof Error) {
@@ -25,11 +25,9 @@ export class CreateGenreCommand {
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
-    genreTree.insertGenre(genre)
-
-    const cycle = genreTree.findCycle()
-    if (cycle) {
-      throw new GenreCycleError(cycle)
+    const treeError = genreTree.insertGenre(genre)
+    if (treeError) {
+      return treeError
     }
 
     const { id } = await this.genreRepo.save(genre)

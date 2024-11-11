@@ -1,3 +1,4 @@
+import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
@@ -9,7 +10,7 @@ export class DeleteGenreCommand {
     private genreHistoryRepo: GenreHistoryRepository,
   ) {}
 
-  async execute(id: number, accountId: number): Promise<void> {
+  async execute(id: number, accountId: number): Promise<undefined | GenreCycleError> {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       throw new NotFoundError()
@@ -17,7 +18,10 @@ export class DeleteGenreCommand {
 
     const genreTree = await this.genreRepo.getGenreTree()
     const childrenIds = genreTree.getGenreChildren(id)
-    genreTree.deleteGenre(id)
+    const treeError = genreTree.deleteGenre(id)
+    if (treeError) {
+      return treeError
+    }
 
     await this.genreRepo.saveGenreTree(genreTree)
 

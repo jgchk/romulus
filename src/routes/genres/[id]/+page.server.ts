@@ -4,6 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
+import { GenreCycleError } from '$lib/server/features/genres/commands/domain/errors/genre-cycle'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 
@@ -88,7 +89,10 @@ export const actions: Actions = {
     const id = maybeId.data
 
     try {
-      await locals.services.genre.commands.deleteGenre(id, user.id)
+      const deleteResult = await locals.services.genre.commands.deleteGenre(id, user.id)
+      if (deleteResult instanceof GenreCycleError) {
+        return error(400, `Deleting genre would create cycle: ${deleteResult.cycle}`)
+      }
     } catch (err) {
       if (err instanceof NotFoundError) {
         return error(404, 'Genre not found')

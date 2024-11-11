@@ -1,4 +1,5 @@
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
+import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
@@ -16,7 +17,7 @@ export class UpdateGenreCommand {
     id: number,
     data: GenreUpdate,
     accountId: number,
-  ): Promise<void | SelfInfluenceError | DuplicateAkaError> {
+  ): Promise<void | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       throw new NotFoundError()
@@ -33,11 +34,9 @@ export class UpdateGenreCommand {
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
-    genreTree.updateGenre(id, updatedGenre)
-
-    const cycle = genreTree.findCycle()
-    if (cycle) {
-      throw new GenreCycleError(cycle)
+    const treeError = genreTree.updateGenre(id, updatedGenre)
+    if (treeError) {
+      return treeError
     }
 
     await this.genreRepo.save(updatedGenre)
@@ -50,12 +49,6 @@ export class UpdateGenreCommand {
 export class NotFoundError extends ApplicationError {
   constructor() {
     super('NotFoundError', 'Genre not found')
-  }
-}
-
-export class GenreCycleError extends ApplicationError {
-  constructor(public cycle: string) {
-    super('GenreCycleError', `Cycle detected: ${cycle}`)
   }
 }
 
