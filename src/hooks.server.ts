@@ -54,51 +54,53 @@ export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(pg)
   event.locals.dbConnection = dbConnection
 
+  const accountRepo = new DrizzleAccountRepository(dbConnection)
+  const sessionRepo = new DrizzleSessionRepository(dbConnection)
+  const passwordResetTokenRepo = new DrizzlePasswordResetTokenRepository(dbConnection)
+
+  const passwordHashRepo = new BcryptHashRepository()
+  const sessionTokenHashRepo = new Sha256HashRepository()
+
+  const sessionTokenGenerator = new CryptoTokenGenerator()
+
+  const sessionCookieCreator = new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE)
+
+  const loginCommand = new LoginCommand(
+    accountRepo,
+    sessionRepo,
+    passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
+  )
+  const logoutCommand = new LogoutCommand(sessionRepo, sessionTokenHashRepo)
+  const registerCommand = new RegisterCommand(
+    accountRepo,
+    sessionRepo,
+    passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
+  )
+  const resetPasswordCommand = new ResetPasswordCommand(
+    accountRepo,
+    sessionRepo,
+    passwordResetTokenRepo,
+    passwordHashRepo,
+    sessionTokenHashRepo,
+    sessionTokenGenerator,
+  )
+  const validateSessionCommand = new ValidateSessionCommand(
+    accountRepo,
+    sessionRepo,
+    sessionTokenHashRepo,
+  )
+
   event.locals.controllers = {
     authentication: new AuthenticationController(
-      new LoginController(
-        new LoginCommand(
-          new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection),
-          new BcryptHashRepository(),
-          new Sha256HashRepository(),
-          new CryptoTokenGenerator(),
-        ),
-        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
-      ),
-      new LogoutController(
-        new LogoutCommand(new DrizzleSessionRepository(dbConnection), new Sha256HashRepository()),
-        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
-      ),
-      new RegisterController(
-        new RegisterCommand(
-          new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection),
-          new BcryptHashRepository(),
-          new Sha256HashRepository(),
-          new CryptoTokenGenerator(),
-        ),
-        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
-      ),
-      new ResetPasswordController(
-        new ResetPasswordCommand(
-          new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection),
-          new DrizzlePasswordResetTokenRepository(dbConnection),
-          new BcryptHashRepository(),
-          new Sha256HashRepository(),
-          new CryptoTokenGenerator(),
-        ),
-        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
-      ),
-      new ValidateSessionController(
-        new ValidateSessionCommand(
-          new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection),
-          new Sha256HashRepository(),
-        ),
-        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
-      ),
+      new LoginController(loginCommand, sessionCookieCreator),
+      new LogoutController(logoutCommand, sessionCookieCreator),
+      new RegisterController(registerCommand, sessionCookieCreator),
+      new ResetPasswordController(resetPasswordCommand, sessionCookieCreator),
+      new ValidateSessionController(validateSessionCommand, sessionCookieCreator),
     ),
   }
 
@@ -113,14 +115,14 @@ export const handle: Handle = async ({ event, resolve }) => {
     },
     authentication: {
       commands: new AuthenticationCommandService(
-        new DrizzleAccountRepository(dbConnection),
-        new DrizzleSessionRepository(dbConnection),
+        accountRepo,
+        sessionRepo,
         new DrizzlePasswordResetTokenRepository(dbConnection),
-        new BcryptHashRepository(),
+        passwordHashRepo,
         new Sha256HashRepository(),
         new CryptoTokenGenerator(),
-        new Sha256HashRepository(),
-        new CryptoTokenGenerator(),
+        sessionTokenHashRepo,
+        sessionTokenGenerator,
       ),
       queries: new AuthenticationQueryService(dbConnection),
     },
