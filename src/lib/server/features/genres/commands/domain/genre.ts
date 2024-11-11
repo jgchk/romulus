@@ -1,5 +1,6 @@
 import { equals } from 'ramda'
 
+import { DuplicateAkaError } from './errors/duplicate-aka'
 import { SelfInfluenceError } from './errors/self-influence'
 import type { GenreHistory } from './genre-history'
 
@@ -84,17 +85,41 @@ export class Genre {
     this.updatedAt = new Date(params.updatedAt)
   }
 
-  static create(params: GenreConstructorParams): Genre | SelfInfluenceError {
+  static create(params: GenreConstructorParams): Genre | SelfInfluenceError | DuplicateAkaError {
     const genre = new Genre(params)
 
     if (genre.hasSelfInfluence()) {
       return new SelfInfluenceError()
     }
 
+    const duplicateAkaError = genre.checkDuplicateAkas()
+    if (duplicateAkaError) {
+      return duplicateAkaError
+    }
+
     return genre
   }
 
-  withUpdate(data: GenreUpdate): Genre | SelfInfluenceError {
+  private hasSelfInfluence(): boolean {
+    if (this.id === undefined) return false
+    return this.influences.has(this.id)
+  }
+
+  private checkDuplicateAkas(): DuplicateAkaError | undefined {
+    const set = new Set<string>()
+
+    for (const level of Object.keys(this.akas) as (keyof typeof this.akas)[]) {
+      for (const aka of this.akas[level]) {
+        if (!set.has(aka)) {
+          set.add(aka)
+        } else {
+          return new DuplicateAkaError(aka, level)
+        }
+      }
+    }
+  }
+
+  withUpdate(data: GenreUpdate) {
     return Genre.create({
       id: this.id,
       name: data.name ?? this.name,
@@ -121,27 +146,6 @@ export class Genre {
       createdAt: this.createdAt,
       updatedAt: new Date(),
     })
-  }
-
-  hasSelfInfluence(): boolean {
-    if (this.id === undefined) return false
-    return this.influences.has(this.id)
-  }
-
-  findDuplicateAkas(): number {
-    const set = new Set<string>()
-    const akas = Object.values(this.akas)
-    for (let i = 0; i < akas.length; i++) {
-      for (const aka of akas[i]) {
-        if (!set.has(aka)) {
-          set.add(aka)
-        } else {
-          return i + 1
-        }
-      }
-    }
-
-    return 0
   }
 
   isChangedFrom(genreHistory: GenreHistory): boolean {

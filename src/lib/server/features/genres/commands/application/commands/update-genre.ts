@@ -1,4 +1,5 @@
-import { SelfInfluenceError } from '../../domain/errors/self-influence'
+import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
+import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
@@ -15,14 +16,14 @@ export class UpdateGenreCommand {
     id: number,
     data: GenreUpdate,
     accountId: number,
-  ): Promise<void | SelfInfluenceError> {
+  ): Promise<void | SelfInfluenceError | DuplicateAkaError> {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       throw new NotFoundError()
     }
 
     const updatedGenre = genre.withUpdate(data)
-    if (updatedGenre instanceof SelfInfluenceError) {
+    if (updatedGenre instanceof Error) {
       return updatedGenre
     }
 
@@ -39,37 +40,10 @@ export class UpdateGenreCommand {
       throw new GenreCycleError(cycle)
     }
 
-    const duplicateAkas = updatedGenre.findDuplicateAkas()
-    if (duplicateAkas === 1) {
-      throw new DuplicatePrimaryAkaError()
-    } else if (duplicateAkas === 2) {
-      throw new DuplicateSecondaryAkaError()
-    } else if (duplicateAkas === 3) {
-      throw new DuplicateTertiaryAkaError()
-    }
-
     await this.genreRepo.save(updatedGenre)
 
     const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
-  }
-}
-
-export class DuplicatePrimaryAkaError extends ApplicationError {
-  constructor() {
-    super('DuplicatePrimaryAkaError', 'Primary akas contains a duplicate')
-  }
-}
-
-export class DuplicateSecondaryAkaError extends ApplicationError {
-  constructor() {
-    super('DuplicateSecondaryAkaError', 'Secondary akas contains a duplicate')
-  }
-}
-
-export class DuplicateTertiaryAkaError extends ApplicationError {
-  constructor() {
-    super('DuplicateTertiaryAkaError', 'Tertiary akas contains a duplicate')
   }
 }
 

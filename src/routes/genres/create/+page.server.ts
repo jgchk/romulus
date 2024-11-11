@@ -3,6 +3,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { genreSchema } from '$lib/server/api/genres/types'
+import { DuplicateAkaError } from '$lib/server/features/genres/commands/domain/errors/duplicate-aka'
 import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -61,8 +62,21 @@ export const actions: Actions = {
     const createResult = await locals.services.genre.commands.createGenre(genreData, user.id)
     if (createResult instanceof SelfInfluenceError) {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+    } else if (createResult instanceof DuplicateAkaError) {
+      return setError(form, getDuplicateAkaErrorField(createResult.level), createResult.message)
     }
 
     redirect(302, `/genres/${createResult.id}`)
   },
+}
+
+function getDuplicateAkaErrorField(level: DuplicateAkaError['level']) {
+  switch (level) {
+    case 'primary':
+      return 'primaryAkas' as const
+    case 'secondary':
+      return 'secondaryAkas' as const
+    case 'tertiary':
+      return 'tertiaryAkas' as const
+  }
 }

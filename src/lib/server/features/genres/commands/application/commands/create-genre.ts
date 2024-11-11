@@ -1,4 +1,5 @@
-import { SelfInfluenceError } from '../../domain/errors/self-influence'
+import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
+import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import { Genre, type GenreConstructorParams } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
@@ -16,10 +17,10 @@ export class CreateGenreCommand {
   async execute(
     data: GenreConstructorParams,
     accountId: number,
-  ): Promise<{ id: number } | SelfInfluenceError> {
+  ): Promise<{ id: number } | SelfInfluenceError | DuplicateAkaError> {
     const genre = Genre.create(data)
 
-    if (genre instanceof SelfInfluenceError) {
+    if (genre instanceof Error) {
       return genre
     }
 
