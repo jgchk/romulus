@@ -2,10 +2,7 @@ import { expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import {
-  NotFoundError,
-  UpdateGenreCommand,
-} from '$lib/server/features/genres/commands/application/commands/update-genre'
+import { UpdateGenreCommand } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
@@ -17,6 +14,7 @@ import type { GenreConstructorParams, GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
+import { GenreNotFoundError } from '../errors/genre-not-found'
 import { CreateGenreCommand } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
@@ -177,7 +175,7 @@ test('should create a history entry', async ({ dbConnection }) => {
   expect(genreHistory[1].createdAt).not.toEqual(pastDate)
 })
 
-test('should throw NotFoundError if genre is not found', async ({ dbConnection }) => {
+test('should return GenreNotFoundError if genre is not found', async ({ dbConnection }) => {
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
@@ -186,9 +184,9 @@ test('should throw NotFoundError if genre is not found', async ({ dbConnection }
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await expect(updateGenreCommand.execute(0, GENRE_UPDATE, account.id)).rejects.toThrow(
-    NotFoundError,
-  )
+  const result = await updateGenreCommand.execute(0, GENRE_UPDATE, account.id)
+
+  expect(result).toBeInstanceOf(GenreNotFoundError)
 })
 
 test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnection }) => {

@@ -5,7 +5,7 @@ import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
-import { ApplicationError } from '../errors/base'
+import { GenreNotFoundError } from '../errors/genre-not-found'
 
 export class UpdateGenreCommand {
   constructor(
@@ -17,10 +17,12 @@ export class UpdateGenreCommand {
     id: number,
     data: GenreUpdate,
     accountId: number,
-  ): Promise<undefined | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
+  ): Promise<
+    undefined | GenreNotFoundError | SelfInfluenceError | DuplicateAkaError | GenreCycleError
+  > {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
-      throw new NotFoundError()
+      return new GenreNotFoundError()
     }
 
     const updatedGenre = genre.withUpdate(data)
@@ -43,11 +45,5 @@ export class UpdateGenreCommand {
 
     const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
-  }
-}
-
-export class NotFoundError extends ApplicationError {
-  constructor() {
-    super('NotFoundError', 'Genre not found')
   }
 }

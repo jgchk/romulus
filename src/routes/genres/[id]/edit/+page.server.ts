@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
-import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
+import { GenreNotFoundError } from '$lib/server/features/genres/commands/application/errors/genre-not-found'
 import { DuplicateAkaError } from '$lib/server/features/genres/commands/domain/errors/duplicate-aka'
 import { GenreCycleError } from '$lib/server/features/genres/commands/domain/errors/genre-cycle'
 import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
@@ -84,15 +84,15 @@ export const actions: Actions = {
         genreUpdate,
         user.id,
       )
-      if (updateResult instanceof SelfInfluenceError) {
+      if (updateResult instanceof GenreNotFoundError) {
+        return error(404, { message: 'Genre not found' })
+      } else if (updateResult instanceof SelfInfluenceError) {
         return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
       } else if (updateResult instanceof GenreCycleError) {
         return setError(form, 'parents._errors', updateResult.message)
       }
     } catch (e) {
-      if (e instanceof NotFoundError) {
-        return error(404, { message: 'Genre not found' })
-      } else if (e instanceof DuplicateAkaError) {
+      if (e instanceof DuplicateAkaError) {
         return setError(form, getDuplicateAkaErrorField(e.level), e.message)
       } else {
         throw e

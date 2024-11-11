@@ -2,7 +2,6 @@ import { expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
@@ -12,6 +11,7 @@ import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
+import { GenreNotFoundError } from '../errors/genre-not-found'
 import { CreateGenreCommand } from './create-genre'
 import { DeleteGenreCommand } from './delete-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
@@ -82,7 +82,9 @@ test('should throw NotFoundError if genre not found', async ({ dbConnection }) =
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await expect(deleteGenreCommand.execute(0, account.id)).rejects.toThrow(NotFoundError)
+  const result = await deleteGenreCommand.execute(0, account.id)
+
+  expect(result).toBeInstanceOf(GenreNotFoundError)
 })
 
 test('should create a genre history entry', async ({ dbConnection }) => {
