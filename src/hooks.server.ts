@@ -60,8 +60,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const passwordHashRepo = new BcryptHashRepository()
   const sessionTokenHashRepo = new Sha256HashRepository()
+  const passwordResetTokenHashRepo = new Sha256HashRepository()
 
   const sessionTokenGenerator = new CryptoTokenGenerator()
+  const passwordResetTokenGenerator = new CryptoTokenGenerator()
 
   const sessionCookieCreator = new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE)
 
@@ -117,10 +119,10 @@ export const handle: Handle = async ({ event, resolve }) => {
       commands: new AuthenticationCommandService(
         accountRepo,
         sessionRepo,
-        new DrizzlePasswordResetTokenRepository(dbConnection),
+        passwordResetTokenRepo,
         passwordHashRepo,
-        new Sha256HashRepository(),
-        new CryptoTokenGenerator(),
+        passwordResetTokenHashRepo,
+        passwordResetTokenGenerator,
         sessionTokenHashRepo,
         sessionTokenGenerator,
       ),
