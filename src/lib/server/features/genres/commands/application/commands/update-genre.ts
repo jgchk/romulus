@@ -17,7 +17,7 @@ export class UpdateGenreCommand {
     id: number,
     data: GenreUpdate,
     accountId: number,
-  ): Promise<void | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
+  ): Promise<undefined | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       throw new NotFoundError()
@@ -30,7 +30,7 @@ export class UpdateGenreCommand {
 
     const lastGenreHistory = await this.genreHistoryRepo.findLatestByGenreId(id)
     if (lastGenreHistory && !updatedGenre.isChangedFrom(lastGenreHistory)) {
-      throw new NoUpdatesError()
+      return
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
@@ -49,11 +49,5 @@ export class UpdateGenreCommand {
 export class NotFoundError extends ApplicationError {
   constructor() {
     super('NotFoundError', 'Genre not found')
-  }
-}
-
-export class NoUpdatesError extends ApplicationError {
-  constructor() {
-    super('NoUpdatesError', 'No updates were made')
   }
 }

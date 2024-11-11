@@ -4,7 +4,6 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import {
   NotFoundError,
-  NoUpdatesError,
   UpdateGenreCommand,
 } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -285,32 +284,6 @@ test('should return SelfInfluenceError if genre influences itself', async ({ dbC
   )
 
   expect(result).toBeInstanceOf(SelfInfluenceError)
-})
-
-test('should throw NoUpdatesError if no changes are made', async ({ dbConnection }) => {
-  const accountsDb = new AccountsDatabase()
-  const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
-
-  const genre = await createGenre(getTestGenre(), account.id, dbConnection)
-
-  const updateGenreCommand = new UpdateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-  )
-
-  await expect(
-    updateGenreCommand.execute(
-      genre.id,
-      {
-        akas: {
-          primary: [],
-          secondary: [],
-          tertiary: [],
-        },
-      },
-      account.id,
-    ),
-  ).rejects.toThrow(NoUpdatesError)
 })
 
 test('should not create a history entry if no changes are detected', async ({ dbConnection }) => {
