@@ -7,7 +7,10 @@ import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { LoginCommand } from '$lib/server/features/authentication/commands/application/commands/login'
 import { LogoutCommand } from '$lib/server/features/authentication/commands/application/commands/logout'
 import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
+import { RequestPasswordResetCommand } from '$lib/server/features/authentication/commands/application/commands/request-password-reset'
 import { ResetPasswordCommand } from '$lib/server/features/authentication/commands/application/commands/reset-password'
+import { UpdateUserSettingsCommand } from '$lib/server/features/authentication/commands/application/commands/update-user-settings'
+import { ValidatePasswordResetTokenCommand } from '$lib/server/features/authentication/commands/application/commands/validate-password-reset-token'
 import { ValidateSessionCommand } from '$lib/server/features/authentication/commands/application/commands/validate-session'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
@@ -82,6 +85,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     sessionTokenHashRepo,
     sessionTokenGenerator,
   )
+  const requestPasswordResetCommand = new RequestPasswordResetCommand(
+    passwordResetTokenRepo,
+    passwordResetTokenGenerator,
+    passwordResetTokenHashRepo,
+  )
   const resetPasswordCommand = new ResetPasswordCommand(
     accountRepo,
     sessionRepo,
@@ -89,6 +97,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     passwordHashRepo,
     sessionTokenHashRepo,
     sessionTokenGenerator,
+  )
+  const updateUserSettingsCommand = new UpdateUserSettingsCommand(accountRepo)
+  const validatePasswordResetTokenCommand = new ValidatePasswordResetTokenCommand(
+    passwordResetTokenRepo,
+    passwordResetTokenHashRepo,
   )
   const validateSessionCommand = new ValidateSessionCommand(
     accountRepo,
@@ -117,14 +130,14 @@ export const handle: Handle = async ({ event, resolve }) => {
     },
     authentication: {
       commands: new AuthenticationCommandService(
-        accountRepo,
-        sessionRepo,
-        passwordResetTokenRepo,
-        passwordHashRepo,
-        passwordResetTokenHashRepo,
-        passwordResetTokenGenerator,
-        sessionTokenHashRepo,
-        sessionTokenGenerator,
+        loginCommand,
+        logoutCommand,
+        registerCommand,
+        requestPasswordResetCommand,
+        resetPasswordCommand,
+        updateUserSettingsCommand,
+        validatePasswordResetTokenCommand,
+        validateSessionCommand,
       ),
       queries: new AuthenticationQueryService(dbConnection),
     },
