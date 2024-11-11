@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -12,6 +13,26 @@ import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { CreateGenreCommand } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
+
+async function createGenre(
+  data: GenreConstructorParams,
+  accountId: number,
+  dbConnection: IDrizzleConnection,
+) {
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+
+  const genre = await createGenreCommand.execute(data, accountId)
+
+  if (genre instanceof Error) {
+    expect.fail(`Failed to create genre: ${genre.message}`)
+  }
+
+  return genre
+}
 
 function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
   return {
@@ -38,12 +59,7 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre({ relevance: 1 }), account.id)
+  const genre = await createGenre(getTestGenre({ relevance: 1 }), account.id, dbConnection)
 
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
@@ -71,12 +87,7 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
   const accountsDb = new AccountsDatabase()
   const [account] = await accountsDb.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre({ relevance: 1 }), account.id)
+  const genre = await createGenre(getTestGenre({ relevance: 1 }), account.id, dbConnection)
 
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
@@ -115,12 +126,7 @@ test('should calculate median relevance correctly', async ({ dbConnection }) => 
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre(), accounts[0].id)
+  const genre = await createGenre(getTestGenre(), accounts[0].id, dbConnection)
 
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
@@ -149,12 +155,7 @@ test('should round median relevance to nearest integer', async ({ dbConnection }
     dbConnection,
   )
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre(), accounts[0].id)
+  const genre = await createGenre(getTestGenre(), accounts[0].id, dbConnection)
 
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),

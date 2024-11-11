@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
@@ -11,6 +12,26 @@ import { DrizzleGenreRelevanceVoteRepository } from '../../commands/infrastructu
 import { DrizzleGenreRepository } from '../../commands/infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/genre-history/drizzle-genre-history-repository'
 import { GetRandomGenreIdQuery } from './get-random-genre-id'
+
+async function createGenre(
+  data: GenreConstructorParams,
+  accountId: number,
+  dbConnection: IDrizzleConnection,
+) {
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+
+  const genre = await createGenreCommand.execute(data, accountId)
+
+  if (genre instanceof Error) {
+    expect.fail(`Failed to create genre: ${genre.message}`)
+  }
+
+  return genre
+}
 
 function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
   return {
@@ -41,12 +62,7 @@ test('should return the only id when only one genre exists', async ({ dbConnecti
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre(), account.id)
+  const genre = await createGenre(getTestGenre(), account.id, dbConnection)
 
   const query = new GetRandomGenreIdQuery(dbConnection)
   const result = await query.execute()
@@ -57,13 +73,8 @@ test('should return a random id when multiple genres exist', async ({ dbConnecti
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre1 = await createGenreCommand.execute(getTestGenre(), account.id)
-  const genre2 = await createGenreCommand.execute(getTestGenre(), account.id)
+  const genre1 = await createGenre(getTestGenre(), account.id, dbConnection)
+  const genre2 = await createGenre(getTestGenre(), account.id, dbConnection)
 
   const query = new GetRandomGenreIdQuery(dbConnection)
   const result = await query.execute()

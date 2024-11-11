@@ -1,5 +1,6 @@
 import { equals } from 'ramda'
 
+import { SelfInfluenceError } from './errors/self-influence'
 import type { GenreHistory } from './genre-history'
 
 export type GenreUpdate = {
@@ -60,7 +61,7 @@ export class Genre {
   readonly createdAt: Date
   readonly updatedAt: Date
 
-  constructor(params: GenreConstructorParams) {
+  private constructor(params: GenreConstructorParams) {
     this.id = params.id
     this.name = params.name.trim()
     this.subtitle = params.subtitle?.trim()
@@ -83,8 +84,18 @@ export class Genre {
     this.updatedAt = new Date(params.updatedAt)
   }
 
-  withUpdate(data: GenreUpdate): Genre {
-    return new Genre({
+  static create(params: GenreConstructorParams): Genre | SelfInfluenceError {
+    const genre = new Genre(params)
+
+    if (genre.hasSelfInfluence()) {
+      return new SelfInfluenceError()
+    }
+
+    return genre
+  }
+
+  withUpdate(data: GenreUpdate): Genre | SelfInfluenceError {
+    return Genre.create({
       id: this.id,
       name: data.name ?? this.name,
       subtitle: data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),

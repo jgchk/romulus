@@ -1,8 +1,9 @@
+import { SelfInfluenceError } from '../../domain/errors/self-influence'
 import { Genre, type GenreConstructorParams } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
-import { GenreCycleError, SelfInfluenceError } from './update-genre'
+import { GenreCycleError } from './update-genre'
 import type { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 export class CreateGenreCommand {
@@ -12,11 +13,14 @@ export class CreateGenreCommand {
     private voteGenreRelevanceCommand: VoteGenreRelevanceCommand,
   ) {}
 
-  async execute(data: GenreConstructorParams, accountId: number): Promise<{ id: number }> {
-    const genre = new Genre(data)
+  async execute(
+    data: GenreConstructorParams,
+    accountId: number,
+  ): Promise<{ id: number } | SelfInfluenceError> {
+    const genre = Genre.create(data)
 
-    if (genre.hasSelfInfluence()) {
-      throw new SelfInfluenceError()
+    if (genre instanceof SelfInfluenceError) {
+      return genre
     }
 
     const genreTree = await this.genreRepo.getGenreTree()

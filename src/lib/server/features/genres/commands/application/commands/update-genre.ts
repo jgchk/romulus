@@ -1,3 +1,4 @@
+import { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
@@ -10,15 +11,19 @@ export class UpdateGenreCommand {
     private genreHistoryRepo: GenreHistoryRepository,
   ) {}
 
-  async execute(id: number, data: GenreUpdate, accountId: number): Promise<void> {
+  async execute(
+    id: number,
+    data: GenreUpdate,
+    accountId: number,
+  ): Promise<void | SelfInfluenceError> {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       throw new NotFoundError()
     }
 
     const updatedGenre = genre.withUpdate(data)
-    if (updatedGenre.hasSelfInfluence()) {
-      throw new SelfInfluenceError()
+    if (updatedGenre instanceof SelfInfluenceError) {
+      return updatedGenre
     }
 
     const lastGenreHistory = await this.genreHistoryRepo.findLatestByGenreId(id)
@@ -47,12 +52,6 @@ export class UpdateGenreCommand {
 
     const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
     await this.genreHistoryRepo.create(genreHistory)
-  }
-}
-
-export class SelfInfluenceError extends ApplicationError {
-  constructor() {
-    super('SelfInfluenceError', 'A genre cannot influence itself')
   }
 }
 

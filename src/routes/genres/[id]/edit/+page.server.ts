@@ -11,8 +11,8 @@ import {
   GenreCycleError,
   NotFoundError,
   NoUpdatesError,
-  SelfInfluenceError,
 } from '$lib/server/features/genres/commands/application/commands/update-genre'
+import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
 
 import type { PageServerLoad } from './$types'
 
@@ -84,14 +84,19 @@ export const actions: Actions = {
     }
 
     try {
-      await locals.services.genre.commands.updateGenre(id, genreUpdate, user.id)
+      const updateResult = await locals.services.genre.commands.updateGenre(
+        id,
+        genreUpdate,
+        user.id,
+      )
+      if (updateResult instanceof SelfInfluenceError) {
+        return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+      }
     } catch (e) {
       if (e instanceof NotFoundError) {
         return error(404, { message: 'Genre not found' })
       } else if (e instanceof GenreCycleError) {
         return setError(form, 'parents._errors', `Cycle detected: ${e.cycle}`)
-      } else if (e instanceof SelfInfluenceError) {
-        return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
       } else if (e instanceof DuplicatePrimaryAkaError) {
         return setError(form, 'primaryAkas', 'Primary akas contains a duplicate')
       } else if (e instanceof DuplicateSecondaryAkaError) {

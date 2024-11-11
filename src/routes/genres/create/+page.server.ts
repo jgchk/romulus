@@ -1,8 +1,9 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { genreSchema } from '$lib/server/api/genres/types'
+import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
@@ -57,8 +58,11 @@ export const actions: Actions = {
       updatedAt: new Date(),
     }
 
-    const { id } = await locals.services.genre.commands.createGenre(genreData, user.id)
+    const createResult = await locals.services.genre.commands.createGenre(genreData, user.id)
+    if (createResult instanceof SelfInfluenceError) {
+      return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+    }
 
-    redirect(302, `/genres/${id}`)
+    redirect(302, `/genres/${createResult.id}`)
   },
 }

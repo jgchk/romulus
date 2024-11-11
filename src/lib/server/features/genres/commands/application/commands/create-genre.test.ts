@@ -59,9 +59,13 @@ test('should return the created genre id', async ({ dbConnection }) => {
 
   const createGenreCommand = setup(dbConnection)
 
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
 
-  expect(id).toBeTypeOf('number')
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
+
+  expect(result.id).toBeTypeOf('number')
 })
 
 test('should insert the genre into the database', async ({ dbConnection }) => {
@@ -98,10 +102,14 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
 
   const createGenreCommand = setup(dbConnection)
 
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
+
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
-  const genre = await getGenreQuery.execute(id)
+  const genre = await getGenreQuery.execute(result.id)
   expect(genre).toEqual({
     id: expect.any(Number) as number,
     name: 'Test',
@@ -166,10 +174,14 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
 
   const createGenreCommand = setup(dbConnection)
 
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
+
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
-  const genre = await getGenreQuery.execute(id)
+  const genre = await getGenreQuery.execute(result.id)
   expect(genre).toEqual({
     id: expect.any(Number) as number,
     name: 'Test',
@@ -235,15 +247,19 @@ test('should insert a history entry', async ({ dbConnection }) => {
 
   const beforeExecute = new Date()
   const createGenreCommand = setup(dbConnection)
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
   const afterExecute = new Date()
 
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
+
   const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
-  const genreHistory = await getGenreHistoryQuery.execute(id)
+  const genreHistory = await getGenreHistoryQuery.execute(result.id)
   expect(genreHistory).toEqual([
     {
       id: expect.any(Number) as number,
-      treeGenreId: id,
+      treeGenreId: result.id,
       name: 'Test',
       subtitle: null,
       type: 'STYLE',
@@ -303,12 +319,19 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
 
   const createGenreCommand = setup(dbConnection)
 
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
+
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
 
   const getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(dbConnection)
-  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(id, account.id)
+  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(
+    result.id,
+    account.id,
+  )
   expect(genreRelevanceVote).toEqual({
-    genreId: id,
+    genreId: result.id,
     accountId: account.id,
     relevance: 1,
     createdAt: expect.any(Date) as Date,
@@ -316,7 +339,7 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
   })
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
-  const genre = await getGenreQuery.execute(id)
+  const genre = await getGenreQuery.execute(result.id)
   expect(genre?.relevance).toBe(1)
 })
 
@@ -354,13 +377,20 @@ test('should not insert a relevance vote when relevance is unset', async ({ dbCo
 
   const createGenreCommand = setup(dbConnection)
 
-  const { id } = await createGenreCommand.execute(genreData, account.id)
+  const result = await createGenreCommand.execute(genreData, account.id)
+
+  if (result instanceof Error) {
+    expect.fail(`CreateGenreCommand errored: ${result.message}`)
+  }
 
   const getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(dbConnection)
-  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(id, account.id)
+  const genreRelevanceVote = await getGenreRelevanceVoteByAccountQuery.execute(
+    result.id,
+    account.id,
+  )
   expect(genreRelevanceVote).toBeUndefined()
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
-  const genre = await getGenreQuery.execute(id)
+  const genre = await getGenreQuery.execute(result.id)
   expect(genre?.relevance).toBe(99)
 })

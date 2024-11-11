@@ -42,7 +42,7 @@ export class DrizzleGenreRepository implements GenreRepository {
       }
     }
 
-    const genre = new Genre({
+    const genre = Genre.create({
       id: entry.id,
       name: entry.name,
       subtitle: entry.subtitle ?? undefined,
@@ -58,6 +58,9 @@ export class DrizzleGenreRepository implements GenreRepository {
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     })
+    if (genre instanceof Error) {
+      throw genre
+    }
 
     return genre
   }

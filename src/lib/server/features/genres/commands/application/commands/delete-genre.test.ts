@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 
+import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { NotFoundError } from '$lib/server/features/genres/commands/application/commands/update-genre'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -14,6 +15,26 @@ import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-histor
 import { CreateGenreCommand } from './create-genre'
 import { DeleteGenreCommand } from './delete-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
+
+async function createGenre(
+  data: GenreConstructorParams,
+  accountId: number,
+  dbConnection: IDrizzleConnection,
+) {
+  const createGenreCommand = new CreateGenreCommand(
+    new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreHistoryRepository(dbConnection),
+    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
+  )
+
+  const genre = await createGenreCommand.execute(data, accountId)
+
+  if (genre instanceof Error) {
+    expect.fail(`Failed to create genre: ${genre.message}`)
+  }
+
+  return genre
+}
 
 function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
   return {
@@ -38,12 +59,7 @@ test('should delete the genre', async ({ dbConnection }) => {
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(getTestGenre(), account.id)
+  const genre = await createGenre(getTestGenre(), account.id, dbConnection)
 
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
@@ -74,14 +90,10 @@ test('should create a genre history entry', async ({ dbConnection }) => {
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
   const pastDate = new Date('2000-01-01')
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const genre = await createGenreCommand.execute(
+  const genre = await createGenre(
     getTestGenre({ createdAt: pastDate, updatedAt: pastDate }),
     account.id,
+    dbConnection,
   )
 
   const beforeExecute = new Date()
@@ -127,19 +139,16 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const parent = await createGenreCommand.execute(getTestGenre({ name: 'Parent' }), account.id)
-  const child = await createGenreCommand.execute(
+  const parent = await createGenre(getTestGenre({ name: 'Parent' }), account.id, dbConnection)
+  const child = await createGenre(
     getTestGenre({ name: 'Child', parents: new Set([parent.id]) }),
     account.id,
+    dbConnection,
   )
-  const grandchild = await createGenreCommand.execute(
+  const grandchild = await createGenre(
     getTestGenre({ name: 'Grandchild', parents: new Set([child.id]) }),
     account.id,
+    dbConnection,
   )
 
   const deleteGenreCommand = new DeleteGenreCommand(
@@ -171,16 +180,12 @@ test('should create history entries for children that were moved', async ({ dbCo
 
   const pastDate = new Date('2000-01-01')
 
-  const createGenreCommand = new CreateGenreCommand(
-    new DrizzleGenreRepository(dbConnection),
-    new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
-  )
-  const parent = await createGenreCommand.execute(
+  const parent = await createGenre(
     getTestGenre({ name: 'Parent', createdAt: pastDate, updatedAt: pastDate }),
     account.id,
+    dbConnection,
   )
-  const child = await createGenreCommand.execute(
+  const child = await createGenre(
     getTestGenre({
       name: 'Child',
       parents: new Set([parent.id]),
@@ -188,8 +193,9 @@ test('should create history entries for children that were moved', async ({ dbCo
       updatedAt: pastDate,
     }),
     account.id,
+    dbConnection,
   )
-  const grandchild = await createGenreCommand.execute(
+  const grandchild = await createGenre(
     getTestGenre({
       name: 'Grandchild',
       parents: new Set([child.id]),
@@ -197,6 +203,7 @@ test('should create history entries for children that were moved', async ({ dbCo
       updatedAt: pastDate,
     }),
     account.id,
+    dbConnection,
   )
 
   const beforeExecute = new Date()
