@@ -13,7 +13,7 @@ import { LoginCommand } from './login'
 import { LogoutCommand } from './logout'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
-  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const sessionTokenHashRepo = new Sha256HashRepository()
 
   const logout = new LogoutCommand(sessionRepo, sessionTokenHashRepo)

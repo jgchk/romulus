@@ -3,16 +3,11 @@ import { eq } from 'drizzle-orm'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { sessions } from '$lib/server/db/schema'
 
-import { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
 import type { SessionRepository } from '../../domain/repositories/session'
 
 export class DrizzleSessionRepository implements SessionRepository {
-  constructor(
-    private db: IDrizzleConnection,
-    private secure: boolean,
-    private cookieName: string,
-  ) {}
+  constructor(private db: IDrizzleConnection) {}
 
   async findByTokenHash(tokenHash: string): Promise<Session | undefined> {
     const result = await this.db.query.sessions.findFirst({
@@ -57,25 +52,5 @@ export class DrizzleSessionRepository implements SessionRepository {
 
   async deleteAllForAccount(accountId: number): Promise<void> {
     await this.db.delete(sessions).where(eq(sessions.userId, accountId))
-  }
-
-  createCookie(session: { token: string; expiresAt: Date } | undefined): Cookie {
-    if (session === undefined) {
-      return new Cookie(this.cookieName, '', {
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 0,
-        path: '/',
-        secure: this.secure,
-      })
-    }
-
-    return new Cookie(this.cookieName, session.token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      expires: session.expiresAt,
-      path: '/',
-      secure: this.secure,
-    })
   }
 }

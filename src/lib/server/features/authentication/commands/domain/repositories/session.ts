@@ -1,4 +1,3 @@
-import type { Cookie } from '../entities/cookie'
 import type { Session } from '../entities/session'
 
 export type SessionRepository = {
@@ -8,6 +7,4 @@ export type SessionRepository = {
   save(session: Session): Promise<void>
   delete(tokenHash: string): Promise<void>
   deleteAllForAccount(accountId: number): Promise<void>
-
-  createCookie(session: { token: string; expiresAt: Date } | undefined): Cookie
 }

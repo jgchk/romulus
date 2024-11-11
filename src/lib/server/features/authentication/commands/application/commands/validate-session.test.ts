@@ -6,7 +6,6 @@ import { Sha256HashRepository } from '$lib/server/features/common/infrastructure
 import { test } from '../../../../../../../vitest-setup'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
-import { Cookie } from '../../domain/entities/cookie'
 import { Session } from '../../domain/entities/session'
 import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
@@ -17,7 +16,7 @@ import { ValidateSessionCommand } from './validate-session'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const sessionTokenHashRepo = new Sha256HashRepository()
   const sessionTokenGenerator = new CryptoTokenGenerator()
 
@@ -61,32 +60,20 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
 }
 
 describe('validateSession', () => {
-  test('should return undefined values when sessionToken is undefined', async ({
-    dbConnection,
-  }) => {
-    const { validateSession } = setupCommand({ dbConnection })
-
-    const result = await validateSession.execute(undefined)
-
-    expect(result.account).toBeUndefined()
-    expect(result.session).toBeUndefined()
-    expect(result.cookie).toBeUndefined()
-  })
-
-  test('should return cookie to clear session when session is not found', async ({
+  test('should return undefined account and session when session is not found', async ({
     dbConnection,
   }) => {
     const { validateSession } = setupCommand({ dbConnection })
 
     const result = await validateSession.execute('non_existent_session_id')
 
-    expect(result.account).toBeUndefined()
-    expect(result.session).toBeUndefined()
-    expect(result.cookie).toBeInstanceOf(Cookie)
-    expect(result.cookie?.value).toBe('')
+    expect(result).toEqual({
+      userAccount: undefined,
+      userSession: undefined,
+    })
   })
 
-  test('should return account, session, and new cookie when session is valid and just extended', async ({
+  test('should return account and session when session is valid and just extended', async ({
     dbConnection,
     withSystemTime,
   }) => {
@@ -100,15 +87,28 @@ describe('validateSession', () => {
 
     const result = await validateSession.execute(session.token)
 
-    expect(result.account).toBeDefined()
-    expect(result.account?.username).toBe('testuser')
-    expect(result.session).toBeDefined()
-    expect(result.session?.tokenHash).toBe(session.tokenHash)
-    expect(result.cookie).toBeInstanceOf(Cookie)
-    expect(result.cookie?.value).toBe(session.token)
+    expect(result).toEqual({
+      userAccount: {
+        id: account.id,
+        username: 'testuser',
+        permissions: new Set(),
+        genreRelevanceFilter: 0,
+        showRelevanceTags: false,
+        showTypeTags: true,
+        showNsfw: false,
+        darkMode: true,
+      },
+      userSession: {
+        status: 'refreshed',
+        token: session.token,
+        expiresAt: expect.any(Date) as Date,
+      },
+    })
+
+    expect(result.userSession?.expiresAt.getTime()).toBeGreaterThan(session.expiresAt.getTime())
   })
 
-  test('should return account and session without cookie when session is valid but not extended', async ({
+  test('should return account and session when session is valid but not extended', async ({
     dbConnection,
   }) => {
     const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
@@ -118,10 +118,21 @@ describe('validateSession', () => {
 
     const result = await validateSession.execute(session.token)
 
-    expect(result.account).toBeDefined()
-    expect(result.account?.username).toBe('testuser')
-    expect(result.session).toBeDefined()
-    expect(result.session?.tokenHash).toBe(session.tokenHash)
-    expect(result.cookie).toBeUndefined()
+    expect(result).toEqual({
+      userAccount: {
+        id: account.id,
+        username: 'testuser',
+        permissions: new Set(),
+        genreRelevanceFilter: 0,
+        showRelevanceTags: false,
+        showTypeTags: true,
+        showNsfw: false,
+        darkMode: true,
+      },
+      userSession: {
+        status: 'valid',
+        expiresAt: session.expiresAt,
+      },
+    })
   })
 })

@@ -8,6 +8,7 @@ import { LoginCommand } from '$lib/server/features/authentication/commands/appli
 import { LogoutCommand } from '$lib/server/features/authentication/commands/application/commands/logout'
 import { RegisterCommand } from '$lib/server/features/authentication/commands/application/commands/register'
 import { ResetPasswordCommand } from '$lib/server/features/authentication/commands/application/commands/reset-password'
+import { ValidateSessionCommand } from '$lib/server/features/authentication/commands/application/commands/validate-session'
 import { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
 import { DrizzleAccountRepository } from '$lib/server/features/authentication/commands/infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '$lib/server/features/authentication/commands/infrastructure/hash/bcrypt-hash-repository'
@@ -18,6 +19,7 @@ import { LoginController } from '$lib/server/features/authentication/commands/pr
 import { LogoutController } from '$lib/server/features/authentication/commands/presentation/controllers/logout'
 import { RegisterController } from '$lib/server/features/authentication/commands/presentation/controllers/register'
 import { ResetPasswordController } from '$lib/server/features/authentication/commands/presentation/controllers/reset-password'
+import { ValidateSessionController } from '$lib/server/features/authentication/commands/presentation/controllers/validate-session'
 import { CookieCreator } from '$lib/server/features/authentication/commands/presentation/cookie'
 import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
@@ -57,7 +59,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       new LoginController(
         new LoginCommand(
           new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new DrizzleSessionRepository(dbConnection),
           new BcryptHashRepository(),
           new Sha256HashRepository(),
           new CryptoTokenGenerator(),
@@ -65,16 +67,13 @@ export const handle: Handle = async ({ event, resolve }) => {
         new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
       ),
       new LogoutController(
-        new LogoutCommand(
-          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
-          new Sha256HashRepository(),
-        ),
+        new LogoutCommand(new DrizzleSessionRepository(dbConnection), new Sha256HashRepository()),
         new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
       ),
       new RegisterController(
         new RegisterCommand(
           new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new DrizzleSessionRepository(dbConnection),
           new BcryptHashRepository(),
           new Sha256HashRepository(),
           new CryptoTokenGenerator(),
@@ -84,11 +83,19 @@ export const handle: Handle = async ({ event, resolve }) => {
       new ResetPasswordController(
         new ResetPasswordCommand(
           new DrizzleAccountRepository(dbConnection),
-          new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+          new DrizzleSessionRepository(dbConnection),
           new DrizzlePasswordResetTokenRepository(dbConnection),
           new BcryptHashRepository(),
           new Sha256HashRepository(),
           new CryptoTokenGenerator(),
+        ),
+        new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
+      ),
+      new ValidateSessionController(
+        new ValidateSessionCommand(
+          new DrizzleAccountRepository(dbConnection),
+          new DrizzleSessionRepository(dbConnection),
+          new Sha256HashRepository(),
         ),
         new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE),
       ),
@@ -107,7 +114,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     authentication: {
       commands: new AuthenticationCommandService(
         new DrizzleAccountRepository(dbConnection),
-        new DrizzleSessionRepository(dbConnection, IS_SECURE, SESSION_COOKIE_NAME),
+        new DrizzleSessionRepository(dbConnection),
         new DrizzlePasswordResetTokenRepository(dbConnection),
         new BcryptHashRepository(),
         new Sha256HashRepository(),
@@ -156,7 +163,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   const { account, cookie } =
-    await event.locals.services.authentication.commands.validateSession(sessionToken)
+    await event.locals.controllers.authentication.validateSession(sessionToken)
 
   event.locals.user =
     account === undefined

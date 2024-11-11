@@ -1,10 +1,36 @@
 import type { HashRepository } from '$lib/server/features/common/domain/repositories/hash'
 
-import type { CreatedAccount } from '../../domain/entities/account'
-import type { Cookie } from '../../domain/entities/cookie'
-import type { Session } from '../../domain/entities/session'
+import type { Permission } from '../../domain/entities/account'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
+
+export type ValidateSessionResult =
+  | {
+      userAccount: {
+        id: number
+        username: string
+        permissions: Set<Permission>
+        genreRelevanceFilter: number
+        showRelevanceTags: boolean
+        showTypeTags: boolean
+        showNsfw: boolean
+        darkMode: boolean
+      }
+      userSession:
+        | {
+            status: 'valid'
+            expiresAt: Date
+          }
+        | {
+            status: 'refreshed'
+            token: string
+            expiresAt: Date
+          }
+    }
+  | {
+      userAccount: undefined
+      userSession: undefined
+    }
 
 export class ValidateSessionCommand {
   constructor(
@@ -13,49 +39,48 @@ export class ValidateSessionCommand {
     private sessionTokenHashRepo: HashRepository,
   ) {}
 
-  async execute(sessionToken: string | undefined): Promise<{
-    account: CreatedAccount | undefined
-    session: Session | undefined
-    cookie: Cookie | undefined
-  }> {
-    if (!sessionToken) {
-      return { account: undefined, session: undefined, cookie: undefined }
-    }
-
+  async execute(sessionToken: string): Promise<ValidateSessionResult> {
     const tokenHash = await this.sessionTokenHashRepo.hash(sessionToken)
 
     const session = await this.sessionRepo.findByTokenHash(tokenHash)
 
     if (!session) {
-      // Session was not found, clear the cookie
-      const cookie = this.sessionRepo.createCookie(undefined)
-      return { account: undefined, session: undefined, cookie }
+      return { userAccount: undefined, userSession: undefined }
     }
 
     const account = await this.accountRepo.findById(session.accountId)
     if (!account) {
-      // Session was found, but account was not, clear the cookie
-      const cookie = this.sessionRepo.createCookie(undefined)
-      return { account: undefined, session: undefined, cookie }
+      return { userAccount: undefined, userSession: undefined }
     }
 
     if (Date.now() >= session.expiresAt.getTime()) {
       await this.sessionRepo.delete(tokenHash)
-      const cookie = this.sessionRepo.createCookie(undefined)
-      return { account: undefined, session: undefined, cookie }
+      return { userAccount: undefined, userSession: undefined }
+    }
+
+    const accountOutput = {
+      id: account.id,
+      username: account.username,
+      permissions: account.permissions,
+      genreRelevanceFilter: account.genreRelevanceFilter,
+      showRelevanceTags: account.showRelevanceTags,
+      showTypeTags: account.showTypeTags,
+      showNsfw: account.showNsfw,
+      darkMode: account.darkMode,
     }
 
     if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
       session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
       await this.sessionRepo.save(session)
-      const cookie = this.sessionRepo.createCookie({
-        token: sessionToken,
-        expiresAt: session.expiresAt,
-      })
-      return { account, session, cookie }
+      return {
+        userAccount: accountOutput,
+        userSession: { status: 'refreshed', token: sessionToken, expiresAt: session.expiresAt },
+      }
     }
 
-    // Session was found and doesn't need updated
-    return { account, session, cookie: undefined }
+    return {
+      userAccount: accountOutput,
+      userSession: { status: 'valid', expiresAt: session.expiresAt },
+    }
   }
 }

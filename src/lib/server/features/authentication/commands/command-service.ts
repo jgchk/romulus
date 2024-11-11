@@ -104,7 +104,7 @@ export class AuthenticationCommandService {
     return this.validatePasswordResetTokenCommand.execute(verificationToken)
   }
 
-  validateSession(sessionToken: string | undefined) {
+  validateSession(sessionToken: string) {
     return this.validateSessionCommand.execute(sessionToken)
   }
 }

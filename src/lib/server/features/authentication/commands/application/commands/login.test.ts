@@ -17,7 +17,7 @@ async function setupCommand(options: {
   existingAccount?: { username: string; password: string }
 }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const passwordHashRepo = new BcryptHashRepository()
   const sessionTokenHashRepo = new Sha256HashRepository()
   const sessionTokenGenerator = new CryptoTokenGenerator()

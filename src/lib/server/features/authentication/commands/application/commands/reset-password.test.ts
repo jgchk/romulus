@@ -19,7 +19,7 @@ import { ResetPasswordCommand } from './reset-password'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
-  const sessionRepo = new DrizzleSessionRepository(options.dbConnection, false, 'auth_session')
+  const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const passwordResetTokenRepo = new DrizzlePasswordResetTokenRepository(options.dbConnection)
   const passwordHashRepo = new BcryptHashRepository()
   const sessionTokenHashRepo = new Sha256HashRepository()
