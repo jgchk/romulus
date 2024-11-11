@@ -10,16 +10,16 @@ import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
-import type { GenreConstructorParams, GenreUpdate } from '../../domain/genre'
+import type { GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
-import { CreateGenreCommand } from './create-genre'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 async function createGenre(
-  data: GenreConstructorParams,
+  data: CreateGenreInput,
   accountId: number,
   dbConnection: IDrizzleConnection,
 ) {
@@ -38,7 +38,7 @@ async function createGenre(
   return genre
 }
 
-function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
+function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
   return {
     name: 'Test',
     type: 'STYLE',

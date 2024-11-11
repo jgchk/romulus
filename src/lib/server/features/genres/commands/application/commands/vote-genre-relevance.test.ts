@@ -7,15 +7,14 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { test } from '../../../../../../../vitest-setup'
 import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreRelevanceVotesByGenreQuery } from '../../../queries/application/get-genre-relevance-votes-by-genre'
-import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
-import { CreateGenreCommand } from './create-genre'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 async function createGenre(
-  data: GenreConstructorParams,
+  data: CreateGenreInput,
   accountId: number,
   dbConnection: IDrizzleConnection,
 ) {
@@ -34,7 +33,7 @@ async function createGenre(
   return genre
 }
 
-function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
+function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
   return {
     name: 'Test',
     type: 'STYLE',

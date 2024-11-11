@@ -1,5 +1,4 @@
 import { GenreCycleError } from './errors/genre-cycle'
-import type { Genre } from './genre'
 
 export class GenreTree {
   map: Map<number, GenreTreeNode>
@@ -8,9 +7,8 @@ export class GenreTree {
     this.map = new Map(nodes.map((node) => [node.id, node]))
   }
 
-  insertGenre(genre: Genre): GenreCycleError | undefined {
-    const id = -1
-    this.map.set(id, new GenreTreeNode(id, genre.name, genre.parents))
+  insertGenre(id: number, name: string, parents: Set<number>): GenreCycleError | undefined {
+    this.map.set(id, new GenreTreeNode(id, name, parents))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -18,8 +16,8 @@ export class GenreTree {
     }
   }
 
-  updateGenre(id: number, genre: Genre): GenreCycleError | undefined {
-    this.map.set(id, new GenreTreeNode(id, genre.name, genre.parents))
+  updateGenre(id: number, name: string, parents: Set<number>): GenreCycleError | undefined {
+    this.map.set(id, new GenreTreeNode(id, name, parents))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -35,6 +33,11 @@ export class GenreTree {
     if (cycle) {
       return new GenreCycleError(cycle)
     }
+  }
+
+  getParents(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.parents ?? new Set()
   }
 
   private moveGenreChildrenUnderParents(id: number) {

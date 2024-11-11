@@ -1,8 +1,8 @@
-import type { CreateGenreCommand } from './application/commands/create-genre'
+import type { CreateGenreCommand, CreateGenreInput } from './application/commands/create-genre'
 import type { DeleteGenreCommand } from './application/commands/delete-genre'
 import type { UpdateGenreCommand } from './application/commands/update-genre'
 import type { VoteGenreRelevanceCommand } from './application/commands/vote-genre-relevance'
-import type { GenreConstructorParams, GenreUpdate } from './domain/genre'
+import type { GenreUpdate } from './domain/genre'
 
 export class GenreCommandService {
   constructor(
@@ -12,7 +12,7 @@ export class GenreCommandService {
     private voteGenreRelevanceCommand: VoteGenreRelevanceCommand,
   ) {}
 
-  async createGenre(data: GenreConstructorParams, accountId: number) {
+  async createGenre(data: CreateGenreInput, accountId: number) {
     return this.createGenreCommand.execute(data, accountId)
   }
 

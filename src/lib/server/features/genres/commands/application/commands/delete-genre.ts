@@ -20,6 +20,9 @@ export class DeleteGenreCommand {
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
+
+    const genreParentsBeforeDeletion = genreTree.getParents(id)
+
     const childrenIds = genreTree.getGenreChildren(id)
     const treeError = genreTree.deleteGenre(id)
     if (treeError) {
@@ -30,7 +33,13 @@ export class DeleteGenreCommand {
 
     await this.genreRepo.delete(id)
 
-    const genreHistory = GenreHistory.fromGenre(id, genre, 'DELETE', accountId)
+    const genreHistory = GenreHistory.fromGenre(
+      id,
+      genre,
+      genreParentsBeforeDeletion,
+      'DELETE',
+      accountId,
+    )
     await this.genreHistoryRepo.create(genreHistory)
 
     // save genre history for all children
@@ -39,7 +48,13 @@ export class DeleteGenreCommand {
         const child = await this.genreRepo.findById(childId)
         if (!child) return
 
-        const childHistory = GenreHistory.fromGenre(childId, child, 'UPDATE', accountId)
+        const childHistory = GenreHistory.fromGenre(
+          childId,
+          child,
+          genreTree.getParents(childId),
+          'UPDATE',
+          accountId,
+        )
         await this.genreHistoryRepo.create(childHistory)
       }),
     )

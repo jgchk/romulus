@@ -14,7 +14,6 @@ export class DrizzleGenreRepository implements GenreRepository {
     const entry = await this.db.query.genres.findFirst({
       where: (genres, { eq }) => eq(genres.id, id),
       with: {
-        parents: { columns: { parentId: true } },
         influencedBy: { columns: { influencerId: true } },
         akas: {
           columns: { name: true, relevance: true },
@@ -24,7 +23,6 @@ export class DrizzleGenreRepository implements GenreRepository {
     })
     if (!entry) return
 
-    const parents = new Set(entry.parents.map((p) => p.parentId))
     const influences = new Set(entry.influencedBy.map((i) => i.influencerId))
 
     const akas: { primary: string[]; secondary: string[]; tertiary: string[] } = {
@@ -51,7 +49,6 @@ export class DrizzleGenreRepository implements GenreRepository {
       shortDescription: entry.shortDescription ?? undefined,
       longDescription: entry.longDescription ?? undefined,
       notes: entry.notes ?? undefined,
-      parents,
       influences,
       akas,
       relevance: entry.relevance,
@@ -100,15 +97,6 @@ export class DrizzleGenreRepository implements GenreRepository {
         await tx.insert(genreAkas).values(akas)
       }
 
-      if (genre.parents.size > 0) {
-        await tx.insert(genreParents).values(
-          [...genre.parents].map((parentId) => ({
-            parentId,
-            childId: id,
-          })),
-        )
-      }
-
       if (genre.influences.size > 0) {
         await tx.insert(genreInfluences).values(
           [...genre.influences].map((influencerId) => ({
@@ -147,16 +135,6 @@ export class DrizzleGenreRepository implements GenreRepository {
       ]
       if (akas.length > 0) {
         await tx.insert(genreAkas).values(akas)
-      }
-
-      await tx.delete(genreParents).where(eq(genreParents.childId, id))
-      if (genre.parents.size > 0) {
-        await tx.insert(genreParents).values(
-          [...genre.parents].map((parentId) => ({
-            parentId,
-            childId: id,
-          })),
-        )
       }
 
       await tx.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))

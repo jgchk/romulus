@@ -27,6 +27,7 @@ export class GenreHistory {
   static fromGenre(
     id: number,
     genre: Genre,
+    parents: Set<number>,
     operation: 'CREATE' | 'UPDATE' | 'DELETE',
     accountId: number,
   ) {
@@ -38,7 +39,7 @@ export class GenreHistory {
       genre.shortDescription,
       genre.longDescription,
       genre.notes,
-      genre.parents,
+      parents,
       genre.influences,
       genre.akas,
       id,

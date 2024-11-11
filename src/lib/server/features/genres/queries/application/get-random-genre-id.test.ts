@@ -5,16 +5,18 @@ import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../vitest-setup'
-import { CreateGenreCommand } from '../../commands/application/commands/create-genre'
+import {
+  CreateGenreCommand,
+  type CreateGenreInput,
+} from '../../commands/application/commands/create-genre'
 import { VoteGenreRelevanceCommand } from '../../commands/application/commands/vote-genre-relevance'
-import type { GenreConstructorParams } from '../../commands/domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../commands/infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/genre-history/drizzle-genre-history-repository'
 import { GetRandomGenreIdQuery } from './get-random-genre-id'
 
 async function createGenre(
-  data: GenreConstructorParams,
+  data: CreateGenreInput,
   accountId: number,
   dbConnection: IDrizzleConnection,
 ) {
@@ -33,7 +35,7 @@ async function createGenre(
   return genre
 }
 
-function getTestGenre(data?: Partial<GenreConstructorParams>): GenreConstructorParams {
+function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
   return {
     name: 'Test',
     type: 'STYLE',

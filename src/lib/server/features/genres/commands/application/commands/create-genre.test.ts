@@ -8,11 +8,10 @@ import { test } from '../../../../../../../vitest-setup'
 import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import { GetGenreRelevanceVoteByAccountQuery } from '../../../queries/application/get-genre-relevance-vote-by-account'
-import type { GenreConstructorParams } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
-import { CreateGenreCommand } from './create-genre'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 function setup(dbConnection: IDrizzleConnection) {
@@ -26,7 +25,7 @@ function setup(dbConnection: IDrizzleConnection) {
 }
 
 test('should return the created genre id', async ({ dbConnection }) => {
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',
@@ -69,7 +68,7 @@ test('should return the created genre id', async ({ dbConnection }) => {
 })
 
 test('should insert the genre into the database', async ({ dbConnection }) => {
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',
@@ -141,7 +140,7 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
 })
 
 test('should map AKAs correctly', async ({ dbConnection }) => {
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',
@@ -214,7 +213,7 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
 
 test('should insert a history entry', async ({ dbConnection }) => {
   const pastDate = new Date('2000-01-01')
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',
@@ -286,7 +285,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
 })
 
 test('should insert a relevance vote when relevance is set', async ({ dbConnection }) => {
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',
@@ -344,7 +343,7 @@ test('should insert a relevance vote when relevance is set', async ({ dbConnecti
 })
 
 test('should not insert a relevance vote when relevance is unset', async ({ dbConnection }) => {
-  const genreData: GenreConstructorParams = {
+  const genreData: CreateGenreInput = {
     name: 'Test',
     subtitle: undefined,
     type: 'STYLE',

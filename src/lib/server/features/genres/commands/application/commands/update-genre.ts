@@ -30,20 +30,34 @@ export class UpdateGenreCommand {
       return updatedGenre
     }
 
+    const genreTree = await this.genreRepo.getGenreTree()
+
     const lastGenreHistory = await this.genreHistoryRepo.findLatestByGenreId(id)
-    if (lastGenreHistory && !updatedGenre.isChangedFrom(lastGenreHistory)) {
+    if (
+      lastGenreHistory &&
+      !updatedGenre.isChangedFrom(data.parents ?? genreTree.getParents(id), lastGenreHistory)
+    ) {
       return
     }
 
-    const genreTree = await this.genreRepo.getGenreTree()
-    const treeError = genreTree.updateGenre(id, updatedGenre)
-    if (treeError) {
-      return treeError
+    if (data.parents) {
+      const treeError = genreTree.updateGenre(id, updatedGenre.name, data.parents)
+      if (treeError) {
+        return treeError
+      }
     }
 
     await this.genreRepo.save(updatedGenre)
 
-    const genreHistory = GenreHistory.fromGenre(id, updatedGenre, 'UPDATE', accountId)
+    await this.genreRepo.saveGenreTree(genreTree)
+
+    const genreHistory = GenreHistory.fromGenre(
+      id,
+      updatedGenre,
+      genreTree.getParents(id),
+      'UPDATE',
+      accountId,
+    )
     await this.genreHistoryRepo.create(genreHistory)
   }
 }

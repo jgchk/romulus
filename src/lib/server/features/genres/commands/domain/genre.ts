@@ -21,7 +21,7 @@ export type GenreUpdate = {
   }
 }
 
-export type GenreConstructorParams = {
+type GenreConstructorParams = {
   id?: number
   name: string
   subtitle?: string
@@ -30,7 +30,6 @@ export type GenreConstructorParams = {
   shortDescription?: string
   longDescription?: string
   notes?: string
-  parents: Set<number>
   influences: Set<number>
   akas: {
     primary: string[]
@@ -51,7 +50,6 @@ export class Genre {
   readonly shortDescription: string | undefined
   readonly longDescription: string | undefined
   readonly notes: string | undefined
-  readonly parents: Set<number>
   readonly influences: Set<number>
   readonly akas: {
     readonly primary: string[]
@@ -71,7 +69,6 @@ export class Genre {
     this.shortDescription = params.shortDescription
     this.longDescription = params.longDescription
     this.notes = params.notes
-    this.parents = new Set(params.parents)
     this.influences = new Set(params.influences)
     this.akas = {
       primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
@@ -135,7 +132,6 @@ export class Genre {
           ? this.longDescription
           : (data.longDescription ?? undefined),
       notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
-      parents: data.parents ?? this.parents,
       influences: data.influences ?? this.influences,
       akas: {
         primary: data.akas?.primary ?? this.akas.primary,
@@ -148,7 +144,7 @@ export class Genre {
     })
   }
 
-  isChangedFrom(genreHistory: GenreHistory): boolean {
+  isChangedFrom(parents: Set<number>, genreHistory: GenreHistory): boolean {
     return (
       this.name !== genreHistory.name ||
       this.subtitle !== genreHistory.subtitle ||
@@ -157,7 +153,7 @@ export class Genre {
       this.shortDescription !== genreHistory.shortDescription ||
       this.longDescription !== genreHistory.longDescription ||
       this.notes !== genreHistory.notes ||
-      !equals(this.parents, genreHistory.parents) ||
+      !equals(parents, genreHistory.parents) ||
       !equals(this.influences, genreHistory.influences) ||
       !equals(this.akas, genreHistory.akas)
     )
