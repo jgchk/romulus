@@ -46,7 +46,8 @@
       if (!genre) return false
 
       const hasChildren = genre.children.length > 0
-      return hasChildren
+      const hasDerivations = genre.derivations.length > 0
+      return hasChildren || hasDerivations
     }),
   )
 
