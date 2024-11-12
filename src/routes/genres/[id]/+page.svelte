@@ -32,6 +32,7 @@
   let isVoting = $state(false)
   let showNotes = $state(false)
   let isDeleting = $state(false)
+  let isDeleteLoading = $state(false)
 
   const user = getUserContext()
   const userSettings = getUserSettingsContext()
@@ -339,8 +340,26 @@
     on:close={() => (isDeleting = false)}
   >
     {#snippet buttons()}
-      <form method="POST" action="?/delete" use:enhance>
-        <Button kind="solid" color="error" type="submit">Delete</Button>
+      <form
+        method="POST"
+        action="?/delete"
+        use:enhance={() => {
+          isDeleteLoading = true
+
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          return async ({ update }) => {
+            await update()
+            isDeleteLoading = false
+          }
+        }}
+      >
+        <Button
+          kind="solid"
+          color="error"
+          type="submit"
+          loading={isDeleteLoading}
+          disabled={isDeleteLoading}>Delete</Button
+        >
       </form>
       <Button kind="text" onClick={() => (isDeleting = false)}>Cancel</Button>
     {/snippet}
