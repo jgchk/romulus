@@ -1,7 +1,6 @@
 import type { DerivedChildError } from '../../domain/errors/derived-child'
 import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
-import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import { Genre } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
@@ -48,7 +47,6 @@ export class CreateGenreCommand {
     | DuplicateAkaError
     | DerivedChildError
     | DerivedInfluenceError
-    | GenreCycleError
   > {
     const genre = Genre.create(data)
 

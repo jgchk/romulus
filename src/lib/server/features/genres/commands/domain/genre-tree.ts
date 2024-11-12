@@ -18,7 +18,7 @@ export class GenreTree {
     parents: Set<number>,
     derivedFrom: Set<number>,
     influences: Set<number>,
-  ): GenreCycleError | DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
+  ): DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
       return new DerivedChildError(id)
@@ -35,11 +35,6 @@ export class GenreTree {
     }
 
     this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'created'))
-
-    const cycle = this.findCycle()
-    if (cycle) {
-      return new GenreCycleError(cycle)
-    }
   }
 
   updateGenre(
