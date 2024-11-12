@@ -222,7 +222,7 @@
         </div>
       </div>
 
-      {#if previousHistory?.akas.length ?? currentHistory.akas.length}
+      {#if !!previousHistory?.akas.length || !!currentHistory.akas.length}
         <div class={cn(!changed.akas && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.akas))}>AKAs</Label>
           <div class="text-sm" data-testid="genre-diff-akas">
@@ -238,7 +238,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.parentGenreIds?.length ?? currentHistory.parentGenreIds?.length}
+      {#if !!previousHistory?.parentGenreIds?.length || !!currentHistory.parentGenreIds?.length}
         <div class={cn(!changed.parentGenreIds && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.parentGenreIds))}>Parents</Label>
           <div class="text-sm" data-testid="genre-diff-parents">
@@ -303,7 +303,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.derivedFromGenreIds?.length ?? currentHistory.derivedFromGenreIds?.length}
+      {#if !!previousHistory?.derivedFromGenreIds?.length || !!currentHistory.derivedFromGenreIds?.length}
         <div class={cn(!changed.derivedFromGenreIds && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.derivedFromGenreIds))}>Derives</Label>
           <div class="text-sm" data-testid="genre-diff-derives">
@@ -371,7 +371,7 @@
         </div>
       {/if}
 
-      {#if previousHistory?.influencedByGenreIds?.length ?? currentHistory.influencedByGenreIds?.length}
+      {#if !!previousHistory?.influencedByGenreIds?.length || !!currentHistory.influencedByGenreIds?.length}
         <div class={cn(!changed.influencedByGenreIds && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.influencedByGenreIds))}
             >Influences</Label
