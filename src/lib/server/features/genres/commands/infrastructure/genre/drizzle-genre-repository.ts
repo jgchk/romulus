@@ -29,8 +29,6 @@ export class DrizzleGenreRepository implements GenreRepository {
     })
     if (!entry) return
 
-    const influences = new Set(entry.influencedBy.map((i) => i.influencerId))
-
     const akas: { primary: string[]; secondary: string[]; tertiary: string[] } = {
       primary: [],
       secondary: [],
@@ -55,7 +53,6 @@ export class DrizzleGenreRepository implements GenreRepository {
       shortDescription: entry.shortDescription ?? undefined,
       longDescription: entry.longDescription ?? undefined,
       notes: entry.notes ?? undefined,
-      influences,
       akas,
       relevance: entry.relevance,
       createdAt: entry.createdAt,
@@ -103,15 +100,6 @@ export class DrizzleGenreRepository implements GenreRepository {
         await tx.insert(genreAkas).values(akas)
       }
 
-      if (genre.influences.size > 0) {
-        await tx.insert(genreInfluences).values(
-          [...genre.influences].map((influencerId) => ({
-            influencerId,
-            influencedId: id,
-          })),
-        )
-      }
-
       return { id }
     })
   }
@@ -142,16 +130,6 @@ export class DrizzleGenreRepository implements GenreRepository {
       if (akas.length > 0) {
         await tx.insert(genreAkas).values(akas)
       }
-
-      await tx.delete(genreInfluences).where(eq(genreInfluences.influencedId, id))
-      if (genre.influences.size > 0) {
-        await tx.insert(genreInfluences).values(
-          [...genre.influences].map((influencerId) => ({
-            influencerId,
-            influencedId: id,
-          })),
-        )
-      }
     })
 
     return { id }
@@ -170,6 +148,7 @@ export class DrizzleGenreRepository implements GenreRepository {
       with: {
         parents: { columns: { parentId: true } },
         derivedFrom: { columns: { derivedFromId: true } },
+        influencedBy: { columns: { influencerId: true } },
       },
     })
 
@@ -179,6 +158,7 @@ export class DrizzleGenreRepository implements GenreRepository {
         name: node.name,
         parents: new Set(node.parents.map((p) => p.parentId)),
         derivedFrom: new Set(node.derivedFrom.map((df) => df.derivedFromId)),
+        influences: new Set(node.influencedBy.map((i) => i.influencerId)),
       })),
     )
 
@@ -188,22 +168,27 @@ export class DrizzleGenreRepository implements GenreRepository {
   async saveGenreTree(genreTree: GenreTree): Promise<void> {
     await this.db.transaction(async (tx) => {
       await tx.delete(genreParents)
-      await tx.delete(genreDerivedFrom)
-
       const parentChildNodes = [...genreTree.map.values()].flatMap((node) =>
         [...node.parents].map((parentId) => ({ parentId, childId: node.id })),
       )
-
       if (parentChildNodes.length > 0) {
         await tx.insert(genreParents).values(parentChildNodes)
       }
 
+      await tx.delete(genreDerivedFrom)
       const derivedFromNodes = [...genreTree.map.values()].flatMap((node) =>
         [...node.derivedFrom].map((derivedFromId) => ({ derivedFromId, derivationId: node.id })),
       )
-
       if (derivedFromNodes.length > 0) {
         await tx.insert(genreDerivedFrom).values(derivedFromNodes)
+      }
+
+      await tx.delete(genreInfluences)
+      const influenceNodes = [...genreTree.map.values()].flatMap((node) =>
+        [...node.influences].map((influencerId) => ({ influencerId, influencedId: node.id })),
+      )
+      if (influenceNodes.length > 0) {
+        await tx.insert(genreInfluences).values(influenceNodes)
       }
     })
   }

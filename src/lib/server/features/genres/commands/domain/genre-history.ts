@@ -30,6 +30,7 @@ export class GenreHistory {
     genre: Genre,
     parents: Set<number>,
     derivedFrom: Set<number>,
+    influences: Set<number>,
     operation: 'CREATE' | 'UPDATE' | 'DELETE',
     accountId: number,
   ) {
@@ -43,7 +44,7 @@ export class GenreHistory {
       genre.notes,
       parents,
       derivedFrom,
-      genre.influences,
+      influences,
       genre.akas,
       id,
       new Date(),

@@ -1,7 +1,6 @@
 import { equals } from 'ramda'
 
 import { DuplicateAkaError } from './errors/duplicate-aka'
-import { SelfInfluenceError } from './errors/self-influence'
 import type { GenreHistory } from './genre-history'
 
 export type GenreUpdate = {
@@ -31,7 +30,6 @@ type GenreConstructorParams = {
   shortDescription?: string
   longDescription?: string
   notes?: string
-  influences: Set<number>
   akas: {
     primary: string[]
     secondary: string[]
@@ -51,7 +49,6 @@ export class Genre {
   readonly shortDescription: string | undefined
   readonly longDescription: string | undefined
   readonly notes: string | undefined
-  readonly influences: Set<number>
   readonly akas: {
     readonly primary: string[]
     readonly secondary: string[]
@@ -70,7 +67,6 @@ export class Genre {
     this.shortDescription = params.shortDescription
     this.longDescription = params.longDescription
     this.notes = params.notes
-    this.influences = new Set(params.influences)
     this.akas = {
       primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
       secondary: [
@@ -83,12 +79,8 @@ export class Genre {
     this.updatedAt = new Date(params.updatedAt)
   }
 
-  static create(params: GenreConstructorParams): Genre | SelfInfluenceError | DuplicateAkaError {
+  static create(params: GenreConstructorParams): Genre | DuplicateAkaError {
     const genre = new Genre(params)
-
-    if (genre.hasSelfInfluence()) {
-      return new SelfInfluenceError()
-    }
 
     const duplicateAkaError = genre.checkDuplicateAkas()
     if (duplicateAkaError) {
@@ -96,11 +88,6 @@ export class Genre {
     }
 
     return genre
-  }
-
-  private hasSelfInfluence(): boolean {
-    if (this.id === undefined) return false
-    return this.influences.has(this.id)
   }
 
   private checkDuplicateAkas(): DuplicateAkaError | undefined {
@@ -133,7 +120,6 @@ export class Genre {
           ? this.longDescription
           : (data.longDescription ?? undefined),
       notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
-      influences: data.influences ?? this.influences,
       akas: {
         primary: data.akas?.primary ?? this.akas.primary,
         secondary: data.akas?.secondary ?? this.akas.secondary,
@@ -148,6 +134,7 @@ export class Genre {
   isChangedFrom(
     parents: Set<number>,
     derivedFrom: Set<number>,
+    influences: Set<number>,
     genreHistory: GenreHistory,
   ): boolean {
     return (
@@ -160,7 +147,7 @@ export class Genre {
       this.notes !== genreHistory.notes ||
       !equals(parents, genreHistory.parents) ||
       !equals(derivedFrom, genreHistory.derivedFrom) ||
-      !equals(this.influences, genreHistory.influences) ||
+      !equals(influences, genreHistory.influences) ||
       !equals(this.akas, genreHistory.akas)
     )
   }

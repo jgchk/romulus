@@ -23,6 +23,7 @@ export class DeleteGenreCommand {
 
     const genreParentsBeforeDeletion = genreTree.getParents(id)
     const genreDerivedFromBeforeDeletion = genreTree.getDerivedFrom(id)
+    const genreInfluencesBeforeDeletion = genreTree.getInfluences(id)
 
     const childrenIds = genreTree.getGenreChildren(id)
     const treeError = genreTree.deleteGenre(id)
@@ -39,6 +40,7 @@ export class DeleteGenreCommand {
       genre,
       genreParentsBeforeDeletion,
       genreDerivedFromBeforeDeletion,
+      genreInfluencesBeforeDeletion,
       'DELETE',
       accountId,
     )
@@ -55,6 +57,7 @@ export class DeleteGenreCommand {
           child,
           genreTree.getParents(childId),
           genreTree.getDerivedFrom(childId),
+          genreTree.getInfluences(childId),
           'UPDATE',
           accountId,
         )

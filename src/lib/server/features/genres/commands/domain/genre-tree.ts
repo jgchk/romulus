@@ -2,6 +2,7 @@ import { intersection } from 'ramda'
 
 import { DerivedChildError } from './errors/derived-child'
 import { GenreCycleError } from './errors/genre-cycle'
+import { SelfInfluenceError } from './errors/self-influence'
 
 export class GenreTree {
   map: Map<number, GenreTreeNode>
@@ -15,13 +16,19 @@ export class GenreTree {
     name: string,
     parents: Set<number>,
     derivedFrom: Set<number>,
-  ): GenreCycleError | DerivedChildError | undefined {
+    influences: Set<number>,
+  ): GenreCycleError | DerivedChildError | SelfInfluenceError | undefined {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
       return new DerivedChildError(id)
     }
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
+    const influencesSelf = influences.has(id)
+    if (influencesSelf) {
+      return new SelfInfluenceError()
+    }
+
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -34,13 +41,19 @@ export class GenreTree {
     name: string,
     parents: Set<number>,
     derivedFrom: Set<number>,
-  ): GenreCycleError | DerivedChildError | undefined {
+    influences: Set<number>,
+  ): GenreCycleError | DerivedChildError | SelfInfluenceError | undefined {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
       return new DerivedChildError(id)
     }
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
+    const influencesSelf = influences.has(id)
+    if (influencesSelf) {
+      return new SelfInfluenceError()
+    }
+
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -66,6 +79,11 @@ export class GenreTree {
   getDerivedFrom(id: number): Set<number> {
     const genre = this.map.get(id)
     return genre?.derivedFrom ?? new Set()
+  }
+
+  getInfluences(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.influences ?? new Set()
   }
 
   private moveGenreChildrenUnderParents(id: number) {
@@ -139,5 +157,6 @@ class GenreTreeNode {
     public name: string,
     public parents: Set<number>,
     public derivedFrom: Set<number>,
+    public influences: Set<number>,
   ) {}
 }

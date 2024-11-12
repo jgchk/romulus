@@ -51,7 +51,13 @@ export class CreateGenreCommand {
     const { id } = await this.genreRepo.save(genre)
 
     const genreTree = await this.genreRepo.getGenreTree()
-    const treeError = genreTree.insertGenre(id, genre.name, data.parents, data.derivedFrom)
+    const treeError = genreTree.insertGenre(
+      id,
+      genre.name,
+      data.parents,
+      data.derivedFrom,
+      data.influences,
+    )
     if (treeError) {
       await this.genreRepo.delete(id)
       return treeError
@@ -64,6 +70,7 @@ export class CreateGenreCommand {
       genre,
       data.parents,
       data.derivedFrom,
+      data.influences,
       'CREATE',
       accountId,
     )
