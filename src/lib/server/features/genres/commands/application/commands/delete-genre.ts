@@ -2,11 +2,13 @@ import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
+import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 
 export class DeleteGenreCommand {
   constructor(
     private genreRepo: GenreRepository,
+    private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
   ) {}
 
@@ -19,7 +21,7 @@ export class DeleteGenreCommand {
       return new GenreNotFoundError()
     }
 
-    const genreTree = await this.genreRepo.getGenreTree()
+    const genreTree = await this.genreTreeRepo.get()
 
     const genreParentsBeforeDeletion = genreTree.getParents(id)
     const genreDerivedFromBeforeDeletion = genreTree.getDerivedFrom(id)
@@ -28,7 +30,7 @@ export class DeleteGenreCommand {
     const childrenIds = genreTree.getGenreChildren(id)
     genreTree.deleteGenre(id)
 
-    await this.genreRepo.saveGenreTree(genreTree)
+    await this.genreTreeRepo.save(genreTree)
 
     await this.genreRepo.delete(id)
 

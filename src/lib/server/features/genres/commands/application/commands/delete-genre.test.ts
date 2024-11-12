@@ -8,6 +8,7 @@ import { test } from '../../../../../../../vitest-setup'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
@@ -22,6 +23,7 @@ async function createGenre(
 ) {
   const createGenreCommand = new CreateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
     new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
@@ -63,6 +65,7 @@ test('should delete the genre', async ({ dbConnection }) => {
 
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -79,6 +82,7 @@ test('should throw NotFoundError if genre not found', async ({ dbConnection }) =
 
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -101,6 +105,7 @@ test('should create a genre history entry', async ({ dbConnection }) => {
   const beforeExecute = new Date()
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -156,6 +161,7 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
 
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -212,6 +218,7 @@ test('should create history entries for children that were moved', async ({ dbCo
   const beforeExecute = new Date()
   const deleteGenreCommand = new DeleteGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 

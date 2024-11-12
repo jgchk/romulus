@@ -8,6 +8,7 @@ import { test } from '../../../../../../../vitest-setup'
 import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreRelevanceVotesByGenreQuery } from '../../../queries/application/get-genre-relevance-votes-by-genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
@@ -20,6 +21,7 @@ async function createGenre(
 ) {
   const createGenreCommand = new CreateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
     new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )

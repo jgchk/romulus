@@ -7,11 +7,13 @@ import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
+import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 
 export class UpdateGenreCommand {
   constructor(
     private genreRepo: GenreRepository,
+    private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
   ) {}
 
@@ -38,7 +40,7 @@ export class UpdateGenreCommand {
       return updatedGenre
     }
 
-    const genreTree = await this.genreRepo.getGenreTree()
+    const genreTree = await this.genreTreeRepo.get()
     const genreParents = data.parents ?? genreTree.getParents(id)
     const genreDerivedFrom = data.derivedFrom ?? genreTree.getDerivedFrom(id)
     const genreInfluences = data.influences ?? genreTree.getInfluences(id)
@@ -64,7 +66,7 @@ export class UpdateGenreCommand {
 
     await this.genreRepo.save(updatedGenre)
 
-    await this.genreRepo.saveGenreTree(genreTree)
+    await this.genreTreeRepo.save(genreTree)
 
     const genreHistory = GenreHistory.fromGenre(
       id,

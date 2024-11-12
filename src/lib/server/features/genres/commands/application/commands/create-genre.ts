@@ -7,6 +7,7 @@ import { Genre } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
+import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
 import type { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 export type CreateGenreInput = {
@@ -33,6 +34,7 @@ export type CreateGenreInput = {
 export class CreateGenreCommand {
   constructor(
     private genreRepo: GenreRepository,
+    private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
     private voteGenreRelevanceCommand: VoteGenreRelevanceCommand,
   ) {}
@@ -56,7 +58,7 @@ export class CreateGenreCommand {
 
     const { id } = await this.genreRepo.save(genre)
 
-    const genreTree = await this.genreRepo.getGenreTree()
+    const genreTree = await this.genreTreeRepo.get()
     const treeError = genreTree.insertGenre(
       id,
       genre.name,
@@ -69,7 +71,7 @@ export class CreateGenreCommand {
       return treeError
     }
 
-    await this.genreRepo.saveGenreTree(genreTree)
+    await this.genreTreeRepo.save(genreTree)
 
     const genreHistory = GenreHistory.fromGenre(
       id,

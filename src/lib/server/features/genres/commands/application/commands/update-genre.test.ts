@@ -12,6 +12,7 @@ import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/genre/drizzle-genre-repository'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/genre-history/drizzle-genre-history-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
@@ -25,6 +26,7 @@ async function createGenre(
 ) {
   const createGenreCommand = new CreateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
     new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
@@ -82,6 +84,7 @@ test('should update the genre', async ({ dbConnection }) => {
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -134,6 +137,7 @@ test('should create a history entry', async ({ dbConnection }) => {
   const beforeExecute = new Date()
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -182,6 +186,7 @@ test('should return GenreNotFoundError if genre is not found', async ({ dbConnec
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -198,6 +203,7 @@ test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnec
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -223,6 +229,7 @@ test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnec
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -253,6 +260,7 @@ test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnec
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -273,6 +281,7 @@ test('should return SelfInfluenceError if genre influences itself', async ({ dbC
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
@@ -293,6 +302,7 @@ test('should not create a history entry if no changes are detected', async ({ db
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
+    new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
