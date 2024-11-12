@@ -31,6 +31,7 @@
 <SplitPane
   minSize={200}
   maxSize={windowWidth - 300}
+  defaultSize={leftPaneSize}
   class="h-full pt-0"
   on:resize={(e) => (leftPaneSize = e.detail)}
   onSmallScreenCollapseto={$page.url.pathname === '/genres' ? 'left' : 'right'}
