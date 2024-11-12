@@ -72,14 +72,9 @@ export class GenreTree {
     }
   }
 
-  deleteGenre(id: number): GenreCycleError | undefined {
+  deleteGenre(id: number): void {
     this.moveGenreChildrenUnderParents(id)
     this.map.delete(id)
-
-    const cycle = this.findCycle()
-    if (cycle) {
-      return new GenreCycleError(cycle)
-    }
   }
 
   getParents(id: number): Set<number> {

@@ -26,10 +26,7 @@ export class DeleteGenreCommand {
     const genreInfluencesBeforeDeletion = genreTree.getInfluences(id)
 
     const childrenIds = genreTree.getGenreChildren(id)
-    const treeError = genreTree.deleteGenre(id)
-    if (treeError) {
-      return treeError
-    }
+    genreTree.deleteGenre(id)
 
     await this.genreRepo.saveGenreTree(genreTree)
 
