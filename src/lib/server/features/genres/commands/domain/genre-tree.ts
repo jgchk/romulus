@@ -1,3 +1,6 @@
+import { intersection } from 'ramda'
+
+import { DerivedChildError } from './errors/derived-child'
 import { GenreCycleError } from './errors/genre-cycle'
 
 export class GenreTree {
@@ -12,7 +15,12 @@ export class GenreTree {
     name: string,
     parents: Set<number>,
     derivedFrom: Set<number>,
-  ): GenreCycleError | undefined {
+  ): GenreCycleError | DerivedChildError | undefined {
+    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
+    if (isDerivedAndChild) {
+      return new DerivedChildError(id)
+    }
+
     this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
 
     const cycle = this.findCycle()
@@ -26,7 +34,12 @@ export class GenreTree {
     name: string,
     parents: Set<number>,
     derivedFrom: Set<number>,
-  ): GenreCycleError | undefined {
+  ): GenreCycleError | DerivedChildError | undefined {
+    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
+    if (isDerivedAndChild) {
+      return new DerivedChildError(id)
+    }
+
     this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
 
     const cycle = this.findCycle()

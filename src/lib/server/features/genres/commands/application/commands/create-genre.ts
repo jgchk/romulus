@@ -1,3 +1,4 @@
+import type { DerivedChildError } from '../../domain/errors/derived-child'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
 import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -38,7 +39,9 @@ export class CreateGenreCommand {
   async execute(
     data: CreateGenreInput,
     accountId: number,
-  ): Promise<{ id: number } | SelfInfluenceError | DuplicateAkaError | GenreCycleError> {
+  ): Promise<
+    { id: number } | SelfInfluenceError | DuplicateAkaError | DerivedChildError | GenreCycleError
+  > {
     const genre = Genre.create(data)
 
     if (genre instanceof Error) {

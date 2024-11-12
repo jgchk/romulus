@@ -1,3 +1,4 @@
+import type { DerivedChildError } from '../../domain/errors/derived-child'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
 import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -18,7 +19,12 @@ export class UpdateGenreCommand {
     data: GenreUpdate,
     accountId: number,
   ): Promise<
-    undefined | GenreNotFoundError | SelfInfluenceError | DuplicateAkaError | GenreCycleError
+    | undefined
+    | GenreNotFoundError
+    | SelfInfluenceError
+    | DuplicateAkaError
+    | DerivedChildError
+    | GenreCycleError
   > {
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
