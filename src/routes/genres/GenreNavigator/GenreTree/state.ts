@@ -8,7 +8,7 @@ export type TreeGenre = Awaited<LayoutData['streamed']['genres']>[number]
 type TreeState = {
   genres: Map<number, TreeGenre>
   selectedId?: number
-  selectedPath?: number[]
+  selectedPath?: (number | 'derived')[]
   expanded: Set<string>
 }
 
@@ -30,7 +30,7 @@ const createTreeState = () => {
 
     setSelectedId: (id?: number) => update((n) => ({ ...n, selectedId: id })),
 
-    setSelectedPath: (path?: number[]) =>
+    setSelectedPath: (path?: (number | 'derived')[]) =>
       update((state) => {
         if (equals(state.selectedPath, path)) {
           return state
@@ -48,7 +48,7 @@ const createTreeState = () => {
         return { ...state, selectedPath: path, expanded: newExpanded }
       }),
 
-    setExpanded: (path: number[], expanded: boolean) =>
+    setExpanded: (path: (number | 'derived')[], expanded: boolean) =>
       update((n) => {
         const key = path.join('-')
         const updatedExpanded = new Set(n.expanded)

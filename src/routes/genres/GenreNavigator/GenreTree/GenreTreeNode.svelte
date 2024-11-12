@@ -16,7 +16,7 @@
 
   type Props = {
     id: number
-    path: number[]
+    path: (number | 'derived')[]
     treeRef: HTMLElement | undefined
   }
 
@@ -26,6 +26,10 @@
 
   let isSelected = $derived($treeState.selectedPath && equals($treeState.selectedPath, path))
   let isExpanded = $derived($treeState.expanded.has(path.join('-')))
+  let isExpandable = $derived(!!genre?.children.length || !!genre?.derivations.length)
+
+  let isDerivedExpandable = $derived(!!genre?.derivations.length)
+  let isDerivedExpanded = $derived($treeState.expanded.has([...path, 'derived'].join('-')))
 
   let ref: HTMLElement | undefined = $state()
   $effect(() => {
@@ -55,7 +59,7 @@
       <IconButton
         size="sm"
         tooltip={isExpanded ? 'Collapse' : 'Expand'}
-        class={cn('ml-1 flex-shrink-0 text-gray-500', genre.children.length === 0 && 'invisible')}
+        class={cn('ml-1 flex-shrink-0 text-gray-500', !isExpandable && 'invisible')}
         onClick={() => treeState.setExpanded(path, !isExpanded)}
       >
         <CaretRight class={cn('transition', isExpanded && 'rotate-90')} />
@@ -110,13 +114,45 @@
       </a>
     </div>
 
-    {#if isExpanded && genre.children.length > 0}
-      <ul transition:slide|local={{ axis: 'y' }}>
-        {#each genre.children as childId (childId)}
-          {@const childPath = [...path, childId]}
-          <GenreTreeNode id={childId} path={childPath} {treeRef} />
-        {/each}
-      </ul>
+    {#if isExpanded && isExpandable}
+      <div transition:slide|local={{ axis: 'y' }}>
+        {#if genre.children.length > 0}
+          <ul>
+            {#each genre.children as childId (childId)}
+              {@const childPath = [...path, childId]}
+              <GenreTreeNode id={childId} path={childPath} {treeRef} />
+            {/each}
+          </ul>
+        {/if}
+
+        <div class="ml-4">
+          <div class="flex">
+            <IconButton
+              size="sm"
+              tooltip={isDerivedExpanded ? 'Collapse' : 'Expand'}
+              class={cn('ml-1 flex-shrink-0 text-gray-500', !isDerivedExpandable && 'invisible')}
+              onClick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
+            >
+              <CaretRight class={cn('transition', isDerivedExpanded && 'rotate-90')} />
+            </IconButton>
+
+            <div
+              class="block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+            >
+              Derived Genres
+            </div>
+          </div>
+
+          {#if isDerivedExpanded && isDerivedExpandable}
+            <ul>
+              {#each genre.derivations as derivationId (derivationId)}
+                {@const derivationPath = [...path, 'derived' as const, derivationId]}
+                <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      </div>
     {/if}
   </li>
 {/if}

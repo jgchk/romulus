@@ -4,7 +4,7 @@ import type { TreeGenre } from './state'
 
 type TreeSearchNode = {
   id: number
-  path: number[]
+  path: (number | 'derived')[]
 }
 
 function treeBfs(tree: Map<number, TreeGenre>, fn: (node: TreeSearchNode) => boolean) {
@@ -23,20 +23,35 @@ function treeBfs(tree: Map<number, TreeGenre>, fn: (node: TreeSearchNode) => boo
       return currentNode
     } else {
       const currentGenre = tree.get(id)
+
       if (currentGenre) {
-        stack.push(
-          ...currentGenre.children.map((childId) => ({
-            id: childId,
-            path: [...path, childId],
-          })),
-        )
+        if (currentGenre.children.length > 0) {
+          stack.push(
+            ...currentGenre.children.map((childId) => ({
+              id: childId,
+              path: [...path, childId],
+            })),
+          )
+        }
+        if (currentGenre.derivations.length > 0) {
+          stack.push(
+            ...currentGenre.derivations.map((derivationId) => ({
+              id: derivationId,
+              path: [...path, 'derived' as const, derivationId],
+            })),
+          )
+        }
       }
       currentNode = stack.pop()
     }
   }
 }
 
-export function isPathValid(genres: Map<number, TreeGenre>, id: number, path: number[]) {
+export function isPathValid(
+  genres: Map<number, TreeGenre>,
+  id: number,
+  path: (number | 'derived')[],
+) {
   const existingNode = treeBfs(genres, (node) => node.id === id && equals(node.path, path))
   return existingNode !== undefined
 }
@@ -47,7 +62,7 @@ export function getNewPath(
   expanded: Set<string>,
   currentPath: number[] | undefined,
   newId: number,
-): { path: number[]; source: Source } | undefined {
+): { path: (number | 'derived')[]; source: Source } | undefined {
   // try to use an ancestor path
   if (currentPath) {
     const indexOfId = currentPath.indexOf(newId)

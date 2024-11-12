@@ -16,7 +16,9 @@
     treeState.setGenres(genres)
   })
 
-  let topLevelGenres = $derived(genres.filter((genre) => genre.parents.length === 0))
+  let topLevelGenres = $derived(
+    genres.filter((genre) => genre.parents.length === 0 && genre.derivedFrom.length === 0),
+  )
 
   $effect(() => {
     if ($treeState.selectedId !== undefined) {
