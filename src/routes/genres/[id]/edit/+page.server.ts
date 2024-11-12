@@ -82,29 +82,19 @@ export const actions: Actions = {
       },
     }
 
-    try {
-      const updateResult = await locals.services.genre.commands.updateGenre(
-        id,
-        genreUpdate,
-        user.id,
-      )
-      if (updateResult instanceof GenreNotFoundError) {
-        return error(404, { message: 'Genre not found' })
-      } else if (updateResult instanceof SelfInfluenceError) {
-        return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
-      } else if (updateResult instanceof DerivedChildError) {
-        return setError(form, 'derivedFrom._errors', updateResult.message)
-      } else if (updateResult instanceof DerivedInfluenceError) {
-        return setError(form, 'influencedBy._errors', updateResult.message)
-      } else if (updateResult instanceof GenreCycleError) {
-        return setError(form, 'parents._errors', updateResult.message)
-      }
-    } catch (e) {
-      if (e instanceof DuplicateAkaError) {
-        return setError(form, getDuplicateAkaErrorField(e.level), e.message)
-      } else {
-        throw e
-      }
+    const updateResult = await locals.services.genre.commands.updateGenre(id, genreUpdate, user.id)
+    if (updateResult instanceof DuplicateAkaError) {
+      return setError(form, getDuplicateAkaErrorField(updateResult.level), updateResult.message)
+    } else if (updateResult instanceof GenreNotFoundError) {
+      return error(404, { message: 'Genre not found' })
+    } else if (updateResult instanceof SelfInfluenceError) {
+      return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
+    } else if (updateResult instanceof DerivedChildError) {
+      return setError(form, 'derivedFrom._errors', updateResult.message)
+    } else if (updateResult instanceof DerivedInfluenceError) {
+      return setError(form, 'influencedBy._errors', updateResult.message)
+    } else if (updateResult instanceof GenreCycleError) {
+      return setError(form, 'parents._errors', updateResult.message)
     }
 
     redirect(302, `/genres/${id}`)
