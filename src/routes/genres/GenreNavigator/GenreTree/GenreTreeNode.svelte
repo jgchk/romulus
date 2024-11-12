@@ -125,33 +125,37 @@
           </ul>
         {/if}
 
-        <div class="ml-4">
-          <div class="flex">
-            <IconButton
-              size="sm"
-              tooltip={isDerivedExpanded ? 'Collapse' : 'Expand'}
-              class={cn('ml-1 flex-shrink-0 text-gray-500', !isDerivedExpandable && 'invisible')}
-              onClick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
-            >
-              <CaretRight class={cn('transition', isDerivedExpanded && 'rotate-90')} />
-            </IconButton>
+        {#if isDerivedExpandable}
+          <div class="ml-4">
+            <div class="flex">
+              <IconButton
+                size="sm"
+                tooltip={isDerivedExpanded ? 'Collapse' : 'Expand'}
+                class={cn('ml-1 flex-shrink-0 text-gray-500', !isDerivedExpandable && 'invisible')}
+                onClick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
+              >
+                <CaretRight class={cn('transition', isDerivedExpanded && 'rotate-90')} />
+              </IconButton>
 
-            <div
-              class="block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-            >
-              Derived Genres
+              <button
+                type="button"
+                class="block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-left text-[0.93rem] italic text-gray-500 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-white"
+                onclick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
+              >
+                Derived Genres
+              </button>
             </div>
-          </div>
 
-          {#if isDerivedExpanded && isDerivedExpandable}
-            <ul>
-              {#each genre.derivations as derivationId (derivationId)}
-                {@const derivationPath = [...path, 'derived' as const, derivationId]}
-                <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
-              {/each}
-            </ul>
-          {/if}
-        </div>
+            {#if isDerivedExpanded && isDerivedExpandable}
+              <ul>
+                {#each genre.derivations as derivationId (derivationId)}
+                  {@const derivationPath = [...path, 'derived' as const, derivationId]}
+                  <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
+                {/each}
+              </ul>
+            {/if}
+          </div>
+        {/if}
       </div>
     {/if}
   </li>
