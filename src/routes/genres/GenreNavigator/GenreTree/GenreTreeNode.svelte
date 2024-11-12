@@ -147,7 +147,7 @@
             </div>
 
             {#if isDerivedExpanded && isDerivedExpandable}
-              <ul>
+              <ul transition:slide|local={{ axis: 'y' }}>
                 {#each genre.derivations as derivationId (derivationId)}
                   {@const derivationPath = [...path, 'derived' as const, derivationId]}
                   <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
