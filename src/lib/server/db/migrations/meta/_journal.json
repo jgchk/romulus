@@ -204,6 +204,13 @@
       "when": 1726410279828,
       "tag": "0028_lyrical_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1731369877472,
+      "tag": "0029_natural_stardust",
+      "breakpoints": true
     }
   ]
 }

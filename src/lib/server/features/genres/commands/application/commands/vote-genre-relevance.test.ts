@@ -39,6 +39,7 @@ function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
     type: 'STYLE',
     nsfw: false,
     parents: new Set(),
+    derivedFrom: new Set(),
     influences: new Set(),
     akas: {
       primary: [],

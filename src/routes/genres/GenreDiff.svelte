@@ -29,6 +29,7 @@
     | 'longDescription'
     | 'notes'
     | 'parentGenreIds'
+    | 'derivedFromGenreIds'
     | 'influencedByGenreIds'
     | 'operation'
     | 'createdAt'
@@ -115,6 +116,11 @@
     notes: getAction(previousHistory, currentHistory, (h) => h.notes),
     akas: getAction(previousHistory, currentHistory, (h) => h.akas),
     parentGenreIds: getAction(previousHistory, currentHistory, (h) => new Set(h.parentGenreIds)),
+    derivedFromGenreIds: getAction(
+      previousHistory,
+      currentHistory,
+      (h) => new Set(h.derivedFromGenreIds),
+    ),
     influencedByGenreIds: getAction(
       previousHistory,
       currentHistory,
@@ -282,6 +288,74 @@
                 </CommaList>
               {:else}
                 <CommaList items={currentHistory.parentGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
+                </CommaList>
+              {/if}
+            {/await}
+          </div>
+        </div>
+      {/if}
+
+      {#if previousHistory?.derivedFromGenreIds?.length ?? currentHistory.derivedFromGenreIds?.length}
+        <div class={cn(!changed.derivedFromGenreIds && 'opacity-50')}>
+          <Label class={cn('text-xs', getLabelClass(changed.derivedFromGenreIds))}>Derives</Label>
+          <div class="text-sm" data-testid="genre-diff-derives">
+            {#await genres}
+              <div class="flex h-[26px] items-center">
+                <LoaderLine class="text-gray-500" />
+              </div>
+            {:then genres}
+              {#if changed.derivedFromGenreIds === 'delete'}
+                <CommaList
+                  items={currentHistory.derivedFromGenreIds ?? []}
+                  class="block text-gray-500"
+                >
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
+                </CommaList>
+              {:else if changed.derivedFromGenreIds === 'update'}
+                <CommaList items={currentHistory.derivedFromGenreIds ?? []} class="block">
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
+                </CommaList>
+                <CommaList
+                  items={previousHistory?.derivedFromGenreIds ?? []}
+                  class="block text-gray-500"
+                >
+                  {#snippet children({ item: id })}
+                    {@const genre = genres.find((g) => g.id === id)}
+                    {#if genre}
+                      <a class="line-through hover:underline" href="/genres/{genre.id}"
+                        >{genre.name}</a
+                      >
+                    {:else}
+                      <span class="text-gray-500 line-through">Deleted</span>
+                    {/if}
+                  {/snippet}
+                </CommaList>
+              {:else}
+                <CommaList items={currentHistory.derivedFromGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
                     {@const genre = genres.find((g) => g.id === id)}
                     {#if genre}

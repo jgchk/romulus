@@ -13,6 +13,7 @@ export type GenreUpdate = {
   longDescription?: string | null
   notes?: string | null
   parents?: Set<number>
+  derivedFrom?: Set<number>
   influences?: Set<number>
   akas?: {
     primary?: string[]
@@ -144,7 +145,11 @@ export class Genre {
     })
   }
 
-  isChangedFrom(parents: Set<number>, genreHistory: GenreHistory): boolean {
+  isChangedFrom(
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+    genreHistory: GenreHistory,
+  ): boolean {
     return (
       this.name !== genreHistory.name ||
       this.subtitle !== genreHistory.subtitle ||
@@ -154,6 +159,7 @@ export class Genre {
       this.longDescription !== genreHistory.longDescription ||
       this.notes !== genreHistory.notes ||
       !equals(parents, genreHistory.parents) ||
+      !equals(derivedFrom, genreHistory.derivedFrom) ||
       !equals(this.influences, genreHistory.influences) ||
       !equals(this.akas, genreHistory.akas)
     )

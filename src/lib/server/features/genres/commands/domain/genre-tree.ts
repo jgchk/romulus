@@ -7,8 +7,13 @@ export class GenreTree {
     this.map = new Map(nodes.map((node) => [node.id, node]))
   }
 
-  insertGenre(id: number, name: string, parents: Set<number>): GenreCycleError | undefined {
-    this.map.set(id, new GenreTreeNode(id, name, parents))
+  insertGenre(
+    id: number,
+    name: string,
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+  ): GenreCycleError | undefined {
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -16,8 +21,13 @@ export class GenreTree {
     }
   }
 
-  updateGenre(id: number, name: string, parents: Set<number>): GenreCycleError | undefined {
-    this.map.set(id, new GenreTreeNode(id, name, parents))
+  updateGenre(
+    id: number,
+    name: string,
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+  ): GenreCycleError | undefined {
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -38,6 +48,11 @@ export class GenreTree {
   getParents(id: number): Set<number> {
     const genre = this.map.get(id)
     return genre?.parents ?? new Set()
+  }
+
+  getDerivedFrom(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.derivedFrom ?? new Set()
   }
 
   private moveGenreChildrenUnderParents(id: number) {
@@ -94,6 +109,13 @@ export class GenreTree {
       }
     }
 
+    for (const derivedFromId of genre.derivedFrom) {
+      const cycle = this.findCycleInner(derivedFromId, [...stack, id])
+      if (cycle) {
+        return cycle
+      }
+    }
+
     return false
   }
 }
@@ -103,5 +125,6 @@ class GenreTreeNode {
     public id: number,
     public name: string,
     public parents: Set<number>,
+    public derivedFrom: Set<number>,
   ) {}
 }

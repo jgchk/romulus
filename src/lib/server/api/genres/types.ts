@@ -16,6 +16,7 @@ export const genreSchema = z.object({
   tertiaryAkas: nullableString,
 
   parents: z.number().int().array(),
+  derivedFrom: z.number().int().array(),
   influencedBy: z.number().int().array(),
 
   relevance: genreRelevance.optional(),

@@ -31,20 +31,20 @@ export class UpdateGenreCommand {
     }
 
     const genreTree = await this.genreRepo.getGenreTree()
+    const genreParents = data.parents ?? genreTree.getParents(id)
+    const genreDerivedFrom = data.derivedFrom ?? genreTree.getDerivedFrom(id)
 
     const lastGenreHistory = await this.genreHistoryRepo.findLatestByGenreId(id)
     if (
       lastGenreHistory &&
-      !updatedGenre.isChangedFrom(data.parents ?? genreTree.getParents(id), lastGenreHistory)
+      !updatedGenre.isChangedFrom(genreParents, genreDerivedFrom, lastGenreHistory)
     ) {
       return
     }
 
-    if (data.parents) {
-      const treeError = genreTree.updateGenre(id, updatedGenre.name, data.parents)
-      if (treeError) {
-        return treeError
-      }
+    const treeError = genreTree.updateGenre(id, updatedGenre.name, genreParents, genreDerivedFrom)
+    if (treeError) {
+      return treeError
     }
 
     await this.genreRepo.save(updatedGenre)
@@ -55,6 +55,7 @@ export class UpdateGenreCommand {
       id,
       updatedGenre,
       genreTree.getParents(id),
+      genreTree.getDerivedFrom(id),
       'UPDATE',
       accountId,
     )

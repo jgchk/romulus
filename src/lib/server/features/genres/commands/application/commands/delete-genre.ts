@@ -22,6 +22,7 @@ export class DeleteGenreCommand {
     const genreTree = await this.genreRepo.getGenreTree()
 
     const genreParentsBeforeDeletion = genreTree.getParents(id)
+    const genreDerivedFromBeforeDeletion = genreTree.getDerivedFrom(id)
 
     const childrenIds = genreTree.getGenreChildren(id)
     const treeError = genreTree.deleteGenre(id)
@@ -37,6 +38,7 @@ export class DeleteGenreCommand {
       id,
       genre,
       genreParentsBeforeDeletion,
+      genreDerivedFromBeforeDeletion,
       'DELETE',
       accountId,
     )
@@ -52,6 +54,7 @@ export class DeleteGenreCommand {
           childId,
           child,
           genreTree.getParents(childId),
+          genreTree.getDerivedFrom(childId),
           'UPDATE',
           accountId,
         )

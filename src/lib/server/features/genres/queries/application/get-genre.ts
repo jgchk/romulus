@@ -34,6 +34,13 @@ export type GetGenreResult = {
     name: string
     type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
   }[]
+  derivedFrom: {
+    id: number
+    name: string
+    type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+    subtitle: string | null
+    nsfw: boolean
+  }[]
   influencedBy: {
     id: number
     name: string
@@ -78,6 +85,14 @@ export class GetGenreQuery {
           with: {
             child: {
               columns: { id: true, name: true, type: true },
+            },
+          },
+        },
+        derivedFrom: {
+          columns: {},
+          with: {
+            derivedFrom: {
+              columns: { id: true, name: true, type: true, subtitle: true, nsfw: true },
             },
           },
         },
@@ -129,6 +144,7 @@ export class GetGenreQuery {
         tertiary: genre.akas.filter((aka) => aka.relevance === 1).map((aka) => aka.name),
       },
       parents: genre.parents.map((parent) => parent.parent),
+      derivedFrom: genre.derivedFrom.map((derivedFrom) => derivedFrom.derivedFrom),
       children: genre.children.map((child) => child.child),
       influencedBy: genre.influencedBy.map((influence) => influence.influencer),
       influences: genre.influences.map((influence) => influence.influenced),

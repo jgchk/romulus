@@ -32,6 +32,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const data = {
     ...genre,
     parents: genre.parents.map((parent) => parent.id),
+    derivedFrom: genre.derivedFrom.map((derivedFrom) => derivedFrom.id),
     influencedBy: genre.influencedBy.map((influencer) => influencer.id),
     primaryAkas: akas.primary.join(', '),
     secondaryAkas: akas.secondary.join(', '),
@@ -64,6 +65,7 @@ export const actions: Actions = {
     const genreUpdate = {
       ...form.data,
       parents: new Set(form.data.parents),
+      derivedFrom: new Set(form.data.derivedFrom),
       influences: new Set(form.data.influencedBy),
       akas: {
         primary: form.data.primaryAkas?.length

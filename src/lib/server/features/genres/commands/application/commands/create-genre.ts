@@ -16,6 +16,7 @@ export type CreateGenreInput = {
   longDescription?: string
   notes?: string
   parents: Set<number>
+  derivedFrom: Set<number>
   influences: Set<number>
   akas: {
     primary: string[]
@@ -47,7 +48,7 @@ export class CreateGenreCommand {
     const { id } = await this.genreRepo.save(genre)
 
     const genreTree = await this.genreRepo.getGenreTree()
-    const treeError = genreTree.insertGenre(id, genre.name, data.parents)
+    const treeError = genreTree.insertGenre(id, genre.name, data.parents, data.derivedFrom)
     if (treeError) {
       await this.genreRepo.delete(id)
       return treeError
@@ -55,7 +56,14 @@ export class CreateGenreCommand {
 
     await this.genreRepo.saveGenreTree(genreTree)
 
-    const genreHistory = GenreHistory.fromGenre(id, genre, data.parents, 'CREATE', accountId)
+    const genreHistory = GenreHistory.fromGenre(
+      id,
+      genre,
+      data.parents,
+      data.derivedFrom,
+      'CREATE',
+      accountId,
+    )
     await this.genreHistoryRepo.create(genreHistory)
 
     // TODO: Remove this from the command and instead call the two commands from the BFFE function

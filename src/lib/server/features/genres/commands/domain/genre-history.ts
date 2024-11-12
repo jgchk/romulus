@@ -11,6 +11,7 @@ export class GenreHistory {
     public notes: string | undefined,
 
     public parents: Set<number>,
+    public derivedFrom: Set<number>,
     public influences: Set<number>,
     public akas: {
       primary: string[]
@@ -28,6 +29,7 @@ export class GenreHistory {
     id: number,
     genre: Genre,
     parents: Set<number>,
+    derivedFrom: Set<number>,
     operation: 'CREATE' | 'UPDATE' | 'DELETE',
     accountId: number,
   ) {
@@ -40,6 +42,7 @@ export class GenreHistory {
       genre.longDescription,
       genre.notes,
       parents,
+      derivedFrom,
       genre.influences,
       genre.akas,
       id,

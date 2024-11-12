@@ -195,6 +195,30 @@
       {/await}
     </InputGroup>
 
+    <InputGroup errors={$errors.derivedFrom?._errors}>
+      <Label for="derives">Derives</Label>
+      {#await genres}
+        <GenreMultiselect
+          id="derives"
+          class="genre-derives w-full"
+          value={[]}
+          exclude={id !== undefined ? [id] : []}
+          genres={[]}
+          disabled
+          {...$constraints.derivedFrom}
+        />
+      {:then genres}
+        <GenreMultiselect
+          id="derives"
+          class="genre-derives w-full"
+          bind:value={$form.derivedFrom}
+          exclude={id !== undefined ? [id] : []}
+          {genres}
+          {...$constraints.derivedFrom}
+        />
+      {/await}
+    </InputGroup>
+
     <InputGroup errors={$errors.influencedBy?._errors}>
       <Label for="influences">Influences</Label>
       {#await genres}

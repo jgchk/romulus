@@ -44,6 +44,7 @@ export const actions: Actions = {
       notes: form.data.notes ?? undefined,
       relevance: form.data.relevance ?? UNSET_GENRE_RELEVANCE,
       parents: new Set(form.data.parents),
+      derivedFrom: new Set(form.data.derivedFrom),
       influences: new Set(form.data.influencedBy),
       akas: {
         primary: form.data.primaryAkas?.length

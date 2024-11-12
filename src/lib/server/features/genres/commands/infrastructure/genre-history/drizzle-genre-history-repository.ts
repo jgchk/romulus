@@ -48,6 +48,7 @@ export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
       entry.notes ?? undefined,
 
       new Set(entry.parentGenreIds),
+      new Set(entry.derivedFromGenreIds),
       new Set(entry.influencedByGenreIds),
       akas,
 
@@ -73,6 +74,7 @@ export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
           longDescription: history.longDescription,
           notes: history.notes,
           parentGenreIds: [...history.parents],
+          derivedFromGenreIds: [...history.derivedFrom],
           influencedByGenreIds: [...history.influences],
           treeGenreId: history.genreId,
           createdAt: history.createdAt,

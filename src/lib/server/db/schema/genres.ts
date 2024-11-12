@@ -42,6 +42,8 @@ export const genresRelations = relations(genres, ({ many }) => ({
   akas: many(genreAkas),
   parents: many(genreParents, { relationName: 'children' }),
   children: many(genreParents, { relationName: 'parents' }),
+  derivedFrom: many(genreDerivedFrom, { relationName: 'derivation' }),
+  derivations: many(genreDerivedFrom, { relationName: 'derivedFrom' }),
   influencedBy: many(genreInfluences, { relationName: 'influenced' }),
   influences: many(genreInfluences, { relationName: 'influencers' }),
   history: many(genreHistory),
@@ -58,6 +60,7 @@ export const genreHistory = pgTable('GenreHistory', {
   nsfw: boolean('nsfw').default(false).notNull(),
   notes: text('notes'),
   parentGenreIds: integer('parentGenreIds').array(),
+  derivedFromGenreIds: integer('derivedFromGenreIds').array(),
   influencedByGenreIds: integer('influencedByGenreIds').array(),
   treeGenreId: integer('treeGenreId').notNull(),
   createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
@@ -114,6 +117,36 @@ export const genreParentsRelations = relations(genreParents, ({ one }) => ({
     fields: [genreParents.childId],
     references: [genres.id],
     relationName: 'children',
+  }),
+}))
+
+export type InsertGenreDerivedFrom = InferInsertModel<typeof genreDerivedFrom>
+export type GenreDerivedFrom = InferSelectModel<typeof genreDerivedFrom>
+export const genreDerivedFrom = pgTable(
+  'GenreDerivedFrom',
+  {
+    derivedFromId: integer('derivedFromId')
+      .notNull()
+      .references(() => genres.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    derivationId: integer('derivationId')
+      .notNull()
+      .references(() => genres.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.derivedFromId, table.derivationId] }),
+  }),
+)
+
+export const genreDerivedFromRelations = relations(genreDerivedFrom, ({ one }) => ({
+  derivedFrom: one(genres, {
+    fields: [genreDerivedFrom.derivedFromId],
+    references: [genres.id],
+    relationName: 'derivedFrom',
+  }),
+  derivation: one(genres, {
+    fields: [genreDerivedFrom.derivationId],
+    references: [genres.id],
+    relationName: 'derivation',
   }),
 }))
 

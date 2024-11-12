@@ -1,7 +1,13 @@
 import { eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { genreAkas, genreInfluences, genreParents, genres } from '$lib/server/db/schema'
+import {
+  genreAkas,
+  genreDerivedFrom,
+  genreInfluences,
+  genreParents,
+  genres,
+} from '$lib/server/db/schema'
 
 import { Genre } from '../../domain/genre'
 import type { GenreRepository } from '../../domain/genre-repository'
@@ -163,6 +169,7 @@ export class DrizzleGenreRepository implements GenreRepository {
       },
       with: {
         parents: { columns: { parentId: true } },
+        derivedFrom: { columns: { derivedFromId: true } },
       },
     })
 
@@ -171,6 +178,7 @@ export class DrizzleGenreRepository implements GenreRepository {
         id: node.id,
         name: node.name,
         parents: new Set(node.parents.map((p) => p.parentId)),
+        derivedFrom: new Set(node.derivedFrom.map((df) => df.derivedFromId)),
       })),
     )
 
@@ -180,14 +188,23 @@ export class DrizzleGenreRepository implements GenreRepository {
   async saveGenreTree(genreTree: GenreTree): Promise<void> {
     await this.db.transaction(async (tx) => {
       await tx.delete(genreParents)
+      await tx.delete(genreDerivedFrom)
 
       const parentChildNodes = [...genreTree.map.values()].flatMap((node) =>
         [...node.parents].map((parentId) => ({ parentId, childId: node.id })),
       )
 
-      if (parentChildNodes.length === 0) return
+      if (parentChildNodes.length > 0) {
+        await tx.insert(genreParents).values(parentChildNodes)
+      }
 
-      await tx.insert(genreParents).values(parentChildNodes)
+      const derivedFromNodes = [...genreTree.map.values()].flatMap((node) =>
+        [...node.derivedFrom].map((derivedFromId) => ({ derivedFromId, derivationId: node.id })),
+      )
+
+      if (derivedFromNodes.length > 0) {
+        await tx.insert(genreDerivedFrom).values(derivedFromNodes)
+      }
     })
   }
 }

@@ -150,6 +150,28 @@
         </div>
       {/if}
 
+      {#if data.genre.derivedFrom.length > 0}
+        <div>
+          <Label>Derives</Label>
+          <div class="genre-derives">
+            <CommaList
+              items={data.genre.derivedFrom}
+              class="text-gray-600 transition dark:text-gray-400"
+            >
+              {#snippet children({ item: genre })}
+                <GenreLink
+                  id={genre.id}
+                  name={genre.name}
+                  type={genre.type}
+                  subtitle={genre.subtitle}
+                  nsfw={genre.nsfw}
+                />
+              {/snippet}
+            </CommaList>
+          </div>
+        </div>
+      {/if}
+
       {#if data.genre.influencedBy.length > 0}
         <div>
           <Label>Influences</Label>
