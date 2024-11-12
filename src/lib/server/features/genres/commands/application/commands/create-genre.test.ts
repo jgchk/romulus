@@ -121,6 +121,7 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
     notes: null,
     parents: [],
     children: [],
+    derivedFrom: [],
     influencedBy: [],
     influences: [],
     relevance: 99,
@@ -184,33 +185,10 @@ test('should map AKAs correctly', async ({ dbConnection }) => {
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const genre = await getGenreQuery.execute(result.id)
-  expect(genre).toEqual({
-    id: expect.any(Number) as number,
-    name: 'Test',
-    subtitle: null,
-    type: 'STYLE',
-    shortDescription: null,
-    longDescription: null,
-    notes: null,
-    parents: [],
-    children: [],
-    influencedBy: [],
-    influences: [],
-    relevance: 99,
-    nsfw: false,
-    akas: {
-      primary: ['primary one', 'primary two'],
-      secondary: ['secondary one', 'secondary two'],
-      tertiary: ['tertiary one', 'tertiary two'],
-    },
-    createdAt: expect.any(Date) as Date,
-    updatedAt: expect.any(Date) as Date,
-    contributors: [
-      {
-        id: account.id,
-        username: account.username,
-      },
-    ],
+  expect(genre?.akas).toEqual({
+    primary: ['primary one', 'primary two'],
+    secondary: ['secondary one', 'secondary two'],
+    tertiary: ['tertiary one', 'tertiary two'],
   })
 })
 
@@ -271,6 +249,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
       notes: null,
       akas: [],
       parentGenreIds: [],
+      derivedFromGenreIds: [],
       influencedByGenreIds: [],
       nsfw: false,
       accountId: account.id,

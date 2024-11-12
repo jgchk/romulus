@@ -33,6 +33,8 @@ const mockGenre = {
   akas: ['AKA'],
   parents: [],
   children: [],
+  derivedFrom: [],
+  derivations: [],
   influencedBy: [],
   influences: [],
   shortDescription: 'A short description.',

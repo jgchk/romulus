@@ -19,6 +19,7 @@ const mockHistory = {
   longDescription: 'A long description.',
   notes: 'Some notes.',
   parentGenreIds: [1],
+  derivedFromGenreIds: [1],
   influencedByGenreIds: [1],
   nsfw: false,
   treeGenreId: 0,

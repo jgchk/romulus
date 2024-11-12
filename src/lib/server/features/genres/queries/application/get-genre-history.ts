@@ -14,6 +14,7 @@ export type GetGenreHistoryResult = {
   nsfw: boolean
   notes: string | null
   parentGenreIds: number[]
+  derivedFromGenreIds: number[]
   influencedByGenreIds: number[]
   treeGenreId: number
   createdAt: Date
@@ -47,6 +48,7 @@ export class GetGenreHistoryQuery {
       ...h,
       akas: h.akas.map((a) => a.name),
       parentGenreIds: h.parentGenreIds ?? [],
+      derivedFromGenreIds: h.derivedFromGenreIds ?? [],
       influencedByGenreIds: h.influencedByGenreIds ?? [],
     }))
   }

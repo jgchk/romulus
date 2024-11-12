@@ -16,6 +16,7 @@ export type GetLatestGenreUpdatesResult = {
     nsfw: boolean
     notes: string | null
     parentGenreIds: number[]
+    derivedFromGenreIds: number[]
     influencedByGenreIds: number[]
     treeGenreId: number
     createdAt: Date
@@ -35,6 +36,7 @@ export type GetLatestGenreUpdatesResult = {
         nsfw: boolean
         notes: string | null
         parentGenreIds: number[]
+        derivedFromGenreIds: number[]
         influencedByGenreIds: number[]
         treeGenreId: number
         createdAt: Date
@@ -93,12 +95,14 @@ export class GetLatestGenreUpdatesQuery {
         ...genre,
         akas: genre.akas.map((aka) => aka.name),
         parentGenreIds: genre.parentGenreIds ?? [],
+        derivedFromGenreIds: genre.derivedFromGenreIds ?? [],
         influencedByGenreIds: genre.influencedByGenreIds ?? [],
       },
       previousHistory: ifDefined(previousHistory, (ph) => ({
         ...ph,
         akas: ph.akas.map((aka) => aka.name),
         parentGenreIds: ph.parentGenreIds ?? [],
+        derivedFromGenreIds: ph.derivedFromGenreIds ?? [],
         influencedByGenreIds: ph.influencedByGenreIds ?? [],
       })),
     }))
