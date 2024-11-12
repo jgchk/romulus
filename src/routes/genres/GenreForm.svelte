@@ -200,7 +200,7 @@
     </InputGroup>
 
     <InputGroup errors={$errors.derivedFrom?._errors}>
-      <Label for="derives">Derives</Label>
+      <Label for="derives">Derived From</Label>
       {#await genres}
         <GenreMultiselect
           id="derives"

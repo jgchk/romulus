@@ -305,7 +305,9 @@
 
       {#if !!previousHistory?.derivedFromGenreIds?.length || !!currentHistory.derivedFromGenreIds?.length}
         <div class={cn(!changed.derivedFromGenreIds && 'opacity-50')}>
-          <Label class={cn('text-xs', getLabelClass(changed.derivedFromGenreIds))}>Derives</Label>
+          <Label class={cn('text-xs', getLabelClass(changed.derivedFromGenreIds))}
+            >Derived From</Label
+          >
           <div class="text-sm" data-testid="genre-diff-derives">
             {#await genres}
               <div class="flex h-[26px] items-center">

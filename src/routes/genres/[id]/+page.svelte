@@ -153,7 +153,7 @@
 
       {#if data.genre.derivedFrom.length > 0}
         <div>
-          <Label>Derives</Label>
+          <Label>Derived From</Label>
           <div class="genre-derives">
             <CommaList
               items={data.genre.derivedFrom}
