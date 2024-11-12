@@ -38,7 +38,11 @@
     taintedMessage: true,
 
     onSubmit: ({ cancel }) => {
-      if ($form.parents.length === 0 && topLevelConfirmation !== 'confirmed') {
+      if (
+        $form.parents.length === 0 &&
+        $form.derivedFrom.length === 0 &&
+        topLevelConfirmation !== 'confirmed'
+      ) {
         topLevelConfirmation = 'confirm'
         cancel()
         return
