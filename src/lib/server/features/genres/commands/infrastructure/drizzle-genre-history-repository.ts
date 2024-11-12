@@ -1,8 +1,8 @@
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
 
-import { GenreHistory } from '../../domain/genre-history'
-import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
+import { GenreHistory } from '../domain/genre-history'
+import type { GenreHistoryRepository } from '../domain/genre-history-repository'
 
 export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
   constructor(private db: IDrizzleConnection) {}

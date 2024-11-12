@@ -10,10 +10,10 @@ import {
   type CreateGenreInput,
 } from '../../commands/application/commands/create-genre'
 import { VoteGenreRelevanceCommand } from '../../commands/application/commands/vote-genre-relevance'
+import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRelevanceVoteRepository } from '../../commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../commands/infrastructure/drizzle-genre-tree-repository'
-import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/genre-history/drizzle-genre-history-repository'
 import { GetAllGenresQuery } from './get-all-genres'
 
 async function createGenre(
