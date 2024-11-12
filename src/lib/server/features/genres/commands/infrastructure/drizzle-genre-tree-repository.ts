@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm'
+
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { genreDerivedFrom, genreInfluences, genreParents } from '$lib/server/db/schema'
 
@@ -35,28 +37,57 @@ export class DrizzleGenreTreeRepository implements GenreTreeRepository {
 
   async save(genreTree: GenreTree): Promise<void> {
     await this.db.transaction(async (tx) => {
-      await tx.delete(genreParents)
-      const parentChildNodes = [...genreTree.map.values()].flatMap((node) =>
-        [...node.parents].map((parentId) => ({ parentId, childId: node.id })),
-      )
-      if (parentChildNodes.length > 0) {
-        await tx.insert(genreParents).values(parentChildNodes)
-      }
+      for (const node of genreTree.map.values()) {
+        if (node.status === 'created') {
+          const parents = [...node.parents].map((parentId) => ({ parentId, childId: node.id }))
+          if (parents.length > 0) {
+            await tx.insert(genreParents).values(parents)
+          }
 
-      await tx.delete(genreDerivedFrom)
-      const derivedFromNodes = [...genreTree.map.values()].flatMap((node) =>
-        [...node.derivedFrom].map((derivedFromId) => ({ derivedFromId, derivationId: node.id })),
-      )
-      if (derivedFromNodes.length > 0) {
-        await tx.insert(genreDerivedFrom).values(derivedFromNodes)
-      }
+          const derivedFrom = [...node.derivedFrom].map((derivedFromId) => ({
+            derivedFromId,
+            derivationId: node.id,
+          }))
+          if (derivedFrom.length > 0) {
+            await tx.insert(genreDerivedFrom).values(derivedFrom)
+          }
 
-      await tx.delete(genreInfluences)
-      const influenceNodes = [...genreTree.map.values()].flatMap((node) =>
-        [...node.influences].map((influencerId) => ({ influencerId, influencedId: node.id })),
-      )
-      if (influenceNodes.length > 0) {
-        await tx.insert(genreInfluences).values(influenceNodes)
+          const influences = [...node.influences].map((influencerId) => ({
+            influencerId,
+            influencedId: node.id,
+          }))
+          if (influences.length > 0) {
+            await tx.insert(genreInfluences).values(influences)
+          }
+        } else if (node.status === 'updated') {
+          await tx.delete(genreParents).where(eq(genreParents.childId, node.id))
+          const parents = [...node.parents].map((parentId) => ({ parentId, childId: node.id }))
+          if (parents.length > 0) {
+            await tx.insert(genreParents).values(parents)
+          }
+
+          await tx.delete(genreDerivedFrom).where(eq(genreDerivedFrom.derivationId, node.id))
+          const derivedFrom = [...node.derivedFrom].map((derivedFromId) => ({
+            derivedFromId,
+            derivationId: node.id,
+          }))
+          if (derivedFrom.length > 0) {
+            await tx.insert(genreDerivedFrom).values(derivedFrom)
+          }
+
+          await tx.delete(genreInfluences).where(eq(genreInfluences.influencedId, node.id))
+          const influences = [...node.influences].map((influencerId) => ({
+            influencerId,
+            influencedId: node.id,
+          }))
+          if (influences.length > 0) {
+            await tx.insert(genreInfluences).values(influences)
+          }
+        } else if (node.status === 'deleted') {
+          await tx.delete(genreParents).where(eq(genreParents.childId, node.id))
+          await tx.delete(genreDerivedFrom).where(eq(genreDerivedFrom.derivationId, node.id))
+          await tx.delete(genreInfluences).where(eq(genreInfluences.influencedId, node.id))
+        }
       }
     })
   }

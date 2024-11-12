@@ -34,7 +34,7 @@ export class GenreTree {
       return new SelfInfluenceError()
     }
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences))
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'created'))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -64,7 +64,7 @@ export class GenreTree {
       return new SelfInfluenceError()
     }
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences))
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'updated'))
 
     const cycle = this.findCycle()
     if (cycle) {
@@ -74,7 +74,10 @@ export class GenreTree {
 
   deleteGenre(id: number): void {
     this.moveGenreChildrenUnderParents(id)
-    this.map.delete(id)
+    const genre = this.map.get(id)
+    if (genre) {
+      genre.status = 'deleted'
+    }
   }
 
   getParents(id: number): Set<number> {
@@ -106,6 +109,8 @@ export class GenreTree {
       for (const parentId of genre.parents) {
         child.parents.add(parentId)
       }
+
+      child.status = 'updated'
     }
   }
 
@@ -122,7 +127,7 @@ export class GenreTree {
   }
 
   private findCycle(): string | undefined {
-    for (const genre of this.map.values()) {
+    for (const genre of [...this.map.values()].filter((node) => node.status !== 'deleted')) {
       const cycle = this.findCycleInner(genre.id, [])
       if (cycle) {
         const formattedCycle = cycle.map((id) => this.map.get(id)!.name).join(' → ')
@@ -137,7 +142,7 @@ export class GenreTree {
     }
 
     const genre = this.map.get(id)
-    if (!genre) return false
+    if (!genre || genre.status === 'deleted') return false
 
     for (const parentId of genre.parents) {
       const cycle = this.findCycleInner(parentId, [...stack, id])
@@ -164,5 +169,6 @@ class GenreTreeNode {
     public parents: Set<number>,
     public derivedFrom: Set<number>,
     public influences: Set<number>,
+    public status?: 'created' | 'updated' | 'deleted',
   ) {}
 }
