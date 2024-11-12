@@ -1,6 +1,7 @@
 import { intersection } from 'ramda'
 
 import { DerivedChildError } from './errors/derived-child'
+import { DerivedInfluenceError } from './errors/derived-influence'
 import { GenreCycleError } from './errors/genre-cycle'
 import { SelfInfluenceError } from './errors/self-influence'
 
@@ -17,10 +18,15 @@ export class GenreTree {
     parents: Set<number>,
     derivedFrom: Set<number>,
     influences: Set<number>,
-  ): GenreCycleError | DerivedChildError | SelfInfluenceError | undefined {
+  ): GenreCycleError | DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
       return new DerivedChildError(id)
+    }
+
+    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
+    if (isDerivedAndInfluence) {
+      return new DerivedInfluenceError(id)
     }
 
     const influencesSelf = influences.has(id)
@@ -42,10 +48,15 @@ export class GenreTree {
     parents: Set<number>,
     derivedFrom: Set<number>,
     influences: Set<number>,
-  ): GenreCycleError | DerivedChildError | SelfInfluenceError | undefined {
+  ): GenreCycleError | DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
       return new DerivedChildError(id)
+    }
+
+    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
+    if (isDerivedAndInfluence) {
+      return new DerivedInfluenceError(id)
     }
 
     const influencesSelf = influences.has(id)

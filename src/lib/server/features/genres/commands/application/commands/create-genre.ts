@@ -1,4 +1,5 @@
 import type { DerivedChildError } from '../../domain/errors/derived-child'
+import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
 import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -40,7 +41,12 @@ export class CreateGenreCommand {
     data: CreateGenreInput,
     accountId: number,
   ): Promise<
-    { id: number } | SelfInfluenceError | DuplicateAkaError | DerivedChildError | GenreCycleError
+    | { id: number }
+    | SelfInfluenceError
+    | DuplicateAkaError
+    | DerivedChildError
+    | DerivedInfluenceError
+    | GenreCycleError
   > {
     const genre = Genre.create(data)
 

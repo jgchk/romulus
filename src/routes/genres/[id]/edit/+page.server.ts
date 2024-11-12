@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { genreSchema } from '$lib/server/api/genres/types'
 import { GenreNotFoundError } from '$lib/server/features/genres/commands/application/errors/genre-not-found'
 import { DerivedChildError } from '$lib/server/features/genres/commands/domain/errors/derived-child'
+import { DerivedInfluenceError } from '$lib/server/features/genres/commands/domain/errors/derived-influence'
 import { DuplicateAkaError } from '$lib/server/features/genres/commands/domain/errors/duplicate-aka'
 import { GenreCycleError } from '$lib/server/features/genres/commands/domain/errors/genre-cycle'
 import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
@@ -93,6 +94,8 @@ export const actions: Actions = {
         return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
       } else if (updateResult instanceof DerivedChildError) {
         return setError(form, 'derivedFrom._errors', updateResult.message)
+      } else if (updateResult instanceof DerivedInfluenceError) {
+        return setError(form, 'influencedBy._errors', updateResult.message)
       } else if (updateResult instanceof GenreCycleError) {
         return setError(form, 'parents._errors', updateResult.message)
       }

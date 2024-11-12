@@ -1,4 +1,5 @@
 import type { DerivedChildError } from '../../domain/errors/derived-child'
+import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
 import type { GenreCycleError } from '../../domain/errors/genre-cycle'
 import type { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -24,6 +25,7 @@ export class UpdateGenreCommand {
     | SelfInfluenceError
     | DuplicateAkaError
     | DerivedChildError
+    | DerivedInfluenceError
     | GenreCycleError
   > {
     const genre = await this.genreRepo.findById(id)
