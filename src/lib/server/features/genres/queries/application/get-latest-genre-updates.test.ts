@@ -64,7 +64,11 @@ test('should return latest history for a created genre', async ({ dbConnection }
 
   const genre = await createGenre(
     getTestGenre({
-      akas: { primary: ['primary'], secondary: ['secondary'], tertiary: ['tertiary'] },
+      akas: {
+        primary: ['primary', 'primary-2'],
+        secondary: ['secondary', 'secondary-2'],
+        tertiary: ['tertiary', 'tertiary-2'],
+      },
     }),
     account.id,
     dbConnection,
@@ -78,7 +82,11 @@ test('should return latest history for a created genre', async ({ dbConnection }
         id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
-        akas: ['primary', 'secondary', 'tertiary'],
+        akas: {
+          primary: ['primary', 'primary-2'],
+          secondary: ['secondary', 'secondary-2'],
+          tertiary: ['tertiary', 'tertiary-2'],
+        },
         type: 'STYLE',
         nsfw: false,
         shortDescription: null,
@@ -106,7 +114,11 @@ test('should return latest history for an updated genre', async ({ dbConnection 
 
   const genre = await createGenre(
     getTestGenre({
-      akas: { primary: ['primary'], secondary: ['secondary'], tertiary: ['tertiary'] },
+      akas: {
+        primary: ['primary', 'primary-2'],
+        secondary: ['secondary', 'secondary-2'],
+        tertiary: ['tertiary', 'tertiary-2'],
+      },
     }),
     account.id,
     dbConnection,
@@ -122,9 +134,9 @@ test('should return latest history for an updated genre', async ({ dbConnection 
     {
       name: 'Updated',
       akas: {
-        primary: ['primary-updated'],
-        secondary: ['secondary-updated'],
-        tertiary: ['tertiary-updated'],
+        primary: ['primary-updated', 'primary-2-updated'],
+        secondary: ['secondary-updated', 'secondary-2-updated'],
+        tertiary: ['tertiary-updated', 'tertiary-2-updated'],
       },
     },
     account.id,
@@ -139,7 +151,11 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         id: expect.any(Number) as number,
         name: 'Updated',
         subtitle: null,
-        akas: ['primary-updated', 'secondary-updated', 'tertiary-updated'],
+        akas: {
+          primary: ['primary-updated', 'primary-2-updated'],
+          secondary: ['secondary-updated', 'secondary-2-updated'],
+          tertiary: ['tertiary-updated', 'tertiary-2-updated'],
+        },
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
@@ -159,7 +175,11 @@ test('should return latest history for an updated genre', async ({ dbConnection 
       previousHistory: {
         name: 'Test',
         subtitle: null,
-        akas: ['primary', 'secondary', 'tertiary'],
+        akas: {
+          primary: ['primary', 'primary-2'],
+          secondary: ['secondary', 'secondary-2'],
+          tertiary: ['tertiary', 'tertiary-2'],
+        },
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
@@ -178,7 +198,11 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
-        akas: ['primary', 'secondary', 'tertiary'],
+        akas: {
+          primary: ['primary', 'primary-2'],
+          secondary: ['secondary', 'secondary-2'],
+          tertiary: ['tertiary', 'tertiary-2'],
+        },
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,

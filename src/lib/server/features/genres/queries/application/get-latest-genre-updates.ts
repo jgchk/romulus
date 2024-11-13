@@ -8,7 +8,11 @@ export type GetLatestGenreUpdatesResult = {
     id: number
     name: string
     subtitle: string | null
-    akas: string[]
+    akas: {
+      primary: string[]
+      secondary: string[]
+      tertiary: string[]
+    }
     type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
     nsfw: boolean
     shortDescription: string | null
@@ -26,7 +30,11 @@ export type GetLatestGenreUpdatesResult = {
     | {
         name: string
         subtitle: string | null
-        akas: string[]
+        akas: {
+          primary: string[]
+          secondary: string[]
+          tertiary: string[]
+        }
         type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
         nsfw: boolean
         shortDescription: string | null
@@ -56,6 +64,7 @@ export class GetLatestGenreUpdatesQuery {
       SELECT
         curr.*,
         curr_aka.name AS curr_aka_name,
+        curr_aka.relevance AS curr_aka_relevance,
         prev.id AS prev_id,
         prev.name AS prev_name,
         prev.type AS prev_type,
@@ -71,6 +80,7 @@ export class GetLatestGenreUpdatesQuery {
         prev.operation AS prev_operation,
         prev.subtitle AS prev_subtitle,
         prev_aka.name AS prev_aka_name,
+        prev_aka.relevance as prev_aka_relevance,
         acc.id AS account_id,
         acc.username AS account_username
       FROM latest_entries curr
@@ -85,7 +95,7 @@ export class GetLatestGenreUpdatesQuery {
         LIMIT 1
       ) prev ON true
       LEFT JOIN "GenreHistoryAka" prev_aka ON prev_aka."genreId" = prev.id
-      ORDER BY curr."createdAt" DESC;
+      ORDER BY curr."createdAt" DESC, curr_aka.order ASC, prev_aka.order ASC;
     `
 
     const res = (await this.db.execute(statement)) as
@@ -98,8 +108,16 @@ export class GetLatestGenreUpdatesQuery {
       {
         genre: GetLatestGenreUpdatesResult[number]['genre']
         previousHistory?: GetLatestGenreUpdatesResult[number]['previousHistory']
-        akas: Set<string>
-        previousAkas: Set<string>
+        akas: {
+          primary: string[]
+          secondary: string[]
+          tertiary: string[]
+        }
+        previousAkas: {
+          primary: string[]
+          secondary: string[]
+          tertiary: string[]
+        }
       }
     >()
 
@@ -110,7 +128,11 @@ export class GetLatestGenreUpdatesQuery {
             id: row.id as number,
             name: row.name as string,
             subtitle: row.subtitle as string | null,
-            akas: [],
+            akas: {
+              primary: [],
+              secondary: [],
+              tertiary: [],
+            },
             type: row.type as 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT',
             shortDescription: row.shortDescription as string | null,
             longDescription: row.longDescription as string | null,
@@ -133,7 +155,11 @@ export class GetLatestGenreUpdatesQuery {
             ? {
                 name: row.prev_name as string,
                 subtitle: row.prev_subtitle as string | null,
-                akas: [],
+                akas: {
+                  primary: [],
+                  secondary: [],
+                  tertiary: [],
+                },
                 type: row.prev_type as 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT',
                 shortDescription: row.prev_shortDescription as string | null,
                 longDescription: row.prev_longDescription as string | null,
@@ -147,31 +173,69 @@ export class GetLatestGenreUpdatesQuery {
                 operation: row.prev_operation as 'CREATE' | 'UPDATE' | 'DELETE',
               }
             : undefined,
-          akas: new Set(),
-          previousAkas: new Set(),
+          akas: {
+            primary: [],
+            secondary: [],
+            tertiary: [],
+          },
+          previousAkas: {
+            primary: [],
+            secondary: [],
+            tertiary: [],
+          },
         })
       }
 
       const entry = transformedResults.get(row.id as number)!
 
       if (row.curr_aka_name) {
-        entry.akas.add(row.curr_aka_name as string)
+        const relevance = row.curr_aka_relevance as number
+        if (relevance === 3) {
+          if (!entry.akas.primary.includes(row.curr_aka_name as string)) {
+            entry.akas.primary.push(row.curr_aka_name as string)
+          }
+        } else if (relevance === 2) {
+          if (!entry.akas.secondary.includes(row.curr_aka_name as string)) {
+            entry.akas.secondary.push(row.curr_aka_name as string)
+          }
+        } else if (relevance === 1) {
+          if (!entry.akas.tertiary.includes(row.curr_aka_name as string)) {
+            entry.akas.tertiary.push(row.curr_aka_name as string)
+          }
+        } else {
+          throw new Error(`Unexpected relevance value: ${relevance}`)
+        }
       }
 
       if (row.prev_aka_name) {
-        entry.previousAkas.add(row.prev_aka_name as string)
+        const relevance = row.prev_aka_relevance as number
+        if (relevance === 3) {
+          if (!entry.previousAkas.primary.includes(row.prev_aka_name as string)) {
+            entry.previousAkas.primary.push(row.prev_aka_name as string)
+          }
+        } else if (relevance === 2) {
+          if (!entry.previousAkas.secondary.includes(row.prev_aka_name as string)) {
+            entry.previousAkas.secondary.push(row.prev_aka_name as string)
+          }
+        } else if (relevance === 1) {
+          if (!entry.previousAkas.tertiary.includes(row.prev_aka_name as string)) {
+            entry.previousAkas.tertiary.push(row.prev_aka_name as string)
+          }
+        } else {
+          throw new Error(`Unexpected relevance value: ${relevance}`)
+        }
       }
     }
 
     return Array.from(transformedResults.values()).map((entry) => ({
       genre: {
         ...entry.genre,
-        akas: Array.from(entry.akas),
+        akas: entry.akas,
       },
       previousHistory: entry.previousHistory
         ? {
             ...entry.previousHistory,
-            akas: Array.from(entry.previousAkas),
+            akas: entry.previousAkas,
           }
         : undefined,
     }))
