@@ -1,0 +1,850 @@
+File: ./src/lib/server/features/genres/commands/domain/errors/base.ts
+Contents:
+import { CustomError } from '$lib/utils/error'
+
+export class DomainError extends CustomError {
+  private readonly __tag = 'DomainError'
+
+  constructor(name: string, message: string) {
+    super(name, message)
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/errors/derived-child.ts
+Contents:
+import { DomainError } from './base'
+
+export class DerivedChildError extends DomainError {
+  constructor(public readonly childId: number) {
+    super('DerivedChildError', `A genre cannot be both derived and a child`)
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/errors/derived-influence.ts
+Contents:
+import { DomainError } from './base'
+
+export class DerivedInfluenceError extends DomainError {
+  constructor(public readonly childId: number) {
+    super('DerivedInfluenceError', `A genre cannot be both derived and an influence`)
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/errors/duplicate-aka.ts
+Contents:
+import { DomainError } from './base'
+
+export class DuplicateAkaError extends DomainError {
+  constructor(
+    public readonly aka: string,
+    public readonly level: 'primary' | 'secondary' | 'tertiary',
+  ) {
+    super('DuplicateAkaError', `Duplicate AKA found in ${level} AKAs: ${aka}`)
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/errors/genre-cycle.ts
+Contents:
+import { DomainError } from './base'
+
+export class GenreCycleError extends DomainError {
+  constructor(public cycle: string) {
+    super('GenreCycleError', `Cycle detected: ${cycle}`)
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/errors/self-influence.ts
+Contents:
+import { DomainError } from './base'
+
+export class SelfInfluenceError extends DomainError {
+  constructor() {
+    super('SelfInfluenceError', 'A genre cannot influence itself')
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-history-repository.ts
+Contents:
+import type { GenreHistory } from './genre-history'
+
+export type GenreHistoryRepository = {
+  findLatestByGenreId(genreId: number): Promise<GenreHistory | undefined>
+  create(history: GenreHistory): Promise<void>
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-history.ts
+Contents:
+import type { Genre } from './genre'
+
+export class GenreHistory {
+  constructor(
+    public name: string,
+    public subtitle: string | undefined,
+    public type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT',
+    public nsfw: boolean,
+    public shortDescription: string | undefined,
+    public longDescription: string | undefined,
+    public notes: string | undefined,
+
+    public parents: Set<number>,
+    public derivedFrom: Set<number>,
+    public influences: Set<number>,
+    public akas: {
+      primary: string[]
+      secondary: string[]
+      tertiary: string[]
+    },
+
+    public genreId: number,
+    public createdAt: Date,
+    public operation: 'CREATE' | 'UPDATE' | 'DELETE',
+    public accountId: number | undefined,
+  ) {}
+
+  static fromGenre(
+    id: number,
+    genre: Genre,
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+    influences: Set<number>,
+    operation: 'CREATE' | 'UPDATE' | 'DELETE',
+    accountId: number,
+  ) {
+    return new GenreHistory(
+      genre.name,
+      genre.subtitle,
+      genre.type,
+      genre.nsfw,
+      genre.shortDescription,
+      genre.longDescription,
+      genre.notes,
+      parents,
+      derivedFrom,
+      influences,
+      genre.akas,
+      id,
+      new Date(),
+      operation,
+      accountId,
+    )
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-relevance-vote-repository.ts
+Contents:
+import type { GenreRelevance, GenreRelevanceVote } from './genre-relevance-vote'
+
+export type GenreRelevanceVoteRepository = {
+  save(genreRelevanceVote: GenreRelevanceVote): Promise<void>
+  delete(genreId: number, accountId: number): Promise<void>
+
+  findByGenreId(genreId: number): Promise<GenreRelevanceVote[]>
+  saveRelevance(genreId: number, relevance: GenreRelevance | undefined): Promise<void>
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-relevance-vote.ts
+Contents:
+import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '$lib/types/genres'
+
+import { DomainError } from './errors/base'
+
+export class GenreRelevanceVote {
+  constructor(
+    public genreId: number,
+    public accountId: number,
+    public relevance: GenreRelevance,
+  ) {}
+}
+
+export class GenreRelevance {
+  private constructor(public readonly relevance: number) {}
+
+  static create(relevance: number): GenreRelevance | InvalidGenreRelevanceError {
+    const isInValidRange = relevance >= MIN_GENRE_RELEVANCE && relevance <= MAX_GENRE_RELEVANCE
+    const isInteger = Number.isInteger(relevance)
+
+    if (!isInValidRange || !isInteger) {
+      return new InvalidGenreRelevanceError(relevance)
+    }
+
+    return new GenreRelevance(relevance)
+  }
+}
+
+export class InvalidGenreRelevanceError extends DomainError {
+  constructor(public readonly relevance: number) {
+    super(
+      'InvalidGenreRelevanceError',
+      `Invalid genre relevance: ${relevance}. Must be an integer between ${MIN_GENRE_RELEVANCE} and ${MAX_GENRE_RELEVANCE} (inclusive)`,
+    )
+  }
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-repository.ts
+Contents:
+import type { Genre } from './genre'
+
+export type GenreRepository = {
+  findById(id: number): Promise<Genre | undefined>
+  save(genre: Genre): Promise<{ id: number }>
+  delete(id: number): Promise<void>
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre.test.ts
+Contents:
+import { describe, expect, it } from 'vitest'
+
+import { DuplicateAkaError } from './errors/duplicate-aka'
+import { Genre } from './genre'
+import { GenreHistory } from './genre-history'
+
+describe('Genre', () => {
+  const baseGenreParams = {
+    name: 'Test Genre',
+    type: 'STYLE' as const,
+    nsfw: false,
+    akas: {
+      primary: [],
+      secondary: [],
+      tertiary: [],
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  }
+
+  describe('create', () => {
+    it('creates a valid genre', () => {
+      const result = Genre.create(baseGenreParams)
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.name).toBe('Test Genre')
+        expect(result.type).toBe('STYLE')
+        expect(result.nsfw).toBe(false)
+      }
+    })
+
+    it('trims whitespace from name', () => {
+      const result = Genre.create({
+        ...baseGenreParams,
+        name: '  Test Genre  ',
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.name).toBe('Test Genre')
+      }
+    })
+
+    it('trims whitespace from subtitle', () => {
+      const result = Genre.create({
+        ...baseGenreParams,
+        subtitle: '  Test Subtitle  ',
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.subtitle).toBe('Test Subtitle')
+      }
+    })
+
+    it('filters out empty AKAs after trimming', () => {
+      const result = Genre.create({
+        ...baseGenreParams,
+        akas: {
+          primary: ['  ', 'Valid AKA', '   '],
+          secondary: [],
+          tertiary: [],
+        },
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.akas.primary).toEqual(['Valid AKA'])
+      }
+    })
+
+    it('returns DuplicateAkaError when same AKA exists within primary level', () => {
+      const result = Genre.create({
+        ...baseGenreParams,
+        akas: {
+          primary: ['Duplicate', 'Duplicate'],
+          secondary: [],
+          tertiary: [],
+        },
+      })
+
+      expect(result).toBeInstanceOf(DuplicateAkaError)
+      if (result instanceof DuplicateAkaError) {
+        expect(result.aka).toBe('Duplicate')
+        expect(result.level).toBe('primary')
+      }
+    })
+
+    it('returns DuplicateAkaError when same AKA exists across different levels', () => {
+      const result = Genre.create({
+        ...baseGenreParams,
+        akas: {
+          primary: ['Duplicate'],
+          secondary: ['Duplicate'],
+          tertiary: [],
+        },
+      })
+
+      expect(result).toBeInstanceOf(DuplicateAkaError)
+      if (result instanceof DuplicateAkaError) {
+        expect(result.aka).toBe('Duplicate')
+        expect(result.level).toBe('secondary')
+      }
+    })
+  })
+
+  describe('withUpdate', () => {
+    const baseGenre = Genre.create(baseGenreParams) as Genre
+
+    it('updates basic properties', () => {
+      const result = baseGenre.withUpdate({
+        name: 'Updated Name',
+        subtitle: 'New Subtitle',
+        type: 'TREND',
+        nsfw: true,
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.name).toBe('Updated Name')
+        expect(result.subtitle).toBe('New Subtitle')
+        expect(result.type).toBe('TREND')
+        expect(result.nsfw).toBe(true)
+      }
+    })
+
+    it('handles null values for optional fields', () => {
+      const genreWithSubtitle = Genre.create({
+        ...baseGenreParams,
+        subtitle: 'Original Subtitle',
+      }) as Genre
+
+      const result = genreWithSubtitle.withUpdate({
+        subtitle: null,
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.subtitle).toBeUndefined()
+      }
+    })
+
+    it('updates AKAs', () => {
+      const result = baseGenre.withUpdate({
+        akas: {
+          primary: ['New AKA'],
+          secondary: ['Secondary AKA'],
+          tertiary: ['Tertiary AKA'],
+        },
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.akas.primary).toEqual(['New AKA'])
+        expect(result.akas.secondary).toEqual(['Secondary AKA'])
+        expect(result.akas.tertiary).toEqual(['Tertiary AKA'])
+      }
+    })
+
+    it('returns DuplicateAkaError when update creates duplicate AKAs', () => {
+      const result = baseGenre.withUpdate({
+        akas: {
+          primary: ['Duplicate'],
+          secondary: ['Duplicate'],
+        },
+      })
+
+      expect(result).toBeInstanceOf(DuplicateAkaError)
+      if (result instanceof DuplicateAkaError) {
+        expect(result.aka).toBe('Duplicate')
+        expect(result.level).toBe('secondary')
+      }
+    })
+
+    it('preserves unchanged fields', () => {
+      const originalGenre = Genre.create({
+        ...baseGenreParams,
+        subtitle: 'Original Subtitle',
+        shortDescription: 'Original Short Description',
+        longDescription: 'Original Long Description',
+        notes: 'Original Notes',
+      }) as Genre
+
+      const result = originalGenre.withUpdate({
+        name: 'Updated Name',
+      })
+
+      expect(result).toBeInstanceOf(Genre)
+      if (result instanceof Genre) {
+        expect(result.name).toBe('Updated Name')
+        expect(result.subtitle).toBe('Original Subtitle')
+        expect(result.shortDescription).toBe('Original Short Description')
+        expect(result.longDescription).toBe('Original Long Description')
+        expect(result.notes).toBe('Original Notes')
+      }
+    })
+  })
+
+  describe('isChangedFrom', () => {
+    const baseGenre = Genre.create(baseGenreParams) as Genre
+
+    it('detects changes in basic properties', () => {
+      const history = new GenreHistory(
+        'Different Name',
+        undefined,
+        'STYLE',
+        false,
+        undefined,
+        undefined,
+        undefined,
+        new Set(),
+        new Set(),
+        new Set(),
+        { primary: [], secondary: [], tertiary: [] },
+        1,
+        new Date(),
+        'CREATE',
+        1,
+      )
+
+      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
+    })
+
+    it('detects changes in relationships', () => {
+      const history = new GenreHistory(
+        baseGenre.name,
+        baseGenre.subtitle,
+        baseGenre.type,
+        baseGenre.nsfw,
+        baseGenre.shortDescription,
+        baseGenre.longDescription,
+        baseGenre.notes,
+        new Set([1]),
+        new Set([2]),
+        new Set([3]),
+        baseGenre.akas,
+        1,
+        new Date(),
+        'CREATE',
+        1,
+      )
+
+      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
+    })
+
+    it('detects changes in AKAs', () => {
+      const history = new GenreHistory(
+        baseGenre.name,
+        baseGenre.subtitle,
+        baseGenre.type,
+        baseGenre.nsfw,
+        baseGenre.shortDescription,
+        baseGenre.longDescription,
+        baseGenre.notes,
+        new Set(),
+        new Set(),
+        new Set(),
+        { primary: ['Different AKA'], secondary: [], tertiary: [] },
+        1,
+        new Date(),
+        'CREATE',
+        1,
+      )
+
+      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
+    })
+
+    it('returns false when nothing has changed', () => {
+      const history = new GenreHistory(
+        baseGenre.name,
+        baseGenre.subtitle,
+        baseGenre.type,
+        baseGenre.nsfw,
+        baseGenre.shortDescription,
+        baseGenre.longDescription,
+        baseGenre.notes,
+        new Set(),
+        new Set(),
+        new Set(),
+        baseGenre.akas,
+        1,
+        new Date(),
+        'CREATE',
+        1,
+      )
+
+      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(false)
+    })
+  })
+})
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-tree-repository.ts
+Contents:
+import type { GenreTree } from './genre-tree'
+
+export type GenreTreeRepository = {
+  get(): Promise<GenreTree>
+  save(genreTree: GenreTree): Promise<void>
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre-tree.ts
+Contents:
+import { intersection } from 'ramda'
+
+import { DerivedChildError } from './errors/derived-child'
+import { DerivedInfluenceError } from './errors/derived-influence'
+import { GenreCycleError } from './errors/genre-cycle'
+import { SelfInfluenceError } from './errors/self-influence'
+
+export class GenreTree {
+  map: Map<number, GenreTreeNode>
+
+  constructor(nodes: GenreTreeNode[]) {
+    this.map = new Map(nodes.map((node) => [node.id, node]))
+  }
+
+  insertGenre(
+    id: number,
+    name: string,
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+    influences: Set<number>,
+  ): DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
+    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
+    if (isDerivedAndChild) {
+      return new DerivedChildError(id)
+    }
+
+    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
+    if (isDerivedAndInfluence) {
+      return new DerivedInfluenceError(id)
+    }
+
+    const influencesSelf = influences.has(id)
+    if (influencesSelf) {
+      return new SelfInfluenceError()
+    }
+
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'created'))
+  }
+
+  updateGenre(
+    id: number,
+    name: string,
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+    influences: Set<number>,
+  ): GenreCycleError | DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
+    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
+    if (isDerivedAndChild) {
+      return new DerivedChildError(id)
+    }
+
+    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
+    if (isDerivedAndInfluence) {
+      return new DerivedInfluenceError(id)
+    }
+
+    const influencesSelf = influences.has(id)
+    if (influencesSelf) {
+      return new SelfInfluenceError()
+    }
+
+    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'updated'))
+
+    const cycle = this.findCycle()
+    if (cycle) {
+      return new GenreCycleError(cycle)
+    }
+  }
+
+  deleteGenre(id: number): void {
+    this.moveGenreChildrenUnderParents(id)
+    const genre = this.map.get(id)
+    if (genre) {
+      genre.status = 'deleted'
+    }
+  }
+
+  getParents(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.parents ?? new Set()
+  }
+
+  getDerivedFrom(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.derivedFrom ?? new Set()
+  }
+
+  getInfluences(id: number): Set<number> {
+    const genre = this.map.get(id)
+    return genre?.influences ?? new Set()
+  }
+
+  private moveGenreChildrenUnderParents(id: number) {
+    const genre = this.map.get(id)
+    if (!genre) return
+
+    const children = this.getGenreChildren(id)
+    for (const childId of children) {
+      const child = this.map.get(childId)
+      if (!child) continue
+
+      child.parents.delete(id)
+
+      for (const parentId of genre.parents) {
+        child.parents.add(parentId)
+      }
+
+      child.status = 'updated'
+    }
+  }
+
+  getGenreChildren(id: number): Set<number> {
+    const children = new Set<number>()
+
+    for (const node of this.map.values()) {
+      if (node.parents.has(id)) {
+        children.add(node.id)
+      }
+    }
+
+    return children
+  }
+
+  private findCycle(): string | undefined {
+    for (const genre of [...this.map.values()].filter((node) => node.status !== 'deleted')) {
+      const cycle = this.findCycleInner(genre.id, [])
+      if (cycle) {
+        const formattedCycle = cycle.map((id) => this.map.get(id)!.name).join(' → ')
+        return formattedCycle
+      }
+    }
+  }
+
+  private findCycleInner(id: number, stack: number[]): number[] | false {
+    if (stack.includes(id)) {
+      return [...stack, id]
+    }
+
+    const genre = this.map.get(id)
+    if (!genre || genre.status === 'deleted') return false
+
+    for (const parentId of genre.parents) {
+      const cycle = this.findCycleInner(parentId, [...stack, id])
+      if (cycle) {
+        return cycle
+      }
+    }
+
+    for (const derivedFromId of genre.derivedFrom) {
+      const cycle = this.findCycleInner(derivedFromId, [...stack, id])
+      if (cycle) {
+        return cycle
+      }
+    }
+
+    return false
+  }
+}
+
+class GenreTreeNode {
+  constructor(
+    public id: number,
+    public name: string,
+    public parents: Set<number>,
+    public derivedFrom: Set<number>,
+    public influences: Set<number>,
+    public status?: 'created' | 'updated' | 'deleted',
+  ) {}
+}
+
+---
+
+File: ./src/lib/server/features/genres/commands/domain/genre.ts
+Contents:
+import { equals } from 'ramda'
+
+import { DuplicateAkaError } from './errors/duplicate-aka'
+import type { GenreHistory } from './genre-history'
+
+export type GenreUpdate = {
+  name?: string
+  subtitle?: string | null
+  type?: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+  nsfw?: boolean
+  shortDescription?: string | null
+  longDescription?: string | null
+  notes?: string | null
+  parents?: Set<number>
+  derivedFrom?: Set<number>
+  influences?: Set<number>
+  akas?: {
+    primary?: string[]
+    secondary?: string[]
+    tertiary?: string[]
+  }
+}
+
+type GenreConstructorParams = {
+  id?: number
+  name: string
+  subtitle?: string
+  type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+  nsfw: boolean
+  shortDescription?: string
+  longDescription?: string
+  notes?: string
+  akas: {
+    primary: string[]
+    secondary: string[]
+    tertiary: string[]
+  }
+  createdAt: Date
+  updatedAt: Date
+}
+
+export class Genre {
+  readonly id: number | undefined
+  readonly name: string
+  readonly subtitle: string | undefined
+  readonly type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+  readonly nsfw: boolean
+  readonly shortDescription: string | undefined
+  readonly longDescription: string | undefined
+  readonly notes: string | undefined
+  readonly akas: {
+    readonly primary: string[]
+    readonly secondary: string[]
+    readonly tertiary: string[]
+  }
+  readonly createdAt: Date
+  readonly updatedAt: Date
+
+  private constructor(params: GenreConstructorParams) {
+    this.id = params.id
+    this.name = params.name.trim()
+    this.subtitle = params.subtitle?.trim()
+    this.type = params.type
+    this.nsfw = params.nsfw
+    this.shortDescription = params.shortDescription
+    this.longDescription = params.longDescription
+    this.notes = params.notes
+    this.akas = {
+      primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
+      secondary: [
+        ...params.akas.secondary.map((item) => item.trim()).filter((item) => item !== ''),
+      ],
+      tertiary: [...params.akas.tertiary.map((item) => item.trim()).filter((item) => item !== '')],
+    }
+    this.createdAt = new Date(params.createdAt)
+    this.updatedAt = new Date(params.updatedAt)
+  }
+
+  static create(params: GenreConstructorParams): Genre | DuplicateAkaError {
+    const genre = new Genre(params)
+
+    const duplicateAkaError = genre.checkDuplicateAkas()
+    if (duplicateAkaError) {
+      return duplicateAkaError
+    }
+
+    return genre
+  }
+
+  private checkDuplicateAkas(): DuplicateAkaError | undefined {
+    const set = new Set<string>()
+
+    for (const level of Object.keys(this.akas) as (keyof typeof this.akas)[]) {
+      for (const aka of this.akas[level]) {
+        if (!set.has(aka)) {
+          set.add(aka)
+        } else {
+          return new DuplicateAkaError(aka, level)
+        }
+      }
+    }
+  }
+
+  withUpdate(data: GenreUpdate) {
+    return Genre.create({
+      id: this.id,
+      name: data.name ?? this.name,
+      subtitle: data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),
+      type: data.type ?? this.type,
+      nsfw: data.nsfw ?? this.nsfw,
+      shortDescription:
+        data.shortDescription === undefined
+          ? this.shortDescription
+          : (data.shortDescription ?? undefined),
+      longDescription:
+        data.longDescription === undefined
+          ? this.longDescription
+          : (data.longDescription ?? undefined),
+      notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
+      akas: {
+        primary: data.akas?.primary ?? this.akas.primary,
+        secondary: data.akas?.secondary ?? this.akas.secondary,
+        tertiary: data.akas?.tertiary ?? this.akas.tertiary,
+      },
+      createdAt: this.createdAt,
+      updatedAt: new Date(),
+    })
+  }
+
+  isChangedFrom(
+    parents: Set<number>,
+    derivedFrom: Set<number>,
+    influences: Set<number>,
+    genreHistory: GenreHistory,
+  ): boolean {
+    return (
+      this.name !== genreHistory.name ||
+      this.subtitle !== genreHistory.subtitle ||
+      this.type !== genreHistory.type ||
+      this.nsfw !== genreHistory.nsfw ||
+      this.shortDescription !== genreHistory.shortDescription ||
+      this.longDescription !== genreHistory.longDescription ||
+      this.notes !== genreHistory.notes ||
+      !equals(parents, genreHistory.parents) ||
+      !equals(derivedFrom, genreHistory.derivedFrom) ||
+      !equals(influences, genreHistory.influences) ||
+      !equals(this.akas, genreHistory.akas)
+    )
+  }
+}
+
+---
+

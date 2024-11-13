@@ -4,11 +4,9 @@ import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { genreRelevanceVotes, genres } from '$lib/server/db/schema'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import {
-  GenreRelevance,
-  GenreRelevanceVote,
-  InvalidGenreRelevanceError,
-} from '../domain/genre-relevance-vote'
+import { InvalidGenreRelevanceError } from '../domain/errors/invalid-genre-relevance'
+import { GenreRelevance } from '../domain/genre-relevance'
+import { GenreRelevanceVote } from '../domain/genre-relevance-vote'
 import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository'
 
 export class DrizzleGenreRelevanceVoteRepository implements GenreRelevanceVoteRepository {

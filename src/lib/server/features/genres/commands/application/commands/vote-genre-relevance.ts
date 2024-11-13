@@ -1,8 +1,9 @@
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { median } from '$lib/utils/math'
 
-import type { InvalidGenreRelevanceError } from '../../domain/genre-relevance-vote'
-import { GenreRelevance, GenreRelevanceVote } from '../../domain/genre-relevance-vote'
+import type { InvalidGenreRelevanceError } from '../../domain/errors/invalid-genre-relevance'
+import { GenreRelevance } from '../../domain/genre-relevance'
+import { GenreRelevanceVote } from '../../domain/genre-relevance-vote'
 import type { GenreRelevanceVoteRepository } from '../../domain/genre-relevance-vote-repository'
 
 export class VoteGenreRelevanceCommand {
