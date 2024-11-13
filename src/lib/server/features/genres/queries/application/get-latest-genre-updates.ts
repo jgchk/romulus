@@ -54,7 +54,7 @@ export class GetLatestGenreUpdatesQuery {
         SELECT *
         FROM ${genreHistory}
         ORDER BY ${genreHistory.createdAt} DESC
-        LIMIT 100
+        LIMIT 50
       )
       SELECT
         curr.*,
