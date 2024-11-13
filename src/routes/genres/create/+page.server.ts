@@ -7,6 +7,7 @@ import { DerivedChildError } from '$lib/server/features/genres/commands/domain/e
 import { DerivedInfluenceError } from '$lib/server/features/genres/commands/domain/errors/derived-influence'
 import { DuplicateAkaError } from '$lib/server/features/genres/commands/domain/errors/duplicate-aka'
 import { SelfInfluenceError } from '$lib/server/features/genres/commands/domain/errors/self-influence'
+import { InvalidGenreRelevanceError } from '$lib/server/features/genres/commands/domain/genre-relevance-vote'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
@@ -43,7 +44,6 @@ export const actions: Actions = {
       shortDescription: form.data.shortDescription ?? undefined,
       longDescription: form.data.longDescription ?? undefined,
       notes: form.data.notes ?? undefined,
-      relevance: form.data.relevance ?? UNSET_GENRE_RELEVANCE,
       parents: new Set(form.data.parents),
       derivedFrom: new Set(form.data.derivedFrom),
       influences: new Set(form.data.influencedBy),
@@ -71,6 +71,22 @@ export const actions: Actions = {
       return setError(form, 'derivedFrom._errors', createResult.message)
     } else if (createResult instanceof DerivedInfluenceError) {
       return setError(form, 'influencedBy._errors', createResult.message)
+    }
+
+    const relevance = form.data.relevance
+    if (relevance !== undefined) {
+      const voteResult = await locals.services.genre.commands.voteGenreRelevance(
+        createResult.id,
+        relevance,
+        user.id,
+      )
+
+      if (voteResult instanceof InvalidGenreRelevanceError) {
+        return setError(form, 'relevance', voteResult.message)
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _exhaustiveCheck: void = voteResult
     }
 
     redirect(302, `/genres/${createResult.id}`)

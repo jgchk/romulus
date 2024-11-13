@@ -7,7 +7,6 @@ import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
 import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
-import type { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 export type CreateGenreInput = {
   name: string
@@ -25,7 +24,6 @@ export type CreateGenreInput = {
     secondary: string[]
     tertiary: string[]
   }
-  relevance: number
   createdAt: Date
   updatedAt: Date
 }
@@ -35,7 +33,6 @@ export class CreateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private voteGenreRelevanceCommand: VoteGenreRelevanceCommand,
   ) {}
 
   async execute(
@@ -81,9 +78,6 @@ export class CreateGenreCommand {
       accountId,
     )
     await this.genreHistoryRepo.create(genreHistory)
-
-    // TODO: Remove this from the command and instead call the two commands from the BFFE function
-    await this.voteGenreRelevanceCommand.execute(id, data.relevance, accountId)
 
     return { id }
   }

@@ -35,7 +35,6 @@ type GenreConstructorParams = {
     secondary: string[]
     tertiary: string[]
   }
-  relevance: number
   createdAt: Date
   updatedAt: Date
 }
@@ -54,7 +53,6 @@ export class Genre {
     readonly secondary: string[]
     readonly tertiary: string[]
   }
-  readonly relevance: number
   readonly createdAt: Date
   readonly updatedAt: Date
 
@@ -74,7 +72,6 @@ export class Genre {
       ],
       tertiary: [...params.akas.tertiary.map((item) => item.trim()).filter((item) => item !== '')],
     }
-    this.relevance = params.relevance
     this.createdAt = new Date(params.createdAt)
     this.updatedAt = new Date(params.updatedAt)
   }
@@ -125,7 +122,6 @@ export class Genre {
         secondary: data.akas?.secondary ?? this.akas.secondary,
         tertiary: data.akas?.tertiary ?? this.akas.tertiary,
       },
-      relevance: this.relevance,
       createdAt: this.createdAt,
       updatedAt: new Date(),
     })

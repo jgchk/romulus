@@ -15,7 +15,7 @@ import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 async function createGenre(
-  data: CreateGenreInput,
+  data: CreateGenreInput & { relevance?: number },
   accountId: number,
   dbConnection: IDrizzleConnection,
 ) {
@@ -23,7 +23,6 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -32,10 +31,24 @@ async function createGenre(
     expect.fail(`Failed to create genre: ${genre.message}`)
   }
 
+  if (data.relevance !== undefined) {
+    const voteRelevanceCommand = new VoteGenreRelevanceCommand(
+      new DrizzleGenreRelevanceVoteRepository(dbConnection),
+    )
+
+    const result = await voteRelevanceCommand.execute(genre.id, data.relevance, accountId)
+
+    if (result instanceof Error) {
+      expect.fail(`Failed to vote on genre relevance: ${result.message}`)
+    }
+  }
+
   return genre
 }
 
-function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
+function getTestGenre(
+  data?: Partial<CreateGenreInput> & { relevance?: number },
+): CreateGenreInput & { relevance?: number } {
   return {
     name: 'Test',
     type: 'STYLE',
@@ -48,7 +61,6 @@ function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
       secondary: [],
       tertiary: [],
     },
-    relevance: UNSET_GENRE_RELEVANCE,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...data,

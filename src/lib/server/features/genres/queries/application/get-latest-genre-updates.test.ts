@@ -2,7 +2,6 @@ import { expect } from 'vitest'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
-import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../vitest-setup'
 import {
@@ -10,9 +9,7 @@ import {
   type CreateGenreInput,
 } from '../../commands/application/commands/create-genre'
 import { UpdateGenreCommand } from '../../commands/application/commands/update-genre'
-import { VoteGenreRelevanceCommand } from '../../commands/application/commands/vote-genre-relevance'
 import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRelevanceVoteRepository } from '../../commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../commands/infrastructure/drizzle-genre-tree-repository'
 import { GetLatestGenreUpdatesQuery } from './get-latest-genre-updates'
@@ -26,7 +23,6 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -51,7 +47,6 @@ function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
       secondary: [],
       tertiary: [],
     },
-    relevance: UNSET_GENRE_RELEVANCE,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...data,

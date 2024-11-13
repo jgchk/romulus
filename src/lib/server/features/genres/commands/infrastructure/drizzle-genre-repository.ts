@@ -47,7 +47,6 @@ export class DrizzleGenreRepository implements GenreRepository {
       longDescription: entry.longDescription ?? undefined,
       notes: entry.notes ?? undefined,
       akas,
-      relevance: entry.relevance,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     })
@@ -78,7 +77,6 @@ export class DrizzleGenreRepository implements GenreRepository {
           shortDescription: genre.shortDescription,
           longDescription: genre.longDescription,
           notes: genre.notes,
-          relevance: genre.relevance,
           createdAt: genre.createdAt,
           updatedAt: genre.updatedAt,
         })
@@ -109,7 +107,6 @@ export class DrizzleGenreRepository implements GenreRepository {
           shortDescription: genre.shortDescription ?? null,
           longDescription: genre.longDescription ?? null,
           notes: genre.notes ?? null,
-          relevance: genre.relevance,
           updatedAt: genre.updatedAt,
         })
         .where(eq(genres.id, id))

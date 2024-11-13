@@ -157,7 +157,6 @@ export const handle: Handle = async ({ event, resolve }) => {
           new DrizzleGenreRepository(dbConnection),
           new DrizzleGenreTreeRepository(dbConnection),
           new DrizzleGenreHistoryRepository(dbConnection),
-          new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
         ),
         new UpdateGenreCommand(
           new DrizzleGenreRepository(dbConnection),

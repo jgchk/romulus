@@ -3,7 +3,6 @@ import { expect } from 'vitest'
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { UpdateGenreCommand } from '$lib/server/features/genres/commands/application/commands/update-genre'
-import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import { test } from '../../../../../../../vitest-setup'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
@@ -12,12 +11,10 @@ import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
 import type { GenreUpdate } from '../../domain/genre'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
-import { VoteGenreRelevanceCommand } from './vote-genre-relevance'
 
 async function createGenre(
   data: CreateGenreInput,
@@ -28,7 +25,6 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new VoteGenreRelevanceCommand(new DrizzleGenreRelevanceVoteRepository(dbConnection)),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -53,7 +49,6 @@ function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
       secondary: [],
       tertiary: [],
     },
-    relevance: UNSET_GENRE_RELEVANCE,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...data,
