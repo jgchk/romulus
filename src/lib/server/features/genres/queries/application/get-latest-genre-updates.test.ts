@@ -62,7 +62,13 @@ test('should return latest history for a created genre', async ({ dbConnection }
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const genre = await createGenre(getTestGenre(), account.id, dbConnection)
+  const genre = await createGenre(
+    getTestGenre({
+      akas: { primary: ['primary'], secondary: ['secondary'], tertiary: ['tertiary'] },
+    }),
+    account.id,
+    dbConnection,
+  )
 
   const query = new GetLatestGenreUpdatesQuery(dbConnection)
   const result = await query.execute()
@@ -72,7 +78,7 @@ test('should return latest history for a created genre', async ({ dbConnection }
         id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
-        akas: [],
+        akas: ['primary', 'secondary', 'tertiary'],
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
@@ -99,14 +105,31 @@ test('should return latest history for an updated genre', async ({ dbConnection 
   const accountId = new AccountsDatabase()
   const [account] = await accountId.insert([{ username: 'Test', password: 'Test' }], dbConnection)
 
-  const genre = await createGenre(getTestGenre(), account.id, dbConnection)
+  const genre = await createGenre(
+    getTestGenre({
+      akas: { primary: ['primary'], secondary: ['secondary'], tertiary: ['tertiary'] },
+    }),
+    account.id,
+    dbConnection,
+  )
 
   const updateGenreCommand = new UpdateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
-  await updateGenreCommand.execute(genre.id, { name: 'Updated' }, account.id)
+  await updateGenreCommand.execute(
+    genre.id,
+    {
+      name: 'Updated',
+      akas: {
+        primary: ['primary-updated'],
+        secondary: ['secondary-updated'],
+        tertiary: ['tertiary-updated'],
+      },
+    },
+    account.id,
+  )
 
   const query = new GetLatestGenreUpdatesQuery(dbConnection)
   const result = await query.execute()
@@ -117,7 +140,7 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         id: expect.any(Number) as number,
         name: 'Updated',
         subtitle: null,
-        akas: [],
+        akas: ['primary-updated', 'secondary-updated', 'tertiary-updated'],
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
@@ -139,7 +162,7 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
-        akas: [],
+        akas: ['primary', 'secondary', 'tertiary'],
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
@@ -159,7 +182,7 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
-        akas: [],
+        akas: ['primary', 'secondary', 'tertiary'],
         type: 'STYLE',
         shortDescription: null,
         longDescription: null,
