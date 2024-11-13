@@ -97,8 +97,6 @@ export class GetLatestGenreUpdatesQuery {
       | Record<string, unknown>[]
     const rows = 'rows' in res ? res.rows : res
 
-    console.log('rows', rows)
-
     const transformedResults = new Map<
       number,
       {
