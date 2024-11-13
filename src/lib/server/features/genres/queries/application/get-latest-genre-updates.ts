@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { genreHistory } from '$lib/server/db/schema'
+import { accounts, genreHistory, genreHistoryAkas } from '$lib/server/db/schema'
 
 export type GetLatestGenreUpdatesResult = {
   genre: {
@@ -84,17 +84,17 @@ export class GetLatestGenreUpdatesQuery {
         acc.id AS account_id,
         acc.username AS account_username
       FROM latest_entries curr
-      LEFT JOIN "GenreHistoryAka" curr_aka ON curr_aka."genreId" = curr.id
-      LEFT JOIN "Account" acc ON acc.id = curr."accountId"
+      LEFT JOIN ${genreHistoryAkas} curr_aka ON curr_aka."genreId" = curr.id
+      LEFT JOIN ${accounts} acc ON acc.id = curr."accountId"
       LEFT JOIN LATERAL (
         SELECT *
-        FROM "GenreHistory" prev_inner
+        FROM ${genreHistory} prev_inner
         WHERE prev_inner."treeGenreId" = curr."treeGenreId"
           AND prev_inner."createdAt" < curr."createdAt"
         ORDER BY prev_inner."createdAt" DESC
         LIMIT 1
       ) prev ON true
-      LEFT JOIN "GenreHistoryAka" prev_aka ON prev_aka."genreId" = prev.id
+      LEFT JOIN ${genreHistoryAkas} prev_aka ON prev_aka."genreId" = prev.id
       ORDER BY curr."createdAt" DESC, curr_aka.order ASC, prev_aka.order ASC;
     `
 
