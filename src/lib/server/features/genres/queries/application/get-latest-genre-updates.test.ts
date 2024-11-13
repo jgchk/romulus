@@ -80,9 +80,9 @@ test('should return latest history for a created genre', async ({ dbConnection }
         subtitle: null,
         akas: ['primary', 'secondary', 'tertiary'],
         type: 'STYLE',
+        nsfw: false,
         shortDescription: null,
         longDescription: null,
-        nsfw: false,
         notes: null,
         parentGenreIds: [],
         derivedFromGenreIds: [],
@@ -90,7 +90,6 @@ test('should return latest history for a created genre', async ({ dbConnection }
         treeGenreId: genre.id,
         createdAt: expect.any(Date) as Date,
         operation: 'CREATE',
-        accountId: account.id,
         account: {
           id: account.id,
           username: account.username,
@@ -152,14 +151,12 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         treeGenreId: genre.id,
         createdAt: expect.any(Date) as Date,
         operation: 'UPDATE',
-        accountId: account.id,
         account: {
           id: account.id,
           username: account.username,
         },
       },
       previousHistory: {
-        id: expect.any(Number) as number,
         name: 'Test',
         subtitle: null,
         akas: ['primary', 'secondary', 'tertiary'],
@@ -174,7 +171,6 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         treeGenreId: genre.id,
         createdAt: expect.any(Date) as Date,
         operation: 'CREATE',
-        accountId: account.id,
       },
     },
     {
@@ -194,7 +190,6 @@ test('should return latest history for an updated genre', async ({ dbConnection 
         treeGenreId: genre.id,
         createdAt: expect.any(Date) as Date,
         operation: 'CREATE',
-        accountId: account.id,
         account: {
           id: account.id,
           username: account.username,

@@ -10,9 +10,9 @@ export type GetLatestGenreUpdatesResult = {
     subtitle: string | null
     akas: string[]
     type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+    nsfw: boolean
     shortDescription: string | null
     longDescription: string | null
-    nsfw: boolean
     notes: string | null
     parentGenreIds: number[]
     derivedFromGenreIds: number[]
@@ -20,19 +20,17 @@ export type GetLatestGenreUpdatesResult = {
     treeGenreId: number
     createdAt: Date
     operation: 'CREATE' | 'UPDATE' | 'DELETE'
-    accountId: number | null
     account: { id: number; username: string } | null
   }
   previousHistory:
     | {
-        id: number
         name: string
         subtitle: string | null
         akas: string[]
         type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+        nsfw: boolean
         shortDescription: string | null
         longDescription: string | null
-        nsfw: boolean
         notes: string | null
         parentGenreIds: number[]
         derivedFromGenreIds: number[]
@@ -40,7 +38,6 @@ export type GetLatestGenreUpdatesResult = {
         treeGenreId: number
         createdAt: Date
         operation: 'CREATE' | 'UPDATE' | 'DELETE'
-        accountId: number | null
       }
     | undefined
 }[]
@@ -72,7 +69,6 @@ export class GetLatestGenreUpdatesQuery {
         prev."treeGenreId" AS "prev_treeGenreId",
         prev."createdAt" AS "prev_createdAt",
         prev.operation AS prev_operation,
-        prev."accountId" AS "prev_accountId",
         prev.subtitle AS prev_subtitle,
         prev_aka.name AS prev_aka_name,
         acc.id AS account_id,
@@ -126,7 +122,6 @@ export class GetLatestGenreUpdatesQuery {
             treeGenreId: row.treeGenreId as number,
             createdAt: this.parsePostgresTimestamp(row.createdAt as string),
             operation: row.operation as 'CREATE' | 'UPDATE' | 'DELETE',
-            accountId: row.accountId as number | null,
             account: row.account_id
               ? {
                   id: row.account_id as number,
@@ -136,7 +131,6 @@ export class GetLatestGenreUpdatesQuery {
           },
           previousHistory: row.prev_id
             ? {
-                id: row.prev_id as number,
                 name: row.prev_name as string,
                 subtitle: row.prev_subtitle as string | null,
                 akas: [],
@@ -151,7 +145,6 @@ export class GetLatestGenreUpdatesQuery {
                 treeGenreId: row.prev_treeGenreId as number,
                 createdAt: this.parsePostgresTimestamp(row.prev_createdAt as string),
                 operation: row.prev_operation as 'CREATE' | 'UPDATE' | 'DELETE',
-                accountId: row.prev_accountId as number | null,
               }
             : undefined,
           akas: new Set(),
