@@ -7,6 +7,7 @@ import type { GenreUpdate } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
 import type { GenreRepository } from '../../domain/genre-repository'
+import { GenreTreeNode } from '../../domain/genre-tree-node'
 import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 
@@ -53,14 +54,19 @@ export class UpdateGenreCommand {
       return
     }
 
-    const treeError = genreTree.updateGenre(
+    const genreTreeNode = GenreTreeNode.create(
       id,
       updatedGenre.name,
       genreParents,
       genreDerivedFrom,
       genreInfluences,
     )
-    if (treeError) {
+    if (genreTreeNode instanceof Error) {
+      return genreTreeNode
+    }
+
+    const treeError = genreTree.updateGenre(genreTreeNode)
+    if (treeError instanceof Error) {
       return treeError
     }
 
