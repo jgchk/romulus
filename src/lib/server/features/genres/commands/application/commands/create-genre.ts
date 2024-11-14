@@ -52,23 +52,25 @@ export class CreateGenreCommand {
       return genre
     }
 
-    const { id } = await this.genreRepo.save(genre)
-
     const genreTree = await this.genreTreeRepo.get()
 
     const genreTreeNode = GenreTreeNode.create(
-      id,
+      -1,
       genre.name,
       data.parents,
       data.derivedFrom,
       data.influences,
     )
     if (genreTreeNode instanceof Error) {
-      await this.genreRepo.delete(id)
       return genreTreeNode
     }
 
     genreTree.insertGenre(genreTreeNode)
+
+    const { id } = await this.genreRepo.save(genre)
+
+    genreTreeNode.id = id
+
     await this.genreTreeRepo.save(genreTree)
 
     const genreHistory = GenreHistory.fromGenre(
