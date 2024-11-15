@@ -20,7 +20,7 @@ export const rule = createRule({
        * @returns {boolean}
        */
       static isErrorType(type) {
-        if (type.symbol?.escapedName === 'Error') return true
+        if (type.symbol?.escapedName?.toString() === 'Error') return true
         if (type.isUnion()) return type.types.some((type) => TypeChecker.isErrorType(type))
 
         const symbol = type.getSymbol()
@@ -81,7 +81,6 @@ export const rule = createRule({
        */
       static containsErrorType(type) {
         if (type.symbol?.escapedName === 'Promise') {
-          // @ts-ignore
           const typeArguments = checker.getTypeArguments(type)
           return typeArguments.length > 0 && typeArguments.some(TypeChecker.isErrorType)
         }
@@ -282,35 +281,33 @@ export const rule = createRule({
      */
     function checksErrorResult(node, resultIdentifier) {
       const scope = context.sourceCode.getScope(node)
-      const resultReferences = scope.references.filter(
-        (ref) =>
-          ref.identifier.type === AST_NODE_TYPES.Identifier &&
-          ref.identifier.name === resultIdentifier.getText(),
-      )
+      const resultIdentifiers = scope.references
+        .map((ref) => {
+          const identifier = ref.identifier
+          if (identifier.type !== AST_NODE_TYPES.Identifier) return
+          if (identifier.name !== resultIdentifier.getText()) return
+          return identifier
+        })
+        .filter((i) => i !== undefined)
 
       const originalCallNode = services.esTreeNodeToTSNodeMap.get(node)
       const returnType = checker.getReturnTypeOfSignature(
         checker.getResolvedSignature(originalCallNode),
       )
-
       const possibleErrorTypes = TypeChecker.getErrorTypes(returnType)
       const checkedErrorTypes = new Set()
 
-      for (const ref of resultReferences) {
-        if (NodeChecker.isWithinExpectCall(ref.identifier)) return true
-        if (
-          NodeChecker.isInTruthyCheck(ref.identifier) &&
-          NodeChecker.isErrorOrUndefined(ref.identifier)
-        )
-          return true
+      for (const refId of resultIdentifiers) {
+        if (NodeChecker.isWithinExpectCall(refId)) return true
+        if (NodeChecker.isInTruthyCheck(refId) && NodeChecker.isErrorOrUndefined(refId)) return true
 
         // Check instanceof checks
         const instanceofCheck = NodeChecker.findParent(
-          ref.identifier,
+          refId,
           (n) =>
             n.type === AST_NODE_TYPES.BinaryExpression &&
             n.operator === 'instanceof' &&
-            n.left === ref.identifier &&
+            n.left === refId &&
             n.right.type === AST_NODE_TYPES.Identifier,
         )
 
