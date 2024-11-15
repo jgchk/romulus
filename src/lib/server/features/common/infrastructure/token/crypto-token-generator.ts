@@ -1,8 +1,8 @@
-import { InvalidTokenLengthError } from '../../../authentication/commands/domain/errors/invalid-token-length'
 import type { TokenGenerator } from '../../domain/token-generator'
+import { InvalidTokenLengthError } from '../errors/invalid-token-length'
 
 export class CryptoTokenGenerator implements TokenGenerator {
-  generate(length: number): string | InvalidTokenLengthError {
+  generate(length: number): string {
     if (length <= 0) {
       throw new InvalidTokenLengthError(length)
     }

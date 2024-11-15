@@ -2,7 +2,6 @@ import type { HashRepository } from '../../../../common/domain/repositories/hash
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import type { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { Session } from '../../domain/entities/session'
-import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../../domain/repositories/session'
@@ -46,9 +45,6 @@ export class ResetPasswordCommand {
     await this.passwordResetTokenRepo.deleteByTokenHash(passwordResetToken.tokenHash)
 
     const token = this.sessionTokenGenerator.generate(20)
-    if (token instanceof InvalidTokenLengthError) {
-      throw token // should never happen
-    }
 
     const tokenHash = await this.sessionTokenHashRepo.hash(token)
     const session = new Session(

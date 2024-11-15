@@ -3,7 +3,6 @@ import { createDate, TimeSpan } from 'oslo'
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
-import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
 
 export class RequestPasswordResetCommand {
@@ -17,9 +16,6 @@ export class RequestPasswordResetCommand {
     await this.passwordResetTokenRepo.deleteByAccountId(accountId)
 
     const token = this.passwordResetTokenGeneratorRepo.generate(40)
-    if (token instanceof InvalidTokenLengthError) {
-      throw token // should never happen
-    }
 
     const passwordResetToken = new PasswordResetToken(
       accountId,

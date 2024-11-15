@@ -1,7 +1,6 @@
 import type { HashRepository } from '../../../../common/domain/repositories/hash'
 import type { TokenGenerator } from '../../../../common/domain/token-generator'
 import { Session } from '../../domain/entities/session'
-import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { SessionRepository } from '../../domain/repositories/session'
 import { InvalidLoginError } from '../errors/invalid-login'
@@ -40,9 +39,6 @@ export class LoginCommand {
     }
 
     const token = this.sessionTokenGenerator.generate(20)
-    if (token instanceof InvalidTokenLengthError) {
-      throw token // should never happen
-    }
 
     const tokenHash = await this.sessionTokenHashRepo.hash(token)
     const session = new Session(

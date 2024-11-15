@@ -19,9 +19,6 @@ export class CreateApiKeyCommand {
 
   async execute(name: string, accountId: number): Promise<CreateApiKeyResult> {
     const key = this.apiKeyTokenGenerator.generate(40)
-    if (key instanceof Error) {
-      throw key
-    }
 
     const keyHash = await this.apiKeyHashRepo.hash(key)
 

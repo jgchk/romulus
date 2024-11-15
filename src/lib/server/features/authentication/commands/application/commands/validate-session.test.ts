@@ -7,7 +7,6 @@ import { test } from '../../../../../../../vitest-setup'
 import { CryptoTokenGenerator } from '../../../../common/infrastructure/token/crypto-token-generator'
 import { NewAccount } from '../../domain/entities/account'
 import { Session } from '../../domain/entities/session'
-import { InvalidTokenLengthError } from '../../domain/errors/invalid-token-length'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
 import { DrizzleAccountRepository } from '../../infrastructure/account/drizzle-account-repository'
 import { BcryptHashRepository } from '../../infrastructure/hash/bcrypt-hash-repository'
@@ -41,9 +40,6 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
 
   async function createSession(accountId: number) {
     const token = sessionTokenGenerator.generate(20)
-    if (token instanceof InvalidTokenLengthError) {
-      expect.fail('Token generation failed')
-    }
 
     const tokenHash = await sessionTokenHashRepo.hash(token)
 

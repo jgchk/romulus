@@ -106,9 +106,12 @@ describe('Genre', () => {
   })
 
   describe('withUpdate', () => {
-    const baseGenre = Genre.create(baseGenreParams) as Genre
-
     it('updates basic properties', () => {
+      const baseGenre = Genre.create(baseGenreParams)
+      if (!(baseGenre instanceof Genre)) {
+        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      }
+
       const result = baseGenre.withUpdate({
         name: 'Updated Name',
         subtitle: 'New Subtitle',
@@ -129,7 +132,10 @@ describe('Genre', () => {
       const genreWithSubtitle = Genre.create({
         ...baseGenreParams,
         subtitle: 'Original Subtitle',
-      }) as Genre
+      })
+      if (!(genreWithSubtitle instanceof Genre)) {
+        expect.fail(`Failed to create genre: ${genreWithSubtitle.message}`)
+      }
 
       const result = genreWithSubtitle.withUpdate({
         subtitle: null,
@@ -142,6 +148,11 @@ describe('Genre', () => {
     })
 
     it('updates AKAs', () => {
+      const baseGenre = Genre.create(baseGenreParams)
+      if (!(baseGenre instanceof Genre)) {
+        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      }
+
       const result = baseGenre.withUpdate({
         akas: {
           primary: ['New AKA'],
@@ -159,6 +170,11 @@ describe('Genre', () => {
     })
 
     it('returns DuplicateAkaError when update creates duplicate AKAs', () => {
+      const baseGenre = Genre.create(baseGenreParams)
+      if (!(baseGenre instanceof Genre)) {
+        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      }
+
       const result = baseGenre.withUpdate({
         akas: {
           primary: ['Duplicate'],
@@ -180,7 +196,10 @@ describe('Genre', () => {
         shortDescription: 'Original Short Description',
         longDescription: 'Original Long Description',
         notes: 'Original Notes',
-      }) as Genre
+      })
+      if (!(originalGenre instanceof Genre)) {
+        expect.fail(`Failed to create genre: ${originalGenre.message}`)
+      }
 
       const result = originalGenre.withUpdate({
         name: 'Updated Name',
@@ -198,7 +217,10 @@ describe('Genre', () => {
   })
 
   describe('isChangedFrom', () => {
-    const baseGenre = Genre.create(baseGenreParams) as Genre
+    const baseGenre = Genre.create(baseGenreParams)
+    if (!(baseGenre instanceof Genre)) {
+      expect.fail(`Failed to create genre: ${baseGenre.message}`)
+    }
 
     it('detects changes in basic properties', () => {
       const history = new GenreHistory(
