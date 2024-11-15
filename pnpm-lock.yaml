@@ -93,6 +93,9 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
+      '@types/eslint-config-prettier':
+        specifier: ^6.11.3
+        version: 6.11.3
       '@types/node':
         specifier: ^20.14.15
         version: 20.14.15
@@ -1415,6 +1418,9 @@ packages:
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+
+  '@types/eslint-config-prettier@6.11.3':
+    resolution: {integrity: sha512-3wXCiM8croUnhg9LdtZUJQwNcQYGWxxdOWDjPe1ykCqJFPVpzAKfs/2dgSoCtAvdPeaponcWPI7mPcGGp9dkKQ==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -4977,6 +4983,8 @@ snapshots:
   '@types/bcryptjs@2.4.6': {}
 
   '@types/cookie@0.6.0': {}
+
+  '@types/eslint-config-prettier@6.11.3': {}
 
   '@types/estree@1.0.6': {}
 

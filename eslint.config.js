@@ -7,6 +7,7 @@ import globals from 'globals'
 import svelteParser from 'svelte-eslint-parser'
 import tseslint from 'typescript-eslint'
 
+import errorHandlingPlugin from './lint/returned-errors/src/index.js'
 import svelteConfig from './svelte.config.js'
 
 export default tseslint.config(
@@ -15,6 +16,7 @@ export default tseslint.config(
   ...tseslint.configs.stylisticTypeChecked,
   ...svelte.configs['flat/recommended'],
   ...svelte.configs['flat/prettier'],
+  errorHandlingPlugin.configs.recommended,
   prettier,
   {
     files: ['**/*.svelte'],
@@ -46,15 +48,7 @@ export default tseslint.config(
       sourceType: 'module',
       parserOptions: {
         projectService: {
-          allowDefaultProject: [
-            'eslint.config.js',
-            'postcss.config.js',
-            'svelte.config.js',
-            'drizzle.config.ts',
-            'playwright.config.ts',
-            'tailwind.config.ts',
-            'vitest.config.ts',
-          ],
+          allowDefaultProject: [],
           defaultProject: './tsconfig.json',
         },
         tsconfigRootDir: import.meta.dirname,
@@ -75,7 +69,6 @@ export default tseslint.config(
       'simple-import-sort/exports': 'error',
     },
   },
-  { ignores: ['**/.DS_Store', 'node_modules', 'build', '.svelte-kit', 'package', 'coverage'] },
   {
     rules: {
       '@typescript-eslint/unbound-method': 'off',
@@ -84,4 +77,5 @@ export default tseslint.config(
       'svelte/button-has-type': ['error'],
     },
   },
+  { ignores: ['**/.DS_Store', 'node_modules', 'build', '.svelte-kit', 'package', 'coverage'] },
 )

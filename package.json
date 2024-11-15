@@ -53,6 +53,7 @@
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/svelte": "^5.2.4",
     "@testing-library/user-event": "^14.5.2",
+    "@types/eslint-config-prettier": "^6.11.3",
     "@types/node": "^20.14.15",
     "@typescript-eslint/parser": "^8.13.0",
     "@vitest/coverage-v8": "^2.1.4",
