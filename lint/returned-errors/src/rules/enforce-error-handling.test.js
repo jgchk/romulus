@@ -94,6 +94,13 @@ ruleTester.run('enforce-error-handling', rule, {
     `,
     `
       function returnsError(): Error {}
+      function passesAlongError() {
+        const result = returnsError()
+        return result
+      }
+    `,
+    `
+      function returnsError(): Error {}
       const result = returnsError()
       expect(result).toEqual({})
     `,

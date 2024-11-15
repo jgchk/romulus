@@ -182,8 +182,28 @@ export const rule = createRule({
       if (NodeChecker.isWithinReturnStatement(node) && parentFunctionReturnsError(node)) return
 
       const resultIdentifier = getErrorResultVariableIdentifier(tsNode)
-      if (!resultIdentifier || !checksErrorResult(node, resultIdentifier)) {
-        context.report({
+      if (!resultIdentifier) {
+        return context.report({
+          node,
+          messageId: 'enforceErrorHandling',
+        })
+      }
+
+      const scope = context.sourceCode.getScope(node)
+      const resultIdentifiers = scope.references
+        .map((ref) => {
+          const identifier = ref.identifier
+          if (identifier.type !== AST_NODE_TYPES.Identifier) return
+          if (identifier.name !== resultIdentifier.getText()) return
+          return identifier
+        })
+        .filter((i) => i !== undefined)
+      for (const refId of resultIdentifiers) {
+        if (NodeChecker.isWithinReturnStatement(refId) && parentFunctionReturnsError(refId)) return
+      }
+
+      if (!checksErrorResult(node, resultIdentifier)) {
+        return context.report({
           node,
           messageId: 'enforceErrorHandling',
         })
