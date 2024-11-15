@@ -316,7 +316,7 @@ export const rule = createRule({
           refId,
           /**
            * @param {TSESTreeNode} n
-           * @returns {n is BinaryExpression}
+           * @returns {n is BinaryExpression & { right: Identifier }}
            */
           (n) =>
             n.type === AST_NODE_TYPES.BinaryExpression &&
@@ -329,6 +329,11 @@ export const rule = createRule({
           const rightTsNode = services.esTreeNodeToTSNodeMap.get(instanceofCheck.right)
           const rightType = checker.getTypeAtLocation(rightTsNode)
           const typeName = rightType.symbol?.escapedName?.toString()
+
+          // If checking against Error base class, consider all error types handled
+          if (rightTsNode.getText() === 'Error') {
+            return true
+          }
 
           if (typeName) {
             checkedErrorTypes.add(typeName)

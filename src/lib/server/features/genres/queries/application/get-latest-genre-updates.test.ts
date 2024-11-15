@@ -124,7 +124,7 @@ test('should return latest history for an updated genre', async ({ dbConnection 
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
   )
-  await updateGenreCommand.execute(
+  const updateResult = await updateGenreCommand.execute(
     genre.id,
     {
       name: 'Updated',
@@ -136,6 +136,9 @@ test('should return latest history for an updated genre', async ({ dbConnection 
     },
     account.id,
   )
+  if (updateResult instanceof Error) {
+    expect.fail(`Failed to update genre: ${updateResult.message}`)
+  }
 
   const query = new GetLatestGenreUpdatesQuery(dbConnection)
   const result = await query.execute()
