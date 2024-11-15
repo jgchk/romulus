@@ -6,7 +6,8 @@ import { createRule } from '../utils.js'
 /**
  * @typedef {import('@typescript-eslint/utils').TSESTree.Node} TSESTreeNode
  * @typedef {import('@typescript-eslint/utils').TSESTree.CallExpression} CallExpression
- * @typedef {import('@typescript-eslint/utils').TSESTree.Identifier} TSESTreeIdentifier
+ * @typedef {import('@typescript-eslint/utils').TSESTree.BinaryExpression} BinaryExpression
+ * @typedef {import('@typescript-eslint/utils').TSESTree.Identifier} Identifier
  */
 
 export const rule = createRule({
@@ -44,7 +45,8 @@ export const rule = createRule({
         /** @type {Set<string>} */
         const types = new Set()
 
-        if (type.symbol?.escapedName === 'Promise') {
+        if (type.symbol?.escapedName.toString() === 'Promise') {
+          // @ts-expect-error - we can just pass in a type, we don't necessarily need a type reference
           const typeArgs = checker.getTypeArguments(type)
 
           if (typeArgs[0]?.isUnion()) {
@@ -80,7 +82,8 @@ export const rule = createRule({
        * @returns {boolean}
        */
       static containsErrorType(type) {
-        if (type.symbol?.escapedName === 'Promise') {
+        if (type.symbol?.escapedName.toString() === 'Promise') {
+          // @ts-expect-error - we can just pass in a type, we don't necessarily need a type reference
           const typeArguments = checker.getTypeArguments(type)
           return typeArguments.length > 0 && typeArguments.some(TypeChecker.isErrorType)
         }
@@ -97,6 +100,10 @@ export const rule = createRule({
         return (
           NodeChecker.findParent(
             node,
+            /**
+             * @param {TSESTreeNode} n
+             * @returns {n is CallExpression}
+             */
             (n) =>
               n.type === AST_NODE_TYPES.CallExpression &&
               n.callee.type === AST_NODE_TYPES.Identifier &&
@@ -106,9 +113,10 @@ export const rule = createRule({
       }
 
       /**
+       * @template {TSESTreeNode} O
        * @param {TSESTreeNode} node
-       * @param {(node: TSESTreeNode) => boolean} predicate
-       * @returns {TSESTreeNode | undefined}
+       * @param {(node: TSESTreeNode) => node is O} predicate
+       * @returns {O | undefined}
        */
       static findParent(node, predicate) {
         let current = node.parent
@@ -291,10 +299,12 @@ export const rule = createRule({
         .filter((i) => i !== undefined)
 
       const originalCallNode = services.esTreeNodeToTSNodeMap.get(node)
-      const returnType = checker.getReturnTypeOfSignature(
-        checker.getResolvedSignature(originalCallNode),
-      )
+      const signature = checker.getResolvedSignature(originalCallNode)
+      if (!signature) return false
+      const returnType = checker.getReturnTypeOfSignature(signature)
       const possibleErrorTypes = TypeChecker.getErrorTypes(returnType)
+
+      /** @type {Set<string>} */
       const checkedErrorTypes = new Set()
 
       for (const refId of resultIdentifiers) {
@@ -304,6 +314,10 @@ export const rule = createRule({
         // Check instanceof checks
         const instanceofCheck = NodeChecker.findParent(
           refId,
+          /**
+           * @param {TSESTreeNode} n
+           * @returns {n is BinaryExpression}
+           */
           (n) =>
             n.type === AST_NODE_TYPES.BinaryExpression &&
             n.operator === 'instanceof' &&
@@ -315,6 +329,7 @@ export const rule = createRule({
           const rightTsNode = services.esTreeNodeToTSNodeMap.get(instanceofCheck.right)
           const rightType = checker.getTypeAtLocation(rightTsNode)
           const typeName = rightType.symbol?.escapedName?.toString()
+
           if (typeName) {
             checkedErrorTypes.add(typeName)
           }
