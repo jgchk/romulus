@@ -74,11 +74,28 @@ export const rule = createRule({
      */
     function returnsError(tsNode) {
       const signature = checker.getResolvedSignature(tsNode)
-      if (!signature) return
+      if (!signature) return false
 
       const returnType = checker.getReturnTypeOfSignature(signature)
 
-      return containsErrorType(returnType)
+      // Handle Promise types
+      if (returnType.symbol?.escapedName === 'Promise') {
+        // @ts-ignore
+        const typeArguments = checker.getTypeArguments(returnType)
+        if (typeArguments.length > 0) {
+          const promiseType = typeArguments[0]
+          if (promiseType.isUnion()) {
+            return promiseType.types.some((t) => isErrorType(t))
+          }
+          return isErrorType(promiseType)
+        }
+      }
+
+      // Handle non-Promise types
+      if (returnType.isUnion()) {
+        return returnType.types.some((t) => isErrorType(t))
+      }
+      return isErrorType(returnType)
     }
 
     /**
@@ -170,43 +187,89 @@ export const rule = createRule({
           ref.identifier.name === resultIdentifier.getText(),
       )
 
-      return resultAssignmentReferences.some((ref) => {
-        if (isInInstanceOfCheck(ref.identifier)) {
-          return true
-        }
+      // Get the original call expression node
+      const originalCallNode = services.esTreeNodeToTSNodeMap.get(node)
+      const returnType = checker.getReturnTypeOfSignature(
+        checker.getResolvedSignature(originalCallNode),
+      )
 
+      // Get all possible error types
+      const possibleErrorTypes = new Set()
+
+      if (returnType.symbol?.escapedName === 'Promise') {
+        // @ts-ignore
+        const typeArguments = checker.getTypeArguments(returnType)
+        if (typeArguments.length > 0) {
+          const promiseType = typeArguments[0]
+          if (promiseType.isUnion()) {
+            promiseType.types.forEach((t) => {
+              if (isErrorType(t)) {
+                possibleErrorTypes.add(t.symbol?.escapedName?.toString())
+              }
+            })
+          } else if (isErrorType(promiseType)) {
+            possibleErrorTypes.add(promiseType.symbol?.escapedName?.toString())
+          }
+        }
+      } else if (returnType.isUnion()) {
+        returnType.types.forEach((t) => {
+          if (isErrorType(t)) {
+            possibleErrorTypes.add(t.symbol?.escapedName?.toString())
+          }
+        })
+      } else if (isErrorType(returnType)) {
+        possibleErrorTypes.add(returnType.symbol?.escapedName?.toString())
+      }
+
+      // Track which error types have been checked
+      const checkedErrorTypes = new Set()
+
+      for (const ref of resultAssignmentReferences) {
         if (isWithinExpectCall(ref.identifier)) {
           return true
         }
 
         if (isInTruthyCheck(ref.identifier) && isErrorOrUndefined(ref.identifier)) {
-          // Get the type of the identifier
-          const tsNode = services.esTreeNodeToTSNodeMap.get(ref.identifier)
-          const type = checker.getTypeAtLocation(tsNode)
-
-          // Check if it's a union type that includes Error and undefined
-          if (type.isUnion()) {
-            const hasError = type.types.some((t) => isErrorType(t))
-            const hasUndefined = type.types.some((t) => t.flags & ts.TypeFlags.Undefined)
-            if (hasError && hasUndefined) {
-              return true
-            }
-          }
+          return true
         }
 
-        return false
-      })
-    }
+        // Check instanceof checks
+        /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
+        let current = ref.identifier.parent
+        while (current) {
+          if (
+            current.type === AST_NODE_TYPES.BinaryExpression &&
+            current.operator === 'instanceof' &&
+            current.left === ref.identifier &&
+            current.right.type === AST_NODE_TYPES.Identifier
+          ) {
+            const rightTsNode = services.esTreeNodeToTSNodeMap.get(current.right)
+            const rightType = checker.getTypeAtLocation(rightTsNode)
+            const typeName = rightType.symbol?.escapedName?.toString()
+            if (typeName) {
+              checkedErrorTypes.add(typeName)
+            }
 
-    /**
-     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
-     * @returns {boolean}
-     */
-    function isInInstanceOfCheck(node) {
-      return (
-        node.parent?.type === AST_NODE_TYPES.BinaryExpression &&
-        node.parent.operator === 'instanceof'
-      )
+            // Check if this is part of an if-else chain
+            /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
+            let ifStatement = current.parent
+            while (ifStatement && ifStatement.type !== AST_NODE_TYPES.IfStatement) {
+              ifStatement = ifStatement.parent
+            }
+
+            if (ifStatement?.alternate) {
+              const remainingTypes = new Set(possibleErrorTypes)
+              checkedErrorTypes.forEach((t) => remainingTypes.delete(t))
+              if (remainingTypes.size === 0) {
+                return true
+              }
+            }
+          }
+          current = current.parent
+        }
+      }
+
+      return possibleErrorTypes.size === checkedErrorTypes.size
     }
 
     /**

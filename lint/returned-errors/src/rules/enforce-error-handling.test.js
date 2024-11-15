@@ -104,6 +104,17 @@ ruleTester.run('enforce-error-handling', rule, {
         // handle error
       }
     `,
+    `
+      class CustomError1 extends Error {}
+      class CustomError2 extends Error {}
+      function test(): Promise<CustomError1 | CustomError2> {}
+      const a = test()
+      if (a instanceof CustomError1) {
+        // handle CustomError1
+      } else if (a instanceof CustomError2) {
+        // handle CustomError2
+      }
+    `,
   ],
   invalid: [
     {
@@ -227,6 +238,26 @@ ruleTester.run('enforce-error-handling', rule, {
           endColumn: 25,
           line: 4,
           endLine: 4,
+          messageId: 'enforceErrorHandling',
+        },
+      ],
+    },
+    {
+      code: `
+        class CustomError1 extends Error {}
+        class CustomError2 extends Error {}
+        function test(): Promise<CustomError1 | CustomError2> {}
+        const a = test()
+        if (a instanceof CustomError1) {
+          // only handle CustomError1
+        }
+      `,
+      errors: [
+        {
+          column: 19,
+          endColumn: 25,
+          line: 5,
+          endLine: 5,
           messageId: 'enforceErrorHandling',
         },
       ],
