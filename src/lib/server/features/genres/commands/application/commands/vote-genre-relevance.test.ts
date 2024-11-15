@@ -67,6 +67,20 @@ function getTestGenre(
   }
 }
 
+async function vote(
+  dbConnection: IDrizzleConnection,
+  ...args: Parameters<VoteGenreRelevanceCommand['execute']>
+) {
+  const voteGenreRelevance = new VoteGenreRelevanceCommand(
+    new DrizzleGenreRelevanceVoteRepository(dbConnection),
+  )
+
+  const voteResult = await voteGenreRelevance.execute(...args)
+  if (voteResult instanceof Error) {
+    expect.fail(`Failed to vote on genre relevance: ${voteResult.message}`)
+  }
+}
+
 test('should delete vote and update relevance when relevance is UNSET_GENRE_RELEVANCE', async ({
   dbConnection,
 }) => {
@@ -75,17 +89,14 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
 
   const genre = await createGenre(getTestGenre({ relevance: 1 }), account.id, dbConnection)
 
-  const voteGenreRelevance = new VoteGenreRelevanceCommand(
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
   const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
 
-  await voteGenreRelevance.execute(genre.id, 1, account.id)
+  await vote(dbConnection, genre.id, 1, account.id)
 
   const relevanceVotesBeforeDeletion = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotesBeforeDeletion).toHaveLength(1)
 
-  await voteGenreRelevance.execute(genre.id, UNSET_GENRE_RELEVANCE, account.id)
+  await vote(dbConnection, genre.id, UNSET_GENRE_RELEVANCE, account.id)
 
   const relevanceVotesAfterDeletion = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotesAfterDeletion).toHaveLength(0)
@@ -103,19 +114,16 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
 
   const genre = await createGenre(getTestGenre({ relevance: 1 }), account.id, dbConnection)
 
-  const voteGenreRelevance = new VoteGenreRelevanceCommand(
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
   const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(dbConnection)
 
-  await voteGenreRelevance.execute(genre.id, 1, account.id)
+  await vote(dbConnection, genre.id, 1, account.id)
 
   const relevanceVotesBeforeVote = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotesBeforeVote).toEqual([
     expect.objectContaining({ genreId: genre.id, accountId: account.id, relevance: 1 }),
   ])
 
-  await voteGenreRelevance.execute(genre.id, 2, account.id)
+  await vote(dbConnection, genre.id, 2, account.id)
 
   const relevanceVotesAfterVote = await getGenreRelevanceVotesByGenreQuery.execute(genre.id)
   expect(relevanceVotesAfterVote).toEqual([
@@ -142,15 +150,11 @@ test('should calculate median relevance correctly', async ({ dbConnection }) => 
 
   const genre = await createGenre(getTestGenre(), accounts[0].id, dbConnection)
 
-  const voteGenreRelevance = new VoteGenreRelevanceCommand(
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
-
-  await voteGenreRelevance.execute(genre.id, 1, accounts[0].id)
-  await voteGenreRelevance.execute(genre.id, 2, accounts[1].id)
-  await voteGenreRelevance.execute(genre.id, 3, accounts[2].id)
-  await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
-  await voteGenreRelevance.execute(genre.id, 5, accounts[4].id)
+  await vote(dbConnection, genre.id, 1, accounts[0].id)
+  await vote(dbConnection, genre.id, 2, accounts[1].id)
+  await vote(dbConnection, genre.id, 3, accounts[2].id)
+  await vote(dbConnection, genre.id, 4, accounts[3].id)
+  await vote(dbConnection, genre.id, 5, accounts[4].id)
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
@@ -171,14 +175,10 @@ test('should round median relevance to nearest integer', async ({ dbConnection }
 
   const genre = await createGenre(getTestGenre(), accounts[0].id, dbConnection)
 
-  const voteGenreRelevance = new VoteGenreRelevanceCommand(
-    new DrizzleGenreRelevanceVoteRepository(dbConnection),
-  )
-
-  await voteGenreRelevance.execute(genre.id, 1, accounts[0].id)
-  await voteGenreRelevance.execute(genre.id, 2, accounts[1].id)
-  await voteGenreRelevance.execute(genre.id, 3, accounts[2].id)
-  await voteGenreRelevance.execute(genre.id, 4, accounts[3].id)
+  await vote(dbConnection, genre.id, 1, accounts[0].id)
+  await vote(dbConnection, genre.id, 2, accounts[1].id)
+  await vote(dbConnection, genre.id, 3, accounts[2].id)
+  await vote(dbConnection, genre.id, 4, accounts[3].id)
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
