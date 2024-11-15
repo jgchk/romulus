@@ -1,6 +1,7 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 import { z } from 'zod'
 
+import { AccountNotFoundError } from '$lib/server/features/authentication/commands/application/errors/account-not-found'
 import { genreRelevance } from '$lib/types/genres'
 
 const schema = z.object({
@@ -32,13 +33,16 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   }
   const data = maybeData.data
 
-  await locals.services.authentication.commands.updateUserSettings(id, {
+  const result = await locals.services.authentication.commands.updateUserSettings(id, {
     genreRelevanceFilter: data.genreRelevanceFilter,
     showTypeTags: data.showTypeTags,
     showRelevanceTags: data.showRelevanceTags,
     darkMode: data.darkMode,
     showNsfw: data.showNsfw,
   })
+  if (result instanceof AccountNotFoundError) {
+    return error(404, 'Account not found')
+  }
 
   return json({ success: true })
 }
