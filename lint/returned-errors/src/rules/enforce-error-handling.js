@@ -3,45 +3,180 @@ import * as ts from 'typescript'
 
 import { createRule } from '../utils.js'
 
+/**
+ * @typedef {import('@typescript-eslint/utils').TSESTree.Node} TSESTreeNode
+ * @typedef {import('@typescript-eslint/utils').TSESTree.CallExpression} CallExpression
+ * @typedef {import('@typescript-eslint/utils').TSESTree.Identifier} TSESTreeIdentifier
+ */
+
 export const rule = createRule({
   create(context) {
     const services = ESLintUtils.getParserServices(context)
     const checker = services.program.getTypeChecker()
 
-    /** @type {ESLintUtils.RuleListener} */
-    const ruleListener = {
-      CallExpression(node) {
-        handleCallExpression(node)
-      },
+    class TypeChecker {
+      /**
+       * @param {ts.Type} type
+       * @returns {boolean}
+       */
+      static isErrorType(type) {
+        if (type.symbol?.escapedName === 'Error') return true
+        if (type.isUnion()) return type.types.some((type) => TypeChecker.isErrorType(type))
+
+        const symbol = type.getSymbol()
+        if (!symbol?.getDeclarations()) return false
+
+        return !!symbol.getDeclarations()?.some((declaration) => {
+          if (!ts.isClassDeclaration(declaration)) return false
+          return (
+            declaration.heritageClauses?.some((clause) =>
+              clause.types.some((t) => TypeChecker.isErrorType(checker.getTypeFromTypeNode(t))),
+            ) ?? false
+          )
+        })
+      }
+
+      /**
+       * @param {ts.Type} type
+       * @returns {Set<string>}
+       */
+      static getErrorTypes(type) {
+        /** @type {Set<string>} */
+        const types = new Set()
+
+        if (type.symbol?.escapedName === 'Promise') {
+          const typeArgs = checker.getTypeArguments(type)
+
+          if (typeArgs[0]?.isUnion()) {
+            for (const t of typeArgs[0].types) {
+              if (TypeChecker.isErrorType(t)) {
+                const name = t.symbol?.escapedName?.toString()
+                if (name) types.add(name)
+              }
+            }
+          } else {
+            if (TypeChecker.isErrorType(typeArgs[0])) {
+              const name = typeArgs[0].symbol?.escapedName?.toString()
+              if (name) types.add(name)
+            }
+          }
+        } else if (type.isUnion()) {
+          type.types.forEach((t) => {
+            if (TypeChecker.isErrorType(t)) {
+              const name = t.symbol?.escapedName?.toString()
+              if (name) types.add(name)
+            }
+          })
+        } else if (TypeChecker.isErrorType(type)) {
+          const name = type.symbol?.escapedName?.toString()
+          if (name) types.add(name)
+        }
+
+        return types
+      }
+
+      /**
+       * @param {ts.Type} type
+       * @returns {boolean}
+       */
+      static containsErrorType(type) {
+        if (type.symbol?.escapedName === 'Promise') {
+          // @ts-ignore
+          const typeArguments = checker.getTypeArguments(type)
+          return typeArguments.length > 0 && typeArguments.some(TypeChecker.isErrorType)
+        }
+        return TypeChecker.isErrorType(type)
+      }
+    }
+
+    class NodeChecker {
+      /**
+       * @param {TSESTreeNode} node
+       * @returns {boolean}
+       */
+      static isWithinExpectCall(node) {
+        return (
+          NodeChecker.findParent(
+            node,
+            (n) =>
+              n.type === AST_NODE_TYPES.CallExpression &&
+              n.callee.type === AST_NODE_TYPES.Identifier &&
+              n.callee.name === 'expect',
+          ) !== undefined
+        )
+      }
+
+      /**
+       * @param {TSESTreeNode} node
+       * @param {(node: TSESTreeNode) => boolean} predicate
+       * @returns {TSESTreeNode | undefined}
+       */
+      static findParent(node, predicate) {
+        let current = node.parent
+        while (current) {
+          if (predicate(current)) return current
+          current = current.parent
+        }
+      }
+
+      /**
+       * @param {TSESTreeNode} node
+       * @returns {boolean}
+       */
+      static isInTruthyCheck(node) {
+        const parent = node.parent
+        return (
+          (parent?.type === AST_NODE_TYPES.IfStatement && parent.test === node) ||
+          (parent?.type === AST_NODE_TYPES.LogicalExpression &&
+            parent.operator === '&&' &&
+            parent.left === node) ||
+          (parent?.type === AST_NODE_TYPES.ConditionalExpression && parent.test === node)
+        )
+      }
+
+      /**
+       * @param {TSESTreeNode} node
+       * @returns {boolean}
+       */
+      static isWithinReturnStatement(node) {
+        return (
+          NodeChecker.findParent(node, (n) => n.type === AST_NODE_TYPES.ReturnStatement) !==
+          undefined
+        )
+      }
+
+      /**
+       * @param {TSESTreeNode} node
+       * @returns {boolean}
+       */
+      static isErrorOrUndefined(node) {
+        const tsNode = services.esTreeNodeToTSNodeMap.get(node)
+        const type = checker.getTypeAtLocation(tsNode)
+
+        if (type.isUnion()) {
+          const hasError = type.types.some((t) => TypeChecker.isErrorType(t))
+          const hasUndefined = type.types.some((t) => t.flags & ts.TypeFlags.Undefined)
+          return hasError && hasUndefined
+        }
+
+        return false
+      }
     }
 
     /**
-     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
+     * @param {CallExpression} node
      */
     function handleCallExpression(node) {
-      if (isSuperCallInErrorConstructor(node)) {
-        return
-      }
+      if (isSuperCallInErrorConstructor(node)) return
 
       const tsNode = services.esTreeNodeToTSNodeMap.get(node)
-      if (!returnsError(tsNode)) {
-        return
-      }
+      if (!returnsError(tsNode)) return
 
-      if (isWithinReturnStatement(node) && parentFunctionReturnsError(node)) {
-        return
-      }
+      if (NodeChecker.isWithinReturnStatement(node) && parentFunctionReturnsError(node)) return
 
       const resultIdentifier = getErrorResultVariableIdentifier(tsNode)
-      if (!resultIdentifier) {
-        return context.report({
-          node,
-          messageId: 'enforceErrorHandling',
-        })
-      }
-
-      if (!checksErrorResult(node, resultIdentifier)) {
-        return context.report({
+      if (!resultIdentifier || !checksErrorResult(node, resultIdentifier)) {
+        context.report({
           node,
           messageId: 'enforceErrorHandling',
         })
@@ -49,91 +184,60 @@ export const rule = createRule({
     }
 
     /**
-     * Checks if a node is a super() call inside a custom error constructor
-     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
+     * @param {CallExpression} node
      * @returns {boolean}
      */
     function isSuperCallInErrorConstructor(node) {
       if (node.callee.type !== AST_NODE_TYPES.Super) return false
 
-      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
-      let parent = node.parent
-      while (parent) {
-        if (parent.type === AST_NODE_TYPES.ClassDeclaration) {
-          const tsNode = services.esTreeNodeToTSNodeMap.get(parent)
-          const type = checker.getTypeAtLocation(tsNode)
-          return isErrorType(type)
-        }
-        parent = parent.parent
+      const classDeclaration = NodeChecker.findParent(
+        node,
+        (n) => n.type === AST_NODE_TYPES.ClassDeclaration,
+      )
+
+      if (classDeclaration) {
+        const tsNode = services.esTreeNodeToTSNodeMap.get(classDeclaration)
+        const type = checker.getTypeAtLocation(tsNode)
+        return TypeChecker.isErrorType(type)
       }
+
       return false
     }
 
     /**
      * @param {ts.CallExpression} tsNode
+     * @returns {boolean}
      */
     function returnsError(tsNode) {
       const signature = checker.getResolvedSignature(tsNode)
       if (!signature) return false
 
       const returnType = checker.getReturnTypeOfSignature(signature)
-
-      // Handle Promise types
-      if (returnType.symbol?.escapedName === 'Promise') {
-        // @ts-ignore
-        const typeArguments = checker.getTypeArguments(returnType)
-        if (typeArguments.length > 0) {
-          const promiseType = typeArguments[0]
-          if (promiseType.isUnion()) {
-            return promiseType.types.some((t) => isErrorType(t))
-          }
-          return isErrorType(promiseType)
-        }
-      }
-
-      // Handle non-Promise types
-      if (returnType.isUnion()) {
-        return returnType.types.some((t) => isErrorType(t))
-      }
-      return isErrorType(returnType)
+      return TypeChecker.containsErrorType(returnType)
     }
 
     /**
-     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
-     */
-    function isWithinReturnStatement(node) {
-      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
-      let current = node.parent
-      while (current) {
-        if (current.type === AST_NODE_TYPES.ReturnStatement) {
-          return true
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    /**
-     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
+     * @param {CallExpression} node
+     * @returns {boolean}
      */
     function parentFunctionReturnsError(node) {
-      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
-      let current = node.parent
-      while (current) {
-        if (
-          current.type === AST_NODE_TYPES.FunctionDeclaration ||
-          current.type === AST_NODE_TYPES.FunctionExpression ||
-          current.type === AST_NODE_TYPES.ArrowFunctionExpression
-        ) {
-          const tsNode = services.esTreeNodeToTSNodeMap.get(current)
-          const signature = checker.getSignatureFromDeclaration(tsNode)
-          if (signature) {
-            const returnType = checker.getReturnTypeOfSignature(signature)
-            return containsErrorType(returnType)
-          }
+      const functionNode = NodeChecker.findParent(
+        node,
+        (n) =>
+          n.type === AST_NODE_TYPES.FunctionDeclaration ||
+          n.type === AST_NODE_TYPES.FunctionExpression ||
+          n.type === AST_NODE_TYPES.ArrowFunctionExpression,
+      )
+
+      if (functionNode) {
+        const tsNode = services.esTreeNodeToTSNodeMap.get(functionNode)
+        const signature = checker.getSignatureFromDeclaration(tsNode)
+        if (signature) {
+          const returnType = checker.getReturnTypeOfSignature(signature)
+          return TypeChecker.containsErrorType(returnType)
         }
-        current = current.parent
       }
+
       return false
     }
 
@@ -144,17 +248,14 @@ export const rule = createRule({
     function getErrorResultVariableIdentifier(tsNode) {
       let current = tsNode.parent
 
-      // Handle conditional (ternary) expressions
       while (ts.isConditionalExpression(current)) {
         current = current.parent
       }
 
-      // const a = b()
       if (ts.isVariableDeclaration(current) && ts.isIdentifier(current.name)) {
         return current.name
       }
 
-      // const a = await b()
       if (
         ts.isAwaitExpression(current) &&
         ts.isVariableDeclaration(current.parent) &&
@@ -163,7 +264,6 @@ export const rule = createRule({
         return current.parent.name
       }
 
-      // Handle binary expressions within variable declarations
       if (ts.isBinaryExpression(current)) {
         let parent = current.parent
         while (parent && !ts.isVariableDeclaration(parent)) {
@@ -176,227 +276,71 @@ export const rule = createRule({
     }
 
     /**
-     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
+     * @param {CallExpression} node
      * @param {ts.Identifier} resultIdentifier
+     * @returns {boolean}
      */
     function checksErrorResult(node, resultIdentifier) {
       const scope = context.sourceCode.getScope(node)
-      const resultAssignmentReferences = scope.references.filter(
+      const resultReferences = scope.references.filter(
         (ref) =>
           ref.identifier.type === AST_NODE_TYPES.Identifier &&
           ref.identifier.name === resultIdentifier.getText(),
       )
 
-      // Get the original call expression node
       const originalCallNode = services.esTreeNodeToTSNodeMap.get(node)
       const returnType = checker.getReturnTypeOfSignature(
         checker.getResolvedSignature(originalCallNode),
       )
 
-      // Get all possible error types
-      const possibleErrorTypes = new Set()
-
-      if (returnType.symbol?.escapedName === 'Promise') {
-        // @ts-ignore
-        const typeArguments = checker.getTypeArguments(returnType)
-        if (typeArguments.length > 0) {
-          const promiseType = typeArguments[0]
-          if (promiseType.isUnion()) {
-            promiseType.types.forEach((t) => {
-              if (isErrorType(t)) {
-                possibleErrorTypes.add(t.symbol?.escapedName?.toString())
-              }
-            })
-          } else if (isErrorType(promiseType)) {
-            possibleErrorTypes.add(promiseType.symbol?.escapedName?.toString())
-          }
-        }
-      } else if (returnType.isUnion()) {
-        returnType.types.forEach((t) => {
-          if (isErrorType(t)) {
-            possibleErrorTypes.add(t.symbol?.escapedName?.toString())
-          }
-        })
-      } else if (isErrorType(returnType)) {
-        possibleErrorTypes.add(returnType.symbol?.escapedName?.toString())
-      }
-
-      // Track which error types have been checked
+      const possibleErrorTypes = TypeChecker.getErrorTypes(returnType)
       const checkedErrorTypes = new Set()
 
-      for (const ref of resultAssignmentReferences) {
-        if (isWithinExpectCall(ref.identifier)) {
+      for (const ref of resultReferences) {
+        if (NodeChecker.isWithinExpectCall(ref.identifier)) return true
+        if (
+          NodeChecker.isInTruthyCheck(ref.identifier) &&
+          NodeChecker.isErrorOrUndefined(ref.identifier)
+        )
           return true
-        }
-
-        if (isInTruthyCheck(ref.identifier) && isErrorOrUndefined(ref.identifier)) {
-          return true
-        }
 
         // Check instanceof checks
-        /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
-        let current = ref.identifier.parent
-        while (current) {
-          if (
-            current.type === AST_NODE_TYPES.BinaryExpression &&
-            current.operator === 'instanceof' &&
-            current.left === ref.identifier &&
-            current.right.type === AST_NODE_TYPES.Identifier
-          ) {
-            const rightTsNode = services.esTreeNodeToTSNodeMap.get(current.right)
-            const rightType = checker.getTypeAtLocation(rightTsNode)
-            const typeName = rightType.symbol?.escapedName?.toString()
-            if (typeName) {
-              checkedErrorTypes.add(typeName)
-            }
+        const instanceofCheck = NodeChecker.findParent(
+          ref.identifier,
+          (n) =>
+            n.type === AST_NODE_TYPES.BinaryExpression &&
+            n.operator === 'instanceof' &&
+            n.left === ref.identifier &&
+            n.right.type === AST_NODE_TYPES.Identifier,
+        )
 
-            // Check if this is part of an if-else chain
-            /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
-            let ifStatement = current.parent
-            while (ifStatement && ifStatement.type !== AST_NODE_TYPES.IfStatement) {
-              ifStatement = ifStatement.parent
-            }
-
-            if (ifStatement?.alternate) {
-              const remainingTypes = new Set(possibleErrorTypes)
-              checkedErrorTypes.forEach((t) => remainingTypes.delete(t))
-              if (remainingTypes.size === 0) {
-                return true
-              }
-            }
+        if (instanceofCheck) {
+          const rightTsNode = services.esTreeNodeToTSNodeMap.get(instanceofCheck.right)
+          const rightType = checker.getTypeAtLocation(rightTsNode)
+          const typeName = rightType.symbol?.escapedName?.toString()
+          if (typeName) {
+            checkedErrorTypes.add(typeName)
           }
-          current = current.parent
+
+          const ifStatement = NodeChecker.findParent(
+            instanceofCheck,
+            (n) => n.type === AST_NODE_TYPES.IfStatement,
+          )
+
+          if (ifStatement?.alternate) {
+            const remainingTypes = new Set(possibleErrorTypes)
+            checkedErrorTypes.forEach((t) => remainingTypes.delete(t))
+            if (remainingTypes.size === 0) return true
+          }
         }
       }
 
       return possibleErrorTypes.size === checkedErrorTypes.size
     }
 
-    /**
-     * Checks if a node is within an expect(...) call
-     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
-     * @returns {boolean}
-     */
-    function isWithinExpectCall(node) {
-      let current = node.parent
-      while (current) {
-        if (
-          current.type === AST_NODE_TYPES.CallExpression &&
-          current.callee.type === AST_NODE_TYPES.Identifier &&
-          current.callee.name === 'expect'
-        ) {
-          return true
-        }
-        current = current.parent
-      }
-      return false
+    return {
+      CallExpression: handleCallExpression,
     }
-
-    /**
-     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
-     * @returns {boolean}
-     */
-    function isInTruthyCheck(node) {
-      const parent = node.parent
-
-      // Direct if statement check: if (result)
-      if (parent?.type === AST_NODE_TYPES.IfStatement && parent.test === node) {
-        return true
-      }
-
-      // Logical expressions: result && something
-      if (
-        parent?.type === AST_NODE_TYPES.LogicalExpression &&
-        parent.operator === '&&' &&
-        parent.left === node
-      ) {
-        return true
-      }
-
-      // Condition in ternary: result ? x : y
-      if (parent?.type === AST_NODE_TYPES.ConditionalExpression && parent.test === node) {
-        return true
-      }
-
-      return false
-    }
-
-    /**
-     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
-     * @returns {boolean}
-     */
-    function isErrorOrUndefined(node) {
-      // Get the type of the identifier
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node)
-      const type = checker.getTypeAtLocation(tsNode)
-
-      // Check if it's a union type that includes Error and undefined
-      if (type.isUnion()) {
-        const hasError = type.types.some((t) => isErrorType(t))
-        const hasUndefined = type.types.some((t) => t.flags & ts.TypeFlags.Undefined)
-        if (hasError && hasUndefined) {
-          return true
-        }
-      }
-
-      return false
-    }
-
-    /**
-     * @param {ts.Type} type
-     * @returns {boolean}
-     */
-    function isErrorType(type) {
-      if (type.symbol?.escapedName === 'Error') {
-        return true
-      }
-
-      if (type.isUnion()) {
-        return type.types.some((t) => isErrorType(t))
-      }
-
-      const symbol = type.getSymbol()
-      if (!symbol) return false
-
-      const declarations = symbol.getDeclarations()
-      if (!declarations) return false
-
-      for (const declaration of declarations) {
-        if (ts.isClassDeclaration(declaration)) {
-          const heritage = declaration.heritageClauses
-          if (!heritage) continue
-
-          for (const clause of heritage) {
-            for (const t of clause.types) {
-              const baseType = checker.getTypeFromTypeNode(t)
-              if (isErrorType(baseType)) {
-                return true
-              }
-            }
-          }
-        }
-      }
-
-      return false
-    }
-
-    /**
-     * @param {ts.Type} type
-     * @returns {boolean}
-     */
-    function containsErrorType(type) {
-      if (type.symbol?.escapedName === 'Promise') {
-        // @ts-ignore
-        const typeArguments = checker.getTypeArguments(type)
-        if (typeArguments.length > 0) {
-          return typeArguments.some(isErrorType)
-        }
-      }
-
-      return isErrorType(type)
-    }
-
-    return ruleListener
   },
   meta: {
     docs: {
