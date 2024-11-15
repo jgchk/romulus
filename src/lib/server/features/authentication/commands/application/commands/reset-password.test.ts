@@ -154,13 +154,22 @@ describe('resetPassword', () => {
     const passwordResetToken = await createPasswordResetToken(account.id)
 
     // Create multiple sessions for the account
-    await loginAccount({ username: 'testaccount', password: 'oldpassword' })
-    await loginAccount({ username: 'testaccount', password: 'oldpassword' })
+    const session1 = await loginAccount({ username: 'testaccount', password: 'oldpassword' })
+    if (session1 instanceof Error) {
+      expect.fail(`Failed to create session: ${session1.message}`)
+    }
+    const session2 = await loginAccount({ username: 'testaccount', password: 'oldpassword' })
+    if (session2 instanceof Error) {
+      expect.fail(`Failed to create session: ${session2.message}`)
+    }
     const preResetSessions = await getAccountSessions('testaccount')
     expect(preResetSessions).toHaveLength(2)
 
     // Reset the password
-    await resetPassword.execute(passwordResetToken, 'newpassword')
+    const resetPasswordResult = await resetPassword.execute(passwordResetToken, 'newpassword')
+    if (resetPasswordResult instanceof Error) {
+      expect.fail(`Failed to reset password: ${resetPasswordResult.message}`)
+    }
 
     // Check if all current sessions for the account were deleted (except for the new one)
     const postResetSessions = await getAccountSessions('testaccount')
@@ -177,7 +186,10 @@ describe('resetPassword', () => {
     const account = await createAccount({ username: 'testaccount', password: 'oldpassword' })
     const passwordResetToken = await createPasswordResetToken(account.id)
 
-    await resetPassword.execute(passwordResetToken, 'newpassword')
+    const resetPasswordResult = await resetPassword.execute(passwordResetToken, 'newpassword')
+    if (resetPasswordResult instanceof Error) {
+      expect.fail(`Failed to reset password: ${resetPasswordResult.message}`)
+    }
 
     const storedToken = await getPasswordResetToken(passwordResetToken.tokenHash)
     expect(storedToken).toBeUndefined()
