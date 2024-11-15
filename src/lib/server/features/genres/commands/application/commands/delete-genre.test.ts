@@ -64,7 +64,10 @@ test('should delete the genre', async ({ dbConnection }) => {
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await deleteGenreCommand.execute(genre.id, account.id)
+  const result = await deleteGenreCommand.execute(genre.id, account.id)
+  if (result instanceof Error) {
+    expect.fail(`Failed to delete genre: ${result.message}`)
+  }
 
   const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
   const { data: genres } = await getAllGenresQuery.execute()
@@ -104,7 +107,10 @@ test('should create a genre history entry', async ({ dbConnection }) => {
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await deleteGenreCommand.execute(genre.id, account.id)
+  const result = await deleteGenreCommand.execute(genre.id, account.id)
+  if (result instanceof Error) {
+    expect.fail(`Failed to delete genre: ${result.message}`)
+  }
   const afterExecute = new Date()
 
   const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
@@ -160,7 +166,10 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await deleteGenreCommand.execute(child.id, account.id)
+  const result = await deleteGenreCommand.execute(child.id, account.id)
+  if (result instanceof Error) {
+    expect.fail(`Failed to delete genre: ${result.message}`)
+  }
 
   const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
   const genres = await getAllGenresQuery.execute({ include: ['parents'] })
@@ -217,7 +226,10 @@ test('should create history entries for children that were moved', async ({ dbCo
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await deleteGenreCommand.execute(child.id, account.id)
+  const result = await deleteGenreCommand.execute(child.id, account.id)
+  if (result instanceof Error) {
+    expect.fail(`Failed to delete genre: ${result.message}`)
+  }
   const afterExecute = new Date()
 
   const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
