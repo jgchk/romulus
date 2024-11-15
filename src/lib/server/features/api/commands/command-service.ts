@@ -36,9 +36,3 @@ export class ApiCommandService {
     return this.validateApiKeyCommand.execute(apiKey)
   }
 }
-
-function returnsError(): Error {}
-
-function passesAlongError() {
-  return returnsError()
-}
