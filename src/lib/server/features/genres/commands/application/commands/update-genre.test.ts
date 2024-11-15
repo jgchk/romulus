@@ -83,7 +83,7 @@ test('should update the genre', async ({ dbConnection }) => {
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await updateGenreCommand.execute(
+  const updateResult = await updateGenreCommand.execute(
     genre.id,
     {
       name: 'Updated Genre',
@@ -95,6 +95,9 @@ test('should update the genre', async ({ dbConnection }) => {
     },
     account.id,
   )
+  if (updateResult instanceof Error) {
+    expect.fail(`Failed to update genre: ${updateResult.message}`)
+  }
 
   const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
   const {
@@ -136,7 +139,7 @@ test('should create a history entry', async ({ dbConnection }) => {
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  await updateGenreCommand.execute(
+  const updateResult = await updateGenreCommand.execute(
     genre.id,
     {
       name: 'Updated Genre',
@@ -148,6 +151,9 @@ test('should create a history entry', async ({ dbConnection }) => {
     },
     account.id,
   )
+  if (updateResult instanceof Error) {
+    expect.fail(`Failed to update genre: ${updateResult.message}`)
+  }
   const afterExecute = new Date()
 
   const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
@@ -301,20 +307,19 @@ test('should not create a history entry if no changes are detected', async ({ db
     new DrizzleGenreHistoryRepository(dbConnection),
   )
 
-  try {
-    await updateGenreCommand.execute(
-      genre.id,
-      {
-        akas: {
-          primary: [],
-          secondary: [],
-          tertiary: [],
-        },
+  const updateResult = await updateGenreCommand.execute(
+    genre.id,
+    {
+      akas: {
+        primary: [],
+        secondary: [],
+        tertiary: [],
       },
-      account.id,
-    )
-  } catch {
-    // ignore
+    },
+    account.id,
+  )
+  if (updateResult instanceof Error) {
+    expect.fail(`Failed to update genre: ${updateResult.message}`)
   }
 
   const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
