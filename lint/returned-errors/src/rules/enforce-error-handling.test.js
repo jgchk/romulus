@@ -86,6 +86,12 @@ ruleTester.run('enforce-error-handling', rule, {
         durationMs = undefined
       }
     `,
+    `
+      function returnsError(): Error {}
+      function passesAlongError() {
+        return returnsError()
+      }
+    `,
   ],
   invalid: [
     {

@@ -8,6 +8,175 @@ export const rule = createRule({
     const services = ESLintUtils.getParserServices(context)
     const checker = services.program.getTypeChecker()
 
+    /** @type {ESLintUtils.RuleListener} */
+    const ruleListener = {
+      CallExpression(node) {
+        handleCallExpression(node)
+      },
+    }
+
+    /**
+     * @param {TSESTree.CallExpression} node
+     */
+    function handleCallExpression(node) {
+      if (isSuperCallInErrorConstructor(node)) {
+        return
+      }
+
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node)
+      if (!returnsError(tsNode)) {
+        return
+      }
+
+      if (isWithinReturnStatement(node) && parentFunctionReturnsError(node)) {
+        return
+      }
+
+      const resultIdentifier = getErrorResultVariableIdentifier(tsNode)
+      if (!resultIdentifier) {
+        return context.report({
+          node,
+          messageId: 'enforceErrorHandling',
+        })
+      }
+
+      if (!checksErrorResult(node, resultIdentifier)) {
+        return context.report({
+          node,
+          messageId: 'enforceErrorHandling',
+        })
+      }
+    }
+
+    /**
+     * Checks if a node is a super() call inside a custom error constructor
+     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
+     * @returns {boolean}
+     */
+    function isSuperCallInErrorConstructor(node) {
+      if (node.callee.type !== 'Super') return false
+
+      /** @type {TSESTree.Node | undefined} **/
+      let parent = node.parent
+      while (parent) {
+        if (parent.type === 'ClassDeclaration') {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(parent)
+          const type = checker.getTypeAtLocation(tsNode)
+          return isErrorType(type)
+        }
+        parent = parent.parent
+      }
+      return false
+    }
+
+    /**
+     * @param {ts.CallExpression} tsNode
+     */
+    function returnsError(tsNode) {
+      const signature = checker.getResolvedSignature(tsNode)
+      if (!signature) return
+
+      const returnType = checker.getReturnTypeOfSignature(signature)
+
+      return containsErrorType(returnType)
+    }
+
+    /**
+     * @param {TSESTree.CallExpression} node
+     */
+    function isWithinReturnStatement(node) {
+      /** @type {TSESTree.Node | undefined} **/
+      let current = node.parent
+      while (current) {
+        if (current.type === 'ReturnStatement') {
+          return true
+        }
+        current = current.parent
+      }
+      return false
+    }
+
+    /**
+     * @param {TSESTree.CallExpression} node
+     */
+    function parentFunctionReturnsError(node) {
+      /** @type {TSESTree.Node | undefined} **/
+      let current = node.parent
+      while (current) {
+        if (
+          current.type === 'FunctionDeclaration' ||
+          current.type === 'FunctionExpression' ||
+          current.type === 'ArrowFunctionExpression'
+        ) {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(current)
+          const signature = checker.getSignatureFromDeclaration(tsNode)
+          if (signature) {
+            const returnType = checker.getReturnTypeOfSignature(signature)
+            return containsErrorType(returnType)
+          }
+        }
+        current = current.parent
+      }
+      return false
+    }
+
+    /**
+     * @param {ts.CallExpression} tsNode
+     * @returns {ts.Identifier | undefined}
+     */
+    function getErrorResultVariableIdentifier(tsNode) {
+      let current = tsNode.parent
+
+      // Handle conditional (ternary) expressions
+      while (ts.isConditionalExpression(current)) {
+        current = current.parent
+      }
+
+      // const a = b()
+      if (ts.isVariableDeclaration(current) && ts.isIdentifier(current.name)) {
+        return current.name
+      }
+
+      // const a = await b()
+      if (
+        ts.isAwaitExpression(current) &&
+        ts.isVariableDeclaration(current.parent) &&
+        ts.isIdentifier(current.parent.name)
+      ) {
+        return current.parent.name
+      }
+
+      // Handle binary expressions within variable declarations
+      if (ts.isBinaryExpression(current)) {
+        let parent = current.parent
+        while (parent && !ts.isVariableDeclaration(parent)) {
+          parent = parent.parent
+        }
+        if (parent && ts.isVariableDeclaration(parent) && ts.isIdentifier(parent.name)) {
+          return parent.name
+        }
+      }
+    }
+
+    /**
+     * @param {TSESTree.Node} node
+     * @param {ts.Identifier} resultIdentifier
+     */
+    function checksErrorResult(node, resultIdentifier) {
+      const scope = context.sourceCode.getScope(node)
+      const resultAssignmentReferences = scope.references.filter(
+        (ref) =>
+          ref.identifier.type === 'Identifier' &&
+          ref.identifier.name === resultIdentifier.getText(),
+      )
+      return resultAssignmentReferences.some((ref) => {
+        return (
+          ref.identifier.parent.type === 'BinaryExpression' &&
+          ref.identifier.parent.operator === 'instanceof'
+        )
+      })
+    }
+
     /**
      * @param {ts.Type} type
      * @returns {boolean}
@@ -62,123 +231,7 @@ export const rule = createRule({
       return isErrorType(type)
     }
 
-    /**
-     * @param {ts.CallExpression} tsNode
-     * @returns {ts.Identifier | undefined}
-     */
-    function getErrorResultVariableIdentifier(tsNode) {
-      let current = tsNode.parent
-
-      // Handle conditional (ternary) expressions
-      while (ts.isConditionalExpression(current)) {
-        current = current.parent
-      }
-
-      // const a = b()
-      if (ts.isVariableDeclaration(current) && ts.isIdentifier(current.name)) {
-        return current.name
-      }
-
-      // const a = await b()
-      if (
-        ts.isAwaitExpression(current) &&
-        ts.isVariableDeclaration(current.parent) &&
-        ts.isIdentifier(current.parent.name)
-      ) {
-        return current.parent.name
-      }
-
-      // Handle binary expressions within variable declarations
-      if (ts.isBinaryExpression(current)) {
-        let parent = current.parent
-        while (parent && !ts.isVariableDeclaration(parent)) {
-          parent = parent.parent
-        }
-        if (parent && ts.isVariableDeclaration(parent) && ts.isIdentifier(parent.name)) {
-          return parent.name
-        }
-      }
-    }
-
-    /**
-     * Checks if a node is a super() call inside a custom error constructor
-     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
-     * @returns {boolean}
-     */
-    function isSuperCallInErrorConstructor(node) {
-      if (node.callee.type !== 'Super') return false
-
-      /** @type {TSESTree.Node | undefined} **/
-      let parent = node.parent
-      while (parent) {
-        if (parent.type === 'ClassDeclaration') {
-          const tsNode = services.esTreeNodeToTSNodeMap.get(parent)
-          const type = checker.getTypeAtLocation(tsNode)
-          return isErrorType(type)
-        }
-        parent = parent.parent
-      }
-      return false
-    }
-
-    /**
-     * @param {ts.CallExpression} tsNode
-     */
-    function returnsError(tsNode) {
-      const signature = checker.getResolvedSignature(tsNode)
-      if (!signature) return
-
-      const returnType = checker.getReturnTypeOfSignature(signature)
-
-      return containsErrorType(returnType)
-    }
-
-    /**
-     * @param {TSESTree.Node} node
-     * @param {ts.Identifier} resultIdentifier
-     */
-    function checksErrorResult(node, resultIdentifier) {
-      const scope = context.sourceCode.getScope(node)
-      const resultAssignmentReferences = scope.references.filter(
-        (ref) =>
-          ref.identifier.type === 'Identifier' &&
-          ref.identifier.name === resultIdentifier.getText(),
-      )
-      return resultAssignmentReferences.some((ref) => {
-        return (
-          ref.identifier.parent.type === 'BinaryExpression' &&
-          ref.identifier.parent.operator === 'instanceof'
-        )
-      })
-    }
-
-    return {
-      CallExpression(node) {
-        if (isSuperCallInErrorConstructor(node)) {
-          return
-        }
-
-        const tsNode = services.esTreeNodeToTSNodeMap.get(node)
-        if (!returnsError(tsNode)) {
-          return
-        }
-
-        const resultIdentifier = getErrorResultVariableIdentifier(tsNode)
-        if (!resultIdentifier) {
-          return context.report({
-            node,
-            messageId: 'enforceErrorHandling',
-          })
-        }
-
-        if (!checksErrorResult(node, resultIdentifier)) {
-          return context.report({
-            node,
-            messageId: 'enforceErrorHandling',
-          })
-        }
-      },
-    }
+    return ruleListener
   },
   meta: {
     docs: {

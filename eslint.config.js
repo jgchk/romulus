@@ -48,7 +48,7 @@ export default tseslint.config(
       sourceType: 'module',
       parserOptions: {
         projectService: {
-          allowDefaultProject: [],
+          allowDefaultProject: ['lint/returned-errors/src/rules/*.js'],
           defaultProject: './tsconfig.json',
         },
         tsconfigRootDir: import.meta.dirname,
