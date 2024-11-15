@@ -23,12 +23,15 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
     const passwordHashRepo = new BcryptHashRepository()
     const sessionTokenGenerator = new CryptoTokenGenerator()
 
-    await accountRepo.create(
+    const account = await accountRepo.create(
       new NewAccount({
         username: loggedInAccount.username,
         passwordHash: await passwordHashRepo.hash(loggedInAccount.password),
       }),
     )
+    if (account instanceof Error) {
+      expect.fail(`Account creation failed: ${account.message}`)
+    }
 
     const login = new LoginCommand(
       accountRepo,

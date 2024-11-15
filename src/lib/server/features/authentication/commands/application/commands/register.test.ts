@@ -67,18 +67,24 @@ describe('register', () => {
     const { register } = setupCommand({ dbConnection })
 
     // First, register an account
-    await register.execute('existingaccount', 'password123')
+    const firstRegisterResult = await register.execute('existingaccount', 'password123')
+    if (firstRegisterResult instanceof Error) {
+      expect.fail(`First registration failed: ${firstRegisterResult.message}`)
+    }
 
     // Try to register again with the same username
-    const result = await register.execute('existingaccount', 'anotherpassword')
+    const secondRegisterResult = await register.execute('existingaccount', 'anotherpassword')
 
-    expect(result).toBeInstanceOf(NonUniqueUsernameError)
+    expect(secondRegisterResult).toBeInstanceOf(NonUniqueUsernameError)
   })
 
   test('should hash the password before storing', async ({ dbConnection }) => {
     const { register, getAccount } = setupCommand({ dbConnection })
 
-    await register.execute('hashtest', 'password123')
+    const result = await register.execute('hashtest', 'password123')
+    if (result instanceof Error) {
+      expect.fail(`Registration failed: ${result.message}`)
+    }
 
     const account = await getAccount('hashtest')
     expect(account).toBeDefined()
@@ -89,7 +95,10 @@ describe('register', () => {
   test('should create a session for the new account', async ({ dbConnection }) => {
     const { register, getAccountSessions } = setupCommand({ dbConnection })
 
-    await register.execute('sessionaccount', 'password123')
+    const result = await register.execute('sessionaccount', 'password123')
+    if (result instanceof Error) {
+      expect.fail(`Registration failed: ${result.message}`)
+    }
 
     const sessions = await getAccountSessions('sessionaccount')
     expect(sessions).toHaveLength(1)

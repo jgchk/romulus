@@ -4,7 +4,7 @@ import { Genre } from './genre'
 import { GenreHistory } from './genre-history'
 
 describe('GenreHistory', () => {
-  const baseGenre: Genre = Genre.create({
+  const baseGenre = Genre.create({
     id: 1,
     name: 'Test Genre',
     type: 'STYLE',
@@ -16,7 +16,10 @@ describe('GenreHistory', () => {
     },
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
-  }) as Genre
+  })
+  if (baseGenre instanceof Error) {
+    expect.fail(`Genre creation failed: ${baseGenre.message}`)
+  }
 
   it('should create a GenreHistory from a Genre', () => {
     const parents = new Set<number>([2, 3])
@@ -56,7 +59,10 @@ describe('GenreHistory', () => {
     const genreWithSubtitle = Genre.create({
       ...baseGenre,
       subtitle: 'Original Subtitle',
-    }) as Genre
+    })
+    if (genreWithSubtitle instanceof Error) {
+      expect.fail(`Genre creation failed: ${genreWithSubtitle.message}`)
+    }
 
     const genreHistory = GenreHistory.fromGenre(
       genreWithSubtitle.id!,
@@ -73,7 +79,10 @@ describe('GenreHistory', () => {
     const genreWithoutSubtitle = Genre.create({
       ...baseGenre,
       subtitle: undefined,
-    }) as Genre
+    })
+    if (genreWithoutSubtitle instanceof Error) {
+      expect.fail(`Genre creation failed: ${genreWithoutSubtitle.message}`)
+    }
 
     const genreHistoryWithoutSubtitle = GenreHistory.fromGenre(
       genreWithoutSubtitle.id!,
