@@ -179,6 +179,21 @@ export const rule = createRule({
           return true
         }
 
+        if (isInTruthyCheck(ref.identifier) && isErrorOrUndefined(ref.identifier)) {
+          // Get the type of the identifier
+          const tsNode = services.esTreeNodeToTSNodeMap.get(ref.identifier)
+          const type = checker.getTypeAtLocation(tsNode)
+
+          // Check if it's a union type that includes Error and undefined
+          if (type.isUnion()) {
+            const hasError = type.types.some((t) => isErrorType(t))
+            const hasUndefined = type.types.some((t) => t.flags & ts.TypeFlags.Undefined)
+            if (hasError && hasUndefined) {
+              return true
+            }
+          }
+        }
+
         return false
       })
     }
@@ -211,6 +226,56 @@ export const rule = createRule({
         }
         current = current.parent
       }
+      return false
+    }
+
+    /**
+     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
+     * @returns {boolean}
+     */
+    function isInTruthyCheck(node) {
+      const parent = node.parent
+
+      // Direct if statement check: if (result)
+      if (parent?.type === AST_NODE_TYPES.IfStatement && parent.test === node) {
+        return true
+      }
+
+      // Logical expressions: result && something
+      if (
+        parent?.type === AST_NODE_TYPES.LogicalExpression &&
+        parent.operator === '&&' &&
+        parent.left === node
+      ) {
+        return true
+      }
+
+      // Condition in ternary: result ? x : y
+      if (parent?.type === AST_NODE_TYPES.ConditionalExpression && parent.test === node) {
+        return true
+      }
+
+      return false
+    }
+
+    /**
+     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
+     * @returns {boolean}
+     */
+    function isErrorOrUndefined(node) {
+      // Get the type of the identifier
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node)
+      const type = checker.getTypeAtLocation(tsNode)
+
+      // Check if it's a union type that includes Error and undefined
+      if (type.isUnion()) {
+        const hasError = type.types.some((t) => isErrorType(t))
+        const hasUndefined = type.types.some((t) => t.flags & ts.TypeFlags.Undefined)
+        if (hasError && hasUndefined) {
+          return true
+        }
+      }
+
       return false
     }
 

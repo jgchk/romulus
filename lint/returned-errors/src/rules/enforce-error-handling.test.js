@@ -97,6 +97,13 @@ ruleTester.run('enforce-error-handling', rule, {
       const result = returnsError()
       expect(result).toEqual({})
     `,
+    `
+      function returnsErrorOrUndefined(): Error | undefined {}
+      const result = returnsErrorOrUndefined()
+      if (result) {
+        // handle error
+      }
+    `,
   ],
   invalid: [
     {
