@@ -23,12 +23,15 @@ async function setupCommand(options: {
   const sessionTokenGenerator = new CryptoTokenGenerator()
 
   if (options.existingAccount) {
-    await accountRepo.create(
+    const account = await accountRepo.create(
       new NewAccount({
         username: options.existingAccount.username,
         passwordHash: await passwordHashRepo.hash(options.existingAccount.password),
       }),
     )
+    if (account instanceof Error) {
+      expect.fail(`Failed to create account: ${account.message}`)
+    }
   }
 
   const login = new LoginCommand(
@@ -95,7 +98,10 @@ describe('login', () => {
       existingAccount: { username: 'testaccount', password: 'password123' },
     })
 
-    await login.execute('testaccount', 'password123')
+    const loginResult = await login.execute('testaccount', 'password123')
+    if (loginResult instanceof Error) {
+      expect.fail(`Failed to login: ${loginResult.message}`)
+    }
 
     const sessions = await getAccountSessions('testaccount')
     expect(sessions).toHaveLength(1)

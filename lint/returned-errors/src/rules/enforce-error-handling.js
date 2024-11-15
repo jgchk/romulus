@@ -1,4 +1,4 @@
-import { ESLintUtils, TSESTree } from '@typescript-eslint/utils'
+import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils'
 import * as ts from 'typescript'
 
 import { createRule } from '../utils.js'
@@ -16,7 +16,7 @@ export const rule = createRule({
     }
 
     /**
-     * @param {TSESTree.CallExpression} node
+     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
      */
     function handleCallExpression(node) {
       if (isSuperCallInErrorConstructor(node)) {
@@ -54,12 +54,12 @@ export const rule = createRule({
      * @returns {boolean}
      */
     function isSuperCallInErrorConstructor(node) {
-      if (node.callee.type !== 'Super') return false
+      if (node.callee.type !== AST_NODE_TYPES.Super) return false
 
-      /** @type {TSESTree.Node | undefined} **/
+      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
       let parent = node.parent
       while (parent) {
-        if (parent.type === 'ClassDeclaration') {
+        if (parent.type === AST_NODE_TYPES.ClassDeclaration) {
           const tsNode = services.esTreeNodeToTSNodeMap.get(parent)
           const type = checker.getTypeAtLocation(tsNode)
           return isErrorType(type)
@@ -82,13 +82,13 @@ export const rule = createRule({
     }
 
     /**
-     * @param {TSESTree.CallExpression} node
+     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
      */
     function isWithinReturnStatement(node) {
-      /** @type {TSESTree.Node | undefined} **/
+      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
       let current = node.parent
       while (current) {
-        if (current.type === 'ReturnStatement') {
+        if (current.type === AST_NODE_TYPES.ReturnStatement) {
           return true
         }
         current = current.parent
@@ -97,16 +97,16 @@ export const rule = createRule({
     }
 
     /**
-     * @param {TSESTree.CallExpression} node
+     * @param {import('@typescript-eslint/utils').TSESTree.CallExpression} node
      */
     function parentFunctionReturnsError(node) {
-      /** @type {TSESTree.Node | undefined} **/
+      /** @type {import('@typescript-eslint/utils').TSESTree.Node | undefined} **/
       let current = node.parent
       while (current) {
         if (
-          current.type === 'FunctionDeclaration' ||
-          current.type === 'FunctionExpression' ||
-          current.type === 'ArrowFunctionExpression'
+          current.type === AST_NODE_TYPES.FunctionDeclaration ||
+          current.type === AST_NODE_TYPES.FunctionExpression ||
+          current.type === AST_NODE_TYPES.ArrowFunctionExpression
         ) {
           const tsNode = services.esTreeNodeToTSNodeMap.get(current)
           const signature = checker.getSignatureFromDeclaration(tsNode)
@@ -159,22 +159,59 @@ export const rule = createRule({
     }
 
     /**
-     * @param {TSESTree.Node} node
+     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
      * @param {ts.Identifier} resultIdentifier
      */
     function checksErrorResult(node, resultIdentifier) {
       const scope = context.sourceCode.getScope(node)
       const resultAssignmentReferences = scope.references.filter(
         (ref) =>
-          ref.identifier.type === 'Identifier' &&
+          ref.identifier.type === AST_NODE_TYPES.Identifier &&
           ref.identifier.name === resultIdentifier.getText(),
       )
+
       return resultAssignmentReferences.some((ref) => {
-        return (
-          ref.identifier.parent.type === 'BinaryExpression' &&
-          ref.identifier.parent.operator === 'instanceof'
-        )
+        if (isInInstanceOfCheck(ref.identifier)) {
+          return true
+        }
+
+        if (isWithinExpectCall(ref.identifier)) {
+          return true
+        }
+
+        return false
       })
+    }
+
+    /**
+     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
+     * @returns {boolean}
+     */
+    function isInInstanceOfCheck(node) {
+      return (
+        node.parent?.type === AST_NODE_TYPES.BinaryExpression &&
+        node.parent.operator === 'instanceof'
+      )
+    }
+
+    /**
+     * Checks if a node is within an expect(...) call
+     * @param {import('@typescript-eslint/utils').TSESTree.Node} node
+     * @returns {boolean}
+     */
+    function isWithinExpectCall(node) {
+      let current = node.parent
+      while (current) {
+        if (
+          current.type === AST_NODE_TYPES.CallExpression &&
+          current.callee.type === AST_NODE_TYPES.Identifier &&
+          current.callee.name === 'expect'
+        ) {
+          return true
+        }
+        current = current.parent
+      }
+      return false
     }
 
     /**

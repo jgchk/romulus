@@ -92,6 +92,11 @@ ruleTester.run('enforce-error-handling', rule, {
         return returnsError()
       }
     `,
+    `
+      function returnsError(): Error {}
+      const result = returnsError()
+      expect(result).toEqual({})
+    `,
   ],
   invalid: [
     {
