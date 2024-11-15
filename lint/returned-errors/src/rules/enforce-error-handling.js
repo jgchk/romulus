@@ -189,20 +189,12 @@ export const rule = createRule({
         })
       }
 
-      const scope = context.sourceCode.getScope(node)
-      const resultIdentifiers = scope.references
-        .map((ref) => {
-          const identifier = ref.identifier
-          if (identifier.type !== AST_NODE_TYPES.Identifier) return
-          if (identifier.name !== resultIdentifier.getText()) return
-          return identifier
-        })
-        .filter((i) => i !== undefined)
+      const resultIdentifiers = getAllVariableReferenceIdentifiers(node, resultIdentifier)
       for (const refId of resultIdentifiers) {
         if (NodeChecker.isWithinReturnStatement(refId) && parentFunctionReturnsError(refId)) return
       }
 
-      if (!checksErrorResult(node, resultIdentifier)) {
+      if (!checksErrorResult(node, resultIdentifiers)) {
         return context.report({
           node,
           messageId: 'enforceErrorHandling',
@@ -244,7 +236,7 @@ export const rule = createRule({
     }
 
     /**
-     * @param {CallExpression} node
+     * @param {TSESTreeNode} node
      * @returns {boolean}
      */
     function parentFunctionReturnsError(node) {
@@ -305,9 +297,9 @@ export const rule = createRule({
     /**
      * @param {CallExpression} node
      * @param {ts.Identifier} resultIdentifier
-     * @returns {boolean}
+     * @returns {Identifier[]}
      */
-    function checksErrorResult(node, resultIdentifier) {
+    function getAllVariableReferenceIdentifiers(node, resultIdentifier) {
       const scope = context.sourceCode.getScope(node)
       const resultIdentifiers = scope.references
         .map((ref) => {
@@ -317,7 +309,15 @@ export const rule = createRule({
           return identifier
         })
         .filter((i) => i !== undefined)
+      return resultIdentifiers
+    }
 
+    /**
+     * @param {CallExpression} node
+     * @param {Identifier[]} resultIdentifiers
+     * @returns {boolean}
+     */
+    function checksErrorResult(node, resultIdentifiers) {
       const originalCallNode = services.esTreeNodeToTSNodeMap.get(node)
       const signature = checker.getResolvedSignature(originalCallNode)
       if (!signature) return false
