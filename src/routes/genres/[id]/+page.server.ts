@@ -1,9 +1,10 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { GenreNotFoundError } from '$lib/server/features/genres/commands/application/errors/genre-not-found'
+import { InvalidGenreRelevanceError } from '$lib/server/features/genres/commands/domain/errors/invalid-genre-relevance'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 
@@ -66,13 +67,16 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    await locals.services.genre.commands.voteGenreRelevance(
+    const voteResult = await locals.services.genre.commands.voteGenreRelevance(
       id,
       form.data.relevanceVote,
       locals.user.id,
     )
+    if (voteResult instanceof InvalidGenreRelevanceError) {
+      return setError(form, 'relevanceVote', voteResult.message)
+    }
 
-    return { form }
+    return { relevanceVoteForm: form }
   },
 
   delete: async ({ locals, params }) => {
