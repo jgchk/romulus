@@ -1,12 +1,15 @@
 <script lang="ts">
   import type { AutocompleteProps } from '$lib/atoms/Autocomplete'
   import Autocomplete from '$lib/atoms/Autocomplete.svelte'
+  import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
+  import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { searchGenres } from '$lib/types/genres'
+  import { cn } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'
 
   import type { Genre } from './types'
 
-  type Props = Omit<AutocompleteProps<number>, 'value' | 'options' | 'onSelect'> & {
+  type Props = Omit<AutocompleteProps<number>, 'value' | 'options' | 'onSelect' | 'option'> & {
     genres: Genre[]
     onSelect?: (genre: Genre) => void
   }
@@ -27,11 +30,13 @@
   let options = $derived(
     searchGenres(genres, debouncedFilter)
       .slice(0, 100)
-      .map(({ genre }) => ({
-        value: genre,
-        label: genre.name,
+      .map((match) => ({
+        value: match,
+        label: match.genre.name,
       })),
   )
+
+  const userSettings = getUserSettingsContext()
 </script>
 
 <Autocomplete
@@ -39,7 +44,27 @@
   {options}
   onSelect={(option) => {
     value = option.label
-    onSelect?.(option.value)
+    onSelect?.(option.value.genre)
   }}
   {...rest}
-/>
+>
+  {#snippet option({ option })}
+    <div class={cn(option.value.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
+      {option.value.genre.name}
+      {#if option.value.genre.subtitle}
+        {' '}
+        <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
+          >[{option.value.genre.subtitle}]</span
+        >
+      {/if}
+      {#if option.value.matchedAka}
+        {' '}
+        <span class="text-[0.8rem]">({option.value.matchedAka})</span>
+      {/if}
+      {#if $userSettings.showTypeTags && option.value.genre.type !== 'STYLE'}
+        {' '}
+        <GenreTypeChip type={option.value.genre.type} />
+      {/if}
+    </div>
+  {/snippet}
+</Autocomplete>

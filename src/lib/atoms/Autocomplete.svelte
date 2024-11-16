@@ -30,6 +30,7 @@
     errors: propErrors,
     onInput,
     onSelect,
+    option: optionSnippet,
   }: Props = $props()
 
   const contextErrors = getInputGroupErrors()
@@ -143,6 +144,14 @@
         handleSelect(option)
         inputRef?.focus()
       }}
-    />
+    >
+      {#snippet option({ option })}
+        {#if optionSnippet}
+          {@render optionSnippet({ option })}
+        {:else}
+          {option.label}
+        {/if}
+      {/snippet}
+    </OptionsDropdown>
   {/if}
 </div>
