@@ -2,6 +2,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import { ifDefined } from '$lib/utils/types'
 
   import type { PageData } from './$types'
   import GenreVoteForm from './GenreVoteForm.svelte'
@@ -12,6 +13,30 @@
   let { data }: Props = $props()
 
   const descriptorGenre = $derived(data.genres.find((g) => g.name === 'Descriptor'))
+  const descriptorIds = $derived(ifDefined(descriptorGenre, getDescendants) ?? new Set<number>())
+
+  function isDescriptor(genre: Genre) {
+    return descriptorIds.has(genre.id)
+  }
+
+  function getDescendants(genre: Genre): Set<number> {
+    const descendants = new Set<number>()
+    const queue = [...genre.children]
+
+    while (queue.length) {
+      const current = queue.pop()!
+      if (descendants.has(current)) continue
+
+      descendants.add(current)
+
+      const currentGenre = data.genres.find((g) => g.id === current)
+      if (currentGenre) {
+        queue.push(...currentGenre.children)
+      }
+    }
+
+    return descendants
+  }
 
   const [genres, scenes, descriptors] = $derived.by(() => {
     const categories = {
@@ -34,29 +59,6 @@
 
     return [categories.genres, categories.scenes, categories.descriptors]
   })
-
-  function isDescriptor(genre: Genre) {
-    if (!descriptorGenre) return false
-    return getAncestors(genre).has(descriptorGenre.id)
-  }
-
-  function getAncestors(genre: Genre): Set<number> {
-    const ancestors = new Set<number>()
-    const queue = [genre.id]
-
-    while (queue.length) {
-      const current = queue.pop()!
-      if (ancestors.has(current)) continue
-
-      ancestors.add(current)
-      const currentGenre = data.genres.find((g) => g.id === current)
-      if (currentGenre) {
-        queue.push(...currentGenre.parents)
-      }
-    }
-
-    return ancestors
-  }
 
   let username = $state('username')
 
