@@ -113,7 +113,7 @@
       }
     }
 
-    return Array.from(formatted.values())
+    return Array.from(formatted.values()).sort((a, b) => a.genre.name.localeCompare(b.genre.name))
   }
 
   function voteFor(id: number, votes: Votes) {
