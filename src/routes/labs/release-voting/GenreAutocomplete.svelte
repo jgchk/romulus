@@ -25,10 +25,12 @@
   })
 
   let options = $derived(
-    searchGenres(genres, debouncedFilter).map(({ genre }) => ({
-      value: genre,
-      label: genre.name,
-    })),
+    searchGenres(genres, debouncedFilter)
+      .slice(0, 100)
+      .map(({ genre }) => ({
+        value: genre,
+        label: genre.name,
+      })),
   )
 </script>
 

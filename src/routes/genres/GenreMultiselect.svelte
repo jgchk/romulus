@@ -50,12 +50,12 @@
   let options = $derived(
     searchGenres(genres, debouncedFilter)
       .filter((match) => !excludeSet.has(match.genre.id))
+      .slice(0, 100)
       .map((match) => ({
         value: match.genre.id,
         label: match.genre.name,
         data: match,
-      }))
-      .slice(0, 100),
+      })),
   )
 
   const userSettings = getUserSettingsContext()
