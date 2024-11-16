@@ -46,6 +46,8 @@
     }
 
     for (const genre of data.genres) {
+      if (genre.id === descriptorGenre?.id) continue
+
       if (genre.type === 'SCENE') {
         categories.scenes.push(genre)
       } else if (isDescriptor(genre)) {
