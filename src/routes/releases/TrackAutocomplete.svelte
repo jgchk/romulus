@@ -7,7 +7,7 @@
   import type { SearchTracksResult } from '$lib/server/features/music-catalog/queries/application/search-tracks'
   import type { Timeout } from '$lib/utils/types'
 
-  type Props = Omit<AutocompleteProps<number>, 'options' | 'onSelect'> & {
+  type Props = Omit<AutocompleteProps<number>, 'options' | 'onSelect' | 'option'> & {
     onSelect?: (track: SearchTracksResult['tracks'][number]) => void
   }
 
