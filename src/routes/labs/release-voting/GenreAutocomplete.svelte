@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { writable } from 'svelte/store'
-
   import type { AutocompleteProps } from '$lib/atoms/Autocomplete'
   import Autocomplete from '$lib/atoms/Autocomplete.svelte'
+  import { searchGenres } from '$lib/types/genres'
   import type { Timeout } from '$lib/utils/types'
 
   import type { Genre } from './types'
@@ -15,18 +14,18 @@
   let { onSelect, genres, ...rest }: Props = $props()
 
   let value = $state('')
-  let debouncedFilter = writable('')
+  let debouncedFilter = $state('')
 
   let timeout: Timeout | undefined
   $effect(() => {
     const v = value
     clearTimeout(timeout)
-    timeout = setTimeout(() => ($debouncedFilter = v), 250)
+    timeout = setTimeout(() => (debouncedFilter = v), 250)
     return () => clearTimeout(timeout)
   })
 
   let options = $derived(
-    genres.map((genre) => ({
+    searchGenres(genres, debouncedFilter).map(({ genre }) => ({
       value: genre,
       label: genre.name,
     })),
