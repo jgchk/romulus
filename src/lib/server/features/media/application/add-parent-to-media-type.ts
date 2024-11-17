@@ -1,4 +1,4 @@
-import type { IEventStore } from '../domain/event-store/event-store'
+import type { IEventStore } from '../domain/media-type-tree/event-store'
 import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
 import type { CycleError, MediaTypeNotFoundError } from '../domain/media-type-tree/tree'
 
