@@ -1,5 +1,5 @@
-import type { IEventStore } from '../domain/media-type-tree/event-store'
-import type { Event } from '../domain/media-type-tree/events'
+import type { IEventStore } from '../domain/event-store'
+import type { Event } from '../domain/events'
 
 export class MemoryEventStore implements IEventStore {
   private events: Event[]

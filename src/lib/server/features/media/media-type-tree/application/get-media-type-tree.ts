@@ -1,4 +1,4 @@
-import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
+import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class GetMediaTypeTreeQuery {
   constructor(private mediaTypeTreeRepo: IMediaTypeTreeRepository) {}

@@ -1,6 +1,6 @@
-import type { IEventStore } from '../domain/media-type-tree/event-store'
-import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
-import type { CycleError, MediaTypeNotFoundError } from '../domain/media-type-tree/tree'
+import type { IEventStore } from '../domain/event-store'
+import type { IMediaTypeTreeRepository } from '../domain/repository'
+import type { CycleError, MediaTypeNotFoundError } from '../domain/tree'
 
 export class AddParentToMediaTypeCommand {
   constructor(
