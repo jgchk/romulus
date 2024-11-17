@@ -2,19 +2,17 @@ import { expect, it } from 'vitest'
 
 import { CycleError, MediaTypeNotFoundError } from '../domain/media-type-tree/tree'
 import { MemoryEventStore } from '../infrastructure/memory-event-store'
-import { MemoryIdGenerator } from '../infrastructure/memory-id-generator'
 import { MemoryMediaTypeTreeRepository } from '../infrastructure/memory-media-type-tree-repository'
+import { AddMediaTypeCommand } from './add-media-type'
 import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
-import { AddMediaTypeToTreeCommand } from './add-media-type-to-tree'
 import { GetMediaTypeTreeQuery } from './get-media-type-tree'
 
 it('should successfully add a parent to a media type', async () => {
   const eventStore = new MemoryEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
-  const idGenerator = new MemoryIdGenerator()
 
-  const parent = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
-  const child = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
+  const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const child = await new AddMediaTypeCommand(repo, eventStore).execute()
 
   const result = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
     child.id,
@@ -32,37 +30,40 @@ it('should successfully add a parent to a media type', async () => {
 it('should return error when child media type not found', async () => {
   const eventStore = new MemoryEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
-  const idGenerator = new MemoryIdGenerator()
 
-  const parent = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
-  const childId = idGenerator.generate()
+  const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const child = { id: parent.id + 1 }
 
-  const result = await new AddParentToMediaTypeCommand(repo, eventStore).execute(childId, parent.id)
+  const result = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
+    child.id,
+    parent.id,
+  )
   expect(result).toBeInstanceOf(MediaTypeNotFoundError)
-  expect((result as MediaTypeNotFoundError).id).toBe(childId)
+  expect((result as MediaTypeNotFoundError).id).toBe(child.id)
 })
 
 it('should return error when parent media type not found', async () => {
   const eventStore = new MemoryEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
-  const idGenerator = new MemoryIdGenerator()
 
-  const parentId = idGenerator.generate()
-  const child = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
+  const child = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const parent = { id: child.id + 1 }
 
-  const result = await new AddParentToMediaTypeCommand(repo, eventStore).execute(child.id, parentId)
+  const result = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
+    child.id,
+    parent.id,
+  )
   expect(result).toBeInstanceOf(MediaTypeNotFoundError)
-  expect((result as MediaTypeNotFoundError).id).toBe(parentId)
+  expect((result as MediaTypeNotFoundError).id).toBe(parent.id)
 })
 
 it('should return error when creating a cycle', async () => {
   const eventStore = new MemoryEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
-  const idGenerator = new MemoryIdGenerator()
 
-  const parent = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
-  const child = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
-  const grandchild = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
+  const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const child = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const grandchild = await new AddMediaTypeCommand(repo, eventStore).execute()
 
   const result1 = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
     child.id,

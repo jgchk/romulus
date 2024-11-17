@@ -1,9 +1,8 @@
 import { expect, it } from 'vitest'
 
 import { MemoryEventStore } from '../infrastructure/memory-event-store'
-import { MemoryIdGenerator } from '../infrastructure/memory-id-generator'
 import { MemoryMediaTypeTreeRepository } from '../infrastructure/memory-media-type-tree-repository'
-import { AddMediaTypeToTreeCommand } from './add-media-type-to-tree'
+import { AddMediaTypeCommand } from './add-media-type'
 import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
 import { GetMediaTypeTreeQuery } from './get-media-type-tree'
 
@@ -19,10 +18,9 @@ it('should return empty array for empty tree', async () => {
 it('should return tree structure with relationships', async () => {
   const eventStore = new MemoryEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
-  const idGenerator = new MemoryIdGenerator()
 
-  const parent = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
-  const child = await new AddMediaTypeToTreeCommand(repo, idGenerator, eventStore).execute()
+  const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
+  const child = await new AddMediaTypeCommand(repo, eventStore).execute()
   const addParentResult = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
     child.id,
     parent.id,

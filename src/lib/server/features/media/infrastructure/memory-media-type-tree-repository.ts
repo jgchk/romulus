@@ -10,12 +10,7 @@ export class MemoryMediaTypeTreeRepository implements IMediaTypeTreeRepository {
 
     const events = await this.eventStore.get()
     for (const event of events) {
-      const result = event.process(tree)
-      if (result instanceof Error) {
-        // We should never have error sneaking in here since we protect against them
-        // before inserting the event.
-        throw result
-      }
+      tree.apply(event)
     }
 
     return tree

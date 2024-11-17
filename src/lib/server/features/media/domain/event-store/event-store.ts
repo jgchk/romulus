@@ -1,6 +1,6 @@
-import type { IEvent } from './event'
+import type { Event } from '../media-type-tree/events'
 
 export type IEventStore = {
-  get(): IEvent[] | Promise<IEvent[]>
-  save(event: IEvent): void | Promise<void>
+  get(): Event[] | Promise<Event[]>
+  save(event: Event): void | Promise<void>
 }

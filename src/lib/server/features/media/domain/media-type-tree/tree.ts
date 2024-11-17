@@ -1,23 +1,52 @@
 import { CustomError } from '$lib/utils/error'
 
-import { type MediaTypeTreeNode } from './tree-node'
+import type { Event } from './events'
+import { MediaTypeAddedEvent } from './events/media-type-added'
+import { MediaTypeParentAddedEvent } from './events/media-type-parent-added'
+import { MediaTypeTreeNode } from './tree-node'
 
 export class MediaTypeTree {
+  private currId: number
   private nodes: Map<number, MediaTypeTreeNode>
 
   constructor() {
+    this.currId = 0
     this.nodes = new Map()
   }
 
-  insert(node: MediaTypeTreeNode): void | MediaTypeAlreadyExistsError {
-    if (this.nodes.has(node.id)) {
-      return new MediaTypeAlreadyExistsError(node.id)
-    }
+  apply(event: Event): void {
+    if (event instanceof MediaTypeAddedEvent) {
+      const treeNode = MediaTypeTreeNode.create(event.id)
+      this.currId = treeNode.id
+      this.nodes.set(treeNode.id, treeNode)
+    } else if (event instanceof MediaTypeParentAddedEvent) {
+      const parentNode = this.nodes.get(event.parentId)
+      if (parentNode === undefined) {
+        throw new Error(`A media type was not found for id: ${event.parentId}`)
+      }
 
-    this.nodes.set(node.id, node)
+      const childNode = this.nodes.get(event.childId)
+      if (childNode === undefined) {
+        throw new Error(`A media type was not found for id: ${event.childId}`)
+      }
+
+      parentNode.addChild(childNode.id)
+    }
   }
 
-  addParent(id: number, parentId: number): void | MediaTypeNotFoundError | CycleError {
+  addMediaType(): MediaTypeAddedEvent {
+    const id = this.currId + 1
+    const event = new MediaTypeAddedEvent(id)
+
+    this.apply(event)
+
+    return event
+  }
+
+  addParentToMediaType(
+    id: number,
+    parentId: number,
+  ): MediaTypeParentAddedEvent | MediaTypeNotFoundError | CycleError {
     const node = this.nodes.get(id)
     if (node === undefined) {
       return new MediaTypeNotFoundError(id)
@@ -28,12 +57,16 @@ export class MediaTypeTree {
       return new MediaTypeNotFoundError(parentId)
     }
 
-    parentNode.addChild(id)
-
-    const cycle = this.findCycle()
+    const cycle = this.wouldHaveCycle(id, parentId)
     if (cycle) {
       return new CycleError(cycle)
     }
+
+    const event = new MediaTypeParentAddedEvent(id, parentId)
+
+    this.apply(event)
+
+    return event
   }
 
   get(id: number): MediaTypeTreeNode | undefined {
@@ -44,7 +77,7 @@ export class MediaTypeTree {
     return [...this.nodes.values()]
   }
 
-  private findCycle(): number[] | undefined {
+  private wouldHaveCycle(childId: number, parentId: number): number[] | undefined {
     const finished = new Set<number>()
 
     const dfs = (v: number, stack: number[]): number[] | undefined => {
@@ -57,7 +90,12 @@ export class MediaTypeTree {
         return [...stack.slice(cycleStart), v]
       }
 
-      for (const child of this.nodes.get(v)?.getChildren() ?? new Set()) {
+      const children = this.nodes.get(v)?.getChildren() ?? new Set()
+      if (v === parentId) {
+        children.add(childId)
+      }
+
+      for (const child of children) {
         const cycle = dfs(child, [...stack, v])
         if (cycle) {
           return cycle
