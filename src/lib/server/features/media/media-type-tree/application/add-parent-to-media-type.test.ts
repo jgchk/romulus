@@ -1,14 +1,14 @@
 import { expect, it } from 'vitest'
 
 import { CycleError, MediaTypeNotFoundError } from '../domain/tree'
-import { MemoryEventStore } from '../infrastructure/memory-event-store'
-import { MemoryMediaTypeTreeRepository } from '../infrastructure/memory-media-type-tree-repository'
+import { MemoryMediaTypeTreeEventStore } from '../infrastructure/memory-event-store'
+import { MemoryMediaTypeTreeRepository } from '../infrastructure/memory-repository'
 import { AddMediaTypeCommand } from './add-media-type'
 import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
 import { GetMediaTypeTreeQuery } from './get-media-type-tree'
 
 it('should successfully add a parent to a media type', async () => {
-  const eventStore = new MemoryEventStore()
+  const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
   const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
@@ -28,7 +28,7 @@ it('should successfully add a parent to a media type', async () => {
 })
 
 it('should return error when child media type not found', async () => {
-  const eventStore = new MemoryEventStore()
+  const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
   const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
@@ -43,7 +43,7 @@ it('should return error when child media type not found', async () => {
 })
 
 it('should return error when parent media type not found', async () => {
-  const eventStore = new MemoryEventStore()
+  const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
   const child = await new AddMediaTypeCommand(repo, eventStore).execute()
@@ -58,7 +58,7 @@ it('should return error when parent media type not found', async () => {
 })
 
 it('should return error when creating a cycle', async () => {
-  const eventStore = new MemoryEventStore()
+  const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
   const parent = await new AddMediaTypeCommand(repo, eventStore).execute()

@@ -1,8 +1,8 @@
-import type { IEventStore } from '../domain/event-store'
-import type { Event } from '../domain/events'
+import type { IMediaTypeTreeEventStore } from '../domain/event-store'
+import type { MediaTypeTreeEvent } from '../domain/events'
 
-export class MemoryEventStore implements IEventStore {
-  private events: Event[]
+export class MemoryMediaTypeTreeEventStore implements IMediaTypeTreeEventStore {
+  private events: MediaTypeTreeEvent[]
 
   constructor() {
     this.events = []
@@ -12,7 +12,7 @@ export class MemoryEventStore implements IEventStore {
     return this.events
   }
 
-  save(event: Event) {
+  save(event: MediaTypeTreeEvent) {
     this.events.push(event)
   }
 }

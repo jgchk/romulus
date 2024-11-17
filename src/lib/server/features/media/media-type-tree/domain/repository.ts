@@ -1,5 +1,7 @@
+import type { MaybePromise } from '$lib/utils/types'
+
 import type { MediaTypeTree } from './tree'
 
 export type IMediaTypeTreeRepository = {
-  get(): MediaTypeTree | Promise<MediaTypeTree>
+  get(): MaybePromise<MediaTypeTree>
 }

@@ -1,11 +1,11 @@
-import type { IEventStore } from '../domain/event-store'
+import type { IMediaTypeTreeEventStore } from '../domain/event-store'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import type { CycleError, MediaTypeNotFoundError } from '../domain/tree'
 
 export class AddParentToMediaTypeCommand {
   constructor(
     private mediaTypeTreeRepo: IMediaTypeTreeRepository,
-    private eventStore: IEventStore,
+    private eventStore: IMediaTypeTreeEventStore,
   ) {}
 
   async execute(id: number, parentId: number): Promise<void | MediaTypeNotFoundError | CycleError> {

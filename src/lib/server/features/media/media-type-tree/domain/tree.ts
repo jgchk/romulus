@@ -1,6 +1,6 @@
 import { CustomError } from '$lib/utils/error'
 
-import type { Event } from './events'
+import type { MediaTypeTreeEvent } from './events'
 import { MediaTypeAddedEvent } from './events/media-type-added'
 import { MediaTypeParentAddedEvent } from './events/media-type-parent-added'
 import { MediaTypeTreeNode } from './tree-node'
@@ -14,7 +14,7 @@ export class MediaTypeTree {
     this.nodes = new Map()
   }
 
-  apply(event: Event): void {
+  apply(event: MediaTypeTreeEvent): void {
     if (event instanceof MediaTypeAddedEvent) {
       const treeNode = MediaTypeTreeNode.create(event.id)
       this.currId = treeNode.id

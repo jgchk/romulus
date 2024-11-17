@@ -29,3 +29,5 @@ type AreAllPropsTrue<T, TypeIfTrue = true, TypeIfFalse = false> =
 type AllPropertiesTrue<T> = {
   [K in keyof T]: T[K] extends true ? true : false
 }
+
+export type MaybePromise<T> = T | Promise<T>
