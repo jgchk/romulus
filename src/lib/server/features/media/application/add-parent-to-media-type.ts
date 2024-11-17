@@ -3,7 +3,7 @@ import { AddParentToMediaTypeEvent } from '../domain/media-type-tree/events/add-
 import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
 import type { CycleError, MediaTypeNotFoundError } from '../domain/media-type-tree/tree'
 
-export class AddMediaTypeParent {
+export class AddParentToMediaTypeCommand {
   constructor(
     private mediaTypeTreeRepo: IMediaTypeTreeRepository,
     private eventStore: IEventStore,

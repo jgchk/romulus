@@ -4,7 +4,7 @@ import { AddMediaTypeToTreeEvent } from '../domain/media-type-tree/events/add-me
 import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
 import { MediaTypeAlreadyExistsError } from '../domain/media-type-tree/tree'
 
-export class CreateMediaTypeCommand {
+export class AddMediaTypeToTreeCommand {
   constructor(
     private mediaTypeTreeRepo: IMediaTypeTreeRepository,
     private idGenerator: IIdGenerator,
