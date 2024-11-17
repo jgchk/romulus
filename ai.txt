@@ -1,848 +1,517 @@
-File: ./src/lib/server/features/genres/commands/domain/errors/base.ts
+File: src/lib/server/features/media/commands/application/add-media-type-parent.ts
 Contents:
-import { CustomError } from '$lib/utils/error'
+import type { IEventStore } from '../domain/event-store/event-store'
+import { AddParentToMediaTypeEvent } from '../domain/media-type-tree/events/add-parent-to-media-type'
+import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
+import type { CycleError, MediaTypeNotFoundError } from '../domain/media-type-tree/tree'
 
-export class DomainError extends CustomError {
-  private readonly __tag = 'DomainError'
-
-  constructor(name: string, message: string) {
-    super(name, message)
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/errors/derived-child.ts
-Contents:
-import { DomainError } from './base'
-
-export class DerivedChildError extends DomainError {
-  constructor(public readonly childId: number) {
-    super('DerivedChildError', `A genre cannot be both derived and a child`)
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/errors/derived-influence.ts
-Contents:
-import { DomainError } from './base'
-
-export class DerivedInfluenceError extends DomainError {
-  constructor(public readonly childId: number) {
-    super('DerivedInfluenceError', `A genre cannot be both derived and an influence`)
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/errors/duplicate-aka.ts
-Contents:
-import { DomainError } from './base'
-
-export class DuplicateAkaError extends DomainError {
+export class AddMediaTypeParent {
   constructor(
-    public readonly aka: string,
-    public readonly level: 'primary' | 'secondary' | 'tertiary',
-  ) {
-    super('DuplicateAkaError', `Duplicate AKA found in ${level} AKAs: ${aka}`)
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/errors/genre-cycle.ts
-Contents:
-import { DomainError } from './base'
-
-export class GenreCycleError extends DomainError {
-  constructor(public cycle: string) {
-    super('GenreCycleError', `Cycle detected: ${cycle}`)
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/errors/self-influence.ts
-Contents:
-import { DomainError } from './base'
-
-export class SelfInfluenceError extends DomainError {
-  constructor() {
-    super('SelfInfluenceError', 'A genre cannot influence itself')
-  }
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/genre-history-repository.ts
-Contents:
-import type { GenreHistory } from './genre-history'
-
-export type GenreHistoryRepository = {
-  findLatestByGenreId(genreId: number): Promise<GenreHistory | undefined>
-  create(history: GenreHistory): Promise<void>
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/genre-history.ts
-Contents:
-import type { Genre } from './genre'
-
-export class GenreHistory {
-  constructor(
-    public name: string,
-    public subtitle: string | undefined,
-    public type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT',
-    public nsfw: boolean,
-    public shortDescription: string | undefined,
-    public longDescription: string | undefined,
-    public notes: string | undefined,
-
-    public parents: Set<number>,
-    public derivedFrom: Set<number>,
-    public influences: Set<number>,
-    public akas: {
-      primary: string[]
-      secondary: string[]
-      tertiary: string[]
-    },
-
-    public genreId: number,
-    public createdAt: Date,
-    public operation: 'CREATE' | 'UPDATE' | 'DELETE',
-    public accountId: number | undefined,
+    private mediaTypeTreeRepo: IMediaTypeTreeRepository,
+    private eventStore: IEventStore,
   ) {}
 
-  static fromGenre(
-    id: number,
-    genre: Genre,
-    parents: Set<number>,
-    derivedFrom: Set<number>,
-    influences: Set<number>,
-    operation: 'CREATE' | 'UPDATE' | 'DELETE',
-    accountId: number,
-  ) {
-    return new GenreHistory(
-      genre.name,
-      genre.subtitle,
-      genre.type,
-      genre.nsfw,
-      genre.shortDescription,
-      genre.longDescription,
-      genre.notes,
-      parents,
-      derivedFrom,
-      influences,
-      genre.akas,
-      id,
-      new Date(),
-      operation,
-      accountId,
-    )
-  }
-}
+  async execute(id: number, parentId: number): Promise<void | MediaTypeNotFoundError | CycleError> {
+    const tree = await this.mediaTypeTreeRepo.get()
 
----
-
-File: ./src/lib/server/features/genres/commands/domain/genre-relevance-vote-repository.ts
-Contents:
-import type { GenreRelevance, GenreRelevanceVote } from './genre-relevance-vote'
-
-export type GenreRelevanceVoteRepository = {
-  save(genreRelevanceVote: GenreRelevanceVote): Promise<void>
-  delete(genreId: number, accountId: number): Promise<void>
-
-  findByGenreId(genreId: number): Promise<GenreRelevanceVote[]>
-  saveRelevance(genreId: number, relevance: GenreRelevance | undefined): Promise<void>
-}
-
----
-
-File: ./src/lib/server/features/genres/commands/domain/genre-relevance-vote.ts
-Contents:
-import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '$lib/types/genres'
-
-import { DomainError } from './errors/base'
-
-export class GenreRelevanceVote {
-  constructor(
-    public genreId: number,
-    public accountId: number,
-    public relevance: GenreRelevance,
-  ) {}
-}
-
-export class GenreRelevance {
-  private constructor(public readonly relevance: number) {}
-
-  static create(relevance: number): GenreRelevance | InvalidGenreRelevanceError {
-    const isInValidRange = relevance >= MIN_GENRE_RELEVANCE && relevance <= MAX_GENRE_RELEVANCE
-    const isInteger = Number.isInteger(relevance)
-
-    if (!isInValidRange || !isInteger) {
-      return new InvalidGenreRelevanceError(relevance)
+    const event = new AddParentToMediaTypeEvent(id, parentId)
+    const result = event.process(tree)
+    if (result instanceof Error) {
+      return result
     }
 
-    return new GenreRelevance(relevance)
-  }
-}
-
-export class InvalidGenreRelevanceError extends DomainError {
-  constructor(public readonly relevance: number) {
-    super(
-      'InvalidGenreRelevanceError',
-      `Invalid genre relevance: ${relevance}. Must be an integer between ${MIN_GENRE_RELEVANCE} and ${MAX_GENRE_RELEVANCE} (inclusive)`,
-    )
+    await this.eventStore.save(event)
   }
 }
 
 ---
 
-File: ./src/lib/server/features/genres/commands/domain/genre-repository.ts
+File: src/lib/server/features/media/commands/application/create-media-type.ts
 Contents:
-import type { Genre } from './genre'
+import type { IEventStore } from '../domain/event-store/event-store'
+import type { IIdGenerator } from '../domain/ids/id-generator'
+import { AddMediaTypeToTreeEvent } from '../domain/media-type-tree/events/add-media-type-to-tree'
+import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
+import { MediaTypeAlreadyExistsError } from '../domain/media-type-tree/tree'
 
-export type GenreRepository = {
-  findById(id: number): Promise<Genre | undefined>
-  save(genre: Genre): Promise<{ id: number }>
-  delete(id: number): Promise<void>
+export class CreateMediaTypeCommand {
+  constructor(
+    private mediaTypeTreeRepo: IMediaTypeTreeRepository,
+    private idGenerator: IIdGenerator,
+    private eventStore: IEventStore,
+  ) {}
+
+  async execute(): Promise<{ id: number }> {
+    const tree = await this.mediaTypeTreeRepo.get()
+    const id = await this.idGenerator.generate()
+
+    const event = new AddMediaTypeToTreeEvent(id)
+    const result = event.process(tree)
+
+    if (result instanceof MediaTypeAlreadyExistsError) {
+      // This should never happen given that we genrate our own ids.
+      // If we wanted to, we could regenerate a new id and try the event again.
+      throw result
+    }
+
+    await this.eventStore.save(event)
+
+    return { id }
+  }
 }
 
 ---
 
-File: ./src/lib/server/features/genres/commands/domain/genre.test.ts
+File: src/lib/server/features/media/commands/application/get-media-type-tree.ts
 Contents:
-import { describe, expect, it } from 'vitest'
+import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
 
-import { DuplicateAkaError } from './errors/duplicate-aka'
-import { Genre } from './genre'
-import { GenreHistory } from './genre-history'
+export class GetMediaTypeTreeQuery {
+  constructor(private mediaTypeTreeRepo: IMediaTypeTreeRepository) {}
 
-describe('Genre', () => {
-  const baseGenreParams = {
-    name: 'Test Genre',
-    type: 'STYLE' as const,
-    nsfw: false,
-    akas: {
-      primary: [],
-      secondary: [],
-      tertiary: [],
-    },
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
+  async execute(): Promise<{ id: number; children: Set<number> }[]> {
+    const tree = await this.mediaTypeTreeRepo.get()
+    return tree.getAll().map((node) => ({
+      id: node.id,
+      children: node.getChildren(),
+    }))
+  }
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/event-store/event-store.ts
+Contents:
+import type { IEvent } from './event'
+
+export type IEventStore = {
+  get(): IEvent[] | Promise<IEvent[]>
+  save(event: IEvent): void | Promise<void>
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/event-store/event.ts
+Contents:
+import type { MediaTypeTree } from '../media-type-tree/tree'
+
+export type IEvent = {
+  process(tree: MediaTypeTree): void | Error
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/ids/id-generator.ts
+Contents:
+export type IIdGenerator = {
+  generate(): number | Promise<number>
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/media-type-tree/events/add-media-type-to-tree.test.ts
+Contents:
+import { expect } from 'vitest'
+
+import { test } from '../../../../../../../../vitest-setup'
+import { MemoryIdGenerator } from '../../../infrastructure/memory-id-generator'
+import { MediaTypeAlreadyExistsError, MediaTypeTree } from '../tree'
+import { AddMediaTypeToTreeEvent } from './add-media-type-to-tree'
+
+test('should add a media type to the tree', () => {
+  const tree = new MediaTypeTree()
+  const id = new MemoryIdGenerator().generate()
+  const event = new AddMediaTypeToTreeEvent(id)
+  const result = event.process(tree)
+  if (result instanceof Error) {
+    expect.fail(`Failed to add media type to tree: ${result.message}`)
+  }
+  expect(tree.get(id)).toBeDefined()
+})
+
+test('should error if media type already exists with id', () => {
+  const tree = new MediaTypeTree()
+  const id = new MemoryIdGenerator().generate()
+  const event = new AddMediaTypeToTreeEvent(id)
+
+  const initialAddResult = event.process(tree)
+  if (initialAddResult instanceof Error) {
+    expect.fail(`Failed to add media type to tree: ${initialAddResult.message}`)
   }
 
-  describe('create', () => {
-    it('creates a valid genre', () => {
-      const result = Genre.create(baseGenreParams)
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Test Genre')
-        expect(result.type).toBe('STYLE')
-        expect(result.nsfw).toBe(false)
-      }
-    })
-
-    it('trims whitespace from name', () => {
-      const result = Genre.create({
-        ...baseGenreParams,
-        name: '  Test Genre  ',
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Test Genre')
-      }
-    })
-
-    it('trims whitespace from subtitle', () => {
-      const result = Genre.create({
-        ...baseGenreParams,
-        subtitle: '  Test Subtitle  ',
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.subtitle).toBe('Test Subtitle')
-      }
-    })
-
-    it('filters out empty AKAs after trimming', () => {
-      const result = Genre.create({
-        ...baseGenreParams,
-        akas: {
-          primary: ['  ', 'Valid AKA', '   '],
-          secondary: [],
-          tertiary: [],
-        },
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.akas.primary).toEqual(['Valid AKA'])
-      }
-    })
-
-    it('returns DuplicateAkaError when same AKA exists within primary level', () => {
-      const result = Genre.create({
-        ...baseGenreParams,
-        akas: {
-          primary: ['Duplicate', 'Duplicate'],
-          secondary: [],
-          tertiary: [],
-        },
-      })
-
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('primary')
-      }
-    })
-
-    it('returns DuplicateAkaError when same AKA exists across different levels', () => {
-      const result = Genre.create({
-        ...baseGenreParams,
-        akas: {
-          primary: ['Duplicate'],
-          secondary: ['Duplicate'],
-          tertiary: [],
-        },
-      })
-
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('secondary')
-      }
-    })
-  })
-
-  describe('withUpdate', () => {
-    const baseGenre = Genre.create(baseGenreParams) as Genre
-
-    it('updates basic properties', () => {
-      const result = baseGenre.withUpdate({
-        name: 'Updated Name',
-        subtitle: 'New Subtitle',
-        type: 'TREND',
-        nsfw: true,
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Updated Name')
-        expect(result.subtitle).toBe('New Subtitle')
-        expect(result.type).toBe('TREND')
-        expect(result.nsfw).toBe(true)
-      }
-    })
-
-    it('handles null values for optional fields', () => {
-      const genreWithSubtitle = Genre.create({
-        ...baseGenreParams,
-        subtitle: 'Original Subtitle',
-      }) as Genre
-
-      const result = genreWithSubtitle.withUpdate({
-        subtitle: null,
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.subtitle).toBeUndefined()
-      }
-    })
-
-    it('updates AKAs', () => {
-      const result = baseGenre.withUpdate({
-        akas: {
-          primary: ['New AKA'],
-          secondary: ['Secondary AKA'],
-          tertiary: ['Tertiary AKA'],
-        },
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.akas.primary).toEqual(['New AKA'])
-        expect(result.akas.secondary).toEqual(['Secondary AKA'])
-        expect(result.akas.tertiary).toEqual(['Tertiary AKA'])
-      }
-    })
-
-    it('returns DuplicateAkaError when update creates duplicate AKAs', () => {
-      const result = baseGenre.withUpdate({
-        akas: {
-          primary: ['Duplicate'],
-          secondary: ['Duplicate'],
-        },
-      })
-
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('secondary')
-      }
-    })
-
-    it('preserves unchanged fields', () => {
-      const originalGenre = Genre.create({
-        ...baseGenreParams,
-        subtitle: 'Original Subtitle',
-        shortDescription: 'Original Short Description',
-        longDescription: 'Original Long Description',
-        notes: 'Original Notes',
-      }) as Genre
-
-      const result = originalGenre.withUpdate({
-        name: 'Updated Name',
-      })
-
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Updated Name')
-        expect(result.subtitle).toBe('Original Subtitle')
-        expect(result.shortDescription).toBe('Original Short Description')
-        expect(result.longDescription).toBe('Original Long Description')
-        expect(result.notes).toBe('Original Notes')
-      }
-    })
-  })
-
-  describe('isChangedFrom', () => {
-    const baseGenre = Genre.create(baseGenreParams) as Genre
-
-    it('detects changes in basic properties', () => {
-      const history = new GenreHistory(
-        'Different Name',
-        undefined,
-        'STYLE',
-        false,
-        undefined,
-        undefined,
-        undefined,
-        new Set(),
-        new Set(),
-        new Set(),
-        { primary: [], secondary: [], tertiary: [] },
-        1,
-        new Date(),
-        'CREATE',
-        1,
-      )
-
-      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
-    })
-
-    it('detects changes in relationships', () => {
-      const history = new GenreHistory(
-        baseGenre.name,
-        baseGenre.subtitle,
-        baseGenre.type,
-        baseGenre.nsfw,
-        baseGenre.shortDescription,
-        baseGenre.longDescription,
-        baseGenre.notes,
-        new Set([1]),
-        new Set([2]),
-        new Set([3]),
-        baseGenre.akas,
-        1,
-        new Date(),
-        'CREATE',
-        1,
-      )
-
-      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
-    })
-
-    it('detects changes in AKAs', () => {
-      const history = new GenreHistory(
-        baseGenre.name,
-        baseGenre.subtitle,
-        baseGenre.type,
-        baseGenre.nsfw,
-        baseGenre.shortDescription,
-        baseGenre.longDescription,
-        baseGenre.notes,
-        new Set(),
-        new Set(),
-        new Set(),
-        { primary: ['Different AKA'], secondary: [], tertiary: [] },
-        1,
-        new Date(),
-        'CREATE',
-        1,
-      )
-
-      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(true)
-    })
-
-    it('returns false when nothing has changed', () => {
-      const history = new GenreHistory(
-        baseGenre.name,
-        baseGenre.subtitle,
-        baseGenre.type,
-        baseGenre.nsfw,
-        baseGenre.shortDescription,
-        baseGenre.longDescription,
-        baseGenre.notes,
-        new Set(),
-        new Set(),
-        new Set(),
-        baseGenre.akas,
-        1,
-        new Date(),
-        'CREATE',
-        1,
-      )
-
-      expect(baseGenre.isChangedFrom(new Set(), new Set(), new Set(), history)).toBe(false)
-    })
-  })
+  const secondAddResult = event.process(tree)
+  expect(secondAddResult).toBeInstanceOf(MediaTypeAlreadyExistsError)
 })
 
 ---
 
-File: ./src/lib/server/features/genres/commands/domain/genre-tree-repository.ts
+File: src/lib/server/features/media/commands/domain/media-type-tree/events/add-media-type-to-tree.ts
 Contents:
-import type { GenreTree } from './genre-tree'
+import type { IEvent } from '../../event-store/event'
+import type { MediaTypeTree } from '../tree'
+import { MediaTypeAlreadyExistsError } from '../tree'
+import { MediaTypeTreeNode } from '../tree-node'
 
-export type GenreTreeRepository = {
-  get(): Promise<GenreTree>
-  save(genreTree: GenreTree): Promise<void>
+export class AddMediaTypeToTreeEvent implements IEvent {
+  constructor(public readonly id: number) {}
+
+  process(tree: MediaTypeTree): void | MediaTypeAlreadyExistsError {
+    const treeNode = MediaTypeTreeNode.create(this.id)
+    const result = tree.insert(treeNode)
+    if (result instanceof MediaTypeAlreadyExistsError) {
+      return result
+    }
+  }
 }
 
 ---
 
-File: ./src/lib/server/features/genres/commands/domain/genre-tree.ts
+File: src/lib/server/features/media/commands/domain/media-type-tree/events/add-parent-to-media-type.test.ts
 Contents:
-import { intersection } from 'ramda'
+import { expect } from 'vitest'
 
-import { DerivedChildError } from './errors/derived-child'
-import { DerivedInfluenceError } from './errors/derived-influence'
-import { GenreCycleError } from './errors/genre-cycle'
-import { SelfInfluenceError } from './errors/self-influence'
+import { test } from '../../../../../../../../vitest-setup'
+import { MemoryIdGenerator } from '../../../infrastructure/memory-id-generator'
+import { CycleError, MediaTypeNotFoundError, MediaTypeTree } from '../tree'
+import { AddMediaTypeToTreeEvent } from './add-media-type-to-tree'
+import { AddParentToMediaTypeEvent } from './add-parent-to-media-type'
 
-export class GenreTree {
-  map: Map<number, GenreTreeNode>
+test('should add a parent to a media type', () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
 
-  constructor(nodes: GenreTreeNode[]) {
-    this.map = new Map(nodes.map((node) => [node.id, node]))
+  const id = addMediaType(idGenerator, tree)
+  const parentId = addMediaType(idGenerator, tree)
+
+  const addParentResult = new AddParentToMediaTypeEvent(id, parentId).process(tree)
+  if (addParentResult instanceof Error) {
+    expect.fail(`Failed to add parent to media type: ${addParentResult.message}`)
   }
 
-  insertGenre(
-    id: number,
-    name: string,
-    parents: Set<number>,
-    derivedFrom: Set<number>,
-    influences: Set<number>,
-  ): DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
-    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
-    if (isDerivedAndChild) {
-      return new DerivedChildError(id)
-    }
+  const parent = tree.get(parentId)
+  expect(parent).toBeDefined()
+  expect(parent?.hasChild(id)).toBe(true)
+})
 
-    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
-    if (isDerivedAndInfluence) {
-      return new DerivedInfluenceError(id)
-    }
+test("should error if the media type doesn't exist", () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
 
-    const influencesSelf = influences.has(id)
-    if (influencesSelf) {
-      return new SelfInfluenceError()
-    }
+  const id = idGenerator.generate()
+  const parentId = idGenerator.generate()
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'created'))
+  const addParentResult = new AddParentToMediaTypeEvent(id, parentId).process(tree)
+
+  expect(addParentResult).toBeInstanceOf(MediaTypeNotFoundError)
+  expect((addParentResult as MediaTypeNotFoundError).id).toBe(id)
+})
+
+test("should error if parent media type doesn't exist", () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
+
+  const id = addMediaType(idGenerator, tree)
+  const nonexistentParentId = idGenerator.generate()
+
+  const addParentResult = new AddParentToMediaTypeEvent(id, nonexistentParentId).process(tree)
+
+  expect(addParentResult).toBeInstanceOf(MediaTypeNotFoundError)
+  expect((addParentResult as MediaTypeNotFoundError).id).toBe(nonexistentParentId)
+})
+
+test('should error when creating a 1-cycle in the tree', () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
+
+  const id = addMediaType(idGenerator, tree)
+
+  const addParentResult = new AddParentToMediaTypeEvent(id, id).process(tree)
+
+  expect(addParentResult).toBeInstanceOf(CycleError)
+  expect((addParentResult as CycleError).cycle).toEqual([id, id])
+})
+
+test('should error when creating a 2-cycle in the tree', () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
+
+  // Create structure: A → B → A
+  const a = addMediaType(idGenerator, tree)
+  const b = addMediaType(idGenerator, tree)
+
+  const aParentResult = new AddParentToMediaTypeEvent(b, a).process(tree)
+  if (aParentResult instanceof Error) {
+    expect.fail(`Failed to add parent to media type: ${aParentResult.message}`)
   }
 
-  updateGenre(
-    id: number,
-    name: string,
-    parents: Set<number>,
-    derivedFrom: Set<number>,
-    influences: Set<number>,
-  ): GenreCycleError | DerivedChildError | DerivedInfluenceError | SelfInfluenceError | undefined {
-    const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
-    if (isDerivedAndChild) {
-      return new DerivedChildError(id)
+  const addCycleResult = new AddParentToMediaTypeEvent(a, b).process(tree)
+  expect(addCycleResult).toBeInstanceOf(CycleError)
+  expect((addCycleResult as unknown as CycleError).cycle).toEqual([a, b, a])
+})
+
+test('should error when creating a 3-cycle in the tree', () => {
+  const tree = new MediaTypeTree()
+  const idGenerator = new MemoryIdGenerator()
+
+  // Create structure: A → B → C → A
+  const a = addMediaType(idGenerator, tree)
+  const b = addMediaType(idGenerator, tree)
+  const c = addMediaType(idGenerator, tree)
+
+  const aParentResult = new AddParentToMediaTypeEvent(b, a).process(tree)
+  if (aParentResult instanceof Error) {
+    expect.fail(`Failed to add parent to media type: ${aParentResult.message}`)
+  }
+
+  const bParentResult = new AddParentToMediaTypeEvent(c, b).process(tree)
+  if (bParentResult instanceof Error) {
+    expect.fail(`Failed to add parent to media type: ${bParentResult.message}`)
+  }
+
+  const addCycleResult = new AddParentToMediaTypeEvent(a, c).process(tree)
+  expect(addCycleResult).toBeInstanceOf(CycleError)
+  expect((addCycleResult as unknown as CycleError).cycle).toEqual([a, b, c, a])
+})
+
+function addMediaType(idGenerator: MemoryIdGenerator, tree: MediaTypeTree) {
+  const id = idGenerator.generate()
+  const addMediaTypeEvent = new AddMediaTypeToTreeEvent(id)
+  const addMediaTypeResult = addMediaTypeEvent.process(tree)
+  if (addMediaTypeResult instanceof Error) {
+    expect.fail(`Failed to add media type to tree: ${addMediaTypeResult.message}`)
+  }
+  return id
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/media-type-tree/events/add-parent-to-media-type.ts
+Contents:
+import type { IEvent } from '../../event-store/event'
+import type { CycleError, MediaTypeNotFoundError } from '../tree'
+import { type MediaTypeTree } from '../tree'
+
+export class AddParentToMediaTypeEvent implements IEvent {
+  constructor(
+    public readonly id: number,
+    public readonly parentId: number,
+  ) {}
+
+  process(tree: MediaTypeTree): void | MediaTypeNotFoundError | CycleError {
+    const result = tree.addParent(this.id, this.parentId)
+    if (result instanceof Error) {
+      return result
+    }
+  }
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/media-type-tree/repository.ts
+Contents:
+import type { MediaTypeTree } from './tree'
+
+export type IMediaTypeTreeRepository = {
+  get(): MediaTypeTree | Promise<MediaTypeTree>
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/media-type-tree/tree-node.ts
+Contents:
+export class MediaTypeTreeNode {
+  private constructor(
+    public readonly id: number,
+    private children: Set<number>,
+  ) {}
+
+  static create(id: number): MediaTypeTreeNode {
+    return new MediaTypeTreeNode(id, new Set())
+  }
+
+  addChild(id: number): void {
+    this.children.add(id)
+  }
+
+  getChildren(): Set<number> {
+    return this.children
+  }
+
+  hasChild(id: number): boolean {
+    return this.children.has(id)
+  }
+}
+
+---
+
+File: src/lib/server/features/media/commands/domain/media-type-tree/tree.ts
+Contents:
+import { CustomError } from '$lib/utils/error'
+
+import { type MediaTypeTreeNode } from './tree-node'
+
+export class MediaTypeTree {
+  private nodes: Map<number, MediaTypeTreeNode>
+
+  constructor() {
+    this.nodes = new Map()
+  }
+
+  insert(node: MediaTypeTreeNode): void | MediaTypeAlreadyExistsError {
+    if (this.nodes.has(node.id)) {
+      return new MediaTypeAlreadyExistsError(node.id)
     }
 
-    const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
-    if (isDerivedAndInfluence) {
-      return new DerivedInfluenceError(id)
+    this.nodes.set(node.id, node)
+  }
+
+  addParent(id: number, parentId: number): void | MediaTypeNotFoundError | CycleError {
+    const node = this.nodes.get(id)
+    if (node === undefined) {
+      return new MediaTypeNotFoundError(id)
     }
 
-    const influencesSelf = influences.has(id)
-    if (influencesSelf) {
-      return new SelfInfluenceError()
+    const parentNode = this.nodes.get(parentId)
+    if (parentNode === undefined) {
+      return new MediaTypeNotFoundError(parentId)
     }
 
-    this.map.set(id, new GenreTreeNode(id, name, parents, derivedFrom, influences, 'updated'))
+    parentNode.addChild(id)
 
     const cycle = this.findCycle()
     if (cycle) {
-      return new GenreCycleError(cycle)
+      return new CycleError(cycle)
     }
   }
 
-  deleteGenre(id: number): void {
-    this.moveGenreChildrenUnderParents(id)
-    const genre = this.map.get(id)
-    if (genre) {
-      genre.status = 'deleted'
-    }
+  get(id: number): MediaTypeTreeNode | undefined {
+    return this.nodes.get(id)
   }
 
-  getParents(id: number): Set<number> {
-    const genre = this.map.get(id)
-    return genre?.parents ?? new Set()
+  getAll(): MediaTypeTreeNode[] {
+    return [...this.nodes.values()]
   }
 
-  getDerivedFrom(id: number): Set<number> {
-    const genre = this.map.get(id)
-    return genre?.derivedFrom ?? new Set()
-  }
+  private findCycle(): number[] | undefined {
+    const finished = new Set<number>()
 
-  getInfluences(id: number): Set<number> {
-    const genre = this.map.get(id)
-    return genre?.influences ?? new Set()
-  }
-
-  private moveGenreChildrenUnderParents(id: number) {
-    const genre = this.map.get(id)
-    if (!genre) return
-
-    const children = this.getGenreChildren(id)
-    for (const childId of children) {
-      const child = this.map.get(childId)
-      if (!child) continue
-
-      child.parents.delete(id)
-
-      for (const parentId of genre.parents) {
-        child.parents.add(parentId)
+    const dfs = (v: number, stack: number[]): number[] | undefined => {
+      if (finished.has(v)) {
+        return undefined
       }
 
-      child.status = 'updated'
-    }
-  }
-
-  getGenreChildren(id: number): Set<number> {
-    const children = new Set<number>()
-
-    for (const node of this.map.values()) {
-      if (node.parents.has(id)) {
-        children.add(node.id)
+      if (stack.includes(v)) {
+        const cycleStart = stack.lastIndexOf(v)
+        return [...stack.slice(cycleStart), v]
       }
-    }
 
-    return children
-  }
-
-  private findCycle(): string | undefined {
-    for (const genre of [...this.map.values()].filter((node) => node.status !== 'deleted')) {
-      const cycle = this.findCycleInner(genre.id, [])
-      if (cycle) {
-        const formattedCycle = cycle.map((id) => this.map.get(id)!.name).join(' → ')
-        return formattedCycle
+      for (const child of this.nodes.get(v)?.getChildren() ?? new Set()) {
+        const cycle = dfs(child, [...stack, v])
+        if (cycle) {
+          return cycle
+        }
       }
-    }
-  }
 
-  private findCycleInner(id: number, stack: number[]): number[] | false {
-    if (stack.includes(id)) {
-      return [...stack, id]
+      finished.add(v)
+      return undefined
     }
 
-    const genre = this.map.get(id)
-    if (!genre || genre.status === 'deleted') return false
-
-    for (const parentId of genre.parents) {
-      const cycle = this.findCycleInner(parentId, [...stack, id])
-      if (cycle) {
-        return cycle
-      }
+    for (const node of this.nodes.values()) {
+      const cycle = dfs(node.id, [])
+      if (cycle) return cycle
     }
 
-    for (const derivedFromId of genre.derivedFrom) {
-      const cycle = this.findCycleInner(derivedFromId, [...stack, id])
-      if (cycle) {
-        return cycle
-      }
-    }
-
-    return false
+    return undefined
   }
 }
 
-class GenreTreeNode {
-  constructor(
-    public id: number,
-    public name: string,
-    public parents: Set<number>,
-    public derivedFrom: Set<number>,
-    public influences: Set<number>,
-    public status?: 'created' | 'updated' | 'deleted',
-  ) {}
+export class MediaTypeAlreadyExistsError extends CustomError {
+  constructor(public readonly id: number) {
+    super('MediaTypeAlreadyExistsError', `A media type already exists with id: ${id}`)
+  }
+}
+
+export class MediaTypeNotFoundError extends CustomError {
+  constructor(public readonly id: number) {
+    super('MediaTypeNotFoundError', `A media type was not found for id: ${id}`)
+  }
+}
+
+export class CycleError extends CustomError {
+  constructor(public readonly cycle: number[]) {
+    super('CycleError', `A cycle was detected: ${cycle.join(' -> ')}`)
+  }
 }
 
 ---
 
-File: ./src/lib/server/features/genres/commands/domain/genre.ts
+File: src/lib/server/features/media/commands/infrastructure/memory-event-store.ts
 Contents:
-import { equals } from 'ramda'
+import type { IEvent } from '../domain/event-store/event'
+import type { IEventStore } from '../domain/event-store/event-store'
 
-import { DuplicateAkaError } from './errors/duplicate-aka'
-import type { GenreHistory } from './genre-history'
+export class MemoryEventStore implements IEventStore {
+  private events: IEvent[]
 
-export type GenreUpdate = {
-  name?: string
-  subtitle?: string | null
-  type?: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-  nsfw?: boolean
-  shortDescription?: string | null
-  longDescription?: string | null
-  notes?: string | null
-  parents?: Set<number>
-  derivedFrom?: Set<number>
-  influences?: Set<number>
-  akas?: {
-    primary?: string[]
-    secondary?: string[]
-    tertiary?: string[]
+  constructor() {
+    this.events = []
+  }
+
+  get() {
+    return this.events
+  }
+
+  save(event: IEvent) {
+    this.events.push(event)
   }
 }
 
-type GenreConstructorParams = {
-  id?: number
-  name: string
-  subtitle?: string
-  type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-  nsfw: boolean
-  shortDescription?: string
-  longDescription?: string
-  notes?: string
-  akas: {
-    primary: string[]
-    secondary: string[]
-    tertiary: string[]
+---
+
+File: src/lib/server/features/media/commands/infrastructure/memory-id-generator.ts
+Contents:
+import type { IIdGenerator } from '../domain/ids/id-generator'
+
+export class MemoryIdGenerator implements IIdGenerator {
+  private id: number
+
+  constructor() {
+    this.id = 0
   }
-  createdAt: Date
-  updatedAt: Date
+
+  generate() {
+    const currentId = this.id
+    const nextId = currentId + 1
+    this.id = nextId
+    return nextId
+  }
 }
 
-export class Genre {
-  readonly id: number | undefined
-  readonly name: string
-  readonly subtitle: string | undefined
-  readonly type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-  readonly nsfw: boolean
-  readonly shortDescription: string | undefined
-  readonly longDescription: string | undefined
-  readonly notes: string | undefined
-  readonly akas: {
-    readonly primary: string[]
-    readonly secondary: string[]
-    readonly tertiary: string[]
-  }
-  readonly createdAt: Date
-  readonly updatedAt: Date
+---
 
-  private constructor(params: GenreConstructorParams) {
-    this.id = params.id
-    this.name = params.name.trim()
-    this.subtitle = params.subtitle?.trim()
-    this.type = params.type
-    this.nsfw = params.nsfw
-    this.shortDescription = params.shortDescription
-    this.longDescription = params.longDescription
-    this.notes = params.notes
-    this.akas = {
-      primary: [...params.akas.primary.map((item) => item.trim()).filter((item) => item !== '')],
-      secondary: [
-        ...params.akas.secondary.map((item) => item.trim()).filter((item) => item !== ''),
-      ],
-      tertiary: [...params.akas.tertiary.map((item) => item.trim()).filter((item) => item !== '')],
-    }
-    this.createdAt = new Date(params.createdAt)
-    this.updatedAt = new Date(params.updatedAt)
-  }
+File: src/lib/server/features/media/commands/infrastructure/memory-media-type-tree-repository.ts
+Contents:
+import type { IEventStore } from '../domain/event-store/event-store'
+import type { IMediaTypeTreeRepository } from '../domain/media-type-tree/repository'
+import { MediaTypeTree } from '../domain/media-type-tree/tree'
 
-  static create(params: GenreConstructorParams): Genre | DuplicateAkaError {
-    const genre = new Genre(params)
+export class MemoryMediaTypeTreeRepository implements IMediaTypeTreeRepository {
+  constructor(private eventStore: IEventStore) {}
 
-    const duplicateAkaError = genre.checkDuplicateAkas()
-    if (duplicateAkaError) {
-      return duplicateAkaError
-    }
+  async get() {
+    const tree = new MediaTypeTree()
 
-    return genre
-  }
-
-  private checkDuplicateAkas(): DuplicateAkaError | undefined {
-    const set = new Set<string>()
-
-    for (const level of Object.keys(this.akas) as (keyof typeof this.akas)[]) {
-      for (const aka of this.akas[level]) {
-        if (!set.has(aka)) {
-          set.add(aka)
-        } else {
-          return new DuplicateAkaError(aka, level)
-        }
+    const events = await this.eventStore.get()
+    for (const event of events) {
+      const result = event.process(tree)
+      if (result instanceof Error) {
+        // We should never have error sneaking in here since we protect against them
+        // before inserting the event.
+        throw result
       }
     }
-  }
 
-  withUpdate(data: GenreUpdate) {
-    return Genre.create({
-      id: this.id,
-      name: data.name ?? this.name,
-      subtitle: data.subtitle === undefined ? this.subtitle : (data.subtitle ?? undefined),
-      type: data.type ?? this.type,
-      nsfw: data.nsfw ?? this.nsfw,
-      shortDescription:
-        data.shortDescription === undefined
-          ? this.shortDescription
-          : (data.shortDescription ?? undefined),
-      longDescription:
-        data.longDescription === undefined
-          ? this.longDescription
-          : (data.longDescription ?? undefined),
-      notes: data.notes === undefined ? this.notes : (data.notes ?? undefined),
-      akas: {
-        primary: data.akas?.primary ?? this.akas.primary,
-        secondary: data.akas?.secondary ?? this.akas.secondary,
-        tertiary: data.akas?.tertiary ?? this.akas.tertiary,
-      },
-      createdAt: this.createdAt,
-      updatedAt: new Date(),
-    })
-  }
-
-  isChangedFrom(
-    parents: Set<number>,
-    derivedFrom: Set<number>,
-    influences: Set<number>,
-    genreHistory: GenreHistory,
-  ): boolean {
-    return (
-      this.name !== genreHistory.name ||
-      this.subtitle !== genreHistory.subtitle ||
-      this.type !== genreHistory.type ||
-      this.nsfw !== genreHistory.nsfw ||
-      this.shortDescription !== genreHistory.shortDescription ||
-      this.longDescription !== genreHistory.longDescription ||
-      this.notes !== genreHistory.notes ||
-      !equals(parents, genreHistory.parents) ||
-      !equals(derivedFrom, genreHistory.derivedFrom) ||
-      !equals(influences, genreHistory.influences) ||
-      !equals(this.akas, genreHistory.akas)
-    )
+    return tree
   }
 }
 
