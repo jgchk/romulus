@@ -17,6 +17,16 @@ export class Transaction {
     return event
   }
 
+  addParentToMediaType(id: number, parentId: number) {
+    const currentTree = this.getMediaTypeTreeView()
+    const event = currentTree.addParentToMediaType(id, parentId)
+    if (event instanceof Error) {
+      return event
+    }
+    this.mediaTypeTreeEvents.push(event)
+    return event
+  }
+
   getMediaTypeTreeView() {
     const treeView = this.startingTree.clone()
     for (const event of this.mediaTypeTreeEvents) {
