@@ -1,5 +1,4 @@
-import type { MediaTypeEvent } from './events'
-import { MediaTypeMetadataUpdatedEvent } from './events/metadata-updated'
+import { type MediaTypeEvent, MediaTypeMetadataUpdatedEvent } from './events'
 
 export class MediaType {
   private name: string

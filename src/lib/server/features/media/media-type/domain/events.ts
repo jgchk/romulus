@@ -1,3 +1,5 @@
+export type MediaTypeEvent = MediaTypeMetadataUpdatedEvent
+
 export class MediaTypeMetadataUpdatedEvent {
   constructor(
     public readonly id: number,
