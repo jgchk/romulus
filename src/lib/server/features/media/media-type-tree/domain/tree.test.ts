@@ -6,7 +6,7 @@ import { CycleError, MediaTypeNotFoundError, MediaTypeTree } from './tree'
 
 describe('addMediaType()', () => {
   test('should add a media type to the tree', () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
     const event = tree.addMediaType()
     expect(event).toBeInstanceOf(MediaTypeAddedEvent)
     expect(event.id).toBeTypeOf('number')
@@ -15,7 +15,7 @@ describe('addMediaType()', () => {
 
 describe('addParentToMediaType()', () => {
   test('should add a parent to a media type', () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     const parent = tree.addMediaType()
     const child = tree.addMediaType()
@@ -27,7 +27,7 @@ describe('addParentToMediaType()', () => {
   })
 
   test("should error if the child media type doesn't exist", () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     const parent = tree.addMediaType()
     const child = { id: parent.id + 1 }
@@ -39,7 +39,7 @@ describe('addParentToMediaType()', () => {
   })
 
   test("should error if parent media type doesn't exist", () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     const child = tree.addMediaType()
     const parent = { id: child.id + 1 }
@@ -51,7 +51,7 @@ describe('addParentToMediaType()', () => {
   })
 
   test('should error when creating a 1-cycle in the tree', () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     const mediaType = tree.addMediaType()
 
@@ -62,7 +62,7 @@ describe('addParentToMediaType()', () => {
   })
 
   test('should error when creating a 2-cycle in the tree', () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     // Create structure: A → B → A
     const a = tree.addMediaType()
@@ -79,7 +79,7 @@ describe('addParentToMediaType()', () => {
   })
 
   test('should error when creating a 3-cycle in the tree', () => {
-    const tree = new MediaTypeTree()
+    const tree = MediaTypeTree.create()
 
     // Create structure: A → B → C → A
     const a = tree.addMediaType()

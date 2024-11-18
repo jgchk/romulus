@@ -7,9 +7,17 @@ export class MediaTypeTree {
   private currId: number
   private nodes: Map<number, MediaTypeTreeNode>
 
-  constructor() {
-    this.currId = 0
-    this.nodes = new Map()
+  private constructor(currId: number, nodes: Map<number, MediaTypeTreeNode>) {
+    this.currId = currId
+    this.nodes = nodes
+  }
+
+  static create(): MediaTypeTree {
+    return new MediaTypeTree(0, new Map())
+  }
+
+  clone(): MediaTypeTree {
+    return new MediaTypeTree(this.currId, new Map(structuredClone(this.nodes)))
   }
 
   apply(event: MediaTypeTreeEvent): void {
