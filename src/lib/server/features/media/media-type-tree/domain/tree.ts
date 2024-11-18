@@ -122,12 +122,12 @@ class MediaTypeTreeState {
     parent.children.add(childId)
   }
 
-  private hasPath(parentId: number, childId: number): number[] | undefined {
+  private hasPath(source: number, destination: number): number[] | undefined {
     const visited = new Set<number>()
     const path: number[] = []
 
     const dfs = (current: number): number[] | undefined => {
-      if (current === childId) {
+      if (current === destination) {
         return [...path, current]
       }
 
@@ -148,7 +148,7 @@ class MediaTypeTreeState {
       path.pop()
     }
 
-    return dfs(parentId)
+    return dfs(source)
   }
 
   getAllMediaTypes(): { id: number; children: Set<number> }[] {
