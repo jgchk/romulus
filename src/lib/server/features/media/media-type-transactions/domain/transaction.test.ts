@@ -128,10 +128,12 @@ describe('getMediaTypeTreeView()', () => {
 
     transaction.addMediaType()
     const treeView = transaction.getMediaTypeTreeView()
+    const treeViewMediaTypes = treeView.getAllMediaTypes()
 
     const expectedTree = MediaTypeTree.create()
     expectedTree.addMediaType()
+    const expectedTreeMediaTypes = expectedTree.getAllMediaTypes()
 
-    expect(treeView).toEqual(expectedTree)
+    expect(treeViewMediaTypes).toEqual(expectedTreeMediaTypes)
   })
 })

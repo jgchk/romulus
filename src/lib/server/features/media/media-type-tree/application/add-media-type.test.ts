@@ -9,7 +9,7 @@ it('should create a new media type', async () => {
   const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
-  const command = new AddMediaTypeCommand(repo, eventStore)
+  const command = new AddMediaTypeCommand(repo)
   const result = await command.execute()
   expect(result.id).toEqual(expect.any(Number))
 

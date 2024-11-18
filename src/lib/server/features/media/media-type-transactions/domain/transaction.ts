@@ -30,7 +30,7 @@ export class Transaction {
   getMediaTypeTreeView() {
     const treeView = this.startingTree.clone()
     for (const event of this.mediaTypeTreeEvents) {
-      treeView.apply(event)
+      treeView.applyEvent(event)
     }
     return treeView
   }

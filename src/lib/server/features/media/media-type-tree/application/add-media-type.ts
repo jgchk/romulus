@@ -1,18 +1,14 @@
-import type { IMediaTypeTreeEventStore } from '../domain/event-store'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class AddMediaTypeCommand {
-  constructor(
-    private mediaTypeTreeRepo: IMediaTypeTreeRepository,
-    private eventStore: IMediaTypeTreeEventStore,
-  ) {}
+  constructor(private mediaTypeTreeRepo: IMediaTypeTreeRepository) {}
 
   async execute(): Promise<{ id: number }> {
     const tree = await this.mediaTypeTreeRepo.get()
 
     const event = tree.addMediaType()
 
-    await this.eventStore.save(event)
+    await this.mediaTypeTreeRepo.save(tree)
 
     return { id: event.id }
   }

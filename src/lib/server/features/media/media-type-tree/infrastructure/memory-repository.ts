@@ -10,9 +10,16 @@ export class MemoryMediaTypeTreeRepository implements IMediaTypeTreeRepository {
 
     const events = await this.eventStore.get()
     for (const event of events) {
-      tree.apply(event)
+      tree.applyEvent(event)
     }
 
     return tree
+  }
+
+  async save(tree: MediaTypeTree) {
+    const uncommittedEvents = tree.getUncommittedEvents()
+    for (const uncommitedEvent of uncommittedEvents) {
+      await this.eventStore.save(uncommitedEvent)
+    }
   }
 }

@@ -5,9 +5,6 @@ export class GetMediaTypeTreeQuery {
 
   async execute(): Promise<{ id: number; children: Set<number> }[]> {
     const tree = await this.mediaTypeTreeRepo.get()
-    return tree.getAll().map((node) => ({
-      id: node.id,
-      children: node.getChildren(),
-    }))
+    return tree.getAllMediaTypes()
   }
 }

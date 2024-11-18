@@ -19,12 +19,9 @@ it('should return tree structure with relationships', async () => {
   const eventStore = new MemoryMediaTypeTreeEventStore()
   const repo = new MemoryMediaTypeTreeRepository(eventStore)
 
-  const parent = await new AddMediaTypeCommand(repo, eventStore).execute()
-  const child = await new AddMediaTypeCommand(repo, eventStore).execute()
-  const addParentResult = await new AddParentToMediaTypeCommand(repo, eventStore).execute(
-    child.id,
-    parent.id,
-  )
+  const parent = await new AddMediaTypeCommand(repo).execute()
+  const child = await new AddMediaTypeCommand(repo).execute()
+  const addParentResult = await new AddParentToMediaTypeCommand(repo).execute(child.id, parent.id)
   if (addParentResult instanceof Error) {
     expect.fail(`Failed to parent for media type: ${addParentResult.message}`)
   }

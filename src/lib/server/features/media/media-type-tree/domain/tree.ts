@@ -1,123 +1,158 @@
 import { CustomError } from '$lib/utils/error'
 
 import { MediaTypeAddedEvent, MediaTypeParentAddedEvent, type MediaTypeTreeEvent } from './events'
-import { MediaTypeTreeNode } from './tree-node'
 
 export class MediaTypeTree {
-  private currId: number
-  private nodes: Map<number, MediaTypeTreeNode>
+  private state: MediaTypeTreeState
+  private uncommittedEvents: MediaTypeTreeEvent[]
 
-  private constructor(currId: number, nodes: Map<number, MediaTypeTreeNode>) {
-    this.currId = currId
-    this.nodes = nodes
+  private constructor(state: MediaTypeTreeState, uncommittedEvents: MediaTypeTreeEvent[]) {
+    this.state = state
+    this.uncommittedEvents = uncommittedEvents
   }
 
   static create(): MediaTypeTree {
-    return new MediaTypeTree(0, new Map())
+    return new MediaTypeTree(MediaTypeTreeState.create(), [])
   }
 
   clone(): MediaTypeTree {
-    return new MediaTypeTree(this.currId, new Map(structuredClone(this.nodes)))
+    return new MediaTypeTree(this.state.clone(), [...this.uncommittedEvents])
   }
 
-  apply(event: MediaTypeTreeEvent): void {
+  applyEvent(event: MediaTypeTreeEvent): void {
     if (event instanceof MediaTypeAddedEvent) {
-      const treeNode = MediaTypeTreeNode.create(event.id)
-      this.currId = treeNode.id
-      this.nodes.set(treeNode.id, treeNode)
+      this.state.incrementCurrentId()
+      this.state.addMediaType(event.id)
     } else if (event instanceof MediaTypeParentAddedEvent) {
-      const parentNode = this.nodes.get(event.parentId)
-      if (parentNode === undefined) {
-        throw new Error(`A media type was not found for id: ${event.parentId}`)
+      const result = this.state.addChildToMediaType(event.parentId, event.childId)
+      if (result instanceof Error) {
+        throw result
       }
-
-      const childNode = this.nodes.get(event.childId)
-      if (childNode === undefined) {
-        throw new Error(`A media type was not found for id: ${event.childId}`)
-      }
-
-      parentNode.addChild(childNode.id)
     }
   }
 
+  addEvent(event: MediaTypeTreeEvent): void {
+    this.uncommittedEvents.push(event)
+    this.applyEvent(event)
+  }
+
   addMediaType(): MediaTypeAddedEvent {
-    const id = this.currId + 1
+    const id = this.state.getCurrentId() + 1
     const event = new MediaTypeAddedEvent(id)
 
-    this.apply(event)
+    this.addEvent(event)
 
     return event
   }
 
   addParentToMediaType(
-    id: number,
+    childId: number,
     parentId: number,
   ): MediaTypeParentAddedEvent | MediaTypeNotFoundError | CycleError {
-    const node = this.nodes.get(id)
-    if (node === undefined) {
-      return new MediaTypeNotFoundError(id)
+    const newState = this.state.clone()
+    const result = newState.addChildToMediaType(parentId, childId)
+    if (result instanceof Error) {
+      return result
     }
 
-    const parentNode = this.nodes.get(parentId)
-    if (parentNode === undefined) {
-      return new MediaTypeNotFoundError(parentId)
-    }
+    const event = new MediaTypeParentAddedEvent(childId, parentId)
 
-    const cycle = this.wouldHaveCycle(id, parentId)
-    if (cycle) {
-      return new CycleError(cycle)
-    }
-
-    const event = new MediaTypeParentAddedEvent(id, parentId)
-
-    this.apply(event)
+    this.addEvent(event)
 
     return event
   }
 
-  get(id: number): MediaTypeTreeNode | undefined {
-    return this.nodes.get(id)
+  getAllMediaTypes(): { id: number; children: Set<number> }[] {
+    return this.state.getAllMediaTypes()
   }
 
-  getAll(): MediaTypeTreeNode[] {
-    return [...this.nodes.values()]
+  getUncommittedEvents(): MediaTypeTreeEvent[] {
+    return this.uncommittedEvents
+  }
+}
+
+class MediaTypeTreeState {
+  private currId: number
+  private nodes: Map<number, { children: Set<number> }>
+
+  private constructor(currId: number, nodes: Map<number, { children: Set<number> }>) {
+    this.currId = currId
+    this.nodes = nodes
   }
 
-  private wouldHaveCycle(childId: number, parentId: number): number[] | undefined {
-    const finished = new Set<number>()
+  static create(): MediaTypeTreeState {
+    return new MediaTypeTreeState(0, new Map())
+  }
 
-    const dfs = (v: number, stack: number[]): number[] | undefined => {
-      if (finished.has(v)) {
-        return undefined
+  clone(): MediaTypeTreeState {
+    return new MediaTypeTreeState(this.currId, new Map(structuredClone(this.nodes)))
+  }
+
+  getCurrentId(): number {
+    return this.currId
+  }
+
+  incrementCurrentId(): void {
+    this.currId++
+  }
+
+  addMediaType(id: number): void {
+    this.nodes.set(id, { children: new Set() })
+  }
+
+  addChildToMediaType(
+    parentId: number,
+    childId: number,
+  ): void | MediaTypeNotFoundError | CycleError {
+    const parent = this.nodes.get(parentId)
+    if (!parent) {
+      return new MediaTypeNotFoundError(parentId)
+    }
+
+    const children = this.nodes.get(childId)
+    if (!children) {
+      return new MediaTypeNotFoundError(childId)
+    }
+
+    const cycle = this.hasPath(childId, parentId)
+    if (cycle) {
+      return new CycleError([...cycle, childId])
+    }
+
+    parent.children.add(childId)
+  }
+
+  private hasPath(parentId: number, childId: number): number[] | undefined {
+    const visited = new Set<number>()
+    const path: number[] = []
+
+    const dfs = (current: number): number[] | undefined => {
+      if (current === childId) {
+        return [...path, current]
       }
 
-      if (stack.includes(v)) {
-        const cycleStart = stack.lastIndexOf(v)
-        return [...stack.slice(cycleStart), v]
-      }
+      visited.add(current)
+      path.push(current)
 
-      const children = this.nodes.get(v)?.getChildren() ?? new Set()
-      if (v === parentId) {
-        children.add(childId)
-      }
-
-      for (const child of children) {
-        const cycle = dfs(child, [...stack, v])
-        if (cycle) {
-          return cycle
+      const neighbors = this.nodes.get(current)?.children ?? new Set<number>()
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          const cyclePath = dfs(neighbor)
+          if (cyclePath) {
+            return cyclePath
+          }
         }
       }
 
-      finished.add(v)
-      return undefined
+      // Backtrack: remove the current node from path when going back up
+      path.pop()
     }
 
-    for (const node of this.nodes.values()) {
-      const cycle = dfs(node.id, [])
-      if (cycle) return cycle
-    }
+    return dfs(parentId)
+  }
 
-    return undefined
+  getAllMediaTypes(): { id: number; children: Set<number> }[] {
+    return [...this.nodes.entries()].map(([id, node]) => ({ id: id, children: node.children }))
   }
 }
 
