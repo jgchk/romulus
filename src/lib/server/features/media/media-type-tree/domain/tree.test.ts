@@ -1,8 +1,7 @@
 import { describe, expect } from 'vitest'
 
 import { test } from '../../../../../../vitest-setup'
-import { MediaTypeAddedEvent } from './events/media-type-added'
-import { MediaTypeParentAddedEvent } from './events/media-type-parent-added'
+import { MediaTypeAddedEvent, MediaTypeParentAddedEvent } from './events'
 import { CycleError, MediaTypeNotFoundError, MediaTypeTree } from './tree'
 
 describe('addMediaType()', () => {

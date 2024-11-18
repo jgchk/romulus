@@ -1,8 +1,6 @@
 import { CustomError } from '$lib/utils/error'
 
-import type { MediaTypeTreeEvent } from './events'
-import { MediaTypeAddedEvent } from './events/media-type-added'
-import { MediaTypeParentAddedEvent } from './events/media-type-parent-added'
+import { MediaTypeAddedEvent, MediaTypeParentAddedEvent, type MediaTypeTreeEvent } from './events'
 import { MediaTypeTreeNode } from './tree-node'
 
 export class MediaTypeTree {
