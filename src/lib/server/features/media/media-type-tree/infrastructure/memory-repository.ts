@@ -6,14 +6,8 @@ export class MemoryMediaTypeTreeRepository implements IMediaTypeTreeRepository {
   constructor(private eventStore: IMediaTypeTreeEventStore) {}
 
   async get() {
-    const tree = MediaTypeTree.create()
-
     const events = await this.eventStore.get()
-    for (const event of events) {
-      tree.applyEvent(event)
-    }
-
-    return tree
+    return MediaTypeTree.fromEvents(events)
   }
 
   async save(tree: MediaTypeTree) {

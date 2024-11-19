@@ -15,13 +15,23 @@ export class MediaTypeTree {
     return new MediaTypeTree(MediaTypeTreeState.create(), [])
   }
 
+  static fromEvents(events: MediaTypeTreeEvent[]) {
+    const tree = MediaTypeTree.create()
+
+    for (const event of events) {
+      tree.applyEvent(event)
+    }
+
+    return tree
+  }
+
   clone(): MediaTypeTree {
     return new MediaTypeTree(this.state.clone(), [...this.uncommittedEvents])
   }
 
   applyEvent(event: MediaTypeTreeEvent): void {
     if (event instanceof MediaTypeAddedEvent) {
-      this.state.incrementCurrentId()
+      this.state.setCurrentId(event.id)
       this.state.addMediaType(event.id)
     } else if (event instanceof MediaTypeParentAddedEvent) {
       const result = this.state.addChildToMediaType(event.parentId, event.childId)
@@ -93,8 +103,8 @@ class MediaTypeTreeState {
     return this.currId
   }
 
-  incrementCurrentId(): void {
-    this.currId++
+  setCurrentId(id: number): void {
+    this.currId = id
   }
 
   addMediaType(id: number): void {

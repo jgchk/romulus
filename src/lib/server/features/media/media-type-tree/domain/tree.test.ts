@@ -6,98 +6,106 @@ import { CycleError, MediaTypeNotFoundError, MediaTypeTree } from './tree'
 
 describe('addMediaType()', () => {
   test('should add a media type to the tree', () => {
-    const tree = MediaTypeTree.create()
-    const event = tree.addMediaType()
-    expect(event).toBeInstanceOf(MediaTypeAddedEvent)
-    expect(event.id).toBeTypeOf('number')
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    tree.addMediaType()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeAddedEvent)
+    expect((events[0] as MediaTypeAddedEvent).id).toBeTypeOf('number')
   })
 })
 
 describe('addParentToMediaType()', () => {
   test('should add a parent to a media type', () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent(1), new MediaTypeAddedEvent(2)])
 
-    const parent = tree.addMediaType()
-    const child = tree.addMediaType()
+    // when
+    const event = tree.addParentToMediaType(1, 2)
+    if (event instanceof Error) {
+      expect.fail(`Failed to add parent to media type: ${event.message}`)
+    }
 
-    const event = tree.addParentToMediaType(child.id, parent.id)
-    expect(event).toBeInstanceOf(MediaTypeParentAddedEvent)
-    expect((event as MediaTypeParentAddedEvent).parentId).toBe(parent.id)
-    expect((event as MediaTypeParentAddedEvent).childId).toBe(child.id)
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeParentAddedEvent)
+    expect((events[0] as MediaTypeParentAddedEvent).childId).toBe(1)
+    expect((events[0] as MediaTypeParentAddedEvent).parentId).toBe(2)
   })
 
   test("should error if the child media type doesn't exist", () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent(1)])
 
-    const parent = tree.addMediaType()
-    const child = { id: parent.id + 1 }
+    // when
+    const addParentResult = tree.addParentToMediaType(2, 1)
 
-    const addParentResult = tree.addParentToMediaType(child.id, parent.id)
-
+    // then
     expect(addParentResult).toBeInstanceOf(MediaTypeNotFoundError)
-    expect((addParentResult as MediaTypeNotFoundError).id).toBe(child.id)
+    expect((addParentResult as MediaTypeNotFoundError).id).toBe(2)
   })
 
   test("should error if parent media type doesn't exist", () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent(1)])
 
-    const child = tree.addMediaType()
-    const parent = { id: child.id + 1 }
+    // when
+    const addParentResult = tree.addParentToMediaType(1, 2)
 
-    const addParentResult = tree.addParentToMediaType(child.id, parent.id)
-
+    // then
     expect(addParentResult).toBeInstanceOf(MediaTypeNotFoundError)
-    expect((addParentResult as MediaTypeNotFoundError).id).toBe(parent.id)
+    expect((addParentResult as MediaTypeNotFoundError).id).toBe(2)
   })
 
   test('should error when creating a 1-cycle in the tree', () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent(1)])
 
-    const mediaType = tree.addMediaType()
+    // when
+    const addParentResult = tree.addParentToMediaType(1, 1)
 
-    const addParentResult = tree.addParentToMediaType(mediaType.id, mediaType.id)
-
+    // then
     expect(addParentResult).toBeInstanceOf(CycleError)
-    expect((addParentResult as CycleError).cycle).toEqual([mediaType.id, mediaType.id])
+    expect((addParentResult as CycleError).cycle).toEqual([1, 1])
   })
 
   test('should error when creating a 2-cycle in the tree', () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent(1),
+      new MediaTypeAddedEvent(2),
+      new MediaTypeParentAddedEvent(2, 1),
+    ])
 
-    // Create structure: A → B → A
-    const a = tree.addMediaType()
-    const b = tree.addMediaType()
+    // when
+    const addCycleResult = tree.addParentToMediaType(1, 2)
 
-    const aParentResult = tree.addParentToMediaType(b.id, a.id)
-    if (aParentResult instanceof Error) {
-      expect.fail(`Failed to add parent to media type: ${aParentResult.message}`)
-    }
-
-    const addCycleResult = tree.addParentToMediaType(a.id, b.id)
+    // then
     expect(addCycleResult).toBeInstanceOf(CycleError)
-    expect((addCycleResult as unknown as CycleError).cycle).toEqual([a.id, b.id, a.id])
+    expect((addCycleResult as unknown as CycleError).cycle).toEqual([1, 2, 1])
   })
 
   test('should error when creating a 3-cycle in the tree', () => {
-    const tree = MediaTypeTree.create()
+    // given
+    const tree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent(1),
+      new MediaTypeAddedEvent(2),
+      new MediaTypeAddedEvent(3),
+      new MediaTypeParentAddedEvent(2, 1),
+      new MediaTypeParentAddedEvent(3, 2),
+    ])
 
-    // Create structure: A → B → C → A
-    const a = tree.addMediaType()
-    const b = tree.addMediaType()
-    const c = tree.addMediaType()
+    // when
+    const addCycleResult = tree.addParentToMediaType(1, 3)
 
-    const aParentResult = tree.addParentToMediaType(b.id, a.id)
-    if (aParentResult instanceof Error) {
-      expect.fail(`Failed to add parent to media type: ${aParentResult.message}`)
-    }
-
-    const bParentResult = tree.addParentToMediaType(c.id, b.id)
-    if (bParentResult instanceof Error) {
-      expect.fail(`Failed to add parent to media type: ${bParentResult.message}`)
-    }
-
-    const addCycleResult = tree.addParentToMediaType(a.id, c.id)
+    // then
     expect(addCycleResult).toBeInstanceOf(CycleError)
-    expect((addCycleResult as unknown as CycleError).cycle).toEqual([a.id, b.id, c.id, a.id])
+    expect((addCycleResult as unknown as CycleError).cycle).toEqual([1, 2, 3, 1])
   })
 })
