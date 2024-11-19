@@ -31,15 +31,15 @@ export class MediaTypeTree {
     }
   }
 
-  addEvent(event: MediaTypeTreeEvent): void {
+  private addEvent(event: MediaTypeTreeEvent): void {
     this.uncommittedEvents.push(event)
-    this.applyEvent(event)
   }
 
   addMediaType(): MediaTypeAddedEvent {
     const id = this.state.getCurrentId() + 1
     const event = new MediaTypeAddedEvent(id)
 
+    this.applyEvent(event)
     this.addEvent(event)
 
     return event
@@ -57,6 +57,7 @@ export class MediaTypeTree {
 
     const event = new MediaTypeParentAddedEvent(childId, parentId)
 
+    this.applyEvent(event)
     this.addEvent(event)
 
     return event
