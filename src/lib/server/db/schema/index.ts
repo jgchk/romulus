@@ -1,5 +1,6 @@
 export * from './accounts'
 export * from './artists'
+export * from './event-sourcing'
 export * from './genres'
 export * from './release-issues'
 export * from './releases'

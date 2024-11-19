@@ -29,22 +29,6 @@ export class MediaTypeTree {
     return new MediaTypeTree(this.state.clone(), [...this.uncommittedEvents])
   }
 
-  applyEvent(event: MediaTypeTreeEvent): void {
-    if (event instanceof MediaTypeAddedEvent) {
-      this.state.setCurrentId(event.id)
-      this.state.addMediaType(event.id)
-    } else if (event instanceof MediaTypeParentAddedEvent) {
-      const result = this.state.addChildToMediaType(event.parentId, event.childId)
-      if (result instanceof Error) {
-        throw result
-      }
-    }
-  }
-
-  private addEvent(event: MediaTypeTreeEvent): void {
-    this.uncommittedEvents.push(event)
-  }
-
   addMediaType(): MediaTypeAddedEvent {
     const id = this.state.getCurrentId() + 1
     const event = new MediaTypeAddedEvent(id)
@@ -71,6 +55,22 @@ export class MediaTypeTree {
     this.addEvent(event)
 
     return event
+  }
+
+  applyEvent(event: MediaTypeTreeEvent): void {
+    if (event instanceof MediaTypeAddedEvent) {
+      this.state.setCurrentId(event.id)
+      this.state.addMediaType(event.id)
+    } else if (event instanceof MediaTypeParentAddedEvent) {
+      const result = this.state.addChildToMediaType(event.parentId, event.childId)
+      if (result instanceof Error) {
+        throw result
+      }
+    }
+  }
+
+  private addEvent(event: MediaTypeTreeEvent): void {
+    this.uncommittedEvents.push(event)
   }
 
   getAllMediaTypes(): { id: number; children: Set<number> }[] {

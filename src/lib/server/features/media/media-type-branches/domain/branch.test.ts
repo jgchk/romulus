@@ -7,12 +7,12 @@ import {
   MediaTypeNotFoundError,
   MediaTypeTree,
 } from '../../media-type-tree/domain/tree'
-import { Transaction } from './transaction'
+import { MediaTypeBranch } from './branch'
 
 describe('addMediaType()', () => {
   test('should return a transaction media type added event', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
     const event = transaction.addMediaType()
     expect(event).toBeInstanceOf(MediaTypeAddedEvent)
     expect(event.id).toBeTypeOf('number')
@@ -22,7 +22,7 @@ describe('addMediaType()', () => {
 describe('addParentToMediaType()', () => {
   test('should add a parent to a media type', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const parent = transaction.addMediaType()
     const child = transaction.addMediaType()
@@ -35,7 +35,7 @@ describe('addParentToMediaType()', () => {
 
   test("should error if the child media type doesn't exist", () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const parent = transaction.addMediaType()
     const child = { id: parent.id + 1 }
@@ -48,7 +48,7 @@ describe('addParentToMediaType()', () => {
 
   test("should error if parent media type doesn't exist", () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const child = transaction.addMediaType()
     const parent = { id: child.id + 1 }
@@ -61,7 +61,7 @@ describe('addParentToMediaType()', () => {
 
   test('should error when creating a 1-cycle in the tree', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const mediaType = transaction.addMediaType()
 
@@ -73,7 +73,7 @@ describe('addParentToMediaType()', () => {
 
   test('should error when creating a 2-cycle in the tree', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     // Create structure: A → B → A
     const a = transaction.addMediaType()
@@ -91,7 +91,7 @@ describe('addParentToMediaType()', () => {
 
   test('should error when creating a 3-cycle in the tree', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     // Create structure: A → B → C → A
     const a = transaction.addMediaType()
@@ -117,14 +117,14 @@ describe('addParentToMediaType()', () => {
 describe('getMediaTypeTreeView()', () => {
   test('should return the media type tree with no changes applied', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
     const treeView = transaction.getMediaTypeTreeView()
     expect(treeView).toEqual(startingTree)
   })
 
   test('should return the media type tree with changes applied', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     transaction.addMediaType()
     const treeView = transaction.getMediaTypeTreeView()
@@ -141,7 +141,7 @@ describe('getMediaTypeTreeView()', () => {
 describe('merge()', () => {
   test('should handle conflicting media type ids', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const mainTree = startingTree.clone()
     mainTree.addMediaType()
@@ -154,7 +154,7 @@ describe('merge()', () => {
 
   test('should update conflicting media type ids in later events', () => {
     const startingTree = MediaTypeTree.create()
-    const transaction = new Transaction(startingTree)
+    const transaction = new MediaTypeBranch(startingTree)
 
     const mainTree = startingTree.clone()
     mainTree.addMediaType()
