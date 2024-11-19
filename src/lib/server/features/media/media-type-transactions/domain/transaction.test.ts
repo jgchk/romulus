@@ -137,3 +137,43 @@ describe('getMediaTypeTreeView()', () => {
     expect(treeViewMediaTypes).toEqual(expectedTreeMediaTypes)
   })
 })
+
+describe('merge()', () => {
+  test('should handle conflicting media type ids', () => {
+    const startingTree = MediaTypeTree.create()
+    const transaction = new Transaction(startingTree)
+
+    const mainTree = startingTree.clone()
+    mainTree.addMediaType()
+
+    transaction.addMediaType()
+
+    const mergedTree = transaction.merge(mainTree)
+    expect(mergedTree).toEqual([new MediaTypeAddedEvent(2)])
+  })
+
+  test('should update conflicting media type ids in later events', () => {
+    const startingTree = MediaTypeTree.create()
+    const transaction = new Transaction(startingTree)
+
+    const mainTree = startingTree.clone()
+    mainTree.addMediaType()
+
+    const transactionMediaTypeParent = transaction.addMediaType()
+    const transactionMediaTypeChild = transaction.addMediaType()
+    const result = transaction.addParentToMediaType(
+      transactionMediaTypeChild.id,
+      transactionMediaTypeParent.id,
+    )
+    if (result instanceof Error) {
+      expect.fail(`Failed to add parent to media type: ${result.message}`)
+    }
+
+    const mergedTree = transaction.merge(mainTree)
+    expect(mergedTree).toEqual([
+      new MediaTypeAddedEvent(2),
+      new MediaTypeAddedEvent(3),
+      new MediaTypeParentAddedEvent(3, 2),
+    ])
+  })
+})
