@@ -36,7 +36,7 @@ export class MediaTypeBranches {
   }
 
   createBranch(id: string, name: string): void | MediaTypeBranchAlreadyExistsError {
-    if (this.state.branches.has(id)) {
+    if (this.state.hasBranch(id)) {
       return new MediaTypeBranchAlreadyExistsError(id)
     }
 
@@ -50,7 +50,7 @@ export class MediaTypeBranches {
     branchId: string,
     mediaTypeId: string,
   ): void | MediaTypeBranchNotFoundError | MediaTypeAlreadyExistsInBranchError {
-    const branch = this.state.branches.get(branchId)
+    const branch = this.state.getBranch(branchId)
     if (!branch) {
       return new MediaTypeBranchNotFoundError(branchId)
     }
@@ -70,7 +70,7 @@ export class MediaTypeBranches {
     branchId: string,
     mediaTypeId: string,
   ): void | MediaTypeBranchNotFoundError | MediaTypeNotFoundInBranchError {
-    const branch = this.state.branches.get(branchId)
+    const branch = this.state.getBranch(branchId)
     if (!branch) {
       return new MediaTypeBranchNotFoundError(branchId)
     }
@@ -95,7 +95,7 @@ export class MediaTypeBranches {
     | MediaTypeBranchNotFoundError
     | MediaTypeNotFoundInBranchError
     | WillCreateCycleInMediaTypeTreeError {
-    const branch = this.state.branches.get(branchId)
+    const branch = this.state.getBranch(branchId)
     if (!branch) {
       return new MediaTypeBranchNotFoundError(branchId)
     }
@@ -119,12 +119,12 @@ export class MediaTypeBranches {
     fromBranchId: string,
     intoBranchId: string,
   ): void | MediaTypeBranchNotFoundError | WillCreateCycleInMediaTypeTreeError {
-    const fromBranch = this.state.branches.get(fromBranchId)
+    const fromBranch = this.state.getBranch(fromBranchId)
     if (!fromBranch) {
       return new MediaTypeBranchNotFoundError(fromBranchId)
     }
 
-    const intoBranch = this.state.branches.get(intoBranchId)
+    const intoBranch = this.state.getBranch(intoBranchId)
     if (!intoBranch) {
       return new MediaTypeBranchNotFoundError(intoBranchId)
     }
@@ -142,9 +142,9 @@ export class MediaTypeBranches {
 
   private applyEvent(event: MediaTypeBranchesEvent): void {
     if (event instanceof MediaTypeBranchCreatedEvent) {
-      this.state.branches.set(event.id, MediaTypeBranch.create(event.id))
+      this.state.addBranch(event.id)
     } else if (event instanceof MediaTypeAddedInBranchEvent) {
-      const branch = this.state.branches.get(event.branchId)
+      const branch = this.state.getBranch(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
@@ -154,7 +154,7 @@ export class MediaTypeBranches {
         throw error
       }
     } else if (event instanceof MediaTypeRemovedFromBranchEvent) {
-      const branch = this.state.branches.get(event.branchId)
+      const branch = this.state.getBranch(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
@@ -164,7 +164,7 @@ export class MediaTypeBranches {
         throw error
       }
     } else if (event instanceof ParentAddedToMediaTypeInBranchEvent) {
-      const branch = this.state.branches.get(event.branchId)
+      const branch = this.state.getBranch(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
@@ -174,12 +174,12 @@ export class MediaTypeBranches {
         throw error
       }
     } else if (event instanceof MediaTypeBranchesMerged) {
-      const fromBranch = this.state.branches.get(event.fromBranchId)
+      const fromBranch = this.state.getBranch(event.fromBranchId)
       if (!fromBranch) {
         throw new MediaTypeBranchNotFoundError(event.fromBranchId)
       }
 
-      const intoBranch = this.state.branches.get(event.intoBranchId)
+      const intoBranch = this.state.getBranch(event.intoBranchId)
       if (!intoBranch) {
         throw new MediaTypeBranchNotFoundError(event.intoBranchId)
       }
@@ -205,7 +205,7 @@ export class MediaTypeBranches {
 }
 
 class MediaTypeBranchesState {
-  branches: Map<string, MediaTypeBranch>
+  private branches: Map<string, MediaTypeBranch>
 
   private constructor(branches: Map<string, MediaTypeBranch>) {
     this.branches = branches
@@ -213,5 +213,17 @@ class MediaTypeBranchesState {
 
   static create(): MediaTypeBranchesState {
     return new MediaTypeBranchesState(new Map())
+  }
+
+  hasBranch(id: string): boolean {
+    return this.branches.has(id)
+  }
+
+  addBranch(id: string): void {
+    this.branches.set(id, MediaTypeBranch.create(id))
+  }
+
+  getBranch(id: string): MediaTypeBranch | undefined {
+    return this.branches.get(id)
   }
 }
