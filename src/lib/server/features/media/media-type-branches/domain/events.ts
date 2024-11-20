@@ -6,7 +6,10 @@ export type MediaTypeBranchesEvent =
   | MediaTypeBranchesMerged
 
 export class MediaTypeBranchCreatedEvent {
-  constructor(public readonly id: string) {}
+  constructor(
+    public readonly id: string,
+    public readonly name: string,
+  ) {}
 }
 
 export class MediaTypeAddedInBranchEvent {

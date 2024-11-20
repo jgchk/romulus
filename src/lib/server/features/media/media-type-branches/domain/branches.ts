@@ -35,12 +35,12 @@ export class MediaTypeBranches {
     return mediaTypeBranches
   }
 
-  createBranch(id: string): void | MediaTypeBranchAlreadyExistsError {
+  createBranch(id: string, name: string): void | MediaTypeBranchAlreadyExistsError {
     if (this.state.branches.has(id)) {
       return new MediaTypeBranchAlreadyExistsError(id)
     }
 
-    const event = new MediaTypeBranchCreatedEvent(id)
+    const event = new MediaTypeBranchCreatedEvent(id, name)
 
     this.applyEvent(event)
     this.addEvent(event)
