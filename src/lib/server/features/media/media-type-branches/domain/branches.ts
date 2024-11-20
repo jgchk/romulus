@@ -47,7 +47,10 @@ export class MediaTypeBranches {
       return new MediaTypeBranchAlreadyExistsError(id)
     }
 
-    const trimmedName = name.trim()
+    const trimmedName = name
+      .trim() // remove whitespace
+      .replace(/\n/g, '') // remove newlines
+
     if (trimmedName.length === 0) {
       return new MediaTypeBranchNameInvalidError(name)
     }

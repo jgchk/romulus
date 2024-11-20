@@ -51,6 +51,22 @@ describe('createBranch()', () => {
     expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('Branch')
   })
 
+  test('should remove newlines from branch name', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.createBranch('branch', 'One \nTwo')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = branches.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeBranchCreatedEvent)
+    expect((events[0] as MediaTypeBranchCreatedEvent).id).toBe('branch')
+    expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('One Two')
+  })
+
   test('should error if a branch with the given id already exists', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
