@@ -138,6 +138,25 @@ describe('addMediaTypeToBranch()', () => {
     expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('Media Type')
   })
 
+  test('should trim media type name', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('branch', 'Branch'),
+    ])
+
+    // when
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', '   Media Type    ')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = branches.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeAddedInBranchEvent)
+    expect((events[0] as MediaTypeAddedInBranchEvent).branchId).toBe('branch')
+    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeId).toBe('media-type')
+    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('Media Type')
+  })
+
   test('should error if the branch does not exist', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([])

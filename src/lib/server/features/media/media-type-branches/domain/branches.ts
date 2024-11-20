@@ -71,12 +71,14 @@ export class MediaTypeBranches {
       return new MediaTypeBranchNotFoundError(branchId)
     }
 
+    const trimmedName = mediaTypeName.trim()
+
     const error = branch.clone().addMediaType(mediaTypeId)
     if (error instanceof Error) {
       return error
     }
 
-    const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId, mediaTypeName)
+    const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId, trimmedName)
 
     this.applyEvent(event)
     this.addEvent(event)
