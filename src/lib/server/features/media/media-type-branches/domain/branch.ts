@@ -6,9 +6,9 @@ import {
 
 export class MediaTypeBranch {
   private id: string
-  private nodes: Map<string, { children: Set<string> }>
+  private nodes: Map<string, MediaTypeNode>
 
-  private constructor(id: string, nodes: Map<string, { children: Set<string> }>) {
+  private constructor(id: string, nodes: Map<string, MediaTypeNode>) {
     this.id = id
     this.nodes = nodes
   }
@@ -18,7 +18,10 @@ export class MediaTypeBranch {
   }
 
   clone(): MediaTypeBranch {
-    return new MediaTypeBranch(this.id, new Map(structuredClone(this.nodes)))
+    return new MediaTypeBranch(
+      this.id,
+      new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])),
+    )
   }
 
   addMediaType(id: string): void | MediaTypeAlreadyExistsInBranchError {
@@ -30,7 +33,7 @@ export class MediaTypeBranch {
   }
 
   private addMediaTypeWithoutDuplicateCheck(id: string) {
-    this.nodes.set(id, { children: new Set() })
+    this.nodes.set(id, MediaTypeNode.create())
   }
 
   removeMediaType(id: string): void | MediaTypeNotFoundInBranchError {
@@ -48,7 +51,7 @@ export class MediaTypeBranch {
       return new MediaTypeNotFoundInBranchError(this.id, id)
     }
 
-    const childIds = node.children
+    const childIds = node.getChildren()
     const parentIds = this.getMediaTypeParents(id)
 
     for (const parentId of parentIds) {
@@ -65,7 +68,7 @@ export class MediaTypeBranch {
     const parents = new Set<string>()
 
     for (const [nodeId, node] of this.nodes) {
-      if (node.children.has(id)) {
+      if (node.hasChild(id)) {
         parents.add(nodeId)
       }
     }
@@ -99,7 +102,7 @@ export class MediaTypeBranch {
       return new MediaTypeNotFoundInBranchError(this.id, childId)
     }
 
-    parent.children.add(childId)
+    parent.addChild(childId)
   }
 
   private hasPath(source: string, destination: string): string[] | undefined {
@@ -114,7 +117,7 @@ export class MediaTypeBranch {
       visited.add(current)
       path.push(current)
 
-      const neighbors = this.nodes.get(current)?.children ?? new Set<string>()
+      const neighbors = this.nodes.get(current)?.getChildren() ?? new Set<string>()
       for (const neighbor of neighbors) {
         if (!visited.has(neighbor)) {
           const cyclePath = dfs(neighbor)
@@ -139,13 +142,41 @@ export class MediaTypeBranch {
       }
     }
 
-    for (const [mediaTypeId, node] of this.nodes) {
-      for (const childId of node.children) {
+    for (const [mediaTypeId, node] of this.nodes.entries()) {
+      for (const childId of node.getChildren()) {
         const error = intoBranch.addChildToMediaType(mediaTypeId, childId)
         if (error instanceof Error) {
           return error
         }
       }
     }
+  }
+}
+
+class MediaTypeNode {
+  private children: Set<string>
+
+  private constructor(children: Set<string>) {
+    this.children = children
+  }
+
+  static create(): MediaTypeNode {
+    return new MediaTypeNode(new Set())
+  }
+
+  clone(): MediaTypeNode {
+    return new MediaTypeNode(new Set([...this.children]))
+  }
+
+  addChild(childId: string): void {
+    this.children.add(childId)
+  }
+
+  getChildren(): Set<string> {
+    return new Set(this.children)
+  }
+
+  hasChild(childId: string): boolean {
+    return this.children.has(childId)
   }
 }
