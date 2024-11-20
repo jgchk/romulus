@@ -13,6 +13,7 @@ import {
   MediaTypeAddedInBranchEvent,
   MediaTypeBranchCreatedEvent,
   MediaTypeBranchesMerged,
+  MediaTypeRemovedFromBranchEvent,
   ParentAddedToMediaTypeInBranchEvent,
 } from './events'
 
@@ -88,6 +89,52 @@ describe('addMediaTypeToBranch()', () => {
     expect(error).toBeInstanceOf(MediaTypeAlreadyExistsInBranchError)
     expect((error as MediaTypeAlreadyExistsInBranchError).branchId).toBe('branch')
     expect((error as MediaTypeAlreadyExistsInBranchError).mediaTypeId).toBe('media-type')
+  })
+})
+
+describe('removeMediaTypeFromBranch()', () => {
+  test('should remove a media type from the branch', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('branch'),
+      new MediaTypeAddedInBranchEvent('branch', 'media-type'),
+    ])
+
+    // when
+    const error = branches.removeMediaTypeFromBranch('branch', 'media-type')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = branches.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeRemovedFromBranchEvent)
+    expect((events[0] as MediaTypeRemovedFromBranchEvent).branchId).toBe('branch')
+    expect((events[0] as MediaTypeRemovedFromBranchEvent).mediaTypeId).toBe('media-type')
+  })
+
+  test('should error if the branch does not exist', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.removeMediaTypeFromBranch('branch', 'media-type')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
+    expect((error as MediaTypeBranchNotFoundError).id).toBe('branch')
+  })
+
+  test('should error if the media type does not exist in the branch', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([new MediaTypeBranchCreatedEvent('branch')])
+
+    // when
+    const error = branches.removeMediaTypeFromBranch('branch', 'media-type')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeNotFoundInBranchError)
+    expect((error as MediaTypeNotFoundInBranchError).branchId).toBe('branch')
+    expect((error as MediaTypeNotFoundInBranchError).mediaTypeId).toBe('media-type')
   })
 })
 

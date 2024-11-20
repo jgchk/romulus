@@ -10,6 +10,7 @@ import {
   MediaTypeBranchCreatedEvent,
   type MediaTypeBranchesEvent,
   MediaTypeBranchesMerged,
+  MediaTypeRemovedFromBranchEvent,
   ParentAddedToMediaTypeInBranchEvent,
 } from './events'
 
@@ -59,6 +60,25 @@ export class MediaTypeBranches {
     }
 
     const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId)
+
+    this.applyEvent(event)
+    this.addEvent(event)
+  }
+
+  removeMediaTypeFromBranch(
+    branchId: string,
+    mediaTypeId: string,
+  ): void | MediaTypeBranchNotFoundError | MediaTypeNotFoundInBranchError {
+    const branch = this.state.branches.get(branchId)
+    if (!branch) {
+      return new MediaTypeBranchNotFoundError(branchId)
+    }
+
+    if (!branch.nodes.has(mediaTypeId)) {
+      return new MediaTypeNotFoundInBranchError(branchId, mediaTypeId)
+    }
+
+    const event = new MediaTypeRemovedFromBranchEvent(branchId, mediaTypeId)
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -157,6 +177,33 @@ export class MediaTypeBranches {
       }
 
       branch.nodes.set(event.mediaTypeId, { children: new Set() })
+    } else if (event instanceof MediaTypeRemovedFromBranchEvent) {
+      const branch = this.state.branches.get(event.branchId)
+      if (!branch) {
+        throw new MediaTypeBranchNotFoundError(event.branchId)
+      }
+
+      const node = branch.nodes.get(event.mediaTypeId)
+      if (!node) {
+        throw new MediaTypeNotFoundInBranchError(event.branchId, event.mediaTypeId)
+      }
+
+      // move all of the node's children under each of its parents
+      const childIds = node.children
+      const parentIds = branch.getParents(event.mediaTypeId)
+      for (const parentId of parentIds) {
+        const parent = branch.nodes.get(parentId)
+        if (!parent) {
+          throw new MediaTypeNotFoundInBranchError(event.branchId, parentId)
+        }
+
+        for (const childId of childIds) {
+          parent.children.add(childId)
+        }
+      }
+
+      // delete the node
+      branch.nodes.delete(event.mediaTypeId)
     } else if (event instanceof ParentAddedToMediaTypeInBranchEvent) {
       const branch = this.state.branches.get(event.branchId)
       if (!branch) {
@@ -242,6 +289,18 @@ class MediaTypeBranchState {
 
   clone(): MediaTypeBranchState {
     return new MediaTypeBranchState(new Map(structuredClone(this.nodes)))
+  }
+
+  getParents(mediaTypeId: string): Set<string> {
+    const parents = new Set<string>()
+
+    for (const [id, node] of this.nodes) {
+      if (node.children.has(mediaTypeId)) {
+        parents.add(id)
+      }
+    }
+
+    return parents
   }
 
   hasPath(source: string, destination: string): string[] | undefined {
