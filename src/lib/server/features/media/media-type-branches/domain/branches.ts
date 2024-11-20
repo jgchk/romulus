@@ -4,7 +4,11 @@ import type {
   MediaTypeNotFoundInBranchError,
   WillCreateCycleInMediaTypeTreeError,
 } from './errors'
-import { MediaTypeBranchAlreadyExistsError, MediaTypeBranchNotFoundError } from './errors'
+import {
+  MediaTypeBranchAlreadyExistsError,
+  MediaTypeBranchNameInvalidError,
+  MediaTypeBranchNotFoundError,
+} from './errors'
 import {
   MediaTypeAddedInBranchEvent,
   MediaTypeBranchCreatedEvent,
@@ -35,12 +39,20 @@ export class MediaTypeBranches {
     return mediaTypeBranches
   }
 
-  createBranch(id: string, name: string): void | MediaTypeBranchAlreadyExistsError {
+  createBranch(
+    id: string,
+    name: string,
+  ): void | MediaTypeBranchAlreadyExistsError | MediaTypeBranchNameInvalidError {
     if (this.state.hasBranch(id)) {
       return new MediaTypeBranchAlreadyExistsError(id)
     }
 
-    const event = new MediaTypeBranchCreatedEvent(id, name)
+    const trimmedName = name.trim()
+    if (trimmedName.length === 0) {
+      return new MediaTypeBranchNameInvalidError(name)
+    }
+
+    const event = new MediaTypeBranchCreatedEvent(id, trimmedName)
 
     this.applyEvent(event)
     this.addEvent(event)

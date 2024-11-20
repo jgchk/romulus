@@ -12,6 +12,15 @@ export class MediaTypeBranchNotFoundError extends CustomError {
   }
 }
 
+export class MediaTypeBranchNameInvalidError extends CustomError {
+  constructor(public readonly name: string) {
+    super(
+      'MediaTypeBranchNameInvalidError',
+      `Branch name must contain at least one non-whitespace character: "${name}"`,
+    )
+  }
+}
+
 export class MediaTypeAlreadyExistsInBranchError extends CustomError {
   constructor(
     public readonly branchId: string,

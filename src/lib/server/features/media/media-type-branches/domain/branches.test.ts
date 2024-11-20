@@ -5,6 +5,7 @@ import { MediaTypeBranches } from './branches'
 import {
   MediaTypeAlreadyExistsInBranchError,
   MediaTypeBranchAlreadyExistsError,
+  MediaTypeBranchNameInvalidError,
   MediaTypeBranchNotFoundError,
   MediaTypeNotFoundInBranchError,
   WillCreateCycleInMediaTypeTreeError,
@@ -34,6 +35,22 @@ describe('createBranch()', () => {
     expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('Branch')
   })
 
+  test('should trim branch name', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.createBranch('branch', '   Branch   ')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = branches.getUncommittedEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0]).toBeInstanceOf(MediaTypeBranchCreatedEvent)
+    expect((events[0] as MediaTypeBranchCreatedEvent).id).toBe('branch')
+    expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('Branch')
+  })
+
   test('should error if a branch with the given id already exists', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
@@ -46,6 +63,30 @@ describe('createBranch()', () => {
     // then
     expect(error).toBeInstanceOf(MediaTypeBranchAlreadyExistsError)
     expect((error as MediaTypeBranchAlreadyExistsError).id).toBe('branch')
+  })
+
+  test('should error if the branch name is empty', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.createBranch('branch', '')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
+    expect((error as MediaTypeBranchNameInvalidError).name).toBe('')
+  })
+
+  test('should error if branch name is only whitespace', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.createBranch('branch', '   ')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
+    expect((error as MediaTypeBranchNameInvalidError).name).toBe('   ')
   })
 })
 
