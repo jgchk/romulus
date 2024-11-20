@@ -1,4 +1,4 @@
-import { MediaTypeBranchState } from './branch'
+import { MediaTypeBranch } from './branch'
 import type {
   MediaTypeAlreadyExistsInBranchError,
   MediaTypeNotFoundInBranchError,
@@ -146,7 +146,7 @@ export class MediaTypeBranches {
 
   private applyEvent(event: MediaTypeBranchesEvent): void {
     if (event instanceof MediaTypeBranchCreatedEvent) {
-      this.state.branches.set(event.id, MediaTypeBranchState.create(event.id))
+      this.state.branches.set(event.id, MediaTypeBranch.create(event.id))
     } else if (event instanceof MediaTypeAddedInBranchEvent) {
       const branch = this.state.branches.get(event.branchId)
       if (!branch) {
@@ -209,9 +209,9 @@ export class MediaTypeBranches {
 }
 
 class MediaTypeBranchesState {
-  branches: Map<string, MediaTypeBranchState>
+  branches: Map<string, MediaTypeBranch>
 
-  private constructor(branches: Map<string, MediaTypeBranchState>) {
+  private constructor(branches: Map<string, MediaTypeBranch>) {
     this.branches = branches
   }
 

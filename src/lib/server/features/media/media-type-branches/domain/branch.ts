@@ -4,7 +4,7 @@ import {
   WillCreateCycleInMediaTypeTreeError,
 } from './errors'
 
-export class MediaTypeBranchState {
+export class MediaTypeBranch {
   private id: string
   private nodes: Map<string, { children: Set<string> }>
 
@@ -13,12 +13,12 @@ export class MediaTypeBranchState {
     this.nodes = nodes
   }
 
-  static create(id: string): MediaTypeBranchState {
-    return new MediaTypeBranchState(id, new Map())
+  static create(id: string): MediaTypeBranch {
+    return new MediaTypeBranch(id, new Map())
   }
 
-  clone(): MediaTypeBranchState {
-    return new MediaTypeBranchState(this.id, new Map(structuredClone(this.nodes)))
+  clone(): MediaTypeBranch {
+    return new MediaTypeBranch(this.id, new Map(structuredClone(this.nodes)))
   }
 
   addMediaType(id: string): void | MediaTypeAlreadyExistsInBranchError {
@@ -131,7 +131,7 @@ export class MediaTypeBranchState {
   }
 
   mergeInto(
-    intoBranch: MediaTypeBranchState,
+    intoBranch: MediaTypeBranch,
   ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeTreeError {
     for (const mediaTypeId of this.nodes.keys()) {
       if (!intoBranch.nodes.has(mediaTypeId)) {
