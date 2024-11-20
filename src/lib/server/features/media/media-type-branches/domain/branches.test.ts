@@ -104,6 +104,18 @@ describe('createBranch()', () => {
     expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
     expect((error as MediaTypeBranchNameInvalidError).name).toBe('   ')
   })
+
+  test('should error if branch name is only newlines', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([])
+
+    // when
+    const error = branches.createBranch('branch', '\n\n')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
+    expect((error as MediaTypeBranchNameInvalidError).name).toBe('\n\n')
+  })
 })
 
 describe('addMediaTypeToBranch()', () => {
