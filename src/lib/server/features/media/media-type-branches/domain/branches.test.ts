@@ -7,6 +7,7 @@ import {
   MediaTypeBranchAlreadyExistsError,
   MediaTypeBranchNameInvalidError,
   MediaTypeBranchNotFoundError,
+  MediaTypeNameInvalidError,
   MediaTypeNotFoundInBranchError,
   WillCreateCycleInMediaTypeTreeError,
 } from './errors'
@@ -202,6 +203,20 @@ describe('addMediaTypeToBranch()', () => {
     expect(error).toBeInstanceOf(MediaTypeAlreadyExistsInBranchError)
     expect((error as MediaTypeAlreadyExistsInBranchError).branchId).toBe('branch')
     expect((error as MediaTypeAlreadyExistsInBranchError).mediaTypeId).toBe('media-type')
+  })
+
+  test('should error if the media type name is empty', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('branch', 'Branch'),
+    ])
+
+    // when
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', '')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
+    expect((error as MediaTypeNameInvalidError).name).toBe('')
   })
 })
 

@@ -45,6 +45,15 @@ export class MediaTypeNotFoundInBranchError extends CustomError {
   }
 }
 
+export class MediaTypeNameInvalidError extends CustomError {
+  constructor(public readonly name: string) {
+    super(
+      'MediaTypeNameInvalidError',
+      `Media type name must contain at least one non-whitespace character: "${name}"`,
+    )
+  }
+}
+
 export class WillCreateCycleInMediaTypeTreeError extends CustomError {
   constructor(
     public readonly branchId: string,

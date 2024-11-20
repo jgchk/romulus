@@ -8,6 +8,7 @@ import {
   MediaTypeBranchAlreadyExistsError,
   MediaTypeBranchNameInvalidError,
   MediaTypeBranchNotFoundError,
+  MediaTypeNameInvalidError,
 } from './errors'
 import {
   MediaTypeAddedInBranchEvent,
@@ -62,13 +63,20 @@ export class MediaTypeBranches {
     branchId: string,
     mediaTypeId: string,
     mediaTypeName: string,
-  ): void | MediaTypeBranchNotFoundError | MediaTypeAlreadyExistsInBranchError {
+  ):
+    | void
+    | MediaTypeBranchNotFoundError
+    | MediaTypeNameInvalidError
+    | MediaTypeAlreadyExistsInBranchError {
     const branch = this.state.getBranch(branchId)
     if (!branch) {
       return new MediaTypeBranchNotFoundError(branchId)
     }
 
     const trimmedName = mediaTypeName.trim().replace(/\n/g, '')
+    if (trimmedName.length === 0) {
+      return new MediaTypeNameInvalidError(mediaTypeName)
+    }
 
     const error = branch.clone().addMediaType(mediaTypeId)
     if (error instanceof Error) {
