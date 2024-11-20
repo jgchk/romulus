@@ -55,8 +55,9 @@ export class MediaTypeBranches {
       return new MediaTypeBranchNotFoundError(branchId)
     }
 
-    if (branch.nodes.has(mediaTypeId)) {
-      return new MediaTypeAlreadyExistsInBranchError(branchId, mediaTypeId)
+    const error = branch.clone().addMediaType(mediaTypeId)
+    if (error instanceof Error) {
+      return error
     }
 
     const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId)
@@ -74,8 +75,9 @@ export class MediaTypeBranches {
       return new MediaTypeBranchNotFoundError(branchId)
     }
 
-    if (!branch.nodes.has(mediaTypeId)) {
-      return new MediaTypeNotFoundInBranchError(branchId, mediaTypeId)
+    const error = branch.clone().removeMediaType(mediaTypeId)
+    if (error instanceof Error) {
+      return error
     }
 
     const event = new MediaTypeRemovedFromBranchEvent(branchId, mediaTypeId)
@@ -98,17 +100,9 @@ export class MediaTypeBranches {
       return new MediaTypeBranchNotFoundError(branchId)
     }
 
-    if (!branch.nodes.has(childMediaTypeId)) {
-      return new MediaTypeNotFoundInBranchError(branchId, childMediaTypeId)
-    }
-
-    if (!branch.nodes.has(parentMediaTypeId)) {
-      return new MediaTypeNotFoundInBranchError(branchId, parentMediaTypeId)
-    }
-
-    const cycle = branch.hasPath(childMediaTypeId, parentMediaTypeId)
-    if (cycle) {
-      return new WillCreateCycleInMediaTypeTreeError(branchId, [...cycle, childMediaTypeId])
+    const error = branch.clone().addChildToMediaType(parentMediaTypeId, childMediaTypeId)
+    if (error instanceof Error) {
+      return error
     }
 
     const event = new ParentAddedToMediaTypeInBranchEvent(
@@ -129,36 +123,19 @@ export class MediaTypeBranches {
     | MediaTypeBranchNotFoundError
     | MediaTypeNotFoundInBranchError
     | WillCreateCycleInMediaTypeTreeError {
-    const fromBranch = this.state.branches.get(fromBranchId)?.clone()
+    const fromBranch = this.state.branches.get(fromBranchId)
     if (!fromBranch) {
       return new MediaTypeBranchNotFoundError(fromBranchId)
     }
 
-    const intoBranch = this.state.branches.get(intoBranchId)?.clone()
+    const intoBranch = this.state.branches.get(intoBranchId)
     if (!intoBranch) {
       return new MediaTypeBranchNotFoundError(intoBranchId)
     }
 
-    for (const mediaTypeId of fromBranch.nodes.keys()) {
-      if (!intoBranch.nodes.has(mediaTypeId)) {
-        intoBranch.nodes.set(mediaTypeId, { children: new Set() })
-      }
-    }
-
-    for (const [mediaTypeId, node] of fromBranch.nodes) {
-      const parent = intoBranch.nodes.get(mediaTypeId)
-      if (!parent) {
-        return new MediaTypeNotFoundInBranchError(intoBranchId, mediaTypeId)
-      }
-
-      for (const childId of node.children) {
-        const cycle = intoBranch.hasPath(childId, mediaTypeId)
-        if (cycle) {
-          return new WillCreateCycleInMediaTypeTreeError(intoBranchId, [...cycle, childId])
-        }
-
-        parent.children.add(childId)
-      }
+    const error = fromBranch.clone().mergeInto(intoBranch.clone())
+    if (error instanceof Error) {
+      return error
     }
 
     const event = new MediaTypeBranchesMerged(fromBranchId, intoBranchId)
@@ -169,53 +146,37 @@ export class MediaTypeBranches {
 
   private applyEvent(event: MediaTypeBranchesEvent): void {
     if (event instanceof MediaTypeBranchCreatedEvent) {
-      this.state.branches.set(event.id, MediaTypeBranchState.create())
+      this.state.branches.set(event.id, MediaTypeBranchState.create(event.id))
     } else if (event instanceof MediaTypeAddedInBranchEvent) {
       const branch = this.state.branches.get(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
 
-      branch.nodes.set(event.mediaTypeId, { children: new Set() })
+      const error = branch.addMediaType(event.mediaTypeId)
+      if (error instanceof Error) {
+        throw error
+      }
     } else if (event instanceof MediaTypeRemovedFromBranchEvent) {
       const branch = this.state.branches.get(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
 
-      const node = branch.nodes.get(event.mediaTypeId)
-      if (!node) {
-        throw new MediaTypeNotFoundInBranchError(event.branchId, event.mediaTypeId)
+      const error = branch.removeMediaType(event.mediaTypeId)
+      if (error instanceof Error) {
+        throw error
       }
-
-      // move all of the node's children under each of its parents
-      const childIds = node.children
-      const parentIds = branch.getParents(event.mediaTypeId)
-      for (const parentId of parentIds) {
-        const parent = branch.nodes.get(parentId)
-        if (!parent) {
-          throw new MediaTypeNotFoundInBranchError(event.branchId, parentId)
-        }
-
-        for (const childId of childIds) {
-          parent.children.add(childId)
-        }
-      }
-
-      // delete the node
-      branch.nodes.delete(event.mediaTypeId)
     } else if (event instanceof ParentAddedToMediaTypeInBranchEvent) {
       const branch = this.state.branches.get(event.branchId)
       if (!branch) {
         throw new MediaTypeBranchNotFoundError(event.branchId)
       }
 
-      const parent = branch.nodes.get(event.parentId)
-      if (!parent) {
-        throw new MediaTypeNotFoundInBranchError(event.branchId, event.parentId)
+      const error = branch.addChildToMediaType(event.parentId, event.childId)
+      if (error instanceof Error) {
+        throw error
       }
-
-      parent.children.add(event.childId)
     } else if (event instanceof MediaTypeBranchesMerged) {
       const fromBranch = this.state.branches.get(event.fromBranchId)
       if (!fromBranch) {
@@ -227,26 +188,9 @@ export class MediaTypeBranches {
         throw new MediaTypeBranchNotFoundError(event.intoBranchId)
       }
 
-      for (const mediaTypeId of fromBranch.nodes.keys()) {
-        if (!intoBranch.nodes.has(mediaTypeId)) {
-          intoBranch.nodes.set(mediaTypeId, { children: new Set() })
-        }
-      }
-
-      for (const [mediaTypeId, node] of fromBranch.nodes) {
-        const parent = intoBranch.nodes.get(mediaTypeId)
-        if (!parent) {
-          throw new MediaTypeNotFoundInBranchError(event.intoBranchId, mediaTypeId)
-        }
-
-        for (const childId of node.children) {
-          const cycle = intoBranch.hasPath(childId, mediaTypeId)
-          if (cycle) {
-            throw new WillCreateCycleInMediaTypeTreeError(event.intoBranchId, [...cycle, childId])
-          }
-
-          parent.children.add(childId)
-        }
+      const error = fromBranch.mergeInto(intoBranch)
+      if (error instanceof Error) {
+        throw error
       }
     } else {
       // exhaustive check
@@ -277,33 +221,104 @@ class MediaTypeBranchesState {
 }
 
 class MediaTypeBranchState {
-  nodes: Map<string, { children: Set<string> }>
+  private id: string
+  private nodes: Map<string, { children: Set<string> }>
 
-  private constructor(nodes: Map<string, { children: Set<string> }>) {
+  private constructor(id: string, nodes: Map<string, { children: Set<string> }>) {
+    this.id = id
     this.nodes = nodes
   }
 
-  static create(): MediaTypeBranchState {
-    return new MediaTypeBranchState(new Map())
+  static create(id: string): MediaTypeBranchState {
+    return new MediaTypeBranchState(id, new Map())
   }
 
   clone(): MediaTypeBranchState {
-    return new MediaTypeBranchState(new Map(structuredClone(this.nodes)))
+    return new MediaTypeBranchState(this.id, new Map(structuredClone(this.nodes)))
   }
 
-  getParents(mediaTypeId: string): Set<string> {
+  addMediaType(id: string): void | MediaTypeAlreadyExistsInBranchError {
+    if (this.nodes.has(id)) {
+      return new MediaTypeAlreadyExistsInBranchError(this.id, id)
+    }
+
+    this.addMediaTypeWithoutDuplicateCheck(id)
+  }
+
+  private addMediaTypeWithoutDuplicateCheck(id: string) {
+    this.nodes.set(id, { children: new Set() })
+  }
+
+  removeMediaType(id: string): void | MediaTypeNotFoundInBranchError {
+    const error = this.moveChildrenUnderParents(id)
+    if (error instanceof Error) {
+      return error
+    }
+
+    this.nodes.delete(id)
+  }
+
+  private moveChildrenUnderParents(id: string): void | MediaTypeNotFoundInBranchError {
+    const node = this.nodes.get(id)
+    if (!node) {
+      return new MediaTypeNotFoundInBranchError(this.id, id)
+    }
+
+    const childIds = node.children
+    const parentIds = this.getMediaTypeParents(id)
+
+    for (const parentId of parentIds) {
+      for (const childId of childIds) {
+        const error = this.addMediaTypeChildWithoutCycleCheck(parentId, childId)
+        if (error instanceof Error) {
+          return error
+        }
+      }
+    }
+  }
+
+  private getMediaTypeParents(id: string): Set<string> {
     const parents = new Set<string>()
 
-    for (const [id, node] of this.nodes) {
-      if (node.children.has(mediaTypeId)) {
-        parents.add(id)
+    for (const [nodeId, node] of this.nodes) {
+      if (node.children.has(id)) {
+        parents.add(nodeId)
       }
     }
 
     return parents
   }
 
-  hasPath(source: string, destination: string): string[] | undefined {
+  addChildToMediaType(
+    parentId: string,
+    childId: string,
+  ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeTreeError {
+    const cycle = this.hasPath(childId, parentId)
+    if (cycle) {
+      return new WillCreateCycleInMediaTypeTreeError(this.id, [...cycle, childId])
+    }
+
+    return this.addMediaTypeChildWithoutCycleCheck(parentId, childId)
+  }
+
+  private addMediaTypeChildWithoutCycleCheck(
+    parentId: string,
+    childId: string,
+  ): void | MediaTypeNotFoundInBranchError {
+    const parent = this.nodes.get(parentId)
+    if (!parent) {
+      return new MediaTypeNotFoundInBranchError(this.id, parentId)
+    }
+
+    const child = this.nodes.get(childId)
+    if (!child) {
+      return new MediaTypeNotFoundInBranchError(this.id, childId)
+    }
+
+    parent.children.add(childId)
+  }
+
+  private hasPath(source: string, destination: string): string[] | undefined {
     const visited = new Set<string>()
     const path: string[] = []
 
@@ -329,5 +344,24 @@ class MediaTypeBranchState {
     }
 
     return dfs(source)
+  }
+
+  mergeInto(
+    intoBranch: MediaTypeBranchState,
+  ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeTreeError {
+    for (const mediaTypeId of this.nodes.keys()) {
+      if (!intoBranch.nodes.has(mediaTypeId)) {
+        intoBranch.addMediaTypeWithoutDuplicateCheck(mediaTypeId)
+      }
+    }
+
+    for (const [mediaTypeId, node] of this.nodes) {
+      for (const childId of node.children) {
+        const error = intoBranch.addChildToMediaType(mediaTypeId, childId)
+        if (error instanceof Error) {
+          return error
+        }
+      }
+    }
   }
 }
