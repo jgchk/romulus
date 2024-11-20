@@ -133,19 +133,19 @@ export class MediaTypeBranch {
     return dfs(source)
   }
 
-  mergeInto(
-    intoBranch: MediaTypeBranch,
-  ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeTreeError {
-    for (const mediaTypeId of this.nodes.keys()) {
-      if (!intoBranch.nodes.has(mediaTypeId)) {
-        intoBranch.addMediaTypeWithoutDuplicateCheck(mediaTypeId)
+  mergeInto(intoBranch: MediaTypeBranch): void | WillCreateCycleInMediaTypeTreeError {
+    for (const id of this.nodes.keys()) {
+      if (!intoBranch.nodes.has(id)) {
+        intoBranch.addMediaTypeWithoutDuplicateCheck(id)
       }
     }
 
-    for (const [mediaTypeId, node] of this.nodes.entries()) {
+    for (const [parentId, node] of this.nodes.entries()) {
       for (const childId of node.getChildren()) {
-        const error = intoBranch.addChildToMediaType(mediaTypeId, childId)
-        if (error instanceof Error) {
+        const error = intoBranch.addChildToMediaType(parentId, childId)
+        if (error instanceof MediaTypeNotFoundInBranchError) {
+          throw error // should never happen since we added all media types above
+        } else if (error instanceof Error) {
           return error
         }
       }

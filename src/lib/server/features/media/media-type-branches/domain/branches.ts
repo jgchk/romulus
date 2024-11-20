@@ -118,11 +118,7 @@ export class MediaTypeBranches {
   mergeBranches(
     fromBranchId: string,
     intoBranchId: string,
-  ):
-    | void
-    | MediaTypeBranchNotFoundError
-    | MediaTypeNotFoundInBranchError
-    | WillCreateCycleInMediaTypeTreeError {
+  ): void | MediaTypeBranchNotFoundError | WillCreateCycleInMediaTypeTreeError {
     const fromBranch = this.state.branches.get(fromBranchId)
     if (!fromBranch) {
       return new MediaTypeBranchNotFoundError(fromBranchId)
