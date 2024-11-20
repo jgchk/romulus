@@ -64,6 +64,7 @@ export class MediaTypeBranches {
   addMediaTypeToBranch(
     branchId: string,
     mediaTypeId: string,
+    mediaTypeName: string,
   ): void | MediaTypeBranchNotFoundError | MediaTypeAlreadyExistsInBranchError {
     const branch = this.state.getBranch(branchId)
     if (!branch) {
@@ -75,7 +76,7 @@ export class MediaTypeBranches {
       return error
     }
 
-    const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId)
+    const event = new MediaTypeAddedInBranchEvent(branchId, mediaTypeId, mediaTypeName)
 
     this.applyEvent(event)
     this.addEvent(event)

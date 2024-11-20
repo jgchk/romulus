@@ -126,7 +126,7 @@ describe('addMediaTypeToBranch()', () => {
     ])
 
     // when
-    const error = branches.addMediaTypeToBranch('branch', 'media-type')
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', 'Media Type')
     expect(error).toBeUndefined()
 
     // then
@@ -135,6 +135,7 @@ describe('addMediaTypeToBranch()', () => {
     expect(events[0]).toBeInstanceOf(MediaTypeAddedInBranchEvent)
     expect((events[0] as MediaTypeAddedInBranchEvent).branchId).toBe('branch')
     expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeId).toBe('media-type')
+    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('Media Type')
   })
 
   test('should error if the branch does not exist', () => {
@@ -142,7 +143,7 @@ describe('addMediaTypeToBranch()', () => {
     const branches = MediaTypeBranches.fromEvents([])
 
     // when
-    const error = branches.addMediaTypeToBranch('branch', 'media-type')
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', 'Media Type')
 
     // then
     expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
@@ -153,11 +154,11 @@ describe('addMediaTypeToBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'media-type'),
+      new MediaTypeAddedInBranchEvent('branch', 'media-type', 'Media Type'),
     ])
 
     // when
-    const error = branches.addMediaTypeToBranch('branch', 'media-type')
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', 'Media Type')
 
     // then
     expect(error).toBeInstanceOf(MediaTypeAlreadyExistsInBranchError)
@@ -171,7 +172,7 @@ describe('removeMediaTypeFromBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'media-type'),
+      new MediaTypeAddedInBranchEvent('branch', 'media-type', 'Media Type'),
     ])
 
     // when
@@ -219,8 +220,8 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('branch', 'child'),
+      new MediaTypeAddedInBranchEvent('branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('branch', 'child', 'Child'),
     ])
 
     // when
@@ -252,7 +253,7 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'parent'),
+      new MediaTypeAddedInBranchEvent('branch', 'parent', 'Parent'),
     ])
 
     // when
@@ -268,7 +269,7 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'child'),
+      new MediaTypeAddedInBranchEvent('branch', 'child', 'Child'),
     ])
     // when
     const error = branches.addParentToMediaTypeInBranch('branch', 'child', 'parent')
@@ -282,7 +283,7 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'media-type'),
+      new MediaTypeAddedInBranchEvent('branch', 'media-type', 'Media Type'),
     ])
 
     // when
@@ -301,8 +302,8 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('branch', 'child'),
+      new MediaTypeAddedInBranchEvent('branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('branch', 'child', 'Child'),
       new ParentAddedToMediaTypeInBranchEvent('branch', 'child', 'parent'),
     ])
 
@@ -323,9 +324,9 @@ describe('addParentToMediaTypeInBranch()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
-      new MediaTypeAddedInBranchEvent('branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('branch', 'child'),
-      new MediaTypeAddedInBranchEvent('branch', 'grandchild'),
+      new MediaTypeAddedInBranchEvent('branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('branch', 'child', 'Child'),
+      new MediaTypeAddedInBranchEvent('branch', 'grandchild', 'Grandchild'),
       new ParentAddedToMediaTypeInBranchEvent('branch', 'child', 'parent'),
       new ParentAddedToMediaTypeInBranchEvent('branch', 'grandchild', 'child'),
     ])
@@ -351,7 +352,7 @@ describe('mergeBranches()', () => {
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
       new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'media-type'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'media-type', 'Media Type'),
     ])
 
     // when
@@ -399,11 +400,11 @@ describe('mergeBranches()', () => {
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
       new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'child'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'child', 'Child'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'child', 'parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'child'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'child', 'Child'),
       new ParentAddedToMediaTypeInBranchEvent('into-branch', 'parent', 'child'),
     ])
 
@@ -425,14 +426,14 @@ describe('mergeBranches()', () => {
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
       new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'child'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'grandchild'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'child', 'Child'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'grandchild', 'Grandchild'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'child', 'parent'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'grandchild', 'child'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'child'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'grandchild'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'parent', 'Parent'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'child', 'Child'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'grandchild', 'Grandchild'),
       new ParentAddedToMediaTypeInBranchEvent('into-branch', 'parent', 'grandchild'),
     ])
 

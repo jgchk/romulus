@@ -16,6 +16,7 @@ export class MediaTypeAddedInBranchEvent {
   constructor(
     public readonly branchId: string,
     public readonly mediaTypeId: string,
+    public readonly mediaTypeName: string,
   ) {}
 }
 
