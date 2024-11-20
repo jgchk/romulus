@@ -218,6 +218,34 @@ describe('addMediaTypeToBranch()', () => {
     expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
     expect((error as MediaTypeNameInvalidError).name).toBe('')
   })
+
+  test('should error if media type name is only whitespace', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('branch', 'Branch'),
+    ])
+
+    // when
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', '   ')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
+    expect((error as MediaTypeNameInvalidError).name).toBe('   ')
+  })
+
+  test('should error if media type name is only newlines', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('branch', 'Branch'),
+    ])
+
+    // when
+    const error = branches.addMediaTypeToBranch('branch', 'media-type', '\n\n')
+
+    // then
+    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
+    expect((error as MediaTypeNameInvalidError).name).toBe('\n\n')
+  })
 })
 
 describe('removeMediaTypeFromBranch()', () => {
