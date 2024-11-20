@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
 import { MediaTypeParentAddedEvent } from '../domain/events'
-import { CycleError, MediaTypeNotFoundError } from '../domain/tree'
+import { CycleError, MediaTypeNotFoundError } from '../../media-type-branches/domain/tree'
 import { MemoryMediaTypeTreeEventStore } from '../infrastructure/memory-event-store'
 import { MemoryMediaTypeTreeRepository } from '../infrastructure/memory-repository'
 import { AddMediaTypeCommand } from './add-media-type'

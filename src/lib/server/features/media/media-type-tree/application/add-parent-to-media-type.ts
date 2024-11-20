@@ -1,5 +1,5 @@
 import type { IMediaTypeTreeRepository } from '../domain/repository'
-import type { CycleError, MediaTypeNotFoundError } from '../domain/tree'
+import type { CycleError, MediaTypeNotFoundError } from '../../media-type-branches/domain/tree'
 
 export class AddParentToMediaTypeCommand {
   constructor(private mediaTypeTreeRepo: IMediaTypeTreeRepository) {}

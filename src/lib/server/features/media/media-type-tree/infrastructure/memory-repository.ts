@@ -1,6 +1,6 @@
 import type { IMediaTypeTreeEventStore } from '../domain/event-store'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
-import { MediaTypeTree } from '../domain/tree'
+import { MediaTypeTree } from '../../media-type-branches/domain/tree'
 
 export class MemoryMediaTypeTreeRepository implements IMediaTypeTreeRepository {
   constructor(private eventStore: IMediaTypeTreeEventStore) {}
