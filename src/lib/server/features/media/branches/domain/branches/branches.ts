@@ -3,11 +3,7 @@ import {
   MediaTypeBranchNameInvalidError,
   MediaTypeBranchNotFoundError,
 } from './errors'
-import {
-  MediaTypeBranchCreatedEvent,
-  MediaTypeBranchedFromAnotherBranchEvent,
-  type MediaTypeBranchesEvent,
-} from './events'
+import { MediaTypeBranchCreatedEvent, type MediaTypeBranchesEvent } from './events'
 
 export class MediaTypeBranches {
   private state: MediaTypeBranchesState
@@ -32,12 +28,9 @@ export class MediaTypeBranches {
 
   private applyEvent(event: MediaTypeBranchesEvent): void {
     if (event instanceof MediaTypeBranchCreatedEvent) {
-      const error = this.state.addBranch(event.id)
-      if (error instanceof Error) {
-        throw error
-      }
-    } else if (event instanceof MediaTypeBranchedFromAnotherBranchEvent) {
-      const error = this.state.addBranchFromBaseBranch(event.baseBranchId, event.newBranchId)
+      const error = event.baseBranchId
+        ? this.state.addBranchFromBaseBranch(event.baseBranchId, event.id)
+        : this.state.addBranch(event.id)
       if (error instanceof Error) {
         throw error
       }
@@ -55,9 +48,14 @@ export class MediaTypeBranches {
   createBranch(
     id: string,
     name: string,
+    baseBranchId?: string,
   ): void | MediaTypeBranchAlreadyExistsError | MediaTypeBranchNameInvalidError {
     if (this.state.hasBranch(id)) {
       return new MediaTypeBranchAlreadyExistsError(id)
+    }
+
+    if (baseBranchId !== undefined && !this.state.hasBranch(baseBranchId)) {
+      return new MediaTypeBranchNotFoundError(baseBranchId)
     }
 
     const trimmedName = name.trim().replace(/\n/g, '')
@@ -65,31 +63,7 @@ export class MediaTypeBranches {
       return new MediaTypeBranchNameInvalidError(name)
     }
 
-    const event = new MediaTypeBranchCreatedEvent(id, trimmedName)
-
-    this.applyEvent(event)
-    this.addEvent(event)
-  }
-
-  createBranchFromOtherBranch(baseBranchId: string, newBranchId: string, newBranchName: string) {
-    if (!this.state.hasBranch(baseBranchId)) {
-      return new MediaTypeBranchNotFoundError(baseBranchId)
-    }
-
-    if (this.state.hasBranch(newBranchId)) {
-      return new MediaTypeBranchAlreadyExistsError(newBranchId)
-    }
-
-    const trimmedName = newBranchName.trim().replace(/\n/g, '')
-    if (trimmedName.length === 0) {
-      return new MediaTypeBranchNameInvalidError(newBranchName)
-    }
-
-    const event = new MediaTypeBranchedFromAnotherBranchEvent(
-      baseBranchId,
-      newBranchId,
-      trimmedName,
-    )
+    const event = new MediaTypeBranchCreatedEvent(id, trimmedName, baseBranchId)
 
     this.applyEvent(event)
     this.addEvent(event)
