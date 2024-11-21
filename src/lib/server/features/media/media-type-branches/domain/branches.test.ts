@@ -9,7 +9,7 @@ import {
   MediaTypeBranchNotFoundError,
   MediaTypeNameInvalidError,
   MediaTypeNotFoundInBranchError,
-  WillCreateCycleInMediaTypeTreeError,
+  WillCreateCycleInMediaTypeBranchError,
 } from './errors'
 import {
   MediaTypeAddedInBranchEvent,
@@ -450,7 +450,7 @@ describe('addParentToMediaTypeInBranch()', () => {
 
     // then
     expect(error).toEqual(
-      new WillCreateCycleInMediaTypeTreeError('branch', ['media-type', 'media-type']),
+      new WillCreateCycleInMediaTypeBranchError('branch', ['media-type', 'media-type']),
     )
   })
 
@@ -468,7 +468,7 @@ describe('addParentToMediaTypeInBranch()', () => {
 
     // then
     expect(error).toEqual(
-      new WillCreateCycleInMediaTypeTreeError('branch', ['parent', 'child', 'parent']),
+      new WillCreateCycleInMediaTypeBranchError('branch', ['parent', 'child', 'parent']),
     )
   })
 
@@ -488,7 +488,7 @@ describe('addParentToMediaTypeInBranch()', () => {
 
     // then
     expect(error).toEqual(
-      new WillCreateCycleInMediaTypeTreeError('branch', [
+      new WillCreateCycleInMediaTypeBranchError('branch', [
         'parent',
         'child',
         'grandchild',
@@ -557,7 +557,7 @@ describe('mergeBranches()', () => {
 
     // then
     expect(error).toEqual(
-      new WillCreateCycleInMediaTypeTreeError('into-branch', ['child', 'parent', 'child']),
+      new WillCreateCycleInMediaTypeBranchError('into-branch', ['child', 'parent', 'child']),
     )
   })
 
@@ -579,12 +579,28 @@ describe('mergeBranches()', () => {
 
     // then
     expect(error).toEqual(
-      new WillCreateCycleInMediaTypeTreeError('into-branch', [
+      new WillCreateCycleInMediaTypeBranchError('into-branch', [
         'grandchild',
         'parent',
         'child',
         'grandchild',
       ]),
     )
+  })
+
+  test('should error if there are media type id collisions between branches', () => {
+    // given
+    const branches = MediaTypeBranches.fromEvents([
+      new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
+      new MediaTypeAddedInBranchEvent('from-branch', 'media-type', 'Media Type A'),
+      new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
+      new MediaTypeAddedInBranchEvent('into-branch', 'media-type', 'Media Type B'),
+    ])
+
+    // when
+    const error = branches.mergeBranches('from-branch', 'into-branch')
+
+    // then
+    expect(error).toEqual(new MediaTypeAlreadyExistsInBranchError('into-branch', 'media-type'))
   })
 })

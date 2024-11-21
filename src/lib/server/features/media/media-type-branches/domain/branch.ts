@@ -1,20 +1,19 @@
-import {
-  MediaTypeAlreadyExistsInBranchError,
-  MediaTypeNotFoundInBranchError,
-  WillCreateCycleInMediaTypeTreeError,
-} from './errors'
+import { CustomError } from '$lib/utils/error'
+
+import { MediaTypeAlreadyExistsInBranchError } from './errors'
+import { MediaTypeNotFoundInBranchError, WillCreateCycleInMediaTypeBranchError } from './errors'
 
 export class MediaTypeBranch {
   private id: string
-  private nodes: Map<string, MediaTypeNode>
+  private tree: MediaTypeTree
 
-  private constructor(id: string, nodes: Map<string, MediaTypeNode>) {
+  private constructor(id: string, tree: MediaTypeTree) {
     this.id = id
-    this.nodes = nodes
+    this.tree = tree
   }
 
   static create(id: string): MediaTypeBranch {
-    return new MediaTypeBranch(id, new Map())
+    return new MediaTypeBranch(id, MediaTypeTree.create())
   }
 
   static fromBranch(id: string, baseBranch: MediaTypeBranch): MediaTypeBranch {
@@ -24,88 +23,132 @@ export class MediaTypeBranch {
   }
 
   clone(): MediaTypeBranch {
-    return new MediaTypeBranch(
-      this.id,
+    return new MediaTypeBranch(this.id, this.tree.clone())
+  }
+
+  addMediaType(id: string): void | MediaTypeAlreadyExistsInBranchError {
+    const error = this.tree.addMediaType(id)
+    if (error instanceof MediaTypeAlreadyExistsError) {
+      return new MediaTypeAlreadyExistsInBranchError(this.id, error.id)
+    }
+  }
+
+  removeMediaType(id: string): void | MediaTypeNotFoundInBranchError {
+    const error = this.tree.removeMediaType(id)
+    if (error instanceof MediaTypeNotFoundError) {
+      return new MediaTypeNotFoundInBranchError(this.id, error.id)
+    }
+  }
+
+  addChildToMediaType(
+    parentId: string,
+    childId: string,
+  ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeBranchError {
+    const error = this.tree.addChildToMediaType(parentId, childId)
+    if (error instanceof MediaTypeNotFoundError) {
+      return new MediaTypeNotFoundInBranchError(this.id, error.id)
+    } else if (error instanceof WillCreateCycleError) {
+      return new WillCreateCycleInMediaTypeBranchError(this.id, error.cycle)
+    }
+  }
+
+  mergeInto(
+    intoBranch: MediaTypeBranch,
+  ): void | MediaTypeAlreadyExistsInBranchError | WillCreateCycleInMediaTypeBranchError {
+    const error = this.tree.mergeInto(intoBranch.tree)
+    if (error instanceof MediaTypeAlreadyExistsError) {
+      return new MediaTypeAlreadyExistsInBranchError(intoBranch.id, error.id)
+    } else if (error instanceof WillCreateCycleError) {
+      return new WillCreateCycleInMediaTypeBranchError(intoBranch.id, error.cycle)
+    }
+  }
+}
+
+class MediaTypeTree {
+  private nodes: Map<string, MediaTypeNode>
+
+  private constructor(nodes: Map<string, MediaTypeNode>) {
+    this.nodes = nodes
+  }
+
+  static create(): MediaTypeTree {
+    return new MediaTypeTree(new Map())
+  }
+
+  clone(): MediaTypeTree {
+    return new MediaTypeTree(
       new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])),
     )
   }
 
-  addMediaType(id: string): void | MediaTypeAlreadyExistsInBranchError {
-    if (this.nodes.has(id)) {
-      return new MediaTypeAlreadyExistsInBranchError(this.id, id)
-    }
-
-    this.addMediaTypeWithoutDuplicateCheck(id)
+  hasMediaType(id: string): boolean {
+    return this.nodes.has(id)
   }
 
-  private addMediaTypeWithoutDuplicateCheck(id: string) {
+  addMediaType(id: string): void | MediaTypeAlreadyExistsError {
+    if (this.nodes.has(id)) {
+      return new MediaTypeAlreadyExistsError(id)
+    }
+
     this.nodes.set(id, MediaTypeNode.create())
   }
 
-  removeMediaType(id: string): void | MediaTypeNotFoundInBranchError {
-    const error = this.moveChildrenUnderParents(id)
-    if (error instanceof Error) {
-      return error
+  removeMediaType(id: string): void | MediaTypeNotFoundError {
+    if (!this.nodes.has(id)) {
+      return new MediaTypeNotFoundError(id)
     }
 
+    this.moveChildrenUnderParents(id)
     this.nodes.delete(id)
   }
 
-  private moveChildrenUnderParents(id: string): void | MediaTypeNotFoundInBranchError {
-    const node = this.nodes.get(id)
-    if (!node) {
-      return new MediaTypeNotFoundInBranchError(this.id, id)
-    }
-
-    const childIds = node.getChildren()
+  private moveChildrenUnderParents(id: string): void {
+    const childIds = this.getMediaTypeChildren(id)
     const parentIds = this.getMediaTypeParents(id)
 
     for (const parentId of parentIds) {
       for (const childId of childIds) {
-        const error = this.addMediaTypeChildWithoutCycleCheck(parentId, childId)
-        if (error instanceof Error) {
-          return error
+        const error = this.addChildToMediaType(parentId, childId)
+        if (error instanceof WillCreateCycleError) {
+          throw error // should never happen
+        } else if (error instanceof MediaTypeNotFoundError) {
+          throw error // should never happen
         }
       }
     }
   }
 
-  private getMediaTypeParents(id: string): Set<string> {
-    const parents = new Set<string>()
+  getMediaTypeChildren(id: string): Set<string> {
+    return this.nodes.get(id)?.getChildren() ?? new Set()
+  }
 
+  getMediaTypeParents(id: string): Set<string> {
+    const parents = new Set<string>()
     for (const [nodeId, node] of this.nodes) {
       if (node.hasChild(id)) {
         parents.add(nodeId)
       }
     }
-
     return parents
   }
 
   addChildToMediaType(
     parentId: string,
     childId: string,
-  ): void | MediaTypeNotFoundInBranchError | WillCreateCycleInMediaTypeTreeError {
-    const cycle = this.hasPath(childId, parentId)
-    if (cycle) {
-      return new WillCreateCycleInMediaTypeTreeError(this.id, [...cycle, childId])
-    }
-
-    return this.addMediaTypeChildWithoutCycleCheck(parentId, childId)
-  }
-
-  private addMediaTypeChildWithoutCycleCheck(
-    parentId: string,
-    childId: string,
-  ): void | MediaTypeNotFoundInBranchError {
+  ): void | MediaTypeNotFoundError | WillCreateCycleError {
     const parent = this.nodes.get(parentId)
     if (!parent) {
-      return new MediaTypeNotFoundInBranchError(this.id, parentId)
+      return new MediaTypeNotFoundError(parentId)
     }
 
     const child = this.nodes.get(childId)
     if (!child) {
-      return new MediaTypeNotFoundInBranchError(this.id, childId)
+      return new MediaTypeNotFoundError(childId)
+    }
+
+    const cycle = this.hasPath(childId, parentId)
+    if (cycle) {
+      return new WillCreateCycleError([...cycle, childId])
     }
 
     parent.addChild(childId)
@@ -139,17 +182,18 @@ export class MediaTypeBranch {
     return dfs(source)
   }
 
-  mergeInto(intoBranch: MediaTypeBranch): void | WillCreateCycleInMediaTypeTreeError {
+  mergeInto(intoTree: MediaTypeTree): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
     for (const id of this.nodes.keys()) {
-      if (!intoBranch.nodes.has(id)) {
-        intoBranch.addMediaTypeWithoutDuplicateCheck(id)
+      const error = intoTree.addMediaType(id)
+      if (error instanceof Error) {
+        return error
       }
     }
 
     for (const [parentId, node] of this.nodes.entries()) {
       for (const childId of node.getChildren()) {
-        const error = intoBranch.addChildToMediaType(parentId, childId)
-        if (error instanceof MediaTypeNotFoundInBranchError) {
+        const error = intoTree.addChildToMediaType(parentId, childId)
+        if (error instanceof MediaTypeNotFoundError) {
           throw error // should never happen since we added all media types above
         } else if (error instanceof Error) {
           return error
@@ -184,5 +228,26 @@ class MediaTypeNode {
 
   hasChild(childId: string): boolean {
     return this.children.has(childId)
+  }
+}
+
+class MediaTypeAlreadyExistsError extends CustomError {
+  constructor(public readonly id: string) {
+    super('MediaTypeAlreadyExistsError', `Media type already exists with id: ${id}`)
+  }
+}
+
+class MediaTypeNotFoundError extends CustomError {
+  constructor(public readonly id: string) {
+    super('MediaTypeNotFoundError', `Media type not found with id: ${id}`)
+  }
+}
+
+class WillCreateCycleError extends CustomError {
+  constructor(public readonly cycle: string[]) {
+    super(
+      'WillCreateCycleInMediaTypeTreeError',
+      `Performing this operation will create a cycle in the media type tree: ${cycle.join(' -> ')}`,
+    )
   }
 }

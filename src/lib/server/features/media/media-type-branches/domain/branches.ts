@@ -2,7 +2,7 @@ import { MediaTypeBranch } from './branch'
 import type {
   MediaTypeAlreadyExistsInBranchError,
   MediaTypeNotFoundInBranchError,
-  WillCreateCycleInMediaTypeTreeError,
+  WillCreateCycleInMediaTypeBranchError,
 } from './errors'
 import {
   MediaTypeBranchAlreadyExistsError,
@@ -142,7 +142,7 @@ export class MediaTypeBranches {
     | void
     | MediaTypeBranchNotFoundError
     | MediaTypeNotFoundInBranchError
-    | WillCreateCycleInMediaTypeTreeError {
+    | WillCreateCycleInMediaTypeBranchError {
     const branch = this.state.getBranch(branchId)
     if (!branch) {
       return new MediaTypeBranchNotFoundError(branchId)
@@ -166,7 +166,11 @@ export class MediaTypeBranches {
   mergeBranches(
     fromBranchId: string,
     intoBranchId: string,
-  ): void | MediaTypeBranchNotFoundError | WillCreateCycleInMediaTypeTreeError {
+  ):
+    | void
+    | MediaTypeBranchNotFoundError
+    | MediaTypeAlreadyExistsInBranchError
+    | WillCreateCycleInMediaTypeBranchError {
     const fromBranch = this.state.getBranch(fromBranchId)
     if (!fromBranch) {
       return new MediaTypeBranchNotFoundError(fromBranchId)

@@ -54,7 +54,7 @@ export class MediaTypeNameInvalidError extends CustomError {
   }
 }
 
-export class WillCreateCycleInMediaTypeTreeError extends CustomError {
+export class WillCreateCycleInMediaTypeBranchError extends CustomError {
   constructor(
     public readonly branchId: string,
     public readonly cycle: string[],
