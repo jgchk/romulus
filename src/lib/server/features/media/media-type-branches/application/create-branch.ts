@@ -1,7 +1,10 @@
 import type { IMediaTypeBranchesRepository } from '../domain/repository'
 
 export class CreateBranchCommand {
-  constructor(public readonly branchId: string) {}
+  constructor(
+    public readonly branchId: string,
+    public readonly branchName: string,
+  ) {}
 }
 
 export class CreateBranchCommandHandler {
@@ -10,7 +13,7 @@ export class CreateBranchCommandHandler {
   async handle(command: CreateBranchCommand) {
     const branches = await this.repo.get()
 
-    const result = branches.createBranch(command.branchId)
+    const result = branches.createBranch(command.branchId, command.branchName)
     if (result instanceof Error) {
       return result
     }

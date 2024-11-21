@@ -1,7 +1,7 @@
 import type {
   MediaTypeBranchNotFoundError,
   MediaTypeNotFoundInBranchError,
-  WillCreateCycleInMediaTypeTreeError,
+  WillCreateCycleInMediaTypeBranchError,
 } from '../domain/errors'
 import type { IMediaTypeBranchesRepository } from '../domain/repository'
 
@@ -22,7 +22,7 @@ export class AddParentToMediaTypeInBranchCommandHandler {
     | void
     | MediaTypeBranchNotFoundError
     | MediaTypeNotFoundInBranchError
-    | WillCreateCycleInMediaTypeTreeError
+    | WillCreateCycleInMediaTypeBranchError
   > {
     const branches = await this.repo.get()
 
