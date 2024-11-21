@@ -31,10 +31,7 @@ describe('createBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchCreatedEvent)
-    expect((events[0] as MediaTypeBranchCreatedEvent).id).toBe('branch')
-    expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('Branch')
+    expect(events).toEqual([new MediaTypeBranchCreatedEvent('branch', 'Branch')])
   })
 
   test('should trim branch name', () => {
@@ -47,10 +44,7 @@ describe('createBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchCreatedEvent)
-    expect((events[0] as MediaTypeBranchCreatedEvent).id).toBe('branch')
-    expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('Branch')
+    expect(events).toEqual([new MediaTypeBranchCreatedEvent('branch', 'Branch')])
   })
 
   test('should remove newlines from branch name', () => {
@@ -63,10 +57,7 @@ describe('createBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchCreatedEvent)
-    expect((events[0] as MediaTypeBranchCreatedEvent).id).toBe('branch')
-    expect((events[0] as MediaTypeBranchCreatedEvent).name).toBe('One Two')
+    expect(events).toEqual([new MediaTypeBranchCreatedEvent('branch', 'One Two')])
   })
 
   test('should error if a branch with the given id already exists', () => {
@@ -79,8 +70,7 @@ describe('createBranch()', () => {
     const error = branches.createBranch('branch', 'Branch2')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchAlreadyExistsError)
-    expect((error as MediaTypeBranchAlreadyExistsError).id).toBe('branch')
+    expect(error).toEqual(new MediaTypeBranchAlreadyExistsError('branch'))
   })
 
   test('should error if the branch name is empty', () => {
@@ -91,8 +81,7 @@ describe('createBranch()', () => {
     const error = branches.createBranch('branch', '')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError(''))
   })
 
   test('should error if branch name is only whitespace', () => {
@@ -103,8 +92,7 @@ describe('createBranch()', () => {
     const error = branches.createBranch('branch', '   ')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('   ')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError('   '))
   })
 
   test('should error if branch name is only newlines', () => {
@@ -115,8 +103,7 @@ describe('createBranch()', () => {
     const error = branches.createBranch('branch', '\n\n')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('\n\n')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError('\n\n'))
   })
 })
 
@@ -133,11 +120,9 @@ describe('createBranchFromOtherBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchedFromAnotherBranchEvent)
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).baseBranchId).toBe('base-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchId).toBe('new-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchName).toBe('New Branch')
+    expect(events).toEqual([
+      new MediaTypeBranchedFromAnotherBranchEvent('base-branch', 'new-branch', 'New Branch'),
+    ])
   })
 
   test('should trim branch name', () => {
@@ -156,11 +141,9 @@ describe('createBranchFromOtherBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchedFromAnotherBranchEvent)
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).baseBranchId).toBe('base-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchId).toBe('new-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchName).toBe('New Branch')
+    expect(events).toEqual([
+      new MediaTypeBranchedFromAnotherBranchEvent('base-branch', 'new-branch', 'New Branch'),
+    ])
   })
 
   test('should remove newlines from branch name', () => {
@@ -175,11 +158,9 @@ describe('createBranchFromOtherBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchedFromAnotherBranchEvent)
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).baseBranchId).toBe('base-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchId).toBe('new-branch')
-    expect((events[0] as MediaTypeBranchedFromAnotherBranchEvent).newBranchName).toBe('One Two')
+    expect(events).toEqual([
+      new MediaTypeBranchedFromAnotherBranchEvent('base-branch', 'new-branch', 'One Two'),
+    ])
   })
 
   test('should error if the base branch does not exist', () => {
@@ -190,8 +171,7 @@ describe('createBranchFromOtherBranch()', () => {
     const error = branches.createBranchFromOtherBranch('base-branch', 'new-branch', 'New Branch')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('base-branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('base-branch'))
   })
 
   test('should error if the new branch already exists', () => {
@@ -205,8 +185,7 @@ describe('createBranchFromOtherBranch()', () => {
     const error = branches.createBranchFromOtherBranch('base-branch', 'new-branch', 'New Branch2')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchAlreadyExistsError)
-    expect((error as MediaTypeBranchAlreadyExistsError).id).toBe('new-branch')
+    expect(error).toEqual(new MediaTypeBranchAlreadyExistsError('new-branch'))
   })
 
   test('should error if the branch name is empty', () => {
@@ -219,8 +198,7 @@ describe('createBranchFromOtherBranch()', () => {
     const error = branches.createBranchFromOtherBranch('base-branch', 'new-branch', '')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError(''))
   })
 
   test('should error if branch name is only whitespace', () => {
@@ -233,8 +211,7 @@ describe('createBranchFromOtherBranch()', () => {
     const error = branches.createBranchFromOtherBranch('base-branch', 'new-branch', '   ')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('   ')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError('   '))
   })
 
   test('should error if branch name is only newlines', () => {
@@ -247,8 +224,7 @@ describe('createBranchFromOtherBranch()', () => {
     const error = branches.createBranchFromOtherBranch('base-branch', 'new-branch', '\n\n')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNameInvalidError)
-    expect((error as MediaTypeBranchNameInvalidError).name).toBe('\n\n')
+    expect(error).toEqual(new MediaTypeBranchNameInvalidError('\n\n'))
   })
 })
 
@@ -265,11 +241,7 @@ describe('addMediaTypeToBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeAddedInBranchEvent)
-    expect((events[0] as MediaTypeAddedInBranchEvent).branchId).toBe('branch')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeId).toBe('media-type')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('Media Type')
+    expect(events).toEqual([new MediaTypeAddedInBranchEvent('branch', 'media-type', 'Media Type')])
   })
 
   test('should trim media type name', () => {
@@ -284,11 +256,7 @@ describe('addMediaTypeToBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeAddedInBranchEvent)
-    expect((events[0] as MediaTypeAddedInBranchEvent).branchId).toBe('branch')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeId).toBe('media-type')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('Media Type')
+    expect(events).toEqual([new MediaTypeAddedInBranchEvent('branch', 'media-type', 'Media Type')])
   })
 
   test('should remove newlines from media type name', () => {
@@ -303,11 +271,7 @@ describe('addMediaTypeToBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeAddedInBranchEvent)
-    expect((events[0] as MediaTypeAddedInBranchEvent).branchId).toBe('branch')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeId).toBe('media-type')
-    expect((events[0] as MediaTypeAddedInBranchEvent).mediaTypeName).toBe('One Two')
+    expect(events).toEqual([new MediaTypeAddedInBranchEvent('branch', 'media-type', 'One Two')])
   })
 
   test('should error if the branch does not exist', () => {
@@ -318,8 +282,7 @@ describe('addMediaTypeToBranch()', () => {
     const error = branches.addMediaTypeToBranch('branch', 'media-type', 'Media Type')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('branch'))
   })
 
   test('should error if the media type already exists in the branch', () => {
@@ -333,9 +296,7 @@ describe('addMediaTypeToBranch()', () => {
     const error = branches.addMediaTypeToBranch('branch', 'media-type', 'Media Type')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeAlreadyExistsInBranchError)
-    expect((error as MediaTypeAlreadyExistsInBranchError).branchId).toBe('branch')
-    expect((error as MediaTypeAlreadyExistsInBranchError).mediaTypeId).toBe('media-type')
+    expect(error).toEqual(new MediaTypeAlreadyExistsInBranchError('branch', 'media-type'))
   })
 
   test('should error if the media type name is empty', () => {
@@ -348,8 +309,7 @@ describe('addMediaTypeToBranch()', () => {
     const error = branches.addMediaTypeToBranch('branch', 'media-type', '')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
-    expect((error as MediaTypeNameInvalidError).name).toBe('')
+    expect(error).toEqual(new MediaTypeNameInvalidError(''))
   })
 
   test('should error if media type name is only whitespace', () => {
@@ -362,8 +322,7 @@ describe('addMediaTypeToBranch()', () => {
     const error = branches.addMediaTypeToBranch('branch', 'media-type', '   ')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
-    expect((error as MediaTypeNameInvalidError).name).toBe('   ')
+    expect(error).toEqual(new MediaTypeNameInvalidError('   '))
   })
 
   test('should error if media type name is only newlines', () => {
@@ -376,8 +335,7 @@ describe('addMediaTypeToBranch()', () => {
     const error = branches.addMediaTypeToBranch('branch', 'media-type', '\n\n')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeNameInvalidError)
-    expect((error as MediaTypeNameInvalidError).name).toBe('\n\n')
+    expect(error).toEqual(new MediaTypeNameInvalidError('\n\n'))
   })
 })
 
@@ -395,10 +353,7 @@ describe('removeMediaTypeFromBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeRemovedFromBranchEvent)
-    expect((events[0] as MediaTypeRemovedFromBranchEvent).branchId).toBe('branch')
-    expect((events[0] as MediaTypeRemovedFromBranchEvent).mediaTypeId).toBe('media-type')
+    expect(events).toEqual([new MediaTypeRemovedFromBranchEvent('branch', 'media-type')])
   })
 
   test('should error if the branch does not exist', () => {
@@ -409,8 +364,7 @@ describe('removeMediaTypeFromBranch()', () => {
     const error = branches.removeMediaTypeFromBranch('branch', 'media-type')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('branch'))
   })
 
   test('should error if the media type does not exist in the branch', () => {
@@ -423,9 +377,7 @@ describe('removeMediaTypeFromBranch()', () => {
     const error = branches.removeMediaTypeFromBranch('branch', 'media-type')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeNotFoundInBranchError)
-    expect((error as MediaTypeNotFoundInBranchError).branchId).toBe('branch')
-    expect((error as MediaTypeNotFoundInBranchError).mediaTypeId).toBe('media-type')
+    expect(error).toEqual(new MediaTypeNotFoundInBranchError('branch', 'media-type'))
   })
 })
 
@@ -444,11 +396,7 @@ describe('addParentToMediaTypeInBranch()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(ParentAddedToMediaTypeInBranchEvent)
-    expect((events[0] as ParentAddedToMediaTypeInBranchEvent).branchId).toBe('branch')
-    expect((events[0] as ParentAddedToMediaTypeInBranchEvent).childId).toBe('child')
-    expect((events[0] as ParentAddedToMediaTypeInBranchEvent).parentId).toBe('parent')
+    expect(events).toEqual([new ParentAddedToMediaTypeInBranchEvent('branch', 'child', 'parent')])
   })
 
   test('should error if the branch does not exist', () => {
@@ -459,8 +407,7 @@ describe('addParentToMediaTypeInBranch()', () => {
     const error = branches.addParentToMediaTypeInBranch('branch', 'child', 'parent')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('branch'))
   })
 
   test('should error if the child media type does not exist in the branch', () => {
@@ -474,9 +421,7 @@ describe('addParentToMediaTypeInBranch()', () => {
     const error = branches.addParentToMediaTypeInBranch('branch', 'child', 'parent')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeNotFoundInBranchError)
-    expect((error as MediaTypeNotFoundInBranchError).branchId).toBe('branch')
-    expect((error as MediaTypeNotFoundInBranchError).mediaTypeId).toBe('child')
+    expect(error).toEqual(new MediaTypeNotFoundInBranchError('branch', 'child'))
   })
 
   test('should error if the parent media type does not exist in the branch', () => {
@@ -485,12 +430,12 @@ describe('addParentToMediaTypeInBranch()', () => {
       new MediaTypeBranchCreatedEvent('branch', 'Branch'),
       new MediaTypeAddedInBranchEvent('branch', 'child', 'Child'),
     ])
+
     // when
     const error = branches.addParentToMediaTypeInBranch('branch', 'child', 'parent')
+
     // then
-    expect(error).toBeInstanceOf(MediaTypeNotFoundInBranchError)
-    expect((error as MediaTypeNotFoundInBranchError).branchId).toBe('branch')
-    expect((error as MediaTypeNotFoundInBranchError).mediaTypeId).toBe('parent')
+    expect(error).toEqual(new MediaTypeNotFoundInBranchError('branch', 'parent'))
   })
 
   test('should error if a 1-cycle would be created', () => {
@@ -504,12 +449,9 @@ describe('addParentToMediaTypeInBranch()', () => {
     const error = branches.addParentToMediaTypeInBranch('branch', 'media-type', 'media-type')
 
     // then
-    expect(error).toBeInstanceOf(WillCreateCycleInMediaTypeTreeError)
-    expect((error as WillCreateCycleInMediaTypeTreeError).branchId).toBe('branch')
-    expect((error as WillCreateCycleInMediaTypeTreeError).cycle).toEqual([
-      'media-type',
-      'media-type',
-    ])
+    expect(error).toEqual(
+      new WillCreateCycleInMediaTypeTreeError('branch', ['media-type', 'media-type']),
+    )
   })
 
   test('should error if a 2-cycle would be created', () => {
@@ -525,13 +467,9 @@ describe('addParentToMediaTypeInBranch()', () => {
     const error = branches.addParentToMediaTypeInBranch('branch', 'parent', 'child')
 
     // then
-    expect(error).toBeInstanceOf(WillCreateCycleInMediaTypeTreeError)
-    expect((error as WillCreateCycleInMediaTypeTreeError).branchId).toBe('branch')
-    expect((error as WillCreateCycleInMediaTypeTreeError).cycle).toEqual([
-      'parent',
-      'child',
-      'parent',
-    ])
+    expect(error).toEqual(
+      new WillCreateCycleInMediaTypeTreeError('branch', ['parent', 'child', 'parent']),
+    )
   })
 
   test('should error if a 3-cycle would be created', () => {
@@ -549,14 +487,14 @@ describe('addParentToMediaTypeInBranch()', () => {
     const error = branches.addParentToMediaTypeInBranch('branch', 'parent', 'grandchild')
 
     // then
-    expect(error).toBeInstanceOf(WillCreateCycleInMediaTypeTreeError)
-    expect((error as WillCreateCycleInMediaTypeTreeError).branchId).toBe('branch')
-    expect((error as WillCreateCycleInMediaTypeTreeError).cycle).toEqual([
-      'parent',
-      'child',
-      'grandchild',
-      'parent',
-    ])
+    expect(error).toEqual(
+      new WillCreateCycleInMediaTypeTreeError('branch', [
+        'parent',
+        'child',
+        'grandchild',
+        'parent',
+      ]),
+    )
   })
 })
 
@@ -575,10 +513,7 @@ describe('mergeBranches()', () => {
 
     // then
     const events = branches.getUncommittedEvents()
-    expect(events).toHaveLength(1)
-    expect(events[0]).toBeInstanceOf(MediaTypeBranchesMerged)
-    expect((events[0] as MediaTypeBranchesMerged).fromBranchId).toBe('from-branch')
-    expect((events[0] as MediaTypeBranchesMerged).intoBranchId).toBe('into-branch')
+    expect(events).toEqual([new MediaTypeBranchesMerged('from-branch', 'into-branch')])
   })
 
   test('should error if the from branch does not exist', () => {
@@ -591,8 +526,7 @@ describe('mergeBranches()', () => {
     const error = branches.mergeBranches('from-branch', 'into-branch')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('from-branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('from-branch'))
   })
 
   test('should error if the into branch does not exist', () => {
@@ -605,8 +539,7 @@ describe('mergeBranches()', () => {
     const error = branches.mergeBranches('from-branch', 'into-branch')
 
     // then
-    expect(error).toBeInstanceOf(MediaTypeBranchNotFoundError)
-    expect((error as MediaTypeBranchNotFoundError).id).toBe('into-branch')
+    expect(error).toEqual(new MediaTypeBranchNotFoundError('into-branch'))
   })
 
   test('should error if a 2-cycle would be created', () => {
@@ -626,13 +559,9 @@ describe('mergeBranches()', () => {
     const error = branches.mergeBranches('from-branch', 'into-branch')
 
     // then
-    expect(error).toBeInstanceOf(WillCreateCycleInMediaTypeTreeError)
-    expect((error as WillCreateCycleInMediaTypeTreeError).branchId).toBe('into-branch')
-    expect((error as WillCreateCycleInMediaTypeTreeError).cycle).toEqual([
-      'child',
-      'parent',
-      'child',
-    ])
+    expect(error).toEqual(
+      new WillCreateCycleInMediaTypeTreeError('into-branch', ['child', 'parent', 'child']),
+    )
   })
 
   test('should error if a 3-cycle would be created', () => {
@@ -655,13 +584,13 @@ describe('mergeBranches()', () => {
     const error = branches.mergeBranches('from-branch', 'into-branch')
 
     // then
-    expect(error).toBeInstanceOf(WillCreateCycleInMediaTypeTreeError)
-    expect((error as WillCreateCycleInMediaTypeTreeError).branchId).toBe('into-branch')
-    expect((error as WillCreateCycleInMediaTypeTreeError).cycle).toEqual([
-      'grandchild',
-      'parent',
-      'child',
-      'grandchild',
-    ])
+    expect(error).toEqual(
+      new WillCreateCycleInMediaTypeTreeError('into-branch', [
+        'grandchild',
+        'parent',
+        'child',
+        'grandchild',
+      ]),
+    )
   })
 })
