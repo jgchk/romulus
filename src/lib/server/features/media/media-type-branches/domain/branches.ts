@@ -13,6 +13,7 @@ import {
 import {
   MediaTypeAddedInBranchEvent,
   MediaTypeBranchCreatedEvent,
+  MediaTypeBranchedFromAnotherBranchEvent,
   type MediaTypeBranchesEvent,
   MediaTypeBranchesMerged,
   MediaTypeRemovedFromBranchEvent,
@@ -54,6 +55,30 @@ export class MediaTypeBranches {
     }
 
     const event = new MediaTypeBranchCreatedEvent(id, trimmedName)
+
+    this.applyEvent(event)
+    this.addEvent(event)
+  }
+
+  createBranchFromOtherBranch(baseBranchId: string, newBranchId: string, newBranchName: string) {
+    if (!this.state.hasBranch(baseBranchId)) {
+      return new MediaTypeBranchNotFoundError(baseBranchId)
+    }
+
+    if (this.state.hasBranch(newBranchId)) {
+      return new MediaTypeBranchAlreadyExistsError(newBranchId)
+    }
+
+    const trimmedName = newBranchName.trim().replace(/\n/g, '')
+    if (trimmedName.length === 0) {
+      return new MediaTypeBranchNameInvalidError(newBranchName)
+    }
+
+    const event = new MediaTypeBranchedFromAnotherBranchEvent(
+      baseBranchId,
+      newBranchId,
+      trimmedName,
+    )
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -165,7 +190,15 @@ export class MediaTypeBranches {
 
   private applyEvent(event: MediaTypeBranchesEvent): void {
     if (event instanceof MediaTypeBranchCreatedEvent) {
-      this.state.addBranch(event.id)
+      const error = this.state.addBranch(event.id)
+      if (error instanceof Error) {
+        throw error
+      }
+    } else if (event instanceof MediaTypeBranchedFromAnotherBranchEvent) {
+      const error = this.state.addBranchFromBaseBranch(event.baseBranchId, event.newBranchId)
+      if (error instanceof Error) {
+        throw error
+      }
     } else if (event instanceof MediaTypeAddedInBranchEvent) {
       const branch = this.state.getBranch(event.branchId)
       if (!branch) {
@@ -242,8 +275,28 @@ class MediaTypeBranchesState {
     return this.branches.has(id)
   }
 
-  addBranch(id: string): void {
+  addBranch(id: string): void | MediaTypeBranchAlreadyExistsError {
+    if (this.branches.has(id)) {
+      return new MediaTypeBranchAlreadyExistsError(id)
+    }
+
     this.branches.set(id, MediaTypeBranch.create(id))
+  }
+
+  addBranchFromBaseBranch(
+    baseBranchId: string,
+    newBranchId: string,
+  ): void | MediaTypeBranchNotFoundError | MediaTypeBranchAlreadyExistsError {
+    const baseBranch = this.branches.get(baseBranchId)
+    if (!baseBranch) {
+      return new MediaTypeBranchNotFoundError(baseBranchId)
+    }
+
+    if (this.branches.has(newBranchId)) {
+      return new MediaTypeBranchAlreadyExistsError(newBranchId)
+    }
+
+    this.branches.set(newBranchId, baseBranch.clone())
   }
 
   getBranch(id: string): MediaTypeBranch | undefined {
