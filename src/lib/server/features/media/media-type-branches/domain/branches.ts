@@ -296,7 +296,7 @@ class MediaTypeBranchesState {
       return new MediaTypeBranchAlreadyExistsError(newBranchId)
     }
 
-    this.branches.set(newBranchId, baseBranch.clone())
+    this.branches.set(newBranchId, MediaTypeBranch.fromBranch(newBranchId, baseBranch))
   }
 
   getBranch(id: string): MediaTypeBranch | undefined {

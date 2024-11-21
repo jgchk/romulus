@@ -17,6 +17,12 @@ export class MediaTypeBranch {
     return new MediaTypeBranch(id, new Map())
   }
 
+  static fromBranch(id: string, baseBranch: MediaTypeBranch): MediaTypeBranch {
+    const newBranch = baseBranch.clone()
+    newBranch.id = id
+    return newBranch
+  }
+
   clone(): MediaTypeBranch {
     return new MediaTypeBranch(
       this.id,

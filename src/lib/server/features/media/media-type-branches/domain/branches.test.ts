@@ -504,7 +504,6 @@ describe('mergeBranches()', () => {
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
       new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
-      new MediaTypeAddedInBranchEvent('from-branch', 'media-type', 'Media Type'),
     ])
 
     // when
@@ -546,12 +545,10 @@ describe('mergeBranches()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
-      new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
       new MediaTypeAddedInBranchEvent('from-branch', 'parent', 'Parent'),
       new MediaTypeAddedInBranchEvent('from-branch', 'child', 'Child'),
+      new MediaTypeBranchedFromAnotherBranchEvent('from-branch', 'into-branch', 'Into Branch'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'child', 'parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'parent', 'Parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'child', 'Child'),
       new ParentAddedToMediaTypeInBranchEvent('into-branch', 'parent', 'child'),
     ])
 
@@ -568,15 +565,12 @@ describe('mergeBranches()', () => {
     // given
     const branches = MediaTypeBranches.fromEvents([
       new MediaTypeBranchCreatedEvent('from-branch', 'From Branch'),
-      new MediaTypeBranchCreatedEvent('into-branch', 'Into Branch'),
       new MediaTypeAddedInBranchEvent('from-branch', 'parent', 'Parent'),
       new MediaTypeAddedInBranchEvent('from-branch', 'child', 'Child'),
       new MediaTypeAddedInBranchEvent('from-branch', 'grandchild', 'Grandchild'),
+      new MediaTypeBranchedFromAnotherBranchEvent('from-branch', 'into-branch', 'Into Branch'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'child', 'parent'),
       new ParentAddedToMediaTypeInBranchEvent('from-branch', 'grandchild', 'child'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'parent', 'Parent'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'child', 'Child'),
-      new MediaTypeAddedInBranchEvent('into-branch', 'grandchild', 'Grandchild'),
       new ParentAddedToMediaTypeInBranchEvent('into-branch', 'parent', 'grandchild'),
     ])
 
