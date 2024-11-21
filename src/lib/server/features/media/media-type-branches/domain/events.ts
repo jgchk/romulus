@@ -6,6 +6,11 @@ export type MediaTypeBranchesEvent =
   | ParentAddedToMediaTypeInBranchEvent
   | MediaTypeBranchesMerged
 
+export type MediaTypeTreeEvent =
+  | MediaTypeAddedInBranchEvent
+  | MediaTypeRemovedFromBranchEvent
+  | ParentAddedToMediaTypeInBranchEvent
+
 export class MediaTypeBranchCreatedEvent {
   constructor(
     public readonly id: string,
