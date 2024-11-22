@@ -9,7 +9,7 @@ export class CreateBranchCommand {
 }
 
 export class CreateBranchCommandHandler {
-  constructor(private readonly repo: IMediaTypeBranchesRepository) {}
+  constructor(private repo: IMediaTypeBranchesRepository) {}
 
   async handle(command: CreateBranchCommand) {
     const branches = await this.repo.get()

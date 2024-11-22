@@ -203,3 +203,167 @@ describe('addParentToMediaType()', () => {
     expect(error).toEqual(new WillCreateCycleError(['parent', 'child', 'grandchild', 'parent']))
   })
 })
+
+describe('merge()', () => {
+  test('should merge two empty trees', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([])
+    const targetTree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should merge a tree with an empty tree', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type')])
+  })
+
+  test('should merge an empty tree with a tree', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should merge two trees with no conflicts', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type-1', 'Media Type 1'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type-2', 'Media Type 2'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([new MediaTypeAddedEvent('media-type-1', 'Media Type 1')])
+  })
+
+  test('should error if a media type already exists in both trees', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+
+    // then
+    expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
+  })
+
+  test('should merge two trees with a new parent-child relationship', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+    ])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new ParentAddedToMediaTypeEvent('child', 'parent'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([new ParentAddedToMediaTypeEvent('child', 'parent')])
+  })
+
+  test('should error if a 2-cycle would be created', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+    ])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new ParentAddedToMediaTypeEvent('child', 'parent'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new ParentAddedToMediaTypeEvent('parent', 'child'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+
+    // then
+    expect(error).toEqual(new WillCreateCycleError(['child', 'parent', 'child']))
+  })
+
+  test('should error if a 3-cycle would be created', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
+    ])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
+      new ParentAddedToMediaTypeEvent('child', 'parent'),
+      new ParentAddedToMediaTypeEvent('grandchild', 'child'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('parent', 'Parent'),
+      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
+      new ParentAddedToMediaTypeEvent('parent', 'grandchild'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+
+    // then
+    expect(error).toEqual(new WillCreateCycleError(['grandchild', 'parent', 'child', 'grandchild']))
+  })
+})

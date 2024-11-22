@@ -68,6 +68,10 @@ export class MediaTypeBranches {
     this.applyEvent(event)
     this.addEvent(event)
   }
+
+  getCommonAncestor(sourceBranchId: string, targetBranchId: string): string | undefined {
+    return this.state.getCommonAncestor(sourceBranchId, targetBranchId)
+  }
 }
 
 class MediaTypeBranchesState {
@@ -116,6 +120,48 @@ class MediaTypeBranchesState {
         : Branch.fromCommit(newBranchId, baseBranchCommitId)
 
     this.branches.set(newBranchId, newBranch)
+  }
+
+  getCommonAncestor(sourceBranchId: string, targetBranchId: string): string | undefined {
+    const sourceBranch = this.branches.get(sourceBranchId)
+    const targetBranch = this.branches.get(targetBranchId)
+
+    if (sourceBranch === undefined || targetBranch === undefined) {
+      return undefined
+    }
+
+    const sourceHistory = this.getCommitHistory(sourceBranch.getCommitId())
+    const targetHistory = this.getCommitHistory(targetBranch.getCommitId())
+
+    const targetHistoryCommitIds = new Set(targetHistory.map((commit) => commit.getId()))
+
+    // Find most recent common commit
+    for (const commit of sourceHistory.reverse()) {
+      const commitId = commit.getId()
+      if (targetHistoryCommitIds.has(commitId)) {
+        return commitId
+      }
+    }
+  }
+
+  private getCommitHistory(commitId: string | undefined): Commit[] {
+    if (commitId === undefined) {
+      return []
+    }
+
+    const history: Commit[] = []
+
+    const queue = [commitId]
+    while (queue.length > 0) {
+      const currentId = queue.shift()!
+      const commit = this.commits.get(currentId)
+      if (commit === undefined) continue
+
+      history.push(commit)
+      queue.push(...commit.getParentIds())
+    }
+
+    return history.reverse()
   }
 }
 

@@ -19,6 +19,6 @@ export class AddMediaTypeCommandHandler {
       return error
     }
 
-    await this.repo.save(tree)
+    await this.repo.save(command.branchId, tree)
   }
 }

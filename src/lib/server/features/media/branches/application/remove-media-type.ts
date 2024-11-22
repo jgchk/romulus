@@ -18,6 +18,6 @@ export class RemoveMediaTypeCommandHandler {
       return error
     }
 
-    await this.repo.save(tree)
+    await this.repo.save(command.branchId, tree)
   }
 }

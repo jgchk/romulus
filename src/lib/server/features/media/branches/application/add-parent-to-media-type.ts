@@ -19,6 +19,6 @@ export class AddParentToMediaTypeCommandHandler {
       return error
     }
 
-    await this.repo.save(tree)
+    await this.repo.save(command.branchId, tree)
   }
 }
