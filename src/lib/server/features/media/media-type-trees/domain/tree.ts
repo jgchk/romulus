@@ -13,15 +13,15 @@ import {
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
-import { MediaTypeTreeState as MediaTypeTreeTreeState } from './tree-state'
+import { MediaTypeTreeState } from './tree-state'
 
 export class MediaTypeTree {
-  private tree: MediaTypeTreeTreeState
+  private tree: MediaTypeTreeState
   private commitHistory: CommitHistory
   private uncommittedEvents: MediaTypeTreeEvent[]
 
   private constructor(
-    tree: MediaTypeTreeTreeState,
+    tree: MediaTypeTreeState,
     commitHistory: CommitHistory,
     uncommittedEvents: MediaTypeTreeEvent[],
   ) {
@@ -31,7 +31,7 @@ export class MediaTypeTree {
   }
 
   static fromEvents(events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(MediaTypeTreeTreeState.create(), CommitHistory.create(), [])
+    const tree = new MediaTypeTree(MediaTypeTreeState.create(), CommitHistory.create(), [])
     for (const event of events) {
       tree.applyEvent(event)
     }
@@ -39,7 +39,7 @@ export class MediaTypeTree {
   }
 
   static copyEvents(events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(MediaTypeTreeTreeState.create(), CommitHistory.create(), [])
+    const tree = new MediaTypeTree(MediaTypeTreeState.create(), CommitHistory.create(), [])
     for (const event of events) {
       tree.applyEvent(event)
       tree.addEvent(event)
