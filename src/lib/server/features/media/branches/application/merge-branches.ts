@@ -1,4 +1,3 @@
-import type { IMediaTypeBranchesRepository } from '../domain/branches/repository'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class MergeBranchesCommand {
@@ -9,23 +8,17 @@ export class MergeBranchesCommand {
 }
 
 export class MergeBranchesCommandHandler {
-  constructor(
-    private branchesRepo: IMediaTypeBranchesRepository,
-    private treeRepo: IMediaTypeTreeRepository,
-  ) {}
+  constructor(private treeRepo: IMediaTypeTreeRepository) {}
 
   async handle(command: MergeBranchesCommand) {
-    const branches = await this.branchesRepo.get()
-
-    const commonAncestor = branches.getCommonAncestor(
-      command.sourceBranchId,
-      command.targetBranchId,
-    )
-
-    const baseTree =
-      commonAncestor === undefined ? undefined : await this.treeRepo.get(commonAncestor)
     const sourceTree = await this.treeRepo.get(command.sourceBranchId)
     const targetTree = await this.treeRepo.get(command.targetBranchId)
+
+    const commonCommits = sourceTree.getCommonCommits(targetTree)
+    const baseTree =
+      commonCommits === undefined
+        ? undefined
+        : await this.treeRepo.getFromCommits(new Set(commonCommits))
 
     const error = targetTree.merge(sourceTree, baseTree)
     if (error instanceof Error) {

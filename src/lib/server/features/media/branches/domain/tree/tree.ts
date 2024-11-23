@@ -1,5 +1,6 @@
 import { MediaTypeNameInvalidError } from './errors'
 import { MediaTypeAlreadyExistsError, MediaTypeNotFoundError, WillCreateCycleError } from './errors'
+import { MediaTypeTreesMergedEvent } from './events'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
@@ -30,20 +31,33 @@ export class MediaTypeTree {
 
   private applyEvent(event: MediaTypeTreeEvent): void {
     if (event instanceof MediaTypeAddedEvent) {
-      const error = this.state.addMediaType(event.mediaTypeId, event.mediaTypeName)
+      const error = this.state.tree.addMediaType(event.id, event.name)
       if (error instanceof Error) {
         throw error
       }
+
+      this.state.addCommit(event.commitId)
     } else if (event instanceof MediaTypeRemovedEvent) {
-      const error = this.state.removeMediaType(event.mediaTypeId)
+      const error = this.state.tree.removeMediaType(event.id)
       if (error instanceof Error) {
         throw error
       }
+
+      this.state.addCommit(event.commitId)
     } else if (event instanceof ParentAddedToMediaTypeEvent) {
-      const error = this.state.addChildToMediaType(event.parentId, event.childId)
+      const error = this.state.tree.addChildToMediaType(event.parentId, event.childId)
       if (error instanceof Error) {
         throw error
       }
+
+      this.state.addCommit(event.commitId)
+    } else if (event instanceof MediaTypeTreesMergedEvent) {
+      const error = this.state.tree.replayMerge(event.changes)
+      if (error instanceof Error) {
+        throw error
+      }
+
+      this.state.addCommit(event.commitId)
     } else {
       // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -64,7 +78,7 @@ export class MediaTypeTree {
       return new MediaTypeNameInvalidError(name)
     }
 
-    const error = this.state.clone().addMediaType(id, trimmedName)
+    const error = this.state.tree.clone().addMediaType(id, trimmedName)
     if (error instanceof Error) {
       return error
     }
@@ -76,7 +90,7 @@ export class MediaTypeTree {
   }
 
   removeMediaType(id: string): void | MediaTypeNotFoundError {
-    const error = this.state.clone().removeMediaType(id)
+    const error = this.state.tree.clone().removeMediaType(id)
     if (error instanceof Error) {
       return error
     }
@@ -91,7 +105,7 @@ export class MediaTypeTree {
     childId: string,
     parentId: string,
   ): void | MediaTypeNotFoundError | WillCreateCycleError {
-    const error = this.state.clone().addChildToMediaType(parentId, childId)
+    const error = this.state.tree.clone().addChildToMediaType(parentId, childId)
     if (error instanceof Error) {
       return error
     }
@@ -107,32 +121,105 @@ export class MediaTypeTree {
     baseTree: MediaTypeTree | undefined,
   ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
     const baseTreeState =
-      baseTree === undefined ? MediaTypeTreeState.create() : baseTree.state.clone()
-    const events = this.state.clone().merge(sourceTree.state.clone(), baseTreeState)
-    if (events instanceof Error) {
-      return events
+      baseTree === undefined ? MediaTypeTreeTreeState.create() : baseTree.state.tree.clone()
+    const changes = this.state.tree.clone().merge(sourceTree.state.tree.clone(), baseTreeState)
+    if (changes instanceof Error) {
+      return changes
     }
 
-    for (const event of events) {
-      this.applyEvent(event)
-      this.addEvent(event)
+    if (changes.length === 0) {
+      return
     }
+
+    const event = new MediaTypeTreesMergedEvent(changes)
+
+    this.applyEvent(event)
+    this.addEvent(event)
+  }
+
+  getCommonCommits(other: MediaTypeTree): string[] {
+    return this.state.getCommonCommits(other.state)
   }
 }
 
 class MediaTypeTreeState {
+  tree: MediaTypeTreeTreeState
+  private commit: Commit | undefined
+
+  private constructor(tree: MediaTypeTreeTreeState, commit: Commit | undefined) {
+    this.tree = tree
+    this.commit = commit
+  }
+
+  static create(): MediaTypeTreeState {
+    return new MediaTypeTreeState(MediaTypeTreeTreeState.create(), undefined)
+  }
+
+  addCommit(commitId: string): void {
+    const parents = []
+    if (this.commit) {
+      parents.push(this.commit)
+    }
+
+    const newCommit = new Commit(commitId, parents)
+    this.commit = newCommit
+  }
+
+  getCommonCommits(other: MediaTypeTreeState): string[] {
+    const otherCommits = other.getAllCommits()
+    const otherCommitIds = new Set(otherCommits.map((commit) => commit.id))
+
+    const commonCommitIds: string[] = []
+    for (const commit of this.getAllCommits()) {
+      if (otherCommitIds.has(commit.id)) {
+        commonCommitIds.push(commit.id)
+      }
+    }
+
+    return commonCommitIds
+  }
+
+  private getAllCommits(): Commit[] {
+    if (!this.commit) {
+      return []
+    }
+
+    const commits: Commit[] = []
+
+    const queue = [this.commit]
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      commits.push(current)
+      queue.push(...current.parents)
+    }
+
+    return commits.reverse()
+  }
+}
+
+class Commit {
+  id: string
+  parents: Commit[]
+
+  constructor(id: string, parents: Commit[]) {
+    this.id = id
+    this.parents = parents
+  }
+}
+
+class MediaTypeTreeTreeState {
   private nodes: Map<string, MediaTypeNode>
 
   private constructor(nodes: Map<string, MediaTypeNode>) {
     this.nodes = nodes
   }
 
-  static create(): MediaTypeTreeState {
-    return new MediaTypeTreeState(new Map())
+  static create(): MediaTypeTreeTreeState {
+    return new MediaTypeTreeTreeState(new Map())
   }
 
-  clone(): MediaTypeTreeState {
-    return new MediaTypeTreeState(
+  clone(): MediaTypeTreeTreeState {
+    return new MediaTypeTreeTreeState(
       new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])),
     )
   }
@@ -235,17 +322,17 @@ class MediaTypeTreeState {
   }
 
   merge(
-    sourceTree: MediaTypeTreeState,
-    baseTree: MediaTypeTreeState,
-  ): MediaTypeTreeEvent[] | MediaTypeAlreadyExistsError | WillCreateCycleError {
-    const events: MediaTypeTreeEvent[] = []
+    sourceTree: MediaTypeTreeTreeState,
+    baseTree: MediaTypeTreeTreeState,
+  ): MediaTypeTreesMergedEvent['changes'] | MediaTypeAlreadyExistsError | WillCreateCycleError {
+    const events: MediaTypeTreesMergedEvent['changes'] = []
 
     // 1. Handle media types that were added in sourceTree since baseTree
     for (const [id, node] of sourceTree.nodes) {
       if (!baseTree.nodes.has(id) && !this.nodes.has(id)) {
         // Media type was added in sourceTree and doesn't exist in the current tree
         this.nodes.set(id, MediaTypeNode.create(node.getName()))
-        events.push(new MediaTypeAddedEvent(id, node.getName()))
+        events.push({ action: 'added', id, name: node.getName() })
       } else if (!baseTree.nodes.has(id) && this.nodes.has(id)) {
         // Media type was added in both trees independently - conflict
         return new MediaTypeAlreadyExistsError(id)
@@ -273,12 +360,39 @@ class MediaTypeTreeState {
             throw error // should never happen
           }
 
-          events.push(new ParentAddedToMediaTypeEvent(childId, id))
+          events.push({ action: 'parent-added', childId, parentId: id })
         }
       }
     }
 
     return events
+  }
+
+  replayMerge(
+    events: MediaTypeTreesMergedEvent['changes'],
+  ): void | MediaTypeAlreadyExistsError | MediaTypeNotFoundError | WillCreateCycleError {
+    for (const change of events) {
+      if (change.action === 'added') {
+        const error = this.addMediaType(change.id, change.name)
+        if (error instanceof Error) {
+          return error
+        }
+      } else if (change.action === 'removed') {
+        const error = this.removeMediaType(change.id)
+        if (error instanceof Error) {
+          return error
+        }
+      } else if (change.action === 'parent-added') {
+        const error = this.addChildToMediaType(change.parentId, change.childId)
+        if (error instanceof Error) {
+          return error
+        }
+      } else {
+        // exhaustive check
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _exhaustiveCheck: never = change
+      }
+    }
   }
 }
 

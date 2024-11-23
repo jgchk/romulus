@@ -7,8 +7,15 @@ import {
   MediaTypeNotFoundError,
   WillCreateCycleError,
 } from './errors'
-import { MediaTypeAddedEvent, MediaTypeRemovedEvent, ParentAddedToMediaTypeEvent } from './events'
+import {
+  MediaTypeAddedEvent,
+  MediaTypeRemovedEvent,
+  MediaTypeTreesMergedEvent,
+  ParentAddedToMediaTypeEvent,
+} from './events'
 import { MediaTypeTree } from './tree'
+
+const expectUuid = expect.any(String) as string
 
 describe('addMediaType()', () => {
   test('should add a media type to the tree', () => {
@@ -21,7 +28,7 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type', expectUuid)])
   })
 
   test('should trim media type name', () => {
@@ -34,7 +41,7 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type', expectUuid)])
   })
 
   test('should remove newlines from media type name', () => {
@@ -47,7 +54,7 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'One Two')])
+    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'One Two', expectUuid)])
   })
 
   test('should error if the media type already exists', () => {
@@ -106,7 +113,7 @@ describe('removeMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeRemovedEvent('media-type')])
+    expect(events).toEqual([new MediaTypeRemovedEvent('media-type', expectUuid)])
   })
 
   test('should error if the media type does not exist', () => {
@@ -135,7 +142,7 @@ describe('addParentToMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new ParentAddedToMediaTypeEvent('child', 'parent')])
+    expect(events).toEqual([new ParentAddedToMediaTypeEvent('child', 'parent', expectUuid)])
   })
 
   test('should error if the child media type does not exist', () => {
@@ -234,7 +241,12 @@ describe('merge()', () => {
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    expect(events).toEqual([
+      new MediaTypeTreesMergedEvent(
+        [{ action: 'added', id: 'media-type', name: 'Media Type' }],
+        expectUuid,
+      ),
+    ])
   })
 
   test('should merge an empty tree with a tree', () => {
@@ -270,7 +282,12 @@ describe('merge()', () => {
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type-1', 'Media Type 1')])
+    expect(events).toEqual([
+      new MediaTypeTreesMergedEvent(
+        [{ action: 'added', id: 'media-type-1', name: 'Media Type 1' }],
+        expectUuid,
+      ),
+    ])
   })
 
   test('should error if a media type already exists in both trees', () => {
@@ -312,7 +329,12 @@ describe('merge()', () => {
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([new ParentAddedToMediaTypeEvent('child', 'parent')])
+    expect(events).toEqual([
+      new MediaTypeTreesMergedEvent(
+        [{ action: 'parent-added', childId: 'child', parentId: 'parent' }],
+        expectUuid,
+      ),
+    ])
   })
 
   test('should error if a 2-cycle would be created', () => {
