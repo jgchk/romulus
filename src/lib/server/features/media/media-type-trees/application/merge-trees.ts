@@ -14,8 +14,7 @@ export class MergeTreesCommandHandler {
     const sourceTree = await this.treeRepo.get(command.sourceTreeId)
     const targetTree = await this.treeRepo.get(command.targetTreeId)
 
-    const commonCommits = sourceTree.getCommonCommits(targetTree)
-    const lastCommonCommit = commonCommits.at(commonCommits.length - 1)
+    const lastCommonCommit = sourceTree.getLastCommonCommit(targetTree)
     const baseTree =
       lastCommonCommit === undefined
         ? undefined

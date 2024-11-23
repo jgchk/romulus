@@ -166,8 +166,10 @@ export class MediaTypeTree {
     this.addEvent(event)
   }
 
-  getCommonCommits(other: MediaTypeTree): string[] {
-    return this.state.getCommonCommits(other.state)
+  getLastCommonCommit(other: MediaTypeTree): string | undefined {
+    const commonCommits = this.state.getCommonCommits(other.state)
+    const lastCommonCommit = commonCommits.at(commonCommits.length - 1)
+    return lastCommonCommit
   }
 }
 
