@@ -1,10 +1,16 @@
-import { MediaTypeNameInvalidError, MediaTypeTreeNameInvalidError } from './errors'
-import { MediaTypeAlreadyExistsError, MediaTypeNotFoundError, WillCreateCycleError } from './errors'
-import { MediaTypeTreeNamedEvent, MediaTypeTreesMergedEvent } from './events'
+import {
+  MediaTypeAlreadyExistsError,
+  MediaTypeNameInvalidError,
+  MediaTypeNotFoundError,
+  MediaTypeTreeNameInvalidError,
+  WillCreateCycleError,
+} from './errors'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
   type MediaTypeTreeEvent,
+  MediaTypeTreeNamedEvent,
+  MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
 

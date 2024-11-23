@@ -2,7 +2,7 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../vitest-setup'
-import { MediaTypeAlreadyExistsError, WillCreateCycleError } from '../domain/tree/errors'
+import { MediaTypeAlreadyExistsError, WillCreateCycleError } from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {

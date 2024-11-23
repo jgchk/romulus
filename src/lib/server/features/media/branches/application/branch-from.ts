@@ -1,4 +1,4 @@
-import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
+import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class BranchFromCommand {
   constructor(
