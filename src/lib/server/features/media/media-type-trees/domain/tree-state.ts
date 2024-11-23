@@ -223,7 +223,7 @@ class MediaTypeNode {
   }
 }
 
-type MergeChange =
+export type MergeChange =
   | { action: 'added'; id: string; name: string }
   | { action: 'removed'; id: string }
   | { action: 'parent-added'; childId: string; parentId: string }

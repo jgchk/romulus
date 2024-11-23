@@ -1,4 +1,5 @@
 import type { MarshalledCommit } from './commit-history'
+import type { MergeChange } from './tree-state'
 
 export type MediaTypeTreeEvent =
   | MediaTypeTreeNamedEvent
@@ -36,11 +37,7 @@ export class ParentAddedToMediaTypeEvent {
 
 export class MediaTypeTreesMergedEvent {
   constructor(
-    public readonly changes: (
-      | { action: 'added'; id: string; name: string }
-      | { action: 'removed'; id: string }
-      | { action: 'parent-added'; childId: string; parentId: string }
-    )[],
+    public readonly changes: MergeChange[],
     public readonly sourceCommit: MarshalledCommit,
     public readonly commitId: string,
   ) {}
