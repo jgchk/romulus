@@ -1,4 +1,4 @@
-import { Commit, CommitHistory } from './commit-history'
+import { CommitHistory } from './commit-history'
 import type {
   MediaTypeAlreadyExistsError,
   MediaTypeNotFoundError,
@@ -81,7 +81,7 @@ export class MediaTypeTree {
         throw error
       }
 
-      this.commitHistory.addMergeCommit(event.commitId, Commit.unmarshal(event.sourceCommit))
+      this.commitHistory.addMergeCommit(event.commitId, event.sourceCommit)
     } else {
       // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

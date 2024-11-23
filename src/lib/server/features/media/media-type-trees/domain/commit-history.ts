@@ -19,8 +19,8 @@ export class CommitHistory {
     this.commit = newCommit
   }
 
-  addMergeCommit(commitId: string, sourceCommit: Commit): void {
-    const parents = [sourceCommit]
+  addMergeCommit(commitId: string, sourceCommit: MarshalledCommit): void {
+    const parents = [Commit.unmarshal(sourceCommit)]
     if (this.commit) {
       parents.push(this.commit)
     }
@@ -58,7 +58,7 @@ export class CommitHistory {
   }
 }
 
-export class Commit {
+class Commit {
   id: string
   parents: Commit[]
 
