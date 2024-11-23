@@ -1,10 +1,11 @@
 import { CommitHistory } from './commit-history'
 import type {
   MediaTypeAlreadyExistsError,
+  MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
   WillCreateCycleError,
 } from './errors'
-import { MediaTypeNameInvalidError, MediaTypeTreeNameInvalidError } from './errors'
+import { MediaTypeTreeNameInvalidError } from './errors'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
@@ -109,17 +110,12 @@ export class MediaTypeTree {
     id: string,
     name: string,
   ): void | MediaTypeAlreadyExistsError | MediaTypeNameInvalidError {
-    const trimmedName = name.trim().replace(/\n/g, '')
-    if (trimmedName.length === 0) {
-      return new MediaTypeNameInvalidError(name)
+    const mediaType = this.tree.clone().addMediaType(id, name)
+    if (mediaType instanceof Error) {
+      return mediaType
     }
 
-    const error = this.tree.clone().addMediaType(id, trimmedName)
-    if (error instanceof Error) {
-      return error
-    }
-
-    const event = new MediaTypeAddedEvent(id, trimmedName, this.generateCommitId())
+    const event = new MediaTypeAddedEvent(id, mediaType.getName(), this.generateCommitId())
 
     this.applyEvent(event)
     this.addEvent(event)

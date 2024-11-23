@@ -1,4 +1,9 @@
-import { MediaTypeAlreadyExistsError, MediaTypeNotFoundError, WillCreateCycleError } from './errors'
+import {
+  MediaTypeAlreadyExistsError,
+  MediaTypeNameInvalidError,
+  MediaTypeNotFoundError,
+  WillCreateCycleError,
+} from './errors'
 
 export class TreeState {
   private nodes: Map<string, MediaTypeNode>
@@ -15,12 +20,22 @@ export class TreeState {
     return new TreeState(new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])))
   }
 
-  addMediaType(id: string, name: string): void | MediaTypeAlreadyExistsError {
+  addMediaType(
+    id: string,
+    name: string,
+  ): MediaTypeNode | MediaTypeAlreadyExistsError | MediaTypeNameInvalidError {
     if (this.nodes.has(id)) {
       return new MediaTypeAlreadyExistsError(id)
     }
 
-    this.nodes.set(id, MediaTypeNode.create(name))
+    const node = MediaTypeNode.create(name)
+    if (node instanceof MediaTypeNameInvalidError) {
+      return node
+    }
+
+    this.nodes.set(id, node)
+
+    return node
   }
 
   removeMediaType(id: string): void | MediaTypeNotFoundError {
@@ -122,7 +137,7 @@ export class TreeState {
     for (const [id, node] of sourceTree.nodes) {
       if (!baseTree.nodes.has(id) && !this.nodes.has(id)) {
         // Media type was added in sourceTree and doesn't exist in the current tree
-        this.nodes.set(id, MediaTypeNode.create(node.getName()))
+        this.nodes.set(id, node.cloneWithoutChildren())
         changes.push({ action: 'added', id, name: node.getName() })
       } else if (!baseTree.nodes.has(id) && this.nodes.has(id)) {
         // Media type was added in both trees independently - conflict
@@ -161,7 +176,12 @@ export class TreeState {
 
   replayMerge(
     changes: MergeChange[],
-  ): void | MediaTypeAlreadyExistsError | MediaTypeNotFoundError | WillCreateCycleError {
+  ):
+    | void
+    | MediaTypeNameInvalidError
+    | MediaTypeAlreadyExistsError
+    | MediaTypeNotFoundError
+    | WillCreateCycleError {
     for (const change of changes) {
       if (change.action === 'added') {
         const error = this.addMediaType(change.id, change.name)
@@ -188,20 +208,29 @@ export class TreeState {
 }
 
 class MediaTypeNode {
-  private name: string
+  private name: MediaTypeName
   private children: Set<string>
 
-  private constructor(name: string, children: Set<string>) {
+  private constructor(name: MediaTypeName, children: Set<string>) {
     this.name = name
     this.children = children
   }
 
-  static create(name: string): MediaTypeNode {
-    return new MediaTypeNode(name, new Set())
+  static create(name: string): MediaTypeNode | MediaTypeNameInvalidError {
+    const mediaTypeName = MediaTypeName.create(name)
+    if (mediaTypeName instanceof MediaTypeNameInvalidError) {
+      return mediaTypeName
+    }
+
+    return new MediaTypeNode(mediaTypeName, new Set())
   }
 
   clone(): MediaTypeNode {
     return new MediaTypeNode(this.name, new Set([...this.children]))
+  }
+
+  cloneWithoutChildren(): MediaTypeNode {
+    return new MediaTypeNode(this.name, new Set())
   }
 
   getChildren(): Set<string> {
@@ -217,7 +246,23 @@ class MediaTypeNode {
   }
 
   getName(): string {
-    return this.name
+    return this.name.toString()
+  }
+}
+
+class MediaTypeName {
+  private constructor(private readonly value: string) {}
+
+  static create(name: string): MediaTypeName | MediaTypeNameInvalidError {
+    const trimmedName = name.trim().replace(/\n/g, '')
+    if (trimmedName.length === 0) {
+      return new MediaTypeNameInvalidError(name)
+    }
+    return new MediaTypeName(trimmedName)
+  }
+
+  toString(): string {
+    return this.value
   }
 }
 
