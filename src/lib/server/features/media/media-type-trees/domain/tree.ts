@@ -147,7 +147,7 @@ export class MediaTypeTree {
 
   merge(
     sourceTree: MediaTypeTree,
-    baseTree: MediaTypeTree | undefined,
+    baseTree: MediaTypeTree,
   ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
     const baseTreeState =
       baseTree === undefined ? MediaTypeTreeTreeState.create() : baseTree.state.tree.clone()

@@ -17,7 +17,11 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
     return MediaTypeTree.fromEvents(events)
   }
 
-  getToCommit(id: string, commitId: string) {
+  getToCommit(id: string, commitId: string | undefined) {
+    if (commitId === undefined) {
+      return MediaTypeTree.fromEvents([])
+    }
+
     const events = this.store.get(id)
     const commitEvent = events.findIndex(
       (event) => 'commitId' in event && event.commitId == commitId,
