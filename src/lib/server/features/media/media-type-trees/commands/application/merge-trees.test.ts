@@ -73,7 +73,7 @@ test('should merge a tree with an empty tree', async () => {
   expect(error).toBeUndefined()
 })
 
-test('should merge an empty state with a tree', async () => {
+test('should merge an empty tree with a tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
   await given(repo, [
@@ -142,6 +142,23 @@ test('should merge two trees with a new parent-child relationship', async () => 
   expect(error).toBeUndefined()
 })
 
+test('should merge two trees with no changes', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [
+    new CreateTreeCommand('base', 'Base'),
+    new AddMediaTypeCommand('base', 'media-type', 'Media Type'),
+    new CopyTreeCommand('source', 'Source', 'base'),
+    new CopyTreeCommand('target', 'Target', 'base'),
+  ])
+
+  // when
+  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
+
+  // then
+  expect(error).toBeUndefined()
+})
+
 test('should handle multiple merges', async () => {
   // given
   const repo = new MemoryTreeRepository()
@@ -178,4 +195,26 @@ test('should error if a 2-cycle would be created', async () => {
 
   // then
   expect(error).toEqual(new WillCreateCycleError(['child', 'parent', 'child']))
+})
+
+test('should error if a 3-cycle would be created', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [
+    new CreateTreeCommand('base', 'Base'),
+    new AddMediaTypeCommand('base', 'parent', 'Parent'),
+    new AddMediaTypeCommand('base', 'child', 'Child'),
+    new AddMediaTypeCommand('base', 'grandchild', 'Grandchild'),
+    new CopyTreeCommand('source', 'Source', 'base'),
+    new AddParentToMediaTypeCommand('source', 'child', 'parent'),
+    new AddParentToMediaTypeCommand('source', 'grandchild', 'child'),
+    new CopyTreeCommand('target', 'Target', 'base'),
+    new AddParentToMediaTypeCommand('target', 'parent', 'grandchild'),
+  ])
+
+  // when
+  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
+
+  // then
+  expect(error).toEqual(new WillCreateCycleError(['grandchild', 'parent', 'child', 'grandchild']))
 })
