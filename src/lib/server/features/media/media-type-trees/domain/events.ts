@@ -1,3 +1,5 @@
+import type { Commit } from './tree'
+
 export type MediaTypeTreeEvent =
   | MediaTypeTreeNamedEvent
   | MediaTypeAddedEvent
@@ -39,6 +41,7 @@ export class MediaTypeTreesMergedEvent {
       | { action: 'removed'; id: string }
       | { action: 'parent-added'; childId: string; parentId: string }
     )[],
+    public readonly sourceCommit: Commit,
     public readonly commitId: string = crypto.randomUUID(),
   ) {}
 }

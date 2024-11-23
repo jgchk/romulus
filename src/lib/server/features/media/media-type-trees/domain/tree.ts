@@ -74,7 +74,7 @@ export class MediaTypeTree {
         throw error
       }
 
-      this.state.addCommit(event.commitId)
+      this.state.addMergeCommit(event.commitId, event.sourceCommit)
     } else {
       // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -160,7 +160,7 @@ export class MediaTypeTree {
       return
     }
 
-    const event = new MediaTypeTreesMergedEvent(changes)
+    const event = new MediaTypeTreesMergedEvent(changes, sourceTree.state.getCommit())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -194,6 +194,20 @@ class MediaTypeTreeState {
     this.commit = newCommit
   }
 
+  addMergeCommit(commitId: string, sourceCommit: Commit): void {
+    const parents = [sourceCommit]
+    if (this.commit) {
+      parents.push(this.commit)
+    }
+
+    const newCommit = new Commit(commitId, parents)
+    this.commit = newCommit
+  }
+
+  getCommit(): Commit | undefined {
+    return this.commit?.clone()
+  }
+
   getLastCommonCommit(other: MediaTypeTreeState): string | undefined {
     const otherCommits = Array.from(other.getAllCommits())
     const otherCommitIds = new Set(otherCommits.map((commit) => commit.id))
@@ -219,7 +233,7 @@ class MediaTypeTreeState {
   }
 }
 
-class Commit {
+export class Commit {
   id: string
   parents: Commit[]
 

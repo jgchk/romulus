@@ -131,6 +131,26 @@ test('should merge two trees with a new parent-child relationship', async () => 
   expect(error).toBeUndefined()
 })
 
+test('should handle multiple merges', async () => {
+  // arrange
+  const repo = new MemoryTreeRepository()
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('base', 'Base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('source', 'Source', 'base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('target', 'Target', 'base'))
+  await new AddMediaTypeCommandHandler(repo).handle(
+    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
+  )
+  await new MergeTreesCommandHandler(repo).handle(new MergeTreesCommand('source', 'target'))
+
+  // act
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
+  )
+
+  // assert
+  expect(error).toBeUndefined()
+})
+
 test('should error if a 2-cycle would be created', async () => {
   // arrange
   const repo = new MemoryTreeRepository()

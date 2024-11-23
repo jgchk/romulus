@@ -15,7 +15,7 @@ import {
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
-import { MediaTypeTree } from './tree'
+import { Commit, MediaTypeTree } from './tree'
 
 const expectUuid = expect.any(String) as string
 
@@ -320,6 +320,7 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type', name: 'Media Type' }],
+        expect.any(Object),
         expectUuid,
       ),
     ])
@@ -361,6 +362,7 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type-1', name: 'Media Type 1' }],
+        expect.any(Object),
         expectUuid,
       ),
     ])
@@ -408,6 +410,7 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'parent-added', childId: 'child', parentId: 'parent' }],
+        expect.any(Object),
         expectUuid,
       ),
     ])
