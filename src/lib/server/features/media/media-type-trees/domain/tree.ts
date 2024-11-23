@@ -74,7 +74,7 @@ export class MediaTypeTree {
         throw error
       }
 
-      this.state.addMergeCommit(event.commitId, event.sourceCommit)
+      this.state.addMergeCommit(event.commitId, Commit.unmarshal(event.sourceCommit))
     } else {
       // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -160,7 +160,7 @@ export class MediaTypeTree {
       return
     }
 
-    const event = new MediaTypeTreesMergedEvent(changes, sourceTree.state.getCommit())
+    const event = new MediaTypeTreesMergedEvent(changes, sourceTree.state.getCommit().marshal())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -233,7 +233,12 @@ class MediaTypeTreeState {
   }
 }
 
-export class Commit {
+export type MarshalledCommit = {
+  id: string
+  parents: MarshalledCommit[]
+}
+
+class Commit {
   id: string
   parents: Commit[]
 
@@ -244,6 +249,18 @@ export class Commit {
 
   clone(): Commit {
     return new Commit(this.id, [...this.parents])
+  }
+
+  marshal(): MarshalledCommit {
+    return {
+      id: this.id,
+      parents: this.parents.map((commit) => commit.marshal()),
+    }
+  }
+
+  static unmarshal(data: MarshalledCommit): Commit {
+    const parents = data.parents.map((parent) => Commit.unmarshal(parent))
+    return new Commit(data.id, parents)
   }
 }
 

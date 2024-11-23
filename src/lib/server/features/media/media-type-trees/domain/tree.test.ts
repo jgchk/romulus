@@ -15,7 +15,7 @@ import {
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
-import { Commit, MediaTypeTree } from './tree'
+import { MediaTypeTree } from './tree'
 
 const expectUuid = expect.any(String) as string
 
@@ -320,7 +320,10 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type', name: 'Media Type' }],
-        expect.any(Object),
+        {
+          id: expectUuid,
+          parents: [],
+        },
         expectUuid,
       ),
     ])
@@ -362,7 +365,10 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type-1', name: 'Media Type 1' }],
-        expect.any(Object),
+        {
+          id: expectUuid,
+          parents: [],
+        },
         expectUuid,
       ),
     ])
@@ -388,17 +394,17 @@ describe('merge()', () => {
   test('should merge two trees with a new parent-child relationship', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
     ])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new ParentAddedToMediaTypeEvent('child', 'parent'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
     ])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
     ])
 
     // when
@@ -410,7 +416,10 @@ describe('merge()', () => {
     expect(events).toEqual([
       new MediaTypeTreesMergedEvent(
         [{ action: 'parent-added', childId: 'child', parentId: 'parent' }],
-        expect.any(Object),
+        {
+          id: 'source-commit-1',
+          parents: [{ id: 'base-commit-2', parents: [{ id: 'base-commit-1', parents: [] }] }],
+        },
         expectUuid,
       ),
     ])

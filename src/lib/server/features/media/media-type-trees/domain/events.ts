@@ -1,4 +1,4 @@
-import type { Commit } from './tree'
+import type { MarshalledCommit } from './tree'
 
 export type MediaTypeTreeEvent =
   | MediaTypeTreeNamedEvent
@@ -41,7 +41,7 @@ export class MediaTypeTreesMergedEvent {
       | { action: 'removed'; id: string }
       | { action: 'parent-added'; childId: string; parentId: string }
     )[],
-    public readonly sourceCommit: Commit,
+    public readonly sourceCommit: MarshalledCommit,
     public readonly commitId: string = crypto.randomUUID(),
   ) {}
 }
