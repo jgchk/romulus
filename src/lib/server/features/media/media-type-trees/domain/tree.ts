@@ -112,7 +112,7 @@ export class MediaTypeTree {
       return error
     }
 
-    const event = new MediaTypeAddedEvent(id, trimmedName)
+    const event = new MediaTypeAddedEvent(id, trimmedName, this.generateCommitId())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -124,7 +124,7 @@ export class MediaTypeTree {
       return error
     }
 
-    const event = new MediaTypeRemovedEvent(id)
+    const event = new MediaTypeRemovedEvent(id, this.generateCommitId())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -139,7 +139,7 @@ export class MediaTypeTree {
       return error
     }
 
-    const event = new ParentAddedToMediaTypeEvent(childId, parentId)
+    const event = new ParentAddedToMediaTypeEvent(childId, parentId, this.generateCommitId())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -160,7 +160,11 @@ export class MediaTypeTree {
       return
     }
 
-    const event = new MediaTypeTreesMergedEvent(changes, sourceTree.state.getCommit().marshal())
+    const event = new MediaTypeTreesMergedEvent(
+      changes,
+      sourceTree.state.getCommit().marshal(),
+      this.generateCommitId(),
+    )
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -168,6 +172,10 @@ export class MediaTypeTree {
 
   getLastCommonCommit(other: MediaTypeTree): string | undefined {
     return this.state.getLastCommonCommit(other.state)
+  }
+
+  private generateCommitId(): string {
+    return crypto.randomUUID()
   }
 }
 

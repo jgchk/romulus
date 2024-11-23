@@ -17,7 +17,9 @@ import {
 } from './events'
 import { MediaTypeTree } from './tree'
 
-const expectUuid = expect.any(String) as string
+const expectUuid = expect.stringMatching(
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+) as string
 
 describe('setName()', () => {
   test('should set the tree name', () => {
@@ -135,7 +137,9 @@ describe('addMediaType()', () => {
 
   test('should error if the media type already exists', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    const tree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', 'Media Type')
@@ -181,7 +185,9 @@ describe('addMediaType()', () => {
 describe('removeMediaType()', () => {
   test('should remove a media type from the tree', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    const tree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    ])
 
     // when
     const error = tree.removeMediaType('media-type')
@@ -208,8 +214,8 @@ describe('addParentToMediaType()', () => {
   test('should add a parent to a media type', () => {
     // given
     const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
     ])
 
     // when
@@ -223,7 +229,7 @@ describe('addParentToMediaType()', () => {
 
   test('should error if the child media type does not exist', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('parent', 'Parent')])
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('parent', 'Parent', 'commit-1')])
 
     // when
     const error = tree.addParentToMediaType('child', 'parent')
@@ -234,7 +240,7 @@ describe('addParentToMediaType()', () => {
 
   test('should error if the parent media type does not exist', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('child', 'Child')])
+    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('child', 'Child', 'commit-1')])
 
     // when
     const error = tree.addParentToMediaType('child', 'parent')
@@ -245,7 +251,9 @@ describe('addParentToMediaType()', () => {
 
   test('should error if a 1-cycle would be created', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('media-type', 'Media Type')])
+    const tree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    ])
 
     // when
     const error = tree.addParentToMediaType('media-type', 'media-type')
@@ -257,9 +265,9 @@ describe('addParentToMediaType()', () => {
   test('should error if a 2-cycle would be created', () => {
     // given
     const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new ParentAddedToMediaTypeEvent('child', 'parent'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
+      new ParentAddedToMediaTypeEvent('child', 'parent', 'commit-3'),
     ])
 
     // when
@@ -272,11 +280,11 @@ describe('addParentToMediaType()', () => {
   test('should error if a 3-cycle would be created', () => {
     // given
     const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
-      new ParentAddedToMediaTypeEvent('child', 'parent'),
-      new ParentAddedToMediaTypeEvent('grandchild', 'child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'commit-3'),
+      new ParentAddedToMediaTypeEvent('child', 'parent', 'commit-4'),
+      new ParentAddedToMediaTypeEvent('grandchild', 'child', 'commit-5'),
     ])
 
     // when
@@ -307,7 +315,7 @@ describe('merge()', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type'),
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
     ])
     const targetTree = MediaTypeTree.fromEvents([])
 
@@ -321,7 +329,7 @@ describe('merge()', () => {
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type', name: 'Media Type' }],
         {
-          id: expectUuid,
+          id: 'source-commit-1',
           parents: [],
         },
         expectUuid,
@@ -334,7 +342,7 @@ describe('merge()', () => {
     const baseTree = MediaTypeTree.fromEvents([])
     const sourceTree = MediaTypeTree.fromEvents([])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type'),
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
     ])
 
     // when
@@ -350,10 +358,10 @@ describe('merge()', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type-1', 'Media Type 1'),
+      new MediaTypeAddedEvent('media-type-1', 'Media Type 1', 'source-commit-1'),
     ])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type-2', 'Media Type 2'),
+      new MediaTypeAddedEvent('media-type-2', 'Media Type 2', 'target-commit-1'),
     ])
 
     // when
@@ -366,7 +374,7 @@ describe('merge()', () => {
       new MediaTypeTreesMergedEvent(
         [{ action: 'added', id: 'media-type-1', name: 'Media Type 1' }],
         {
-          id: expectUuid,
+          id: 'source-commit-1',
           parents: [],
         },
         expectUuid,
@@ -378,10 +386,10 @@ describe('merge()', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type'),
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
     ])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type'),
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
     ])
 
     // when
@@ -428,18 +436,18 @@ describe('merge()', () => {
   test('should error if a 2-cycle would be created', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
     ])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new ParentAddedToMediaTypeEvent('child', 'parent'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
     ])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new ParentAddedToMediaTypeEvent('parent', 'child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new ParentAddedToMediaTypeEvent('parent', 'child', 'target-commit-1'),
     ])
 
     // when
@@ -452,22 +460,22 @@ describe('merge()', () => {
   test('should error if a 3-cycle would be created', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
     ])
     const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
-      new ParentAddedToMediaTypeEvent('child', 'parent'),
-      new ParentAddedToMediaTypeEvent('grandchild', 'child'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
+      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
+      new ParentAddedToMediaTypeEvent('grandchild', 'child', 'source-commit-2'),
     ])
     const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent'),
-      new MediaTypeAddedEvent('child', 'Child'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild'),
-      new ParentAddedToMediaTypeEvent('parent', 'grandchild'),
+      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
+      new ParentAddedToMediaTypeEvent('parent', 'grandchild', 'target-commit-1'),
     ])
 
     // when

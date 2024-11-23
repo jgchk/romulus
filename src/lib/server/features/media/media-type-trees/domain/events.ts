@@ -15,14 +15,14 @@ export class MediaTypeAddedEvent {
   constructor(
     public readonly id: string,
     public readonly name: string,
-    public readonly commitId: string = crypto.randomUUID(),
+    public readonly commitId: string,
   ) {}
 }
 
 export class MediaTypeRemovedEvent {
   constructor(
     public readonly id: string,
-    public readonly commitId: string = crypto.randomUUID(),
+    public readonly commitId: string,
   ) {}
 }
 
@@ -30,7 +30,7 @@ export class ParentAddedToMediaTypeEvent {
   constructor(
     public readonly childId: string,
     public readonly parentId: string,
-    public readonly commitId: string = crypto.randomUUID(),
+    public readonly commitId: string,
   ) {}
 }
 
@@ -42,6 +42,6 @@ export class MediaTypeTreesMergedEvent {
       | { action: 'parent-added'; childId: string; parentId: string }
     )[],
     public readonly sourceCommit: MarshalledCommit,
-    public readonly commitId: string = crypto.randomUUID(),
+    public readonly commitId: string,
   ) {}
 }
