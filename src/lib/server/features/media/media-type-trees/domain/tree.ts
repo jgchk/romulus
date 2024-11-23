@@ -195,31 +195,27 @@ class MediaTypeTreeState {
   }
 
   getLastCommonCommit(other: MediaTypeTreeState): string | undefined {
-    const otherCommits = other.getAllCommits()
+    const otherCommits = Array.from(other.getAllCommits())
     const otherCommitIds = new Set(otherCommits.map((commit) => commit.id))
 
-    for (const commit of this.getAllCommits().reverse()) {
+    for (const commit of this.getAllCommits()) {
       if (otherCommitIds.has(commit.id)) {
         return commit.id
       }
     }
   }
 
-  getAllCommits(): Commit[] {
+  private *getAllCommits(): Generator<Commit> {
     if (!this.commit) {
-      return []
+      return
     }
-
-    const commits: Commit[] = []
 
     const queue = [this.commit]
     while (queue.length > 0) {
       const current = queue.shift()!
-      commits.push(current)
+      yield current
       queue.push(...current.parents)
     }
-
-    return commits.reverse()
   }
 }
 
