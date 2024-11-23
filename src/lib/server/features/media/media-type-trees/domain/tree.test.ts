@@ -296,21 +296,6 @@ describe('addParentToMediaType()', () => {
 })
 
 describe('merge()', () => {
-  test('should merge two empty trees', () => {
-    // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([])
-    const targetTree = MediaTypeTree.fromEvents([])
-
-    // when
-    const error = targetTree.merge(sourceTree, baseTree)
-    expect(error).toBeUndefined()
-
-    // then
-    const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([])
-  })
-
   test('should merge a tree with an empty tree', () => {
     // given
     const baseTree = MediaTypeTree.fromEvents([])
@@ -335,23 +320,6 @@ describe('merge()', () => {
         expectUuid,
       ),
     ])
-  })
-
-  test('should merge an empty tree with a tree', () => {
-    // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
-    ])
-
-    // when
-    const error = targetTree.merge(sourceTree, baseTree)
-    expect(error).toBeUndefined()
-
-    // then
-    const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([])
   })
 
   test('should merge two trees with no conflicts', () => {
@@ -380,23 +348,6 @@ describe('merge()', () => {
         expectUuid,
       ),
     ])
-  })
-
-  test('should error if a media type already exists in both trees', () => {
-    // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
-    ])
-
-    // when
-    const error = targetTree.merge(sourceTree, baseTree)
-
-    // then
-    expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
   })
 
   test('should merge two trees with a new parent-child relationship', () => {
@@ -431,6 +382,76 @@ describe('merge()', () => {
         expectUuid,
       ),
     ])
+  })
+
+  test('should do nothing when merging two empty trees', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([])
+    const targetTree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should do nothing when merging an empty tree with a tree', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should do nothing when merging two trees with no changes', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
+    ])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should error if a media type already exists in both trees', () => {
+    // given
+    const baseTree = MediaTypeTree.fromEvents([])
+    const sourceTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
+    ])
+    const targetTree = MediaTypeTree.fromEvents([
+      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
+    ])
+
+    // when
+    const error = targetTree.merge(sourceTree, baseTree)
+
+    // then
+    expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
   })
 
   test('should error if a 2-cycle would be created', () => {

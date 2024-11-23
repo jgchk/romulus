@@ -149,6 +149,12 @@ export class MediaTypeTree {
     sourceTree: MediaTypeTree,
     baseTree: MediaTypeTree,
   ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
+    const sourceTreeCommit = sourceTree.state.getCommit()
+    if (sourceTreeCommit === undefined) {
+      // Source tree is empty. Nothing to merge.
+      return
+    }
+
     const changes = this.state.tree
       .clone()
       .merge(sourceTree.state.tree.clone(), baseTree.state.tree.clone())
@@ -162,7 +168,7 @@ export class MediaTypeTree {
 
     const event = new MediaTypeTreesMergedEvent(
       changes,
-      sourceTree.state.getCommit().marshal(),
+      sourceTreeCommit.marshal(),
       this.generateCommitId(),
     )
 
