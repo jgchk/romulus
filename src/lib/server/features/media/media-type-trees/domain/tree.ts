@@ -167,9 +167,7 @@ export class MediaTypeTree {
   }
 
   getLastCommonCommit(other: MediaTypeTree): string | undefined {
-    const commonCommits = this.state.getCommonCommits(other.state)
-    const lastCommonCommit = commonCommits.at(commonCommits.length - 1)
-    return lastCommonCommit
+    return this.state.getLastCommonCommit(other.state)
   }
 }
 
@@ -196,18 +194,15 @@ class MediaTypeTreeState {
     this.commit = newCommit
   }
 
-  getCommonCommits(other: MediaTypeTreeState): string[] {
+  getLastCommonCommit(other: MediaTypeTreeState): string | undefined {
     const otherCommits = other.getAllCommits()
     const otherCommitIds = new Set(otherCommits.map((commit) => commit.id))
 
-    const commonCommitIds: string[] = []
-    for (const commit of this.getAllCommits()) {
+    for (const commit of this.getAllCommits().reverse()) {
       if (otherCommitIds.has(commit.id)) {
-        commonCommitIds.push(commit.id)
+        return commit.id
       }
     }
-
-    return commonCommitIds
   }
 
   getAllCommits(): Commit[] {
