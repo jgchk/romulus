@@ -25,12 +25,12 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('Branch')
+    const error = tree.setName('Tree')
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeNamedEvent('Branch')])
+    expect(events).toEqual([new MediaTypeTreeNamedEvent('Tree')])
   })
 
   test('should trim name', () => {
@@ -38,12 +38,12 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName(' Branch ')
+    const error = tree.setName(' Tree ')
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeNamedEvent('Branch')])
+    expect(events).toEqual([new MediaTypeTreeNamedEvent('Tree')])
   })
 
   test('should remove newlines from name', () => {

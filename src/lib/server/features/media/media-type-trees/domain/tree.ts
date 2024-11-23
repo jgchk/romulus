@@ -184,10 +184,6 @@ class MediaTypeTreeState {
     return new MediaTypeTreeState(MediaTypeTreeTreeState.create(), undefined)
   }
 
-  static branchFrom(other: MediaTypeTreeState): MediaTypeTreeState {
-    return new MediaTypeTreeState(other.tree.clone(), other.commit?.clone())
-  }
-
   addCommit(commitId: string): void {
     const parents = []
     if (this.commit) {

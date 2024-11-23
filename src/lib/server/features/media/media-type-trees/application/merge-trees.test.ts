@@ -9,19 +9,19 @@ import {
   AddParentToMediaTypeCommand,
   AddParentToMediaTypeCommandHandler,
 } from './add-parent-to-media-type'
-import { BranchFromCommand, BranchFromCommandHandler } from './branch-from'
-import { CreateBranchCommand, CreateBranchCommandHandler } from './create-branch'
-import { MergeBranchesCommand, MergeBranchesCommandHandler } from './merge-branches'
+import { CopyTreeCommand, CopyTreeCommandHandler } from './copy-tree'
+import { CreateTreeCommand, CreateTreeCommandHandler } from './create-tree'
+import { MergeTreesCommand, MergeTreesCommandHandler } from './merge-trees'
 
 test('should merge two empty trees', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('source', 'Source'))
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('target', 'Target'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('source', 'Source'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('target', 'Target'))
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -31,15 +31,15 @@ test('should merge two empty trees', async () => {
 test('should merge a tree with an empty tree', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('source', 'Source'))
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('target', 'Target'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('source', 'Source'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('target', 'Target'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
   )
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -49,15 +49,15 @@ test('should merge a tree with an empty tree', async () => {
 test('should merge an empty state with a tree', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('source', 'Source'))
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('target', 'Target'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('source', 'Source'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('target', 'Target'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('target', 'media-type', 'Media Type'),
   )
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -67,8 +67,8 @@ test('should merge an empty state with a tree', async () => {
 test('should merge two trees with no conflicts', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('source', 'Source'))
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('target', 'Target'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('source', 'Source'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('target', 'Target'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('source', 'media-type-1', 'Media Type 1'),
   )
@@ -77,8 +77,8 @@ test('should merge two trees with no conflicts', async () => {
   )
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -88,8 +88,8 @@ test('should merge two trees with no conflicts', async () => {
 test('should error if a media type already exists in both trees', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('source', 'Source'))
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('target', 'Target'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('source', 'Source'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('target', 'Target'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
   )
@@ -98,8 +98,8 @@ test('should error if a media type already exists in both trees', async () => {
   )
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -109,22 +109,22 @@ test('should error if a media type already exists in both trees', async () => {
 test('should merge two trees with a new parent-child relationship', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('base', 'Base'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('base', 'Base'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('base', 'parent', 'Parent'),
   )
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('base', 'child', 'Child'),
   )
-  await new BranchFromCommandHandler(repo).handle(new BranchFromCommand('source', 'Source', 'base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('source', 'Source', 'base'))
   await new AddParentToMediaTypeCommandHandler(repo).handle(
     new AddParentToMediaTypeCommand('source', 'child', 'parent'),
   )
-  await new BranchFromCommandHandler(repo).handle(new BranchFromCommand('target', 'Target', 'base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('target', 'Target', 'base'))
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert
@@ -134,25 +134,25 @@ test('should merge two trees with a new parent-child relationship', async () => 
 test('should error if a 2-cycle would be created', async () => {
   // arrange
   const repo = new MemoryTreeRepository()
-  await new CreateBranchCommandHandler(repo).handle(new CreateBranchCommand('base', 'Base'))
+  await new CreateTreeCommandHandler(repo).handle(new CreateTreeCommand('base', 'Base'))
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('base', 'parent', 'Parent'),
   )
   await new AddMediaTypeCommandHandler(repo).handle(
     new AddMediaTypeCommand('base', 'child', 'Child'),
   )
-  await new BranchFromCommandHandler(repo).handle(new BranchFromCommand('source', 'Source', 'base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('source', 'Source', 'base'))
   await new AddParentToMediaTypeCommandHandler(repo).handle(
     new AddParentToMediaTypeCommand('source', 'child', 'parent'),
   )
-  await new BranchFromCommandHandler(repo).handle(new BranchFromCommand('target', 'Target', 'base'))
+  await new CopyTreeCommandHandler(repo).handle(new CopyTreeCommand('target', 'Target', 'base'))
   await new AddParentToMediaTypeCommandHandler(repo).handle(
     new AddParentToMediaTypeCommand('target', 'parent', 'child'),
   )
 
   // act
-  const error = await new MergeBranchesCommandHandler(repo).handle(
-    new MergeBranchesCommand('source', 'target'),
+  const error = await new MergeTreesCommandHandler(repo).handle(
+    new MergeTreesCommand('source', 'target'),
   )
 
   // assert

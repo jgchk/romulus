@@ -1,17 +1,17 @@
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTree } from '../domain/tree'
 
-export class CreateBranchCommand {
+export class CreateTreeCommand {
   constructor(
     public readonly id: string,
     public readonly name: string,
   ) {}
 }
 
-export class CreateBranchCommandHandler {
+export class CreateTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
-  async handle(command: CreateBranchCommand) {
+  async handle(command: CreateTreeCommand) {
     const tree = MediaTypeTree.fromEvents([])
 
     const error = tree.setName(command.name)
