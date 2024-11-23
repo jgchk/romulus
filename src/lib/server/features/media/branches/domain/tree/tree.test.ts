@@ -5,17 +5,93 @@ import {
   MediaTypeAlreadyExistsError,
   MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
+  MediaTypeTreeNameInvalidError,
   WillCreateCycleError,
 } from './errors'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
+  MediaTypeTreeNamedEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
 import { MediaTypeTree } from './tree'
 
 const expectUuid = expect.any(String) as string
+
+describe('setName()', () => {
+  test('should set the tree name', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName('Branch')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toEqual([new MediaTypeTreeNamedEvent('Branch')])
+  })
+
+  test('should trim name', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName(' Branch ')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toEqual([new MediaTypeTreeNamedEvent('Branch')])
+  })
+
+  test('should remove newlines from name', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName('One \nTwo')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toEqual([new MediaTypeTreeNamedEvent('One Two')])
+  })
+
+  test('should error if the name is empty', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName('')
+
+    // then
+    expect(error).toEqual(new MediaTypeTreeNameInvalidError(''))
+  })
+
+  test('should error if the name is only whitespace', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName('   ')
+
+    // then
+    expect(error).toEqual(new MediaTypeTreeNameInvalidError('   '))
+  })
+
+  test('should error if the name is only newlines', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents([])
+
+    // when
+    const error = tree.setName('\n\n')
+
+    // then
+    expect(error).toEqual(new MediaTypeTreeNameInvalidError('\n\n'))
+  })
+})
 
 describe('addMediaType()', () => {
   test('should add a media type to the tree', () => {

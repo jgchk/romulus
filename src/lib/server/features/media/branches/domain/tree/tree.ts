@@ -1,6 +1,6 @@
-import { MediaTypeNameInvalidError } from './errors'
+import { MediaTypeNameInvalidError, MediaTypeTreeNameInvalidError } from './errors'
 import { MediaTypeAlreadyExistsError, MediaTypeNotFoundError, WillCreateCycleError } from './errors'
-import { MediaTypeTreesMergedEvent } from './events'
+import { MediaTypeTreeNamedEvent, MediaTypeTreesMergedEvent } from './events'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
@@ -25,12 +25,23 @@ export class MediaTypeTree {
     return tree
   }
 
+  static copyEvents(events: MediaTypeTreeEvent[]): MediaTypeTree {
+    const tree = new MediaTypeTree(MediaTypeTreeState.create(), [])
+    for (const event of events) {
+      tree.applyEvent(event)
+      tree.addEvent(event)
+    }
+    return tree
+  }
+
   getUncommittedEvents(): MediaTypeTreeEvent[] {
     return [...this.uncommittedEvents]
   }
 
   private applyEvent(event: MediaTypeTreeEvent): void {
-    if (event instanceof MediaTypeAddedEvent) {
+    if (event instanceof MediaTypeTreeNamedEvent) {
+      // nothing to do here
+    } else if (event instanceof MediaTypeAddedEvent) {
       const error = this.state.tree.addMediaType(event.id, event.name)
       if (error instanceof Error) {
         throw error
@@ -67,6 +78,18 @@ export class MediaTypeTree {
 
   private addEvent(event: MediaTypeTreeEvent): void {
     this.uncommittedEvents.push(event)
+  }
+
+  setName(name: string): void | MediaTypeTreeNameInvalidError {
+    const trimmedName = name.trim().replace(/\n/g, '')
+    if (trimmedName.length === 0) {
+      return new MediaTypeTreeNameInvalidError(name)
+    }
+
+    const event = new MediaTypeTreeNamedEvent(trimmedName)
+
+    this.applyEvent(event)
+    this.addEvent(event)
   }
 
   addMediaType(
@@ -155,6 +178,10 @@ class MediaTypeTreeState {
     return new MediaTypeTreeState(MediaTypeTreeTreeState.create(), undefined)
   }
 
+  static branchFrom(other: MediaTypeTreeState): MediaTypeTreeState {
+    return new MediaTypeTreeState(other.tree.clone(), other.commit?.clone())
+  }
+
   addCommit(commitId: string): void {
     const parents = []
     if (this.commit) {
@@ -179,7 +206,7 @@ class MediaTypeTreeState {
     return commonCommitIds
   }
 
-  private getAllCommits(): Commit[] {
+  getAllCommits(): Commit[] {
     if (!this.commit) {
       return []
     }
@@ -204,6 +231,10 @@ class Commit {
   constructor(id: string, parents: Commit[]) {
     this.id = id
     this.parents = parents
+  }
+
+  clone(): Commit {
+    return new Commit(this.id, [...this.parents])
   }
 }
 

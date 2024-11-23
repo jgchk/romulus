@@ -1,5 +1,14 @@
 import { CustomError } from '$lib/utils/error'
 
+export class MediaTypeTreeNameInvalidError extends CustomError {
+  constructor(public readonly name: string) {
+    super(
+      'MediaTypeTreeNameInvalidError',
+      `Media type tree name must contain at least one non-whitespace character: "${name}"`,
+    )
+  }
+}
+
 export class MediaTypeAlreadyExistsError extends CustomError {
   constructor(public readonly id: string) {
     super('MediaTypeAlreadyExistsError', `Media type already exists with id: ${id}`)

@@ -11,7 +11,7 @@ export class AddParentToMediaTypeCommand {
 export class AddParentToMediaTypeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
-  async execute(command: AddParentToMediaTypeCommand) {
+  async handle(command: AddParentToMediaTypeCommand) {
     const tree = await this.repo.get(command.branchId)
 
     const error = tree.addParentToMediaType(command.childMediaTypeId, command.parentMediaTypeId)

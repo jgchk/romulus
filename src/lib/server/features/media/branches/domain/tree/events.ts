@@ -1,8 +1,13 @@
 export type MediaTypeTreeEvent =
+  | MediaTypeTreeNamedEvent
   | MediaTypeAddedEvent
   | MediaTypeRemovedEvent
   | ParentAddedToMediaTypeEvent
   | MediaTypeTreesMergedEvent
+
+export class MediaTypeTreeNamedEvent {
+  constructor(public readonly name: string) {}
+}
 
 export class MediaTypeAddedEvent {
   constructor(

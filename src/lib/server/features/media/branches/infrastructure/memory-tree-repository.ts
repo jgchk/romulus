@@ -1,4 +1,5 @@
 import { withProps } from '$lib/utils/object'
+import type { MaybePromise } from '$lib/utils/types'
 
 import type { MediaTypeTreeEvent } from '../domain/tree/events'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
@@ -16,10 +17,16 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
     return MediaTypeTree.fromEvents(events)
   }
 
-  getFromCommits(commitIds: Set<string>) {
-    const events = this.store.getAll()
-    const filteredEvents = events.filter((event) => commitIds.has(event.commitId))
-    return MediaTypeTree.fromEvents(filteredEvents)
+  getToCommit(id: string, commitId: string) {
+    const events = this.store.get(id)
+    const commitEvent = events.findIndex((event) => event.commitId == commitId)
+    const eventsToCommit = events.slice(0, commitEvent + 1)
+    return MediaTypeTree.fromEvents(eventsToCommit)
+  }
+
+  copy(id: string): MaybePromise<MediaTypeTree> {
+    const events = this.store.get(id)
+    return MediaTypeTree.copyEvents(events)
   }
 
   save(id: string, tree: MediaTypeTree) {

@@ -10,7 +10,7 @@ export class RemoveMediaTypeCommand {
 export class RemoveMediaTypeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
-  async execute(command: RemoveMediaTypeCommand) {
+  async handle(command: RemoveMediaTypeCommand) {
     const tree = await this.repo.get(command.branchId)
 
     const error = tree.removeMediaType(command.mediaTypeId)

@@ -15,10 +15,11 @@ export class MergeBranchesCommandHandler {
     const targetTree = await this.treeRepo.get(command.targetBranchId)
 
     const commonCommits = sourceTree.getCommonCommits(targetTree)
+    const lastCommonCommit = commonCommits.at(commonCommits.length - 1)
     const baseTree =
-      commonCommits === undefined
+      lastCommonCommit === undefined
         ? undefined
-        : await this.treeRepo.getFromCommits(new Set(commonCommits))
+        : await this.treeRepo.getToCommit(command.sourceBranchId, lastCommonCommit)
 
     const error = targetTree.merge(sourceTree, baseTree)
     if (error instanceof Error) {
