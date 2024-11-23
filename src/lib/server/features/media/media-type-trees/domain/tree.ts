@@ -95,12 +95,12 @@ export class MediaTypeTree {
   }
 
   setName(name: string): void | MediaTypeTreeNameInvalidError {
-    const trimmedName = name.trim().replace(/\n/g, '')
-    if (trimmedName.length === 0) {
-      return new MediaTypeTreeNameInvalidError(name)
+    const treeName = MediaTypeTreeName.create(name)
+    if (treeName instanceof MediaTypeTreeNameInvalidError) {
+      return treeName
     }
 
-    const event = new MediaTypeTreeNamedEvent(trimmedName)
+    const event = new MediaTypeTreeNamedEvent(treeName.toString())
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -183,5 +183,21 @@ export class MediaTypeTree {
 
   private generateCommitId(): string {
     return crypto.randomUUID()
+  }
+}
+
+class MediaTypeTreeName {
+  private constructor(private readonly value: string) {}
+
+  static create(name: string): MediaTypeTreeName | MediaTypeTreeNameInvalidError {
+    const trimmedName = name.trim().replace(/\n/g, '')
+    if (trimmedName.length === 0) {
+      return new MediaTypeTreeNameInvalidError(name)
+    }
+    return new MediaTypeTreeName(trimmedName)
+  }
+
+  toString(): string {
+    return this.value
   }
 }
