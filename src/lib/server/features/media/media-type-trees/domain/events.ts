@@ -1,4 +1,4 @@
-import type { MarshalledCommit } from './tree'
+import type { MarshalledCommit } from './commit-history'
 
 export type MediaTypeTreeEvent =
   | MediaTypeTreeNamedEvent
