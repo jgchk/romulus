@@ -1,20 +1,18 @@
 import { MediaTypeAlreadyExistsError, MediaTypeNotFoundError, WillCreateCycleError } from './errors'
 
-export class MediaTypeTreeState {
+export class TreeState {
   private nodes: Map<string, MediaTypeNode>
 
   private constructor(nodes: Map<string, MediaTypeNode>) {
     this.nodes = nodes
   }
 
-  static create(): MediaTypeTreeState {
-    return new MediaTypeTreeState(new Map())
+  static create(): TreeState {
+    return new TreeState(new Map())
   }
 
-  clone(): MediaTypeTreeState {
-    return new MediaTypeTreeState(
-      new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])),
-    )
+  clone(): TreeState {
+    return new TreeState(new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])))
   }
 
   addMediaType(id: string, name: string): void | MediaTypeAlreadyExistsError {
@@ -115,8 +113,8 @@ export class MediaTypeTreeState {
   }
 
   merge(
-    sourceTree: MediaTypeTreeState,
-    baseTree: MediaTypeTreeState,
+    sourceTree: TreeState,
+    baseTree: TreeState,
   ): MergeChange[] | MediaTypeAlreadyExistsError | WillCreateCycleError {
     const changes: MergeChange[] = []
 
