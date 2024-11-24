@@ -1,4 +1,3 @@
-import type { MediaTypeTreePermission } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class MergeTreesCommand {
@@ -9,10 +8,7 @@ export class MergeTreesCommand {
 }
 
 export class MergeTreesCommandHandler {
-  constructor(
-    private treeRepo: IMediaTypeTreeRepository,
-    private permissions: Set<MediaTypeTreePermission>,
-  ) {}
+  constructor(private treeRepo: IMediaTypeTreeRepository) {}
 
   async handle(command: MergeTreesCommand) {
     // allow when:
