@@ -159,7 +159,7 @@ describe('addMediaType()', () => {
     expect(error).toEqual(new MediaTypeNameInvalidError(''))
   })
 
-  test('should error if media type name is only whitespace', () => {
+  test('should error if the media type name is only whitespace', () => {
     // given
     const tree = MediaTypeTree.fromEvents([])
 
@@ -170,7 +170,7 @@ describe('addMediaType()', () => {
     expect(error).toEqual(new MediaTypeNameInvalidError('   '))
   })
 
-  test('should error if media type name is only newlines', () => {
+  test('should error if the media type name is only newlines', () => {
     // given
     const tree = MediaTypeTree.fromEvents([])
 
