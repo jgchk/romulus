@@ -129,7 +129,7 @@ test('should merge two trees with a new parent-child relationship', async () => 
     new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
     new CopyTreeCommand('source', 'Source', 'base', userId),
-    new AddParentToMediaTypeCommand('source', 'child', 'parent'),
+    new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
     new CopyTreeCommand('target', 'Target', 'base', userId),
   ])
 
@@ -236,9 +236,9 @@ test('should error if a 2-cycle would be created', async () => {
     new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
     new CopyTreeCommand('source', 'Source', 'base', userId),
-    new AddParentToMediaTypeCommand('source', 'child', 'parent'),
+    new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
     new CopyTreeCommand('target', 'Target', 'base', userId),
-    new AddParentToMediaTypeCommand('target', 'parent', 'child'),
+    new AddParentToMediaTypeCommand('target', 'parent', 'child', userId, permissions),
   ])
 
   // when
@@ -259,10 +259,10 @@ test('should error if a 3-cycle would be created', async () => {
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
     new AddMediaTypeCommand('base', 'grandchild', 'Grandchild', userId, permissions),
     new CopyTreeCommand('source', 'Source', 'base', userId),
-    new AddParentToMediaTypeCommand('source', 'child', 'parent'),
-    new AddParentToMediaTypeCommand('source', 'grandchild', 'child'),
+    new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
+    new AddParentToMediaTypeCommand('source', 'grandchild', 'child', userId, permissions),
     new CopyTreeCommand('target', 'Target', 'base', userId),
-    new AddParentToMediaTypeCommand('target', 'parent', 'grandchild'),
+    new AddParentToMediaTypeCommand('target', 'parent', 'grandchild', userId, permissions),
   ])
 
   // when
