@@ -12,6 +12,10 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
     this.store = new EventStore()
   }
 
+  has(id: string) {
+    return this.store.has(id)
+  }
+
   get(id: string) {
     const events = this.store.get(id)
     if (events === undefined) {
@@ -59,6 +63,10 @@ class EventStore {
   constructor() {
     this.events = new Map()
     this.sequence = 0
+  }
+
+  has(id: string) {
+    return this.events.has(id)
   }
 
   get(id: string) {

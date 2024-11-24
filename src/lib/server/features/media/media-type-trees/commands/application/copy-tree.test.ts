@@ -1,7 +1,11 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeTreeNameInvalidError, MediaTypeTreeNotFoundError } from '../domain/errors'
+import {
+  MediaTypeTreeAlreadyExistsError,
+  MediaTypeTreeNameInvalidError,
+  MediaTypeTreeNotFoundError,
+} from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -63,6 +67,21 @@ test('should error if the original tree does not exist', async () => {
 
   // then
   expect(error).toEqual(new MediaTypeTreeNotFoundError('original'))
+})
+
+test('should error if a tree with the new id already exists', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [
+    new CreateTreeCommand('original', 'Original'),
+    new CreateTreeCommand('copy', 'Copy'),
+  ])
+
+  // when
+  const error = await executeCommand(repo, new CopyTreeCommand('copy', 'Copy', 'original'))
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeAlreadyExistsError('copy'))
 })
 
 test('should error if the name is empty', async () => {

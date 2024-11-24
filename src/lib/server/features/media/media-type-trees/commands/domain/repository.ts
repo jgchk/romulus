@@ -4,6 +4,7 @@ import type { MediaTypeTreeNotFoundError } from './errors'
 import type { MediaTypeTree } from './tree'
 
 export type IMediaTypeTreeRepository = {
+  has(id: string): MaybePromise<boolean>
   get(id: string): MaybePromise<MediaTypeTree | MediaTypeTreeNotFoundError>
   getToCommit(
     id: string,

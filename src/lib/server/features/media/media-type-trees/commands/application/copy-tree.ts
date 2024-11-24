@@ -1,4 +1,4 @@
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNotFoundError } from '../domain/errors'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class CopyTreeCommand {
@@ -16,6 +16,10 @@ export class CopyTreeCommandHandler {
     // allow when:
     // - you have media-type-trees:admin permission
     // - you have media-type-trees:write permission
+
+    if (await this.repo.has(command.id)) {
+      return new MediaTypeTreeAlreadyExistsError(command.id)
+    }
 
     const tree = await this.repo.copy(command.baseTreeId)
     if (tree instanceof MediaTypeTreeNotFoundError) {

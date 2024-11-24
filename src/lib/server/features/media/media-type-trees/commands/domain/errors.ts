@@ -6,6 +6,12 @@ export class MediaTypeTreeNotFoundError extends CustomError {
   }
 }
 
+export class MediaTypeTreeAlreadyExistsError extends CustomError {
+  constructor(public readonly id: string) {
+    super('MediaTypeTreeAlreadyExistsError', `Media type tree already exists with id: ${id}`)
+  }
+}
+
 export class MediaTypeTreeNameInvalidError extends CustomError {
   constructor(public readonly name: string) {
     super(
