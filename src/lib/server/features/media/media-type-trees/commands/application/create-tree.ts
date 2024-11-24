@@ -7,6 +7,7 @@ export class CreateTreeCommand {
   constructor(
     public readonly id: string,
     public readonly name: string,
+    public readonly userId: number,
     public readonly permissions: Set<MediaTypeTreePermission>,
   ) {}
 }
@@ -15,10 +16,6 @@ export class CreateTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: CreateTreeCommand) {
-    // allow when:
-    // - you have media-type-trees:admin permission
-    // - you have media-type-trees:write permission
-
     const hasPermission =
       command.permissions.has(MediaTypeTreePermission.ADMIN) ||
       command.permissions.has(MediaTypeTreePermission.WRITE)
@@ -32,7 +29,7 @@ export class CreateTreeCommandHandler {
 
     const tree = MediaTypeTree.fromEvents([])
 
-    const error = tree.setName(command.name)
+    const error = tree.create(command.name, command.userId)
     if (error instanceof Error) {
       return error
     }

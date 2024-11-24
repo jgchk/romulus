@@ -2,14 +2,17 @@ import type { MarshalledCommit } from './commit-history'
 import type { MergeChange } from './tree-state'
 
 export type MediaTypeTreeEvent =
-  | MediaTypeTreeNamedEvent
+  | MediaTypeTreeCreatedEvent
   | MediaTypeAddedEvent
   | MediaTypeRemovedEvent
   | ParentAddedToMediaTypeEvent
   | MediaTypeTreesMergedEvent
 
-export class MediaTypeTreeNamedEvent {
-  constructor(public readonly name: string) {}
+export class MediaTypeTreeCreatedEvent {
+  constructor(
+    public readonly name: string,
+    public readonly ownerUserId: number,
+  ) {}
 }
 
 export class MediaTypeAddedEvent {

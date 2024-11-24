@@ -50,10 +50,11 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should remove a media type from the tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
@@ -66,8 +67,9 @@ test('should remove a media type from the tree', async () => {
 test('should error if the media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('tree', 'Tree', permissions)])
+  await given(repo, [new CreateTreeCommand('tree', 'Tree', userId, permissions)])
 
   // when
   const error = await executeCommand(repo, new RemoveMediaTypeCommand('tree', 'media-type'))

@@ -50,10 +50,11 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should merge two empty trees', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('source', 'Source', permissions),
-    new CreateTreeCommand('target', 'Target', permissions),
+    new CreateTreeCommand('source', 'Source', userId, permissions),
+    new CreateTreeCommand('target', 'Target', userId, permissions),
   ])
 
   // when
@@ -66,11 +67,12 @@ test('should merge two empty trees', async () => {
 test('should merge a tree with an empty tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('source', 'Source', permissions),
-    new CreateTreeCommand('target', 'Target', permissions),
-    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
+    new CreateTreeCommand('source', 'Source', userId, permissions),
+    new CreateTreeCommand('target', 'Target', userId, permissions),
+    new AddMediaTypeCommand('source', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
@@ -83,11 +85,12 @@ test('should merge a tree with an empty tree', async () => {
 test('should merge an empty tree with a tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('source', 'Source', permissions),
-    new CreateTreeCommand('target', 'Target', permissions),
-    new AddMediaTypeCommand('target', 'media-type', 'Media Type'),
+    new CreateTreeCommand('source', 'Source', userId, permissions),
+    new CreateTreeCommand('target', 'Target', userId, permissions),
+    new AddMediaTypeCommand('target', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
@@ -100,12 +103,13 @@ test('should merge an empty tree with a tree', async () => {
 test('should merge two trees with no conflicts', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('source', 'Source', permissions),
-    new CreateTreeCommand('target', 'Target', permissions),
-    new AddMediaTypeCommand('source', 'media-type-1', 'Media Type 1'),
-    new AddMediaTypeCommand('target', 'media-type-2', 'Media Type 2'),
+    new CreateTreeCommand('source', 'Source', userId, permissions),
+    new CreateTreeCommand('target', 'Target', userId, permissions),
+    new AddMediaTypeCommand('source', 'media-type-1', 'Media Type 1', userId, permissions),
+    new AddMediaTypeCommand('target', 'media-type-2', 'Media Type 2', userId, permissions),
   ])
 
   // when
@@ -118,14 +122,15 @@ test('should merge two trees with no conflicts', async () => {
 test('should merge two trees with a new parent-child relationship', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('base', 'Base', permissions),
-    new AddMediaTypeCommand('base', 'parent', 'Parent'),
-    new AddMediaTypeCommand('base', 'child', 'Child'),
-    new CopyTreeCommand('source', 'Source', 'base'),
+    new CreateTreeCommand('base', 'Base', userId, permissions),
+    new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
+    new CopyTreeCommand('source', 'Source', 'base', userId),
     new AddParentToMediaTypeCommand('source', 'child', 'parent'),
-    new CopyTreeCommand('target', 'Target', 'base'),
+    new CopyTreeCommand('target', 'Target', 'base', userId),
   ])
 
   // when
@@ -138,12 +143,13 @@ test('should merge two trees with a new parent-child relationship', async () => 
 test('should merge two trees with no changes', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('base', 'Base', permissions),
-    new AddMediaTypeCommand('base', 'media-type', 'Media Type'),
-    new CopyTreeCommand('source', 'Source', 'base'),
-    new CopyTreeCommand('target', 'Target', 'base'),
+    new CreateTreeCommand('base', 'Base', userId, permissions),
+    new AddMediaTypeCommand('base', 'media-type', 'Media Type', userId, permissions),
+    new CopyTreeCommand('source', 'Source', 'base', userId),
+    new CopyTreeCommand('target', 'Target', 'base', userId),
   ])
 
   // when
@@ -156,12 +162,13 @@ test('should merge two trees with no changes', async () => {
 test('should handle multiple merges', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('base', 'Base', permissions),
-    new CopyTreeCommand('source', 'Source', 'base'),
-    new CopyTreeCommand('target', 'Target', 'base'),
-    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
+    new CreateTreeCommand('base', 'Base', userId, permissions),
+    new CopyTreeCommand('source', 'Source', 'base', userId),
+    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new AddMediaTypeCommand('source', 'media-type', 'Media Type', userId, permissions),
     new MergeTreesCommand('source', 'target'),
   ])
 
@@ -175,8 +182,9 @@ test('should handle multiple merges', async () => {
 test('should error if the source tree does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('target', 'Target', permissions)])
+  await given(repo, [new CreateTreeCommand('target', 'Target', userId, permissions)])
 
   // when
   const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
@@ -188,8 +196,9 @@ test('should error if the source tree does not exist', async () => {
 test('should error if the target tree does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('source', 'Source', permissions)])
+  await given(repo, [new CreateTreeCommand('source', 'Source', userId, permissions)])
 
   // when
   const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
@@ -201,12 +210,13 @@ test('should error if the target tree does not exist', async () => {
 test('should error if a media type already exists in both trees', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('source', 'Source', permissions),
-    new CreateTreeCommand('target', 'Target', permissions),
-    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
-    new AddMediaTypeCommand('target', 'media-type', 'Media Type'),
+    new CreateTreeCommand('source', 'Source', userId, permissions),
+    new CreateTreeCommand('target', 'Target', userId, permissions),
+    new AddMediaTypeCommand('source', 'media-type', 'Media Type', userId, permissions),
+    new AddMediaTypeCommand('target', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
@@ -219,14 +229,15 @@ test('should error if a media type already exists in both trees', async () => {
 test('should error if a 2-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('base', 'Base', permissions),
-    new AddMediaTypeCommand('base', 'parent', 'Parent'),
-    new AddMediaTypeCommand('base', 'child', 'Child'),
-    new CopyTreeCommand('source', 'Source', 'base'),
+    new CreateTreeCommand('base', 'Base', userId, permissions),
+    new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
+    new CopyTreeCommand('source', 'Source', 'base', userId),
     new AddParentToMediaTypeCommand('source', 'child', 'parent'),
-    new CopyTreeCommand('target', 'Target', 'base'),
+    new CopyTreeCommand('target', 'Target', 'base', userId),
     new AddParentToMediaTypeCommand('target', 'parent', 'child'),
   ])
 
@@ -240,16 +251,17 @@ test('should error if a 2-cycle would be created', async () => {
 test('should error if a 3-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('base', 'Base', permissions),
-    new AddMediaTypeCommand('base', 'parent', 'Parent'),
-    new AddMediaTypeCommand('base', 'child', 'Child'),
-    new AddMediaTypeCommand('base', 'grandchild', 'Grandchild'),
-    new CopyTreeCommand('source', 'Source', 'base'),
+    new CreateTreeCommand('base', 'Base', userId, permissions),
+    new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
+    new AddMediaTypeCommand('base', 'grandchild', 'Grandchild', userId, permissions),
+    new CopyTreeCommand('source', 'Source', 'base', userId),
     new AddParentToMediaTypeCommand('source', 'child', 'parent'),
     new AddParentToMediaTypeCommand('source', 'grandchild', 'child'),
-    new CopyTreeCommand('target', 'Target', 'base'),
+    new CopyTreeCommand('target', 'Target', 'base', userId),
     new AddParentToMediaTypeCommand('target', 'parent', 'grandchild'),
   ])
 

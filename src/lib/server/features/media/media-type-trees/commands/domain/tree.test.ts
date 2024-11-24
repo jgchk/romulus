@@ -11,7 +11,7 @@ import {
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
-  MediaTypeTreeNamedEvent,
+  MediaTypeTreeCreatedEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
@@ -21,18 +21,18 @@ const expectUuid = expect.stringMatching(
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
 ) as string
 
-describe('setName()', () => {
+describe('create()', () => {
   test('should set the tree name', () => {
     // given
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('Tree')
+    const error = tree.create('Tree', 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeNamedEvent('Tree')])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('Tree', 0)])
   })
 
   test('should trim name', () => {
@@ -40,12 +40,12 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName(' Tree ')
+    const error = tree.create(' Tree ', 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeNamedEvent('Tree')])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('Tree', 0)])
   })
 
   test('should remove newlines from name', () => {
@@ -53,12 +53,12 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('One \nTwo')
+    const error = tree.create('One \nTwo', 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeNamedEvent('One Two')])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('One Two', 0)])
   })
 
   test('should error if the name is empty', () => {
@@ -66,7 +66,7 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('')
+    const error = tree.create('', 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError(''))
@@ -77,7 +77,7 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('   ')
+    const error = tree.create('   ', 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError('   '))
@@ -88,7 +88,7 @@ describe('setName()', () => {
     const tree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = tree.setName('\n\n')
+    const error = tree.create('\n\n', 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError('\n\n'))

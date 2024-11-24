@@ -50,17 +50,18 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should add a parent to a media type', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent'),
-    new AddMediaTypeCommand('tree', 'child', 'Child'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
   ])
 
   // when
   const error = await executeCommand(
     repo,
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
+    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   )
 
   // then
@@ -70,10 +71,11 @@ test('should add a parent to a media type', async () => {
 test('should error if the child media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
   ])
 
   // when
@@ -89,10 +91,11 @@ test('should error if the child media type does not exist', async () => {
 test('should error if the parent media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
   ])
 
   // when
@@ -108,10 +111,11 @@ test('should error if the parent media type does not exist', async () => {
 test('should error if a 1-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
@@ -127,11 +131,12 @@ test('should error if a 1-cycle would be created', async () => {
 test('should error if a 2-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent'),
-    new AddMediaTypeCommand('tree', 'child', 'Child'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
     new AddParentToMediaTypeCommand('tree', 'child', 'parent'),
   ])
 
@@ -148,12 +153,13 @@ test('should error if a 2-cycle would be created', async () => {
 test('should error if a 3-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree', permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent'),
-    new AddMediaTypeCommand('tree', 'child', 'Child'),
-    new AddMediaTypeCommand('tree', 'grandchild', 'Grandchild'),
+    new CreateTreeCommand('tree', 'Tree', userId, permissions),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
+    new AddMediaTypeCommand('tree', 'grandchild', 'Grandchild', userId, permissions),
     new AddParentToMediaTypeCommand('tree', 'child', 'parent'),
     new AddParentToMediaTypeCommand('tree', 'grandchild', 'child'),
   ])

@@ -1,4 +1,5 @@
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class AddMediaTypeCommand {
@@ -6,6 +7,8 @@ export class AddMediaTypeCommand {
     public readonly treeId: string,
     public readonly mediaTypeId: string,
     public readonly mediaTypeName: string,
+    public readonly userId: number,
+    public readonly permissions: Set<MediaTypeTreePermission>,
   ) {}
 }
 
@@ -20,6 +23,13 @@ export class AddMediaTypeCommandHandler {
     const tree = await this.repo.get(command.treeId)
     if (tree instanceof MediaTypeTreeNotFoundError) {
       return tree
+    }
+
+    const hasPermission =
+      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
+      (command.permissions.has(MediaTypeTreePermission.WRITE) && tree.isOwner(command.userId))
+    if (!hasPermission) {
+      return new UnauthorizedError()
     }
 
     const error = tree.addMediaType(command.mediaTypeId, command.mediaTypeName)

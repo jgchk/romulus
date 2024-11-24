@@ -6,6 +6,7 @@ export class CopyTreeCommand {
     public readonly id: string,
     public readonly name: string,
     public readonly baseTreeId: string,
+    public readonly userId: number,
   ) {}
 }
 
@@ -26,7 +27,7 @@ export class CopyTreeCommandHandler {
       return tree
     }
 
-    const error = tree.setName(command.name)
+    const error = tree.create(command.name, command.userId)
     if (error instanceof Error) {
       return error
     }

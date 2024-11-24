@@ -9,8 +9,8 @@ import { MediaTypeTreeNameInvalidError } from './errors'
 import {
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
+  MediaTypeTreeCreatedEvent,
   type MediaTypeTreeEvent,
-  MediaTypeTreeNamedEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
@@ -19,20 +19,23 @@ import { TreeState } from './tree-state'
 export class MediaTypeTree {
   private tree: TreeState
   private commitHistory: CommitHistory
+  private owner: number | undefined
   private uncommittedEvents: MediaTypeTreeEvent[]
 
   private constructor(
     tree: TreeState,
     commitHistory: CommitHistory,
+    owner: number | undefined,
     uncommittedEvents: MediaTypeTreeEvent[],
   ) {
     this.tree = tree
     this.commitHistory = commitHistory
+    this.owner = owner
     this.uncommittedEvents = uncommittedEvents
   }
 
   static fromEvents(events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(TreeState.create(), CommitHistory.create(), [])
+    const tree = new MediaTypeTree(TreeState.create(), CommitHistory.create(), undefined, [])
     for (const event of events) {
       tree.applyEvent(event)
     }
@@ -40,7 +43,7 @@ export class MediaTypeTree {
   }
 
   static copyEvents(events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(TreeState.create(), CommitHistory.create(), [])
+    const tree = new MediaTypeTree(TreeState.create(), CommitHistory.create(), undefined, [])
     for (const event of events) {
       tree.applyEvent(event)
       tree.addEvent(event)
@@ -53,8 +56,8 @@ export class MediaTypeTree {
   }
 
   private applyEvent(event: MediaTypeTreeEvent): void {
-    if (event instanceof MediaTypeTreeNamedEvent) {
-      // nothing to do here
+    if (event instanceof MediaTypeTreeCreatedEvent) {
+      this.owner = event.ownerUserId
     } else if (event instanceof MediaTypeAddedEvent) {
       const error = this.tree.addMediaType(event.id, event.name)
       if (error instanceof Error) {
@@ -94,13 +97,13 @@ export class MediaTypeTree {
     this.uncommittedEvents.push(event)
   }
 
-  setName(name: string): void | MediaTypeTreeNameInvalidError {
+  create(name: string, ownerUserId: number): void | MediaTypeTreeNameInvalidError {
     const treeName = MediaTypeTreeName.create(name)
     if (treeName instanceof MediaTypeTreeNameInvalidError) {
       return treeName
     }
 
-    const event = new MediaTypeTreeNamedEvent(treeName.toString())
+    const event = new MediaTypeTreeCreatedEvent(treeName.toString(), ownerUserId)
 
     this.applyEvent(event)
     this.addEvent(event)
@@ -183,6 +186,10 @@ export class MediaTypeTree {
 
   private generateCommitId(): string {
     return crypto.randomUUID()
+  }
+
+  isOwner(userId: number): boolean {
+    return this.owner === userId
   }
 }
 
