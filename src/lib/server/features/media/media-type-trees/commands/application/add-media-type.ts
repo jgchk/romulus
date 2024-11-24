@@ -1,3 +1,4 @@
+import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class AddMediaTypeCommand {
@@ -17,6 +18,9 @@ export class AddMediaTypeCommandHandler {
     // - you have media-type-trees:write permission & you are the owner of the tree
 
     const tree = await this.repo.get(command.treeId)
+    if (tree instanceof MediaTypeTreeNotFoundError) {
+      return tree
+    }
 
     const error = tree.addMediaType(command.mediaTypeId, command.mediaTypeName)
     if (error instanceof Error) {

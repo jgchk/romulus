@@ -1,7 +1,11 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/errors'
+import {
+  MediaTypeAlreadyExistsError,
+  MediaTypeNameInvalidError,
+  MediaTypeTreeNotFoundError,
+} from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -109,4 +113,19 @@ test('should error if the media type name is only newlines', async () => {
 
   // then
   expect(error).toEqual(new MediaTypeNameInvalidError('\n\n'))
+})
+
+test('should error if the media type tree does not exist', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [])
+
+  // when
+  const error = await executeCommand(
+    repo,
+    new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
+  )
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeNotFoundError('tree'))
 })
