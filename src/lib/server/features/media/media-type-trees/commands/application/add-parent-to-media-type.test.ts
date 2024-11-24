@@ -1,7 +1,11 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeNotFoundError, WillCreateCycleError } from '../domain/errors'
+import {
+  MediaTypeNotFoundError,
+  MediaTypeTreeNotFoundError,
+  WillCreateCycleError,
+} from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -155,4 +159,19 @@ test('should error if a 3-cycle would be created', async () => {
 
   // then
   expect(error).toEqual(new WillCreateCycleError(['parent', 'child', 'grandchild', 'parent']))
+})
+
+test('should error if the media type tree does not exist', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [])
+
+  // when
+  const error = await executeCommand(
+    repo,
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent'),
+  )
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeNotFoundError('tree'))
 })
