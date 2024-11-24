@@ -1,10 +1,14 @@
 import type { MaybePromise } from '$lib/utils/types'
 
+import type { MediaTypeTreeNotFoundError } from './errors'
 import type { MediaTypeTree } from './tree'
 
 export type IMediaTypeTreeRepository = {
-  get(id: string): MaybePromise<MediaTypeTree>
-  getToCommit(id: string, commitId: string | undefined): MaybePromise<MediaTypeTree>
-  copy(id: string): MaybePromise<MediaTypeTree>
+  get(id: string): MaybePromise<MediaTypeTree | MediaTypeTreeNotFoundError>
+  getToCommit(
+    id: string,
+    commitId: string | undefined,
+  ): MaybePromise<MediaTypeTree | MediaTypeTreeNotFoundError>
+  copy(id: string): MaybePromise<MediaTypeTree | MediaTypeTreeNotFoundError>
   save(id: string, tree: MediaTypeTree): MaybePromise<void>
 }

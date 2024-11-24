@@ -1,6 +1,6 @@
 import { withProps } from '$lib/utils/object'
-import type { MaybePromise } from '$lib/utils/types'
 
+import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import type { MediaTypeTreeEvent } from '../domain/events'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTree } from '../domain/tree'
@@ -14,6 +14,10 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
 
   get(id: string) {
     const events = this.store.get(id)
+    if (events === undefined) {
+      return new MediaTypeTreeNotFoundError(id)
+    }
+
     return MediaTypeTree.fromEvents(events)
   }
 
@@ -23,6 +27,10 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
     }
 
     const events = this.store.get(id)
+    if (events === undefined) {
+      return new MediaTypeTreeNotFoundError(id)
+    }
+
     const commitEvent = events.findIndex(
       (event) => 'commitId' in event && event.commitId == commitId,
     )
@@ -30,8 +38,12 @@ export class MemoryTreeRepository implements IMediaTypeTreeRepository {
     return MediaTypeTree.fromEvents(eventsToCommit)
   }
 
-  copy(id: string): MaybePromise<MediaTypeTree> {
+  copy(id: string) {
     const events = this.store.get(id)
+    if (events === undefined) {
+      return new MediaTypeTreeNotFoundError(id)
+    }
+
     return MediaTypeTree.copyEvents(events)
   }
 
@@ -50,7 +62,7 @@ class EventStore {
   }
 
   get(id: string) {
-    return this.events.get(id) ?? []
+    return this.events.get(id)
   }
 
   getAll() {
