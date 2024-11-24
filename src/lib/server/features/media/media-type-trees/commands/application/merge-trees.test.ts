@@ -1,7 +1,11 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeAlreadyExistsError, WillCreateCycleError } from '../domain/errors'
+import {
+  MediaTypeAlreadyExistsError,
+  MediaTypeTreeNotFoundError,
+  WillCreateCycleError,
+} from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -106,23 +110,6 @@ test('should merge two trees with no conflicts', async () => {
   expect(error).toBeUndefined()
 })
 
-test('should error if a media type already exists in both trees', async () => {
-  // given
-  const repo = new MemoryTreeRepository()
-  await given(repo, [
-    new CreateTreeCommand('source', 'Source'),
-    new CreateTreeCommand('target', 'Target'),
-    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
-    new AddMediaTypeCommand('target', 'media-type', 'Media Type'),
-  ])
-
-  // when
-  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
-
-  // then
-  expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
-})
-
 test('should merge two trees with a new parent-child relationship', async () => {
   // given
   const repo = new MemoryTreeRepository()
@@ -175,6 +162,47 @@ test('should handle multiple merges', async () => {
 
   // then
   expect(error).toBeUndefined()
+})
+
+test('should error if the source tree does not exist', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [new CreateTreeCommand('target', 'Target')])
+
+  // when
+  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeNotFoundError('source'))
+})
+
+test('should error if the target tree does not exist', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [new CreateTreeCommand('source', 'Source')])
+
+  // when
+  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeNotFoundError('target'))
+})
+
+test('should error if a media type already exists in both trees', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [
+    new CreateTreeCommand('source', 'Source'),
+    new CreateTreeCommand('target', 'Target'),
+    new AddMediaTypeCommand('source', 'media-type', 'Media Type'),
+    new AddMediaTypeCommand('target', 'media-type', 'Media Type'),
+  ])
+
+  // when
+  const error = await executeCommand(repo, new MergeTreesCommand('source', 'target'))
+
+  // then
+  expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
 })
 
 test('should error if a 2-cycle would be created', async () => {
