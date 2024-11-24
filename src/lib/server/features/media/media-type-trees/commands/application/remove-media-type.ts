@@ -1,3 +1,4 @@
+import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class RemoveMediaTypeCommand {
@@ -16,6 +17,9 @@ export class RemoveMediaTypeCommandHandler {
     // - you have media-type-trees:write permission & you are the owner of the tree
 
     const tree = await this.repo.get(command.treeId)
+    if (tree instanceof MediaTypeTreeNotFoundError) {
+      return tree
+    }
 
     const error = tree.removeMediaType(command.mediaTypeId)
     if (error instanceof Error) {
