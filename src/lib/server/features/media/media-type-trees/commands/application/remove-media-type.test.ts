@@ -2,6 +2,7 @@ import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
 import { MediaTypeNotFoundError, MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -49,8 +50,9 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should remove a media type from the tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
   ])
 
@@ -64,7 +66,8 @@ test('should remove a media type from the tree', async () => {
 test('should error if the media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('tree', 'Tree')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('tree', 'Tree', permissions)])
 
   // when
   const error = await executeCommand(repo, new RemoveMediaTypeCommand('tree', 'media-type'))

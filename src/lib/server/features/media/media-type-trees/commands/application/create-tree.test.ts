@@ -1,7 +1,12 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNameInvalidError } from '../domain/errors'
+import {
+  MediaTypeTreeAlreadyExistsError,
+  MediaTypeTreeNameInvalidError,
+  UnauthorizedError,
+} from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -45,10 +50,24 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should create a media type tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [])
 
   // when
-  const error = await executeCommand(repo, new CreateTreeCommand('tree', 'Tree'))
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', 'Tree', permissions))
+
+  // then
+  expect(error).toBeUndefined()
+})
+
+test('should create a media type tree with admin permissions', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.ADMIN])
+  await given(repo, [])
+
+  // when
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', 'Tree', permissions))
 
   // then
   expect(error).toBeUndefined()
@@ -57,10 +76,11 @@ test('should create a media type tree', async () => {
 test('should error if the name is empty', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [])
 
   // when
-  const error = await executeCommand(repo, new CreateTreeCommand('tree', ''))
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', '', permissions))
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError(''))
@@ -69,10 +89,11 @@ test('should error if the name is empty', async () => {
 test('should error if the name is only whitespace', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [])
 
   // when
-  const error = await executeCommand(repo, new CreateTreeCommand('tree', ' '))
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', ' ', permissions))
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError(' '))
@@ -81,10 +102,11 @@ test('should error if the name is only whitespace', async () => {
 test('should error if the name is only newlines', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [])
 
   // when
-  const error = await executeCommand(repo, new CreateTreeCommand('tree', '\n\n'))
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', '\n\n', permissions))
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError('\n\n'))
@@ -93,11 +115,27 @@ test('should error if the name is only newlines', async () => {
 test('should error if a tree with the id already exists', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('tree', 'Tree')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('tree', 'Tree', permissions)])
 
   // when
-  const error = await executeCommand(repo, new CreateTreeCommand('tree', 'New Tree'))
+  const error = await executeCommand(
+    repo,
+    new CreateTreeCommand('tree', 'New Tree', new Set([MediaTypeTreePermission.WRITE])),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeAlreadyExistsError('tree'))
+})
+
+test('should error if the caller has no permissions', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [])
+
+  // when
+  const error = await executeCommand(repo, new CreateTreeCommand('tree', 'Tree', new Set()))
+
+  // then
+  expect(error).toEqual(new UnauthorizedError())
 })

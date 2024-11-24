@@ -45,8 +45,14 @@ export class MediaTypeNameInvalidError extends CustomError {
 export class WillCreateCycleError extends CustomError {
   constructor(public readonly cycle: string[]) {
     super(
-      'WillCreateCycleInMediaTypeTreeError',
+      'WillCreateCycleError',
       `Performing this operation will create a cycle in the media type tree: ${cycle.join(' -> ')}`,
     )
+  }
+}
+
+export class UnauthorizedError extends CustomError {
+  constructor() {
+    super('UnauthorizedError', 'You are not authorized to perform this action')
   }
 }

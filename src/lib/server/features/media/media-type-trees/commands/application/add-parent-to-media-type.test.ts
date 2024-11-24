@@ -6,6 +6,7 @@ import {
   MediaTypeTreeNotFoundError,
   WillCreateCycleError,
 } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -49,8 +50,9 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should add a parent to a media type', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'parent', 'Parent'),
     new AddMediaTypeCommand('tree', 'child', 'Child'),
   ])
@@ -68,8 +70,9 @@ test('should add a parent to a media type', async () => {
 test('should error if the child media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'parent', 'Parent'),
   ])
 
@@ -86,8 +89,9 @@ test('should error if the child media type does not exist', async () => {
 test('should error if the parent media type does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'child', 'Child'),
   ])
 
@@ -104,8 +108,9 @@ test('should error if the parent media type does not exist', async () => {
 test('should error if a 1-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type'),
   ])
 
@@ -122,8 +127,9 @@ test('should error if a 1-cycle would be created', async () => {
 test('should error if a 2-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'parent', 'Parent'),
     new AddMediaTypeCommand('tree', 'child', 'Child'),
     new AddParentToMediaTypeCommand('tree', 'child', 'parent'),
@@ -142,8 +148,9 @@ test('should error if a 2-cycle would be created', async () => {
 test('should error if a 3-cycle would be created', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('tree', 'Tree'),
+    new CreateTreeCommand('tree', 'Tree', permissions),
     new AddMediaTypeCommand('tree', 'parent', 'Parent'),
     new AddMediaTypeCommand('tree', 'child', 'Child'),
     new AddMediaTypeCommand('tree', 'grandchild', 'Grandchild'),

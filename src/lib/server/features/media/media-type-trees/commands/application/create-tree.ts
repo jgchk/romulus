@@ -1,4 +1,5 @@
-import { MediaTypeTreeAlreadyExistsError } from '../domain/errors'
+import { MediaTypeTreeAlreadyExistsError, UnauthorizedError } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTree } from '../domain/tree'
 
@@ -6,6 +7,7 @@ export class CreateTreeCommand {
   constructor(
     public readonly id: string,
     public readonly name: string,
+    public readonly permissions: Set<MediaTypeTreePermission>,
   ) {}
 }
 
@@ -16,6 +18,13 @@ export class CreateTreeCommandHandler {
     // allow when:
     // - you have media-type-trees:admin permission
     // - you have media-type-trees:write permission
+
+    const hasPermission =
+      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
+      command.permissions.has(MediaTypeTreePermission.WRITE)
+    if (!hasPermission) {
+      return new UnauthorizedError()
+    }
 
     if (await this.repo.has(command.id)) {
       return new MediaTypeTreeAlreadyExistsError(command.id)

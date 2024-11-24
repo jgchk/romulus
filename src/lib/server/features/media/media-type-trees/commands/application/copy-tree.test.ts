@@ -6,6 +6,7 @@ import {
   MediaTypeTreeNameInvalidError,
   MediaTypeTreeNotFoundError,
 } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -49,7 +50,8 @@ async function executeCommand(repo: MemoryTreeRepository, command: Command): Pro
 test('should copy a media type tree', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('original', 'Original')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('original', 'Original', permissions)])
 
   // when
   const error = await executeCommand(repo, new CopyTreeCommand('copy', 'Copy', 'original'))
@@ -72,9 +74,10 @@ test('should error if the original tree does not exist', async () => {
 test('should error if a tree with the new id already exists', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
-    new CreateTreeCommand('original', 'Original'),
-    new CreateTreeCommand('copy', 'Copy'),
+    new CreateTreeCommand('original', 'Original', permissions),
+    new CreateTreeCommand('copy', 'Copy', permissions),
   ])
 
   // when
@@ -87,7 +90,8 @@ test('should error if a tree with the new id already exists', async () => {
 test('should error if the name is empty', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('original', 'Original')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('original', 'Original', permissions)])
 
   // when
   const error = await executeCommand(repo, new CopyTreeCommand('copy', '', 'original'))
@@ -99,7 +103,8 @@ test('should error if the name is empty', async () => {
 test('should error if the name is only whitespace', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('original', 'Original')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('original', 'Original', permissions)])
 
   // when
   const error = await executeCommand(repo, new CopyTreeCommand('copy', ' ', 'original'))
@@ -111,7 +116,8 @@ test('should error if the name is only whitespace', async () => {
 test('should error if the name is only newlines', async () => {
   // given
   const repo = new MemoryTreeRepository()
-  await given(repo, [new CreateTreeCommand('original', 'Original')])
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  await given(repo, [new CreateTreeCommand('original', 'Original', permissions)])
 
   // when
   const error = await executeCommand(repo, new CopyTreeCommand('copy', '\n\n', 'original'))
