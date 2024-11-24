@@ -84,3 +84,15 @@ test('should error if the media type tree does not exist', async () => {
   // then
   expect(error).toEqual(new MediaTypeTreeNotFoundError('tree'))
 })
+
+test('should error if the media type tree does not exist', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  await given(repo, [])
+
+  // when
+  const error = await executeCommand(repo, new RemoveMediaTypeCommand('tree', 'media-type'))
+
+  // then
+  expect(error).toEqual(new MediaTypeTreeNotFoundError('tree'))
+})
