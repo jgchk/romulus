@@ -1,3 +1,4 @@
+import { MediaTypeTreeAlreadyExistsError } from '../domain/errors'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTree } from '../domain/tree'
 
@@ -15,6 +16,10 @@ export class CreateTreeCommandHandler {
     // allow when:
     // - you have media-type-trees:admin permission
     // - you have media-type-trees:write permission
+
+    if (await this.repo.has(command.id)) {
+      return new MediaTypeTreeAlreadyExistsError(command.id)
+    }
 
     const tree = MediaTypeTree.fromEvents([])
 
