@@ -12,6 +12,10 @@ export class AddMediaTypeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: AddMediaTypeCommand) {
+    // allow when:
+    // - you have media-type-trees:admin permission
+    // - you have media-type-trees:write permission & you are the owner of the tree
+
     const tree = await this.repo.get(command.treeId)
 
     const error = tree.addMediaType(command.mediaTypeId, command.mediaTypeName)

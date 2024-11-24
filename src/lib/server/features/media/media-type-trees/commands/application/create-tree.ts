@@ -12,6 +12,10 @@ export class CreateTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: CreateTreeCommand) {
+    // allow when:
+    // - you have media-type-trees:admin permission
+    // - you have media-type-trees:write permission
+
     const tree = MediaTypeTree.fromEvents([])
 
     const error = tree.setName(command.name)

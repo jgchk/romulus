@@ -12,6 +12,10 @@ export class CopyTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: CopyTreeCommand) {
+    // allow when:
+    // - you have media-type-trees:admin permission
+    // - you have media-type-trees:write permission
+
     const tree = await this.repo.copy(command.baseTreeId)
 
     const error = tree.setName(command.name)
