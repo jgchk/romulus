@@ -1,7 +1,7 @@
-import { MediaTypeTreeAlreadyExistsError } from '../domain/tree/errors'
 import { UnauthorizedError } from '../domain/errors'
-import { PermissionChecker } from '../domain/tree/permissions'
 import { type MediaTypeTreePermission } from '../domain/roles'
+import { MediaTypeTreeAlreadyExistsError } from '../domain/tree/errors'
+import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 import { MediaTypeTree } from '../domain/tree/tree'
 

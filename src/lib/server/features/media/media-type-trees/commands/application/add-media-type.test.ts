@@ -1,11 +1,10 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import { MediaTypeTreePermission } from '../domain/roles'
-import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/tree/errors'
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
+import { MediaTypeTreePermission } from '../domain/roles'
+import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/tree/errors'
 import { AddMediaTypeCommand } from './add-media-type'
 import { CreateTreeCommand } from './create-tree'
 import { TestHelper } from './test-helper'

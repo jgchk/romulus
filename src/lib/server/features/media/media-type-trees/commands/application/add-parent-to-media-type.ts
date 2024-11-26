@@ -1,7 +1,7 @@
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { PermissionChecker } from '../domain/tree/permissions'
 import { type MediaTypeTreePermission } from '../domain/roles'
+import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class AddParentToMediaTypeCommand {
