@@ -5,6 +5,7 @@ import {
   MediaTypeTreeAlreadyExistsError,
   MediaTypeTreeNameInvalidError,
   MediaTypeTreeNotFoundError,
+  UnauthorizedError,
 } from '../domain/errors'
 import { MediaTypeTreePermission } from '../domain/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
@@ -55,7 +56,27 @@ test('should copy a media type tree', async () => {
   await given(repo, [new CreateTreeCommand('original', 'Original', userId, permissions)])
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', 'Copy', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', 'Copy', 'original', userId, permissions),
+  )
+
+  // then
+  expect(error).toBeUndefined()
+})
+
+test('should copy a media type tree if the user has admin permissions', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  const userId = 0
+  const permissions = new Set([MediaTypeTreePermission.ADMIN])
+  await given(repo, [new CreateTreeCommand('original', 'Original', userId, permissions)])
+
+  // when
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', 'Copy', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toBeUndefined()
@@ -64,10 +85,14 @@ test('should copy a media type tree', async () => {
 test('should error if the original tree does not exist', async () => {
   // given
   const repo = new MemoryTreeRepository()
+  const permissions = new Set([MediaTypeTreePermission.WRITE])
   const userId = 0
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', 'Copy', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', 'Copy', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeNotFoundError('original'))
@@ -84,7 +109,10 @@ test('should error if a tree with the new id already exists', async () => {
   ])
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', 'Copy', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', 'Copy', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeAlreadyExistsError('copy'))
@@ -98,7 +126,10 @@ test('should error if the name is empty', async () => {
   await given(repo, [new CreateTreeCommand('original', 'Original', userId, permissions)])
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', '', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', '', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError(''))
@@ -112,7 +143,10 @@ test('should error if the name is only whitespace', async () => {
   await given(repo, [new CreateTreeCommand('original', 'Original', userId, permissions)])
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', ' ', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', ' ', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError(' '))
@@ -126,8 +160,29 @@ test('should error if the name is only newlines', async () => {
   await given(repo, [new CreateTreeCommand('original', 'Original', userId, permissions)])
 
   // when
-  const error = await executeCommand(repo, new CopyTreeCommand('copy', '\n\n', 'original', userId))
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', '\n\n', 'original', userId, permissions),
+  )
 
   // then
   expect(error).toEqual(new MediaTypeTreeNameInvalidError('\n\n'))
+})
+
+test('should error if the use does not have any permissions', async () => {
+  // given
+  const repo = new MemoryTreeRepository()
+  const userId = 0
+  await given(repo, [
+    new CreateTreeCommand('original', 'Original', userId, new Set([MediaTypeTreePermission.WRITE])),
+  ])
+
+  // when
+  const error = await executeCommand(
+    repo,
+    new CopyTreeCommand('copy', 'Copy', 'original', userId, new Set()),
+  )
+
+  // then
+  expect(error).toEqual(new UnauthorizedError())
 })

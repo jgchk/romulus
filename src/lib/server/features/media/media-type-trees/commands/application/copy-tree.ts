@@ -1,4 +1,9 @@
-import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNotFoundError } from '../domain/errors'
+import {
+  MediaTypeTreeAlreadyExistsError,
+  MediaTypeTreeNotFoundError,
+  UnauthorizedError,
+} from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class CopyTreeCommand {
@@ -7,6 +12,7 @@ export class CopyTreeCommand {
     public readonly name: string,
     public readonly baseTreeId: string,
     public readonly userId: number,
+    public readonly permissions: Set<MediaTypeTreePermission>,
   ) {}
 }
 
@@ -14,9 +20,12 @@ export class CopyTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: CopyTreeCommand) {
-    // allow when:
-    // - you have media-type-trees:admin permission
-    // - you have media-type-trees:write permission
+    const hasPermission =
+      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
+      command.permissions.has(MediaTypeTreePermission.WRITE)
+    if (!hasPermission) {
+      return new UnauthorizedError()
+    }
 
     if (await this.repo.has(command.id)) {
       return new MediaTypeTreeAlreadyExistsError(command.id)

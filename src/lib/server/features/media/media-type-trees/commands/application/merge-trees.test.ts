@@ -128,9 +128,9 @@ test('should merge two trees with a new parent-child relationship', async () => 
     new CreateTreeCommand('base', 'Base', userId, permissions),
     new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
-    new CopyTreeCommand('source', 'Source', 'base', userId),
+    new CopyTreeCommand('source', 'Source', 'base', userId, permissions),
     new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
-    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new CopyTreeCommand('target', 'Target', 'base', userId, permissions),
   ])
 
   // when
@@ -148,8 +148,8 @@ test('should merge two trees with no changes', async () => {
   await given(repo, [
     new CreateTreeCommand('base', 'Base', userId, permissions),
     new AddMediaTypeCommand('base', 'media-type', 'Media Type', userId, permissions),
-    new CopyTreeCommand('source', 'Source', 'base', userId),
-    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new CopyTreeCommand('source', 'Source', 'base', userId, permissions),
+    new CopyTreeCommand('target', 'Target', 'base', userId, permissions),
   ])
 
   // when
@@ -166,8 +166,8 @@ test('should handle multiple merges', async () => {
   const permissions = new Set([MediaTypeTreePermission.WRITE])
   await given(repo, [
     new CreateTreeCommand('base', 'Base', userId, permissions),
-    new CopyTreeCommand('source', 'Source', 'base', userId),
-    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new CopyTreeCommand('source', 'Source', 'base', userId, permissions),
+    new CopyTreeCommand('target', 'Target', 'base', userId, permissions),
     new AddMediaTypeCommand('source', 'media-type', 'Media Type', userId, permissions),
     new MergeTreesCommand('source', 'target'),
   ])
@@ -235,9 +235,9 @@ test('should error if a 2-cycle would be created', async () => {
     new CreateTreeCommand('base', 'Base', userId, permissions),
     new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
-    new CopyTreeCommand('source', 'Source', 'base', userId),
+    new CopyTreeCommand('source', 'Source', 'base', userId, permissions),
     new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
-    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new CopyTreeCommand('target', 'Target', 'base', userId, permissions),
     new AddParentToMediaTypeCommand('target', 'parent', 'child', userId, permissions),
   ])
 
@@ -258,10 +258,10 @@ test('should error if a 3-cycle would be created', async () => {
     new AddMediaTypeCommand('base', 'parent', 'Parent', userId, permissions),
     new AddMediaTypeCommand('base', 'child', 'Child', userId, permissions),
     new AddMediaTypeCommand('base', 'grandchild', 'Grandchild', userId, permissions),
-    new CopyTreeCommand('source', 'Source', 'base', userId),
+    new CopyTreeCommand('source', 'Source', 'base', userId, permissions),
     new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, permissions),
     new AddParentToMediaTypeCommand('source', 'grandchild', 'child', userId, permissions),
-    new CopyTreeCommand('target', 'Target', 'base', userId),
+    new CopyTreeCommand('target', 'Target', 'base', userId, permissions),
     new AddParentToMediaTypeCommand('target', 'parent', 'grandchild', userId, permissions),
   ])
 
