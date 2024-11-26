@@ -1,11 +1,5 @@
 import { CustomError } from '$lib/utils/error'
 
-export class MediaTypeTreeNotFoundError extends CustomError {
-  constructor(public readonly id: string) {
-    super('MediaTypeTreeNotFoundError', `Media type tree not found with id: ${id}`)
-  }
-}
-
 export class MediaTypeTreeAlreadyExistsError extends CustomError {
   constructor(public readonly id: string) {
     super('MediaTypeTreeAlreadyExistsError', `Media type tree already exists with id: ${id}`)
@@ -48,11 +42,5 @@ export class WillCreateCycleError extends CustomError {
       'WillCreateCycleError',
       `Performing this operation will create a cycle in the media type tree: ${cycle.join(' -> ')}`,
     )
-  }
-}
-
-export class UnauthorizedError extends CustomError {
-  constructor() {
-    super('UnauthorizedError', 'You are not authorized to perform this action')
   }
 }

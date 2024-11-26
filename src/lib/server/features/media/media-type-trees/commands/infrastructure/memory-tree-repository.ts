@@ -1,6 +1,6 @@
 import { withProps } from '$lib/utils/object'
 
-import { MediaTypeTreeNotFoundError } from '../domain/tree/errors'
+import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import type { MediaTypeTreeEvent } from '../domain/tree/events'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 import { MediaTypeTree } from '../domain/tree/tree'

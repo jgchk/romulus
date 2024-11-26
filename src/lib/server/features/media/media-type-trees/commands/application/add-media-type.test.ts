@@ -1,28 +1,24 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
-import {
-  MediaTypeAlreadyExistsError,
-  MediaTypeNameInvalidError,
-  MediaTypeTreeNotFoundError,
-  UnauthorizedError,
-} from '../domain/tree/errors'
-import { MediaTypeTreePermission } from '../domain/tree/permissions'
+import { MediaTypeTreePermission } from '../domain/roles'
+import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/tree/errors'
+import { UnauthorizedError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand } from './add-media-type'
 import { CreateTreeCommand } from './create-tree'
-import { executeCommand, given } from './test-helpers'
+import { TestHelper } from './test-helper'
 
 test('should add a media type to the tree', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('tree', 'Tree', userId, permissions)])
+  await t.given([new CreateTreeCommand('tree', 'Tree', userId, permissions)])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   )
 
@@ -32,16 +28,15 @@ test('should add a media type to the tree', async () => {
 
 test("should add a media type to another user's tree if the user has admin permissions", async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const adminUserId = 0
   const regularUserId = 1
-  await given(repo, [
+  await t.given([
     new CreateTreeCommand('tree', 'Tree', regularUserId, new Set([MediaTypeTreePermission.WRITE])),
   ])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand(
       'tree',
       'media-type',
@@ -57,17 +52,16 @@ test("should add a media type to another user's tree if the user has admin permi
 
 test('should error if the media type already exists', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [
+  await t.given([
     new CreateTreeCommand('tree', 'Tree', userId, permissions),
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   ])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   )
 
@@ -77,16 +71,13 @@ test('should error if the media type already exists', async () => {
 
 test('should error if the media type name is empty', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('tree', 'Tree', userId, permissions)])
+  await t.given([new CreateTreeCommand('tree', 'Tree', userId, permissions)])
 
   // when
-  const error = await executeCommand(
-    repo,
-    new AddMediaTypeCommand('tree', 'media-type', '', userId, permissions),
-  )
+  const error = await t.when(new AddMediaTypeCommand('tree', 'media-type', '', userId, permissions))
 
   // then
   expect(error).toEqual(new MediaTypeNameInvalidError(''))
@@ -94,14 +85,13 @@ test('should error if the media type name is empty', async () => {
 
 test('should error if the media type name is only whitespace', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('tree', 'Tree', userId, permissions)])
+  await t.given([new CreateTreeCommand('tree', 'Tree', userId, permissions)])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', ' ', userId, permissions),
   )
 
@@ -111,14 +101,13 @@ test('should error if the media type name is only whitespace', async () => {
 
 test('should error if the media type name is only newlines', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [new CreateTreeCommand('tree', 'Tree', userId, permissions)])
+  await t.given([new CreateTreeCommand('tree', 'Tree', userId, permissions)])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', '\n\n', userId, permissions),
   )
 
@@ -128,14 +117,13 @@ test('should error if the media type name is only newlines', async () => {
 
 test('should error if the media type tree does not exist', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const permissions = new Set([MediaTypeTreePermission.WRITE])
-  await given(repo, [])
+  await t.given([])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
   )
 
@@ -145,15 +133,14 @@ test('should error if the media type tree does not exist', async () => {
 
 test('should error if the user does not have any permissions', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
-  await given(repo, [
+  await t.given([
     new CreateTreeCommand('tree', 'Tree', userId, new Set([MediaTypeTreePermission.WRITE])),
   ])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, new Set()),
   )
 
@@ -163,16 +150,15 @@ test('should error if the user does not have any permissions', async () => {
 
 test('should error if the user does not own the tree', async () => {
   // given
-  const repo = new MemoryTreeRepository()
+  const t = new TestHelper()
   const userId = 0
   const otherUserId = 1
-  await given(repo, [
+  await t.given([
     new CreateTreeCommand('tree', 'Tree', userId, new Set([MediaTypeTreePermission.WRITE])),
   ])
 
   // when
-  const error = await executeCommand(
-    repo,
+  const error = await t.when(
     new AddMediaTypeCommand(
       'tree',
       'media-type',

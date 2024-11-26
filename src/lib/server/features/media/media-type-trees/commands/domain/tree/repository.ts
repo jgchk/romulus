@@ -1,6 +1,6 @@
 import type { MaybePromise } from '$lib/utils/types'
 
-import type { MediaTypeTreeNotFoundError } from './errors'
+import type { MediaTypeTreeNotFoundError } from '../errors'
 import type { MediaTypeTree } from './tree'
 
 export type IMediaTypeTreeRepository = {
