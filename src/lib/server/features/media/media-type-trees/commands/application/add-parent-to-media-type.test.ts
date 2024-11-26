@@ -8,6 +8,7 @@ import { MediaTypeNotFoundError, WillCreateCycleError } from '../domain/tree/err
 import { AddMediaTypeCommand } from './add-media-type'
 import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
 import { CreateTreeCommand } from './create-tree'
+import { SetMainTreeCommand } from './set-main-tree'
 import { TestHelper } from './test-helper'
 
 test('should add a parent to a media type', async () => {
@@ -50,6 +51,50 @@ test("should add a parent to a media type in another user's tree if the user has
 
   // then
   expect(error).toBeUndefined()
+})
+
+test('should add a parent to a media type in the main tree if the user has the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const userId = 0
+  const roles = new Set([MediaTypeTreesRole.ADMIN])
+  await t.given([
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
+    new SetMainTreeCommand('tree', userId, roles),
+  ])
+
+  // when
+  const error = await t.when(
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
+  )
+
+  // then
+  expect(error).toBeUndefined()
+})
+
+test('should error if adding a parent to a media type in the main tree if the user does not have the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const adminUserId = 0
+  const adminRoles = new Set([MediaTypeTreesRole.ADMIN])
+  const regularUserId = 1
+  const regularUserRoles = new Set([MediaTypeTreesRole.WRITE])
+  await t.given([
+    new CreateTreeCommand('tree', 'Tree', regularUserId, regularUserRoles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', regularUserId, regularUserRoles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', regularUserId, regularUserRoles),
+    new SetMainTreeCommand('tree', adminUserId, adminRoles),
+  ])
+
+  // when
+  const error = await t.when(
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', regularUserId, regularUserRoles),
+  )
+
+  // then
+  expect(error).toEqual(new UnauthorizedError())
 })
 
 test('should error if the child media type does not exist', async () => {
