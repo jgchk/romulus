@@ -10,6 +10,7 @@ import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
 import { CopyTreeCommand } from './copy-tree'
 import { CreateTreeCommand } from './create-tree'
 import { MergeTreesCommand } from './merge-trees'
+import { SetMainTreeCommand } from './set-main-tree'
 import { TestHelper } from './test-helper'
 
 test('should merge two trees when the user owns both trees', async () => {
@@ -39,6 +40,26 @@ test('should merge two trees not created by the user when the user has the admin
   await t.given([
     new CreateTreeCommand('source', 'Source', otherUserId, otherUserRoles),
     new CreateTreeCommand('target', 'Target', otherUserId, otherUserRoles),
+  ])
+
+  // when
+  const error = await t.when(new MergeTreesCommand('source', 'target', adminUserId, adminRoles))
+
+  // then
+  expect(error).toBeUndefined()
+})
+
+test('should merge into the main tree when the user has the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const adminUserId = 0
+  const otherUserId = 1
+  const adminRoles = new Set([MediaTypeTreesRole.ADMIN])
+  const otherUserRoles = new Set([MediaTypeTreesRole.WRITE])
+  await t.given([
+    new CreateTreeCommand('source', 'Source', otherUserId, otherUserRoles),
+    new CreateTreeCommand('target', 'Target', otherUserId, otherUserRoles),
+    new SetMainTreeCommand('target', adminUserId, adminRoles),
   ])
 
   // when
@@ -161,6 +182,26 @@ test('should handle multiple merges', async () => {
 
   // then
   expect(error).toBeUndefined()
+})
+
+test('should error if merging into the main tree without the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const adminUserId = 0
+  const otherUserId = 1
+  const adminRoles = new Set([MediaTypeTreesRole.ADMIN])
+  const otherUserRoles = new Set([MediaTypeTreesRole.WRITE])
+  await t.given([
+    new CreateTreeCommand('source', 'Source', otherUserId, otherUserRoles),
+    new CreateTreeCommand('target', 'Target', otherUserId, otherUserRoles),
+    new SetMainTreeCommand('target', adminUserId, adminRoles),
+  ])
+
+  // when
+  const error = await t.when(new MergeTreesCommand('source', 'target', otherUserId, otherUserRoles))
+
+  // then
+  expect(error).toEqual(new UnauthorizedError())
 })
 
 test('should error if the source tree does not exist', async () => {

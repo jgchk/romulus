@@ -1,5 +1,6 @@
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import type { IMainTreeManagerRepository } from '../domain/main-tree-manager/repository'
 import type { MediaTypeTreesRole } from '../domain/roles'
 import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
@@ -14,7 +15,10 @@ export class MergeTreesCommand {
 }
 
 export class MergeTreesCommandHandler {
-  constructor(private treeRepo: IMediaTypeTreeRepository) {}
+  constructor(
+    private treeRepo: IMediaTypeTreeRepository,
+    private mainTreeRepo: IMainTreeManagerRepository,
+  ) {}
 
   async handle(command: MergeTreesCommand) {
     const sourceTree = await this.treeRepo.get(command.sourceTreeId)
@@ -27,9 +31,12 @@ export class MergeTreesCommandHandler {
       return targetTree
     }
 
+    const mainTreeManager = await this.mainTreeRepo.get()
+
     const hasPermission = PermissionChecker.canModifyTree(
       command.roles,
       targetTree.isOwner(command.userId),
+      mainTreeManager.isMainTree(command.targetTreeId),
     )
     if (!hasPermission) {
       return new UnauthorizedError()
