@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../../../vitest-setup'
 import {
   MediaTypeAlreadyExistsError,
   MediaTypeNameInvalidError,

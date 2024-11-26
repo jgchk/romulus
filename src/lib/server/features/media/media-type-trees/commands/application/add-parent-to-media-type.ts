@@ -1,6 +1,6 @@
-import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
-import { type MediaTypeTreePermission, PermissionChecker } from '../domain/permissions'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/tree/errors'
+import { type MediaTypeTreePermission, PermissionChecker } from '../domain/tree/permissions'
+import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class AddParentToMediaTypeCommand {
   constructor(

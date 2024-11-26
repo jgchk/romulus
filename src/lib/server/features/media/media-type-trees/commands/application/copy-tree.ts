@@ -2,10 +2,10 @@ import {
   MediaTypeTreeAlreadyExistsError,
   MediaTypeTreeNotFoundError,
   UnauthorizedError,
-} from '../domain/errors'
-import type { MediaTypeTreePermission } from '../domain/permissions'
-import { PermissionChecker } from '../domain/permissions'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
+} from '../domain/tree/errors'
+import type { MediaTypeTreePermission } from '../domain/tree/permissions'
+import { PermissionChecker } from '../domain/tree/permissions'
+import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class CopyTreeCommand {
   constructor(

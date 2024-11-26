@@ -1,7 +1,7 @@
-import { MediaTypeTreeAlreadyExistsError, UnauthorizedError } from '../domain/errors'
-import { type MediaTypeTreePermission, PermissionChecker } from '../domain/permissions'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
-import { MediaTypeTree } from '../domain/tree'
+import { MediaTypeTreeAlreadyExistsError, UnauthorizedError } from '../domain/tree/errors'
+import { type MediaTypeTreePermission, PermissionChecker } from '../domain/tree/permissions'
+import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
+import { MediaTypeTree } from '../domain/tree/tree'
 
 export class CreateTreeCommand {
   constructor(

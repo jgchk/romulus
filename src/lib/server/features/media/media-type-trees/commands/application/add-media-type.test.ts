@@ -6,8 +6,8 @@ import {
   MediaTypeNameInvalidError,
   MediaTypeTreeNotFoundError,
   UnauthorizedError,
-} from '../domain/errors'
-import { MediaTypeTreePermission } from '../domain/permissions'
+} from '../domain/tree/errors'
+import { MediaTypeTreePermission } from '../domain/tree/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand } from './add-media-type'
 import { CreateTreeCommand } from './create-tree'

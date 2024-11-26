@@ -5,8 +5,8 @@ import {
   MediaTypeTreeAlreadyExistsError,
   MediaTypeTreeNameInvalidError,
   UnauthorizedError,
-} from '../domain/errors'
-import { MediaTypeTreePermission } from '../domain/permissions'
+} from '../domain/tree/errors'
+import { MediaTypeTreePermission } from '../domain/tree/permissions'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { CreateTreeCommand } from './create-tree'
 import { executeCommand, given } from './test-helpers'
