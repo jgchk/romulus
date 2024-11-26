@@ -3,7 +3,8 @@ import {
   MediaTypeTreeNotFoundError,
   UnauthorizedError,
 } from '../domain/errors'
-import { MediaTypeTreePermission } from '../domain/permissions'
+import type { MediaTypeTreePermission } from '../domain/permissions'
+import { PermissionChecker } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class CopyTreeCommand {
@@ -20,9 +21,7 @@ export class CopyTreeCommandHandler {
   constructor(private repo: IMediaTypeTreeRepository) {}
 
   async handle(command: CopyTreeCommand) {
-    const hasPermission =
-      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
-      command.permissions.has(MediaTypeTreePermission.WRITE)
+    const hasPermission = PermissionChecker.canCreateTree(command.permissions)
     if (!hasPermission) {
       return new UnauthorizedError()
     }

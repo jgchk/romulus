@@ -1,5 +1,6 @@
 import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreePermission } from '../domain/permissions'
+import type { MediaTypeTreePermission } from '../domain/permissions'
+import { PermissionChecker } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class AddMediaTypeCommand {
@@ -21,9 +22,10 @@ export class AddMediaTypeCommandHandler {
       return tree
     }
 
-    const hasPermission =
-      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
-      (command.permissions.has(MediaTypeTreePermission.WRITE) && tree.isOwner(command.userId))
+    const hasPermission = PermissionChecker.canModifyTree(
+      command.permissions,
+      tree.isOwner(command.userId),
+    )
     if (!hasPermission) {
       return new UnauthorizedError()
     }
