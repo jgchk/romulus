@@ -7,6 +7,7 @@ import { MediaTypeTreesRole } from '../domain/roles'
 import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/tree/errors'
 import { AddMediaTypeCommand } from './add-media-type'
 import { CreateTreeCommand } from './create-tree'
+import { SetMainTreeCommand } from './set-main-tree'
 import { TestHelper } from './test-helper'
 
 test('should add a media type to the tree', async () => {
@@ -47,6 +48,46 @@ test("should add a media type to another user's tree if the user has the admin r
 
   // then
   expect(error).toBeUndefined()
+})
+
+test('should add a media type to the main tree if the user has the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const userId = 0
+  const roles = new Set([MediaTypeTreesRole.ADMIN])
+  await t.given([
+    new CreateTreeCommand('main', 'Main', userId, roles),
+    new SetMainTreeCommand('main', userId, roles),
+  ])
+
+  // when
+  const error = await t.when(
+    new AddMediaTypeCommand('main', 'media-type', 'Media Type', userId, roles),
+  )
+
+  // then
+  expect(error).toBeUndefined()
+})
+
+test('should error if adding a media type to the main tree if the user does not have the admin role', async () => {
+  // given
+  const t = new TestHelper()
+  const adminUserId = 0
+  const regularUserId = 1
+  const adminRoles = new Set([MediaTypeTreesRole.ADMIN])
+  const regularUserRoles = new Set([MediaTypeTreesRole.WRITE])
+  await t.given([
+    new CreateTreeCommand('main', 'Main', regularUserId, regularUserRoles),
+    new SetMainTreeCommand('main', adminUserId, adminRoles),
+  ])
+
+  // when
+  const error = await t.when(
+    new AddMediaTypeCommand('main', 'media-type', 'Media Type', regularUserId, regularUserRoles),
+  )
+
+  // then
+  expect(error).toEqual(new UnauthorizedError())
 })
 
 test('should error if the media type already exists', async () => {

@@ -35,7 +35,7 @@ export class TestHelper {
     if (command instanceof CreateTreeCommand) {
       return new CreateTreeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof AddMediaTypeCommand) {
-      return new AddMediaTypeCommandHandler(this.treeRepo).handle(command)
+      return new AddMediaTypeCommandHandler(this.treeRepo, this.mainTreeRepo).handle(command)
     } else if (command instanceof AddParentToMediaTypeCommand) {
       return new AddParentToMediaTypeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof CopyTreeCommand) {

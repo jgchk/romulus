@@ -41,4 +41,8 @@ export class MainTreeManager {
     this.applyEvent(event)
     this.addEvent(event)
   }
+
+  isMainTree(treeId: string): boolean {
+    return this.mainTreeId === treeId
+  }
 }

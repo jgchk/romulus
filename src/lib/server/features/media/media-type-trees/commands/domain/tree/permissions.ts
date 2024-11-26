@@ -5,10 +5,14 @@ export class PermissionChecker {
     return permissions.has(MediaTypeTreesRole.ADMIN) || permissions.has(MediaTypeTreesRole.WRITE)
   }
 
-  static canModifyTree(permissions: Set<MediaTypeTreesRole>, isOwner: boolean): boolean {
+  static canModifyTree(
+    permissions: Set<MediaTypeTreesRole>,
+    isOwner: boolean,
+    isMainTree: boolean,
+  ): boolean {
     return (
       permissions.has(MediaTypeTreesRole.ADMIN) ||
-      (permissions.has(MediaTypeTreesRole.WRITE) && isOwner)
+      (permissions.has(MediaTypeTreesRole.WRITE) && isOwner && !isMainTree)
     )
   }
 }
