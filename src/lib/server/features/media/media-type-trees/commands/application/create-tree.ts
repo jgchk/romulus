@@ -23,17 +23,18 @@ export class CreateTreeCommandHandler {
       return new UnauthorizedError()
     }
 
-    if (await this.repo.has(command.id)) {
+    const existingTree = await this.repo.get(command.id)
+    if (existingTree.isCreated()) {
       return new MediaTypeTreeAlreadyExistsError(command.id)
     }
 
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents(command.id, [])
 
-    const error = tree.create(command.name, command.userId)
+    const error = tree.create(command.name, undefined, command.userId)
     if (error instanceof Error) {
       return error
     }
 
-    await this.repo.save(command.id, tree)
+    await this.repo.save(tree)
   }
 }

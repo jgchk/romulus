@@ -1,5 +1,4 @@
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
 import type { IMainTreeManagerRepository } from '../domain/main-tree-manager/repository'
 import { type MediaTypeTreesRole } from '../domain/roles'
 import { PermissionChecker } from '../domain/tree/permissions'
@@ -23,8 +22,8 @@ export class AddParentToMediaTypeCommandHandler {
 
   async handle(command: AddParentToMediaTypeCommand) {
     const tree = await this.treeRepo.get(command.treeId)
-    if (tree instanceof MediaTypeTreeNotFoundError) {
-      return tree
+    if (!tree.isCreated()) {
+      return new MediaTypeTreeNotFoundError(command.treeId)
     }
 
     const mainTreeManager = await this.mainTreeRepo.get()
@@ -43,6 +42,6 @@ export class AddParentToMediaTypeCommandHandler {
       return error
     }
 
-    await this.treeRepo.save(command.treeId, tree)
+    await this.treeRepo.save(tree)
   }
 }

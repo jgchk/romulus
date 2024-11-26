@@ -130,15 +130,12 @@ export class TreeState {
   merge(
     sourceTree: TreeState,
     baseTree: TreeState,
-  ): MergeChange[] | MediaTypeAlreadyExistsError | WillCreateCycleError {
-    const changes: MergeChange[] = []
-
+  ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
     // 1. Handle media types that were added in sourceTree since baseTree
     for (const [id, node] of sourceTree.nodes) {
       if (!baseTree.nodes.has(id) && !this.nodes.has(id)) {
         // Media type was added in sourceTree and doesn't exist in the current tree
         this.nodes.set(id, node.cloneWithoutChildren())
-        changes.push({ action: 'added', id, name: node.getName() })
       } else if (!baseTree.nodes.has(id) && this.nodes.has(id)) {
         // Media type was added in both trees independently - conflict
         return new MediaTypeAlreadyExistsError(id)
@@ -165,43 +162,7 @@ export class TreeState {
           } else if (error instanceof MediaTypeNotFoundError) {
             throw error // should never happen
           }
-
-          changes.push({ action: 'parent-added', childId, parentId: id })
         }
-      }
-    }
-
-    return changes
-  }
-
-  replayMerge(
-    changes: MergeChange[],
-  ):
-    | void
-    | MediaTypeNameInvalidError
-    | MediaTypeAlreadyExistsError
-    | MediaTypeNotFoundError
-    | WillCreateCycleError {
-    for (const change of changes) {
-      if (change.action === 'added') {
-        const error = this.addMediaType(change.id, change.name)
-        if (error instanceof Error) {
-          return error
-        }
-      } else if (change.action === 'removed') {
-        const error = this.removeMediaType(change.id)
-        if (error instanceof Error) {
-          return error
-        }
-      } else if (change.action === 'parent-added') {
-        const error = this.addChildToMediaType(change.parentId, change.childId)
-        if (error instanceof Error) {
-          return error
-        }
-      } else {
-        // exhaustive check
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _exhaustiveCheck: never = change
       }
     }
   }
@@ -265,8 +226,3 @@ class MediaTypeName {
     return this.value
   }
 }
-
-export type MergeChange =
-  | { action: 'added'; id: string; name: string }
-  | { action: 'removed'; id: string }
-  | { action: 'parent-added'; childId: string; parentId: string }

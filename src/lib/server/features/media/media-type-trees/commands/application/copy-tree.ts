@@ -1,9 +1,9 @@
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
 import type { MediaTypeTreesRole } from '../domain/roles'
 import { MediaTypeTreeAlreadyExistsError } from '../domain/tree/errors'
 import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
+import { MediaTypeTree } from '../domain/tree/tree'
 
 export class CopyTreeCommand {
   constructor(
@@ -24,20 +24,23 @@ export class CopyTreeCommandHandler {
       return new UnauthorizedError()
     }
 
-    if (await this.repo.has(command.id)) {
+    const existingTree = await this.repo.get(command.id)
+    if (existingTree.isCreated()) {
       return new MediaTypeTreeAlreadyExistsError(command.id)
     }
 
-    const tree = await this.repo.copy(command.baseTreeId)
-    if (tree instanceof MediaTypeTreeNotFoundError) {
-      return tree
+    const baseTree = await this.repo.get(command.baseTreeId)
+    if (!baseTree.isCreated()) {
+      return new MediaTypeTreeNotFoundError(command.baseTreeId)
     }
 
-    const error = tree.create(command.name, command.userId)
+    const tree = MediaTypeTree.fromEvents(command.id, [])
+
+    const error = tree.create(command.name, command.baseTreeId, command.userId)
     if (error instanceof Error) {
       return error
     }
 
-    await this.repo.save(command.id, tree)
+    await this.repo.save(tree)
   }
 }

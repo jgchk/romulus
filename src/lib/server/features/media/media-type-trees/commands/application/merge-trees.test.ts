@@ -124,7 +124,7 @@ test('should merge two trees with no conflicts', async () => {
   expect(error).toBeUndefined()
 })
 
-test('should merge two trees with a new parent-child relationship', async () => {
+test.only('should merge two trees with a new parent-child relationship', async () => {
   // given
   const t = new TestHelper()
   const userId = 0

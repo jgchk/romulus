@@ -1,5 +1,4 @@
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
 import type { IMainTreeManagerRepository } from '../domain/main-tree-manager/repository'
 import type { MediaTypeTreesRole } from '../domain/roles'
 import { PermissionChecker } from '../domain/tree/permissions'
@@ -22,13 +21,13 @@ export class MergeTreesCommandHandler {
 
   async handle(command: MergeTreesCommand) {
     const sourceTree = await this.treeRepo.get(command.sourceTreeId)
-    if (sourceTree instanceof MediaTypeTreeNotFoundError) {
-      return sourceTree
+    if (!sourceTree.isCreated()) {
+      return new MediaTypeTreeNotFoundError(command.sourceTreeId)
     }
 
     const targetTree = await this.treeRepo.get(command.targetTreeId)
-    if (targetTree instanceof MediaTypeTreeNotFoundError) {
-      return targetTree
+    if (!targetTree.isCreated()) {
+      return new MediaTypeTreeNotFoundError(command.targetTreeId)
     }
 
     const mainTreeManager = await this.mainTreeRepo.get()
@@ -42,17 +41,11 @@ export class MergeTreesCommandHandler {
       return new UnauthorizedError()
     }
 
-    const lastCommonCommit = sourceTree.getLastCommonCommit(targetTree)
-    const baseTree = await this.treeRepo.getToCommit(command.sourceTreeId, lastCommonCommit)
-    if (baseTree instanceof MediaTypeTreeNotFoundError) {
-      return baseTree
-    }
-
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge(command.sourceTreeId)
     if (error instanceof Error) {
       return error
     }
 
-    await this.treeRepo.save(command.targetTreeId, targetTree)
+    await this.treeRepo.save(targetTree)
   }
 }

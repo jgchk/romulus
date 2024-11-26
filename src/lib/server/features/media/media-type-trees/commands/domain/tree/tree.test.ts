@@ -24,49 +24,49 @@ const expectUuid = expect.stringMatching(
 describe('create()', () => {
   test('should set the tree name', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create('Tree', 0)
+    const error = tree.create('Tree', undefined, 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeCreatedEvent('Tree', 0)])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0)])
   })
 
   test('should trim name', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create(' Tree ', 0)
+    const error = tree.create(' Tree ', undefined, 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeCreatedEvent('Tree', 0)])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0)])
   })
 
   test('should remove newlines from name', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create('One \nTwo', 0)
+    const error = tree.create('One \nTwo', undefined, 0)
     expect(error).toBeUndefined()
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeTreeCreatedEvent('One Two', 0)])
+    expect(events).toEqual([new MediaTypeTreeCreatedEvent('tree', 'One Two', undefined, 0)])
   })
 
   test('should error if the name is empty', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create('', 0)
+    const error = tree.create('', undefined, 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError(''))
@@ -74,10 +74,10 @@ describe('create()', () => {
 
   test('should error if the name is only whitespace', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create('   ', 0)
+    const error = tree.create('   ', undefined, 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError('   '))
@@ -85,10 +85,10 @@ describe('create()', () => {
 
   test('should error if the name is only newlines', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [])
 
     // when
-    const error = tree.create('\n\n', 0)
+    const error = tree.create('\n\n', undefined, 0)
 
     // then
     expect(error).toEqual(new MediaTypeTreeNameInvalidError('\n\n'))
@@ -98,7 +98,9 @@ describe('create()', () => {
 describe('addMediaType()', () => {
   test('should add a media type to the tree', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', 'Media Type')
@@ -106,12 +108,16 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type', expectUuid)])
+    expect(events).toEqual([
+      new MediaTypeAddedEvent('tree', 'media-type', 'Media Type', expectUuid),
+    ])
   })
 
   test('should trim media type name', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', '   Media Type    ')
@@ -119,12 +125,16 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'Media Type', expectUuid)])
+    expect(events).toEqual([
+      new MediaTypeAddedEvent('tree', 'media-type', 'Media Type', expectUuid),
+    ])
   })
 
   test('should remove newlines from media type name', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', 'One \nTwo')
@@ -132,13 +142,14 @@ describe('addMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeAddedEvent('media-type', 'One Two', expectUuid)])
+    expect(events).toEqual([new MediaTypeAddedEvent('tree', 'media-type', 'One Two', expectUuid)])
   })
 
   test('should error if the media type already exists', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'media-type', 'Media Type', 'commit-1'),
     ])
 
     // when
@@ -150,7 +161,9 @@ describe('addMediaType()', () => {
 
   test('should error if the media type name is empty', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', '')
@@ -161,7 +174,9 @@ describe('addMediaType()', () => {
 
   test('should error if the media type name is only whitespace', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', '   ')
@@ -172,7 +187,9 @@ describe('addMediaType()', () => {
 
   test('should error if the media type name is only newlines', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.addMediaType('media-type', '\n\n')
@@ -185,8 +202,9 @@ describe('addMediaType()', () => {
 describe('removeMediaType()', () => {
   test('should remove a media type from the tree', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'media-type', 'Media Type', 'commit-1'),
     ])
 
     // when
@@ -195,12 +213,14 @@ describe('removeMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new MediaTypeRemovedEvent('media-type', expectUuid)])
+    expect(events).toEqual([new MediaTypeRemovedEvent('tree', 'media-type', expectUuid)])
   })
 
   test('should error if the media type does not exist', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+    ])
 
     // when
     const error = tree.removeMediaType('media-type')
@@ -213,9 +233,10 @@ describe('removeMediaType()', () => {
 describe('addParentToMediaType()', () => {
   test('should add a parent to a media type', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-2'),
     ])
 
     // when
@@ -224,12 +245,15 @@ describe('addParentToMediaType()', () => {
 
     // then
     const events = tree.getUncommittedEvents()
-    expect(events).toEqual([new ParentAddedToMediaTypeEvent('child', 'parent', expectUuid)])
+    expect(events).toEqual([new ParentAddedToMediaTypeEvent('tree', 'child', 'parent', expectUuid)])
   })
 
   test('should error if the child media type does not exist', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('parent', 'Parent', 'commit-1')])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'parent', 'Parent', 'commit-1'),
+    ])
 
     // when
     const error = tree.addParentToMediaType('child', 'parent')
@@ -240,7 +264,10 @@ describe('addParentToMediaType()', () => {
 
   test('should error if the parent media type does not exist', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([new MediaTypeAddedEvent('child', 'Child', 'commit-1')])
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-1'),
+    ])
 
     // when
     const error = tree.addParentToMediaType('child', 'parent')
@@ -251,8 +278,9 @@ describe('addParentToMediaType()', () => {
 
   test('should error if a 1-cycle would be created', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'commit-1'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'media-type', 'Media Type', 'commit-1'),
     ])
 
     // when
@@ -264,10 +292,11 @@ describe('addParentToMediaType()', () => {
 
   test('should error if a 2-cycle would be created', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
-      new ParentAddedToMediaTypeEvent('child', 'parent', 'commit-3'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-2'),
+      new ParentAddedToMediaTypeEvent('tree', 'child', 'parent', 'commit-3'),
     ])
 
     // when
@@ -279,12 +308,13 @@ describe('addParentToMediaType()', () => {
 
   test('should error if a 3-cycle would be created', () => {
     // given
-    const tree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'commit-2'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'commit-3'),
-      new ParentAddedToMediaTypeEvent('child', 'parent', 'commit-4'),
-      new ParentAddedToMediaTypeEvent('grandchild', 'child', 'commit-5'),
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-2'),
+      new MediaTypeAddedEvent('tree', 'grandchild', 'Grandchild', 'commit-3'),
+      new ParentAddedToMediaTypeEvent('tree', 'child', 'parent', 'commit-4'),
+      new ParentAddedToMediaTypeEvent('tree', 'grandchild', 'child', 'commit-5'),
     ])
 
     // when
@@ -298,157 +328,121 @@ describe('addParentToMediaType()', () => {
 describe('merge()', () => {
   test('should merge a tree with an empty tree', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeAddedEvent('source', 'media-type', 'Media Type', 'source-commit-1'),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
     ])
-    const targetTree = MediaTypeTree.fromEvents([])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([
-      new MediaTypeTreesMergedEvent(
-        [{ action: 'added', id: 'media-type', name: 'Media Type' }],
-        {
-          id: 'source-commit-1',
-          parents: [],
-        },
-        expectUuid,
-      ),
-    ])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
   test('should merge two trees with no conflicts', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type-1', 'Media Type 1', 'source-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type-2', 'Media Type 2', 'target-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeAddedEvent('source', 'media-type-1', 'Media Type 1', 'source-commit-1'),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+      new MediaTypeAddedEvent('target', 'media-type-2', 'Media Type 2', 'target-commit-1'),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([
-      new MediaTypeTreesMergedEvent(
-        [{ action: 'added', id: 'media-type-1', name: 'Media Type 1' }],
-        {
-          id: 'source-commit-1',
-          parents: [],
-        },
-        expectUuid,
-      ),
-    ])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
   test('should merge two trees with a new parent-child relationship', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-    ])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('base', 'Base', undefined, 0),
+      new MediaTypeAddedEvent('base', 'parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('base', 'child', 'Child', 'base-commit-2'),
+      new MediaTypeTreeCreatedEvent('source', 'Source', 'base', 0),
+      new ParentAddedToMediaTypeEvent('source', 'child', 'parent', 'source-commit-1'),
+      new MediaTypeTreeCreatedEvent('target', 'Target', 'base', 0),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([
-      new MediaTypeTreesMergedEvent(
-        [{ action: 'parent-added', childId: 'child', parentId: 'parent' }],
-        {
-          id: 'source-commit-1',
-          parents: [{ id: 'base-commit-2', parents: [{ id: 'base-commit-1', parents: [] }] }],
-        },
-        expectUuid,
-      ),
-    ])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
-  test('should do nothing when merging two empty trees', () => {
+  test('should merge two empty trees', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([])
-    const targetTree = MediaTypeTree.fromEvents([])
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+    ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
-  test('should do nothing when merging an empty tree with a tree', () => {
+  test('should merge an empty tree with a tree', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+      new MediaTypeAddedEvent('target', 'media-type', 'Media Type', 'target-commit-1'),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
-  test('should do nothing when merging two trees with no changes', () => {
+  test('should merge two trees with no changes', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
-    ])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'base-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('base', 'Base', undefined, 0),
+      new MediaTypeAddedEvent('base', 'media-type', 'Media Type', 'base-commit-1'),
+      new MediaTypeTreeCreatedEvent('source', 'Source', 'base', 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', 'base', 0),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
     expect(error).toBeUndefined()
 
     // then
     const events = targetTree.getUncommittedEvents()
-    expect(events).toEqual([])
+    expect(events).toEqual([new MediaTypeTreesMergedEvent('source', 'target', expectUuid)])
   })
 
   test('should error if a media type already exists in both trees', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'source-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('media-type', 'Media Type', 'target-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeAddedEvent('source', 'media-type', 'Media Type', 'source-commit-1'),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+      new MediaTypeAddedEvent('target', 'media-type', 'Media Type', 'target-commit-1'),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
 
     // then
     expect(error).toEqual(new MediaTypeAlreadyExistsError('media-type'))
@@ -456,23 +450,20 @@ describe('merge()', () => {
 
   test('should error if a 2-cycle would be created', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-    ])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new ParentAddedToMediaTypeEvent('parent', 'child', 'target-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('base', 'Base', undefined, 0),
+      new MediaTypeAddedEvent('base', 'parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('base', 'child', 'Child', 'base-commit-2'),
+
+      new MediaTypeTreeCreatedEvent('source', 'Source', 'base', 0),
+      new ParentAddedToMediaTypeEvent('source', 'child', 'parent', 'source-commit-1'),
+
+      new MediaTypeTreeCreatedEvent('target', 'Target', 'base', 0),
+      new ParentAddedToMediaTypeEvent('target', 'parent', 'child', 'target-commit-1'),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
 
     // then
     expect(error).toEqual(new WillCreateCycleError(['child', 'parent', 'child']))
@@ -480,27 +471,22 @@ describe('merge()', () => {
 
   test('should error if a 3-cycle would be created', () => {
     // given
-    const baseTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
-    ])
-    const sourceTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
-      new ParentAddedToMediaTypeEvent('child', 'parent', 'source-commit-1'),
-      new ParentAddedToMediaTypeEvent('grandchild', 'child', 'source-commit-2'),
-    ])
-    const targetTree = MediaTypeTree.fromEvents([
-      new MediaTypeAddedEvent('parent', 'Parent', 'base-commit-1'),
-      new MediaTypeAddedEvent('child', 'Child', 'base-commit-2'),
-      new MediaTypeAddedEvent('grandchild', 'Grandchild', 'base-commit-3'),
-      new ParentAddedToMediaTypeEvent('parent', 'grandchild', 'target-commit-1'),
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('base', 'Base', undefined, 0),
+      new MediaTypeAddedEvent('base', 'parent', 'Parent', 'base-commit-1'),
+      new MediaTypeAddedEvent('base', 'child', 'Child', 'base-commit-2'),
+      new MediaTypeAddedEvent('base', 'grandchild', 'Grandchild', 'base-commit-3'),
+
+      new MediaTypeTreeCreatedEvent('source', 'Source', 'base', 0),
+      new ParentAddedToMediaTypeEvent('source', 'child', 'parent', 'source-commit-1'),
+      new ParentAddedToMediaTypeEvent('source', 'grandchild', 'child', 'source-commit-2'),
+
+      new MediaTypeTreeCreatedEvent('target', 'Target', 'base', 0),
+      new ParentAddedToMediaTypeEvent('target', 'parent', 'grandchild', 'target-commit-1'),
     ])
 
     // when
-    const error = targetTree.merge(sourceTree, baseTree)
+    const error = targetTree.merge('source')
 
     // then
     expect(error).toEqual(new WillCreateCycleError(['grandchild', 'parent', 'child', 'grandchild']))

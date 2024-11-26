@@ -25,8 +25,8 @@ export class SetMainTreeCommandHandler {
       return new UnauthorizedError()
     }
 
-    const treeExists = await this.treeRepo.has(command.mainTreeId)
-    if (!treeExists) {
+    const existingTree = await this.treeRepo.get(command.mainTreeId)
+    if (!existingTree.isCreated()) {
       return new MediaTypeTreeNotFoundError(command.mainTreeId)
     }
 

@@ -22,8 +22,8 @@ export class RemoveMediaTypeCommandHandler {
 
   async handle(command: RemoveMediaTypeCommand) {
     const tree = await this.treeRepo.get(command.treeId)
-    if (tree instanceof MediaTypeTreeNotFoundError) {
-      return tree
+    if (!tree.isCreated()) {
+      return new MediaTypeTreeNotFoundError(command.treeId)
     }
 
     const mainTreeManager = await this.mainTreeRepo.get()
@@ -42,6 +42,6 @@ export class RemoveMediaTypeCommandHandler {
       return error
     }
 
-    await this.treeRepo.save(command.treeId, tree)
+    await this.treeRepo.save(tree)
   }
 }
