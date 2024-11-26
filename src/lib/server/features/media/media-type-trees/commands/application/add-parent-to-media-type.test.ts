@@ -3,7 +3,7 @@ import { expect } from 'vitest'
 import { test } from '../../../../../../../vitest-setup'
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MediaTypeTreePermission } from '../domain/roles'
+import { MediaTypeTreesRole } from '../domain/roles'
 import { MediaTypeNotFoundError, WillCreateCycleError } from '../domain/tree/errors'
 import { AddMediaTypeCommand } from './add-media-type'
 import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
@@ -14,38 +14,38 @@ test('should add a parent to a media type', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
   )
 
   // then
   expect(error).toBeUndefined()
 })
 
-test("should add a parent to a media type in another user's tree if the user has admin permissions", async () => {
+test("should add a parent to a media type in another user's tree if the user has the admin role", async () => {
   // given
   const t = new TestHelper()
   const adminUserId = 0
-  const adminPermissions = new Set([MediaTypeTreePermission.ADMIN])
+  const adminRoles = new Set([MediaTypeTreesRole.ADMIN])
   const regularUserId = 1
-  const regularUserPermissions = new Set([MediaTypeTreePermission.WRITE])
+  const regularUserRoles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', regularUserId, regularUserPermissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', regularUserId, regularUserPermissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', regularUserId, regularUserPermissions),
+    new CreateTreeCommand('tree', 'Tree', regularUserId, regularUserRoles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', regularUserId, regularUserRoles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', regularUserId, regularUserRoles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', adminUserId, adminPermissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', adminUserId, adminRoles),
   )
 
   // then
@@ -56,15 +56,15 @@ test('should error if the child media type does not exist', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
   )
 
   // then
@@ -75,15 +75,15 @@ test('should error if the parent media type does not exist', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
   )
 
   // then
@@ -94,15 +94,15 @@ test('should error if a 1-cycle would be created', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'media-type', 'media-type', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'media-type', 'media-type', userId, roles),
   )
 
   // then
@@ -113,17 +113,17 @@ test('should error if a 2-cycle would be created', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'parent', 'child', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'parent', 'child', userId, roles),
   )
 
   // then
@@ -134,19 +134,19 @@ test('should error if a 3-cycle would be created', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
-    new AddMediaTypeCommand('tree', 'grandchild', 'Grandchild', userId, permissions),
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
-    new AddParentToMediaTypeCommand('tree', 'grandchild', 'child', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
+    new AddMediaTypeCommand('tree', 'grandchild', 'Grandchild', userId, roles),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
+    new AddParentToMediaTypeCommand('tree', 'grandchild', 'child', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'parent', 'grandchild', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'parent', 'grandchild', userId, roles),
   )
 
   // then
@@ -157,27 +157,27 @@ test('should error if the media type tree does not exist', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
   )
 
   // then
   expect(error).toEqual(new MediaTypeTreeNotFoundError('tree'))
 })
 
-test('should error if the user does not have any permissions', async () => {
+test('should error if the user does not have any roles', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
   ])
 
   // when
@@ -194,16 +194,16 @@ test('should error if the user does not own the tree', async () => {
   const t = new TestHelper()
   const userId = 0
   const otherUserId = 1
-  const permissions = new Set([MediaTypeTreePermission.WRITE])
+  const roles = new Set([MediaTypeTreesRole.WRITE])
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, permissions),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, permissions),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, permissions),
+    new CreateTreeCommand('tree', 'Tree', userId, roles),
+    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
+    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
   ])
 
   // when
   const error = await t.when(
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', otherUserId, permissions),
+    new AddParentToMediaTypeCommand('tree', 'child', 'parent', otherUserId, roles),
   )
 
   // then

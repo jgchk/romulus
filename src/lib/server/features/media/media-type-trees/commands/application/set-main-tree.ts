@@ -1,13 +1,13 @@
 import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
 import type { IMainTreeManagerRepository } from '../domain/main-tree-manager/repository'
-import { MediaTypeTreePermission } from '../domain/roles'
+import { MediaTypeTreesRole } from '../domain/roles'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class SetMainTreeCommand {
   constructor(
     public readonly mainTreeId: string,
     public readonly userId: number,
-    public readonly roles: Set<MediaTypeTreePermission>,
+    public readonly roles: Set<MediaTypeTreesRole>,
   ) {}
 }
 
@@ -20,7 +20,7 @@ export class SetMainTreeCommandHandler {
   async handle(
     command: SetMainTreeCommand,
   ): Promise<void | MediaTypeTreeNotFoundError | UnauthorizedError> {
-    const hasPermission = command.roles.has(MediaTypeTreePermission.ADMIN)
+    const hasPermission = command.roles.has(MediaTypeTreesRole.ADMIN)
     if (!hasPermission) {
       return new UnauthorizedError()
     }

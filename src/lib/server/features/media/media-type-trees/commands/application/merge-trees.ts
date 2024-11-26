@@ -1,6 +1,6 @@
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import type { MediaTypeTreePermission } from '../domain/roles'
+import type { MediaTypeTreesRole } from '../domain/roles'
 import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
@@ -9,7 +9,7 @@ export class MergeTreesCommand {
     public readonly sourceTreeId: string,
     public readonly targetTreeId: string,
     public readonly userId: number,
-    public readonly permissions: Set<MediaTypeTreePermission>,
+    public readonly roles: Set<MediaTypeTreesRole>,
   ) {}
 }
 
@@ -28,7 +28,7 @@ export class MergeTreesCommandHandler {
     }
 
     const hasPermission = PermissionChecker.canModifyTree(
-      command.permissions,
+      command.roles,
       targetTree.isOwner(command.userId),
     )
     if (!hasPermission) {

@@ -1,7 +1,6 @@
-export const MediaTypeTreePermission = {
+export const MediaTypeTreesRole = {
   ADMIN: 'media-type-trees:admin',
   WRITE: 'media-type-trees:write',
 } as const
 
-export type MediaTypeTreePermission =
-  (typeof MediaTypeTreePermission)[keyof typeof MediaTypeTreePermission]
+export type MediaTypeTreesRole = (typeof MediaTypeTreesRole)[keyof typeof MediaTypeTreesRole]
