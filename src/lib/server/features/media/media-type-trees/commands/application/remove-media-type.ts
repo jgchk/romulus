@@ -1,5 +1,6 @@
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import type { IMainTreeManagerRepository } from '../domain/main-tree-manager/repository'
 import type { MediaTypeTreesRole } from '../domain/roles'
 import { PermissionChecker } from '../domain/tree/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
@@ -14,17 +15,23 @@ export class RemoveMediaTypeCommand {
 }
 
 export class RemoveMediaTypeCommandHandler {
-  constructor(private repo: IMediaTypeTreeRepository) {}
+  constructor(
+    private treeRepo: IMediaTypeTreeRepository,
+    private mainTreeRepo: IMainTreeManagerRepository,
+  ) {}
 
   async handle(command: RemoveMediaTypeCommand) {
-    const tree = await this.repo.get(command.treeId)
+    const tree = await this.treeRepo.get(command.treeId)
     if (tree instanceof MediaTypeTreeNotFoundError) {
       return tree
     }
 
+    const mainTreeManager = await this.mainTreeRepo.get()
+
     const hasPermission = PermissionChecker.canModifyTree(
       command.roles,
       tree.isOwner(command.userId),
+      mainTreeManager.isMainTree(command.treeId),
     )
     if (!hasPermission) {
       return new UnauthorizedError()
@@ -35,6 +42,6 @@ export class RemoveMediaTypeCommandHandler {
       return error
     }
 
-    await this.repo.save(command.treeId, tree)
+    await this.treeRepo.save(command.treeId, tree)
   }
 }
