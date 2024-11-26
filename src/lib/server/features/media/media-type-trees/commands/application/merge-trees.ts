@@ -1,10 +1,13 @@
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
+import { MediaTypeTreePermission } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 
 export class MergeTreesCommand {
   constructor(
     public readonly sourceTreeId: string,
     public readonly targetTreeId: string,
+    public readonly userId: number,
+    public readonly permissions: Set<MediaTypeTreePermission>,
   ) {}
 }
 
@@ -12,10 +15,6 @@ export class MergeTreesCommandHandler {
   constructor(private treeRepo: IMediaTypeTreeRepository) {}
 
   async handle(command: MergeTreesCommand) {
-    // allow when:
-    // - you have media-type-trees:admin permission
-    // - you have media-type-trees:write permission & you are the owner of the target tree
-
     const sourceTree = await this.treeRepo.get(command.sourceTreeId)
     if (sourceTree instanceof MediaTypeTreeNotFoundError) {
       return sourceTree
@@ -24,6 +23,13 @@ export class MergeTreesCommandHandler {
     const targetTree = await this.treeRepo.get(command.targetTreeId)
     if (targetTree instanceof MediaTypeTreeNotFoundError) {
       return targetTree
+    }
+
+    const hasPermission =
+      command.permissions.has(MediaTypeTreePermission.ADMIN) ||
+      (command.permissions.has(MediaTypeTreePermission.WRITE) && targetTree.isOwner(command.userId))
+    if (!hasPermission) {
+      return new UnauthorizedError()
     }
 
     const lastCommonCommit = sourceTree.getLastCommonCommit(targetTree)
