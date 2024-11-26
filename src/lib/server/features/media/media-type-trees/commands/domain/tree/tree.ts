@@ -225,6 +225,7 @@ export class MediaTypeTree {
       [],
     )
     for (const commit of allCommits) {
+      // FIXME: there should be a better solution than resetting the treeId. maybe applying events to the treestate directly?
       commit.event.treeId = branchId
       tree.applyEvent(commit.event)
     }
@@ -236,6 +237,7 @@ export class MediaTypeTree {
 
     const tree = new MediaTypeTree('', TreeState.create(), CommitHistory.create(), undefined, [])
     for (const commit of allCommits) {
+      // FIXME: there should be a better solution than resetting the treeId. maybe applying events to the treestate directly?
       commit.event.treeId = ''
       tree.applyEvent(commit.event)
     }
