@@ -15,7 +15,13 @@ import {
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
 } from './events'
-import { TreeState } from './tree-state'
+import { TreeState, type TreeStateEvent } from './tree-state'
+import {
+  MediaTypeAddedEvent as MediaTypeAddedToTreeEvent,
+  MediaTypeRemovedEvent as MediaTypeRemovedFromTreeEvent,
+  MediaTypeTreesMergedEvent as MediaTypeTreesMergedInTreeEvent,
+  ParentAddedToMediaTypeEvent as ParentAddedToMediaTypeInTreeEvent,
+} from './tree-state'
 
 export class MediaTypeTree {
   private id: string
@@ -139,7 +145,6 @@ export class MediaTypeTree {
     } else if (event instanceof MainMediaTypeTreeSetEvent) {
       this.mainTreeId = event.mediaTypeTreeId
     } else {
-      // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _exhaustiveCheck: never = event
     }
@@ -237,39 +242,42 @@ export class MediaTypeTree {
   private getTreeFromBranch(branchId: string): TreeState {
     const allCommits = [...this.commitHistory.getAllCommitsByBranch(branchId)].reverse()
 
-    const tree = new MediaTypeTree(
-      branchId,
-      TreeState.create(),
-      CommitHistory.create(),
-      undefined,
-      undefined,
-      [],
-    )
-    for (const commit of allCommits) {
-      // FIXME: there should be a better solution than resetting the treeId. maybe applying events to the treestate directly?
-      commit.event.treeId = branchId
-      tree.applyEvent(commit.event)
+    const tree = TreeState.create()
+    for (const { event } of allCommits) {
+      const e = this.convertToTreeEvent(event)
+      if (e) {
+        tree.applyEvent(e)
+      }
     }
-    return tree.tree
+    return tree
   }
 
   private getTreeFromCommit(commitId: string | undefined): TreeState {
     const allCommits = this.commitHistory.getAllCommitsToCommit(commitId)
 
-    const tree = new MediaTypeTree(
-      '',
-      TreeState.create(),
-      CommitHistory.create(),
-      undefined,
-      undefined,
-      [],
-    )
-    for (const commit of allCommits) {
-      // FIXME: there should be a better solution than resetting the treeId. maybe applying events to the treestate directly?
-      commit.event.treeId = ''
-      tree.applyEvent(commit.event)
+    const tree = TreeState.create()
+    for (const { event } of allCommits) {
+      const e = this.convertToTreeEvent(event)
+      if (e) {
+        tree.applyEvent(e)
+      }
     }
-    return tree.tree
+    return tree
+  }
+
+  private convertToTreeEvent(event: MediaTypeTreeEvent): TreeStateEvent | undefined {
+    if (event instanceof MediaTypeAddedEvent) {
+      return new MediaTypeAddedToTreeEvent(event.mediaTypeId, event.name)
+    } else if (event instanceof MediaTypeRemovedEvent) {
+      return new MediaTypeRemovedFromTreeEvent(event.mediaTypeId)
+    } else if (event instanceof ParentAddedToMediaTypeEvent) {
+      return new ParentAddedToMediaTypeInTreeEvent(event.parentId, event.childId)
+    } else if (event instanceof MediaTypeTreesMergedEvent) {
+      const sourceTree = this.getTreeFromBranch(event.sourceTreeId)
+      const commonCommit = this.commitHistory.getLastCommonCommit(event.sourceTreeId, this.id)
+      const baseTree = this.getTreeFromCommit(commonCommit)
+      return new MediaTypeTreesMergedInTreeEvent(sourceTree, baseTree)
+    }
   }
 
   setMainTree(userId: number): void {

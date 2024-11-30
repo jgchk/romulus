@@ -5,6 +5,37 @@ import {
   WillCreateCycleError,
 } from './errors'
 
+export type TreeStateEvent =
+  | MediaTypeAddedEvent
+  | MediaTypeRemovedEvent
+  | ParentAddedToMediaTypeEvent
+  | MediaTypeTreesMergedEvent
+
+export class MediaTypeAddedEvent {
+  constructor(
+    public readonly mediaTypeId: string,
+    public readonly name: string,
+  ) {}
+}
+
+export class MediaTypeRemovedEvent {
+  constructor(public readonly mediaTypeId: string) {}
+}
+
+export class ParentAddedToMediaTypeEvent {
+  constructor(
+    public readonly parentId: string,
+    public readonly childId: string,
+  ) {}
+}
+
+export class MediaTypeTreesMergedEvent {
+  constructor(
+    public readonly sourceTree: TreeState,
+    public readonly baseTree: TreeState,
+  ) {}
+}
+
 export class TreeState {
   private nodes: Map<string, MediaTypeNode>
 
@@ -18,6 +49,33 @@ export class TreeState {
 
   clone(): TreeState {
     return new TreeState(new Map([...this.nodes.entries()].map(([id, node]) => [id, node.clone()])))
+  }
+
+  applyEvent(event: TreeStateEvent): void {
+    if (event instanceof MediaTypeAddedEvent) {
+      const error = this.addMediaType(event.mediaTypeId, event.name)
+      if (error instanceof Error) {
+        throw error
+      }
+    } else if (event instanceof MediaTypeRemovedEvent) {
+      const error = this.removeMediaType(event.mediaTypeId)
+      if (error instanceof Error) {
+        throw error
+      }
+    } else if (event instanceof ParentAddedToMediaTypeEvent) {
+      const error = this.addChildToMediaType(event.parentId, event.childId)
+      if (error instanceof Error) {
+        throw error
+      }
+    } else if (event instanceof MediaTypeTreesMergedEvent) {
+      const error = this.merge(event.sourceTree, event.baseTree)
+      if (error instanceof Error) {
+        throw error
+      }
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _exhaustiveCheck: never = event
+    }
   }
 
   addMediaType(
