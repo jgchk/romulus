@@ -7,6 +7,7 @@ import type {
 } from './errors'
 import { MediaTypeTreeNameInvalidError } from './errors'
 import {
+  MainMediaTypeTreeSetEvent,
   MediaTypeAddedEvent,
   MediaTypeRemovedEvent,
   MediaTypeTreeCreatedEvent,
@@ -21,6 +22,7 @@ export class MediaTypeTree {
   private tree: TreeState
   private commitHistory: CommitHistory
   private owner: number | undefined
+  private mainTreeId: string | undefined
   private uncommittedEvents: MediaTypeTreeEvent[]
 
   private constructor(
@@ -28,17 +30,26 @@ export class MediaTypeTree {
     tree: TreeState,
     commitHistory: CommitHistory,
     owner: number | undefined,
+    mainTreeId: string | undefined,
     uncommittedEvents: MediaTypeTreeEvent[],
   ) {
     this.id = id
     this.tree = tree
     this.commitHistory = commitHistory
     this.owner = owner
+    this.mainTreeId = mainTreeId
     this.uncommittedEvents = uncommittedEvents
   }
 
   static fromEvents(id: string, events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(id, TreeState.create(), CommitHistory.create(), undefined, [])
+    const tree = new MediaTypeTree(
+      id,
+      TreeState.create(),
+      CommitHistory.create(),
+      undefined,
+      undefined,
+      [],
+    )
     for (const event of events) {
       tree.applyEvent(event)
     }
@@ -46,7 +57,14 @@ export class MediaTypeTree {
   }
 
   static copyEvents(id: string, events: MediaTypeTreeEvent[]): MediaTypeTree {
-    const tree = new MediaTypeTree(id, TreeState.create(), CommitHistory.create(), undefined, [])
+    const tree = new MediaTypeTree(
+      id,
+      TreeState.create(),
+      CommitHistory.create(),
+      undefined,
+      undefined,
+      [],
+    )
     for (const event of events) {
       tree.applyEvent(event)
       tree.addEvent(event)
@@ -118,6 +136,8 @@ export class MediaTypeTree {
       }
 
       this.commitHistory.addMergeCommit(event.sourceTreeId, event.targetTreeId, event)
+    } else if (event instanceof MainMediaTypeTreeSetEvent) {
+      this.mainTreeId = event.mediaTypeTreeId
     } else {
       // exhaustive check
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -222,6 +242,7 @@ export class MediaTypeTree {
       TreeState.create(),
       CommitHistory.create(),
       undefined,
+      undefined,
       [],
     )
     for (const commit of allCommits) {
@@ -235,7 +256,14 @@ export class MediaTypeTree {
   private getTreeFromCommit(commitId: string | undefined): TreeState {
     const allCommits = this.commitHistory.getAllCommitsToCommit(commitId)
 
-    const tree = new MediaTypeTree('', TreeState.create(), CommitHistory.create(), undefined, [])
+    const tree = new MediaTypeTree(
+      '',
+      TreeState.create(),
+      CommitHistory.create(),
+      undefined,
+      undefined,
+      [],
+    )
     for (const commit of allCommits) {
       // FIXME: there should be a better solution than resetting the treeId. maybe applying events to the treestate directly?
       commit.event.treeId = ''
@@ -244,12 +272,23 @@ export class MediaTypeTree {
     return tree.tree
   }
 
+  setMainTree(userId: number): void {
+    const event = new MainMediaTypeTreeSetEvent(this.id, userId)
+
+    this.applyEvent(event)
+    this.addEvent(event)
+  }
+
   private generateCommitId(): string {
     return crypto.randomUUID()
   }
 
   isOwner(userId: number): boolean {
     return this.owner === userId
+  }
+
+  isMainTree(): boolean {
+    return this.mainTreeId === this.id
   }
 }
 

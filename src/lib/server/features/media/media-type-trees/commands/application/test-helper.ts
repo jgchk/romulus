@@ -1,6 +1,5 @@
 import { expect } from 'vitest'
 
-import { MemoryMainTreeManagerRepository } from '../infrastructure/memory-tree-manager-repository'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -15,7 +14,6 @@ import { SetMainTreeCommand, SetMainTreeCommandHandler } from './set-main-tree'
 
 export class TestHelper {
   private treeRepo: MemoryTreeRepository = new MemoryTreeRepository()
-  private mainTreeRepo: MemoryMainTreeManagerRepository = new MemoryMainTreeManagerRepository()
 
   async given(commands: Command[]): Promise<void> {
     for (const command of commands) {
@@ -35,19 +33,17 @@ export class TestHelper {
     if (command instanceof CreateTreeCommand) {
       return new CreateTreeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof AddMediaTypeCommand) {
-      return new AddMediaTypeCommandHandler(this.treeRepo, this.mainTreeRepo).handle(command)
+      return new AddMediaTypeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof AddParentToMediaTypeCommand) {
-      return new AddParentToMediaTypeCommandHandler(this.treeRepo, this.mainTreeRepo).handle(
-        command,
-      )
+      return new AddParentToMediaTypeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof CopyTreeCommand) {
       return new CopyTreeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof MergeTreesCommand) {
-      return new MergeTreesCommandHandler(this.treeRepo, this.mainTreeRepo).handle(command)
+      return new MergeTreesCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof RemoveMediaTypeCommand) {
-      return new RemoveMediaTypeCommandHandler(this.treeRepo, this.mainTreeRepo).handle(command)
+      return new RemoveMediaTypeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof SetMainTreeCommand) {
-      return new SetMainTreeCommandHandler(this.mainTreeRepo, this.treeRepo).handle(command)
+      return new SetMainTreeCommandHandler(this.treeRepo).handle(command)
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _exhaustiveCheck: never = command

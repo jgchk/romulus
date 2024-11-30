@@ -4,6 +4,7 @@ export type MediaTypeTreeEvent =
   | MediaTypeRemovedEvent
   | ParentAddedToMediaTypeEvent
   | MediaTypeTreesMergedEvent
+  | MainMediaTypeTreeSetEvent
 
 export class MediaTypeTreeCreatedEvent {
   constructor(
@@ -45,5 +46,12 @@ export class MediaTypeTreesMergedEvent {
     public readonly sourceTreeId: string,
     public readonly targetTreeId: string,
     public readonly commitId: string,
+  ) {}
+}
+
+export class MainMediaTypeTreeSetEvent {
+  constructor(
+    public readonly mediaTypeTreeId: string,
+    public readonly userId: number,
   ) {}
 }
