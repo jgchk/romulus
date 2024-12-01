@@ -3,11 +3,8 @@ import { expect } from 'vitest'
 import { test } from '../../../../../../../vitest-setup'
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNameInvalidError } from '../domain/errors'
 import { MediaTypeTreesRole } from '../domain/roles'
-import {
-  MediaTypeTreeAlreadyExistsError,
-  MediaTypeTreeNameInvalidError,
-} from '../domain/tree/errors'
 import { CopyTreeCommand } from './copy-tree'
 import { CreateTreeCommand } from './create-tree'
 import { TestHelper } from './test-helper'

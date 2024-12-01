@@ -1,6 +1,6 @@
 import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
+import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTreesRole } from '../domain/roles'
-import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
 
 export class SetMainTreeCommand {
   constructor(

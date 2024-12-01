@@ -1,8 +1,8 @@
 import { withProps } from '$lib/utils/object'
 
-import type { MediaTypeTreeEvent } from '../domain/tree/events'
-import type { IMediaTypeTreeRepository } from '../domain/tree/repository'
-import { MediaTypeTree } from '../domain/tree/tree'
+import type { MediaTypeTreeEvent } from '../domain/events'
+import type { IMediaTypeTreeRepository } from '../domain/repository'
+import { MediaTypeTree } from '../domain/tree'
 
 export class MemoryTreeRepository implements IMediaTypeTreeRepository {
   private store: EventStore
