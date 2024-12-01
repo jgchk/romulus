@@ -1,6 +1,14 @@
-import type { MediaTypeTreeCreatedEvent, MediaTypeTreeEvent } from './events'
+import type {
+  MainMediaTypeTreeSetEvent,
+  MediaTypeMergeRequestedEvent,
+  MediaTypeTreeCreatedEvent,
+  MediaTypeTreeEvent,
+} from './events'
 
-type CommitEvent = Exclude<MediaTypeTreeEvent, MediaTypeTreeCreatedEvent>
+type CommitEvent = Exclude<
+  MediaTypeTreeEvent,
+  MediaTypeTreeCreatedEvent | MediaTypeMergeRequestedEvent | MainMediaTypeTreeSetEvent
+>
 
 export class CommitHistory {
   private commits: Map<string, Commit>
