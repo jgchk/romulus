@@ -3,6 +3,7 @@ export type MediaTypeTreeEvent =
   | MediaTypeAddedEvent
   | MediaTypeRemovedEvent
   | ParentAddedToMediaTypeEvent
+  | MediaTypeMergeRequestedEvent
   | MediaTypeTreesMergedEvent
   | MainMediaTypeTreeSetEvent
 
@@ -41,11 +42,21 @@ export class ParentAddedToMediaTypeEvent {
   ) {}
 }
 
+export class MediaTypeMergeRequestedEvent {
+  constructor(
+    public readonly mergeRequestId: string,
+    public readonly sourceTreeId: string,
+    public readonly targetTreeId: string,
+    public readonly userId: number,
+  ) {}
+}
+
 export class MediaTypeTreesMergedEvent {
   constructor(
     public readonly sourceTreeId: string,
     public readonly targetTreeId: string,
     public readonly commitId: string,
+    public readonly mergeRequestId?: string,
   ) {}
 }
 

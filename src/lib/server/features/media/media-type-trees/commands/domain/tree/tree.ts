@@ -5,10 +5,11 @@ import type {
   MediaTypeNotFoundError,
   WillCreateCycleError,
 } from './errors'
-import { MediaTypeTreeNameInvalidError } from './errors'
+import { MediaTypeMergeRequestNotFoundError, MediaTypeTreeNameInvalidError } from './errors'
 import {
   MainMediaTypeTreeSetEvent,
   MediaTypeAddedEvent,
+  MediaTypeMergeRequestedEvent,
   MediaTypeRemovedEvent,
   MediaTypeTreeCreatedEvent,
   type MediaTypeTreeEvent,
@@ -29,6 +30,7 @@ export class MediaTypeTree {
   private commitHistory: CommitHistory
   private owner: number | undefined
   private mainTreeId: string | undefined
+  private mergeRequests: Map<string, { sourceTreeId: string; targetTreeId: string }>
   private uncommittedEvents: MediaTypeTreeEvent[]
 
   private constructor(
@@ -37,6 +39,7 @@ export class MediaTypeTree {
     commitHistory: CommitHistory,
     owner: number | undefined,
     mainTreeId: string | undefined,
+    mergeRequests: Map<string, { sourceTreeId: string; targetTreeId: string }>,
     uncommittedEvents: MediaTypeTreeEvent[],
   ) {
     this.id = id
@@ -44,6 +47,7 @@ export class MediaTypeTree {
     this.commitHistory = commitHistory
     this.owner = owner
     this.mainTreeId = mainTreeId
+    this.mergeRequests = mergeRequests
     this.uncommittedEvents = uncommittedEvents
   }
 
@@ -54,6 +58,7 @@ export class MediaTypeTree {
       CommitHistory.create(),
       undefined,
       undefined,
+      new Map(),
       [],
     )
     for (const event of events) {
@@ -69,6 +74,7 @@ export class MediaTypeTree {
       CommitHistory.create(),
       undefined,
       undefined,
+      new Map(),
       [],
     )
     for (const event of events) {
@@ -128,6 +134,11 @@ export class MediaTypeTree {
       }
 
       this.commitHistory.addCommit(event.treeId, event)
+    } else if (event instanceof MediaTypeMergeRequestedEvent) {
+      this.mergeRequests.set(event.mergeRequestId, {
+        sourceTreeId: event.sourceTreeId,
+        targetTreeId: event.targetTreeId,
+      })
     } else if (event instanceof MediaTypeTreesMergedEvent) {
       if (event.targetTreeId === this.id) {
         const sourceTree = this.getTreeFromBranch(event.sourceTreeId)
@@ -142,6 +153,10 @@ export class MediaTypeTree {
       }
 
       this.commitHistory.addMergeCommit(event.sourceTreeId, event.targetTreeId, event)
+
+      if (event.mergeRequestId !== undefined) {
+        this.mergeRequests.delete(event.mergeRequestId)
+      }
     } else if (event instanceof MainMediaTypeTreeSetEvent) {
       this.mainTreeId = event.mediaTypeTreeId
     } else {
@@ -222,7 +237,14 @@ export class MediaTypeTree {
     this.addEvent(event)
   }
 
-  merge(sourceTreeId: string): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
+  merge(
+    sourceTreeId: string,
+    mergeRequestId?: string,
+  ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
+    if (mergeRequestId && !this.mergeRequests.has(mergeRequestId)) {
+      return new MediaTypeMergeRequestNotFoundError(mergeRequestId)
+    }
+
     const sourceTree = this.getTreeFromBranch(sourceTreeId)
 
     const commonCommit = this.commitHistory.getLastCommonCommit(sourceTreeId, this.id)
@@ -233,7 +255,19 @@ export class MediaTypeTree {
       return error
     }
 
-    const event = new MediaTypeTreesMergedEvent(sourceTreeId, this.id, this.generateCommitId())
+    const event = new MediaTypeTreesMergedEvent(
+      sourceTreeId,
+      this.id,
+      this.generateCommitId(),
+      mergeRequestId,
+    )
+
+    this.applyEvent(event)
+    this.addEvent(event)
+  }
+
+  requestMerge(mergeRequestId: string, sourceTreeId: string, userId: number): void {
+    const event = new MediaTypeMergeRequestedEvent(mergeRequestId, sourceTreeId, this.id, userId)
 
     this.applyEvent(event)
     this.addEvent(event)

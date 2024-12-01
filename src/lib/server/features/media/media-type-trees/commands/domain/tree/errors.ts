@@ -44,3 +44,9 @@ export class WillCreateCycleError extends CustomError {
     )
   }
 }
+
+export class MediaTypeMergeRequestNotFoundError extends CustomError {
+  constructor(public readonly id: string) {
+    super('MediaTypeMergeRequestNotFound', `Media type merge request not found with id: ${id}`)
+  }
+}

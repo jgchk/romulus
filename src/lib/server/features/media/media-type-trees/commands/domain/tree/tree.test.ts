@@ -3,6 +3,7 @@ import { describe, expect } from 'vitest'
 import { test } from '../../../../../../../../vitest-setup'
 import {
   MediaTypeAlreadyExistsError,
+  MediaTypeMergeRequestNotFoundError,
   MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
   MediaTypeTreeNameInvalidError,
@@ -10,6 +11,7 @@ import {
 } from './errors'
 import {
   MediaTypeAddedEvent,
+  MediaTypeMergeRequestedEvent,
   MediaTypeRemovedEvent,
   MediaTypeTreeCreatedEvent,
   MediaTypeTreesMergedEvent,
@@ -490,5 +492,74 @@ describe('merge()', () => {
 
     // then
     expect(error).toEqual(new WillCreateCycleError(['grandchild', 'parent', 'child', 'grandchild']))
+  })
+
+  test('should merge if a merge request is found', () => {
+    // given
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+      new MediaTypeMergeRequestedEvent('merge-request-id', 'source', 'target', 0),
+    ])
+
+    // when
+    const error = targetTree.merge('source', 'merge-request-id')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = targetTree.getUncommittedEvents()
+    expect(events).toEqual([
+      new MediaTypeTreesMergedEvent('source', 'target', expectUuid, 'merge-request-id'),
+    ])
+  })
+
+  test('should error if attempting to close a merge request that does not exist', () => {
+    // given
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+    ])
+
+    // when
+    const error = targetTree.merge('source', 'merge-request-id')
+
+    // then
+    expect(error).toEqual(new MediaTypeMergeRequestNotFoundError('merge-request-id'))
+  })
+
+  test('should error if merging a merge request that has already been merged', () => {
+    // given
+    const targetTree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+      new MediaTypeMergeRequestedEvent('merge-request-id', 'source', 'target', 0),
+      new MediaTypeTreesMergedEvent('source', 'target', 'merge-commit', 'merge-request-id'),
+    ])
+
+    // when
+    const error = targetTree.merge('source', 'merge-request-id')
+
+    // then
+    expect(error).toEqual(new MediaTypeMergeRequestNotFoundError('merge-request-id'))
+  })
+})
+
+describe('requestMerge()', () => {
+  test('should request a merge between two trees', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+    ])
+
+    // when
+    const error = tree.requestMerge('merge-request-id', 'source', 0)
+    expect(error).toBeUndefined()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toEqual([
+      new MediaTypeMergeRequestedEvent('merge-request-id', 'source', 'target', 0),
+    ])
   })
 })
