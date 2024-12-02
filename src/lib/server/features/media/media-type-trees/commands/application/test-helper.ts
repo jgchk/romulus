@@ -19,7 +19,7 @@ export class TestHelper {
     for (const command of commands) {
       const error = await this.executeCommand(command)
       if (error instanceof Error) {
-        expect.fail(`Failed to execute command: ${error.message}`)
+        expect.fail(`Failed to execute command ${JSON.stringify(command)}: ${error.message}`)
       }
     }
   }

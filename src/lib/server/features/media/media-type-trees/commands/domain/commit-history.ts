@@ -1,3 +1,4 @@
+import { MediaTypeTreeNotFoundError } from './errors'
 import type {
   MainMediaTypeTreeSetEvent,
   MediaTypeMergeRequestedEvent,
@@ -12,7 +13,7 @@ type CommitEvent = Exclude<
 
 export class CommitHistory {
   private commits: Map<string, Commit>
-  private branches = new Map<string, string>()
+  private branches = new Map<string, string | null>()
 
   private constructor(commits: Map<string, Commit>, branches: Map<string, string>) {
     this.commits = commits
@@ -23,25 +24,35 @@ export class CommitHistory {
     return new CommitHistory(new Map(), new Map())
   }
 
-  private getCommitByBranch(branchId: string): Commit | undefined {
+  private getCommitByBranch(branchId: string): Commit | undefined | MediaTypeTreeNotFoundError {
     const commitId = this.branches.get(branchId)
-    if (commitId === undefined) return
+    if (commitId === null) return
+    if (commitId === undefined) return new MediaTypeTreeNotFoundError(branchId)
     return this.commits.get(commitId)
   }
 
-  createBranch(branchId: string, baseBranchId: string | undefined): void {
+  createBranch(
+    branchId: string,
+    baseBranchId: string | undefined,
+  ): void | MediaTypeTreeNotFoundError {
     if (baseBranchId === undefined) {
+      this.branches.set(branchId, null)
       return
     }
 
     const baseCommit = this.getCommitByBranch(baseBranchId)
-    if (baseCommit !== undefined) {
+    if (baseCommit instanceof MediaTypeTreeNotFoundError) return baseCommit
+
+    if (baseCommit === undefined) {
+      this.branches.set(branchId, null)
+    } else {
       this.branches.set(branchId, baseCommit.id)
     }
   }
 
-  addCommit(branchId: string, event: CommitEvent): void {
+  addCommit(branchId: string, event: CommitEvent): void | MediaTypeTreeNotFoundError {
     const branchCommit = this.getCommitByBranch(branchId)
+    if (branchCommit instanceof MediaTypeTreeNotFoundError) return branchCommit
 
     const parents = []
     if (branchCommit !== undefined) {
@@ -53,16 +64,23 @@ export class CommitHistory {
     this.branches.set(branchId, newCommit.id)
   }
 
-  addMergeCommit(sourceBranchId: string, targetBranchId: string, event: CommitEvent): void {
+  addMergeCommit(
+    sourceBranchId: string,
+    targetBranchId: string,
+    event: CommitEvent,
+  ): void | MediaTypeTreeNotFoundError {
     const sourceBranchCommit = this.getCommitByBranch(sourceBranchId)
-    const targetBranch = this.getCommitByBranch(targetBranchId)
+    if (sourceBranchCommit instanceof MediaTypeTreeNotFoundError) return sourceBranchCommit
+
+    const targetBranchCommit = this.getCommitByBranch(targetBranchId)
+    if (targetBranchCommit instanceof MediaTypeTreeNotFoundError) return targetBranchCommit
 
     const parents = []
     if (sourceBranchCommit) {
       parents.push(sourceBranchCommit.id)
     }
-    if (targetBranch) {
-      parents.push(targetBranch.id)
+    if (targetBranchCommit) {
+      parents.push(targetBranchCommit.id)
     }
 
     const newCommit = new Commit(event.commitId, parents, event)
@@ -70,7 +88,10 @@ export class CommitHistory {
     this.branches.set(targetBranchId, newCommit.id)
   }
 
-  getLastCommonCommit(sourceBranchId: string, targetBranchId: string): string | undefined {
+  getLastCommonCommit(
+    sourceBranchId: string,
+    targetBranchId: string,
+  ): string | undefined | MediaTypeTreeNotFoundError {
     const sourceBranch = this.branches.get(sourceBranchId)
     const targetBranch = this.branches.get(targetBranchId)
 
@@ -78,34 +99,24 @@ export class CommitHistory {
       return
     }
 
-    const sourceCommits = Array.from(this.getAllCommitsByBranch(sourceBranchId))
+    const sourceCommits = this.getAllCommitsByBranch(sourceBranchId)
+    if (sourceCommits instanceof MediaTypeTreeNotFoundError) return sourceCommits
     const sourceCommitIds = new Set(sourceCommits.map((commit) => commit.id))
 
-    for (const commit of this.getAllCommitsByBranch(targetBranchId)) {
+    const targetCommits = this.getAllCommitsByBranch(targetBranchId)
+    if (targetCommits instanceof MediaTypeTreeNotFoundError) return targetCommits
+
+    for (const commit of targetCommits.reverse()) {
       if (sourceCommitIds.has(commit.id)) {
         return commit.id
       }
     }
   }
 
-  *getAllCommitsByBranch(branchId: string): Generator<Commit> {
+  getAllCommitsByBranch(branchId: string): Commit[] | MediaTypeTreeNotFoundError {
     const branchCommit = this.getCommitByBranch(branchId)
-    if (!branchCommit) {
-      return
-    }
-
-    const queue = [branchCommit]
-    while (queue.length > 0) {
-      const current = queue.shift()!
-      yield current
-
-      for (const parentCommitId of current.parents) {
-        const parentCommit = this.commits.get(parentCommitId)
-        if (parentCommit !== undefined) {
-          queue.push(parentCommit)
-        }
-      }
-    }
+    if (branchCommit instanceof MediaTypeTreeNotFoundError) return branchCommit
+    return this.getAllCommitsToCommit(branchCommit?.id)
   }
 
   getAllCommitsToCommit(commitId: string | undefined): Commit[] {

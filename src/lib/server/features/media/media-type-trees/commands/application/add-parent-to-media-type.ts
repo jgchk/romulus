@@ -1,4 +1,4 @@
-import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
+import { UnauthorizedError } from '../domain/errors'
 import { PermissionChecker } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { type MediaTypeTreesRole } from '../domain/roles'
@@ -18,9 +18,6 @@ export class AddParentToMediaTypeCommandHandler {
 
   async handle(command: AddParentToMediaTypeCommand) {
     const tree = await this.treeRepo.get(command.treeId)
-    if (!tree.isCreated()) {
-      return new MediaTypeTreeNotFoundError(command.treeId)
-    }
 
     const hasPermission = PermissionChecker.canModifyTree(
       command.roles,

@@ -7,6 +7,7 @@ import {
   MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
   MediaTypeTreeNameInvalidError,
+  MediaTypeTreeNotFoundError,
   WillCreateCycleError,
 } from './errors'
 import {
@@ -561,5 +562,18 @@ describe('requestMerge()', () => {
     expect(events).toEqual([
       new MediaTypeMergeRequestedEvent('merge-request-id', 'source', 'target', 0),
     ])
+  })
+
+  test('should error if the source tree does not exist', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('target', 'Target', undefined, 0),
+    ])
+
+    // when
+    const error = tree.requestMerge('merge-request-id', 'source', 0)
+
+    // then
+    expect(error).toEqual(new MediaTypeTreeNotFoundError('source'))
   })
 })

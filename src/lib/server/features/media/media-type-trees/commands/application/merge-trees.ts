@@ -16,30 +16,25 @@ export class MergeTreesCommandHandler {
   constructor(private treeRepo: IMediaTypeTreeRepository) {}
 
   async handle(command: MergeTreesCommand) {
-    const sourceTree = await this.treeRepo.get(command.sourceTreeId)
-    if (!sourceTree.isCreated()) {
-      return new MediaTypeTreeNotFoundError(command.sourceTreeId)
-    }
-
-    const targetTree = await this.treeRepo.get(command.targetTreeId)
-    if (!targetTree.isCreated()) {
+    const tree = await this.treeRepo.get(command.targetTreeId)
+    if (!tree.isCreated()) {
       return new MediaTypeTreeNotFoundError(command.targetTreeId)
     }
 
     const hasPermission = PermissionChecker.canModifyTree(
       command.roles,
-      targetTree.isOwner(command.userId),
-      targetTree.isMainTree(),
+      tree.isOwner(command.userId),
+      tree.isMainTree(),
     )
     if (!hasPermission) {
       return new UnauthorizedError()
     }
 
-    const error = targetTree.merge(command.sourceTreeId)
+    const error = tree.merge(command.sourceTreeId)
     if (error instanceof Error) {
       return error
     }
 
-    await this.treeRepo.save(targetTree)
+    await this.treeRepo.save(tree)
   }
 }

@@ -202,7 +202,7 @@ test('should error if the media type tree does not exist', async () => {
   // given
   const t = new TestHelper()
   const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const roles = new Set([MediaTypeTreesRole.ADMIN])
   await t.given([])
 
   // when

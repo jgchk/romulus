@@ -1,4 +1,5 @@
-import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
+import type { MediaTypeTreeNotFoundError } from '../domain/errors'
+import { UnauthorizedError } from '../domain/errors'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import { MediaTypeTreesRole } from '../domain/roles'
 
@@ -22,11 +23,12 @@ export class SetMainTreeCommandHandler {
     }
 
     const existingTree = await this.treeRepo.get(command.mainTreeId)
-    if (!existingTree.isCreated()) {
-      return new MediaTypeTreeNotFoundError(command.mainTreeId)
+
+    const error = existingTree.setMainTree(command.userId)
+    if (error instanceof Error) {
+      return error
     }
 
-    existingTree.setMainTree(command.userId)
     await this.treeRepo.save(existingTree)
   }
 }

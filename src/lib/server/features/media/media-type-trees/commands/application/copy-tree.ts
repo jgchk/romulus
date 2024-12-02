@@ -1,9 +1,7 @@
-import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeAlreadyExistsError } from '../domain/errors'
+import { UnauthorizedError } from '../domain/errors'
 import { PermissionChecker } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import type { MediaTypeTreesRole } from '../domain/roles'
-import { MediaTypeTree } from '../domain/tree'
 
 export class CopyTreeCommand {
   constructor(
@@ -24,17 +22,7 @@ export class CopyTreeCommandHandler {
       return new UnauthorizedError()
     }
 
-    const existingTree = await this.repo.get(command.id)
-    if (existingTree.isCreated()) {
-      return new MediaTypeTreeAlreadyExistsError(command.id)
-    }
-
-    const baseTree = await this.repo.get(command.baseTreeId)
-    if (!baseTree.isCreated()) {
-      return new MediaTypeTreeNotFoundError(command.baseTreeId)
-    }
-
-    const tree = MediaTypeTree.fromEvents(command.id, [])
+    const tree = await this.repo.get(command.id)
 
     const error = tree.create(command.name, command.baseTreeId, command.userId)
     if (error instanceof Error) {
