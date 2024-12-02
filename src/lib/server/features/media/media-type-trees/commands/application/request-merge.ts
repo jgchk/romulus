@@ -3,8 +3,9 @@ import { PermissionChecker } from '../domain/permissions'
 import type { IMediaTypeTreeRepository } from '../domain/repository'
 import type { MediaTypeTreesRole } from '../domain/roles'
 
-export class MergeTreesCommand {
+export class RequestMergeTreesCommand {
   constructor(
+    public readonly mergeRequestId: string,
     public readonly sourceTreeId: string,
     public readonly targetTreeId: string,
     public readonly userId: number,
@@ -12,22 +13,18 @@ export class MergeTreesCommand {
   ) {}
 }
 
-export class MergeTreesCommandHandler {
+export class RequestMergeTreesCommandHandler {
   constructor(private treeRepo: IMediaTypeTreeRepository) {}
 
-  async handle(command: MergeTreesCommand) {
+  async handle(command: RequestMergeTreesCommand) {
     const tree = await this.treeRepo.get(command.targetTreeId)
 
-    const hasPermission = PermissionChecker.canModifyTree(
-      command.roles,
-      tree.isOwner(command.userId),
-      tree.isMainTree(),
-    )
+    const hasPermission = PermissionChecker.canRequestMerge(command.roles)
     if (!hasPermission) {
       return new UnauthorizedError()
     }
 
-    const error = tree.merge(command.sourceTreeId)
+    const error = tree.requestMerge(command.mergeRequestId, command.sourceTreeId, command.userId)
     if (error instanceof Error) {
       return error
     }

@@ -10,6 +10,7 @@ import { CopyTreeCommand, CopyTreeCommandHandler } from './copy-tree'
 import { CreateTreeCommand, CreateTreeCommandHandler } from './create-tree'
 import { MergeTreesCommand, MergeTreesCommandHandler } from './merge-trees'
 import { RemoveMediaTypeCommand, RemoveMediaTypeCommandHandler } from './remove-media-type'
+import { RequestMergeTreesCommand, RequestMergeTreesCommandHandler } from './request-merge'
 import { SetMainTreeCommand, SetMainTreeCommandHandler } from './set-main-tree'
 
 export class TestHelper {
@@ -38,6 +39,8 @@ export class TestHelper {
       return new AddParentToMediaTypeCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof CopyTreeCommand) {
       return new CopyTreeCommandHandler(this.treeRepo).handle(command)
+    } else if (command instanceof RequestMergeTreesCommand) {
+      return new RequestMergeTreesCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof MergeTreesCommand) {
       return new MergeTreesCommandHandler(this.treeRepo).handle(command)
     } else if (command instanceof RemoveMediaTypeCommand) {
@@ -57,6 +60,7 @@ export type Command =
   | AddMediaTypeCommand
   | AddParentToMediaTypeCommand
   | CopyTreeCommand
+  | RequestMergeTreesCommand
   | MergeTreesCommand
   | RemoveMediaTypeCommand
   | SetMainTreeCommand

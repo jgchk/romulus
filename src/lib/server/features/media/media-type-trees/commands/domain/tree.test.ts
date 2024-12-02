@@ -576,4 +576,17 @@ describe('requestMerge()', () => {
     // then
     expect(error).toEqual(new MediaTypeTreeNotFoundError('source'))
   })
+
+  test('should error if the target tree does not exist', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents('target', [
+      new MediaTypeTreeCreatedEvent('source', 'Source', undefined, 0),
+    ])
+
+    // when
+    const error = tree.requestMerge('merge-request-id', 'source', 0)
+
+    // then
+    expect(error).toEqual(new MediaTypeTreeNotFoundError('target'))
+  })
 })

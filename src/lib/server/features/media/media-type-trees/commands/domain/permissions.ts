@@ -15,4 +15,8 @@ export class PermissionChecker {
       (permissions.has(MediaTypeTreesRole.WRITE) && isOwner && !isMainTree)
     )
   }
+
+  static canRequestMerge(permissions: Set<MediaTypeTreesRole>): boolean {
+    return permissions.has(MediaTypeTreesRole.ADMIN) || permissions.has(MediaTypeTreesRole.WRITE)
+  }
 }

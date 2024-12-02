@@ -304,6 +304,10 @@ export class MediaTypeTree {
     sourceTreeId: string,
     userId: number,
   ): void | MediaTypeTreeNotFoundError {
+    if (!this.isCreated()) {
+      return new MediaTypeTreeNotFoundError(this.id)
+    }
+
     const sourceTree = this.getTreeFromBranch(sourceTreeId)
     if (sourceTree instanceof MediaTypeTreeNotFoundError) return sourceTree
 
