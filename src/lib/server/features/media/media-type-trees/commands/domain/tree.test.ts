@@ -327,7 +327,7 @@ describe('addParentToMediaType()', () => {
     expect(error).toEqual(new WillCreateCycleError(['parent', 'child', 'grandchild', 'parent']))
   })
 
-  test.only('should not throw a cycle error based on removed relationships', () => {
+  test('should not throw a cycle error based on removed relationships', () => {
     // given
     const tree = MediaTypeTree.fromEvents('tree', [
       new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
