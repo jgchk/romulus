@@ -1,6 +1,6 @@
 import { expect } from 'vitest'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../vitest-setup'
 import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreesRole } from '../domain/roles'
 import { CreateTreeCommand } from './create-tree'

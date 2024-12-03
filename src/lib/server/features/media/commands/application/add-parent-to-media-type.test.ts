@@ -1,6 +1,6 @@
 import { expect } from 'vitest'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../vitest-setup'
 import { UnauthorizedError } from '../domain/errors'
 import { MediaTypeTreeNotFoundError } from '../domain/errors'
 import { MediaTypeNotFoundError, WillCreateCycleError } from '../domain/errors'

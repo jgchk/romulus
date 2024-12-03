@@ -1,6 +1,6 @@
 import { expect } from 'vitest'
 
-import { test } from '../../../../../../../vitest-setup'
+import { test } from '../../../../../../vitest-setup'
 import { AddMediaTypeCommand } from '../../commands/application/add-media-type'
 import { AddParentToMediaTypeCommand } from '../../commands/application/add-parent-to-media-type'
 import { CopyTreeCommand } from '../../commands/application/copy-tree'
