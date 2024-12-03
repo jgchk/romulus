@@ -5,7 +5,10 @@ export class GetMediaTypeTreeQuery {
   constructor(public readonly treeId: string) {}
 }
 
-export type GetMediaTypeTreeQueryResult = Map<string, { children: Set<string> }>
+export type GetMediaTypeTreeQueryResult = {
+  name: string
+  mediaTypes: Map<string, { children: Set<string> }>
+}
 
 export class GetMediaTypeTreeQueryHandler {
   constructor(private readonly treeRepo: IMediaTypeTreeRepository) {}
