@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 
+import { MemoryEventStore } from '../../shared/infrastructure/memory-event-store'
 import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
 import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
 import {
@@ -14,7 +15,7 @@ import { RequestMergeTreesCommand, RequestMergeTreesCommandHandler } from './req
 import { SetMainTreeCommand, SetMainTreeCommandHandler } from './set-main-tree'
 
 export class TestHelper {
-  private treeRepo: MemoryTreeRepository = new MemoryTreeRepository()
+  treeRepo: MemoryTreeRepository = new MemoryTreeRepository(new MemoryEventStore())
 
   async given(commands: Command[]): Promise<void> {
     for (const command of commands) {

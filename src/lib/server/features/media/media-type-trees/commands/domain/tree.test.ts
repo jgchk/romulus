@@ -2,6 +2,14 @@ import { describe, expect } from 'vitest'
 
 import { test } from '../../../../../../../vitest-setup'
 import {
+  MediaTypeAddedEvent,
+  MediaTypeMergeRequestedEvent,
+  MediaTypeRemovedEvent,
+  MediaTypeTreeCreatedEvent,
+  MediaTypeTreesMergedEvent,
+  ParentAddedToMediaTypeEvent,
+} from '../../shared/domain/events'
+import {
   MediaTypeAlreadyExistsError,
   MediaTypeMergeRequestNotFoundError,
   MediaTypeNameInvalidError,
@@ -10,14 +18,6 @@ import {
   MediaTypeTreeNotFoundError,
   WillCreateCycleError,
 } from './errors'
-import {
-  MediaTypeAddedEvent,
-  MediaTypeMergeRequestedEvent,
-  MediaTypeRemovedEvent,
-  MediaTypeTreeCreatedEvent,
-  MediaTypeTreesMergedEvent,
-  ParentAddedToMediaTypeEvent,
-} from './events'
 import { MediaTypeTree } from './tree'
 
 const expectUuid = expect.stringMatching(
@@ -325,6 +325,26 @@ describe('addParentToMediaType()', () => {
 
     // then
     expect(error).toEqual(new WillCreateCycleError(['parent', 'child', 'grandchild', 'parent']))
+  })
+
+  test.only('should not throw a cycle error based on removed relationships', () => {
+    // given
+    const tree = MediaTypeTree.fromEvents('tree', [
+      new MediaTypeTreeCreatedEvent('tree', 'Tree', undefined, 0),
+      new MediaTypeAddedEvent('tree', 'parent', 'Parent', 'commit-1'),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-2'),
+      new ParentAddedToMediaTypeEvent('tree', 'child', 'parent', 'commit-3'),
+      new MediaTypeRemovedEvent('tree', 'child', 'commit-4'),
+      new MediaTypeAddedEvent('tree', 'child', 'Child', 'commit-5'),
+    ])
+
+    // when
+    const error = tree.addParentToMediaType('parent', 'child')
+    expect(error).toBeUndefined()
+
+    // then
+    const events = tree.getUncommittedEvents()
+    expect(events).toEqual([new ParentAddedToMediaTypeEvent('tree', 'parent', 'child', expectUuid)])
   })
 })
 

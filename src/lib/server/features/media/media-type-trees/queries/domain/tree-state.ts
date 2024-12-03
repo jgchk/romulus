@@ -1,10 +1,3 @@
-import {
-  MediaTypeAlreadyExistsError,
-  MediaTypeNameInvalidError,
-  MediaTypeNotFoundError,
-  WillCreateCycleError,
-} from './errors'
-
 export type TreeStateEvent =
   | MediaTypeAddedEvent
   | MediaTypeRemovedEvent
@@ -53,54 +46,25 @@ export class TreeState {
 
   applyEvent(event: TreeStateEvent): void {
     if (event instanceof MediaTypeAddedEvent) {
-      const error = this.addMediaType(event.mediaTypeId, event.name)
-      if (error instanceof Error) {
-        throw error
-      }
+      this.addMediaType(event.mediaTypeId, event.name)
     } else if (event instanceof MediaTypeRemovedEvent) {
-      const error = this.removeMediaType(event.mediaTypeId)
-      if (error instanceof Error) {
-        throw error
-      }
+      this.removeMediaType(event.mediaTypeId)
     } else if (event instanceof ParentAddedToMediaTypeEvent) {
-      const error = this.addChildToMediaType(event.parentId, event.childId)
-      if (error instanceof Error) {
-        throw error
-      }
+      this.addChildToMediaType(event.parentId, event.childId)
     } else if (event instanceof MediaTypeTreesMergedEvent) {
-      const error = this.merge(event.sourceTree, event.baseTree)
-      if (error instanceof Error) {
-        throw error
-      }
+      this.merge(event.sourceTree, event.baseTree)
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _exhaustiveCheck: never = event
     }
   }
 
-  addMediaType(
-    id: string,
-    name: string,
-  ): MediaTypeNode | MediaTypeAlreadyExistsError | MediaTypeNameInvalidError {
-    if (this.nodes.has(id)) {
-      return new MediaTypeAlreadyExistsError(id)
-    }
-
+  addMediaType(id: string, name: string): void {
     const node = MediaTypeNode.create(name)
-    if (node instanceof MediaTypeNameInvalidError) {
-      return node
-    }
-
     this.nodes.set(id, node)
-
-    return node
   }
 
-  removeMediaType(id: string): void | MediaTypeNotFoundError {
-    if (!this.nodes.has(id)) {
-      return new MediaTypeNotFoundError(id)
-    }
-
+  removeMediaType(id: string): void {
     this.moveChildrenUnderParents(id)
     this.removeMediaTypeFromParents(id)
     this.nodes.delete(id)
@@ -121,12 +85,7 @@ export class TreeState {
 
     for (const parentId of parentIds) {
       for (const childId of childIds) {
-        const error = this.addChildToMediaType(parentId, childId)
-        if (error instanceof WillCreateCycleError) {
-          throw error // should never happen
-        } else if (error instanceof MediaTypeNotFoundError) {
-          throw error // should never happen
-        }
+        this.addChildToMediaType(parentId, childId)
       }
     }
   }
@@ -145,68 +104,22 @@ export class TreeState {
     return parents
   }
 
-  addChildToMediaType(
-    parentId: string,
-    childId: string,
-  ): void | MediaTypeNotFoundError | WillCreateCycleError {
+  addChildToMediaType(parentId: string, childId: string): void {
     const parent = this.nodes.get(parentId)
-    if (!parent) {
-      return new MediaTypeNotFoundError(parentId)
-    }
+    if (!parent) return
 
     const child = this.nodes.get(childId)
-    if (!child) {
-      return new MediaTypeNotFoundError(childId)
-    }
-
-    const cycle = this.hasPath(childId, parentId)
-    if (cycle) {
-      return new WillCreateCycleError([...cycle, childId])
-    }
+    if (!child) return
 
     parent.addChild(childId)
   }
 
-  private hasPath(source: string, destination: string): string[] | undefined {
-    const visited = new Set<string>()
-    const path: string[] = []
-
-    const dfs = (current: string): string[] | undefined => {
-      if (current === destination) {
-        return [...path, current]
-      }
-
-      visited.add(current)
-      path.push(current)
-
-      const neighbors = this.nodes.get(current)?.getChildren() ?? new Set<string>()
-      for (const neighbor of neighbors) {
-        if (!visited.has(neighbor)) {
-          const cyclePath = dfs(neighbor)
-          if (cyclePath) {
-            return cyclePath
-          }
-        }
-      }
-
-      path.pop()
-    }
-
-    return dfs(source)
-  }
-
-  merge(
-    sourceTree: TreeState,
-    baseTree: TreeState,
-  ): void | MediaTypeAlreadyExistsError | WillCreateCycleError {
+  merge(sourceTree: TreeState, baseTree: TreeState): void {
     // 1. Handle media types that were added in sourceTree since baseTree
     for (const [id, node] of sourceTree.nodes) {
       if (!baseTree.nodes.has(id) && !this.nodes.has(id)) {
         // Media type was added in sourceTree and doesn't exist in the current tree
         this.nodes.set(id, node.cloneWithoutChildren())
-      } else if (!baseTree.nodes.has(id) && this.nodes.has(id)) {
-        // Media type was added in both trees independently - conflict
-        return new MediaTypeAlreadyExistsError(id)
       }
     }
 
@@ -224,34 +137,28 @@ export class TreeState {
       for (const childId of sourceChildren) {
         if (!baseChildren.has(childId) && !currentChildren.has(childId)) {
           // Relationship was added in sourceTree and doesn't exist in current tree
-          const error = this.addChildToMediaType(id, childId)
-          if (error instanceof WillCreateCycleError) {
-            return error
-          } else if (error instanceof MediaTypeNotFoundError) {
-            throw error // should never happen
-          }
+          this.addChildToMediaType(id, childId)
         }
       }
     }
   }
+
+  marshal() {
+    return new Map([...this.nodes.entries()].map(([id, node]) => [id, node.marshal()]))
+  }
 }
 
 class MediaTypeNode {
-  private name: MediaTypeName
+  private name: string
   private children: Set<string>
 
-  private constructor(name: MediaTypeName, children: Set<string>) {
+  private constructor(name: string, children: Set<string>) {
     this.name = name
     this.children = children
   }
 
-  static create(name: string): MediaTypeNode | MediaTypeNameInvalidError {
-    const mediaTypeName = MediaTypeName.create(name)
-    if (mediaTypeName instanceof MediaTypeNameInvalidError) {
-      return mediaTypeName
-    }
-
-    return new MediaTypeNode(mediaTypeName, new Set())
+  static create(name: string): MediaTypeNode {
+    return new MediaTypeNode(name, new Set())
   }
 
   clone(): MediaTypeNode {
@@ -281,20 +188,8 @@ class MediaTypeNode {
   getName(): string {
     return this.name.toString()
   }
-}
 
-class MediaTypeName {
-  private constructor(private readonly value: string) {}
-
-  static create(name: string): MediaTypeName | MediaTypeNameInvalidError {
-    const trimmedName = name.trim().replace(/\n/g, '')
-    if (trimmedName.length === 0) {
-      return new MediaTypeNameInvalidError(name)
-    }
-    return new MediaTypeName(trimmedName)
-  }
-
-  toString(): string {
-    return this.value
+  marshal() {
+    return { children: new Set(this.children) }
   }
 }

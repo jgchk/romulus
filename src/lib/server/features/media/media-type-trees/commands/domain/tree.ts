@@ -1,3 +1,13 @@
+import {
+  MainMediaTypeTreeSetEvent,
+  MediaTypeAddedEvent,
+  MediaTypeMergeRequestedEvent,
+  MediaTypeRemovedEvent,
+  MediaTypeTreeCreatedEvent,
+  type MediaTypeTreeEvent,
+  MediaTypeTreesMergedEvent,
+  ParentAddedToMediaTypeEvent,
+} from '../../shared/domain/events'
 import { CommitHistory } from './commit-history'
 import type {
   MediaTypeAlreadyExistsError,
@@ -11,16 +21,6 @@ import {
   MediaTypeTreeNameInvalidError,
   MediaTypeTreeNotFoundError,
 } from './errors'
-import {
-  MainMediaTypeTreeSetEvent,
-  MediaTypeAddedEvent,
-  MediaTypeMergeRequestedEvent,
-  MediaTypeRemovedEvent,
-  MediaTypeTreeCreatedEvent,
-  type MediaTypeTreeEvent,
-  MediaTypeTreesMergedEvent,
-  ParentAddedToMediaTypeEvent,
-} from './events'
 import { TreeState, type TreeStateEvent } from './tree-state'
 import {
   MediaTypeAddedEvent as MediaTypeAddedToTreeEvent,
