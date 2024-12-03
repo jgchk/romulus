@@ -23,7 +23,7 @@ export const GET = (async ({
   }
   const nameQuery = maybeNameQuery.data
 
-  const { artists } = await locals.services.musicCatalog.queries.searchArtists(nameQuery)
+  const { artists } = await locals.di.musicCatalogQueryService().searchArtists(nameQuery)
 
   return json({ artists })
 }) satisfies RequestHandler

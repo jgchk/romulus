@@ -22,9 +22,9 @@ describe('load', () => {
         locals: {
           dbConnection,
           user: undefined,
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: { queries: new ApiQueryService(dbConnection) },
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
       })
@@ -43,9 +43,9 @@ describe('load', () => {
         locals: {
           dbConnection,
           user: { id: 2 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: { queries: new ApiQueryService(dbConnection) },
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
       })
@@ -62,9 +62,9 @@ describe('load', () => {
         locals: {
           dbConnection,
           user: { id: 1 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: { queries: new ApiQueryService(dbConnection) },
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
       })
@@ -81,9 +81,9 @@ describe('load', () => {
         locals: {
           dbConnection,
           user: { id: 1 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: { queries: new ApiQueryService(dbConnection) },
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
       })
@@ -105,9 +105,9 @@ describe('load', () => {
       locals: {
         dbConnection,
         user: { id: 1 },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: { queries: new ApiQueryService(dbConnection) },
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
     })
@@ -137,9 +137,9 @@ describe('load', () => {
       locals: {
         dbConnection,
         user: { id: account1.id },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: { queries: new ApiQueryService(dbConnection) },
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
     })
@@ -171,9 +171,9 @@ describe('load', () => {
       locals: {
         dbConnection,
         user: { id: account.id },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: { queries: new ApiQueryService(dbConnection) },
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
     })
@@ -195,15 +195,14 @@ describe('create', () => {
         locals: {
           dbConnection,
           user: undefined,
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -223,15 +222,14 @@ describe('create', () => {
         locals: {
           dbConnection,
           user: { id: 2 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -249,15 +247,14 @@ describe('create', () => {
         locals: {
           dbConnection,
           user: { id: 1 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -275,15 +272,14 @@ describe('create', () => {
         locals: {
           dbConnection,
           user: { id: 1 },
-          services: {
-            authentication: { queries: new AuthenticationQueryService(dbConnection) },
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -309,15 +305,14 @@ describe('create', () => {
       locals: {
         dbConnection,
         user: { id: 1 },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -349,15 +344,14 @@ describe('create', () => {
       locals: {
         dbConnection,
         user: { id: 1 },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -391,15 +385,14 @@ describe('create', () => {
       locals: {
         dbConnection,
         user: { id: 1 },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -425,15 +418,14 @@ describe('create', () => {
       locals: {
         dbConnection,
         user: { id: 1 },
-        services: {
-          authentication: { queries: new AuthenticationQueryService(dbConnection) },
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -453,14 +445,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: undefined,
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -480,14 +471,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: undefined,
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -511,14 +501,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: { id: account.id },
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost'),
@@ -541,14 +530,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: { id: 1 },
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -580,14 +568,13 @@ describe('delete', () => {
       locals: {
         dbConnection,
         user: { id: account.id },
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -625,14 +612,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: undefined,
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -658,14 +644,13 @@ describe('delete', () => {
       locals: {
         dbConnection,
         user: { id: account.id },
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -692,14 +677,13 @@ describe('delete', () => {
         locals: {
           dbConnection,
           user: { id: account.id },
-          services: {
-            api: {
-              commands: new ApiCommandService(
+          di: {
+            apiCommandService: () =>
+              new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
                 new CryptoTokenGenerator(),
                 new Sha256HashRepository(),
               ),
-            },
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),

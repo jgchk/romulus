@@ -62,7 +62,7 @@ export const actions: Actions = {
       updatedAt: new Date(),
     }
 
-    const createResult = await locals.services.genre.commands.createGenre(genreData, user.id)
+    const createResult = await locals.di.genreCommandService().createGenre(genreData, user.id)
     if (createResult instanceof SelfInfluenceError) {
       return setError(form, 'influencedBy._errors', 'A genre cannot influence itself')
     } else if (createResult instanceof DuplicateAkaError) {
@@ -75,11 +75,9 @@ export const actions: Actions = {
 
     const relevance = form.data.relevance
     if (relevance !== undefined) {
-      const voteResult = await locals.services.genre.commands.voteGenreRelevance(
-        createResult.id,
-        relevance,
-        user.id,
-      )
+      const voteResult = await locals.di
+        .genreCommandService()
+        .voteGenreRelevance(createResult.id, relevance, user.id)
 
       if (voteResult instanceof InvalidGenreRelevanceError) {
         return setError(form, 'relevance', voteResult.message)

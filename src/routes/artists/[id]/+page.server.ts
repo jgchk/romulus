@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const { artist } = await locals.services.musicCatalog.queries.getArtist(id)
+  const { artist } = await locals.di.musicCatalogQueryService().getArtist(id)
 
   if (!artist) {
     return error(404, { message: 'Artist not found' })
@@ -32,7 +32,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    await locals.services.musicCatalog.commands.deleteArtist(id)
+    await locals.di.musicCatalogCommandService().deleteArtist(id)
 
     setHeaders({ Location: '/artists' })
     return redirect(303, '/artists')

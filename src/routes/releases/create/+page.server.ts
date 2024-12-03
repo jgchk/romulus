@@ -36,7 +36,7 @@ async function getInitialArtists(url: URL, locals: App.Locals) {
     return []
   }
 
-  const { artist } = await locals.services.musicCatalog.queries.getArtist(artistId)
+  const { artist } = await locals.di.musicCatalogQueryService().getArtist(artistId)
 
   if (artist === undefined) {
     return []
@@ -66,8 +66,9 @@ export const actions: Actions = {
       return failForm(createReleaseRequest.errors)
     }
 
-    const releaseId =
-      await locals.services.musicCatalog.commands.createRelease(createReleaseRequest)
+    const releaseId = await locals.di
+      .musicCatalogCommandService()
+      .createRelease(createReleaseRequest)
 
     if (releaseId instanceof Error) {
       return handleCreateReleaseError(releaseId)

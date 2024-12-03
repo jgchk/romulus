@@ -3,11 +3,7 @@ export async function checkApiAuth(
   locals: {
     user: App.Locals['user']
     dbConnection: App.Locals['dbConnection']
-    services: {
-      api: {
-        commands: App.Locals['services']['api']['commands']
-      }
-    }
+    di: Pick<App.Locals['di'], 'apiCommandService'>
   },
 ): Promise<boolean> {
   if (locals.user) {
@@ -19,7 +15,7 @@ export async function checkApiAuth(
     return false
   }
 
-  return locals.services.api.commands.validateApiKey(key)
+  return locals.di.apiCommandService().validateApiKey(key)
 }
 
 function getKeyFromHeaders(request: Request) {

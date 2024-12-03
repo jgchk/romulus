@@ -101,8 +101,9 @@ export const actions: Actions = {
       }
     }
 
-    const releaseIssueId =
-      await locals.services.musicCatalog.commands.createReleaseIssue(createReleaseIssueRequest)
+    const releaseIssueId = await locals.di
+      .musicCatalogCommandService()
+      .createReleaseIssue(createReleaseIssueRequest)
 
     if (releaseIssueId instanceof ReleaseDatePrecisionError) {
       return setError(form, 'day', 'Cannot specify a release day without specifying a month')

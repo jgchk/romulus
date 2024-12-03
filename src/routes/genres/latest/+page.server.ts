@@ -3,7 +3,7 @@ import { ifDefined } from '$lib/utils/types'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const history = await locals.services.genre.queries.getLatestGenreUpdates()
+  const history = await locals.di.genreQueryService().getLatestGenreUpdates()
 
   const genreHistory = history.map((h) => ({
     ...h,

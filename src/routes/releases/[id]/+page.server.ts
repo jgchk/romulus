@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const { release } = await locals.services.musicCatalog.queries.getRelease(id)
+  const { release } = await locals.di.musicCatalogQueryService().getRelease(id)
 
   if (!release) {
     return error(404, { message: 'Release not found' })
@@ -32,7 +32,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    await locals.services.musicCatalog.commands.deleteRelease(id)
+    await locals.di.musicCatalogCommandService().deleteRelease(id)
 
     setHeaders({ Location: '/releases' })
     return redirect(303, '/releases')

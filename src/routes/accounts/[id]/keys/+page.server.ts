@@ -13,14 +13,7 @@ export const load = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-    services: {
-      authentication: {
-        queries: App.Locals['services']['authentication']['queries']
-      }
-      api: {
-        queries: App.Locals['services']['api']['queries']
-      }
-    }
+    di: Pick<App.Locals['di'], 'authenticationQueryService' | 'apiQueryService'>
   }
 }) => {
   if (!locals.user) {
@@ -37,13 +30,13 @@ export const load = (async ({
     return error(403, 'Unauthorized')
   }
 
-  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
+  const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
   const account = maybeAccount
 
-  const keys = await locals.services.api.queries.getApiKeysByAccount(account.id)
+  const keys = await locals.di.apiQueryService().getApiKeysByAccount(account.id)
 
   return { keys }
 }) satisfies PageServerLoad
@@ -58,14 +51,7 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-      services: {
-        authentication: {
-          queries: App.Locals['services']['authentication']['queries']
-        }
-        api: {
-          commands: App.Locals['services']['api']['commands']
-        }
-      }
+      di: Pick<App.Locals['di'], 'authenticationQueryService' | 'apiCommandService'>
     }
     request: RequestEvent['request']
   }) => {
@@ -83,7 +69,7 @@ export const actions = {
       return error(403, 'Unauthorized')
     }
 
-    const maybeAccount = await locals.services.authentication.queries.getAccount(id)
+    const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
     if (!maybeAccount) {
       return error(404, 'Account not found')
     }
@@ -100,7 +86,7 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const insertedKey = await locals.services.api.commands.createApiKey(name, account.id)
+    const insertedKey = await locals.di.apiCommandService().createApiKey(name, account.id)
 
     return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
   },
@@ -114,11 +100,7 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-      services: {
-        api: {
-          commands: App.Locals['services']['api']['commands']
-        }
-      }
+      di: Pick<App.Locals['di'], 'apiCommandService'>
     }
     request: RequestEvent['request']
   }) => {
@@ -147,7 +129,7 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    const result = await locals.services.api.commands.deleteApiKey(apiKeyId, accountId)
+    const result = await locals.di.apiCommandService().deleteApiKey(apiKeyId, accountId)
     if (result instanceof UnauthorizedApiKeyDeletionError) {
       return error(401, 'Unauthorized')
     }

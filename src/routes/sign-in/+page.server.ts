@@ -29,10 +29,9 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.controllers.authentication.login(
-      form.data.username,
-      form.data.password,
-    )
+    const maybeSessionCookie = await locals.di
+      .authenticationController()
+      .login(form.data.username, form.data.password)
     if (maybeSessionCookie instanceof InvalidLoginError) {
       return setError(form, 'Incorrect username or password')
     }

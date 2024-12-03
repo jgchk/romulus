@@ -33,7 +33,7 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
   }
   const data = maybeData.data
 
-  const result = await locals.services.authentication.commands.updateUserSettings(id, {
+  const result = await locals.di.authenticationCommandService().updateUserSettings(id, {
     genreRelevanceFilter: data.genreRelevanceFilter,
     showTypeTags: data.showTypeTags,
     showRelevanceTags: data.showRelevanceTags,

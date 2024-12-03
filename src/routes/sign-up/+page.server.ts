@@ -27,10 +27,9 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.controllers.authentication.register(
-      form.data.username,
-      form.data.password.password,
-    )
+    const maybeSessionCookie = await locals.di
+      .authenticationController()
+      .register(form.data.username, form.data.password.password)
     if (maybeSessionCookie instanceof NonUniqueUsernameError) {
       return setError(form, 'username', 'Username is already taken')
     }

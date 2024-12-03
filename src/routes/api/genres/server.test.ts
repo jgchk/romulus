@@ -18,15 +18,14 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
       locals: {
         dbConnection,
         user: undefined,
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
-          genre: { queries: new GenreQueryService(dbConnection) },
+          genreQueryService: () => new GenreQueryService(dbConnection),
         },
       },
       request: new Request('http://localhost/api/genres'),
@@ -44,15 +43,14 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
       locals: {
         dbConnection,
         user: undefined,
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
-          genre: { queries: new GenreQueryService(dbConnection) },
+          genreQueryService: () => new GenreQueryService(dbConnection),
         },
       },
       request: new Request('http://localhost/api/genres', {
@@ -72,15 +70,14 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
       locals: {
         dbConnection,
         user: undefined,
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
-          genre: { queries: new GenreQueryService(dbConnection) },
+          genreQueryService: () => new GenreQueryService(dbConnection),
         },
       },
       request: new Request('http://localhost/api/genres', {
@@ -115,15 +112,14 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
       locals: {
         dbConnection,
         user: undefined,
-        services: {
-          api: {
-            commands: new ApiCommandService(
+        di: {
+          apiCommandService: () =>
+            new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          },
-          genre: { queries: new GenreQueryService(dbConnection) },
+          genreQueryService: () => new GenreQueryService(dbConnection),
         },
       },
       request: new Request('http://localhost/api/genres', {

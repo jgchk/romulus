@@ -22,14 +22,14 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
   const id = maybeId.data
 
-  const maybeAccount = await locals.services.authentication.queries.getAccount(id)
+  const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
 
   if (!maybeAccount) {
     return error(404, 'Account not found')
   }
   const account = maybeAccount
 
-  const history = await locals.services.genre.queries.getGenreHistoryByAccount(id)
+  const history = await locals.di.genreQueryService().getGenreHistoryByAccount(id)
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
@@ -66,7 +66,9 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const verificationToken = await locals.services.authentication.commands.requestPasswordReset(id)
+    const verificationToken = await locals.di
+      .authenticationCommandService()
+      .requestPasswordReset(id)
     const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
 
     return { verificationLink }

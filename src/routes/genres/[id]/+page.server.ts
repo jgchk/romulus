@@ -18,18 +18,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await locals.services.genre.queries.getGenre(id)
+  const maybeGenre = await locals.di.genreQueryService().getGenre(id)
   if (!maybeGenre) {
     return error(404, 'Genre not found')
   }
 
-  const relevanceVotes = await locals.services.genre.queries
+  const relevanceVotes = await locals.di
+    .genreQueryService()
     .getGenreRelevanceVotesByGenre(id)
     .then((votes) => countBy(votes, (vote) => vote.relevance))
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await locals.services.genre.queries
+    relevanceVote = await locals.di
+      .genreQueryService()
       .getGenreRelevanceVoteByAccount(id, locals.user.id)
       .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
   }
@@ -67,11 +69,9 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const voteResult = await locals.services.genre.commands.voteGenreRelevance(
-      id,
-      form.data.relevanceVote,
-      locals.user.id,
-    )
+    const voteResult = await locals.di
+      .genreCommandService()
+      .voteGenreRelevance(id, form.data.relevanceVote, locals.user.id)
     if (voteResult instanceof InvalidGenreRelevanceError) {
       return setError(form, 'relevanceVote', voteResult.message)
     }
@@ -91,7 +91,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const deleteResult = await locals.services.genre.commands.deleteGenre(id, user.id)
+    const deleteResult = await locals.di.genreCommandService().deleteGenre(id, user.id)
     if (deleteResult instanceof GenreNotFoundError) {
       return error(404, 'Genre not found')
     }

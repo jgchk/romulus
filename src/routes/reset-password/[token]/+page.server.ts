@@ -10,9 +10,9 @@ import { passwordSchema } from '$lib/server/features/authentication/commands/pre
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-  const maybeToken = await locals.services.authentication.commands.validatePasswordResetToken(
-    params.token,
-  )
+  const maybeToken = await locals.di
+    .authenticationCommandService()
+    .validatePasswordResetToken(params.token)
   if (
     maybeToken instanceof PasswordResetTokenNotFoundError ||
     maybeToken instanceof PasswordResetTokenExpiredError
@@ -38,8 +38,9 @@ export const actions: Actions = {
       return error(400, 'Password reset token is required')
     }
 
-    const maybeToken =
-      await locals.services.authentication.commands.validatePasswordResetToken(verificationToken)
+    const maybeToken = await locals.di
+      .authenticationCommandService()
+      .validatePasswordResetToken(verificationToken)
     if (
       maybeToken instanceof PasswordResetTokenNotFoundError ||
       maybeToken instanceof PasswordResetTokenExpiredError
@@ -49,10 +50,9 @@ export const actions: Actions = {
     }
     const token = maybeToken
 
-    const maybeSessionCookie = await locals.controllers.authentication.resetPassword(
-      token,
-      form.data.password,
-    )
+    const maybeSessionCookie = await locals.di
+      .authenticationController()
+      .resetPassword(token, form.data.password)
     if (maybeSessionCookie instanceof AccountNotFoundError) {
       return error(400, 'No account found for token')
     }

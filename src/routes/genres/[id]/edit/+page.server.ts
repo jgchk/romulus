@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await locals.services.genre.queries.getGenre(id)
+  const maybeGenre = await locals.di.genreQueryService().getGenre(id)
   if (!maybeGenre) {
     return error(404, { message: 'Genre not found' })
   }
@@ -82,7 +82,7 @@ export const actions: Actions = {
       },
     }
 
-    const updateResult = await locals.services.genre.commands.updateGenre(id, genreUpdate, user.id)
+    const updateResult = await locals.di.genreCommandService().updateGenre(id, genreUpdate, user.id)
     if (updateResult instanceof DuplicateAkaError) {
       return setError(form, getDuplicateAkaErrorField(updateResult.level), updateResult.message)
     } else if (updateResult instanceof GenreNotFoundError) {

@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const { releaseIssue } = await locals.services.musicCatalog.queries.getReleaseIssue(id)
+  const { releaseIssue } = await locals.di.musicCatalogQueryService().getReleaseIssue(id)
 
   if (!releaseIssue) {
     return error(404, { message: 'Release issue not found' })

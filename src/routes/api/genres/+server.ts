@@ -13,14 +13,7 @@ export const GET = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: App.Locals['user']
-    services: {
-      api: {
-        commands: App.Locals['services']['api']['commands']
-      }
-      genre: {
-        queries: App.Locals['services']['genre']['queries']
-      }
-    }
+    di: Pick<App.Locals['di'], 'apiCommandService' | 'genreQueryService'>
   }
   request: Request
 }) => {
@@ -35,7 +28,7 @@ export const GET = (async ({
   }
   const data = maybeData.data
 
-  const result = await locals.services.genre.queries.getAllGenres(data)
+  const result = await locals.di.genreQueryService().getAllGenres(data)
 
   return json(result)
 }) satisfies RequestHandler

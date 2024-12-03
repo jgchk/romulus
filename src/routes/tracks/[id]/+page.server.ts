@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const { track } = await locals.services.musicCatalog.queries.getTrack(id)
+  const { track } = await locals.di.musicCatalogQueryService().getTrack(id)
 
   if (!track) {
     return error(404, { message: 'Track not found' })
@@ -31,7 +31,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    await locals.services.musicCatalog.commands.deleteTrack(id)
+    await locals.di.musicCatalogCommandService().deleteTrack(id)
 
     setHeaders({ Location: '/tracks' })
     return redirect(303, '/tracks')

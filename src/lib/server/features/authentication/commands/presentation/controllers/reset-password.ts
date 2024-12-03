@@ -6,7 +6,7 @@ import type { Cookie } from '../cookie'
 
 export class ResetPasswordController {
   constructor(
-    private resetPasswordController: ResetPasswordCommand,
+    private resetPasswordCommand: ResetPasswordCommand,
     private cookieCreator: CookieCreator,
   ) {}
 
@@ -14,7 +14,7 @@ export class ResetPasswordController {
     passwordResetToken: PasswordResetToken,
     newPassword: string,
   ): Promise<Cookie | AccountNotFoundError> {
-    const resetPasswordResult = await this.resetPasswordController.execute(
+    const resetPasswordResult = await this.resetPasswordCommand.execute(
       passwordResetToken,
       newPassword,
     )
