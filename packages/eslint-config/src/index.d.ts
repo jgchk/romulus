@@ -1,5 +1,5 @@
-import { Config } from "typescript-eslint";
+import { Config } from 'typescript-eslint'
 
-declare const config: Config[];
+declare const config: Config[]
 
-export default config;
+export default config

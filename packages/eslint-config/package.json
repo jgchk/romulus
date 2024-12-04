@@ -8,6 +8,11 @@
     }
   },
   "types": "./src/index.d.ts",
+  "scripts": {
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write .",
+    "format": "prettier --write ."
+  },
   "dependencies": {
     "@eslint/js": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
@@ -15,5 +20,8 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.12.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }
