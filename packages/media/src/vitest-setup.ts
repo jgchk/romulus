@@ -12,7 +12,6 @@ import {
   getPGlitePostgresConnection,
   migratePGlite,
 } from './queries/infrastructure/drizzle-pglite-connection'
-import * as schema from './queries/infrastructure/drizzle-schema'
 import type { MediaTypeTreeEvent } from './shared/domain/events'
 
 export class TestHelper {
@@ -49,7 +48,7 @@ export class TestHelper {
 export type Query = GetMediaTypeTreeQuery
 
 const pg = getPGlitePostgresConnection()
-const db = getPGliteDbConnection(schema, pg)
+const db = getPGliteDbConnection(pg)
 
 afterAll(async () => {
   await pg.close()

@@ -2,7 +2,6 @@ import type { Handle } from '@sveltejs/kit'
 
 import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/postgres'
 import * as schema from '$lib/server/db/schema'
-import * as mediaSchema from '$lib/server/features/media/queries/infrastructure/drizzle-schema'
 
 import { CompositionRoot } from './composition-root'
 
@@ -19,9 +18,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(schema, pg)
   event.locals.dbConnection = dbConnection
 
-  const mediaDbConnection = getDbConnection(mediaSchema, pg)
-
-  event.locals.di = new CompositionRoot(dbConnection, SESSION_COOKIE_NAME, mediaDbConnection)
+  event.locals.di = new CompositionRoot(dbConnection, SESSION_COOKIE_NAME)
 
   const sessionToken = event.cookies.get(SESSION_COOKIE_NAME)
   event.locals.sessionToken = sessionToken

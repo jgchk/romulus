@@ -12,7 +12,7 @@ import { SetMainTreeCommandHandler } from './application/set-main-tree'
 import type { IMediaTypeTreeRepository } from './domain/repository'
 import { MemoryTreeRepository } from './infrastructure/memory-tree-repository'
 
-export class MediaCommandsCompositionRoot {
+export class CommandsCompositionRoot {
   addMediaTypeCommandHandler(): AddMediaTypeCommandHandler {
     return new AddMediaTypeCommandHandler(this.treeRepository())
   }

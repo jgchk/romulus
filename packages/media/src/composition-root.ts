@@ -1,19 +1,27 @@
-import { MediaCommandsCompositionRoot } from './commands/composition-root'
-import { MediaQueriesCompositionRoot } from './queries/composition-root'
+import { CommandsCompositionRoot } from './commands/composition-root'
+import { QueriesCompositionRoot } from './queries/composition-root'
 import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database'
+import {
+  getDbConnection,
+  getPostgresConnection,
+} from './queries/infrastructure/drizzle-postgres-connection'
 
-export class MediaCompositionRoot {
-  constructor(private _db: IDrizzleConnection) {}
+export class CompositionRoot {
+  private _db: IDrizzleConnection
 
-  commands(): MediaCommandsCompositionRoot {
-    return new MediaCommandsCompositionRoot()
+  constructor() {
+    this._db = getDbConnection(getPostgresConnection())
   }
 
-  queries(): MediaQueriesCompositionRoot {
-    return new MediaQueriesCompositionRoot(this.db())
+  commands(): CommandsCompositionRoot {
+    return new CommandsCompositionRoot()
   }
 
-  private db() {
+  queries(): QueriesCompositionRoot {
+    return new QueriesCompositionRoot(this.db())
+  }
+
+  db(): IDrizzleConnection {
     return this._db
   }
 }

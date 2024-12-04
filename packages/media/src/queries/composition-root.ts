@@ -1,7 +1,7 @@
 import { GetMediaTypeTreeQueryHandler } from './application/get-media-type-tree'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 
-export class MediaQueriesCompositionRoot {
+export class QueriesCompositionRoot {
   constructor(private _db: IDrizzleConnection) {}
 
   getMediaTypeTreeQueryHandler(): GetMediaTypeTreeQueryHandler {

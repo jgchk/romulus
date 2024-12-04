@@ -2,8 +2,11 @@
   "compilerOptions": {
     "strict": true,
     "checkJs": true,
+    "skipLibCheck": true,
     "downlevelIteration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*", "eslint.config.js", "drizzle.config.ts", "vitest.config.ts"]
 }

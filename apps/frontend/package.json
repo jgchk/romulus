@@ -26,6 +26,7 @@
     "@electric-sql/pglite": "^0.2.12",
     "@floating-ui/dom": "^1.6.12",
     "@tanstack/svelte-query": "^5.59.16",
+    "@romulus/media": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/ramda": "^0.30.2",
     "@types/swagger-ui": "^3.52.4",
