@@ -64,6 +64,7 @@
     "drizzle-kit": "^0.27.0",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-returned-errors": "workspace:*",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-svelte": "^2.46.0",
     "globals": "^15.11.0",

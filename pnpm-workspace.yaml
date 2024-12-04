@@ -1,2 +1,3 @@
 packages:
   - "apps/frontend"
+  - "packages/eslint-plugin-returned-errors"

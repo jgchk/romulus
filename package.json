@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
     "build": "pnpm -r build",
+    "test": "pnpm -r test",
     "test:unit": "pnpm -r test:unit",
     "test:e2e": "pnpm -r test:e2e",
     "docker:build": "docker build -t romulus .",

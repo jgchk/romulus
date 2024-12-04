@@ -1,13 +1,13 @@
 import eslint from '@eslint/js'
 import tsParser from '@typescript-eslint/parser'
 import prettier from 'eslint-config-prettier'
+import errorHandlingPlugin from 'eslint-plugin-returned-errors'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import svelte from 'eslint-plugin-svelte'
 import globals from 'globals'
 import svelteParser from 'svelte-eslint-parser'
 import tseslint from 'typescript-eslint'
 
-import errorHandlingPlugin from '../../lint/returned-errors/src/index.js'
 import svelteConfig from './svelte.config.js'
 
 export default tseslint.config(

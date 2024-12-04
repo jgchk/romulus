@@ -1,7 +1,0 @@
-{
-  "name": "eslint-plugin-returned-errors",
-  "type": "module",
-  "scripts": {
-    "test": "vitest"
-  }
-}
