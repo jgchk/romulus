@@ -211,6 +211,13 @@
       "when": 1731369877472,
       "tag": "0029_natural_stardust",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1733322332392,
+      "tag": "0030_amusing_bushwacker",
+      "breakpoints": true
     }
   ]
 }

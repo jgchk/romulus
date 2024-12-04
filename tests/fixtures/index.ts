@@ -3,6 +3,7 @@ import { type Page, test as base } from '@playwright/test'
 import { type IDrizzleConnection } from '$lib/server/db/connection'
 import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
 import type { Account, Genre, InsertAccount } from '$lib/server/db/schema'
+import * as schema from '$lib/server/db/schema'
 
 import {
   createAccounts,
@@ -52,7 +53,7 @@ export const test = base
     // eslint-disable-next-line no-empty-pattern
     dbConnection: async ({}, use) => {
       const pg = getPostgresConnection()
-      await use(getDbConnection(pg))
+      await use(getDbConnection(schema, pg))
       await pg.end()
     },
   })

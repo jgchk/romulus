@@ -143,6 +143,10 @@ export class TreeState {
     }
   }
 
+  getNodes(): Map<string, MediaTypeNode> {
+    return new Map(this.nodes)
+  }
+
   marshal() {
     return new Map([...this.nodes.entries()].map(([id, node]) => [id, node.marshal()]))
   }

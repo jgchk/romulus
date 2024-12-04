@@ -1,4 +1,4 @@
-import type { IDrizzleConnection } from '$lib/server/db/connection'
+import type { IDrizzleConnection as IAppDrizzleConnection } from '$lib/server/db/connection'
 import type { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { ApiCompositionRoot } from '$lib/server/features/api/composition-root'
 import type { ApiQueryService } from '$lib/server/features/api/queries/query-service'
@@ -10,17 +10,19 @@ import type { GenreCommandService } from '$lib/server/features/genres/commands/c
 import { GenresCompositionRoot } from '$lib/server/features/genres/composition-root'
 import type { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 import { MediaCompositionRoot } from '$lib/server/features/media/composition-root'
+import type { IDrizzleConnection as IMediaDrizzleConnection } from '$lib/server/features/media/queries/infrastructure/drizzle-database'
 import type { MusicCatalogCommandService } from '$lib/server/features/music-catalog/commands/command-service'
 import { MusicCatalogCompositionRoot } from '$lib/server/features/music-catalog/composition-root'
 import type { MusicCatalogQueryService } from '$lib/server/features/music-catalog/queries/query-service'
 
 export class CompositionRoot {
   constructor(
-    private _dbConnection: IDrizzleConnection,
+    private _dbConnection: IAppDrizzleConnection,
     private _sessionCookieName: string,
+    private _mediaDb: IMediaDrizzleConnection,
   ) {}
 
-  private dbConnection(): IDrizzleConnection {
+  private dbConnection(): IAppDrizzleConnection {
     return this._dbConnection
   }
 
@@ -70,6 +72,10 @@ export class CompositionRoot {
   }
 
   media(): MediaCompositionRoot {
-    return new MediaCompositionRoot()
+    return new MediaCompositionRoot(this.mediaDb())
+  }
+
+  private mediaDb(): IMediaDrizzleConnection {
+    return this._mediaDb
   }
 }

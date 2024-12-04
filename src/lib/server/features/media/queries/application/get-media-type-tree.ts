@@ -1,5 +1,4 @@
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 
 export class GetMediaTypeTreeQuery {
   constructor(public readonly treeId: string) {}
@@ -11,17 +10,36 @@ export type GetMediaTypeTreeQueryResult = {
 }
 
 export class GetMediaTypeTreeQueryHandler {
-  constructor(private readonly treeRepo: IMediaTypeTreeRepository) {}
+  constructor(private readonly db: IDrizzleConnection) {}
 
-  async handle(
-    query: GetMediaTypeTreeQuery,
-  ): Promise<GetMediaTypeTreeQueryResult | MediaTypeTreeNotFoundError> {
-    const tree = await this.treeRepo.get(query.treeId)
+  async handle(query: GetMediaTypeTreeQuery): Promise<GetMediaTypeTreeQueryResult | undefined> {
+    const result = await this.db.query.mediaTypeTreeTable.findFirst({
+      where: (mediaTypeTree, { eq }) => eq(mediaTypeTree.id, query.treeId),
+      with: {
+        mediaTypes: {
+          columns: {
+            id: true,
+          },
+          with: {
+            children: {
+              columns: {
+                childId: true,
+              },
+            },
+          },
+        },
+      },
+    })
 
-    if (!tree.isCreated()) {
-      return new MediaTypeTreeNotFoundError(query.treeId)
-    }
+    if (!result) return
 
-    return tree.marshal()
+    const mediaTypes = new Map(
+      result.mediaTypes.map((mediaType) => [
+        mediaType.id,
+        { children: new Set(mediaType.children.map((child) => child.childId)) },
+      ]),
+    )
+
+    return { name: result.name, mediaTypes }
   }
 }

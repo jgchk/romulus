@@ -1,177 +1,180 @@
 import { expect } from 'vitest'
 
-import { test } from '../../../../../../vitest-setup'
-import { AddMediaTypeCommand } from '../../commands/application/add-media-type'
-import { AddParentToMediaTypeCommand } from '../../commands/application/add-parent-to-media-type'
-import { CopyTreeCommand } from '../../commands/application/copy-tree'
-import { CreateTreeCommand } from '../../commands/application/create-tree'
-import { MergeTreesCommand } from '../../commands/application/merge-trees'
-import { RemoveMediaTypeCommand } from '../../commands/application/remove-media-type'
-import { MediaTypeTreesRole } from '../../commands/domain/roles'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
+import {
+  MediaTypeAddedEvent,
+  MediaTypeRemovedEvent,
+  MediaTypeTreeCreatedEvent,
+  MediaTypeTreesMergedEvent,
+  ParentAddedToMediaTypeEvent,
+} from '../../shared/domain/events'
 import { GetMediaTypeTreeQuery } from './get-media-type-tree'
-import { TestHelper } from './test-helper'
+import { test } from './test-helper'
 
-test('should error if no media type tree exists', async () => {
+const uuid = () => crypto.randomUUID()
+
+test('should error if no media type tree exists', async ({ t }) => {
   // given
-  const t = new TestHelper()
+  const treeId = uuid()
   await t.given([])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
-  expect(result).toEqual(new MediaTypeTreeNotFoundError('tree'))
+  expect(result).toBeUndefined()
 })
 
-test('should return empty media type tree if no changes have been made to the tree', async () => {
+test('should return empty media type tree if no changes have been made to the tree', async ({
+  t,
+}) => {
   // given
-  const t = new TestHelper()
-  await t.given([new CreateTreeCommand('tree', 'Tree', 0, new Set([MediaTypeTreesRole.WRITE]))])
+  const treeId = uuid()
+  await t.given([new MediaTypeTreeCreatedEvent(treeId, 'Tree', undefined, 0)])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
   expect(result).toEqual({ name: 'Tree', mediaTypes: new Map() })
 })
 
-test('should return one media type if one has been added to the tree', async () => {
+test('should return one media type if one has been added to the tree', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const treeId = uuid()
+  const mediaTypeId = uuid()
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, roles),
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, roles),
+    new MediaTypeTreeCreatedEvent(treeId, 'Tree', undefined, 0),
+    new MediaTypeAddedEvent(treeId, mediaTypeId, 'Media Type', 'commit-1'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
   expect(result).toEqual({
     name: 'Tree',
-    mediaTypes: new Map([['media-type', { children: new Set() }]]),
+    mediaTypes: new Map([[mediaTypeId, { children: new Set() }]]),
   })
 })
 
-test('should return a parent-child relationship if one has been created', async () => {
+test('should return a parent-child relationship if one has been created', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const treeId = uuid()
+  const parentId = uuid()
+  const childId = uuid()
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, roles),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
+    new MediaTypeTreeCreatedEvent(treeId, 'Tree', undefined, 0),
+    new MediaTypeAddedEvent(treeId, parentId, 'Parent', 'commit-1'),
+    new MediaTypeAddedEvent(treeId, childId, 'Child', 'commit-2'),
+    new ParentAddedToMediaTypeEvent(treeId, childId, parentId, 'commit-3'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
   expect(result).toEqual({
     name: 'Tree',
     mediaTypes: new Map([
-      ['parent', { children: new Set(['child']) }],
-      ['child', { children: new Set() }],
+      [parentId, { children: new Set([childId]) }],
+      [childId, { children: new Set() }],
     ]),
   })
 })
 
-test('should disclude media types that have been removed from the tree', async () => {
+test('should disclude media types that have been removed from the tree', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const treeId = uuid()
+  const mediaTypeId = uuid()
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, roles),
-    new AddMediaTypeCommand('tree', 'media-type', 'Media Type', userId, roles),
-    new RemoveMediaTypeCommand('tree', 'media-type', userId, roles),
+    new MediaTypeTreeCreatedEvent(treeId, 'Tree', undefined, 0),
+    new MediaTypeAddedEvent(treeId, mediaTypeId, 'Media Type', 'commit-1'),
+    new MediaTypeRemovedEvent(treeId, mediaTypeId, 'commit-2'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
   expect(result).toEqual({ name: 'Tree', mediaTypes: new Map() })
 })
 
-test('should disclude media type children that have been removed from the tree', async () => {
+test('should disclude media type children that have been removed from the tree', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const treeId = uuid()
+  const parentId = uuid()
+  const childId = uuid()
   await t.given([
-    new CreateTreeCommand('tree', 'Tree', userId, roles),
-    new AddMediaTypeCommand('tree', 'parent', 'Parent', userId, roles),
-    new AddMediaTypeCommand('tree', 'child', 'Child', userId, roles),
-    new AddParentToMediaTypeCommand('tree', 'child', 'parent', userId, roles),
-    new RemoveMediaTypeCommand('tree', 'child', userId, roles),
+    new MediaTypeTreeCreatedEvent(treeId, 'Tree', undefined, 0),
+    new MediaTypeAddedEvent(treeId, parentId, 'Parent', 'commit-1'),
+    new MediaTypeAddedEvent(treeId, childId, 'Child', 'commit-2'),
+    new ParentAddedToMediaTypeEvent(treeId, childId, parentId, 'commit-3'),
+    new MediaTypeRemovedEvent(treeId, childId, 'commit-4'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('tree'))
+  const result = await t.when(new GetMediaTypeTreeQuery(treeId))
 
   // then
   expect(result).toEqual({
     name: 'Tree',
-    mediaTypes: new Map([['parent', { children: new Set() }]]),
+    mediaTypes: new Map([[parentId, { children: new Set() }]]),
   })
 })
 
-test('should handle merged trees', async () => {
+test('should handle merged trees', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const sourceId = uuid()
+  const targetId = uuid()
+  const mediaType1Id = uuid()
+  const mediaType2Id = uuid()
   await t.given([
-    new CreateTreeCommand('source', 'Source', userId, roles),
-    new AddMediaTypeCommand('source', 'mt-1', 'Media Type 1', userId, roles),
-    new CreateTreeCommand('target', 'Target', userId, roles),
-    new AddMediaTypeCommand('target', 'mt-2', 'Media Type 2', userId, roles),
-    new MergeTreesCommand('source', 'target', userId, roles),
+    new MediaTypeTreeCreatedEvent(sourceId, 'Source', undefined, 0),
+    new MediaTypeAddedEvent(sourceId, mediaType1Id, 'Media Type 1', 'commit-1'),
+    new MediaTypeTreeCreatedEvent(targetId, 'Target', undefined, 0),
+    new MediaTypeAddedEvent(targetId, mediaType2Id, 'Media Type 2', 'commit-2'),
+    new MediaTypeTreesMergedEvent(sourceId, targetId, 'commit-3'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('target'))
+  const result = await t.when(new GetMediaTypeTreeQuery(targetId))
 
   // then
   expect(result).toEqual({
     name: 'Target',
     mediaTypes: new Map([
-      ['mt-1', { children: new Set() }],
-      ['mt-2', { children: new Set() }],
+      [mediaType1Id, { children: new Set() }],
+      [mediaType2Id, { children: new Set() }],
     ]),
   })
 })
 
-test('should handle merged trees with relationships', async () => {
+test('should handle merged trees with relationships', async ({ t }) => {
   // given
-  const t = new TestHelper()
-  const userId = 0
-  const roles = new Set([MediaTypeTreesRole.WRITE])
+  const baseId = uuid()
+  const sourceId = uuid()
+  const targetId = uuid()
+  const parentId = uuid()
+  const childId = uuid()
   await t.given([
-    new CreateTreeCommand('base', 'Base', userId, roles),
-    new AddMediaTypeCommand('base', 'parent', 'Parent', userId, roles),
-    new AddMediaTypeCommand('base', 'child', 'Child', userId, roles),
-    new CopyTreeCommand('source', 'Source', 'base', userId, roles),
-    new AddParentToMediaTypeCommand('source', 'child', 'parent', userId, roles),
-    new CopyTreeCommand('target', 'Target', 'base', userId, roles),
-    new MergeTreesCommand('source', 'target', userId, roles),
+    new MediaTypeTreeCreatedEvent(baseId, 'Base', undefined, 0),
+    new MediaTypeAddedEvent(baseId, parentId, 'Parent', 'commit-1'),
+    new MediaTypeAddedEvent(baseId, childId, 'Child', 'commit-2'),
+    new MediaTypeTreeCreatedEvent(sourceId, 'Source', baseId, 0),
+    new ParentAddedToMediaTypeEvent(sourceId, childId, parentId, 'commit-3'),
+    new MediaTypeTreeCreatedEvent(targetId, 'Target', baseId, 0),
+    new MediaTypeTreesMergedEvent(sourceId, targetId, 'commit-4'),
   ])
 
   // when
-  const result = await t.when(new GetMediaTypeTreeQuery('target'))
+  const result = await t.when(new GetMediaTypeTreeQuery(targetId))
 
   // then
   expect(result).toEqual({
     name: 'Target',
     mediaTypes: new Map([
-      ['parent', { children: new Set(['child']) }],
-      ['child', { children: new Set() }],
+      [parentId, { children: new Set([childId]) }],
+      [childId, { children: new Set() }],
     ]),
   })
 })

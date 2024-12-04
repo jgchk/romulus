@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, test as base, vi } 
 
 import type { IDrizzleConnection } from '$lib/server/db/connection'
 import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/pglite'
+import * as schema from '$lib/server/db/schema'
 
 expect.extend(matchers)
 
@@ -33,7 +34,7 @@ afterEach(() => {
 })
 
 const pg = getPostgresConnection()
-const db = getDbConnection(pg)
+const db = getDbConnection(schema, pg)
 
 afterAll(async () => {
   await pg.close()
