@@ -7,7 +7,7 @@ import globals from 'globals'
 import svelteParser from 'svelte-eslint-parser'
 import tseslint from 'typescript-eslint'
 
-import errorHandlingPlugin from './lint/returned-errors/src/index.js'
+import errorHandlingPlugin from '../../lint/returned-errors/src/index.js'
 import svelteConfig from './svelte.config.js'
 
 export default tseslint.config(

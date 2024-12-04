@@ -2,18 +2,17 @@ FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-COPY . /app
-WORKDIR /app
-
-FROM base AS prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 FROM base AS build
+COPY . /app
+WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build
+RUN pnpm --filter=frontend build 
+RUN pnpm deploy --filter=frontend --prod /prod/frontend
 
-FROM base
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/build /app/build
+FROM base AS main
+COPY --from=build /prod/frontend /prod/frontend
+COPY --from=build /app/apps/frontend/build /prod/frontend/build
+WORKDIR /prod/frontend
 EXPOSE 8000
 CMD [ "node", "build" ]
