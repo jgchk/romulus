@@ -1,0 +1,24 @@
+{
+  "name": "@romulus/media",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm test:unit run",
+    "test:unit": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "lint": "prettier --check . && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.2.12",
+    "drizzle-orm": "^0.36.0"
+  },
+  "devDependencies": {
+    "@romulus/eslint-config": "workspace:*",
+    "@types/node": "^20.14.15",
+    "drizzle-kit": "^0.27.0",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "vitest": "^2.1.4"
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "id": "5be9e406-364b-44bb-a488-dcd8cdc90b02",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.media_type_children": {
+      "name": "media_type_children",
+      "schema": "",
+      "columns": {
+        "media_type_tree_id": {
+          "name": "media_type_tree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "child_id": {
+          "name": "child_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "media_type_children_media_type_tree_id_media_type_trees_id_fk": {
+          "name": "media_type_children_media_type_tree_id_media_type_trees_id_fk",
+          "tableFrom": "media_type_children",
+          "tableTo": "media_type_trees",
+          "columnsFrom": ["media_type_tree_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "media_type_children_parent_id_media_type_tree_id_media_types_id_media_type_tree_id_fk": {
+          "name": "media_type_children_parent_id_media_type_tree_id_media_types_id_media_type_tree_id_fk",
+          "tableFrom": "media_type_children",
+          "tableTo": "media_types",
+          "columnsFrom": ["parent_id", "media_type_tree_id"],
+          "columnsTo": ["id", "media_type_tree_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "media_type_children_child_id_media_type_tree_id_media_types_id_media_type_tree_id_fk": {
+          "name": "media_type_children_child_id_media_type_tree_id_media_types_id_media_type_tree_id_fk",
+          "tableFrom": "media_type_children",
+          "tableTo": "media_types",
+          "columnsFrom": ["child_id", "media_type_tree_id"],
+          "columnsTo": ["id", "media_type_tree_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "media_type_children_media_type_tree_id_parent_id_child_id_pk": {
+          "name": "media_type_children_media_type_tree_id_parent_id_child_id_pk",
+          "columns": ["media_type_tree_id", "parent_id", "child_id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.media_types": {
+      "name": "media_types",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_type_tree_id": {
+          "name": "media_type_tree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "media_types_media_type_tree_id_media_type_trees_id_fk": {
+          "name": "media_types_media_type_tree_id_media_type_trees_id_fk",
+          "tableFrom": "media_types",
+          "tableTo": "media_type_trees",
+          "columnsFrom": ["media_type_tree_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "media_types_id_media_type_tree_id_pk": {
+          "name": "media_types_id_media_type_tree_id_pk",
+          "columns": ["id", "media_type_tree_id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.media_type_trees": {
+      "name": "media_type_trees",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_tree_id": {
+          "name": "base_tree_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_main": {
+          "name": "is_main",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "media_type_trees_base_tree_id_media_type_trees_id_fk": {
+          "name": "media_type_trees_base_tree_id_media_type_trees_id_fk",
+          "tableFrom": "media_type_trees",
+          "tableTo": "media_type_trees",
+          "columnsFrom": ["base_tree_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

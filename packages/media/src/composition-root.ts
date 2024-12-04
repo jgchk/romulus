@@ -1,4 +1,4 @@
-import { MediaCommandsCompositionRoot } from '../../../../../../../packages/media/src/commands/composition-root'
+import { MediaCommandsCompositionRoot } from './commands/composition-root'
 import { MediaQueriesCompositionRoot } from './queries/composition-root'
 import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database'
 

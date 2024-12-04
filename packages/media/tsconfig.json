@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "checkJs": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*", "eslint.config.js", "drizzle.config.ts", "vitest.config.ts"]
+}

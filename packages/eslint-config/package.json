@@ -1,0 +1,19 @@
+{
+  "name": "@romulus/eslint-config",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.js",
+      "types": "./src/index.d.ts"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "dependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-returned-errors": "workspace:*",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.12.2"
+  }
+}
