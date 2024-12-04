@@ -11,7 +11,7 @@ export default defineConfig({
           command: 'npm run build && npm run preview',
           port: 4173,
         },
-  testDir: 'tests',
+  testDir: './tests',
   testMatch: /(.+\.)?(test|spec)\.[jt]s/,
   projects: [
     {

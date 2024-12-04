@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     css: true,
-    include: ['src/**/*.test.ts'],
+    include: ['./src/**/*.test.ts'],
     environment: 'jsdom',
     setupFiles: ['./src/vitest-setup.ts'],
   },
