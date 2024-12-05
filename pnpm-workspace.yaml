@@ -1,5 +1,6 @@
 packages:
   - "apps/frontend"
+  - "packages/authentication"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"
   - "packages/media"

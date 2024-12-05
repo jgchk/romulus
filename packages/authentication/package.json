@@ -1,0 +1,35 @@
+{
+  "name": "@romulus/authentication",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "pnpm test:unit run",
+    "test:unit": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "lint": "prettier --check . && tsc --noEmit && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.2.12",
+    "@hono/zod-validator": "^0.4.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "^0.36.0",
+    "hono": "^4.6.12",
+    "oslo": "^1.2.1",
+    "postgres": "^3.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@romulus/eslint-config": "workspace:*",
+    "@types/node": "^20.14.15",
+    "drizzle-kit": "^0.27.0",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
