@@ -9,17 +9,13 @@ import postgres from 'postgres'
 import { withProps } from '../../utils'
 import * as schema from './drizzle-schema'
 
-export function getPostgresConnection(databaseUrl = process.env.DATABASE_URL) {
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL environment variable is required')
-  }
-
+export function getPostgresConnection(databaseUrl: string) {
   const pg = postgres(databaseUrl)
 
   return pg
 }
 
-export function getDbConnection(pg = getPostgresConnection()) {
+export function getDbConnection(pg: postgres.Sql) {
   const drizzleClient = drizzle(pg, {
     schema,
     logger: process.env.LOGGING === 'true',

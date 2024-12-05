@@ -13,7 +13,7 @@ export function getPGlitePostgresConnection() {
   return new PGlite()
 }
 
-export function getPGliteDbConnection(pg = getPGlitePostgresConnection()) {
+export function getPGliteDbConnection(pg: PGlite) {
   const drizzleClient = drizzle(pg, {
     schema,
     logger: process.env.LOGGING === 'true',
