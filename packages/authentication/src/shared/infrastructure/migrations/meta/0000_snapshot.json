@@ -48,9 +48,7 @@
         "Account_username_unique": {
           "name": "Account_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       },
       "policies": {},
@@ -86,12 +84,8 @@
           "name": "PasswordResetToken_user_id_Account_id_fk",
           "tableFrom": "PasswordResetToken",
           "tableTo": "Account",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -101,9 +95,7 @@
         "PasswordResetToken_token_hash_unique": {
           "name": "PasswordResetToken_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -139,12 +131,8 @@
           "name": "Session_user_id_Account_id_fk",
           "tableFrom": "Session",
           "tableTo": "Account",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }

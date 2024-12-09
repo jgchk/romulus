@@ -1,4 +1,5 @@
 import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
+import { GetSessionCommand } from '../application/commands/get-session'
 import { LoginCommand } from '../application/commands/login'
 import { LogoutCommand } from '../application/commands/logout'
 import { RegisterCommand } from '../application/commands/register'
@@ -36,6 +37,14 @@ export class CommandsCompositionRoot {
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
+  }
+
+  getSessionCommand(): GetSessionCommand {
+    return new GetSessionCommand(
+      this.accountRepository(),
+      this.sessionRepository(),
+      this.sessionTokenHashRepository(),
+    )
   }
 
   controller() {

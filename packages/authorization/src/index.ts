@@ -1,4 +1,4 @@
-import { AuthorizerService } from './application/authorizer-service'
+import { AuthorizationApplication } from './application'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
@@ -10,19 +10,19 @@ import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository
 export class AuthorizationService {
   private constructor(
     private db: IDrizzleConnection,
-    private service: AuthorizerService,
+    private application: AuthorizationApplication,
   ) {}
 
   static async create(databaseUrl: string): Promise<AuthorizationService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
-    const service = new AuthorizerService(new DrizzleAuthorizerRepository(db))
+    const service = new AuthorizationApplication(new DrizzleAuthorizerRepository(db))
     return new AuthorizationService(db, service)
   }
 
   use() {
-    return this.service
+    return this.application
   }
 
   async destroy(): Promise<void> {

@@ -52,12 +52,8 @@
           "name": "role_permissions_role_id_roles_name_fk",
           "tableFrom": "role_permissions",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "name"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["name"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -65,12 +61,8 @@
           "name": "role_permissions_permission_name_permissions_name_fk",
           "tableFrom": "role_permissions",
           "tableTo": "permissions",
-          "columnsFrom": [
-            "permission_name"
-          ],
-          "columnsTo": [
-            "name"
-          ],
+          "columnsFrom": ["permission_name"],
+          "columnsTo": ["name"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -78,10 +70,7 @@
       "compositePrimaryKeys": {
         "role_permissions_role_id_permission_name_pk": {
           "name": "role_permissions_role_id_permission_name_pk",
-          "columns": [
-            "role_id",
-            "permission_name"
-          ]
+          "columns": ["role_id", "permission_name"]
         }
       },
       "uniqueConstraints": {},
@@ -137,12 +126,8 @@
           "name": "user_roles_role_name_roles_name_fk",
           "tableFrom": "user_roles",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_name"
-          ],
-          "columnsTo": [
-            "name"
-          ],
+          "columnsFrom": ["role_name"],
+          "columnsTo": ["name"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -150,10 +135,7 @@
       "compositePrimaryKeys": {
         "user_roles_user_id_role_name_pk": {
           "name": "user_roles_user_id_role_name_pk",
-          "columns": [
-            "user_id",
-            "role_name"
-          ]
+          "columns": ["user_id", "role_name"]
         }
       },
       "uniqueConstraints": {},

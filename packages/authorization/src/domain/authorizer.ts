@@ -31,10 +31,24 @@ export class Authorizer {
     return authorizer
   }
 
-  createPermission(name: string, description: string | undefined): void {
+  createPermission(name: string, description: string | undefined): void | DuplicatePermissionError {
+    if (this.permissions.has(name)) {
+      return new DuplicatePermissionError(name)
+    }
+
     const event = new PermissionCreatedEvent(name, description)
     this.applyEvent(event)
     this.addEvent(event)
+  }
+
+  ensurePermissions(permissions: { name: string; description: string | undefined }[]): void {
+    for (const permission of permissions) {
+      if (!this.permissions.has(permission.name)) {
+        const event = new PermissionCreatedEvent(permission.name, permission.description)
+        this.applyEvent(event)
+        this.addEvent(event)
+      }
+    }
   }
 
   deletePermission(name: string): void {
@@ -187,6 +201,12 @@ export class CustomError extends Error {
 export class PermissionNotFoundError extends CustomError {
   constructor(public readonly name: string) {
     super('PermissionNotFoundError', `No permission found with name: ${name}`)
+  }
+}
+
+export class DuplicatePermissionError extends CustomError {
+  constructor(public readonly name: string) {
+    super('DuplicatePermissionError', `Permission with name ${name} already exists`)
   }
 }
 

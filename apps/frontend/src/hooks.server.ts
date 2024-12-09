@@ -1,5 +1,6 @@
 import type { Handle } from '@sveltejs/kit'
 
+import { API_BASE_URL } from '$env/static/private'
 import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/postgres'
 import * as schema from '$lib/server/db/schema'
 
@@ -18,7 +19,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const dbConnection = getDbConnection(schema, pg)
   event.locals.dbConnection = dbConnection
 
-  event.locals.di = new CompositionRoot(dbConnection, SESSION_COOKIE_NAME)
+  event.locals.di = new CompositionRoot(API_BASE_URL, dbConnection)
 
   const sessionToken = event.cookies.get(SESSION_COOKIE_NAME)
   event.locals.sessionToken = sessionToken
@@ -28,9 +29,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     return resolve(event)
   }
 
-  const { account, cookie } = await event.locals.di
-    .authenticationController()
-    .validateSession(sessionToken)
+  const { account, cookie } = await event.locals.di.authentication().session.refresh()
 
   event.locals.user =
     account === undefined

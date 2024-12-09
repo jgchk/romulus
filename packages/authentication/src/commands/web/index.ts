@@ -116,6 +116,17 @@ export function createRouter(di: CommandsCompositionRoot) {
       },
     )
 
+    .get('/whoami', async (c) => {
+      const sessionToken = getCookie(c, di.sessionCookieName)
+      if (sessionToken === undefined) {
+        return c.json({ account: null, session: null })
+      }
+
+      const result = await di.getSessionCommand().execute(sessionToken)
+
+      return c.json(result)
+    })
+
     .post('/session/refresh', async (c) => {
       const sessionToken = getCookie(c, di.sessionCookieName)
       if (sessionToken === undefined) {

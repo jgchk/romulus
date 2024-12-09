@@ -13,6 +13,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@romulus/authentication": "workspace:*",
+    "@romulus/authorization": "workspace:*",
     "hono": "^4.6.12",
     "zod": "^3.23.8"
   },

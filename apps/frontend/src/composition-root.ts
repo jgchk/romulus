@@ -1,11 +1,9 @@
+import { createAuthenticationClient } from '@romulus/authentication'
+
 import type { IDrizzleConnection as IAppDrizzleConnection } from '$lib/server/db/connection'
 import type { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { ApiCompositionRoot } from '$lib/server/features/api/composition-root'
 import type { ApiQueryService } from '$lib/server/features/api/queries/query-service'
-import type { AuthenticationCommandService } from '$lib/server/features/authentication/commands/command-service'
-import type { AuthenticationController } from '$lib/server/features/authentication/commands/presentation/controllers'
-import { AuthenticationCompositionRoot } from '$lib/server/features/authentication/composition-root'
-import type { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import type { GenreCommandService } from '$lib/server/features/genres/commands/command-service'
 import { GenresCompositionRoot } from '$lib/server/features/genres/composition-root'
 import type { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
@@ -15,8 +13,8 @@ import type { MusicCatalogQueryService } from '$lib/server/features/music-catalo
 
 export class CompositionRoot {
   constructor(
+    private apiBaseUrl: string,
     private _dbConnection: IAppDrizzleConnection,
-    private _sessionCookieName: string,
   ) {}
 
   private dbConnection(): IAppDrizzleConnection {
@@ -31,25 +29,8 @@ export class CompositionRoot {
     return new ApiCompositionRoot(this.dbConnection()).apiQueryService()
   }
 
-  authenticationCommandService(): AuthenticationCommandService {
-    return new AuthenticationCompositionRoot(
-      this.dbConnection(),
-      this._sessionCookieName,
-    ).authenticationCommandService()
-  }
-
-  authenticationQueryService(): AuthenticationQueryService {
-    return new AuthenticationCompositionRoot(
-      this.dbConnection(),
-      this._sessionCookieName,
-    ).authenticationQueryService()
-  }
-
-  authenticationController(): AuthenticationController {
-    return new AuthenticationCompositionRoot(
-      this.dbConnection(),
-      this._sessionCookieName,
-    ).authenticationController()
+  authentication() {
+    return createAuthenticationClient(this.apiBaseUrl)
   }
 
   genreCommandService(): GenreCommandService {

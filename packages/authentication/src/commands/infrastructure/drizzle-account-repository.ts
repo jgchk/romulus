@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 
 import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
 import { accountsTable } from '../../shared/infrastructure/drizzle-schema'
-import type { NewAccount } from '../domain/entities/account';
+import type { NewAccount } from '../domain/entities/account'
 import { CreatedAccount } from '../domain/entities/account'
 import { NonUniqueUsernameError } from '../domain/errors/non-unique-username'
 import type { AccountRepository } from '../domain/repositories/account'

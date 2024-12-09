@@ -36,7 +36,7 @@ export class MemoryAuthorizerRepository implements IAuthorizerRepository {
         this.roles.delete(event.name)
       } else if (event instanceof RoleAssignedToUserEvent) {
         const userRoles = this.userRoles.get(event.userId) ?? new Set()
-        userRoles.add(event.roleId)
+        userRoles.add(event.roleName)
         this.userRoles.set(event.userId, userRoles)
       } else {
         event satisfies never

@@ -1,7 +1,7 @@
 import type { LoginController } from './login'
 import type { LogoutController } from './logout'
 import type { RegisterController } from './register'
-import { RequestPasswordResetController } from './request-password-reset'
+import type { RequestPasswordResetController } from './request-password-reset'
 import type { ResetPasswordController } from './reset-password'
 import type { ValidateSessionController } from './validate-session'
 

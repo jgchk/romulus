@@ -1,12 +1,32 @@
-import { PermissionNotFoundError, RoleNotFoundError } from '../domain/authorizer'
+import {
+  DuplicatePermissionError,
+  PermissionNotFoundError,
+  RoleNotFoundError,
+} from '../domain/authorizer'
 import type { IAuthorizerRepository } from '../domain/repository'
 
-export class AuthorizerService {
+export class AuthorizationApplication {
   constructor(private repo: IAuthorizerRepository) {}
 
-  async createPermission(name: string, description: string | undefined): Promise<void> {
+  async createPermission(
+    name: string,
+    description: string | undefined,
+  ): Promise<void | DuplicatePermissionError> {
     const authorizer = await this.repo.get()
-    authorizer.createPermission(name, description)
+
+    const error = authorizer.createPermission(name, description)
+    if (error instanceof DuplicatePermissionError) {
+      return error
+    }
+
+    await this.repo.save(authorizer)
+  }
+
+  async ensurePermissions(
+    permissions: { name: string; description: string | undefined }[],
+  ): Promise<void> {
+    const authorizer = await this.repo.get()
+    authorizer.ensurePermissions(permissions)
     await this.repo.save(authorizer)
   }
 

@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import {
   Authorizer,
+  DuplicatePermissionError,
   PermissionCreatedEvent,
   PermissionDeletedEvent,
   PermissionNotFoundError,
@@ -15,7 +16,8 @@ describe('createPermission()', () => {
   test('should create a permission', () => {
     const authorizer = Authorizer.fromEvents([])
 
-    authorizer.createPermission('permission', undefined)
+    const error = authorizer.createPermission('permission', undefined)
+    expect(error).toBeUndefined()
 
     const events = authorizer.getUncommittedEvents()
     expect(events).toEqual([new PermissionCreatedEvent('permission', undefined)])
@@ -24,10 +26,48 @@ describe('createPermission()', () => {
   test('should create a permission with description', () => {
     const authorizer = Authorizer.fromEvents([])
 
-    authorizer.createPermission('permission', 'description')
+    const error = authorizer.createPermission('permission', 'description')
+    expect(error).toBeUndefined()
 
     const events = authorizer.getUncommittedEvents()
     expect(events).toEqual([new PermissionCreatedEvent('permission', 'description')])
+  })
+
+  test('should error if a permission with the same name already exists', () => {
+    const authorizer = Authorizer.fromEvents([new PermissionCreatedEvent('permission', undefined)])
+
+    const error = authorizer.createPermission('permission', undefined)
+
+    expect(error).toEqual(new DuplicatePermissionError('permission'))
+  })
+})
+
+describe('ensurePermissions()', () => {
+  test('should create permissions that do not exist', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    authorizer.ensurePermissions([{ name: 'permission', description: undefined }])
+
+    const events = authorizer.getUncommittedEvents()
+    expect(events).toEqual([new PermissionCreatedEvent('permission', undefined)])
+  })
+
+  test('should not create permissions that already exist', () => {
+    const authorizer = Authorizer.fromEvents([new PermissionCreatedEvent('permission', undefined)])
+
+    authorizer.ensurePermissions([{ name: 'permission', description: undefined }])
+
+    const events = authorizer.getUncommittedEvents()
+    expect(events).toEqual([])
+  })
+
+  test('should do nothing if no permissions are passed in', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    authorizer.ensurePermissions([])
+
+    const events = authorizer.getUncommittedEvents()
+    expect(events).toEqual([])
   })
 })
 

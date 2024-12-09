@@ -232,3 +232,39 @@ describe('request-password-reset', () => {
     })
   })
 })
+
+describe('whoami', () => {
+  test('should return the current user', async ({ client }) => {
+    const registerResponse = await client.register.$post({
+      json: { username: 'test', password: 'x'.repeat(8) },
+    })
+
+    const res = await client.whoami.$get({}, { headers: { cookie: getCookies(registerResponse) } })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      account: {
+        darkMode: true,
+        genreRelevanceFilter: 0,
+        id: 1,
+        showNsfw: false,
+        showRelevanceTags: false,
+        showTypeTags: true,
+        username: 'test',
+      },
+      session: {
+        expiresAt: expect.any(String) as string,
+      },
+    })
+  })
+
+  test('should return null if the user is not logged in', async ({ client }) => {
+    const res = await client.whoami.$get()
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      account: null,
+      session: null,
+    })
+  })
+})
