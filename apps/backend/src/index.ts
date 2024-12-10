@@ -12,7 +12,7 @@ async function main() {
 
   const authenticationService = await AuthenticationService.create(
     env.AUTHENTICATION_DATABASE_URL,
-    authorizationService,
+    authorizationService.use(),
   );
 
   const app = new Hono().route(
