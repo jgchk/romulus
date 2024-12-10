@@ -25,12 +25,13 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const sessionCookie = await di.controller().login(body.username, body.password)
-        if (sessionCookie instanceof InvalidLoginError) {
-          return setError(c, sessionCookie, 401)
+        const result = await di.loginCommand().execute(body.username, body.password)
+        if (result instanceof InvalidLoginError) {
+          return setError(c, result, 401)
         }
 
-        setCookie(c, sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+        const cookie = di.cookieCreator().create(result.userSession)
+        setCookie(c, cookie.name, cookie.value, cookie.attributes)
 
         return c.json({ success: true })
       },
