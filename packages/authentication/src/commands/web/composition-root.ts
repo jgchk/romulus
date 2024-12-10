@@ -2,11 +2,11 @@ import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-dat
 import { GetSessionCommand } from '../application/commands/get-session'
 import { LoginCommand } from '../application/commands/login'
 import { LogoutCommand } from '../application/commands/logout'
+import { RefreshSessionCommand } from '../application/commands/refresh-session'
 import { RegisterCommand } from '../application/commands/register'
 import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
 import { ResetPasswordCommand } from '../application/commands/reset-password'
 import { ValidatePasswordResetTokenCommand } from '../application/commands/validate-password-reset-token'
-import { ValidateSessionCommand } from '../application/commands/validate-session'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -24,7 +24,6 @@ import { LogoutController } from '../presentation/controllers/logout'
 import { RegisterController } from '../presentation/controllers/register'
 import { RequestPasswordResetController } from '../presentation/controllers/request-password-reset'
 import { ResetPasswordController } from '../presentation/controllers/reset-password'
-import { ValidateSessionController } from '../presentation/controllers/validate-session'
 import { CookieCreator } from '../presentation/cookie'
 
 const IS_SECURE = process.env.NODE_ENV === 'production'
@@ -54,7 +53,6 @@ export class CommandsCompositionRoot {
       this.registerController(),
       this.requestPasswordResetController(),
       this.resetPasswordController(),
-      this.validateSessionController(),
     )
   }
 
@@ -117,12 +115,8 @@ export class CommandsCompositionRoot {
     )
   }
 
-  private validateSessionCommand(): ValidateSessionCommand {
-    return new ValidateSessionCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.sessionTokenHashRepository(),
-    )
+  refreshSessionCommand(): RefreshSessionCommand {
+    return new RefreshSessionCommand(this.sessionRepository(), this.sessionTokenHashRepository())
   }
 
   private loginController(): LoginController {
@@ -138,10 +132,7 @@ export class CommandsCompositionRoot {
   }
 
   private requestPasswordResetController(): RequestPasswordResetController {
-    return new RequestPasswordResetController(
-      this.validateSessionCommand(),
-      this.requestPasswordResetCommand(),
-    )
+    return new RequestPasswordResetController(this.requestPasswordResetCommand())
   }
 
   private requestPasswordResetCommand(): RequestPasswordResetCommand {
@@ -176,11 +167,7 @@ export class CommandsCompositionRoot {
     return new Sha256HashRepository()
   }
 
-  private validateSessionController(): ValidateSessionController {
-    return new ValidateSessionController(this.validateSessionCommand(), this.cookieCreator())
-  }
-
-  private cookieCreator(): CookieCreator {
+  cookieCreator(): CookieCreator {
     return new CookieCreator(this.sessionCookieName, IS_SECURE)
   }
 }

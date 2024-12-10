@@ -167,8 +167,8 @@ describe('request-password-reset', () => {
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
       error: {
-        name: 'SessionNotFoundError',
-        message: 'No session found',
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
       },
     })
   })

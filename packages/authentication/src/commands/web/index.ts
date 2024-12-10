@@ -8,7 +8,7 @@ import { InvalidLoginError } from '../application/errors/invalid-login'
 import { NonUniqueUsernameError } from '../application/errors/non-unique-username'
 import { PasswordResetTokenExpiredError } from '../application/errors/password-reset-token-expired'
 import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found'
-import { UnauthorizedError } from '../presentation/controllers/request-password-reset'
+import { UnauthorizedError } from '../domain/errors/unauthorized'
 import type { CommandsCompositionRoot } from './composition-root'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
@@ -75,14 +75,16 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const { accountId } = c.req.valid('param')
         const sessionToken = getCookie(c, di.sessionCookieName)
-
         if (sessionToken === undefined) {
-          return setError(c, new SessionNotFoundError(), 401)
+          return setError(c, new UnauthorizedError(), 401)
         }
 
-        const passwordResetLink = await di
-          .controller()
-          .requestPasswordReset(sessionToken, accountId)
+        const { account } = await di.getSessionCommand().execute(sessionToken)
+        if (!account) {
+          return setError(c, new UnauthorizedError(), 401)
+        }
+
+        const passwordResetLink = await di.controller().requestPasswordReset(account, accountId)
         if (passwordResetLink instanceof UnauthorizedError) {
           return setError(c, passwordResetLink, 401)
         } else if (passwordResetLink instanceof AccountNotFoundError) {
@@ -127,19 +129,22 @@ export function createRouter(di: CommandsCompositionRoot) {
       return c.json(result)
     })
 
-    .post('/session/refresh', async (c) => {
+    .post('/refresh-session', async (c) => {
       const sessionToken = getCookie(c, di.sessionCookieName)
       if (sessionToken === undefined) {
-        return setError(c, new SessionNotFoundError(), 401)
+        return setError(c, new UnauthorizedError(), 401)
       }
 
-      const { account, cookie } = await di.controller().validateSession(sessionToken)
-
-      if (cookie) {
-        setCookie(c, cookie.name, cookie.value, cookie.attributes)
+      const result = await di.refreshSessionCommand().execute(sessionToken)
+      if (result instanceof UnauthorizedError) {
+        deleteCookie(c, di.sessionCookieName)
+        return setError(c, new UnauthorizedError(), 401)
       }
 
-      return c.json({ success: true, account })
+      const cookie = di.cookieCreator().create(result)
+      setCookie(c, cookie.name, cookie.value, cookie.attributes)
+
+      return c.json({ success: true })
     })
 
   return app
@@ -148,11 +153,5 @@ export function createRouter(di: CommandsCompositionRoot) {
 class InvalidPasswordResetTokenError extends CustomError {
   constructor() {
     super('InvalidPasswordResetTokenError', 'Invalid password reset token')
-  }
-}
-
-class SessionNotFoundError extends CustomError {
-  constructor() {
-    super('SessionNotFoundError', 'No session found')
   }
 }

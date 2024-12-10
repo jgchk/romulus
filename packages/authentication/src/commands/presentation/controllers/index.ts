@@ -3,7 +3,6 @@ import type { LogoutController } from './logout'
 import type { RegisterController } from './register'
 import type { RequestPasswordResetController } from './request-password-reset'
 import type { ResetPasswordController } from './reset-password'
-import type { ValidateSessionController } from './validate-session'
 
 export class AuthenticationController {
   constructor(
@@ -12,7 +11,6 @@ export class AuthenticationController {
     private registerController: RegisterController,
     private requestPasswordResetController: RequestPasswordResetController,
     private resetPasswordController: ResetPasswordController,
-    private validateSessionController: ValidateSessionController,
   ) {}
 
   login(username: string, password: string) {
@@ -27,15 +25,16 @@ export class AuthenticationController {
     return this.registerController.handle(username, password)
   }
 
-  requestPasswordReset(sessionToken: string, accountId: number) {
-    return this.requestPasswordResetController.handle(sessionToken, accountId)
+  requestPasswordReset(
+    userAccount: {
+      id: number
+    },
+    accountId: number,
+  ) {
+    return this.requestPasswordResetController.handle(userAccount, accountId)
   }
 
   resetPassword(passwordResetToken: string, newPassword: string) {
     return this.resetPasswordController.handle(passwordResetToken, newPassword)
-  }
-
-  validateSession(sessionToken: string) {
-    return this.validateSessionController.handle(sessionToken)
   }
 }

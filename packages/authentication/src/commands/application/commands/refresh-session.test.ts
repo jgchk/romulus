@@ -5,22 +5,23 @@ import { test } from '../../../vitest-setup'
 import { NewAccount } from '../../domain/entities/account'
 import { Session } from '../../domain/entities/session'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
+import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository'
 import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator'
 import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { ValidateSessionCommand } from './validate-session'
+import { RefreshSessionCommand } from './refresh-session'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
-  const accountRepo = new DrizzleAccountRepository(options.dbConnection)
   const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const sessionTokenHashRepo = new Sha256HashRepository()
   const sessionTokenGenerator = new CryptoTokenGenerator()
 
-  const validateSession = new ValidateSessionCommand(accountRepo, sessionRepo, sessionTokenHashRepo)
+  const refreshSession = new RefreshSessionCommand(sessionRepo, sessionTokenHashRepo)
 
   async function createAccount(data: { username: string; password: string }) {
+    const accountRepo = new DrizzleAccountRepository(options.dbConnection)
     const passwordHashRepo = new BcryptHashRepository()
 
     const account = await accountRepo.create(
@@ -51,83 +52,43 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
     return { ...session, token }
   }
 
-  return { validateSession, createAccount, createSession }
+  return { refreshSession, createAccount, createSession }
 }
 
-describe('validateSession', () => {
-  test('should return undefined account and session when session is not found', async ({
-    dbConnection,
-  }) => {
-    const { validateSession } = setupCommand({ dbConnection })
+describe('refreshSession', () => {
+  test('should error when session is not found', async ({ dbConnection }) => {
+    const { refreshSession } = setupCommand({ dbConnection })
 
-    const result = await validateSession.execute('non_existent_session_id')
+    const result = await refreshSession.execute('non_existent_session_id')
 
-    expect(result).toEqual({
-      userAccount: undefined,
-      userSession: undefined,
-    })
+    expect(result).toEqual(new UnauthorizedError())
   })
 
-  test('should return account and session when session is valid and just extended', async ({
-    dbConnection,
-    withSystemTime,
-  }) => {
-    const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
+  test('should return new token and expiry when session is refreshed', async ({ dbConnection }) => {
+    const { refreshSession, createAccount, createSession } = setupCommand({ dbConnection })
 
     const account = await createAccount({ username: 'testuser', password: 'password123' })
     const session = await createSession(account.id)
 
-    // 16 days in the future
-    withSystemTime(new Date(Date.now() + 16 * 24 * 60 * 60 * 1000))
-
-    const result = await validateSession.execute(session.token)
+    const result = await refreshSession.execute(session.token)
 
     expect(result).toEqual({
-      userAccount: {
-        id: account.id,
-        username: 'testuser',
-        permissions: new Set(),
-        genreRelevanceFilter: 0,
-        showRelevanceTags: false,
-        showTypeTags: true,
-        showNsfw: false,
-        darkMode: true,
-      },
-      userSession: {
-        status: 'refreshed',
-        token: session.token,
-        expiresAt: expect.any(Date) as Date,
-      },
+      token: expect.any(String) as string,
+      expiresAt: expect.any(Date) as Date,
     })
-
-    expect(result.userSession?.expiresAt.getTime()).toBeGreaterThan(session.expiresAt.getTime())
   })
 
-  test('should return account and session when session is valid but not extended', async ({
-    dbConnection,
-  }) => {
-    const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
+  test('should error when session is expired', async ({ dbConnection, withSystemTime }) => {
+    const { refreshSession, createAccount, createSession } = setupCommand({ dbConnection })
 
     const account = await createAccount({ username: 'testuser', password: 'password123' })
     const session = await createSession(account.id)
 
-    const result = await validateSession.execute(session.token)
+    // 100 years in the future
+    withSystemTime(new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 100))
 
-    expect(result).toEqual({
-      userAccount: {
-        id: account.id,
-        username: 'testuser',
-        permissions: new Set(),
-        genreRelevanceFilter: 0,
-        showRelevanceTags: false,
-        showTypeTags: true,
-        showNsfw: false,
-        darkMode: true,
-      },
-      userSession: {
-        status: 'valid',
-        expiresAt: session.expiresAt,
-      },
-    })
+    const result = await refreshSession.execute(session.token)
+
+    expect(result).toEqual(new UnauthorizedError())
   })
 })
