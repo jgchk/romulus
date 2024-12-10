@@ -3,11 +3,14 @@ import { describe, expect } from 'vitest'
 import { NewAccount } from '../../domain/entities/account'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
+import { UnauthorizedError } from '../../domain/errors/unauthorized'
+import { AuthenticationPermission } from '../../domain/permissions'
 import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository'
 import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator'
 import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
 import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository'
+import { MemoryAuthorizationService } from '../../infrastructure/memory-authorization-service'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
 import { test } from '../../vitest-setup'
 import { RequestPasswordResetCommand } from './request-password-reset'
@@ -17,12 +20,14 @@ function setup(dbConnection: IDrizzleConnection) {
   const passwordResetTokenGeneratorRepo = new CryptoTokenGenerator()
   const passwordResetTokenHashRepo = new Sha256HashRepository()
   const accountRepo = new DrizzleAccountRepository(dbConnection)
+  const authorizationService = new MemoryAuthorizationService()
 
   const requestPasswordReset = new RequestPasswordResetCommand(
     passwordResetTokenRepo,
     passwordResetTokenGeneratorRepo,
     passwordResetTokenHashRepo,
     accountRepo,
+    authorizationService,
   )
 
   async function createAccount(data: { username: string; password: string }) {
@@ -58,19 +63,30 @@ function setup(dbConnection: IDrizzleConnection) {
     createAccount,
     createPasswordResetToken,
     getPasswordResetToken,
+    authorizationService,
   }
 }
 
 describe('RequestPasswordResetCommand', () => {
   test('should delete existing tokens and create a new one', async ({ dbConnection }) => {
-    const { requestPasswordReset, createAccount, createPasswordResetToken, getPasswordResetToken } =
-      setup(dbConnection)
+    const {
+      requestPasswordReset,
+      createAccount,
+      createPasswordResetToken,
+      getPasswordResetToken,
+      authorizationService,
+    } = setup(dbConnection)
     const account = await createAccount({ username: 'test', password: 'password' })
+
+    authorizationService.setUserPermissions(
+      1,
+      new Set([AuthenticationPermission.RequestPasswordReset]),
+    )
 
     // Create an existing token
     const existingToken = await createPasswordResetToken(account.id)
 
-    const newRawToken = await requestPasswordReset.execute({ id: 1 }, account.id)
+    const newRawToken = await requestPasswordReset.execute(1, account.id)
     if (newRawToken instanceof Error) {
       expect.fail(`Failed to request password reset: ${newRawToken.message}`)
     }
@@ -85,10 +101,15 @@ describe('RequestPasswordResetCommand', () => {
   })
 
   test('should create a token that expires in 2 hours', async ({ dbConnection }) => {
-    const { requestPasswordReset, createAccount } = setup(dbConnection)
+    const { requestPasswordReset, createAccount, authorizationService } = setup(dbConnection)
     const account = await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute({ id: 1 }, account.id)
+    authorizationService.setUserPermissions(
+      1,
+      new Set([AuthenticationPermission.RequestPasswordReset]),
+    )
+
+    const token = await requestPasswordReset.execute(1, account.id)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
@@ -106,14 +127,30 @@ describe('RequestPasswordResetCommand', () => {
   })
 
   test('should generate a token of correct length', async ({ dbConnection }) => {
-    const { requestPasswordReset, createAccount } = setup(dbConnection)
+    const { requestPasswordReset, createAccount, authorizationService } = setup(dbConnection)
     const account = await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute({ id: 1 }, account.id)
+    authorizationService.setUserPermissions(
+      1,
+      new Set([AuthenticationPermission.RequestPasswordReset]),
+    )
+
+    const token = await requestPasswordReset.execute(1, account.id)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
 
     expect(token.length).toBe(40) // The CryptoTokenGenerator is set to generate 40-character tokens
+  })
+
+  test('should error if the requestor does not have the required permission', async ({
+    dbConnection,
+  }) => {
+    const { requestPasswordReset, createAccount } = setup(dbConnection)
+    const account = await createAccount({ username: 'test', password: 'password' })
+
+    const result = await requestPasswordReset.execute(1, account.id)
+
+    expect(result).toEqual(new UnauthorizedError())
   })
 })

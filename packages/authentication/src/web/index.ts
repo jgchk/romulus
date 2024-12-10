@@ -87,14 +87,14 @@ export function createRouter(di: CommandsCompositionRoot) {
           return setError(c, new UnauthorizedError(), 401)
         }
 
-        const { account } = await di.getSessionCommand().execute(sessionToken)
-        if (!account) {
+        const { account: requestor } = await di.getSessionCommand().execute(sessionToken)
+        if (!requestor) {
           return setError(c, new UnauthorizedError(), 401)
         }
 
         const passwordResetToken = await di
           .requestPasswordResetCommand()
-          .execute(account, accountId)
+          .execute(requestor.id, accountId)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {

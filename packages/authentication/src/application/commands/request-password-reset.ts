@@ -1,7 +1,9 @@
 import { createDate, TimeSpan } from 'oslo'
 
+import type { IAuthorizationService } from '../../domain/authorization-service'
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { UnauthorizedError } from '../../domain/errors/unauthorized'
+import { AuthenticationPermission } from '../../domain/permissions'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { HashRepository } from '../../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
@@ -14,13 +16,18 @@ export class RequestPasswordResetCommand {
     private passwordResetTokenGeneratorRepo: TokenGenerator,
     private passwordResetTokenHashRepo: HashRepository,
     private accountRepo: AccountRepository,
+    private authorizationService: IAuthorizationService,
   ) {}
 
   async execute(
-    userAccount: { id: number },
+    requestorUserId: number,
     accountId: number,
   ): Promise<string | UnauthorizedError | AccountNotFoundError> {
-    if (userAccount.id !== 1) {
+    const hasPermission = await this.authorizationService.hasPermission(
+      requestorUserId,
+      AuthenticationPermission.RequestPasswordReset,
+    )
+    if (!hasPermission) {
       return new UnauthorizedError()
     }
 

@@ -5,6 +5,7 @@ import { RefreshSessionCommand } from '../application/commands/refresh-session'
 import { RegisterCommand } from '../application/commands/register'
 import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
 import { ResetPasswordCommand } from '../application/commands/reset-password'
+import type { IAuthorizationService } from '../domain/authorization-service'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -19,10 +20,17 @@ import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repo
 import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
 
 export class CommandsCompositionRoot {
-  constructor(private _dbConnection: IDrizzleConnection) {}
+  constructor(
+    private _dbConnection: IDrizzleConnection,
+    private _authorizationService: IAuthorizationService,
+  ) {}
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
+  }
+
+  private authorizationService(): IAuthorizationService {
+    return this._authorizationService
   }
 
   getSessionCommand(): GetSessionCommand {
@@ -67,6 +75,7 @@ export class CommandsCompositionRoot {
       this.passwordResetTokenGenerator(),
       this.passwordResetTokenHashRepository(),
       this.accountRepository(),
+      this.authorizationService(),
     )
   }
 

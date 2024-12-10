@@ -1,22 +1,22 @@
 import { MediaTypeTreesRole } from './roles'
 
 export class PermissionChecker {
-  static canCreateTree(permissions: Set<MediaTypeTreesRole>): boolean {
-    return permissions.has(MediaTypeTreesRole.ADMIN) || permissions.has(MediaTypeTreesRole.WRITE)
+  static canCreateTree(roles: Set<MediaTypeTreesRole>): boolean {
+    return roles.has(MediaTypeTreesRole.ADMIN) || roles.has(MediaTypeTreesRole.WRITE)
   }
 
   static canModifyTree(
-    permissions: Set<MediaTypeTreesRole>,
+    roles: Set<MediaTypeTreesRole>,
     isOwner: boolean,
     isMainTree: boolean,
   ): boolean {
     return (
-      permissions.has(MediaTypeTreesRole.ADMIN) ||
-      (permissions.has(MediaTypeTreesRole.WRITE) && isOwner && !isMainTree)
+      roles.has(MediaTypeTreesRole.ADMIN) ||
+      (roles.has(MediaTypeTreesRole.WRITE) && isOwner && !isMainTree)
     )
   }
 
-  static canRequestMerge(permissions: Set<MediaTypeTreesRole>): boolean {
-    return permissions.has(MediaTypeTreesRole.ADMIN) || permissions.has(MediaTypeTreesRole.WRITE)
+  static canRequestMerge(roles: Set<MediaTypeTreesRole>): boolean {
+    return roles.has(MediaTypeTreesRole.ADMIN) || roles.has(MediaTypeTreesRole.WRITE)
   }
 }

@@ -1,6 +1,7 @@
-import type { AuthorizationService } from '@romulus/authorization'
 import { hc } from 'hono/client'
 
+import type { IAuthorizationService } from './domain/authorization-service'
+import { AuthenticationPermission } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
@@ -19,17 +20,17 @@ export class AuthenticationService {
 
   static async create(
     databaseUrl: string,
-    authorization: AuthorizationService,
+    authorization: IAuthorizationService,
   ): Promise<AuthenticationService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CommandsCompositionRoot(db)
+    const di = new CommandsCompositionRoot(db, authorization)
 
-    await authorization
-      .use()
-      .ensurePermissions([{ name: 'authentication:admin', description: undefined }])
+    await authorization.ensurePermissions([
+      { name: AuthenticationPermission.RequestPasswordReset, description: undefined },
+    ])
 
     return new AuthenticationService(db, di)
   }

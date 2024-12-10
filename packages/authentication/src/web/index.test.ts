@@ -2,19 +2,20 @@ import { testClient } from 'hono/testing'
 import { parseCookies } from 'oslo/cookie'
 import { describe, expect } from 'vitest'
 
-import { test as base } from '../vitest-setup'
-import type { Router } from '.'
+import { AuthenticationPermission } from '../domain/permissions'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
+import { MemoryAuthorizationService } from '../infrastructure/memory-authorization-service'
+import { test } from '../vitest-setup'
 import { createRouter } from '.'
 import { CommandsCompositionRoot } from './composition-root'
 
-const test = base.extend<{ client: ReturnType<typeof testClient<Router>> }>({
-  client: async ({ dbConnection }, use) => {
-    const di = new CommandsCompositionRoot(dbConnection)
-    const app = createRouter(di)
-    const client = testClient(app)
-    await use(client)
-  },
-})
+function setup(dbConnection: IDrizzleConnection) {
+  const authorizationService = new MemoryAuthorizationService()
+  const di = new CommandsCompositionRoot(dbConnection, authorizationService)
+  const app = createRouter(di)
+  const client = testClient(app)
+  return { client, authorizationService }
+}
 
 function getCookies(res: Response): string {
   return res.headers.get('set-cookie') ?? ''
@@ -29,7 +30,8 @@ function getCookieValue(res: Response, name: string): string | undefined {
 }
 
 describe('login', () => {
-  test('should error when no user is found', async ({ client }) => {
+  test('should error when no user is found', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.login.$post({ json: { username: 'test', password: 'test' } })
 
     expect(res.status).toBe(401)
@@ -41,7 +43,8 @@ describe('login', () => {
     })
   })
 
-  test('should error when password is incorrect', async ({ client }) => {
+  test('should error when password is incorrect', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.login.$post({ json: { username: 'test', password: 'test' } })
 
     expect(res.status).toBe(401)
@@ -53,7 +56,8 @@ describe('login', () => {
     })
   })
 
-  test('should log in when credentials are correct', async ({ client }) => {
+  test('should log in when credentials are correct', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     await client.register.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
 
     const res = await client.login.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
@@ -65,7 +69,8 @@ describe('login', () => {
 })
 
 describe('logout', () => {
-  test('should log out the user', async ({ client }) => {
+  test('should log out the user', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const registerResponse = await client.register.$post({
       json: { username: 'test', password: 'x'.repeat(8) },
     })
@@ -77,7 +82,8 @@ describe('logout', () => {
     expect(getCookieValue(res, 'auth_session')).toBeDefined()
   })
 
-  test('should succeed even if the user is not logged in', async ({ client }) => {
+  test('should succeed even if the user is not logged in', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.logout.$post()
 
     expect(res.status).toBe(200)
@@ -87,7 +93,8 @@ describe('logout', () => {
 })
 
 describe('register', () => {
-  test('should register a valid user', async ({ client }) => {
+  test('should register a valid user', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.register.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
 
     expect(res.status).toBe(200)
@@ -95,7 +102,8 @@ describe('register', () => {
     expect(getCookieValue(res, 'auth_session')).toBeDefined()
   })
 
-  test('should error if password is not long enough', async ({ client }) => {
+  test('should error if password is not long enough', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.register.$post({ json: { username: 'test', password: 'x'.repeat(7) } })
 
     expect(res.status).toBe(400)
@@ -118,7 +126,8 @@ describe('register', () => {
     })
   })
 
-  test('should error if password is too long', async ({ client }) => {
+  test('should error if password is too long', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.register.$post({
       json: { username: 'test', password: 'x'.repeat(73) },
     })
@@ -143,7 +152,8 @@ describe('register', () => {
     })
   })
 
-  test('should error if the username is already taken', async ({ client }) => {
+  test('should error if the username is already taken', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     await client.register.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
 
     const res = await client.register.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
@@ -159,7 +169,8 @@ describe('register', () => {
 })
 
 describe('request-password-reset', () => {
-  test('should error if the user is not logged in', async ({ client }) => {
+  test('should error if the user is not logged in', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client['request-password-reset'][':accountId'].$post({
       param: { accountId: '1' },
     })
@@ -173,7 +184,8 @@ describe('request-password-reset', () => {
     })
   })
 
-  test('should error if the user is not authorized', async ({ client }) => {
+  test('should error if the user is not authorized', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     await client.register.$post({
       json: { username: 'user1', password: 'x'.repeat(8) },
     })
@@ -195,10 +207,19 @@ describe('request-password-reset', () => {
     })
   })
 
-  test('should return a password reset link', async ({ client }) => {
+  test('should return a password reset link', async ({ dbConnection }) => {
+    const { client, authorizationService } = setup(dbConnection)
     const registerResponse = await client.register.$post({
       json: { username: 'test', password: 'x'.repeat(8) },
     })
+    const whoamiResponse = await client.whoami.$get(
+      {},
+      { headers: { cookie: getCookies(registerResponse) } },
+    )
+    authorizationService.setUserPermissions(
+      (await whoamiResponse.json()).account.id,
+      new Set([AuthenticationPermission.RequestPasswordReset]),
+    )
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -213,10 +234,19 @@ describe('request-password-reset', () => {
     })
   })
 
-  test('should error if the requested user does not exist', async ({ client }) => {
+  test('should error if the requested user does not exist', async ({ dbConnection }) => {
+    const { client, authorizationService } = setup(dbConnection)
     const registerResponse = await client.register.$post({
       json: { username: 'test', password: 'x'.repeat(8) },
     })
+    const whoamiResponse = await client.whoami.$get(
+      {},
+      { headers: { cookie: getCookies(registerResponse) } },
+    )
+    authorizationService.setUserPermissions(
+      (await whoamiResponse.json()).account.id,
+      new Set([AuthenticationPermission.RequestPasswordReset]),
+    )
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '2' } },
@@ -231,10 +261,33 @@ describe('request-password-reset', () => {
       },
     })
   })
+
+  test('should error if the requestor does not have the required permission', async ({
+    dbConnection,
+  }) => {
+    const { client } = setup(dbConnection)
+    const registerResponse = await client.register.$post({
+      json: { username: 'test', password: 'x'.repeat(8) },
+    })
+
+    const res = await client['request-password-reset'][':accountId'].$post(
+      { param: { accountId: '1' } },
+      { headers: { cookie: getCookies(registerResponse) } },
+    )
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      error: {
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
+      },
+    })
+  })
 })
 
 describe('whoami', () => {
-  test('should return the current user', async ({ client }) => {
+  test('should return the current user', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const registerResponse = await client.register.$post({
       json: { username: 'test', password: 'x'.repeat(8) },
     })
@@ -258,7 +311,8 @@ describe('whoami', () => {
     })
   })
 
-  test('should return null if the user is not logged in', async ({ client }) => {
+  test('should return null if the user is not logged in', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
     const res = await client.whoami.$get()
 
     expect(res.status).toBe(200)
