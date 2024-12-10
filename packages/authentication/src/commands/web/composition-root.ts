@@ -6,7 +6,6 @@ import { RefreshSessionCommand } from '../application/commands/refresh-session'
 import { RegisterCommand } from '../application/commands/register'
 import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
 import { ResetPasswordCommand } from '../application/commands/reset-password'
-import { ValidatePasswordResetTokenCommand } from '../application/commands/validate-password-reset-token'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -50,6 +49,45 @@ export class CommandsCompositionRoot {
     )
   }
 
+  logoutCommand(): LogoutCommand {
+    return new LogoutCommand(this.sessionRepository(), this.sessionTokenHashRepository())
+  }
+
+  refreshSessionCommand(): RefreshSessionCommand {
+    return new RefreshSessionCommand(this.sessionRepository(), this.sessionTokenHashRepository())
+  }
+
+  registerCommand(): RegisterCommand {
+    return new RegisterCommand(
+      this.accountRepository(),
+      this.sessionRepository(),
+      this.passwordHashRepository(),
+      this.sessionTokenHashRepository(),
+      this.sessionTokenGenerator(),
+    )
+  }
+
+  requestPasswordResetCommand(): RequestPasswordResetCommand {
+    return new RequestPasswordResetCommand(
+      this.passwordResetTokenRepository(),
+      this.passwordResetTokenGenerator(),
+      this.passwordResetTokenHashRepository(),
+      this.accountRepository(),
+    )
+  }
+
+  resetPasswordCommand(): ResetPasswordCommand {
+    return new ResetPasswordCommand(
+      this.accountRepository(),
+      this.sessionRepository(),
+      this.passwordResetTokenRepository(),
+      this.passwordResetTokenHashRepository(),
+      this.passwordHashRepository(),
+      this.sessionTokenHashRepository(),
+      this.sessionTokenGenerator(),
+    )
+  }
+
   private accountRepository(): AccountRepository {
     return new DrizzleAccountRepository(this.dbConnection())
   }
@@ -70,58 +108,12 @@ export class CommandsCompositionRoot {
     return new CryptoTokenGenerator()
   }
 
-  logoutCommand(): LogoutCommand {
-    return new LogoutCommand(this.sessionRepository(), this.sessionTokenHashRepository())
-  }
-
-  registerCommand(): RegisterCommand {
-    return new RegisterCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.passwordHashRepository(),
-      this.sessionTokenHashRepository(),
-      this.sessionTokenGenerator(),
-    )
-  }
-
   private passwordResetTokenRepository(): PasswordResetTokenRepository {
     return new DrizzlePasswordResetTokenRepository(this.dbConnection())
   }
 
-  resetPasswordCommand(): ResetPasswordCommand {
-    return new ResetPasswordCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.passwordResetTokenRepository(),
-      this.passwordResetTokenHashRepository(),
-      this.passwordHashRepository(),
-      this.sessionTokenHashRepository(),
-      this.sessionTokenGenerator(),
-    )
-  }
-
-  refreshSessionCommand(): RefreshSessionCommand {
-    return new RefreshSessionCommand(this.sessionRepository(), this.sessionTokenHashRepository())
-  }
-
-  requestPasswordResetCommand(): RequestPasswordResetCommand {
-    return new RequestPasswordResetCommand(
-      this.passwordResetTokenRepository(),
-      this.passwordResetTokenGenerator(),
-      this.passwordResetTokenHashRepository(),
-      this.accountRepository(),
-    )
-  }
-
   private passwordResetTokenGenerator(): TokenGenerator {
     return new CryptoTokenGenerator()
-  }
-
-  private validatePasswordResetTokenCommand(): ValidatePasswordResetTokenCommand {
-    return new ValidatePasswordResetTokenCommand(
-      this.passwordResetTokenRepository(),
-      this.passwordResetTokenHashRepository(),
-    )
   }
 
   private passwordResetTokenHashRepository(): HashRepository {
