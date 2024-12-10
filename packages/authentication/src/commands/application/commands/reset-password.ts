@@ -1,4 +1,3 @@
-import type { PasswordResetToken } from '../../domain/entities/password-reset-token'
 import { Session } from '../../domain/entities/session'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { HashRepository } from '../../domain/repositories/hash-repository'
@@ -6,6 +5,8 @@ import type { PasswordResetTokenRepository } from '../../domain/repositories/pas
 import type { SessionRepository } from '../../domain/repositories/session'
 import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { AccountNotFoundError } from '../errors/account-not-found'
+import { PasswordResetTokenExpiredError } from '../errors/password-reset-token-expired'
+import { PasswordResetTokenNotFoundError } from '../errors/password-reset-token-not-found'
 
 export type ResetPasswordResult = {
   userAccount: {
@@ -22,27 +23,43 @@ export class ResetPasswordCommand {
     private accountRepo: AccountRepository,
     private sessionRepo: SessionRepository,
     private passwordResetTokenRepo: PasswordResetTokenRepository,
+    private passwordResetTokenHashRepo: HashRepository,
     private passwordHashRepo: HashRepository,
     private sessionTokenHashRepo: HashRepository,
     private sessionTokenGenerator: TokenGenerator,
   ) {}
 
   async execute(
-    passwordResetToken: PasswordResetToken,
+    passwordResetToken: string,
     newPassword: string,
-  ): Promise<ResetPasswordResult | AccountNotFoundError> {
-    const account = await this.accountRepo.findById(passwordResetToken.accountId)
+  ): Promise<
+    | ResetPasswordResult
+    | PasswordResetTokenNotFoundError
+    | PasswordResetTokenExpiredError
+    | AccountNotFoundError
+  > {
+    const passwordResetTokenHash = await this.passwordResetTokenHashRepo.hash(passwordResetToken)
+    const verifiedPasswordResetToken =
+      await this.passwordResetTokenRepo.findByTokenHash(passwordResetTokenHash)
+    if (!verifiedPasswordResetToken) {
+      return new PasswordResetTokenNotFoundError()
+    }
+    if (verifiedPasswordResetToken.isExpired()) {
+      return new PasswordResetTokenExpiredError()
+    }
+
+    const account = await this.accountRepo.findById(verifiedPasswordResetToken.accountId)
     if (!account) {
-      return new AccountNotFoundError(passwordResetToken.accountId)
+      return new AccountNotFoundError(verifiedPasswordResetToken.accountId)
     }
 
     const updatedAccount = account.resetPassword(await this.passwordHashRepo.hash(newPassword))
-    await this.accountRepo.update(passwordResetToken.accountId, updatedAccount)
+    await this.accountRepo.update(verifiedPasswordResetToken.accountId, updatedAccount)
 
     // Sign out the account everywhere
-    await this.sessionRepo.deleteAllForAccount(passwordResetToken.accountId)
+    await this.sessionRepo.deleteAllForAccount(verifiedPasswordResetToken.accountId)
 
-    await this.passwordResetTokenRepo.deleteByTokenHash(passwordResetToken.tokenHash)
+    await this.passwordResetTokenRepo.deleteByTokenHash(verifiedPasswordResetToken.tokenHash)
 
     const token = this.sessionTokenGenerator.generate(20)
 

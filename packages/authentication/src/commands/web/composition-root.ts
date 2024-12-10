@@ -18,8 +18,6 @@ import { DrizzleAccountRepository } from '../infrastructure/drizzle-account-repo
 import { DrizzlePasswordResetTokenRepository } from '../infrastructure/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
-import { AuthenticationController } from '../presentation/controllers'
-import { ResetPasswordController } from '../presentation/controllers/reset-password'
 import { CookieCreator } from '../presentation/cookie'
 
 const IS_SECURE = process.env.NODE_ENV === 'production'
@@ -40,10 +38,6 @@ export class CommandsCompositionRoot {
       this.sessionRepository(),
       this.sessionTokenHashRepository(),
     )
-  }
-
-  controller() {
-    return new AuthenticationController(this.resetPasswordController())
   }
 
   loginCommand(): LoginCommand {
@@ -94,11 +88,12 @@ export class CommandsCompositionRoot {
     return new DrizzlePasswordResetTokenRepository(this.dbConnection())
   }
 
-  private resetPasswordCommand(): ResetPasswordCommand {
+  resetPasswordCommand(): ResetPasswordCommand {
     return new ResetPasswordCommand(
       this.accountRepository(),
       this.sessionRepository(),
       this.passwordResetTokenRepository(),
+      this.passwordResetTokenHashRepository(),
       this.passwordHashRepository(),
       this.sessionTokenHashRepository(),
       this.sessionTokenGenerator(),
@@ -120,14 +115,6 @@ export class CommandsCompositionRoot {
 
   private passwordResetTokenGenerator(): TokenGenerator {
     return new CryptoTokenGenerator()
-  }
-
-  private resetPasswordController(): ResetPasswordController {
-    return new ResetPasswordController(
-      this.validatePasswordResetTokenCommand(),
-      this.resetPasswordCommand(),
-      this.cookieCreator(),
-    )
   }
 
   private validatePasswordResetTokenCommand(): ValidatePasswordResetTokenCommand {

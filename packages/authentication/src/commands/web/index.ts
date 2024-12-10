@@ -108,17 +108,18 @@ export function createRouter(di: CommandsCompositionRoot) {
         const body = c.req.valid('json')
         const passwordResetToken = c.req.param('token')
 
-        const sessionCookie = await di.controller().resetPassword(passwordResetToken, body.password)
+        const result = await di.resetPasswordCommand().execute(passwordResetToken, body.password)
         if (
-          sessionCookie instanceof PasswordResetTokenNotFoundError ||
-          sessionCookie instanceof PasswordResetTokenExpiredError
+          result instanceof PasswordResetTokenNotFoundError ||
+          result instanceof PasswordResetTokenExpiredError
         ) {
           return setError(c, new InvalidPasswordResetTokenError(), 400)
-        } else if (sessionCookie instanceof AccountNotFoundError) {
-          return setError(c, sessionCookie, 404)
+        } else if (result instanceof AccountNotFoundError) {
+          return setError(c, result, 404)
         }
 
-        setCookie(c, sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+        const cookie = di.cookieCreator().create(result.userSession)
+        setCookie(c, cookie.name, cookie.value, cookie.attributes)
 
         return c.json({ success: true })
       },

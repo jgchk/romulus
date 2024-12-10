@@ -11,7 +11,6 @@ import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-r
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { AccountNotFoundError } from '../errors/account-not-found'
 import { InvalidLoginError } from '../errors/invalid-login'
 import { LoginCommand } from './login'
 import { ResetPasswordCommand } from './reset-password'
@@ -20,6 +19,7 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
   const sessionRepo = new DrizzleSessionRepository(options.dbConnection)
   const passwordResetTokenRepo = new DrizzlePasswordResetTokenRepository(options.dbConnection)
+  const passwordResetTokenHashRepo = new Sha256HashRepository()
   const passwordHashRepo = new BcryptHashRepository()
   const sessionTokenHashRepo = new Sha256HashRepository()
   const sessionTokenGenerator = new CryptoTokenGenerator()
@@ -28,6 +28,7 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
     accountRepo,
     sessionRepo,
     passwordResetTokenRepo,
+    passwordResetTokenHashRepo,
     passwordHashRepo,
     sessionTokenHashRepo,
     sessionTokenGenerator,
@@ -79,7 +80,7 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
 
     await passwordResetTokenRepo.create(passwordResetToken)
 
-    return passwordResetToken
+    return { token, tokenHash }
   }
 
   async function getPasswordResetToken(tokenHash: string) {
@@ -104,7 +105,7 @@ describe('resetPassword', () => {
     const account = await createAccount({ username: 'testaccount', password: 'oldpassword' })
     const passwordResetToken = await createPasswordResetToken(account.id)
 
-    const result = await resetPassword.execute(passwordResetToken, 'newpassword')
+    const result = await resetPassword.execute(passwordResetToken.token, 'newpassword')
 
     expect(result).toEqual({
       userAccount: {
@@ -126,15 +127,6 @@ describe('resetPassword', () => {
       password: 'oldpassword',
     })
     expect(oldPasswordLoginResult).toBeInstanceOf(InvalidLoginError)
-  })
-
-  test('should return AccountNotFoundError for non-existent account', async ({ dbConnection }) => {
-    const { resetPassword } = setupCommand({ dbConnection })
-    const passwordResetToken = new PasswordResetToken(999, 'valid_token', new Date())
-
-    const result = await resetPassword.execute(passwordResetToken, 'newpassword')
-
-    expect(result).toBeInstanceOf(AccountNotFoundError)
   })
 
   test('should delete all current sessions for the account after password reset', async ({
@@ -165,7 +157,7 @@ describe('resetPassword', () => {
     expect(preResetSessions).toHaveLength(2)
 
     // Reset the password
-    const resetPasswordResult = await resetPassword.execute(passwordResetToken, 'newpassword')
+    const resetPasswordResult = await resetPassword.execute(passwordResetToken.token, 'newpassword')
     if (resetPasswordResult instanceof Error) {
       expect.fail(`Failed to reset password: ${resetPasswordResult.message}`)
     }
@@ -185,7 +177,7 @@ describe('resetPassword', () => {
     const account = await createAccount({ username: 'testaccount', password: 'oldpassword' })
     const passwordResetToken = await createPasswordResetToken(account.id)
 
-    const resetPasswordResult = await resetPassword.execute(passwordResetToken, 'newpassword')
+    const resetPasswordResult = await resetPassword.execute(passwordResetToken.token, 'newpassword')
     if (resetPasswordResult instanceof Error) {
       expect.fail(`Failed to reset password: ${resetPasswordResult.message}`)
     }
