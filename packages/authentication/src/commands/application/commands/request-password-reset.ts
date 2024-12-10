@@ -1,6 +1,7 @@
 import { createDate, TimeSpan } from 'oslo'
 
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
+import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { HashRepository } from '../../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
@@ -15,7 +16,14 @@ export class RequestPasswordResetCommand {
     private accountRepo: AccountRepository,
   ) {}
 
-  async execute(accountId: number): Promise<string | AccountNotFoundError> {
+  async execute(
+    userAccount: { id: number },
+    accountId: number,
+  ): Promise<string | UnauthorizedError | AccountNotFoundError> {
+    if (userAccount.id !== 1) {
+      return new UnauthorizedError()
+    }
+
     const account = await this.accountRepo.findById(accountId)
     if (account === undefined) {
       return new AccountNotFoundError(accountId)

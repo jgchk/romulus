@@ -86,13 +86,17 @@ export function createRouter(di: CommandsCompositionRoot) {
           return setError(c, new UnauthorizedError(), 401)
         }
 
-        const passwordResetLink = await di.controller().requestPasswordReset(account, accountId)
-        if (passwordResetLink instanceof UnauthorizedError) {
-          return setError(c, passwordResetLink, 401)
-        } else if (passwordResetLink instanceof AccountNotFoundError) {
-          return setError(c, passwordResetLink, 404)
+        const passwordResetToken = await di
+          .requestPasswordResetCommand()
+          .execute(account, accountId)
+        if (passwordResetToken instanceof UnauthorizedError) {
+          return setError(c, passwordResetToken, 401)
+        } else if (passwordResetToken instanceof AccountNotFoundError) {
+          return setError(c, passwordResetToken, 404)
         }
 
+        // FIXME: We probably shouldn't be hardcoding this
+        const passwordResetLink = 'https://www.romulus.lol/reset-password/' + passwordResetToken
         return c.json({ passwordResetLink })
       },
     )

@@ -70,7 +70,7 @@ describe('RequestPasswordResetCommand', () => {
     // Create an existing token
     const existingToken = await createPasswordResetToken(account.id)
 
-    const newRawToken = await requestPasswordReset.execute(account.id)
+    const newRawToken = await requestPasswordReset.execute({ id: 1 }, account.id)
     if (newRawToken instanceof Error) {
       expect.fail(`Failed to request password reset: ${newRawToken.message}`)
     }
@@ -88,7 +88,7 @@ describe('RequestPasswordResetCommand', () => {
     const { requestPasswordReset, createAccount } = setup(dbConnection)
     const account = await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute(account.id)
+    const token = await requestPasswordReset.execute({ id: 1 }, account.id)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
@@ -109,7 +109,7 @@ describe('RequestPasswordResetCommand', () => {
     const { requestPasswordReset, createAccount } = setup(dbConnection)
     const account = await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute(account.id)
+    const token = await requestPasswordReset.execute({ id: 1 }, account.id)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
