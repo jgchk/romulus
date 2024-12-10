@@ -5,3 +5,5 @@ export const withProps = <T extends object, P extends Record<string, unknown>>(
   Object.assign(something, props)
   return something as T & P
 }
+
+export type MaybePromise<T> = T | Promise<T>
