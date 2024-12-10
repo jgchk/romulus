@@ -36,10 +36,11 @@ export function createRouter(di: CommandsCompositionRoot) {
           return setError(c, result, 401)
         }
 
-        const cookie = cookieCreator.create(result.userSession)
-        setCookie(c, cookie.name, cookie.value, cookie.attributes)
-
-        return c.json({ success: true })
+        return c.json({
+          success: true,
+          token: result.userSession.token,
+          expiresAt: result.userSession.expiresAt,
+        })
       },
     )
 

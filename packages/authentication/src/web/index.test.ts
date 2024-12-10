@@ -63,8 +63,11 @@ describe('login', () => {
     const res = await client.login.$post({ json: { username: 'test', password: 'x'.repeat(8) } })
 
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ success: true })
-    expect(getCookieValue(res, 'auth_session')).toBeDefined()
+    expect(await res.json()).toEqual({
+      success: true,
+      token: expect.any(String) as string,
+      expiresAt: expect.any(String) as string,
+    })
   })
 })
 
