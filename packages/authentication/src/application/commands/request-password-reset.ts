@@ -1,11 +1,11 @@
 import { createDate, TimeSpan } from 'oslo'
 
-import { PasswordResetToken } from '../../domain/entities/password-reset-token'
-import { UnauthorizedError } from '../../domain/errors/unauthorized'
-import type { AccountRepository } from '../../domain/repositories/account'
-import type { HashRepository } from '../../domain/repositories/hash-repository'
-import type { PasswordResetTokenRepository } from '../../domain/repositories/password-reset-token'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
+import { PasswordResetToken } from '../../commands/domain/entities/password-reset-token'
+import { UnauthorizedError } from '../../commands/domain/errors/unauthorized'
+import type { AccountRepository } from '../../commands/domain/repositories/account'
+import type { HashRepository } from '../../commands/domain/repositories/hash-repository'
+import type { PasswordResetTokenRepository } from '../../commands/domain/repositories/password-reset-token'
+import type { TokenGenerator } from '../../commands/domain/repositories/token-generator'
 import { AccountNotFoundError } from '../errors/account-not-found'
 
 export class RequestPasswordResetCommand {
