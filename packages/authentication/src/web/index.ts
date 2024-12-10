@@ -16,7 +16,7 @@ import { zodValidator } from './zod-validator'
 
 export type Router = ReturnType<typeof createRouter>
 
-const passwordSchemaa = z.string().min(8).max(72)
+const passwordSchema = z.string().min(8).max(72)
 
 const SESSION_COOKIE_NAME = 'auth_session'
 const IS_SECURE = process.env.NODE_ENV === 'production'
@@ -60,7 +60,7 @@ export function createRouter(di: CommandsCompositionRoot) {
       '/register',
       zodValidator(
         'json',
-        z.object({ username: z.string().min(3).max(72), password: passwordSchemaa }),
+        z.object({ username: z.string().min(3).max(72), password: passwordSchema }),
       ),
       async (c) => {
         const body = c.req.valid('json')
@@ -109,7 +109,7 @@ export function createRouter(di: CommandsCompositionRoot) {
 
     .post(
       '/reset-password/:token',
-      zodValidator('json', z.object({ password: passwordSchemaa })),
+      zodValidator('json', z.object({ password: passwordSchema })),
       async (c) => {
         const body = c.req.valid('json')
         const passwordResetToken = c.req.param('token')
