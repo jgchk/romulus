@@ -1,3 +1,4 @@
+import { GetAccountCommand } from '../application/commands/get-account'
 import { GetSessionCommand } from '../application/commands/get-session'
 import { LoginCommand } from '../application/commands/login'
 import { LogoutCommand } from '../application/commands/logout'
@@ -31,6 +32,10 @@ export class CommandsCompositionRoot {
 
   private authorizationService(): IAuthorizationService {
     return this._authorizationService
+  }
+
+  getAccountCommand(): GetAccountCommand {
+    return new GetAccountCommand(this.accountRepository(), this.authorizationService())
   }
 
   getSessionCommand(): GetSessionCommand {

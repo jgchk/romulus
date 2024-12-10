@@ -27,9 +27,7 @@ export class RequestPasswordResetCommand {
       requestorUserId,
       AuthenticationPermission.RequestPasswordReset,
     )
-    if (!hasPermission) {
-      return new UnauthorizedError()
-    }
+    if (!hasPermission) return new UnauthorizedError()
 
     const account = await this.accountRepo.findById(accountId)
     if (account === undefined) {

@@ -7,6 +7,7 @@ import { MemoryAuthorizationService } from '../infrastructure/memory-authorizati
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
 import { createRouter } from './router'
+import { auth } from 'hono/utils/basic-auth'
 
 function setup(dbConnection: IDrizzleConnection) {
   const authorizationService = new MemoryAuthorizationService()
@@ -51,6 +52,7 @@ describe('login', () => {
       error: {
         message: 'Incorrect username or password',
         name: 'InvalidLogin',
+        statusCode: 401,
       },
     })
   })
@@ -65,6 +67,7 @@ describe('login', () => {
       error: {
         message: 'Incorrect username or password',
         name: 'InvalidLogin',
+        statusCode: 401,
       },
     })
   })
@@ -109,6 +112,7 @@ describe('logout', () => {
       error: {
         name: 'UnauthorizedError',
         message: 'You are not authorized to perform this action',
+        statusCode: 401,
       },
     })
   })
@@ -151,6 +155,7 @@ describe('register', () => {
       error: {
         name: 'InvalidRequestError',
         message: 'Invalid request',
+        statusCode: 400,
         details: [
           {
             code: 'too_small',
@@ -178,6 +183,7 @@ describe('register', () => {
       error: {
         name: 'InvalidRequestError',
         message: 'Invalid request',
+        statusCode: 400,
         details: [
           {
             code: 'too_big',
@@ -205,6 +211,7 @@ describe('register', () => {
       error: {
         name: 'NonUniqueUsernameError',
         message: 'Username is already taken',
+        statusCode: 409,
       },
     })
   })
@@ -224,6 +231,7 @@ describe('request-password-reset', () => {
       error: {
         name: 'UnauthorizedError',
         message: 'You are not authorized to perform this action',
+        statusCode: 401,
       },
     })
   })
@@ -243,6 +251,7 @@ describe('request-password-reset', () => {
       error: {
         message: 'You are not authorized to perform this action',
         name: 'UnauthorizedError',
+        statusCode: 401,
       },
     })
   })
@@ -262,6 +271,7 @@ describe('request-password-reset', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
+      success: true,
       passwordResetLink: expect.stringMatching(
         /^https:\/\/www\.romulus\.lol\/reset-password\/[a-f0-9]+$/,
       ) as string,
@@ -287,6 +297,7 @@ describe('request-password-reset', () => {
       error: {
         name: 'AccountNotFoundError',
         message: 'Account not found',
+        statusCode: 404,
       },
     })
   })
@@ -308,6 +319,7 @@ describe('request-password-reset', () => {
       error: {
         name: 'UnauthorizedError',
         message: 'You are not authorized to perform this action',
+        statusCode: 401,
       },
     })
   })
@@ -351,6 +363,7 @@ describe('whoami', () => {
       error: {
         name: 'UnauthorizedError',
         message: 'You are not authorized to perform this action',
+        statusCode: 401,
       },
     })
   })
@@ -368,6 +381,110 @@ describe('whoami', () => {
       error: {
         name: 'UnauthorizedError',
         message: 'You are not authorized to perform this action',
+        statusCode: 401,
+      },
+    })
+  })
+})
+
+describe('get-account', () => {
+  test('should return the requested account', async ({ dbConnection }) => {
+    const { client, registerTestUser, authorizationService } = setup(dbConnection)
+    const { sessionToken } = await registerTestUser()
+    authorizationService.setUserPermissions(1, new Set([AuthenticationPermission.GetAccount]))
+
+    const res = await client.account[':id'].$get(
+      { param: { id: '1' } },
+      { headers: { authorization: `Bearer ${sessionToken}` } },
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      success: true,
+      account: {
+        darkMode: true,
+        genreRelevanceFilter: 0,
+        id: 1,
+        showNsfw: false,
+        showRelevanceTags: false,
+        showTypeTags: true,
+        username: 'test',
+      },
+    })
+  })
+
+  test('should error if the user does not have permission', async ({ dbConnection }) => {
+    const { client, registerTestUser } = setup(dbConnection)
+    const { sessionToken } = await registerTestUser()
+
+    const res = await client.account[':id'].$get(
+      { param: { id: '1' } },
+      { headers: { authorization: `Bearer ${sessionToken}` } },
+    )
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
+        statusCode: 401,
+      },
+    })
+  })
+
+  test('should error if the user is not logged in', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.account[':id'].$get({ param: { id: '1' } })
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
+        statusCode: 401,
+      },
+    })
+  })
+
+  test('should error if the session does not exist', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.account[':id'].$get(
+      { param: { id: '1' } },
+      { headers: { authorization: 'Bearer invalid-session-token' } },
+    )
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
+        statusCode: 401,
+      },
+    })
+  })
+
+  test('should error if the requested account does not exist', async ({ dbConnection }) => {
+    const { client, registerTestUser, authorizationService } = setup(dbConnection)
+    const { sessionToken } = await registerTestUser()
+    authorizationService.setUserPermissions(1, new Set([AuthenticationPermission.GetAccount]))
+
+    const res = await client.account[':id'].$get(
+      { param: { id: '2' } },
+      { headers: { authorization: `Bearer ${sessionToken}` } },
+    )
+
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        name: 'AccountNotFoundError',
+        message: 'Account not found',
+        statusCode: 404,
       },
     })
   })

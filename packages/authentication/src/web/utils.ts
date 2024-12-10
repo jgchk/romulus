@@ -12,6 +12,7 @@ export function setError(
       error: {
         name: error.name,
         message: error.message,
+        statusCode,
         ...(error.details !== undefined ? { details: error.details } : {}),
       },
     } as const,

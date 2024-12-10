@@ -1,5 +1,3 @@
-import { hc } from 'hono/client'
-
 import type { IAuthorizationService } from './domain/authorization-service'
 import { AuthenticationPermission } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
@@ -11,6 +9,8 @@ import {
 import { CommandsCompositionRoot } from './web/composition-root'
 import type { Router } from './web/router'
 import { createRouter } from './web/router'
+
+export { AuthenticationClient, AuthenticationClientError } from './web/client'
 
 export class AuthenticationService {
   private constructor(
@@ -35,15 +35,11 @@ export class AuthenticationService {
     return new AuthenticationService(db, di)
   }
 
-  getRouter() {
+  getRouter(): Router {
     return createRouter(this.di)
   }
 
   async destroy(): Promise<void> {
     await this.db.close()
   }
-}
-
-export function createAuthenticationClient(...args: Parameters<typeof hc>) {
-  return hc<Router>(...args)
 }

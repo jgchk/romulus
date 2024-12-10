@@ -34,7 +34,7 @@ export function createRouter(di: CommandsCompositionRoot) {
           success: true,
           token: result.userSession.token,
           expiresAt: result.userSession.expiresAt,
-        })
+        } as const)
       },
     )
 
@@ -43,7 +43,7 @@ export function createRouter(di: CommandsCompositionRoot) {
 
       await di.logoutCommand().execute(sessionToken)
 
-      return c.json({ success: true })
+      return c.json({ success: true } as const)
     })
 
     .post(
@@ -93,7 +93,7 @@ export function createRouter(di: CommandsCompositionRoot) {
 
         // FIXME: We probably shouldn't be hardcoding this
         const passwordResetLink = 'https://www.romulus.lol/reset-password/' + passwordResetToken
-        return c.json({ passwordResetLink })
+        return c.json({ success: true, passwordResetLink } as const)
       },
     )
 
@@ -118,7 +118,7 @@ export function createRouter(di: CommandsCompositionRoot) {
           success: true,
           token: result.userSession.token,
           expiresAt: result.userSession.expiresAt,
-        })
+        } as const)
       },
     )
 
@@ -133,6 +133,31 @@ export function createRouter(di: CommandsCompositionRoot) {
       return c.json({ success: true, ...result } as const)
     })
 
+    .get(
+      '/account/:id',
+      zodValidator('param', z.object({ id: z.coerce.number().int() })),
+      bearerAuth,
+      async (c) => {
+        const sessionToken = c.var.token
+
+        const requestorSession = await di.getSessionCommand().execute(sessionToken)
+        if (requestorSession instanceof UnauthorizedError) {
+          return setError(c, requestorSession, 401)
+        }
+
+        const { id } = c.req.valid('param')
+
+        const result = await di.getAccountCommand().execute(requestorSession.account.id, id)
+        if (result instanceof UnauthorizedError) {
+          return setError(c, result, 401)
+        } else if (result instanceof AccountNotFoundError) {
+          return setError(c, result, 404)
+        }
+
+        return c.json({ success: true, account: result } as const)
+      },
+    )
+
     .post('/refresh-session', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
@@ -141,7 +166,7 @@ export function createRouter(di: CommandsCompositionRoot) {
         return setError(c, result, 401)
       }
 
-      return c.json({ success: true, token: result.token, expiresAt: result.expiresAt })
+      return c.json({ success: true, token: result.token, expiresAt: result.expiresAt } as const)
     })
 
   return app
