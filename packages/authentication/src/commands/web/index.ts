@@ -43,9 +43,9 @@ export function createRouter(di: CommandsCompositionRoot) {
         return c.json({ success: true })
       }
 
-      const blankSessionCookie = await di.controller().logout(sessionToken)
+      await di.logoutCommand().execute(sessionToken)
 
-      deleteCookie(c, blankSessionCookie.name, blankSessionCookie.attributes)
+      deleteCookie(c, di.sessionCookieName)
 
       return c.json({ success: true })
     })
