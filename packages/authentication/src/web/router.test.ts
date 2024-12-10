@@ -7,7 +7,6 @@ import { MemoryAuthorizationService } from '../infrastructure/memory-authorizati
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
 import { createRouter } from './router'
-import { auth } from 'hono/utils/basic-auth'
 
 function setup(dbConnection: IDrizzleConnection) {
   const authorizationService = new MemoryAuthorizationService()

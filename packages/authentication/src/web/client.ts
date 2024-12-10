@@ -1,8 +1,8 @@
 import { hc } from 'hono/client'
+import type { StatusCode } from 'hono/utils/http-status'
 
 import { CustomError } from '../domain/errors/base'
 import type { Router } from './router'
-import { StatusCode } from 'hono/utils/http-status'
 
 export class AuthenticationClient {
   private client: ReturnType<typeof hc<Router>>
