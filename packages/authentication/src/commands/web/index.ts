@@ -59,12 +59,13 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const sessionCookie = await di.controller().register(body.username, body.password)
-        if (sessionCookie instanceof NonUniqueUsernameError) {
-          return setError(c, sessionCookie, 409)
+        const result = await di.registerCommand().execute(body.username, body.password)
+        if (result instanceof NonUniqueUsernameError) {
+          return setError(c, result, 409)
         }
 
-        setCookie(c, sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+        const cookie = di.cookieCreator().create(result.newUserSession)
+        setCookie(c, cookie.name, cookie.value, cookie.attributes)
 
         return c.json({ success: true })
       },

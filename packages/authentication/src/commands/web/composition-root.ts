@@ -19,7 +19,6 @@ import { DrizzlePasswordResetTokenRepository } from '../infrastructure/drizzle-p
 import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
 import { AuthenticationController } from '../presentation/controllers'
-import { RegisterController } from '../presentation/controllers/register'
 import { RequestPasswordResetController } from '../presentation/controllers/request-password-reset'
 import { ResetPasswordController } from '../presentation/controllers/reset-password'
 import { CookieCreator } from '../presentation/cookie'
@@ -46,7 +45,6 @@ export class CommandsCompositionRoot {
 
   controller() {
     return new AuthenticationController(
-      this.registerController(),
       this.requestPasswordResetController(),
       this.resetPasswordController(),
     )
@@ -86,7 +84,7 @@ export class CommandsCompositionRoot {
     return new LogoutCommand(this.sessionRepository(), this.sessionTokenHashRepository())
   }
 
-  private registerCommand(): RegisterCommand {
+  registerCommand(): RegisterCommand {
     return new RegisterCommand(
       this.accountRepository(),
       this.sessionRepository(),
@@ -113,10 +111,6 @@ export class CommandsCompositionRoot {
 
   refreshSessionCommand(): RefreshSessionCommand {
     return new RefreshSessionCommand(this.sessionRepository(), this.sessionTokenHashRepository())
-  }
-
-  private registerController(): RegisterController {
-    return new RegisterController(this.registerCommand(), this.cookieCreator())
   }
 
   private requestPasswordResetController(): RequestPasswordResetController {
