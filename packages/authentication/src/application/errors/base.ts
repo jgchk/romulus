@@ -1,4 +1,4 @@
-import { CustomError } from '../../shared/domain/errors'
+import { CustomError } from '../../domain/errors/base'
 
 export class ApplicationError extends CustomError {
   private readonly __tag = 'ApplicationError'

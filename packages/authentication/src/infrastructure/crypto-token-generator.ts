@@ -1,4 +1,4 @@
-import { CustomError } from '../../shared/domain/errors'
+import { CustomError } from '../domain/errors/base'
 import type { TokenGenerator } from '../domain/repositories/token-generator'
 
 export class CryptoTokenGenerator implements TokenGenerator {

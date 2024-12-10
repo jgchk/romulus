@@ -1,8 +1,8 @@
-import { Session } from '../../commands/domain/entities/session'
-import type { AccountRepository } from '../../commands/domain/repositories/account'
-import type { HashRepository } from '../../commands/domain/repositories/hash-repository'
-import type { SessionRepository } from '../../commands/domain/repositories/session'
-import type { TokenGenerator } from '../../commands/domain/repositories/token-generator'
+import { Session } from '../../domain/entities/session'
+import type { AccountRepository } from '../../domain/repositories/account'
+import type { HashRepository } from '../../domain/repositories/hash-repository'
+import type { SessionRepository } from '../../domain/repositories/session'
+import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { InvalidLoginError } from '../errors/invalid-login'
 
 export type LoginResult = {

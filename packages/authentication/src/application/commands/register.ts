@@ -1,10 +1,10 @@
-import { NewAccount } from '../../commands/domain/entities/account'
-import { Session } from '../../commands/domain/entities/session'
-import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../commands/domain/errors/non-unique-username'
-import type { AccountRepository } from '../../commands/domain/repositories/account'
-import type { HashRepository } from '../../commands/domain/repositories/hash-repository'
-import type { SessionRepository } from '../../commands/domain/repositories/session'
-import type { TokenGenerator } from '../../commands/domain/repositories/token-generator'
+import { NewAccount } from '../../domain/entities/account'
+import { Session } from '../../domain/entities/session'
+import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username'
+import type { AccountRepository } from '../../domain/repositories/account'
+import type { HashRepository } from '../../domain/repositories/hash-repository'
+import type { SessionRepository } from '../../domain/repositories/session'
+import type { TokenGenerator } from '../../domain/repositories/token-generator'
 import { NonUniqueUsernameError } from '../errors/non-unique-username'
 
 export type RegisterResult = {

@@ -1,6 +1,6 @@
-import type { AccountRepository } from '../../commands/domain/repositories/account'
-import type { HashRepository } from '../../commands/domain/repositories/hash-repository'
-import type { SessionRepository } from '../../commands/domain/repositories/session'
+import type { AccountRepository } from '../../domain/repositories/account'
+import type { HashRepository } from '../../domain/repositories/hash-repository'
+import type { SessionRepository } from '../../domain/repositories/session'
 
 export class GetSessionCommand {
   constructor(

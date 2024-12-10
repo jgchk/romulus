@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
-import { passwordResetTokensTable } from '../../shared/infrastructure/drizzle-schema'
 import { PasswordResetToken } from '../domain/entities/password-reset-token'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
+import type { IDrizzleConnection } from './drizzle-database'
+import { passwordResetTokensTable } from './drizzle-schema'
 
 export class DrizzlePasswordResetTokenRepository implements PasswordResetTokenRepository {
   constructor(private db: IDrizzleConnection) {}

@@ -1,4 +1,4 @@
-import { CustomError } from '../../../shared/domain/errors'
+import { CustomError } from './base'
 
 export class UnauthorizedError extends CustomError {
   constructor() {

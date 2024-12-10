@@ -2,7 +2,7 @@ import { testClient } from 'hono/testing'
 import { parseCookies } from 'oslo/cookie'
 import { describe, expect } from 'vitest'
 
-import { test as base } from '../../vitest-setup'
+import { test as base } from '../vitest-setup'
 import type { Router } from '.'
 import { createRouter } from '.'
 import { CommandsCompositionRoot } from './composition-root'

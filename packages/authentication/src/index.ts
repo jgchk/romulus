@@ -1,15 +1,15 @@
 import type { AuthorizationService } from '@romulus/authorization'
 import { hc } from 'hono/client'
 
-import type { Router } from './commands/web'
-import { createRouter } from './commands/web'
-import { CommandsCompositionRoot } from './commands/web/composition-root'
-import type { IDrizzleConnection } from './shared/infrastructure/drizzle-database'
+import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
   getPostgresConnection,
   migrate,
-} from './shared/infrastructure/drizzle-postgres-connection'
+} from './infrastructure/drizzle-postgres-connection'
+import type { Router } from './web'
+import { createRouter } from './web'
+import { CommandsCompositionRoot } from './web/composition-root'
 
 export class AuthenticationService {
   private constructor(
