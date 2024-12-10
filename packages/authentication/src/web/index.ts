@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { z } from 'zod'
 
 import { AccountNotFoundError } from '../application/errors/account-not-found'
@@ -9,8 +8,8 @@ import { PasswordResetTokenExpiredError } from '../application/errors/password-r
 import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found'
 import { CustomError } from '../domain/errors/base'
 import { UnauthorizedError } from '../domain/errors/unauthorized'
+import { bearerAuth } from './bearer-auth-middleware'
 import type { CommandsCompositionRoot } from './composition-root'
-import { CookieCreator } from './cookie'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
 
@@ -18,12 +17,7 @@ export type Router = ReturnType<typeof createRouter>
 
 const passwordSchema = z.string().min(8).max(72)
 
-const SESSION_COOKIE_NAME = 'auth_session'
-const IS_SECURE = process.env.NODE_ENV === 'production'
-
 export function createRouter(di: CommandsCompositionRoot) {
-  const cookieCreator = new CookieCreator(SESSION_COOKIE_NAME, IS_SECURE)
-
   const app = new Hono()
     .post(
       '/login',
@@ -44,15 +38,10 @@ export function createRouter(di: CommandsCompositionRoot) {
       },
     )
 
-    .post('/logout', async (c) => {
-      const sessionToken = getCookie(c, SESSION_COOKIE_NAME)
-      if (sessionToken === undefined) {
-        return c.json({ success: true })
-      }
+    .post('/logout', bearerAuth, async (c) => {
+      const sessionToken = c.var.token
 
       await di.logoutCommand().execute(sessionToken)
-
-      deleteCookie(c, SESSION_COOKIE_NAME)
 
       return c.json({ success: true })
     })
@@ -71,31 +60,31 @@ export function createRouter(di: CommandsCompositionRoot) {
           return setError(c, result, 409)
         }
 
-        const cookie = cookieCreator.create(result.newUserSession)
-        setCookie(c, cookie.name, cookie.value, cookie.attributes)
-
-        return c.json({ success: true })
+        return c.json({
+          success: true,
+          token: result.newUserSession.token,
+          expiresAt: result.newUserSession.expiresAt,
+        } as const)
       },
     )
 
     .post(
       '/request-password-reset/:accountId',
       zodValidator('param', z.object({ accountId: z.coerce.number().int() })),
+      bearerAuth,
       async (c) => {
-        const { accountId } = c.req.valid('param')
-        const sessionToken = getCookie(c, SESSION_COOKIE_NAME)
-        if (sessionToken === undefined) {
-          return setError(c, new UnauthorizedError(), 401)
-        }
+        const sessionToken = c.var.token
 
-        const { account: requestor } = await di.getSessionCommand().execute(sessionToken)
-        if (!requestor) {
-          return setError(c, new UnauthorizedError(), 401)
+        const { accountId } = c.req.valid('param')
+
+        const requestorSession = await di.getSessionCommand().execute(sessionToken)
+        if (requestorSession instanceof UnauthorizedError) {
+          return setError(c, requestorSession, 401)
         }
 
         const passwordResetToken = await di
           .requestPasswordResetCommand()
-          .execute(requestor.id, accountId)
+          .execute(requestorSession.account.id, accountId)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {
@@ -125,40 +114,34 @@ export function createRouter(di: CommandsCompositionRoot) {
           return setError(c, result, 404)
         }
 
-        const cookie = cookieCreator.create(result.userSession)
-        setCookie(c, cookie.name, cookie.value, cookie.attributes)
-
-        return c.json({ success: true })
+        return c.json({
+          success: true,
+          token: result.userSession.token,
+          expiresAt: result.userSession.expiresAt,
+        })
       },
     )
 
-    .get('/whoami', async (c) => {
-      const sessionToken = getCookie(c, SESSION_COOKIE_NAME)
-      if (sessionToken === undefined) {
-        return c.json({ account: null, session: null })
-      }
+    .get('/whoami', bearerAuth, async (c) => {
+      const sessionToken = c.var.token
 
       const result = await di.getSessionCommand().execute(sessionToken)
+      if (result instanceof UnauthorizedError) {
+        return setError(c, result, 401)
+      }
 
-      return c.json(result)
+      return c.json({ success: true, ...result } as const)
     })
 
-    .post('/refresh-session', async (c) => {
-      const sessionToken = getCookie(c, SESSION_COOKIE_NAME)
-      if (sessionToken === undefined) {
-        return setError(c, new UnauthorizedError(), 401)
-      }
+    .post('/refresh-session', bearerAuth, async (c) => {
+      const sessionToken = c.var.token
 
       const result = await di.refreshSessionCommand().execute(sessionToken)
       if (result instanceof UnauthorizedError) {
-        deleteCookie(c, SESSION_COOKIE_NAME)
-        return setError(c, new UnauthorizedError(), 401)
+        return setError(c, result, 401)
       }
 
-      const cookie = cookieCreator.create(result)
-      setCookie(c, cookie.name, cookie.value, cookie.attributes)
-
-      return c.json({ success: true })
+      return c.json({ success: true, token: result.token, expiresAt: result.expiresAt })
     })
 
   return app

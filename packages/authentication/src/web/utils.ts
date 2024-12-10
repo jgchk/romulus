@@ -8,12 +8,13 @@ export function setError(
 ) {
   return c.json(
     {
+      success: false,
       error: {
         name: error.name,
         message: error.message,
         ...(error.details !== undefined ? { details: error.details } : {}),
       },
-    },
+    } as const,
     statusCode,
   )
 }

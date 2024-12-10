@@ -3,6 +3,7 @@ import { describe, expect } from 'vitest'
 import { NewAccount } from '../../domain/entities/account'
 import { Session } from '../../domain/entities/session'
 import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username'
+import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository'
 import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator'
 import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
@@ -55,19 +56,6 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
 }
 
 describe('getSession', () => {
-  test('should return undefined account and session when session is not found', async ({
-    dbConnection,
-  }) => {
-    const { validateSession } = setupCommand({ dbConnection })
-
-    const result = await validateSession.execute('non_existent_session_id')
-
-    expect(result).toEqual({
-      userAccount: undefined,
-      userSession: undefined,
-    })
-  })
-
   test('should return account and session when session is valid', async ({ dbConnection }) => {
     const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
 
@@ -92,10 +80,15 @@ describe('getSession', () => {
     })
   })
 
-  test('should return undefined when session is expired', async ({
-    dbConnection,
-    withSystemTime,
-  }) => {
+  test('should error when session is not found', async ({ dbConnection }) => {
+    const { validateSession } = setupCommand({ dbConnection })
+
+    const result = await validateSession.execute('non_existent_session_id')
+
+    expect(result).toEqual(new UnauthorizedError())
+  })
+
+  test('should error when session is expired', async ({ dbConnection, withSystemTime }) => {
     const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
 
     const account = await createAccount({ username: 'testuser', password: 'password123' })
@@ -106,9 +99,6 @@ describe('getSession', () => {
 
     const result = await validateSession.execute(session.token)
 
-    expect(result).toEqual({
-      account: undefined,
-      session: undefined,
-    })
+    expect(result).toEqual(new UnauthorizedError())
   })
 })

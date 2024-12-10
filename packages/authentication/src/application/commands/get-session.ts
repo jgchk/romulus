@@ -1,3 +1,4 @@
+import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import type { AccountRepository } from '../../domain/repositories/account'
 import type { HashRepository } from '../../domain/repositories/hash-repository'
 import type { SessionRepository } from '../../domain/repositories/session'
@@ -10,7 +11,6 @@ export class GetSessionCommand {
   ) {}
 
   async execute(sessionToken: string): Promise<
-    | { account: undefined; session: undefined }
     | {
         account: {
           id: number
@@ -23,12 +23,13 @@ export class GetSessionCommand {
         }
         session: { expiresAt: Date }
       }
+    | UnauthorizedError
   > {
     const tokenHash = await this.sessionTokenHashRepo.hash(sessionToken)
 
     const session = await this.sessionRepo.findByTokenHash(tokenHash)
     if (!session) {
-      return { account: undefined, session: undefined }
+      return new UnauthorizedError()
     }
     const sessionOutput = {
       expiresAt: session.expiresAt,
@@ -36,12 +37,12 @@ export class GetSessionCommand {
 
     if (Date.now() >= session.expiresAt.getTime()) {
       await this.sessionRepo.delete(tokenHash)
-      return { account: undefined, session: undefined }
+      return new UnauthorizedError()
     }
 
     const account = await this.accountRepo.findById(session.accountId)
     if (!account) {
-      return { account: undefined, session: undefined }
+      return new UnauthorizedError()
     }
 
     const accountOutput = {
