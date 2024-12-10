@@ -25,7 +25,7 @@ export class AuthenticationService {
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CommandsCompositionRoot(db, 'auth_session')
+    const di = new CommandsCompositionRoot(db)
 
     await authorization
       .use()

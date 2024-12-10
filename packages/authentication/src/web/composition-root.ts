@@ -17,15 +17,9 @@ import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../infrastructure/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
-import { CookieCreator } from '../presentation/cookie'
-
-const IS_SECURE = process.env.NODE_ENV === 'production'
 
 export class CommandsCompositionRoot {
-  constructor(
-    private _dbConnection: IDrizzleConnection,
-    public readonly sessionCookieName: string,
-  ) {}
+  constructor(private _dbConnection: IDrizzleConnection) {}
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
@@ -118,9 +112,5 @@ export class CommandsCompositionRoot {
 
   private passwordResetTokenHashRepository(): HashRepository {
     return new Sha256HashRepository()
-  }
-
-  cookieCreator(): CookieCreator {
-    return new CookieCreator(this.sessionCookieName, IS_SECURE)
   }
 }

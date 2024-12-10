@@ -9,7 +9,7 @@ import { CommandsCompositionRoot } from './composition-root'
 
 const test = base.extend<{ client: ReturnType<typeof testClient<Router>> }>({
   client: async ({ dbConnection }, use) => {
-    const di = new CommandsCompositionRoot(dbConnection, 'auth_session')
+    const di = new CommandsCompositionRoot(dbConnection)
     const app = createRouter(di)
     const client = testClient(app)
     await use(client)
