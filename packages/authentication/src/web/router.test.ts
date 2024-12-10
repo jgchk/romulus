@@ -5,8 +5,8 @@ import { AuthenticationPermission } from '../domain/permissions'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 import { MemoryAuthorizationService } from '../infrastructure/memory-authorization-service'
 import { test } from '../vitest-setup'
-import { createRouter } from '.'
 import { CommandsCompositionRoot } from './composition-root'
+import { createRouter } from './router'
 
 function setup(dbConnection: IDrizzleConnection) {
   const authorizationService = new MemoryAuthorizationService()

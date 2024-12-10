@@ -8,9 +8,9 @@ import {
   getPostgresConnection,
   migrate,
 } from './infrastructure/drizzle-postgres-connection'
-import type { Router } from './web'
-import { createRouter } from './web'
 import { CommandsCompositionRoot } from './web/composition-root'
+import type { Router } from './web/router'
+import { createRouter } from './web/router'
 
 export class AuthenticationService {
   private constructor(
