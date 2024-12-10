@@ -26,10 +26,12 @@ export class GetAccountCommand {
     | UnauthorizedError
     | AccountNotFoundError
   > {
-    const hasPermission = await this.authorizationService.hasPermission(
-      requestorAccountId,
-      AuthenticationPermission.GetAccount,
-    )
+    const hasPermission =
+      requestorAccountId === accountId ||
+      (await this.authorizationService.hasPermission(
+        requestorAccountId,
+        AuthenticationPermission.GetAccount,
+      ))
     if (!hasPermission) return new UnauthorizedError()
 
     const account = await this.accountRepo.findById(accountId)

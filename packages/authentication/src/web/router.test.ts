@@ -412,12 +412,36 @@ describe('get-account', () => {
     })
   })
 
-  test('should error if the user does not have permission', async ({ dbConnection }) => {
+  test('should allow getting your own account without permission', async ({ dbConnection }) => {
     const { client, registerTestUser } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
 
     const res = await client.account[':id'].$get(
       { param: { id: '1' } },
+      { headers: { authorization: `Bearer ${sessionToken}` } },
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      success: true,
+      account: {
+        darkMode: true,
+        genreRelevanceFilter: 0,
+        id: 1,
+        showNsfw: false,
+        showRelevanceTags: false,
+        showTypeTags: true,
+        username: 'test',
+      },
+    })
+  })
+
+  test('should error if the user does not have permission', async ({ dbConnection }) => {
+    const { client, registerTestUser } = setup(dbConnection)
+    const { sessionToken } = await registerTestUser()
+
+    const res = await client.account[':id'].$get(
+      { param: { id: '2' } },
       { headers: { authorization: `Bearer ${sessionToken}` } },
     )
 
