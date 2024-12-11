@@ -1,11 +1,4 @@
-import { GetAccountCommand } from '../application/commands/get-account'
-import { GetSessionCommand } from '../application/commands/get-session'
-import { LoginCommand } from '../application/commands/login'
-import { LogoutCommand } from '../application/commands/logout'
-import { RefreshSessionCommand } from '../application/commands/refresh-session'
-import { RegisterCommand } from '../application/commands/register'
-import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
-import { ResetPasswordCommand } from '../application/commands/reset-password'
+import { AuthenticationApplication } from '../application'
 import type { IAuthorizationService } from '../domain/authorization-service'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
@@ -34,65 +27,17 @@ export class CommandsCompositionRoot {
     return this._authorizationService
   }
 
-  getAccountCommand(): GetAccountCommand {
-    return new GetAccountCommand(this.accountRepository(), this.authorizationService())
-  }
-
-  getSessionCommand(): GetSessionCommand {
-    return new GetSessionCommand(
+  application(): AuthenticationApplication {
+    return new AuthenticationApplication(
       this.accountRepository(),
       this.sessionRepository(),
       this.sessionTokenHashRepository(),
-    )
-  }
-
-  loginCommand(): LoginCommand {
-    return new LoginCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
       this.passwordHashRepository(),
-      this.sessionTokenHashRepository(),
       this.sessionTokenGenerator(),
-    )
-  }
-
-  logoutCommand(): LogoutCommand {
-    return new LogoutCommand(this.sessionRepository(), this.sessionTokenHashRepository())
-  }
-
-  refreshSessionCommand(): RefreshSessionCommand {
-    return new RefreshSessionCommand(this.sessionRepository(), this.sessionTokenHashRepository())
-  }
-
-  registerCommand(): RegisterCommand {
-    return new RegisterCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.passwordHashRepository(),
-      this.sessionTokenHashRepository(),
-      this.sessionTokenGenerator(),
-    )
-  }
-
-  requestPasswordResetCommand(): RequestPasswordResetCommand {
-    return new RequestPasswordResetCommand(
       this.passwordResetTokenRepository(),
       this.passwordResetTokenGenerator(),
       this.passwordResetTokenHashRepository(),
-      this.accountRepository(),
       this.authorizationService(),
-    )
-  }
-
-  resetPasswordCommand(): ResetPasswordCommand {
-    return new ResetPasswordCommand(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.passwordResetTokenRepository(),
-      this.passwordResetTokenHashRepository(),
-      this.passwordHashRepository(),
-      this.sessionTokenHashRepository(),
-      this.sessionTokenGenerator(),
     )
   }
 

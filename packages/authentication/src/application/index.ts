@@ -1,0 +1,83 @@
+import type { IAuthorizationService } from '../domain/authorization-service'
+import type { AccountRepository } from '../domain/repositories/account'
+import type { HashRepository } from '../domain/repositories/hash-repository'
+import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
+import type { SessionRepository } from '../domain/repositories/session'
+import type { TokenGenerator } from '../domain/repositories/token-generator'
+import { GetAccountCommand } from './commands/get-account'
+import { GetSessionCommand } from './commands/get-session'
+import { LoginCommand } from './commands/login'
+import { LogoutCommand } from './commands/logout'
+import { RefreshSessionCommand } from './commands/refresh-session'
+import { RegisterCommand } from './commands/register'
+import { RequestPasswordResetCommand } from './commands/request-password-reset'
+import { ResetPasswordCommand } from './commands/reset-password'
+
+export class AuthenticationApplication {
+  getAccount: GetAccountCommand['execute']
+  getSession: GetSessionCommand['execute']
+  login: LoginCommand['execute']
+  logout: LogoutCommand['execute']
+  refreshSession: RefreshSessionCommand['execute']
+  register: RegisterCommand['execute']
+  requestPasswordReset: RequestPasswordResetCommand['execute']
+  resetPassword: ResetPasswordCommand['execute']
+
+  constructor(
+    accountRepo: AccountRepository,
+    sessionRepo: SessionRepository,
+    sessionTokenHashRepo: HashRepository,
+    passwordHashRepo: HashRepository,
+    sessionTokenGenerator: TokenGenerator,
+    passwordResetTokenRepo: PasswordResetTokenRepository,
+    passwordResetTokenGenerator: TokenGenerator,
+    passwordResetTokenHashRepo: HashRepository,
+    authorizationService: IAuthorizationService,
+  ) {
+    const getAccountCommand = new GetAccountCommand(accountRepo, authorizationService)
+    const getSessionCommand = new GetSessionCommand(accountRepo, sessionRepo, sessionTokenHashRepo)
+    const loginCommand = new LoginCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
+    const logoutCommand = new LogoutCommand(sessionRepo, sessionTokenHashRepo)
+    const refreshSessionCommand = new RefreshSessionCommand(sessionRepo, sessionTokenHashRepo)
+    const registerCommand = new RegisterCommand(
+      accountRepo,
+      sessionRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
+    const requestPasswordResetCommand = new RequestPasswordResetCommand(
+      passwordResetTokenRepo,
+      passwordResetTokenGenerator,
+      passwordResetTokenHashRepo,
+      accountRepo,
+      authorizationService,
+    )
+    const resetPasswordCommand = new ResetPasswordCommand(
+      accountRepo,
+      sessionRepo,
+      passwordResetTokenRepo,
+      passwordResetTokenHashRepo,
+      passwordHashRepo,
+      sessionTokenHashRepo,
+      sessionTokenGenerator,
+    )
+
+    this.getAccount = getAccountCommand.execute.bind(getAccountCommand)
+    this.getSession = getSessionCommand.execute.bind(getSessionCommand)
+    this.login = loginCommand.execute.bind(loginCommand)
+    this.logout = logoutCommand.execute.bind(logoutCommand)
+    this.refreshSession = refreshSessionCommand.execute.bind(refreshSessionCommand)
+    this.register = registerCommand.execute.bind(registerCommand)
+    this.requestPasswordReset = requestPasswordResetCommand.execute.bind(
+      requestPasswordResetCommand,
+    )
+    this.resetPassword = resetPasswordCommand.execute.bind(resetPasswordCommand)
+  }
+}

@@ -1,3 +1,4 @@
+import type { AuthenticationApplication } from './application'
 import type { IAuthorizationService } from './domain/authorization-service'
 import { AuthenticationPermission } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
@@ -33,6 +34,10 @@ export class AuthenticationService {
     ])
 
     return new AuthenticationService(db, di)
+  }
+
+  use(): AuthenticationApplication {
+    return this.di.application()
   }
 
   getRouter(): Router {

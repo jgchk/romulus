@@ -25,7 +25,7 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const result = await di.loginCommand().execute(body.username, body.password)
+        const result = await di.application().login(body.username, body.password)
         if (result instanceof InvalidLoginError) {
           return setError(c, result, 401)
         }
@@ -41,7 +41,7 @@ export function createRouter(di: CommandsCompositionRoot) {
     .post('/logout', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      await di.logoutCommand().execute(sessionToken)
+      await di.application().logout(sessionToken)
 
       return c.json({ success: true } as const)
     })
@@ -55,7 +55,7 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const result = await di.registerCommand().execute(body.username, body.password)
+        const result = await di.application().register(body.username, body.password)
         if (result instanceof NonUniqueUsernameError) {
           return setError(c, result, 409)
         }
@@ -77,14 +77,14 @@ export function createRouter(di: CommandsCompositionRoot) {
 
         const { accountId } = c.req.valid('param')
 
-        const requestorSession = await di.getSessionCommand().execute(sessionToken)
+        const requestorSession = await di.application().getSession(sessionToken)
         if (requestorSession instanceof UnauthorizedError) {
           return setError(c, requestorSession, 401)
         }
 
         const passwordResetToken = await di
-          .requestPasswordResetCommand()
-          .execute(requestorSession.account.id, accountId)
+          .application()
+          .requestPasswordReset(requestorSession.account.id, accountId)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {
@@ -104,7 +104,7 @@ export function createRouter(di: CommandsCompositionRoot) {
         const body = c.req.valid('json')
         const passwordResetToken = c.req.param('token')
 
-        const result = await di.resetPasswordCommand().execute(passwordResetToken, body.password)
+        const result = await di.application().resetPassword(passwordResetToken, body.password)
         if (
           result instanceof PasswordResetTokenNotFoundError ||
           result instanceof PasswordResetTokenExpiredError
@@ -125,7 +125,7 @@ export function createRouter(di: CommandsCompositionRoot) {
     .get('/whoami', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const result = await di.getSessionCommand().execute(sessionToken)
+      const result = await di.application().getSession(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
@@ -140,14 +140,14 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const sessionToken = c.var.token
 
-        const requestorSession = await di.getSessionCommand().execute(sessionToken)
+        const requestorSession = await di.application().getSession(sessionToken)
         if (requestorSession instanceof UnauthorizedError) {
           return setError(c, requestorSession, 401)
         }
 
         const { id } = c.req.valid('param')
 
-        const result = await di.getAccountCommand().execute(requestorSession.account.id, id)
+        const result = await di.application().getAccount(requestorSession.account.id, id)
         if (result instanceof UnauthorizedError) {
           return setError(c, result, 401)
         } else if (result instanceof AccountNotFoundError) {
@@ -161,7 +161,7 @@ export function createRouter(di: CommandsCompositionRoot) {
     .post('/refresh-session', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const result = await di.refreshSessionCommand().execute(sessionToken)
+      const result = await di.application().refreshSession(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
