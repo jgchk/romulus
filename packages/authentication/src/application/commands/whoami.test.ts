@@ -11,7 +11,7 @@ import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
 import { test } from '../../vitest-setup'
-import { GetSessionCommand } from './get-session'
+import { WhoamiQuery } from './whoami'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)
@@ -19,7 +19,7 @@ function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const sessionTokenHashRepo = new Sha256HashRepository()
   const sessionTokenGenerator = new CryptoTokenGenerator()
 
-  const getSession = new GetSessionCommand(accountRepo, sessionRepo, sessionTokenHashRepo)
+  const getSession = new WhoamiQuery(accountRepo, sessionRepo, sessionTokenHashRepo)
 
   async function createAccount(data: { username: string; password: string }) {
     const passwordHashRepo = new BcryptHashRepository()

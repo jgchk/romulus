@@ -5,17 +5,17 @@ import type { PasswordResetTokenRepository } from '../domain/repositories/passwo
 import type { SessionRepository } from '../domain/repositories/session'
 import type { TokenGenerator } from '../domain/repositories/token-generator'
 import { GetAccountCommand } from './commands/get-account'
-import { GetSessionCommand } from './commands/get-session'
 import { LoginCommand } from './commands/login'
 import { LogoutCommand } from './commands/logout'
 import { RefreshSessionCommand } from './commands/refresh-session'
 import { RegisterCommand } from './commands/register'
 import { RequestPasswordResetCommand } from './commands/request-password-reset'
 import { ResetPasswordCommand } from './commands/reset-password'
+import { WhoamiQuery } from './commands/whoami'
 
 export class AuthenticationApplication {
   getAccount: GetAccountCommand['execute']
-  getSession: GetSessionCommand['execute']
+  whoami: WhoamiQuery['execute']
   login: LoginCommand['execute']
   logout: LogoutCommand['execute']
   refreshSession: RefreshSessionCommand['execute']
@@ -35,7 +35,7 @@ export class AuthenticationApplication {
     authorizationService: IAuthorizationService,
   ) {
     const getAccountCommand = new GetAccountCommand(accountRepo, authorizationService)
-    const getSessionCommand = new GetSessionCommand(accountRepo, sessionRepo, sessionTokenHashRepo)
+    const whoamiQuery = new WhoamiQuery(accountRepo, sessionRepo, sessionTokenHashRepo)
     const loginCommand = new LoginCommand(
       accountRepo,
       sessionRepo,
@@ -70,7 +70,7 @@ export class AuthenticationApplication {
     )
 
     this.getAccount = getAccountCommand.execute.bind(getAccountCommand)
-    this.getSession = getSessionCommand.execute.bind(getSessionCommand)
+    this.whoami = whoamiQuery.execute.bind(whoamiQuery)
     this.login = loginCommand.execute.bind(loginCommand)
     this.logout = logoutCommand.execute.bind(logoutCommand)
     this.refreshSession = refreshSessionCommand.execute.bind(refreshSessionCommand)

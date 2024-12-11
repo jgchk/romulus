@@ -77,7 +77,7 @@ export function createRouter(di: CommandsCompositionRoot) {
 
         const { accountId } = c.req.valid('param')
 
-        const requestorSession = await di.application().getSession(sessionToken)
+        const requestorSession = await di.application().whoami(sessionToken)
         if (requestorSession instanceof UnauthorizedError) {
           return setError(c, requestorSession, 401)
         }
@@ -125,7 +125,7 @@ export function createRouter(di: CommandsCompositionRoot) {
     .get('/whoami', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const result = await di.application().getSession(sessionToken)
+      const result = await di.application().whoami(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
@@ -140,7 +140,7 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const sessionToken = c.var.token
 
-        const requestorSession = await di.application().getSession(sessionToken)
+        const requestorSession = await di.application().whoami(sessionToken)
         if (requestorSession instanceof UnauthorizedError) {
           return setError(c, requestorSession, 401)
         }

@@ -3,7 +3,7 @@ import type { AccountRepository } from '../../domain/repositories/account'
 import type { HashRepository } from '../../domain/repositories/hash-repository'
 import type { SessionRepository } from '../../domain/repositories/session'
 
-export class GetSessionCommand {
+export class WhoamiQuery {
   constructor(
     private accountRepo: AccountRepository,
     private sessionRepo: SessionRepository,
