@@ -1,4 +1,4 @@
-import { boolean,integer, pgTable } from 'drizzle-orm/pg-core'
+import { boolean, integer, pgTable } from 'drizzle-orm/pg-core'
 
 export const userSettingsTable = pgTable('user_settings', {
   id: integer('id').primaryKey().notNull(),
