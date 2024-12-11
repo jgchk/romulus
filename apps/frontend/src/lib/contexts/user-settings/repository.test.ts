@@ -12,24 +12,22 @@ const testSettings = Object.freeze({
 
 describe('RemoteUserSettingsRepository', () => {
   it('saves settings to the remote API', async () => {
-    const accountId = 123
-    const repository = new RemoteUserSettingsRepository(accountId)
+    const repository = new RemoteUserSettingsRepository()
 
     const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true })
     global.fetch = fetchMock
 
     await repository.save(testSettings)
 
-    expect(fetchMock).toHaveBeenCalledWith(`/api/accounts/${accountId}`, {
-      method: 'PATCH',
+    expect(fetchMock).toHaveBeenCalledWith('/api/accounts', {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(testSettings),
     })
   })
 
   it('rejects with an error if the save operation fails', async () => {
-    const accountId = 123
-    const repository = new RemoteUserSettingsRepository(accountId)
+    const repository = new RemoteUserSettingsRepository()
 
     const fetchMock = vi.fn().mockRejectedValueOnce(new Error('Save failed'))
     global.fetch = fetchMock

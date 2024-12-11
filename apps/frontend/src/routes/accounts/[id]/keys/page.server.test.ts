@@ -7,7 +7,6 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { GetApiKeysByAccountQuery } from '$lib/server/features/api/queries/application/get-api-keys-by-account'
 import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
-import { AuthenticationQueryService } from '$lib/server/features/authentication/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
@@ -23,7 +22,6 @@ describe('load', () => {
           dbConnection,
           user: undefined,
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
@@ -44,7 +42,6 @@ describe('load', () => {
           dbConnection,
           user: { id: 2 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
@@ -63,7 +60,6 @@ describe('load', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
@@ -82,7 +78,6 @@ describe('load', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiQueryService: () => new ApiQueryService(dbConnection),
           },
         },
@@ -106,7 +101,6 @@ describe('load', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
@@ -138,7 +132,6 @@ describe('load', () => {
         dbConnection,
         user: { id: account1.id },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
@@ -172,7 +165,6 @@ describe('load', () => {
         dbConnection,
         user: { id: account.id },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiQueryService: () => new ApiQueryService(dbConnection),
         },
       },
@@ -196,7 +188,6 @@ describe('create', () => {
           dbConnection,
           user: undefined,
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiCommandService: () =>
               new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
@@ -223,7 +214,6 @@ describe('create', () => {
           dbConnection,
           user: { id: 2 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiCommandService: () =>
               new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
@@ -248,7 +238,6 @@ describe('create', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiCommandService: () =>
               new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
@@ -273,7 +262,6 @@ describe('create', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
             apiCommandService: () =>
               new ApiCommandService(
                 new DrizzleApiKeyRepository(dbConnection),
@@ -306,7 +294,6 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiCommandService: () =>
             new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
@@ -345,7 +332,6 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiCommandService: () =>
             new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
@@ -386,7 +372,6 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiCommandService: () =>
             new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),
@@ -419,7 +404,6 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          authenticationQueryService: () => new AuthenticationQueryService(dbConnection),
           apiCommandService: () =>
             new ApiCommandService(
               new DrizzleApiKeyRepository(dbConnection),

@@ -13,9 +13,9 @@ import { DEFAULT_USER_SETTINGS, type IUserSettingsStore, type UserSettings } fro
 export default class UserSettingsStore implements IUserSettingsStore {
   store: BaseUserSettingsStore
 
-  constructor(initialUser: ({ id: number } & UserSettings) | undefined) {
+  constructor(initialUser: UserSettings | undefined) {
     if (initialUser) {
-      const repository = new RemoteUserSettingsRepository(initialUser.id)
+      const repository = new RemoteUserSettingsRepository()
       this.store = new BaseUserSettingsStore(initialUser, repository)
     } else if (browser) {
       const repository = new LocalUserSettingsRepository(localStorage)
@@ -27,9 +27,9 @@ export default class UserSettingsStore implements IUserSettingsStore {
     }
   }
 
-  updateUser(user: ({ id: number } & UserSettings) | undefined): void {
+  updateUser(user: UserSettings | undefined): void {
     if (user) {
-      const repository = new RemoteUserSettingsRepository(user.id)
+      const repository = new RemoteUserSettingsRepository()
       this.store.setRepository(repository)
       this.store.set(user)
     } else if (browser) {

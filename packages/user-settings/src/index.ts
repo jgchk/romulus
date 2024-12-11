@@ -10,6 +10,8 @@ import { CompositionRoot } from './web/composition-root'
 import type { Router } from './web/router'
 import { createRouter } from './web/router'
 
+export { UserSettingsClient, UserSettingsClientError } from './web/client'
+
 export class UserSettingsService {
   private constructor(
     private db: IDrizzleConnection,

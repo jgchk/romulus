@@ -5,15 +5,9 @@ export type UserSettingsRepository = {
 }
 
 export class RemoteUserSettingsRepository implements UserSettingsRepository {
-  accountId: number
-
-  constructor(accountId: number) {
-    this.accountId = accountId
-  }
-
   async save(settings: UserSettings): Promise<void> {
-    await fetch(`/api/accounts/${this.accountId}`, {
-      method: 'PATCH',
+    await fetch('/api/accounts', {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings),
     })

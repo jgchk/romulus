@@ -1,9 +1,10 @@
+import { AuthenticationClientError } from '@romulus/authentication'
 import { type Actions, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { InvalidLoginError } from '$lib/server/features/authentication/commands/application/errors/invalid-login'
+import { setSessionCookie } from '$lib/cookie'
 
 import type { PageServerLoad } from './$types'
 
@@ -29,18 +30,14 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.di
-      .authenticationController()
-      .login(form.data.username, form.data.password)
-    if (maybeSessionCookie instanceof InvalidLoginError) {
+    const response = await locals.di
+      .authentication()
+      .login({ username: form.data.username, password: form.data.password })
+    if (response instanceof AuthenticationClientError) {
       return setError(form, 'Incorrect username or password')
     }
-    const sessionCookie = maybeSessionCookie
 
-    cookies.set(sessionCookie.name, sessionCookie.value, {
-      path: '.',
-      ...sessionCookie.attributes,
-    })
+    setSessionCookie({ token: response.token, expires: new Date(response.expiresAt) }, cookies)
 
     redirect(302, '/genres')
   },

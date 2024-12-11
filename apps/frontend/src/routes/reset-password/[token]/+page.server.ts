@@ -1,33 +1,36 @@
+import { AuthenticationClientError } from '@romulus/authentication'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
+import { z } from 'zod'
 
-import { AccountNotFoundError } from '$lib/server/features/authentication/commands/application/errors/account-not-found'
-import { PasswordResetTokenExpiredError } from '$lib/server/features/authentication/commands/application/errors/password-reset-token-expired'
-import { PasswordResetTokenNotFoundError } from '$lib/server/features/authentication/commands/application/errors/password-reset-token-not-found'
-import { passwordSchema } from '$lib/server/features/authentication/commands/presentation/schemas/password'
+import { setSessionCookie } from '$lib/cookie'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-  const maybeToken = await locals.di
-    .authenticationCommandService()
-    .validatePasswordResetToken(params.token)
-  if (
-    maybeToken instanceof PasswordResetTokenNotFoundError ||
-    maybeToken instanceof PasswordResetTokenExpiredError
-  ) {
-    // Don't indicate whether the token is invalid or expired for security
-    return error(400, 'Invalid or expired token')
-  }
+const schema = z
+  .object({
+    password: z.string(),
+    confirmPassword: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      return ctx.addIssue({
+        path: ['confirmPassword'],
+        message: 'Passwords do not match',
+        code: 'custom',
+      })
+    }
+  })
 
-  const form = await superValidate(zod(passwordSchema))
+export const load: PageServerLoad = async () => {
+  const form = await superValidate(zod(schema))
   return { form }
 }
 
 export const actions: Actions = {
   default: async ({ request, params, cookies, locals, setHeaders }) => {
-    const form = await superValidate(request, zod(passwordSchema))
+    const form = await superValidate(request, zod(schema))
 
     if (!form.valid) {
       return fail(400, { form })
@@ -38,30 +41,14 @@ export const actions: Actions = {
       return error(400, 'Password reset token is required')
     }
 
-    const maybeToken = await locals.di
-      .authenticationCommandService()
-      .validatePasswordResetToken(verificationToken)
-    if (
-      maybeToken instanceof PasswordResetTokenNotFoundError ||
-      maybeToken instanceof PasswordResetTokenExpiredError
-    ) {
-      // Don't indicate whether the token is invalid or expired for security
-      return error(400, 'Invalid or expired token')
+    const response = await locals.di
+      .authentication()
+      .resetPassword({ passwordResetToken: verificationToken, newPassword: form.data.password })
+    if (response instanceof AuthenticationClientError) {
+      return error(response.originalError.statusCode, response.message)
     }
-    const token = maybeToken
 
-    const maybeSessionCookie = await locals.di
-      .authenticationController()
-      .resetPassword(token, form.data.password)
-    if (maybeSessionCookie instanceof AccountNotFoundError) {
-      return error(400, 'No account found for token')
-    }
-    const sessionCookie = maybeSessionCookie
-
-    cookies.set(sessionCookie.name, sessionCookie.value, {
-      path: '.',
-      ...sessionCookie.attributes,
-    })
+    setSessionCookie({ token: response.token, expires: new Date(response.expiresAt) }, cookies)
 
     setHeaders({ 'Referrer-Policy': 'strict-origin' })
     redirect(302, '/genres')

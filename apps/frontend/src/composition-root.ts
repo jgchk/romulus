@@ -1,4 +1,5 @@
-import { createAuthenticationClient } from '@romulus/authentication'
+import { AuthenticationClient } from '@romulus/authentication'
+import { UserSettingsClient } from '@romulus/user-settings'
 
 import type { IDrizzleConnection as IAppDrizzleConnection } from '$lib/server/db/connection'
 import type { ApiCommandService } from '$lib/server/features/api/commands/command-service'
@@ -15,6 +16,7 @@ export class CompositionRoot {
   constructor(
     private apiBaseUrl: string,
     private _dbConnection: IAppDrizzleConnection,
+    private sessionToken: string | undefined,
   ) {}
 
   private dbConnection(): IAppDrizzleConnection {
@@ -30,7 +32,11 @@ export class CompositionRoot {
   }
 
   authentication() {
-    return createAuthenticationClient(this.apiBaseUrl)
+    return new AuthenticationClient(this.apiBaseUrl, this.sessionToken)
+  }
+
+  userSettings() {
+    return new UserSettingsClient(this.apiBaseUrl, this.sessionToken)
   }
 
   genreCommandService(): GenreCommandService {

@@ -13,7 +13,7 @@ export const load = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-    di: Pick<App.Locals['di'], 'authenticationQueryService' | 'apiQueryService'>
+    di: Pick<App.Locals['di'], 'apiQueryService'>
   }
 }) => {
   if (!locals.user) {
@@ -30,13 +30,7 @@ export const load = (async ({
     return error(403, 'Unauthorized')
   }
 
-  const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
-  if (!maybeAccount) {
-    return error(404, 'Account not found')
-  }
-  const account = maybeAccount
-
-  const keys = await locals.di.apiQueryService().getApiKeysByAccount(account.id)
+  const keys = await locals.di.apiQueryService().getApiKeysByAccount(id)
 
   return { keys }
 }) satisfies PageServerLoad
@@ -51,7 +45,7 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-      di: Pick<App.Locals['di'], 'authenticationQueryService' | 'apiCommandService'>
+      di: Pick<App.Locals['di'], 'apiCommandService'>
     }
     request: RequestEvent['request']
   }) => {
@@ -69,12 +63,6 @@ export const actions = {
       return error(403, 'Unauthorized')
     }
 
-    const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
-    if (!maybeAccount) {
-      return error(404, 'Account not found')
-    }
-    const account = maybeAccount
-
     const data = await request.formData()
 
     const maybeName = z.string().min(1, 'Name is required').safeParse(data.get('name'))
@@ -86,7 +74,7 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const insertedKey = await locals.di.apiCommandService().createApiKey(name, account.id)
+    const insertedKey = await locals.di.apiCommandService().createApiKey(name, id)
 
     return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
   },

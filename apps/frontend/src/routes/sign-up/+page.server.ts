@@ -1,14 +1,30 @@
+import { AuthenticationClientError } from '@romulus/authentication'
 import { type Actions, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { NonUniqueUsernameError } from '$lib/server/features/authentication/commands/application/errors/non-unique-username'
-import { passwordSchema } from '$lib/server/features/authentication/commands/presentation/schemas/password'
+import { setSessionCookie } from '$lib/cookie'
 
 import type { PageServerLoad } from './$types'
 
-const schema = z.object({ username: z.string().min(3).max(72), password: passwordSchema })
+const schema = z
+  .object({
+    username: z.string(),
+    password: z.object({
+      password: z.string(),
+      confirmPassword: z.string(),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password.password !== data.password.confirmPassword) {
+      return ctx.addIssue({
+        path: ['password', 'confirmPassword'],
+        message: 'Passwords do not match',
+        code: 'custom',
+      })
+    }
+  })
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.user) {
@@ -27,18 +43,17 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const maybeSessionCookie = await locals.di
-      .authenticationController()
-      .register(form.data.username, form.data.password.password)
-    if (maybeSessionCookie instanceof NonUniqueUsernameError) {
+    const registerResult = await locals.di
+      .authentication()
+      .register({ username: form.data.username, password: form.data.password.password })
+    if (registerResult instanceof AuthenticationClientError) {
       return setError(form, 'username', 'Username is already taken')
     }
-    const sessionCookie = maybeSessionCookie
 
-    cookies.set(sessionCookie.name, sessionCookie.value, {
-      path: '.',
-      ...sessionCookie.attributes,
-    })
+    setSessionCookie(
+      { token: registerResult.token, expires: new Date(registerResult.expiresAt) },
+      cookies,
+    )
 
     redirect(302, '/genres')
   },

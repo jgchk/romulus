@@ -126,6 +126,9 @@ importers:
       '@romulus/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@romulus/user-settings':
+        specifier: workspace:*
+        version: link:../../packages/user-settings
       '@sveltejs/adapter-node':
         specifier: ^5.2.9
         version: 5.2.9(@sveltejs/kit@2.8.0(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.13)(vite@5.4.10(@types/node@20.17.6)))(svelte@5.1.13)(vite@5.4.10(@types/node@20.17.6)))

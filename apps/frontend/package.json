@@ -48,8 +48,9 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@playwright/test": "^1.48.2",
-    "@romulus/eslint-config": "workspace:*",
     "@romulus/authentication": "workspace:*",
+    "@romulus/eslint-config": "workspace:*",
+    "@romulus/user-settings": "workspace:*",
     "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.8.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",

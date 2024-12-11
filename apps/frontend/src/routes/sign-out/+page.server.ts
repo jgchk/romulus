@@ -1,19 +1,12 @@
-import { type Actions, fail, redirect } from '@sveltejs/kit'
+import { type Actions, redirect } from '@sveltejs/kit'
+
+import { deleteSessionCookie } from '$lib/cookie'
 
 export const actions: Actions = {
   default: async ({ locals, cookies }) => {
-    if (!locals.sessionToken) {
-      return fail(401)
-    }
+    await locals.di.authentication().logout()
 
-    const blankSessionCookie = await locals.di
-      .authenticationController()
-      .logout(locals.sessionToken)
-
-    cookies.set(blankSessionCookie.name, blankSessionCookie.value, {
-      path: '.',
-      ...blankSessionCookie.attributes,
-    })
+    deleteSessionCookie(cookies)
 
     redirect(302, '/sign-in')
   },

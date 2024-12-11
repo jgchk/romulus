@@ -1,3 +1,4 @@
+import { AuthenticationClientError } from '@romulus/authentication'
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
@@ -22,12 +23,13 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
   const id = maybeId.data
 
-  const maybeAccount = await locals.di.authenticationQueryService().getAccount(id)
-
-  if (!maybeAccount) {
-    return error(404, 'Account not found')
+  const getAccountResponse = await locals.di.authentication().getAccount({ accountId: id })
+  if (getAccountResponse instanceof AuthenticationClientError) {
+    return error(
+      getAccountResponse.originalError.statusCode,
+      getAccountResponse.originalError.message,
+    )
   }
-  const account = maybeAccount
 
   const history = await locals.di.genreQueryService().getGenreHistoryByAccount(id)
 
@@ -50,27 +52,34 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   const page = getIntParam(url, 'page') ?? 1
   const limit = getIntParam(url, 'limit') ?? 30
 
-  return { account, numCreated, numUpdated, numDeleted, history, sort, order, page, limit }
+  return {
+    account: { username: getAccountResponse.account.username },
+    numCreated,
+    numUpdated,
+    numDeleted,
+    history,
+    sort,
+    order,
+    page,
+    limit,
+  }
 }
 
 export const actions: Actions = {
   createPasswordResetLink: async ({ params, locals }) => {
-    // mocha
-    if (locals.user?.id !== 1) {
-      return error(401, 'Unauthorized')
-    }
-
     const maybeId = z.coerce.number().int().safeParse(params.id)
     if (!maybeId.success) {
       return error(400, { message: 'Invalid genre ID' })
     }
     const id = maybeId.data
 
-    const verificationToken = await locals.di
-      .authenticationCommandService()
-      .requestPasswordReset(id)
-    const verificationLink = 'https://www.romulus.lol/reset-password/' + verificationToken
+    const response = await locals.di.authentication().requestPasswordReset({ accountId: id })
+    if (response instanceof AuthenticationClientError) {
+      return error(response.originalError.statusCode, {
+        message: response.message,
+      })
+    }
 
-    return { verificationLink }
+    return { verificationLink: response.passwordResetLink }
   },
 }
