@@ -6,3 +6,4 @@ packages:
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"
   - "packages/media"
+  - "packages/user-settings"
