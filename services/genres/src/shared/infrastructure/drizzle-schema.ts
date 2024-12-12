@@ -10,11 +10,11 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-const GENRE_TYPES = ['TREND', 'SCENE', 'STYLE', 'META', 'MOVEMENT'] as const
+export const GENRE_TYPES = ['TREND', 'SCENE', 'STYLE', 'META', 'MOVEMENT'] as const
 export type GenreType = (typeof GENRE_TYPES)[number]
-const DEFAULT_GENRE_TYPE: GenreType = 'STYLE'
+export const DEFAULT_GENRE_TYPE: GenreType = 'STYLE'
 
-const GENRE_OPERATIONS = ['DELETE', 'UPDATE', 'CREATE'] as const
+export const GENRE_OPERATIONS = ['DELETE', 'UPDATE', 'CREATE'] as const
 export type GenreOperation = (typeof GENRE_OPERATIONS)[number]
 
 export const UNSET_GENRE_RELEVANCE = 99

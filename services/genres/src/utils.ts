@@ -8,3 +8,5 @@ export const median = (arr: number[]) => {
 
   return sorted[middle]
 }
+
+export type MaybePromise<T> = T | Promise<T>

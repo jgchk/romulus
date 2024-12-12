@@ -1,8 +1,5 @@
-import { CreateGenreCommand } from './commands/application/commands/create-genre'
-import { DeleteGenreCommand } from './commands/application/commands/delete-genre'
-import { UpdateGenreCommand } from './commands/application/commands/update-genre'
-import { VoteGenreRelevanceCommand } from './commands/application/commands/vote-genre-relevance'
-import { GenreCommandService } from './commands/command-service'
+import { GenreCommandsApplication } from './commands/application'
+import type { IAuthenticationService } from './commands/domain/authentication-service'
 import type { GenreHistoryRepository } from './commands/domain/genre-history-repository'
 import type { GenreRelevanceVoteRepository } from './commands/domain/genre-relevance-vote-repository'
 import type { GenreRepository } from './commands/domain/genre-repository'
@@ -11,55 +8,34 @@ import { DrizzleGenreHistoryRepository } from './commands/infrastructure/drizzle
 import { DrizzleGenreRelevanceVoteRepository } from './commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from './commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from './commands/infrastructure/drizzle-genre-tree-repository'
-import { GenreQueryService } from './queries/query-service'
+import { GenreQueriesApplication } from './queries/application'
 import type { IDrizzleConnection } from './shared/infrastructure/drizzle-database'
 
-export class GenresCompositionRoot {
-  constructor(private _dbConnection: IDrizzleConnection) {}
+export class CompositionRoot {
+  constructor(
+    private _dbConnection: IDrizzleConnection,
+    private _authenticationService: IAuthenticationService,
+  ) {}
+
+  commands(): GenreCommandsApplication {
+    return new GenreCommandsApplication(
+      this.genreRepository(),
+      this.genreTreeRepository(),
+      this.genreHistoryRepository(),
+      this.genreRelevanceVoteRepository(),
+    )
+  }
+
+  queries(): GenreQueriesApplication {
+    return new GenreQueriesApplication(this.dbConnection())
+  }
+
+  authentication(): IAuthenticationService {
+    return this._authenticationService
+  }
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
-  }
-
-  genreCommandService(): GenreCommandService {
-    return new GenreCommandService(
-      this.createGenreCommand(),
-      this.updateGenreCommand(),
-      this.deleteGenreCommand(),
-      this.voteGenreRelevanceCommand(),
-    )
-  }
-
-  genreQueryService(): GenreQueryService {
-    return new GenreQueryService(this.dbConnection())
-  }
-
-  private createGenreCommand(): CreateGenreCommand {
-    return new CreateGenreCommand(
-      this.genreRepository(),
-      this.genreTreeRepository(),
-      this.genreHistoryRepository(),
-    )
-  }
-
-  private updateGenreCommand(): UpdateGenreCommand {
-    return new UpdateGenreCommand(
-      this.genreRepository(),
-      this.genreTreeRepository(),
-      this.genreHistoryRepository(),
-    )
-  }
-
-  private deleteGenreCommand(): DeleteGenreCommand {
-    return new DeleteGenreCommand(
-      this.genreRepository(),
-      this.genreTreeRepository(),
-      this.genreHistoryRepository(),
-    )
-  }
-
-  private voteGenreRelevanceCommand(): VoteGenreRelevanceCommand {
-    return new VoteGenreRelevanceCommand(this.genreRelevanceVoteRepository())
   }
 
   private genreRepository(): GenreRepository {
