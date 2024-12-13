@@ -1,4 +1,5 @@
 import type { IAuthenticationApplication } from '@romulus/authentication'
+import type { IAuthorizationApplication } from '@romulus/authorization'
 
 import { GenreCommandsApplication } from './commands/application'
 import type { GenreHistoryRepository } from './commands/domain/genre-history-repository'
@@ -16,6 +17,7 @@ export class CompositionRoot {
   constructor(
     private _dbConnection: IDrizzleConnection,
     private _authentication: IAuthenticationApplication,
+    private _authorization: IAuthorizationApplication,
   ) {}
 
   commands(): GenreCommandsApplication {
@@ -24,6 +26,7 @@ export class CompositionRoot {
       this.genreTreeRepository(),
       this.genreHistoryRepository(),
       this.genreRelevanceVoteRepository(),
+      this.authorization(),
     )
   }
 
@@ -33,6 +36,10 @@ export class CompositionRoot {
 
   authentication(): IAuthenticationApplication {
     return this._authentication
+  }
+
+  authorization(): IAuthorizationApplication {
+    return this._authorization
   }
 
   private dbConnection(): IDrizzleConnection {

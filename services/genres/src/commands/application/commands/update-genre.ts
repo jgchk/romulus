@@ -1,3 +1,6 @@
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
+import { UnauthorizedError } from '../../../shared/domain/unauthorized'
 import type { DerivedChildError } from '../../domain/errors/derived-child'
 import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
@@ -9,6 +12,7 @@ import type { GenreHistoryRepository } from '../../domain/genre-history-reposito
 import type { GenreRepository } from '../../domain/genre-repository'
 import { GenreTreeNode } from '../../domain/genre-tree-node'
 import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
+import { GenresPermission } from '../../domain/permissions'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 
 export class UpdateGenreCommand {
@@ -16,6 +20,7 @@ export class UpdateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
+    private authorization: IAuthorizationApplication,
   ) {}
 
   async execute(
@@ -23,7 +28,8 @@ export class UpdateGenreCommand {
     data: GenreUpdate,
     accountId: number,
   ): Promise<
-    | undefined
+    | void
+    | UnauthorizedError
     | GenreNotFoundError
     | SelfInfluenceError
     | DuplicateAkaError
@@ -31,6 +37,12 @@ export class UpdateGenreCommand {
     | DerivedInfluenceError
     | GenreCycleError
   > {
+    const hasPermission = await this.authorization.hasPermission(
+      accountId,
+      GenresPermission.EditGenres,
+    )
+    if (!hasPermission) return new UnauthorizedError()
+
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
       return new GenreNotFoundError()

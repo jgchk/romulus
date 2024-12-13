@@ -3,6 +3,7 @@ import { expect } from 'vitest'
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
+import { MockAuthorizationApplication } from '../../../test/mock-authorization-application'
 import { test } from '../../../vitest-setup'
 import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -23,6 +24,7 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -77,6 +79,7 @@ test('should update the genre', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const updateResult = await updateGenreCommand.execute(
@@ -131,6 +134,7 @@ test('should create a history entry', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const updateResult = await updateGenreCommand.execute(
@@ -180,6 +184,7 @@ test('should return GenreNotFoundError if genre is not found', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const result = await updateGenreCommand.execute(0, GENRE_UPDATE, 1)
@@ -195,6 +200,7 @@ test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -219,6 +225,7 @@ test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -248,6 +255,7 @@ test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -267,6 +275,7 @@ test('should return SelfInfluenceError if genre influences itself', async ({ dbC
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -286,6 +295,7 @@ test('should not create a history entry if no changes are detected', async ({ db
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   const updateResult = await updateGenreCommand.execute(

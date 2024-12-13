@@ -1,3 +1,5 @@
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
 import type { GenreHistoryRepository } from '../domain/genre-history-repository'
 import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository'
 import type { GenreRepository } from '../domain/genre-repository'
@@ -18,11 +20,30 @@ export class GenreCommandsApplication {
     genreTreeRepo: GenreTreeRepository,
     genreHistoryRepo: GenreHistoryRepository,
     genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
+    authorization: IAuthorizationApplication,
   ) {
-    const createGenreCommand = new CreateGenreCommand(genreRepo, genreTreeRepo, genreHistoryRepo)
-    const deleteGenreCommand = new DeleteGenreCommand(genreRepo, genreTreeRepo, genreHistoryRepo)
-    const updateGenreCommand = new UpdateGenreCommand(genreRepo, genreTreeRepo, genreHistoryRepo)
-    const voteGenreRelevanceCommand = new VoteGenreRelevanceCommand(genreRelevanceVoteRepo)
+    const createGenreCommand = new CreateGenreCommand(
+      genreRepo,
+      genreTreeRepo,
+      genreHistoryRepo,
+      authorization,
+    )
+    const deleteGenreCommand = new DeleteGenreCommand(
+      genreRepo,
+      genreTreeRepo,
+      genreHistoryRepo,
+      authorization,
+    )
+    const updateGenreCommand = new UpdateGenreCommand(
+      genreRepo,
+      genreTreeRepo,
+      genreHistoryRepo,
+      authorization,
+    )
+    const voteGenreRelevanceCommand = new VoteGenreRelevanceCommand(
+      genreRelevanceVoteRepo,
+      authorization,
+    )
 
     this.createGenre = createGenreCommand.execute.bind(createGenreCommand)
     this.deleteGenre = deleteGenreCommand.execute.bind(deleteGenreCommand)

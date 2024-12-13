@@ -1,6 +1,8 @@
 import type { IAuthenticationApplication } from '@romulus/authentication'
+import type { IAuthorizationApplication } from '@romulus/authorization'
 import type { Sql } from 'postgres'
 
+import { GenresPermission } from './commands/domain/permissions'
 import { createCommandsRouter } from './commands/web/router'
 import { CompositionRoot } from './composition-root'
 import { createQueriesRouter } from './queries/web/router'
@@ -23,12 +25,20 @@ export class GenresService {
   static async create(
     databaseUrl: string,
     authentication: IAuthenticationApplication,
+    authorization: IAuthorizationApplication,
   ): Promise<GenresService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CompositionRoot(db, authentication)
+    const di = new CompositionRoot(db, authentication, authorization)
+
+    await authorization.ensurePermissions([
+      { name: GenresPermission.CreateGenres, description: undefined },
+      { name: GenresPermission.EditGenres, description: undefined },
+      { name: GenresPermission.DeleteGenres, description: undefined },
+      { name: GenresPermission.VoteGenreRelevance, description: undefined },
+    ])
 
     return new GenresService(pg, di)
   }

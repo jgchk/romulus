@@ -1,18 +1,31 @@
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
+import { UnauthorizedError } from '../../../shared/domain/unauthorized'
 import { UNSET_GENRE_RELEVANCE } from '../../../shared/infrastructure/drizzle-schema'
 import { median } from '../../../utils'
 import type { InvalidGenreRelevanceError } from '../../domain/errors/invalid-genre-relevance'
 import { GenreRelevance } from '../../domain/genre-relevance'
 import { GenreRelevanceVote } from '../../domain/genre-relevance-vote'
 import type { GenreRelevanceVoteRepository } from '../../domain/genre-relevance-vote-repository'
+import { GenresPermission } from '../../domain/permissions'
 
 export class VoteGenreRelevanceCommand {
-  constructor(private genreRelevanceVoteRepo: GenreRelevanceVoteRepository) {}
+  constructor(
+    private genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
+    private authorization: IAuthorizationApplication,
+  ) {}
 
   async execute(
     genreId: number,
     relevance: number,
     accountId: number,
-  ): Promise<void | InvalidGenreRelevanceError> {
+  ): Promise<void | UnauthorizedError | InvalidGenreRelevanceError> {
+    const hasPermission = await this.authorization.hasPermission(
+      accountId,
+      GenresPermission.VoteGenreRelevance,
+    )
+    if (!hasPermission) return new UnauthorizedError()
+
     if (relevance === UNSET_GENRE_RELEVANCE) {
       // TODO: remove UNSET_GENRE_RELEVANCE from everything but the infrastructure layer. move this implicit deletion to an explicit delete command
       await this.genreRelevanceVoteRepo.delete(genreId, accountId)

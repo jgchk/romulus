@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config'
+import { UnauthorizedError } from '../../shared/domain/unauthorized'
 import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../shared/infrastructure/drizzle-schema'
 import { bearerAuth } from '../../shared/web/bearer-auth-middleware'
 import { setError } from '../../shared/web/utils'
@@ -56,6 +57,9 @@ export function createCommandsRouter(
         user.id,
       )
 
+      if (result instanceof UnauthorizedError) {
+        return setError(c, result, 401)
+      }
       if (
         result instanceof SelfInfluenceError ||
         result instanceof DuplicateAkaError ||
@@ -78,6 +82,9 @@ export function createCommandsRouter(
 
         const result = await application.deleteGenre(id, user.id)
 
+        if (result instanceof UnauthorizedError) {
+          return setError(c, result, 401)
+        }
         if (result instanceof GenreNotFoundError) {
           return setError(c, result, 404)
         }
@@ -118,6 +125,9 @@ export function createCommandsRouter(
           user.id,
         )
 
+        if (result instanceof UnauthorizedError) {
+          return setError(c, result, 401)
+        }
         if (
           result instanceof SelfInfluenceError ||
           result instanceof DuplicateAkaError ||
@@ -148,6 +158,9 @@ export function createCommandsRouter(
 
         const result = await application.voteGenreRelevance(id, body.relevanceVote, user.id)
 
+        if (result instanceof UnauthorizedError) {
+          return setError(c, result, 401)
+        }
         if (result instanceof InvalidGenreRelevanceError) {
           return setError(c, result, 400)
         }

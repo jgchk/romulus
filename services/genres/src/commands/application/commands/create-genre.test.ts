@@ -3,6 +3,7 @@ import { expect } from 'vitest'
 import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
+import { MockAuthorizationApplication } from '../../../test/mock-authorization-application'
 import { test } from '../../../vitest-setup'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
@@ -14,6 +15,7 @@ function setup(dbConnection: IDrizzleConnection) {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
+    new MockAuthorizationApplication(),
   )
 
   return createGenreCommand
