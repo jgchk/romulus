@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config'
 import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../shared/infrastructure/drizzle-schema'
+import { setError } from '../../shared/web/utils'
 import { zodValidator } from '../../shared/web/zod-validator'
 import type { GenreQueriesApplication } from '../application'
 
@@ -10,10 +11,23 @@ export type GenreQueriesRouter = ReturnType<typeof createQueriesRouter>
 
 export function createQueriesRouter(application: GenreQueriesApplication) {
   const app = new Hono()
-    .get('/genres', zodValidator('query', getAllGenresQuerySchema), async (c) => {
-      const params = c.req.valid('query')
-      const genres = await application.getAllGenres(params)
-      return c.json({ success: true, ...genres })
+    .get('/genres', async (c) => {
+      const url = new URL(c.req.raw.url)
+      const params = parseQueryParams(url)
+      if (params.success === false) {
+        return setError(
+          c,
+          {
+            name: 'InvalidRequestError',
+            message: 'Invalid request',
+            details: params.error.issues,
+          },
+          400,
+        )
+      }
+
+      const genres = await application.getAllGenres(params.data)
+      return c.json({ success: true, ...genres } as const)
     })
 
     .get(
@@ -22,7 +36,7 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       async (c) => {
         const accountId = c.req.valid('param').accountId
         const history = await application.getGenreHistoryByAccount(accountId)
-        return c.json({ success: true, history })
+        return c.json({ success: true, history } as const)
       },
     )
 
@@ -32,7 +46,7 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       async (c) => {
         const id = c.req.valid('param').id
         const history = await application.getGenreHistory(id)
-        return c.json({ success: true, history })
+        return c.json({ success: true, history } as const)
       },
     )
 
@@ -45,7 +59,7 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       async (c) => {
         const { id, accountId } = c.req.valid('param')
         const vote = await application.getGenreRelevanceVoteByAccount(id, accountId)
-        return c.json({ success: true, vote })
+        return c.json({ success: true, vote } as const)
       },
     )
 
@@ -61,7 +75,7 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
 
     .get('/genre-tree', async (c) => {
       const tree = await application.getGenreTree()
-      return c.json({ success: true, tree })
+      return c.json({ success: true, tree } as const)
     })
 
     .get(
@@ -70,18 +84,18 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       async (c) => {
         const id = c.req.valid('param').id
         const genre = await application.getGenre(id)
-        return c.json({ success: true, genre })
+        return c.json({ success: true, genre } as const)
       },
     )
 
     .get('/latest-genre-updates', async (c) => {
       const latestUpdates = await application.getLatestGenreUpdates()
-      return c.json({ success: true, latestUpdates })
+      return c.json({ success: true, latestUpdates } as const)
     })
 
     .get('/random-genre', async (c) => {
       const genre = await application.getRandomGenreId()
-      return c.json({ success: true, genre })
+      return c.json({ success: true, genre } as const)
     })
 
   return app
@@ -142,3 +156,33 @@ const getAllGenresQuerySchema = z.object({
     })
     .optional(),
 })
+
+function parseQueryParams(url: URL) {
+  const parents = url.searchParams.getAll('parent')
+  const ancestors = url.searchParams.getAll('ancestor')
+
+  return getAllGenresQuerySchema.safeParse({
+    skip: url.searchParams.get('skip') ?? undefined,
+    limit: url.searchParams.get('limit') ?? undefined,
+    include: url.searchParams.getAll('include'),
+    filter: {
+      name: url.searchParams.get('name') ?? undefined,
+      subtitle: url.searchParams.get('subtitle') ?? undefined,
+      type: url.searchParams.get('type') ?? undefined,
+      relevance: url.searchParams.get('relevance') ?? undefined,
+      nsfw: url.searchParams.get('nsfw') ?? undefined,
+      shortDescription: url.searchParams.get('shortDescription') ?? undefined,
+      longDescription: url.searchParams.get('longDescription') ?? undefined,
+      notes: url.searchParams.get('notes') ?? undefined,
+      createdAt: url.searchParams.get('createdAt') ?? undefined,
+      updatedAt: url.searchParams.get('updatedAt') ?? undefined,
+      createdBy: url.searchParams.get('createdBy') ?? undefined,
+      parents: parents.length === 0 ? undefined : parents,
+      ancestors: ancestors.length === 0 ? undefined : ancestors,
+    },
+    sort: {
+      field: url.searchParams.get('sort') ?? undefined,
+      order: url.searchParams.get('order') ?? undefined,
+    },
+  })
+}
