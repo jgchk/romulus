@@ -37,7 +37,13 @@ function setup(dbConnection: IDrizzleConnection) {
     return { sessionToken, account }
   }
 
-  return { client, authorizationService, registerTestUser }
+  function assignPermissionToUser(userId: number, permission: AuthenticationPermission) {
+    authorizationService.createPermission(permission, undefined)
+    authorizationService.createRole('test-role', new Set([permission]), undefined)
+    authorizationService.assignRoleToUser(userId, 'test-role')
+  }
+
+  return { client, registerTestUser, assignPermissionToUser }
 }
 
 describe('login', () => {
@@ -256,12 +262,10 @@ describe('request-password-reset', () => {
   })
 
   test('should return a password reset link', async ({ dbConnection }) => {
-    const { client, authorizationService, registerTestUser } = setup(dbConnection)
+    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+
     const { sessionToken, account } = await registerTestUser()
-    authorizationService.setUserPermissions(
-      account.id,
-      new Set([AuthenticationPermission.RequestPasswordReset]),
-    )
+    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -278,12 +282,10 @@ describe('request-password-reset', () => {
   })
 
   test('should error if the requested user does not exist', async ({ dbConnection }) => {
-    const { client, authorizationService, registerTestUser } = setup(dbConnection)
+    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+
     const { sessionToken, account } = await registerTestUser()
-    authorizationService.setUserPermissions(
-      account.id,
-      new Set([AuthenticationPermission.RequestPasswordReset]),
-    )
+    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '2' } },
@@ -388,9 +390,10 @@ describe('whoami', () => {
 
 describe('get-account', () => {
   test('should return the requested account', async ({ dbConnection }) => {
-    const { client, registerTestUser, authorizationService } = setup(dbConnection)
-    const { sessionToken } = await registerTestUser()
-    authorizationService.setUserPermissions(1, new Set([AuthenticationPermission.GetAccount]))
+    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+
+    const { sessionToken, account } = await registerTestUser()
+    assignPermissionToUser(account.id, AuthenticationPermission.GetAccount)
 
     const res = await client.account[':id'].$get(
       { param: { id: '1' } },
@@ -492,9 +495,10 @@ describe('get-account', () => {
   })
 
   test('should error if the requested account does not exist', async ({ dbConnection }) => {
-    const { client, registerTestUser, authorizationService } = setup(dbConnection)
-    const { sessionToken } = await registerTestUser()
-    authorizationService.setUserPermissions(1, new Set([AuthenticationPermission.GetAccount]))
+    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+
+    const { sessionToken, account } = await registerTestUser()
+    assignPermissionToUser(account.id, AuthenticationPermission.GetAccount)
 
     const res = await client.account[':id'].$get(
       { param: { id: '2' } },

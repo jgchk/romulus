@@ -1,5 +1,7 @@
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
+import type { IAuthenticationApplication } from '../application'
 import { AuthenticationApplication } from '../application'
-import type { IAuthorizationService } from '../domain/authorization-service'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -16,18 +18,18 @@ import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
 export class CommandsCompositionRoot {
   constructor(
     private _dbConnection: IDrizzleConnection,
-    private _authorizationService: IAuthorizationService,
+    private _authorization: IAuthorizationApplication,
   ) {}
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
   }
 
-  private authorizationService(): IAuthorizationService {
-    return this._authorizationService
+  private authorization(): IAuthorizationApplication {
+    return this._authorization
   }
 
-  application(): AuthenticationApplication {
+  application(): IAuthenticationApplication {
     return new AuthenticationApplication(
       this.accountRepository(),
       this.sessionRepository(),
@@ -37,7 +39,7 @@ export class CommandsCompositionRoot {
       this.passwordResetTokenRepository(),
       this.passwordResetTokenGenerator(),
       this.passwordResetTokenHashRepository(),
-      this.authorizationService(),
+      this.authorization(),
     )
   }
 

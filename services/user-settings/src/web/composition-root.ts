@@ -1,5 +1,6 @@
+import type { IAuthenticationApplication } from '@romulus/authentication'
+
 import { UserSettingsApplication } from '../application'
-import type { IAuthenticationService } from '../domain/authentication-service'
 import type { IUserSettingsRepository } from '../domain/repository'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 import { DrizzleUserSettingsRepository } from '../infrastructure/drizzle-repository'
@@ -7,11 +8,11 @@ import { DrizzleUserSettingsRepository } from '../infrastructure/drizzle-reposit
 export class CompositionRoot {
   constructor(
     private _dbConnection: IDrizzleConnection,
-    private _authenticationService: IAuthenticationService,
+    private _authentication: IAuthenticationApplication,
   ) {}
 
-  authentication(): IAuthenticationService {
-    return this._authenticationService
+  authentication(): IAuthenticationApplication {
+    return this._authentication
   }
 
   application(): UserSettingsApplication {

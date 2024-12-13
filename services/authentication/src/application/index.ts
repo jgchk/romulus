@@ -1,4 +1,5 @@
-import type { IAuthorizationService } from '../domain/authorization-service'
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -13,7 +14,18 @@ import { RequestPasswordResetCommand } from './commands/request-password-reset'
 import { ResetPasswordCommand } from './commands/reset-password'
 import { WhoamiQuery } from './commands/whoami'
 
-export class AuthenticationApplication {
+export type IAuthenticationApplication = {
+  getAccount: GetAccountCommand['execute']
+  whoami: WhoamiQuery['execute']
+  login: LoginCommand['execute']
+  logout: LogoutCommand['execute']
+  refreshSession: RefreshSessionCommand['execute']
+  register: RegisterCommand['execute']
+  requestPasswordReset: RequestPasswordResetCommand['execute']
+  resetPassword: ResetPasswordCommand['execute']
+}
+
+export class AuthenticationApplication implements IAuthenticationApplication {
   getAccount: GetAccountCommand['execute']
   whoami: WhoamiQuery['execute']
   login: LoginCommand['execute']
@@ -32,9 +44,9 @@ export class AuthenticationApplication {
     passwordResetTokenRepo: PasswordResetTokenRepository,
     passwordResetTokenGenerator: TokenGenerator,
     passwordResetTokenHashRepo: HashRepository,
-    authorizationService: IAuthorizationService,
+    authorization: IAuthorizationApplication,
   ) {
-    const getAccountCommand = new GetAccountCommand(accountRepo, authorizationService)
+    const getAccountCommand = new GetAccountCommand(accountRepo, authorization)
     const whoamiQuery = new WhoamiQuery(accountRepo, sessionRepo, sessionTokenHashRepo)
     const loginCommand = new LoginCommand(
       accountRepo,
@@ -57,7 +69,7 @@ export class AuthenticationApplication {
       passwordResetTokenGenerator,
       passwordResetTokenHashRepo,
       accountRepo,
-      authorizationService,
+      authorization,
     )
     const resetPasswordCommand = new ResetPasswordCommand(
       accountRepo,

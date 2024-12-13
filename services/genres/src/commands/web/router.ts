@@ -1,3 +1,4 @@
+import type { IAuthenticationApplication } from '@romulus/authentication'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -8,7 +9,6 @@ import { setError } from '../../shared/web/utils'
 import { zodValidator } from '../../shared/web/zod-validator'
 import type { GenreCommandsApplication } from '../application'
 import { GenreNotFoundError } from '../application/errors/genre-not-found'
-import type { IAuthenticationService } from '../domain/authentication-service'
 import { DerivedChildError } from '../domain/errors/derived-child'
 import { DerivedInfluenceError } from '../domain/errors/derived-influence'
 import { DuplicateAkaError } from '../domain/errors/duplicate-aka'
@@ -20,9 +20,9 @@ export type GenreCommandsRouter = ReturnType<typeof createCommandsRouter>
 
 export function createCommandsRouter(
   application: GenreCommandsApplication,
-  authenticationService: IAuthenticationService,
+  authentication: IAuthenticationApplication,
 ) {
-  const requireUser = bearerAuth(authenticationService)
+  const requireUser = bearerAuth(authentication)
 
   const app = new Hono()
     .post('/genres', zodValidator('json', genreSchema), requireUser, async (c) => {

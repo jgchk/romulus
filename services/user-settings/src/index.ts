@@ -1,5 +1,6 @@
+import type { IAuthenticationApplication } from '@romulus/authentication'
+
 import type { UserSettingsApplication } from './application'
-import type { IAuthenticationService } from './domain/authentication-service'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
@@ -20,7 +21,7 @@ export class UserSettingsService {
 
   static async create(
     databaseUrl: string,
-    authentication: IAuthenticationService,
+    authentication: IAuthenticationApplication,
   ): Promise<UserSettingsService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)

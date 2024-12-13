@@ -7,6 +7,8 @@ import {
 } from './infrastructure/drizzle-postgres-connection'
 import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
 
+export type { IAuthorizationApplication } from './application'
+
 export class AuthorizationService {
   private constructor(
     private db: IDrizzleConnection,

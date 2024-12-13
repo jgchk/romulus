@@ -1,5 +1,6 @@
+import type { IAuthenticationApplication } from '@romulus/authentication'
+
 import { GenreCommandsApplication } from './commands/application'
-import type { IAuthenticationService } from './commands/domain/authentication-service'
 import type { GenreHistoryRepository } from './commands/domain/genre-history-repository'
 import type { GenreRelevanceVoteRepository } from './commands/domain/genre-relevance-vote-repository'
 import type { GenreRepository } from './commands/domain/genre-repository'
@@ -14,7 +15,7 @@ import type { IDrizzleConnection } from './shared/infrastructure/drizzle-databas
 export class CompositionRoot {
   constructor(
     private _dbConnection: IDrizzleConnection,
-    private _authenticationService: IAuthenticationService,
+    private _authentication: IAuthenticationApplication,
   ) {}
 
   commands(): GenreCommandsApplication {
@@ -30,8 +31,8 @@ export class CompositionRoot {
     return new GenreQueriesApplication(this.dbConnection())
   }
 
-  authentication(): IAuthenticationService {
-    return this._authenticationService
+  authentication(): IAuthenticationApplication {
+    return this._authentication
   }
 
   private dbConnection(): IDrizzleConnection {

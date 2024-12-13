@@ -1,5 +1,6 @@
-import type { AuthenticationApplication } from './application'
-import type { IAuthorizationService } from './domain/authorization-service'
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
+import type { IAuthenticationApplication } from './application'
 import { AuthenticationPermission } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
@@ -11,6 +12,7 @@ import { CommandsCompositionRoot } from './web/composition-root'
 import type { Router } from './web/router'
 import { createRouter } from './web/router'
 
+export type { IAuthenticationApplication } from './application'
 export { AuthenticationClient, AuthenticationClientError } from './web/client'
 
 export class AuthenticationService {
@@ -21,7 +23,7 @@ export class AuthenticationService {
 
   static async create(
     databaseUrl: string,
-    authorization: IAuthorizationService,
+    authorization: IAuthorizationApplication,
   ): Promise<AuthenticationService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
@@ -36,7 +38,7 @@ export class AuthenticationService {
     return new AuthenticationService(db, di)
   }
 
-  use(): AuthenticationApplication {
+  use(): IAuthenticationApplication {
     return this.di.application()
   }
 

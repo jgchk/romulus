@@ -123,8 +123,8 @@ export class Authorizer {
 
   hasPermission(userId: number, permission: string): boolean {
     const userRoles = this.userRoles.get(userId) ?? new Set()
-    for (const roleId of userRoles) {
-      const role = this.roles.get(roleId)
+    for (const roleName of userRoles) {
+      const role = this.roles.get(roleName)
       if (role?.permissions.has(permission)) {
         return true
       }

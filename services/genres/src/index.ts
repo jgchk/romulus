@@ -1,6 +1,6 @@
+import type { IAuthenticationApplication } from '@romulus/authentication'
 import type { Sql } from 'postgres'
 
-import type { IAuthenticationService } from './commands/domain/authentication-service'
 import { createCommandsRouter } from './commands/web/router'
 import { CompositionRoot } from './composition-root'
 import { createQueriesRouter } from './queries/web/router'
@@ -20,13 +20,13 @@ export class GenresService {
 
   static async create(
     databaseUrl: string,
-    authenticationService: IAuthenticationService,
+    authentication: IAuthenticationApplication,
   ): Promise<GenresService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CompositionRoot(db, authenticationService)
+    const di = new CompositionRoot(db, authentication)
 
     return new GenresService(pg, di)
   }

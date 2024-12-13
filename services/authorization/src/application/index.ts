@@ -4,8 +4,28 @@ import {
   RoleNotFoundError,
 } from '../domain/authorizer'
 import type { IAuthorizerRepository } from '../domain/repository'
+import type { MaybePromise } from '../utils'
 
-export class AuthorizationApplication {
+export type IAuthorizationApplication = {
+  createPermission(
+    name: string,
+    description: string | undefined,
+  ): MaybePromise<void | DuplicatePermissionError>
+  ensurePermissions(
+    permissions: { name: string; description: string | undefined }[],
+  ): MaybePromise<void>
+  deletePermission(name: string): MaybePromise<void>
+  createRole(
+    name: string,
+    permissions: Set<string>,
+    description: string | undefined,
+  ): MaybePromise<void | PermissionNotFoundError>
+  deleteRole(name: string): MaybePromise<void>
+  assignRoleToUser(userId: number, roleName: string): MaybePromise<void | RoleNotFoundError>
+  hasPermission(userId: number, permission: string): MaybePromise<boolean>
+}
+
+export class AuthorizationApplication implements IAuthorizationApplication {
   constructor(private repo: IAuthorizerRepository) {}
 
   async createPermission(

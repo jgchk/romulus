@@ -1,4 +1,5 @@
-import type { IAuthorizationService } from '../../domain/authorization-service'
+import type { IAuthorizationApplication } from '@romulus/authorization'
+
 import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import { AuthenticationPermission } from '../../domain/permissions'
 import type { AccountRepository } from '../../domain/repositories/account'
@@ -7,7 +8,7 @@ import { AccountNotFoundError } from '../errors/account-not-found'
 export class GetAccountCommand {
   constructor(
     private accountRepo: AccountRepository,
-    private authorizationService: IAuthorizationService,
+    private authorization: IAuthorizationApplication,
   ) {}
 
   async execute(
@@ -28,7 +29,7 @@ export class GetAccountCommand {
   > {
     const hasPermission =
       requestorAccountId === accountId ||
-      (await this.authorizationService.hasPermission(
+      (await this.authorization.hasPermission(
         requestorAccountId,
         AuthenticationPermission.GetAccount,
       ))

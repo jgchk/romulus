@@ -58,12 +58,18 @@ function setup(dbConnection: IDrizzleConnection) {
     return passwordResetTokenRepo.findByTokenHash(tokenHash)
   }
 
+  function assignPermissionToUser(userId: number, permission: AuthenticationPermission) {
+    authorizationService.createPermission(permission, undefined)
+    authorizationService.createRole('test-role', new Set([permission]), undefined)
+    authorizationService.assignRoleToUser(userId, 'test-role')
+  }
+
   return {
     requestPasswordReset,
     createAccount,
     createPasswordResetToken,
     getPasswordResetToken,
-    authorizationService,
+    assignPermissionToUser,
   }
 }
 
@@ -74,14 +80,11 @@ describe('RequestPasswordResetCommand', () => {
       createAccount,
       createPasswordResetToken,
       getPasswordResetToken,
-      authorizationService,
+      assignPermissionToUser,
     } = setup(dbConnection)
-    const account = await createAccount({ username: 'test', password: 'password' })
 
-    authorizationService.setUserPermissions(
-      1,
-      new Set([AuthenticationPermission.RequestPasswordReset]),
-    )
+    const account = await createAccount({ username: 'test', password: 'password' })
+    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
 
     // Create an existing token
     const existingToken = await createPasswordResetToken(account.id)
@@ -101,13 +104,10 @@ describe('RequestPasswordResetCommand', () => {
   })
 
   test('should create a token that expires in 2 hours', async ({ dbConnection }) => {
-    const { requestPasswordReset, createAccount, authorizationService } = setup(dbConnection)
-    const account = await createAccount({ username: 'test', password: 'password' })
+    const { requestPasswordReset, createAccount, assignPermissionToUser } = setup(dbConnection)
 
-    authorizationService.setUserPermissions(
-      1,
-      new Set([AuthenticationPermission.RequestPasswordReset]),
-    )
+    const account = await createAccount({ username: 'test', password: 'password' })
+    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
 
     const token = await requestPasswordReset.execute(1, account.id)
     if (token instanceof Error) {
@@ -127,13 +127,10 @@ describe('RequestPasswordResetCommand', () => {
   })
 
   test('should generate a token of correct length', async ({ dbConnection }) => {
-    const { requestPasswordReset, createAccount, authorizationService } = setup(dbConnection)
-    const account = await createAccount({ username: 'test', password: 'password' })
+    const { requestPasswordReset, createAccount, assignPermissionToUser } = setup(dbConnection)
 
-    authorizationService.setUserPermissions(
-      1,
-      new Set([AuthenticationPermission.RequestPasswordReset]),
-    )
+    const account = await createAccount({ username: 'test', password: 'password' })
+    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
 
     const token = await requestPasswordReset.execute(1, account.id)
     if (token instanceof Error) {
