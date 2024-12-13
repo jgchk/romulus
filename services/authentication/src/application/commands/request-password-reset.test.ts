@@ -10,7 +10,7 @@ import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generato
 import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
 import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository'
-import { MemoryAuthorizationService } from '../../infrastructure/memory-authorization-service'
+import { MemoryAuthorizationApplication } from '../../infrastructure/memory-authorization-service'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
 import { test } from '../../vitest-setup'
 import { RequestPasswordResetCommand } from './request-password-reset'
@@ -20,7 +20,7 @@ function setup(dbConnection: IDrizzleConnection) {
   const passwordResetTokenGeneratorRepo = new CryptoTokenGenerator()
   const passwordResetTokenHashRepo = new Sha256HashRepository()
   const accountRepo = new DrizzleAccountRepository(dbConnection)
-  const authorizationService = new MemoryAuthorizationService()
+  const authorizationService = new MemoryAuthorizationApplication()
 
   const requestPasswordReset = new RequestPasswordResetCommand(
     passwordResetTokenRepo,

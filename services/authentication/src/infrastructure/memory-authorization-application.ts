@@ -1,6 +1,6 @@
 import type { IAuthorizationApplication } from '@romulus/authorization'
 
-export class MemoryAuthorizationService implements IAuthorizationApplication {
+export class MemoryAuthorizationApplication implements IAuthorizationApplication {
   private permissions: Map<string, { name: string; description: string | undefined }>
   private roles: Map<
     string,
