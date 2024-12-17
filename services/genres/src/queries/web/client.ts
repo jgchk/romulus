@@ -59,7 +59,13 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      history: responseBody.history.map((history) => ({
+        ...history,
+        createdAt: new Date(history.createdAt),
+      })),
+    }
   }
 
   async getGenreHistory(genreId: number) {
@@ -72,7 +78,13 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      history: responseBody.history.map((history) => ({
+        ...history,
+        createdAt: new Date(history.createdAt),
+      })),
+    }
   }
 
   async getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
@@ -122,7 +134,14 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      genre: {
+        ...responseBody.genre,
+        createdAt: new Date(responseBody.genre.createdAt),
+        updatedAt: new Date(responseBody.genre.updatedAt),
+      },
+    }
   }
 
   async getLatestGenreUpdates() {

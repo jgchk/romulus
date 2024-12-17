@@ -6,7 +6,6 @@ import { ApiCommandService } from '$lib/server/features/api/commands/command-ser
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
-import { GenreQueryService } from '$lib/server/features/genres/queries/query-service'
 
 import { test } from '../../../vitest-setup'
 import { GET } from './+server'
@@ -25,7 +24,16 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          genreQueryService: () => new GenreQueryService(dbConnection),
+          genres: () => ({
+            queries: () => ({
+              getAllGenres: () =>
+                Promise.resolve({
+                  success: true,
+                  data: [],
+                  pagination: { skip: 0, limit: 0, total: 0 },
+                }),
+            }),
+          }),
         },
       },
       request: new Request('http://localhost/api/genres'),
@@ -50,7 +58,16 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          genreQueryService: () => new GenreQueryService(dbConnection),
+          genres: () => ({
+            queries: () => ({
+              getAllGenres: () =>
+                Promise.resolve({
+                  success: true,
+                  data: [],
+                  pagination: { skip: 0, limit: 0, total: 0 },
+                }),
+            }),
+          }),
         },
       },
       request: new Request('http://localhost/api/genres', {
@@ -77,7 +94,16 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          genreQueryService: () => new GenreQueryService(dbConnection),
+          genres: () => ({
+            queries: () => ({
+              getAllGenres: () =>
+                Promise.resolve({
+                  success: true,
+                  data: [],
+                  pagination: { skip: 0, limit: 0, total: 0 },
+                }),
+            }),
+          }),
         },
       },
       request: new Request('http://localhost/api/genres', {
@@ -119,7 +145,16 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
               new CryptoTokenGenerator(),
               new Sha256HashRepository(),
             ),
-          genreQueryService: () => new GenreQueryService(dbConnection),
+          genres: () => ({
+            queries: () => ({
+              getAllGenres: () =>
+                Promise.resolve({
+                  success: true,
+                  data: [],
+                  pagination: { skip: 0, limit: 0, total: 0 },
+                }),
+            }),
+          }),
         },
       },
       request: new Request('http://localhost/api/genres', {

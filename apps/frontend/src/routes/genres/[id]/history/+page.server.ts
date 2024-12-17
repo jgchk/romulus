@@ -10,7 +10,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genreHistory = await locals.di.genreQueryService().getGenreHistory(id)
+  const response = await locals.di.genres().queries().getGenreHistory(id)
+  if (response instanceof Error) {
+    return error(response.originalError.statusCode, response.message)
+  }
 
-  return { genreHistory }
+  return { genreHistory: response.history }
 }

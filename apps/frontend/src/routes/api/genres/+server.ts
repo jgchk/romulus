@@ -1,3 +1,4 @@
+import type { GenreQueriesClient } from '@romulus/genres'
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 
 import { checkApiAuth } from '$lib/server/auth'
@@ -13,7 +14,13 @@ export const GET = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: App.Locals['user']
-    di: Pick<App.Locals['di'], 'apiCommandService' | 'genreQueryService'>
+    di: Pick<App.Locals['di'], 'apiCommandService'> & {
+      genres: () => {
+        queries: () => {
+          getAllGenres: GenreQueriesClient['getAllGenres']
+        }
+      }
+    }
   }
   request: Request
 }) => {
@@ -28,7 +35,10 @@ export const GET = (async ({
   }
   const data = maybeData.data
 
-  const result = await locals.di.genreQueryService().getAllGenres(data)
+  const result = await locals.di.genres().queries().getAllGenres(data)
+  if (result instanceof Error) {
+    return error(result.originalError.statusCode, result.message)
+  }
 
-  return json(result)
+  return json({ data: result.data, pagination: result.pagination })
 }) satisfies RequestHandler

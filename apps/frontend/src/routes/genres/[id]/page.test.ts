@@ -20,7 +20,14 @@ const mockUser = {
   showRelevanceTags: false,
   showTypeTags: false,
   showNsfw: false,
-  permissions: [],
+  permissions: {
+    genres: {
+      canCreate: true,
+      canEdit: true,
+      canDelete: true,
+      canVoteRelevance: true,
+    },
+  },
   createdAt: new Date(),
   updatedAt: new Date(),
 }

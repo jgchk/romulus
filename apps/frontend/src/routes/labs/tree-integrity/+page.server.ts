@@ -1,7 +1,13 @@
+import { error } from '@sveltejs/kit'
+
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const genres = await locals.di.genreQueryService().getGenreTree()
+  const response = await locals.di.genres().queries().getGenreTree()
 
-  return { genres }
+  if (response instanceof Error) {
+    return error(response.originalError.statusCode, response.message)
+  }
+
+  return { genres: response.tree }
 }

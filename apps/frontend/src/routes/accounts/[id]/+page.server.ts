@@ -31,7 +31,11 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
     )
   }
 
-  const history = await locals.di.genreQueryService().getGenreHistoryByAccount(id)
+  const response = await locals.di.genres().queries().getGenreHistoryByAccount(id)
+  if (response instanceof Error) {
+    return error(response.originalError.statusCode, response.message)
+  }
+  const history = response.history
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
