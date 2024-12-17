@@ -82,7 +82,7 @@
     {/await}
   </div>
 
-  {#if $user?.permissions?.includes('EDIT_GENRES')}
+  {#if $user?.permissions.genres.canCreate}
     <div class="border-t border-gray-200 p-1 transition dark:border-gray-800">
       <LinkButton class="w-full" kind="outline" href="/genres/create">New Genre</LinkButton>
     </div>

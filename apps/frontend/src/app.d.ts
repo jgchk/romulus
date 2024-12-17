@@ -11,6 +11,13 @@ declare global {
         | ({
             id: number
             username: string
+            permissions: {
+              genres: {
+                canCreate: boolean
+                canEdit: boolean
+                canDelete: boolean
+              }
+            }
           } & import('$lib/contexts/user-settings/types').UserSettings)
         | undefined
     }

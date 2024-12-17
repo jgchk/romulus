@@ -3,8 +3,6 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
-import { GenreNotFoundError } from '$lib/server/features/genres/commands/application/errors/genre-not-found'
-import { InvalidGenreRelevanceError } from '$lib/server/features/genres/commands/domain/errors/invalid-genre-relevance'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 
@@ -18,22 +16,37 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await locals.di.genreQueryService().getGenre(id)
-  if (!maybeGenre) {
-    return error(404, 'Genre not found')
+  const genreResponse = await locals.di.genres().queries().getGenre(id)
+  if (genreResponse instanceof Error) {
+    return error(genreResponse.originalError.statusCode, genreResponse.originalError.message)
   }
+  const maybeGenre = genreResponse.genre
 
-  const relevanceVotes = await locals.di
-    .genreQueryService()
+  const relevanceVotesResponse = await locals.di
+    .genres()
+    .queries()
     .getGenreRelevanceVotesByGenre(id)
-    .then((votes) => countBy(votes, (vote) => vote.relevance))
+  if (relevanceVotesResponse instanceof Error) {
+    return error(
+      relevanceVotesResponse.originalError.statusCode,
+      relevanceVotesResponse.originalError.message,
+    )
+  }
+  const relevanceVotes = countBy(relevanceVotesResponse.votes, (vote) => vote.relevance)
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
-    relevanceVote = await locals.di
-      .genreQueryService()
+    const relevanceVoteResponse = await locals.di
+      .genres()
+      .queries()
       .getGenreRelevanceVoteByAccount(id, locals.user.id)
-      .then((vote) => vote?.relevance ?? UNSET_GENRE_RELEVANCE)
+    if (relevanceVoteResponse instanceof Error) {
+      return error(
+        relevanceVoteResponse.originalError.statusCode,
+        relevanceVoteResponse.originalError.message,
+      )
+    }
+    relevanceVote = relevanceVoteResponse.vote?.relevance ?? UNSET_GENRE_RELEVANCE
   }
 
   const { akas, parents, children, influencedBy, influences, ...rest } = maybeGenre
@@ -53,10 +66,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 export const actions: Actions = {
   relevance: async ({ locals, params, request }) => {
-    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
-      return error(401, 'Unauthorized')
-    }
-
     const maybeId = z.coerce.number().int().safeParse(params.id)
     if (!maybeId.success) {
       return error(400, { message: 'Invalid genre ID' })
@@ -70,9 +79,10 @@ export const actions: Actions = {
     }
 
     const voteResult = await locals.di
-      .genreCommandService()
-      .voteGenreRelevance(id, form.data.relevanceVote, locals.user.id)
-    if (voteResult instanceof InvalidGenreRelevanceError) {
+      .genres()
+      .commands()
+      .voteGenreRelevance(id, form.data.relevanceVote)
+    if (voteResult instanceof Error) {
       return setError(form, 'relevanceVote', voteResult.message)
     }
 
@@ -80,20 +90,15 @@ export const actions: Actions = {
   },
 
   delete: async ({ locals, params }) => {
-    if (!locals.user?.permissions?.includes('EDIT_GENRES')) {
-      return error(401, 'Unauthorized')
-    }
-    const user = locals.user
-
     const maybeId = z.coerce.number().int().safeParse(params.id)
     if (!maybeId.success) {
       return error(400, { message: 'Invalid genre ID' })
     }
     const id = maybeId.data
 
-    const deleteResult = await locals.di.genreCommandService().deleteGenre(id, user.id)
-    if (deleteResult instanceof GenreNotFoundError) {
-      return error(404, 'Genre not found')
+    const deleteResult = await locals.di.genres().commands().deleteGenre(id)
+    if (deleteResult instanceof Error) {
+      return error(deleteResult.originalError.statusCode, deleteResult.message)
     }
 
     return redirect(302, '/genres')

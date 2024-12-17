@@ -1,6 +1,7 @@
 import { asc, eq } from 'drizzle-orm'
 import { uniq } from 'ramda'
 
+import { GenreNotFoundError } from '../../commands/application/errors/genre-not-found'
 import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
 import type { Genre } from '../../shared/infrastructure/drizzle-schema'
 import { genreAkas, genreHistory, genres } from '../../shared/infrastructure/drizzle-schema'
@@ -61,7 +62,7 @@ export type GetGenreResult = {
 export class GetGenreQuery {
   constructor(private db: IDrizzleConnection) {}
 
-  async execute(id: Genre['id']): Promise<GetGenreResult | undefined> {
+  async execute(id: Genre['id']): Promise<GetGenreResult | GenreNotFoundError> {
     const genre = await this.db.query.genres.findFirst({
       where: eq(genres.id, id),
       with: {
@@ -116,7 +117,7 @@ export class GetGenreQuery {
       },
     })
 
-    if (!genre) return undefined
+    if (!genre) return new GenreNotFoundError()
 
     return {
       id: genre.id,

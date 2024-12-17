@@ -133,6 +133,20 @@ export class Authorizer {
     return false
   }
 
+  getPermissions(userId: number): Set<string> {
+    const userRoles = this.userRoles.get(userId) ?? new Set()
+    const permissions = new Set<string>()
+    for (const roleName of userRoles) {
+      const role = this.roles.get(roleName)
+      if (role) {
+        for (const permission of role.permissions) {
+          permissions.add(permission)
+        }
+      }
+    }
+    return permissions
+  }
+
   getUncommittedEvents(): AuthorizerEvent[] {
     return [...this.uncommittedEvents]
   }
@@ -213,5 +227,11 @@ export class DuplicatePermissionError extends CustomError {
 export class RoleNotFoundError extends CustomError {
   constructor(public readonly name: string) {
     super('RoleNotFoundError', `No role found with name: ${name}`)
+  }
+}
+
+export class UnauthorizedError extends CustomError {
+  constructor() {
+    super('UnauthorizedError', 'You are not authorized to perform this action')
   }
 }

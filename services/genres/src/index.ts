@@ -14,6 +14,7 @@ import {
 import type { Router } from './shared/web/router'
 import { createRouter } from './shared/web/router'
 
+export { GenresPermission } from './commands/domain/permissions'
 export { GenresClient } from './shared/web/client'
 
 export class GenresService {

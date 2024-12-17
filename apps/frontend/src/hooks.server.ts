@@ -7,6 +7,8 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import * as schema from '$lib/server/db/schema'
 
 import { CompositionRoot } from './composition-root'
+import { AuthorizationPermission } from '@romulus/authorization'
+import { GenresPermission } from '@romulus/genres'
 
 const pg = getPostgresConnection()
 await migrate(getDbConnection(schema, pg))
@@ -36,6 +38,24 @@ export const handle: Handle = async ({ event, resolve }) => {
         showTypeTags: account.showTypeTags,
         showNsfw: account.showNsfw,
         darkMode: account.darkMode,
+        permissions: {
+          genres: {
+            canCreate: false,
+            canEdit: false,
+            canDelete: false,
+          },
+        },
+      }
+
+      const permissionsResult = await event.locals.di.authorization().getUserPermissions(account.id)
+      if (permissionsResult instanceof Error) {
+        console.error('Failed to fetch user permissions:', permissionsResult)
+      } else {
+        event.locals.user.permissions.genres = {
+          canCreate: permissionsResult.permissions.has(GenresPermission.CreateGenres),
+          canEdit: permissionsResult.permissions.has(GenresPermission.EditGenres),
+          canDelete: permissionsResult.permissions.has(GenresPermission.DeleteGenres),
+        }
       }
 
       const refreshSessionResult = await event.locals.di.authentication().refreshSession()

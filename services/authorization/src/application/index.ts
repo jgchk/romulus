@@ -2,7 +2,9 @@ import {
   DuplicatePermissionError,
   PermissionNotFoundError,
   RoleNotFoundError,
+  UnauthorizedError,
 } from '../domain/authorizer'
+import { AuthorizationPermission } from '../domain/permissions'
 import type { IAuthorizerRepository } from '../domain/repository'
 import type { MaybePromise } from '../utils'
 
@@ -10,7 +12,8 @@ export type IAuthorizationApplication = {
   createPermission(
     name: string,
     description: string | undefined,
-  ): MaybePromise<void | DuplicatePermissionError>
+    userId: number,
+  ): MaybePromise<void | UnauthorizedError | DuplicatePermissionError>
   ensurePermissions(
     permissions: { name: string; description: string | undefined }[],
   ): MaybePromise<void>
@@ -23,6 +26,10 @@ export type IAuthorizationApplication = {
   deleteRole(name: string): MaybePromise<void>
   assignRoleToUser(userId: number, roleName: string): MaybePromise<void | RoleNotFoundError>
   hasPermission(userId: number, permission: string): MaybePromise<boolean>
+  getPermissions(
+    userId: number,
+    requestorUserId: number,
+  ): MaybePromise<Set<string> | UnauthorizedError>
 }
 
 export class AuthorizationApplication implements IAuthorizationApplication {
@@ -31,7 +38,14 @@ export class AuthorizationApplication implements IAuthorizationApplication {
   async createPermission(
     name: string,
     description: string | undefined,
-  ): Promise<void | DuplicatePermissionError> {
+    requestorUserId: number,
+  ): Promise<void | UnauthorizedError | DuplicatePermissionError> {
+    const hasPermission = await this.hasPermission(
+      requestorUserId,
+      AuthorizationPermission.CreatePermissions,
+    )
+    if (!hasPermission) return new UnauthorizedError()
+
     const authorizer = await this.repo.get()
 
     const error = authorizer.createPermission(name, description)
@@ -91,5 +105,16 @@ export class AuthorizationApplication implements IAuthorizationApplication {
   async hasPermission(userId: number, permission: string): Promise<boolean> {
     const authorizer = await this.repo.get()
     return authorizer.hasPermission(userId, permission)
+  }
+
+  async getPermissions(
+    userId: number,
+    requestorUserId: number,
+  ): Promise<Set<string> | UnauthorizedError> {
+    const hasPermission = userId === requestorUserId
+    if (!hasPermission) return new UnauthorizedError()
+
+    const authorizer = await this.repo.get()
+    return authorizer.getPermissions(userId)
   }
 }

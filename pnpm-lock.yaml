@@ -123,9 +123,15 @@ importers:
       '@romulus/authentication':
         specifier: workspace:*
         version: link:../../services/authentication
+      '@romulus/authorization':
+        specifier: workspace:*
+        version: link:../../services/authorization
       '@romulus/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@romulus/genres':
+        specifier: workspace:*
+        version: link:../../services/genres
       '@romulus/user-settings':
         specifier: workspace:*
         version: link:../../services/user-settings
@@ -342,6 +348,9 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.4.1
         version: 0.4.1(hono@4.6.12)(zod@3.23.8)
+      '@romulus/authentication':
+        specifier: workspace:*
+        version: link:../authentication
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6

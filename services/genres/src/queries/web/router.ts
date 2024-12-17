@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { GenreNotFoundError } from '../../commands/application/errors/genre-not-found'
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config'
 import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../shared/infrastructure/drizzle-schema'
 import { setError } from '../../shared/web/utils'
@@ -84,6 +85,9 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       async (c) => {
         const id = c.req.valid('param').id
         const genre = await application.getGenre(id)
+        if (genre instanceof GenreNotFoundError) {
+          return setError(c, genre, 404)
+        }
         return c.json({ success: true, genre } as const)
       },
     )
