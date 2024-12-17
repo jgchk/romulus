@@ -86,7 +86,7 @@
       <div>
         <div>
           <Label>Relevance</Label>
-          {#if $user?.permissions?.includes('EDIT_GENRES')}
+          {#if $user?.permissions.genres.canVoteRelevance}
             {' '}
             <button
               type="button"
@@ -233,7 +233,7 @@
           {:else}
             <span>
               Missing a short description.{' '}
-              {#if $user?.permissions?.includes('EDIT_GENRES')}
+              {#if $user?.permissions.genres.canEdit}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=shortDescription"
                   class="text-primary-500 hover:underline"
@@ -262,7 +262,7 @@
           {:else}
             <span>
               Missing a long description.{' '}
-              {#if $user?.permissions?.includes('EDIT_GENRES')}
+              {#if $user?.permissions.genres.canEdit}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=longDescription"
                   class="text-primary-500 hover:underline"
@@ -321,12 +321,12 @@
     </div>
 
     <Footer>
-      {#if $user?.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions.genres.canEdit}
         <LinkButton href="/genres/{data.id}/edit">Edit</LinkButton>
       {/if}
       <LinkButton kind="outline" href="/genres/{data.id}/history">History</LinkButton>
       <div class="flex-1"></div>
-      {#if $user?.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions.genres.canDelete}
         <Button kind="text" color="error" onClick={() => (isDeleting = true)}>Delete</Button>
       {/if}
     </Footer>

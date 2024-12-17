@@ -33,7 +33,7 @@
       class="flex w-full flex-col items-center justify-center text-gray-600 transition dark:text-gray-400"
     >
       <div>No genres found.</div>
-      {#if $user?.permissions?.includes('EDIT_GENRES')}
+      {#if $user?.permissions.genres.canCreate}
         <div>
           <a href="/genres/create" class="text-primary-500 hover:underline">Create one.</a>
         </div>

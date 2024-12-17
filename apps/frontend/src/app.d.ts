@@ -16,6 +16,7 @@ declare global {
                 canCreate: boolean
                 canEdit: boolean
                 canDelete: boolean
+                canVoteRelevance: boolean
               }
             }
           } & import('$lib/contexts/user-settings/types').UserSettings)

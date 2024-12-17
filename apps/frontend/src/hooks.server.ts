@@ -43,6 +43,7 @@ export const handle: Handle = async ({ event, resolve }) => {
             canCreate: false,
             canEdit: false,
             canDelete: false,
+            canVoteRelevance: false,
           },
         },
       }
@@ -55,6 +56,7 @@ export const handle: Handle = async ({ event, resolve }) => {
           canCreate: permissionsResult.permissions.has(GenresPermission.CreateGenres),
           canEdit: permissionsResult.permissions.has(GenresPermission.EditGenres),
           canDelete: permissionsResult.permissions.has(GenresPermission.DeleteGenres),
+          canVoteRelevance: permissionsResult.permissions.has(GenresPermission.VoteGenreRelevance),
         }
       }
 

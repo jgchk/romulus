@@ -3,7 +3,15 @@ import { ifDefined } from '$lib/utils/types'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ locals, cookies }) => {
-  const genres = locals.di.genreQueryService().getGenreTree()
+  // eslint-disable-next-line returned-errors/enforce-error-handling
+  const genres = locals.di
+    .genres()
+    .queries()
+    .getGenreTree()
+    .then((res) => {
+      if (res instanceof Error) throw res
+      return res.tree
+    })
 
   const leftPaneSize = ifDefined(cookies.get('genres.leftPaneSize'), (v) => {
     const value = Number.parseInt(v)
