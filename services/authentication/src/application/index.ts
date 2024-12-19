@@ -1,4 +1,4 @@
-import type { IAuthorizationClient } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
 
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'

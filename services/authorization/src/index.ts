@@ -9,7 +9,6 @@ import {
 import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
 
 export { AuthorizationPermission } from './domain/permissions'
-export { AuthorizationClient, IAuthorizationClient } from './web/client'
 
 export class AuthorizationService {
   private constructor(

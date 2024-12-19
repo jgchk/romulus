@@ -1,4 +1,4 @@
-import type { IAuthorizationClient } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { createDate, TimeSpan } from 'oslo'
 
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'

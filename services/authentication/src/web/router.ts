@@ -1,4 +1,4 @@
-import type { IAuthorizationClient } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 

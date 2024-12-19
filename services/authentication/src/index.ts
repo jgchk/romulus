@@ -1,4 +1,4 @@
-import { AuthorizationClient } from '@romulus/authorization'
+import { AuthorizationClient } from '@romulus/authorization/client'
 
 import { AuthenticationPermission } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'

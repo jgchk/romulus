@@ -1,4 +1,4 @@
-import type { IAuthorizationClient } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { vi } from 'vitest'
 
 export class MockAuthorizationClient implements IAuthorizationClient {
