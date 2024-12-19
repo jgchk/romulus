@@ -1,3 +1,5 @@
+import { AuthenticationClient } from '@romulus/authentication/client'
+
 import { AuthorizationApplication } from './application'
 import { AuthorizationPermission, SYSTEM_USER_ID } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
@@ -7,14 +9,20 @@ import {
   migrate,
 } from './infrastructure/drizzle-postgres-connection'
 import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
+import { CompositionRoot } from './web/composition-root'
+import { createRouter } from './web/router'
 
 export class AuthorizationService {
   private constructor(
     private db: IDrizzleConnection,
     private application: AuthorizationApplication,
+    private authenticationBaseUrl: string,
   ) {}
 
-  static async create(databaseUrl: string): Promise<AuthorizationService> {
+  static async create(
+    databaseUrl: string,
+    authenticationBaseUrl: string,
+  ): Promise<AuthorizationService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
@@ -26,11 +34,19 @@ export class AuthorizationService {
       SYSTEM_USER_ID,
     )
 
-    return new AuthorizationService(db, service)
+    return new AuthorizationService(db, service, authenticationBaseUrl)
   }
 
   use() {
     return this.application
+  }
+
+  getRouter() {
+    const di = new CompositionRoot(this.db)
+    return createRouter(
+      di,
+      (sessionToken) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),
+    )
   }
 
   async destroy(): Promise<void> {
