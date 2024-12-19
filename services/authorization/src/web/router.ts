@@ -31,9 +31,10 @@ class UnknownError extends CustomError {
 
 export function createRouter(
   di: CompositionRoot,
+  systemUserToken: string,
   getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
 ) {
-  const requireUser = bearerAuth(getAuthenticationClient)
+  const requireUser = bearerAuth(systemUserToken, getAuthenticationClient)
 
   const app = new Hono()
     .post(

@@ -3,10 +3,10 @@ import { createMiddleware } from 'hono/factory'
 
 import { UnauthorizedError } from '../domain/authorizer'
 import { SYSTEM_USER_ID } from '../domain/permissions'
-import { env } from '../env'
 import { setError } from './utils'
 
 export function bearerAuth(
+  systemUserToken: string,
   getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
 ) {
   return createMiddleware<{
@@ -27,7 +27,7 @@ export function bearerAuth(
 
     c.set('token', token)
 
-    if (token === env.SYSTEM_USER_TOKEN) {
+    if (token === systemUserToken) {
       c.set('user', { id: SYSTEM_USER_ID })
     } else {
       const userResponse = await getAuthenticationClient(token).whoami()

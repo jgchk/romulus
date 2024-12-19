@@ -1,55 +1,25 @@
-import { AuthenticationClient } from '@romulus/authentication/client'
+import { serve } from '@hono/node-server'
+import { env } from './env'
+import { AuthorizationService } from './service'
 
-import { AuthorizationApplication } from './application'
-import { AuthorizationPermission, SYSTEM_USER_ID } from './domain/permissions'
-import type { IDrizzleConnection } from './infrastructure/drizzle-database'
-import {
-  getDbConnection,
-  getPostgresConnection,
-  migrate,
-} from './infrastructure/drizzle-postgres-connection'
-import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
-import { CompositionRoot } from './web/composition-root'
-import { createRouter } from './web/router'
+async function main() {
+  const service = await AuthorizationService.create(
+    env.DATABASE_URL,
+    env.SYSTEM_USER_TOKEN,
+    env.AUTHENTICATION_SERVICE_URL,
+  )
 
-export class AuthorizationService {
-  private constructor(
-    private db: IDrizzleConnection,
-    private application: AuthorizationApplication,
-    private authenticationBaseUrl: string,
-  ) {}
+  const server = serve(service.getRouter(), (info) => {
+    console.log(`Authorization server running on ${info.port}`)
+  })
 
-  static async create(
-    databaseUrl: string,
-    authenticationBaseUrl: string,
-  ): Promise<AuthorizationService> {
-    const pg = getPostgresConnection(databaseUrl)
-    const db = getDbConnection(pg)
-    await migrate(db)
-
-    const service = new AuthorizationApplication(new DrizzleAuthorizerRepository(db))
-
-    await service.ensurePermissions(
-      [{ name: AuthorizationPermission.CreatePermissions, description: undefined }],
-      SYSTEM_USER_ID,
-    )
-
-    return new AuthorizationService(db, service, authenticationBaseUrl)
+  async function handleShutdown() {
+    server.close()
+    await service.destroy()
   }
 
-  use() {
-    return this.application
-  }
-
-  getRouter() {
-    const di = new CompositionRoot(this.db)
-    return createRouter(
-      di,
-      (sessionToken) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),
-    )
-  }
-
-  async destroy(): Promise<void> {
-    await this.db.close()
-  }
+  process.on('SIGTERM', () => handleShutdown())
+  process.on('SIGINT', () => handleShutdown())
 }
+
+void main()
