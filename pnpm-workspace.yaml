@@ -1,6 +1,5 @@
 packages:
   - "apps/frontend"
-  - "apps/backend"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"
   - "packages/fetch-retry"
