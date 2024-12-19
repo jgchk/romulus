@@ -9,9 +9,15 @@ async function main() {
     env.AUTHENTICATION_SERVICE_URL,
   )
 
-  const server = serve(service.getRouter(), (info) => {
-    console.log(`Authorization server running on ${info.port}`)
-  })
+  const server = serve(
+    {
+      fetch: service.getRouter().fetch,
+      port: env.PORT,
+    },
+    (info) => {
+      console.log(`Authorization server running on ${info.port}`)
+    },
+  )
 
   async function handleShutdown() {
     server.close()
