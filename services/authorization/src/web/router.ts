@@ -1,3 +1,4 @@
+import type { IAuthenticationClient } from '@romulus/authentication/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -12,7 +13,6 @@ import { bearerAuth } from './bearer-auth-middleware'
 import type { CompositionRoot } from './composition-root'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
-import { IAuthenticationClient } from '@romulus/authentication'
 
 export type Router = ReturnType<typeof createRouter>
 

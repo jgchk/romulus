@@ -1,10 +1,10 @@
+import type { IAuthenticationClient } from '@romulus/authentication/client'
 import { createMiddleware } from 'hono/factory'
 
 import { UnauthorizedError } from '../domain/authorizer'
 import { SYSTEM_USER_ID } from '../domain/permissions'
 import { env } from '../env'
 import { setError } from './utils'
-import { IAuthenticationClient } from '@romulus/authentication'
 
 export function bearerAuth(
   getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,

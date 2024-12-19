@@ -2,7 +2,8 @@
   "name": "@romulus/authentication",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./client": "./src/web/client.ts"
   },
   "scripts": {
     "test": "pnpm test:unit run",

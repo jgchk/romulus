@@ -12,11 +12,6 @@ import type { Router } from './web/router'
 import { createRouter } from './web/router'
 
 export type { IAuthenticationApplication } from './application'
-export {
-  AuthenticationClient,
-  AuthenticationClientError,
-  IAuthenticationClient,
-} from './web/client'
 
 export class AuthenticationService {
   private constructor(
