@@ -20,7 +20,7 @@ export class MemoryAuthorizerRepository implements IAuthorizerRepository {
   }
 
   get() {
-    return Authorizer.fromState(this.permissions, this.roles, this.userRoles)
+    return Promise.resolve(Authorizer.fromState(this.permissions, this.roles, this.userRoles))
   }
 
   save(authorizer: Authorizer) {
@@ -42,5 +42,6 @@ export class MemoryAuthorizerRepository implements IAuthorizerRepository {
         event satisfies never
       }
     }
+    return Promise.resolve()
   }
 }

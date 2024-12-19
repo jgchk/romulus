@@ -1,3 +1,5 @@
+import { err, ok, type Result } from 'neverthrow'
+
 export class Authorizer {
   private permissions: Map<string, Permission>
   private roles: Map<string, Role>
@@ -31,14 +33,19 @@ export class Authorizer {
     return authorizer
   }
 
-  createPermission(name: string, description: string | undefined): void | DuplicatePermissionError {
+  createPermission(
+    name: string,
+    description: string | undefined,
+  ): Result<void, DuplicatePermissionError> {
     if (this.permissions.has(name)) {
-      return new DuplicatePermissionError(name)
+      return err(new DuplicatePermissionError(name))
     }
 
     const event = new PermissionCreatedEvent(name, description)
     this.applyEvent(event)
     this.addEvent(event)
+
+    return ok(undefined)
   }
 
   ensurePermissions(permissions: { name: string; description: string | undefined }[]): void {
@@ -63,16 +70,18 @@ export class Authorizer {
     name: string,
     permissions: Set<string>,
     description: string | undefined,
-  ): void | PermissionNotFoundError {
+  ): Result<void, PermissionNotFoundError> {
     for (const permission of permissions) {
       if (!this.permissions.has(permission)) {
-        return new PermissionNotFoundError(permission)
+        return err(new PermissionNotFoundError(permission))
       }
     }
 
     const event = new RoleCreatedEvent(name, permissions, description)
     this.applyEvent(event)
     this.addEvent(event)
+
+    return ok(undefined)
   }
 
   deleteRole(name: string): void {
@@ -83,14 +92,16 @@ export class Authorizer {
     this.addEvent(event)
   }
 
-  assignRoleToUser(userId: number, roleName: string): void | RoleNotFoundError {
+  assignRoleToUser(userId: number, roleName: string): Result<void, RoleNotFoundError> {
     if (!this.roles.has(roleName)) {
-      return new RoleNotFoundError(roleName)
+      return err(new RoleNotFoundError(roleName))
     }
 
     const event = new RoleAssignedToUserEvent(userId, roleName)
     this.applyEvent(event)
     this.addEvent(event)
+
+    return ok(undefined)
   }
 
   private applyEvent(event: AuthorizerEvent): void {

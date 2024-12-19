@@ -1,5 +1,5 @@
 import { AuthorizationApplication } from './application'
-import { AuthorizationPermission } from './domain/permissions'
+import { AuthorizationPermission, SYSTEM_USER_ID } from './domain/permissions'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
@@ -8,9 +8,8 @@ import {
 } from './infrastructure/drizzle-postgres-connection'
 import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
 
-export type { IAuthorizationApplication } from './application'
 export { AuthorizationPermission } from './domain/permissions'
-export { AuthorizationClient } from './web/client'
+export { AuthorizationClient, IAuthorizationClient } from './web/client'
 
 export class AuthorizationService {
   private constructor(
@@ -25,9 +24,10 @@ export class AuthorizationService {
 
     const service = new AuthorizationApplication(new DrizzleAuthorizerRepository(db))
 
-    await service.ensurePermissions([
-      { name: AuthorizationPermission.CreatePermissions, description: undefined },
-    ])
+    await service.ensurePermissions(
+      [{ name: AuthorizationPermission.CreatePermissions, description: undefined }],
+      SYSTEM_USER_ID,
+    )
 
     return new AuthorizationService(db, service)
   }

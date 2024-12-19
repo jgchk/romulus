@@ -1,6 +1,5 @@
 import type { IAuthenticationApplication } from '@romulus/authentication'
 
-import type { IAuthorizationApplication } from '../application'
 import { AuthorizationApplication } from '../application'
 import type { IAuthorizerRepository } from '../domain/repository'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
@@ -16,7 +15,7 @@ export class CompositionRoot {
     return this._authentication
   }
 
-  application(): IAuthorizationApplication {
+  application(): AuthorizationApplication {
     return new AuthorizationApplication(this.authorizerRepository())
   }
 

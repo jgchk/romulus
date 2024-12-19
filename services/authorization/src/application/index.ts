@@ -1,120 +1,94 @@
-import {
-  DuplicatePermissionError,
-  PermissionNotFoundError,
-  RoleNotFoundError,
-  UnauthorizedError,
-} from '../domain/authorizer'
-import { AuthorizationPermission } from '../domain/permissions'
-import type { IAuthorizerRepository } from '../domain/repository'
-import type { MaybePromise } from '../utils'
+import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
-export type IAuthorizationApplication = {
-  createPermission(
-    name: string,
-    description: string | undefined,
-    userId: number,
-  ): MaybePromise<void | UnauthorizedError | DuplicatePermissionError>
+import { UnauthorizedError } from '../domain/authorizer'
+import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions'
+import type { IAuthorizerRepository } from '../domain/repository'
+
+export class AuthorizationApplication {
+  constructor(private repo: IAuthorizerRepository) {}
+
+  createPermission(name: string, description: string | undefined, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.CreatePermissions)
+      .map(() => this.repo.get())
+      .andThrough((authorizer) => authorizer.createPermission(name, description))
+      .map((authorizer) => this.repo.save(authorizer))
+  }
+
   ensurePermissions(
     permissions: { name: string; description: string | undefined }[],
-  ): MaybePromise<void>
-  deletePermission(name: string): MaybePromise<void>
+    requestorUserId: number,
+  ) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.CreatePermissions)
+      .map(() => this.repo.get())
+      .andTee((authorizer) => authorizer.ensurePermissions(permissions))
+      .map((authorizer) => this.repo.save(authorizer))
+  }
+
+  deletePermission(name: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.DeletePermissions)
+      .map(() => this.repo.get())
+      .andTee((authorizer) => authorizer.deletePermission(name))
+      .map((authorizer) => this.repo.save(authorizer))
+  }
+
   createRole(
     name: string,
     permissions: Set<string>,
     description: string | undefined,
-  ): MaybePromise<void | PermissionNotFoundError>
-  deleteRole(name: string): MaybePromise<void>
-  assignRoleToUser(userId: number, roleName: string): MaybePromise<void | RoleNotFoundError>
-  hasPermission(userId: number, permission: string): MaybePromise<boolean>
-  getPermissions(
-    userId: number,
     requestorUserId: number,
-  ): MaybePromise<Set<string> | UnauthorizedError>
-}
-
-export class AuthorizationApplication implements IAuthorizationApplication {
-  constructor(private repo: IAuthorizerRepository) {}
-
-  async createPermission(
-    name: string,
-    description: string | undefined,
-    requestorUserId: number,
-  ): Promise<void | UnauthorizedError | DuplicatePermissionError> {
-    const hasPermission = await this.hasPermission(
-      requestorUserId,
-      AuthorizationPermission.CreatePermissions,
-    )
-    if (!hasPermission) return new UnauthorizedError()
-
-    const authorizer = await this.repo.get()
-
-    const error = authorizer.createPermission(name, description)
-    if (error instanceof DuplicatePermissionError) {
-      return error
-    }
-
-    await this.repo.save(authorizer)
+  ) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.CreateRoles)
+      .map(() => this.repo.get())
+      .andThrough((authorizer) => authorizer.createRole(name, permissions, description))
+      .map((authorizer) => this.repo.save(authorizer))
   }
 
-  async ensurePermissions(
-    permissions: { name: string; description: string | undefined }[],
-  ): Promise<void> {
-    const authorizer = await this.repo.get()
-    authorizer.ensurePermissions(permissions)
-    await this.repo.save(authorizer)
+  deleteRole(name: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.DeleteRoles)
+      .map(() => this.repo.get())
+      .andTee((authorizer) => authorizer.deleteRole(name))
+      .map((authorizer) => this.repo.save(authorizer))
   }
 
-  async deletePermission(name: string): Promise<void> {
-    const authorizer = await this.repo.get()
-    authorizer.deletePermission(name)
-    await this.repo.save(authorizer)
+  assignRoleToUser(userId: number, roleName: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
+      .map(() => this.repo.get())
+      .andThrough((authorizer) => authorizer.assignRoleToUser(userId, roleName))
+      .map((authorizer) => this.repo.save(authorizer))
   }
 
-  async createRole(
-    name: string,
-    permissions: Set<string>,
-    description: string | undefined,
-  ): Promise<void | PermissionNotFoundError> {
-    const authorizer = await this.repo.get()
-
-    const error = authorizer.createRole(name, permissions, description)
-    if (error instanceof PermissionNotFoundError) {
-      return error
-    }
-
-    await this.repo.save(authorizer)
+  checkMyPermission(permission: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.CheckOwnPermissions)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.hasPermission(requestorUserId, permission))
   }
 
-  async deleteRole(name: string): Promise<void> {
-    const authorizer = await this.repo.get()
-    authorizer.deleteRole(name)
-    await this.repo.save(authorizer)
+  checkUserPermission(userId: number, permission: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.CheckUserPermissions)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.hasPermission(userId, permission))
   }
 
-  async assignRoleToUser(userId: number, roleName: string): Promise<void | RoleNotFoundError> {
-    const authorizer = await this.repo.get()
-
-    const error = authorizer.assignRoleToUser(userId, roleName)
-    if (error instanceof RoleNotFoundError) {
-      return error
-    }
-
-    await this.repo.save(authorizer)
+  getMyPermissions(requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.GetOwnPermissions)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.getPermissions(requestorUserId))
   }
 
-  async hasPermission(userId: number, permission: string): Promise<boolean> {
-    const authorizer = await this.repo.get()
-    return authorizer.hasPermission(userId, permission)
+  getUserPermissions(userId: number, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.GetUserPermissions)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.getPermissions(userId))
   }
 
-  async getPermissions(
-    userId: number,
-    requestorUserId: number,
-  ): Promise<Set<string> | UnauthorizedError> {
-    const hasPermission = userId === requestorUserId
-    if (!hasPermission) return new UnauthorizedError()
+  private checkPermission(userId: number, permission: string) {
+    if (userId === SYSTEM_USER_ID) return okAsync(undefined)
 
-    const authorizer = await this.repo.get()
-    return authorizer.getPermissions(userId)
+    return ResultAsync.fromSafePromise(this.repo.get())
+      .map((authorizer) => authorizer.hasPermission(userId, permission))
+      .andThen((hasPermission) => {
+        if (!hasPermission) return errAsync(new UnauthorizedError())
+        return okAsync(undefined)
+      })
   }
 }
