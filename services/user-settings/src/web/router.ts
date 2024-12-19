@@ -1,3 +1,4 @@
+import type { IAuthenticationClient } from '@romulus/authentication/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -9,8 +10,11 @@ import { zodValidator } from './zod-validator'
 
 export type Router = ReturnType<typeof createRouter>
 
-export function createRouter(di: CompositionRoot) {
-  const requireUser = bearerAuth(di.authentication())
+export function createRouter(
+  di: CompositionRoot,
+  getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
+) {
+  const requireUser = bearerAuth(getAuthenticationClient)
 
   const app = new Hono()
     .get('/settings', requireUser, async (c) => {

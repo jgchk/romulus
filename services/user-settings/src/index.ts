@@ -1,6 +1,5 @@
-import type { IAuthenticationApplication } from '@romulus/authentication'
+import { AuthenticationClient } from '@romulus/authentication/client'
 
-import type { UserSettingsApplication } from './application'
 import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 import {
   getDbConnection,
@@ -11,33 +10,31 @@ import { CompositionRoot } from './web/composition-root'
 import type { Router } from './web/router'
 import { createRouter } from './web/router'
 
-export { UserSettingsClient, UserSettingsClientError } from './web/client'
-
 export class UserSettingsService {
   private constructor(
     private db: IDrizzleConnection,
     private di: CompositionRoot,
+    private authenticationBaseUrl: string,
   ) {}
 
   static async create(
     databaseUrl: string,
-    authentication: IAuthenticationApplication,
+    authenticationBaseUrl: string,
   ): Promise<UserSettingsService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CompositionRoot(db, authentication)
+    const di = new CompositionRoot(db)
 
-    return new UserSettingsService(db, di)
-  }
-
-  use(): UserSettingsApplication {
-    return this.di.application()
+    return new UserSettingsService(db, di, authenticationBaseUrl)
   }
 
   getRouter(): Router {
-    return createRouter(this.di)
+    return createRouter(
+      this.di,
+      (sessionToken: string) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),
+    )
   }
 
   async destroy(): Promise<void> {
