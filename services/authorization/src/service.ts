@@ -1,5 +1,4 @@
 import { AuthenticationClient } from '@romulus/authentication/client'
-import { serve } from '@hono/node-server'
 
 import { AuthorizationApplication } from './application'
 import { AuthorizationPermission, SYSTEM_USER_ID } from './domain/permissions'

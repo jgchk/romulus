@@ -3,6 +3,7 @@ packages:
   - "apps/backend"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"
+  - "packages/fetch-retry"
   - "services/authentication"
   - "services/authorization"
   - "services/genres"
