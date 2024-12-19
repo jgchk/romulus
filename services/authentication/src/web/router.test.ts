@@ -1,17 +1,17 @@
 import { testClient } from 'hono/testing'
 import { describe, expect } from 'vitest'
 
-import { AuthenticationPermission } from '../domain/permissions'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
-import { MemoryAuthorizationApplication } from '../infrastructure/memory-authorization-service'
+import { MockAuthorizationClient } from '../test/mock-authorization-client'
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
 import { createRouter } from './router'
 
 function setup(dbConnection: IDrizzleConnection) {
-  const authorizationService = new MemoryAuthorizationApplication()
-  const di = new CommandsCompositionRoot(dbConnection, authorizationService)
-  const app = createRouter(di)
+  const authorization = new MockAuthorizationClient()
+
+  const di = new CommandsCompositionRoot(dbConnection)
+  const app = createRouter(di, () => authorization)
   const client = testClient(app)
 
   async function registerTestUser(user?: { username?: string; password?: string }) {
@@ -37,13 +37,7 @@ function setup(dbConnection: IDrizzleConnection) {
     return { sessionToken, account }
   }
 
-  function assignPermissionToUser(userId: number, permission: AuthenticationPermission) {
-    authorizationService.createPermission(permission, undefined)
-    authorizationService.createRole('test-role', new Set([permission]), undefined)
-    authorizationService.assignRoleToUser(userId, 'test-role')
-  }
-
-  return { client, registerTestUser, assignPermissionToUser }
+  return { client, registerTestUser, authorization }
 }
 
 describe('login', () => {
@@ -262,10 +256,9 @@ describe('request-password-reset', () => {
   })
 
   test('should return a password reset link', async ({ dbConnection }) => {
-    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+    const { client, registerTestUser } = setup(dbConnection)
 
-    const { sessionToken, account } = await registerTestUser()
-    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
+    const { sessionToken } = await registerTestUser()
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -282,10 +275,9 @@ describe('request-password-reset', () => {
   })
 
   test('should error if the requested user does not exist', async ({ dbConnection }) => {
-    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+    const { client, registerTestUser } = setup(dbConnection)
 
-    const { sessionToken, account } = await registerTestUser()
-    assignPermissionToUser(account.id, AuthenticationPermission.RequestPasswordReset)
+    const { sessionToken } = await registerTestUser()
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '2' } },
@@ -390,10 +382,9 @@ describe('whoami', () => {
 
 describe('get-account', () => {
   test('should return the requested account', async ({ dbConnection }) => {
-    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+    const { client, registerTestUser } = setup(dbConnection)
 
-    const { sessionToken, account } = await registerTestUser()
-    assignPermissionToUser(account.id, AuthenticationPermission.GetAccount)
+    const { sessionToken } = await registerTestUser()
 
     const res = await client.account[':id'].$get(
       { param: { id: '1' } },
@@ -495,10 +486,9 @@ describe('get-account', () => {
   })
 
   test('should error if the requested account does not exist', async ({ dbConnection }) => {
-    const { client, registerTestUser, assignPermissionToUser } = setup(dbConnection)
+    const { client, registerTestUser } = setup(dbConnection)
 
-    const { sessionToken, account } = await registerTestUser()
-    assignPermissionToUser(account.id, AuthenticationPermission.GetAccount)
+    const { sessionToken } = await registerTestUser()
 
     const res = await client.account[':id'].$get(
       { param: { id: '2' } },

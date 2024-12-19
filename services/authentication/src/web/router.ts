@@ -1,6 +1,15 @@
+import type { IAuthorizationClient } from '@romulus/authorization'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { GetAccountCommand } from '../application/commands/get-account'
+import { LoginCommand } from '../application/commands/login'
+import { LogoutCommand } from '../application/commands/logout'
+import { RefreshSessionCommand } from '../application/commands/refresh-session'
+import { RegisterCommand } from '../application/commands/register'
+import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
+import { ResetPasswordCommand } from '../application/commands/reset-password'
+import { WhoamiQuery } from '../application/commands/whoami'
 import { AccountNotFoundError } from '../application/errors/account-not-found'
 import { InvalidLoginError } from '../application/errors/invalid-login'
 import { NonUniqueUsernameError } from '../application/errors/non-unique-username'
@@ -17,7 +26,10 @@ export type Router = ReturnType<typeof createRouter>
 
 const passwordSchema = z.string().min(8).max(72)
 
-export function createRouter(di: CommandsCompositionRoot) {
+export function createRouter(
+  di: CommandsCompositionRoot,
+  getAuthorizationClient: (sessionToken: string) => IAuthorizationClient,
+) {
   const app = new Hono()
     .post(
       '/login',
@@ -25,7 +37,14 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const result = await di.application().login(body.username, body.password)
+        const loginCommand = new LoginCommand(
+          di.accountRepository(),
+          di.sessionRepository(),
+          di.passwordHashRepository(),
+          di.sessionTokenHashRepository(),
+          di.sessionTokenGenerator(),
+        )
+        const result = await loginCommand.execute(body.username, body.password)
         if (result instanceof InvalidLoginError) {
           return setError(c, result, 401)
         }
@@ -41,7 +60,11 @@ export function createRouter(di: CommandsCompositionRoot) {
     .post('/logout', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      await di.application().logout(sessionToken)
+      const logoutCommand = new LogoutCommand(
+        di.sessionRepository(),
+        di.sessionTokenHashRepository(),
+      )
+      await logoutCommand.execute(sessionToken)
 
       return c.json({ success: true } as const)
     })
@@ -55,7 +78,14 @@ export function createRouter(di: CommandsCompositionRoot) {
       async (c) => {
         const body = c.req.valid('json')
 
-        const result = await di.application().register(body.username, body.password)
+        const registerCommand = new RegisterCommand(
+          di.accountRepository(),
+          di.sessionRepository(),
+          di.passwordHashRepository(),
+          di.sessionTokenHashRepository(),
+          di.sessionTokenGenerator(),
+        )
+        const result = await registerCommand.execute(body.username, body.password)
         if (result instanceof NonUniqueUsernameError) {
           return setError(c, result, 409)
         }
@@ -74,17 +104,16 @@ export function createRouter(di: CommandsCompositionRoot) {
       bearerAuth,
       async (c) => {
         const sessionToken = c.var.token
-
         const { accountId } = c.req.valid('param')
 
-        const requestorSession = await di.application().whoami(sessionToken)
-        if (requestorSession instanceof UnauthorizedError) {
-          return setError(c, requestorSession, 401)
-        }
-
-        const passwordResetToken = await di
-          .application()
-          .requestPasswordReset(requestorSession.account.id, accountId)
+        const requestPasswordResetCommand = new RequestPasswordResetCommand(
+          di.passwordResetTokenRepository(),
+          di.passwordResetTokenGenerator(),
+          di.passwordResetTokenHashRepository(),
+          di.accountRepository(),
+          getAuthorizationClient(sessionToken),
+        )
+        const passwordResetToken = await requestPasswordResetCommand.execute(accountId)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {
@@ -104,7 +133,16 @@ export function createRouter(di: CommandsCompositionRoot) {
         const body = c.req.valid('json')
         const passwordResetToken = c.req.param('token')
 
-        const result = await di.application().resetPassword(passwordResetToken, body.password)
+        const resetPasswordCommand = new ResetPasswordCommand(
+          di.accountRepository(),
+          di.sessionRepository(),
+          di.passwordResetTokenRepository(),
+          di.passwordResetTokenHashRepository(),
+          di.passwordHashRepository(),
+          di.sessionTokenHashRepository(),
+          di.sessionTokenGenerator(),
+        )
+        const result = await resetPasswordCommand.execute(passwordResetToken, body.password)
         if (
           result instanceof PasswordResetTokenNotFoundError ||
           result instanceof PasswordResetTokenExpiredError
@@ -125,7 +163,12 @@ export function createRouter(di: CommandsCompositionRoot) {
     .get('/whoami', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const result = await di.application().whoami(sessionToken)
+      const whoamiQuery = new WhoamiQuery(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.sessionTokenHashRepository(),
+      )
+      const result = await whoamiQuery.execute(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
@@ -136,21 +179,12 @@ export function createRouter(di: CommandsCompositionRoot) {
     .get(
       '/account/:id',
       zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      bearerAuth,
       async (c) => {
-        const sessionToken = c.var.token
-
-        const requestorSession = await di.application().whoami(sessionToken)
-        if (requestorSession instanceof UnauthorizedError) {
-          return setError(c, requestorSession, 401)
-        }
-
         const { id } = c.req.valid('param')
 
-        const result = await di.application().getAccount(requestorSession.account.id, id)
-        if (result instanceof UnauthorizedError) {
-          return setError(c, result, 401)
-        } else if (result instanceof AccountNotFoundError) {
+        const getAccountQuery = new GetAccountCommand(di.accountRepository())
+        const result = await getAccountQuery.execute(id)
+        if (result instanceof AccountNotFoundError) {
           return setError(c, result, 404)
         }
 
@@ -161,7 +195,11 @@ export function createRouter(di: CommandsCompositionRoot) {
     .post('/refresh-session', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const result = await di.application().refreshSession(sessionToken)
+      const refreshSessionCommand = new RefreshSessionCommand(
+        di.sessionRepository(),
+        di.sessionTokenHashRepository(),
+      )
+      const result = await refreshSessionCommand.execute(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }

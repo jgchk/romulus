@@ -1,10 +1,64 @@
+import type { InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
+import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
 import { CustomError } from '../domain/errors/base'
 import type { Router } from './router'
 
-export class AuthenticationClient {
+export type IAuthenticationClient = {
+  login(body: {
+    username: string
+    password: string
+  }): ResultAsync<{ token: string; expiresAt: Date }, FetchError | AuthenticationClientError>
+
+  logout(): ResultAsync<void, FetchError>
+
+  register(body: {
+    username: string
+    password: string
+  }): ResultAsync<{ token: string; expiresAt: Date }, FetchError | AuthenticationClientError>
+
+  requestPasswordReset(body: {
+    accountId: number
+  }): ResultAsync<{ passwordResetLink: string }, FetchError | AuthenticationClientError>
+
+  resetPassword(body: { passwordResetToken: string; newPassword: string }): ResultAsync<
+    {
+      token: string
+      expiresAt: Date
+    },
+    FetchError | AuthenticationClientError
+  >
+
+  whoami(): ResultAsync<
+    {
+      account: {
+        id: number
+        username: string
+      }
+      session: {
+        expiresAt: Date
+      }
+    },
+    FetchError | AuthenticationClientError
+  >
+
+  getAccount(body: { accountId: number }): ResultAsync<
+    {
+      id: number
+      username: string
+    },
+    FetchError | AuthenticationClientError
+  >
+
+  refreshSession(): ResultAsync<
+    { token: string; expiresAt: Date },
+    FetchError | AuthenticationClientError
+  >
+}
+
+export class AuthenticationClient implements IAuthenticationClient {
   private client: ReturnType<typeof hc<Router>>
   private sessionToken: string | undefined
 
@@ -13,91 +67,117 @@ export class AuthenticationClient {
     this.sessionToken = sessionToken
   }
 
-  async login(body: { username: string; password: string }) {
-    const response = await this.client.login.$post({ json: body })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
-  }
-
-  async logout() {
-    const response = await this.client.logout.$post(
-      {},
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+  login(body: { username: string; password: string }) {
+    return ResultAsync.fromPromise(
+      this.client.login.$post({ json: body }),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    return responseBody
+      .map<InferResponseType<typeof this.client.login.$post>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ token: res.token, expiresAt: new Date(res.expiresAt) })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
   }
 
-  async register(body: { username: string; password: string }) {
-    const response = await this.client.register.$post({ json: body })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
-  }
-
-  async requestPasswordReset(body: { accountId: number }) {
-    const response = await this.client['request-password-reset'][':accountId'].$post(
-      { param: { accountId: body.accountId.toString() } },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+  logout() {
+    return ResultAsync.fromPromise(
+      this.client.logout.$post({}, { headers: { authorization: `Bearer ${this.sessionToken}` } }),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<typeof this.client.logout.$post>>((res) => res.json())
+      .andThen(() => okAsync(undefined))
   }
 
-  async resetPassword(body: { passwordResetToken: string; newPassword: string }) {
-    const response = await this.client['reset-password'][':token'].$post({
-      param: { token: body.passwordResetToken },
-      json: { password: body.newPassword },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
-  }
-
-  async whoami() {
-    const response = await this.client.whoami.$get(
-      {},
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+  register(body: { username: string; password: string }) {
+    return ResultAsync.fromPromise(
+      this.client.register.$post({ json: body }),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<typeof this.client.register.$post>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ token: res.token, expiresAt: new Date(res.expiresAt) })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
   }
 
-  async getAccount(body: { accountId: number }) {
-    const response = await this.client.account[':id'].$get(
-      { param: { id: body.accountId.toString() } },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+  requestPasswordReset(body: { accountId: number }) {
+    return ResultAsync.fromPromise(
+      this.client['request-password-reset'][':accountId'].$post(
+        { param: { accountId: body.accountId.toString() } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
+      .map<
+        InferResponseType<(typeof this.client)['request-password-reset'][':accountId']['$post']>
+      >((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ passwordResetLink: res.passwordResetLink })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
   }
 
-  async refreshSession() {
-    const response = await this.client['refresh-session'].$post(
-      {},
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+  resetPassword(body: { passwordResetToken: string; newPassword: string }) {
+    return ResultAsync.fromPromise(
+      this.client['reset-password'][':token'].$post({
+        param: { token: body.passwordResetToken },
+        json: { password: body.newPassword },
+      }),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new AuthenticationClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<(typeof this.client)['reset-password'][':token']['$post']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) => {
+        if (res.success) return okAsync({ token: res.token, expiresAt: new Date(res.expiresAt) })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  whoami() {
+    return ResultAsync.fromPromise(
+      this.client.whoami.$get({}, { headers: { authorization: `Bearer ${this.sessionToken}` } }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<typeof this.client.whoami.$get>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success)
+          return okAsync({
+            account: { id: res.account.id, username: res.account.username },
+            session: { expiresAt: new Date(res.session.expiresAt) },
+          })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  getAccount(body: { accountId: number }) {
+    return ResultAsync.fromPromise(
+      this.client.account[':id'].$get(
+        { param: { id: body.accountId.toString() } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.account)[':id']['$get']>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ id: res.account.id, username: res.account.username })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  refreshSession() {
+    return ResultAsync.fromPromise(
+      this.client['refresh-session'].$post(
+        {},
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['refresh-session']['$post']>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ token: res.token, expiresAt: new Date(res.expiresAt) })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
   }
 }
 
@@ -112,4 +192,24 @@ export class AuthenticationClientError extends CustomError {
   ) {
     super(originalError.name, originalError.message)
   }
+}
+
+export class FetchError extends CustomError {
+  constructor(public readonly originalError: Error) {
+    super('FetchError', `An error occurred while fetching: ${originalError.message}`)
+  }
+}
+
+function toError(error: unknown): Error {
+  if (error instanceof Error) return error
+  if (typeof error === 'string') return new Error(error)
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return new Error(error.message)
+  }
+  return new Error(String(error))
 }

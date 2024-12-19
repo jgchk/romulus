@@ -15,11 +15,6 @@ export class WhoamiQuery {
         account: {
           id: number
           username: string
-          genreRelevanceFilter: number
-          showRelevanceTags: boolean
-          showTypeTags: boolean
-          showNsfw: boolean
-          darkMode: boolean
         }
         session: { expiresAt: Date }
       }
@@ -48,11 +43,6 @@ export class WhoamiQuery {
     const accountOutput = {
       id: account.id,
       username: account.username,
-      genreRelevanceFilter: account.genreRelevanceFilter,
-      showRelevanceTags: account.showRelevanceTags,
-      showTypeTags: account.showTypeTags,
-      showNsfw: account.showNsfw,
-      darkMode: account.darkMode,
     }
 
     return {

@@ -1,4 +1,4 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization'
 import { createDate, TimeSpan } from 'oslo'
 
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
@@ -16,15 +16,11 @@ export class RequestPasswordResetCommand {
     private passwordResetTokenGeneratorRepo: TokenGenerator,
     private passwordResetTokenHashRepo: HashRepository,
     private accountRepo: AccountRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationClient,
   ) {}
 
-  async execute(
-    requestorUserId: number,
-    accountId: number,
-  ): Promise<string | UnauthorizedError | AccountNotFoundError> {
-    const hasPermission = await this.authorization.hasPermission(
-      requestorUserId,
+  async execute(accountId: number): Promise<string | UnauthorizedError | AccountNotFoundError> {
+    const hasPermission = await this.authorization.checkMyPermission(
       AuthenticationPermission.RequestPasswordReset,
     )
     if (!hasPermission) return new UnauthorizedError()

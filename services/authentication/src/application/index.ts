@@ -1,4 +1,4 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization'
 
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
@@ -44,9 +44,9 @@ export class AuthenticationApplication implements IAuthenticationApplication {
     passwordResetTokenRepo: PasswordResetTokenRepository,
     passwordResetTokenGenerator: TokenGenerator,
     passwordResetTokenHashRepo: HashRepository,
-    authorization: IAuthorizationApplication,
+    authorization: IAuthorizationClient,
   ) {
-    const getAccountCommand = new GetAccountCommand(accountRepo, authorization)
+    const getAccountCommand = new GetAccountCommand(accountRepo)
     const whoamiQuery = new WhoamiQuery(accountRepo, sessionRepo, sessionTokenHashRepo)
     const loginCommand = new LoginCommand(
       accountRepo,

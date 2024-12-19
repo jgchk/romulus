@@ -1,7 +1,3 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
-
-import type { IAuthenticationApplication } from '../application'
-import { AuthenticationApplication } from '../application'
 import type { AccountRepository } from '../domain/repositories/account'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
@@ -16,62 +12,41 @@ import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repo
 import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
 
 export class CommandsCompositionRoot {
-  constructor(
-    private _dbConnection: IDrizzleConnection,
-    private _authorization: IAuthorizationApplication,
-  ) {}
+  constructor(private _dbConnection: IDrizzleConnection) {}
 
   private dbConnection(): IDrizzleConnection {
     return this._dbConnection
   }
 
-  private authorization(): IAuthorizationApplication {
-    return this._authorization
-  }
-
-  application(): IAuthenticationApplication {
-    return new AuthenticationApplication(
-      this.accountRepository(),
-      this.sessionRepository(),
-      this.sessionTokenHashRepository(),
-      this.passwordHashRepository(),
-      this.sessionTokenGenerator(),
-      this.passwordResetTokenRepository(),
-      this.passwordResetTokenGenerator(),
-      this.passwordResetTokenHashRepository(),
-      this.authorization(),
-    )
-  }
-
-  private accountRepository(): AccountRepository {
+  accountRepository(): AccountRepository {
     return new DrizzleAccountRepository(this.dbConnection())
   }
 
-  private sessionRepository(): SessionRepository {
+  sessionRepository(): SessionRepository {
     return new DrizzleSessionRepository(this.dbConnection())
   }
 
-  private passwordHashRepository(): HashRepository {
+  passwordHashRepository(): HashRepository {
     return new BcryptHashRepository()
   }
 
-  private sessionTokenHashRepository(): HashRepository {
+  sessionTokenHashRepository(): HashRepository {
     return new Sha256HashRepository()
   }
 
-  private sessionTokenGenerator(): TokenGenerator {
+  sessionTokenGenerator(): TokenGenerator {
     return new CryptoTokenGenerator()
   }
 
-  private passwordResetTokenRepository(): PasswordResetTokenRepository {
+  passwordResetTokenRepository(): PasswordResetTokenRepository {
     return new DrizzlePasswordResetTokenRepository(this.dbConnection())
   }
 
-  private passwordResetTokenGenerator(): TokenGenerator {
+  passwordResetTokenGenerator(): TokenGenerator {
     return new CryptoTokenGenerator()
   }
 
-  private passwordResetTokenHashRepository(): HashRepository {
+  passwordResetTokenHashRepository(): HashRepository {
     return new Sha256HashRepository()
   }
 }

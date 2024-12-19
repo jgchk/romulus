@@ -12,6 +12,7 @@ import { bearerAuth } from './bearer-auth-middleware'
 import type { CompositionRoot } from './composition-root'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
+import { IAuthenticationClient } from '@romulus/authentication'
 
 export type Router = ReturnType<typeof createRouter>
 
@@ -28,8 +29,11 @@ class UnknownError extends CustomError {
   }
 }
 
-export function createRouter(di: CompositionRoot) {
-  const requireUser = bearerAuth(di.authentication())
+export function createRouter(
+  di: CompositionRoot,
+  getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
+) {
+  const requireUser = bearerAuth(getAuthenticationClient)
 
   const app = new Hono()
     .post(
