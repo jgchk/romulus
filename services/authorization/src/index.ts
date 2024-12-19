@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server'
+
 import { env } from './env'
 import { AuthorizationService } from './service'
 
@@ -24,8 +25,8 @@ async function main() {
     await service.destroy()
   }
 
-  process.on('SIGTERM', () => handleShutdown())
-  process.on('SIGINT', () => handleShutdown())
+  process.on('SIGTERM', () => void handleShutdown())
+  process.on('SIGINT', () => void handleShutdown())
 }
 
 void main()
