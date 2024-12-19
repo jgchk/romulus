@@ -1,3 +1,4 @@
+import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import type { InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -63,7 +64,7 @@ export class AuthenticationClient implements IAuthenticationClient {
   private sessionToken: string | undefined
 
   constructor(baseUrl: string, sessionToken: string | undefined) {
-    this.client = hc<Router>(baseUrl)
+    this.client = hc<Router>(baseUrl, { fetch: createExponentialBackoffFetch(fetch) })
     this.sessionToken = sessionToken
   }
 

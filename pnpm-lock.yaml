@@ -277,6 +277,9 @@ importers:
       '@romulus/authorization':
         specifier: workspace:*
         version: link:../authorization
+      '@romulus/fetch-retry':
+        specifier: workspace:*
+        version: link:../../packages/fetch-retry
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
