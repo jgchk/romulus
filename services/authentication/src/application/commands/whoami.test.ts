@@ -68,11 +68,6 @@ describe('getSession', () => {
       account: {
         id: account.id,
         username: 'testuser',
-        genreRelevanceFilter: 0,
-        showRelevanceTags: false,
-        showTypeTags: true,
-        showNsfw: false,
-        darkMode: true,
       },
       session: {
         expiresAt: session.expiresAt,

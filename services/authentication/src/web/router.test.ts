@@ -332,12 +332,7 @@ describe('whoami', () => {
     expect(await res.json()).toEqual({
       success: true,
       account: {
-        darkMode: true,
-        genreRelevanceFilter: 0,
         id: 1,
-        showNsfw: false,
-        showRelevanceTags: false,
-        showTypeTags: true,
         username: 'test',
       },
       session: {
@@ -395,12 +390,7 @@ describe('get-account', () => {
     expect(await res.json()).toEqual({
       success: true,
       account: {
-        darkMode: true,
-        genreRelevanceFilter: 0,
         id: 1,
-        showNsfw: false,
-        showRelevanceTags: false,
-        showTypeTags: true,
         username: 'test',
       },
     })
@@ -419,12 +409,7 @@ describe('get-account', () => {
     expect(await res.json()).toEqual({
       success: true,
       account: {
-        darkMode: true,
-        genreRelevanceFilter: 0,
         id: 1,
-        showNsfw: false,
-        showRelevanceTags: false,
-        showTypeTags: true,
         username: 'test',
       },
     })
