@@ -1,7 +1,7 @@
-import { AuthenticationClient } from '@romulus/authentication'
-import { AuthorizationClient } from '@romulus/authorization'
-import { GenresClient } from '@romulus/genres'
-import { UserSettingsClient } from '@romulus/user-settings'
+import { AuthenticationClient, type IAuthenticationClient } from '@romulus/authentication/client'
+import { AuthorizationClient, type IAuthorizationClient } from '@romulus/authorization/client'
+import { GenresClient, type IGenresClient } from '@romulus/genres/client'
+import { UserSettingsClient, type IUserSettingsClient } from '@romulus/user-settings/client'
 
 import type { IDrizzleConnection as IAppDrizzleConnection } from '$lib/server/db/connection'
 import type { ApiCommandService } from '$lib/server/features/api/commands/command-service'
@@ -30,19 +30,19 @@ export class CompositionRoot {
     return new ApiCompositionRoot(this.dbConnection()).apiQueryService()
   }
 
-  authentication() {
+  authentication(): IAuthenticationClient {
     return new AuthenticationClient(this.apiBaseUrl, this.sessionToken)
   }
 
-  authorization() {
+  authorization(): IAuthorizationClient {
     return new AuthorizationClient(this.apiBaseUrl, this.sessionToken)
   }
 
-  userSettings() {
+  userSettings(): IUserSettingsClient {
     return new UserSettingsClient(this.apiBaseUrl, this.sessionToken)
   }
 
-  genres() {
+  genres(): IGenresClient {
     return new GenresClient(this.apiBaseUrl, this.sessionToken)
   }
 

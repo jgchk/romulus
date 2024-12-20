@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { expect, vi } from 'vitest'
 
+import { DEFAULT_USER_SETTINGS } from '$lib/contexts/user-settings/types'
 import { toPrettyDate } from '$lib/utils/datetime'
 
 import { test } from '../../../../vitest-setup'
@@ -15,7 +16,7 @@ function setup(props: Partial<ComponentProps<typeof AccountAppsPage>>) {
     props: {
       disableFormSubmission: true,
       form: null,
-      data: { user: undefined, keys: [] },
+      data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
       ...props,
     },
   })
@@ -55,14 +56,20 @@ function setup(props: Partial<ComponentProps<typeof AccountAppsPage>>) {
 }
 
 test('should show an empty state when there are no keys', () => {
-  const { getByText, getCreateButton } = setup({ data: { user: undefined, keys: [] } })
+  const { getByText, getCreateButton } = setup({
+    data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
+  })
   expect(getByText('No API keys found.')).toBeInTheDocument()
   expect(getCreateButton()).toBeInTheDocument()
 })
 
 test('should show a create button when there are keys', () => {
   const { getCreateButton } = setup({
-    data: { user: undefined, keys: [{ id: 0, name: 'key-one', createdAt: new Date() }] },
+    data: {
+      user: undefined,
+      settings: DEFAULT_USER_SETTINGS,
+      keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
+    },
   })
   expect(getCreateButton()).toBeInTheDocument()
 })
@@ -74,6 +81,7 @@ test('should show existing keys in table', () => {
   const returned = setup({
     data: {
       user: undefined,
+      settings: DEFAULT_USER_SETTINGS,
       keys: [
         { id: 0, name: 'key-one', createdAt: date1 },
         { id: 1, name: 'key-two', createdAt: date2 },
@@ -90,7 +98,7 @@ test('should show existing keys in table', () => {
 
 test('should show a dialog when create key is clicked', async () => {
   const { getCreateButton, getCreateDialog, user } = setup({
-    data: { user: undefined, keys: [] },
+    data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
@@ -99,7 +107,7 @@ test('should show a dialog when create key is clicked', async () => {
 test.skip('should close the create dialog when cancel is clicked', async () => {
   const { getCreateButton, getCreateDialog, queryCreateDialog, getCreateCancelButton, user } =
     setup({
-      data: { user: undefined, keys: [] },
+      data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
     })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
@@ -109,7 +117,7 @@ test.skip('should close the create dialog when cancel is clicked', async () => {
 
 test.skip('should close the create dialog when ESC is pressed', async () => {
   const { getCreateButton, getCreateDialog, queryCreateDialog, user } = setup({
-    data: { user: undefined, keys: [] },
+    data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
   })
   await user.click(getCreateButton())
   expect(getCreateDialog()).toBeInTheDocument()
@@ -120,7 +128,7 @@ test.skip('should close the create dialog when ESC is pressed', async () => {
 test('should create the new key when create is clicked', async () => {
   const onCreate = vi.fn()
   const { getCreateButton, getCreateDialog, getCreateConfirmButton, getNameInput, user } = setup({
-    data: { user: undefined, keys: [] },
+    data: { user: undefined, settings: DEFAULT_USER_SETTINGS, keys: [] },
     onCreate,
   })
   await user.click(getCreateButton())
@@ -175,6 +183,7 @@ test('should show a confirmation dialog when delete is clicked', async () => {
   const { getDeleteButton, getDeleteDialog, user } = setup({
     data: {
       user: undefined,
+      settings: DEFAULT_USER_SETTINGS,
       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
     },
   })
@@ -188,6 +197,7 @@ test.skip('should close the delete dialog when cancel is clicked', async () => {
     setup({
       data: {
         user: undefined,
+        settings: DEFAULT_USER_SETTINGS,
         keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
       },
     })
@@ -202,6 +212,7 @@ test('should delete the key when the user confirms the delete dialog', async () 
   const { getDeleteButton, getDeleteConfirmButton, getDeleteDialog, user } = setup({
     data: {
       user: undefined,
+      settings: DEFAULT_USER_SETTINGS,
       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
     },
     onDelete,
@@ -216,6 +227,7 @@ test.skip('should close the delete dialog when ESC is pressed', async () => {
   const { getDeleteButton, getDeleteDialog, queryDeleteDialog, user } = setup({
     data: {
       user: undefined,
+      settings: DEFAULT_USER_SETTINGS,
       keys: [{ id: 0, name: 'key-one', createdAt: new Date() }],
     },
   })

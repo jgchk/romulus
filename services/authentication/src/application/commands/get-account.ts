@@ -1,7 +1,7 @@
 import type { AccountRepository } from '../../domain/repositories/account'
 import { AccountNotFoundError } from '../errors/account-not-found'
 
-export class GetAccountCommand {
+export class GetAccountQuery {
   constructor(private accountRepo: AccountRepository) {}
 
   async execute(accountId: number): Promise<

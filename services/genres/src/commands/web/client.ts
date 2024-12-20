@@ -3,9 +3,46 @@ import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { CustomError } from '../../shared/domain/base'
-import type { GenreCommandsRouter } from './router'
+import type { GenreCommandsRouter, GenreSchema } from './router'
 
-export class GenreCommandsClient {
+export type IGenreCommandsClient = {
+  createGenre(body: GenreSchema): Promise<
+    | {
+        readonly success: true
+        readonly id: number
+      }
+    | GenreCommandsClientError
+  >
+
+  deleteGenre(id: number): Promise<
+    | {
+        readonly success: true
+      }
+    | GenreCommandsClientError
+  >
+
+  updateGenre(
+    id: number,
+    body: GenreSchema,
+  ): Promise<
+    | {
+        readonly success: true
+      }
+    | GenreCommandsClientError
+  >
+
+  voteGenreRelevance(
+    id: number,
+    relevanceVote: number,
+  ): Promise<
+    | {
+        readonly success: true
+      }
+    | GenreCommandsClientError
+  >
+}
+
+export class GenreCommandsClient implements IGenreCommandsClient {
   private client: ReturnType<typeof hc<GenreCommandsRouter>>
   private sessionToken: string | undefined
 

@@ -73,6 +73,7 @@ async function setup(
       data: {
         id: 0,
         user: mockUser,
+        settings: DEFAULT_USER_SETTINGS,
         genre: mockGenre,
         leftPaneSize: undefined,
         streamed: {

@@ -1,4 +1,4 @@
-import { UserSettingsClientError } from '@romulus/user-settings'
+import { UserSettingsClientError } from '@romulus/user-settings/client'
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 import { z } from 'zod'
 

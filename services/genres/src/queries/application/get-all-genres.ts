@@ -51,7 +51,7 @@ type SortField =
 
 type SortOrder = 'asc' | 'desc'
 
-type GetAllGenresQueryResult<I extends GetAllGenresQueryIncludeFields = never> = {
+export type GetAllGenresQueryResult<I extends GetAllGenresQueryIncludeFields = never> = {
   data: GenreWithIncludedFields<I>[]
   pagination: { skip: number; limit: number; total: number }
 }

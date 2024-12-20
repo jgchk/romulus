@@ -4,7 +4,43 @@ import type { StatusCode } from 'hono/utils/http-status'
 import { CustomError } from '../domain/user-settings'
 import type { Router } from './router'
 
-export class UserSettingsClient {
+export type IUserSettingsClient = {
+  getUserSettings(): Promise<
+    | {
+        readonly success: true
+        readonly settings: {
+          readonly genreRelevanceFilter: number | null
+          readonly showRelevanceTags: boolean
+          readonly showTypeTags: boolean
+          readonly showNsfw: boolean
+          readonly darkMode: boolean
+        }
+      }
+    | UserSettingsClientError
+  >
+
+  updateUserSettings(body: {
+    genreRelevanceFilter: number | undefined
+    showRelevanceTags: boolean
+    showTypeTags: boolean
+    showNsfw: boolean
+    darkMode: boolean
+  }): Promise<
+    | {
+        readonly success: true
+        readonly settings: {
+          genreRelevanceFilter: number | null
+          showRelevanceTags: boolean
+          showTypeTags: boolean
+          showNsfw: boolean
+          darkMode: boolean
+        }
+      }
+    | UserSettingsClientError
+  >
+}
+
+export class UserSettingsClient implements IUserSettingsClient {
   private client: ReturnType<typeof hc<Router>>
   private sessionToken: string | undefined
 

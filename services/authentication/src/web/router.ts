@@ -2,7 +2,8 @@ import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-import { GetAccountCommand } from '../application/commands/get-account'
+import { GetAccountQuery } from '../application/commands/get-account'
+import { GetAccountsQuery } from '../application/commands/get-accounts'
 import { LoginCommand } from '../application/commands/login'
 import { LogoutCommand } from '../application/commands/logout'
 import { RefreshSessionCommand } from '../application/commands/refresh-session'
@@ -177,18 +178,31 @@ export function createRouter(
     })
 
     .get(
-      '/account/:id',
+      '/accounts/:id',
       zodValidator('param', z.object({ id: z.coerce.number().int() })),
       async (c) => {
         const { id } = c.req.valid('param')
 
-        const getAccountQuery = new GetAccountCommand(di.accountRepository())
+        const getAccountQuery = new GetAccountQuery(di.accountRepository())
         const result = await getAccountQuery.execute(id)
         if (result instanceof AccountNotFoundError) {
           return setError(c, result, 404)
         }
 
         return c.json({ success: true, account: result } as const)
+      },
+    )
+
+    .get(
+      '/accounts',
+      zodValidator('query', z.object({ id: z.coerce.number().int().array() })),
+      async (c) => {
+        const ids = c.req.valid('query').id
+
+        const getAccountsQuery = new GetAccountsQuery(di.accountRepository())
+        const result = await getAccountsQuery.execute(ids)
+
+        return c.json({ success: true, accounts: result } as const)
       },
     )
 

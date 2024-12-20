@@ -53,6 +53,10 @@ export type IAuthenticationClient = {
     FetchError | AuthenticationClientError
   >
 
+  getAccounts(
+    ids: number[],
+  ): ResultAsync<{ id: number; username: string }[], FetchError | AuthenticationClientError>
+
   refreshSession(): ResultAsync<
     { token: string; expiresAt: Date },
     FetchError | AuthenticationClientError
@@ -153,17 +157,29 @@ export class AuthenticationClient implements IAuthenticationClient {
 
   getAccount(body: { accountId: number }) {
     return ResultAsync.fromPromise(
-      this.client.account[':id'].$get(
+      this.client.accounts[':id'].$get(
         { param: { id: body.accountId.toString() } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
       (err) => new FetchError(toError(err)),
     )
-      .map<InferResponseType<(typeof this.client.account)[':id']['$get']>>((res) => res.json())
+      .map<InferResponseType<(typeof this.client.accounts)[':id']['$get']>>((res) => res.json())
       .andThen((res) => {
         if (res.success) return okAsync({ id: res.account.id, username: res.account.username })
         return errAsync(new AuthenticationClientError(res.error))
       })
+  }
+
+  getAccounts(ids: number[]) {
+    return ResultAsync.fromPromise(
+      this.client.accounts.$get(
+        { query: { id: ids.map((id) => id.toString()) } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['accounts']['$get']>>((res) => res.json())
+      .map((res) => res.accounts.map((account) => ({ id: account.id, username: account.username })))
   }
 
   refreshSession() {

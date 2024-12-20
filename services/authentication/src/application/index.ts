@@ -5,7 +5,7 @@ import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../domain/repositories/session'
 import type { TokenGenerator } from '../domain/repositories/token-generator'
-import { GetAccountCommand } from './commands/get-account'
+import { GetAccountQuery } from './commands/get-account'
 import { LoginCommand } from './commands/login'
 import { LogoutCommand } from './commands/logout'
 import { RefreshSessionCommand } from './commands/refresh-session'
@@ -15,7 +15,7 @@ import { ResetPasswordCommand } from './commands/reset-password'
 import { WhoamiQuery } from './commands/whoami'
 
 export type IAuthenticationApplication = {
-  getAccount: GetAccountCommand['execute']
+  getAccount: GetAccountQuery['execute']
   whoami: WhoamiQuery['execute']
   login: LoginCommand['execute']
   logout: LogoutCommand['execute']
@@ -26,7 +26,7 @@ export type IAuthenticationApplication = {
 }
 
 export class AuthenticationApplication implements IAuthenticationApplication {
-  getAccount: GetAccountCommand['execute']
+  getAccount: GetAccountQuery['execute']
   whoami: WhoamiQuery['execute']
   login: LoginCommand['execute']
   logout: LogoutCommand['execute']
@@ -46,7 +46,7 @@ export class AuthenticationApplication implements IAuthenticationApplication {
     passwordResetTokenHashRepo: HashRepository,
     authorization: IAuthorizationClient,
   ) {
-    const getAccountCommand = new GetAccountCommand(accountRepo)
+    const getAccountCommand = new GetAccountQuery(accountRepo)
     const whoamiQuery = new WhoamiQuery(accountRepo, sessionRepo, sessionTokenHashRepo)
     const loginCommand = new LoginCommand(
       accountRepo,

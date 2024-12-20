@@ -1,4 +1,4 @@
-import type { GenreQueriesClient } from '@romulus/genres'
+import type { IGenresClient } from '@romulus/genres/client'
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 
 import { checkApiAuth } from '$lib/server/auth'
@@ -17,7 +17,7 @@ export const GET = (async ({
     di: Pick<App.Locals['di'], 'apiCommandService'> & {
       genres: () => {
         queries: () => {
-          getAllGenres: GenreQueriesClient['getAllGenres']
+          getAllGenres: ReturnType<IGenresClient['queries']>['getAllGenres']
         }
       }
     }

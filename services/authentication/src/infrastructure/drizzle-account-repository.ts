@@ -26,6 +26,22 @@ export class DrizzleAccountRepository implements AccountRepository {
     return account
   }
 
+  async findByIds(ids: number[]): Promise<CreatedAccount[]> {
+    const entries = await this.db.query.accountsTable.findMany({
+      where: (accounts, { inArray }) => inArray(accounts.id, ids),
+    })
+
+    return entries.map(
+      (entry) =>
+        new CreatedAccount(entry.id, {
+          username: entry.username,
+          passwordHash: entry.password,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        }),
+    )
+  }
+
   async findByUsername(username: string): Promise<CreatedAccount | undefined> {
     const entry = await this.db.query.accountsTable.findFirst({
       where: (accounts, { eq }) => eq(accounts.username, username),

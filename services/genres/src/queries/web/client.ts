@@ -4,11 +4,112 @@ import type { StatusCode } from 'hono/utils/http-status'
 import type {
   GetAllGenresQueryIncludeFields,
   GetAllGenresQueryInput,
+  GetAllGenresQueryResult,
 } from '../../queries/application/get-all-genres'
 import type { GenreQueriesRouter } from '../../queries/web/router'
 import { CustomError } from '../../shared/domain/base'
+import type { GetGenreResult } from '../application/get-genre'
+import type { GetGenreHistoryResult } from '../application/get-genre-history'
+import type { GetGenreTreeResult } from '../application/get-genre-tree'
+import type { GetLatestGenreUpdatesResult } from '../application/get-latest-genre-updates'
 
-export class GenreQueriesClient {
+export type IGenreQueriesClient = {
+  getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(
+    query: GetAllGenresQueryInput<I>,
+  ): Promise<GetAllGenresQueryResult<I> | GenreQueriesClientError>
+
+  getGenreHistoryByAccount(accountId: number): Promise<
+    | {
+        success: true
+        history: {
+          createdAt: Date
+          id: number
+          name: string
+          type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+          subtitle: string | null
+          operation: 'CREATE' | 'UPDATE' | 'DELETE'
+          treeGenreId: number
+          nsfw: boolean
+        }[]
+      }
+    | GenreQueriesClientError
+  >
+
+  getGenreHistory(genreId: number): Promise<
+    | {
+        history: GetGenreHistoryResult
+        success: true
+      }
+    | GenreQueriesClientError
+  >
+
+  getGenreRelevanceVoteByAccount(
+    genreId: number,
+    accountId: number,
+  ): Promise<
+    | {
+        readonly success: true
+        readonly vote:
+          | {
+              genreId: number
+              accountId: number
+              relevance: number
+              createdAt: Date
+              updatedAt: Date
+            }
+          | undefined
+      }
+    | GenreQueriesClientError
+  >
+
+  getGenreRelevanceVotesByGenre(genreId: number): Promise<
+    | {
+        success: boolean
+        votes: {
+          genreId: number
+          accountId: number
+          relevance: number
+          createdAt: string
+          updatedAt: string
+        }[]
+      }
+    | GenreQueriesClientError
+  >
+
+  getGenreTree(): Promise<
+    | {
+        tree: GetGenreTreeResult
+        success: true
+      }
+    | GenreQueriesClientError
+  >
+
+  getGenre(genreId: number): Promise<
+    | {
+        success: true
+        genre: GetGenreResult
+      }
+    | GenreQueriesClientError
+  >
+
+  getLatestGenreUpdates(): Promise<
+    | {
+        readonly success: true
+        readonly latestUpdates: GetLatestGenreUpdatesResult
+      }
+    | GenreQueriesClientError
+  >
+
+  getRandomGenreId(): Promise<
+    | {
+        readonly success: true
+        readonly genre: number | undefined
+      }
+    | GenreQueriesClientError
+  >
+}
+
+export class GenreQueriesClient implements IGenreQueriesClient {
   private client: ReturnType<typeof hc<GenreQueriesRouter>>
 
   constructor(baseUrl: string) {
@@ -46,7 +147,14 @@ export class GenreQueriesClient {
     if (!responseBody.success) {
       return new GenreQueriesClientError(responseBody.error)
     }
-    return responseBody
+    return {
+      ...responseBody,
+      data: responseBody.data.map((genre) => ({
+        ...genre,
+        createdAt: new Date(genre.createdAt),
+        updatedAt: new Date(genre.updatedAt),
+      })) as unknown as GetAllGenresQueryResult<I>['data'],
+    }
   }
 
   async getGenreHistoryByAccount(accountId: number) {
@@ -97,7 +205,17 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      vote:
+        responseBody.vote !== undefined
+          ? {
+              ...responseBody.vote,
+              createdAt: new Date(responseBody.vote.createdAt),
+              updatedAt: new Date(responseBody.vote.updatedAt),
+            }
+          : undefined,
+    }
   }
 
   async getGenreRelevanceVotesByGenre(genreId: number) {
@@ -121,7 +239,13 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      tree: responseBody.tree.map((genre) => ({
+        ...genre,
+        updatedAt: new Date(genre.updatedAt),
+      })),
+    }
   }
 
   async getGenre(genreId: number) {
@@ -152,7 +276,17 @@ export class GenreQueriesClient {
         (responseBody as unknown as GenreQueriesErrorResponse).error,
       )
     }
-    return responseBody
+    return {
+      ...responseBody,
+      latestUpdates: responseBody.latestUpdates.map((update) => ({
+        ...update,
+        genre: { ...update.genre, createdAt: new Date(update.genre.createdAt) },
+        previousHistory:
+          update.previousHistory !== undefined
+            ? { ...update.previousHistory, createdAt: new Date(update.previousHistory.createdAt) }
+            : undefined,
+      })),
+    }
   }
 
   async getRandomGenreId() {

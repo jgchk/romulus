@@ -24,7 +24,7 @@
   let { data, children }: Props = $props()
 
   const user: UserStore = writable(data.user)
-  const userSettings = new UserSettingsStore(data.user)
+  const userSettings = new UserSettingsStore(data.settings)
 
   setUserContext(user)
   setUserSettingsContext(userSettings)
@@ -34,9 +34,9 @@
     $user = data.user
   })
 
-  userSettings.updateUser(data.user)
+  userSettings.updateUser(data.settings)
   $effect(() => {
-    userSettings.updateUser(data.user)
+    userSettings.updateUser(data.settings)
   })
 
   // Used to indicate when hydration is complete for Playwright tests

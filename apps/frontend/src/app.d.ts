@@ -8,7 +8,7 @@ declare global {
       dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       di: import('./composition-root').CompositionRoot
       user:
-        | ({
+        | {
             id: number
             username: string
             permissions: {
@@ -19,7 +19,7 @@ declare global {
                 canVoteRelevance: boolean
               }
             }
-          } & import('$lib/contexts/user-settings/types').UserSettings)
+          }
         | undefined
     }
     // interface PageData {}

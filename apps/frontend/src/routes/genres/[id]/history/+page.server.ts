@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
+import { isNotNull } from '$lib/utils/types'
+
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -15,5 +17,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     return error(response.originalError.statusCode, response.message)
   }
 
-  return { genreHistory: response.history }
+  const usersResponse = await locals.di
+    .authentication()
+    .getAccounts([...new Set(response.history.map((genre) => genre.accountId).filter(isNotNull))])
+  const usersMap = usersResponse.match(
+    (users) => new Map(users.map((user) => [user.id, user])),
+    () => new Map<number, { id: number; username: string }>(),
+  )
+
+  return {
+    genreHistory: response.history.map((genre) => ({
+      ...genre,
+      account: genre.accountId !== null ? (usersMap.get(genre.accountId) ?? null) : null,
+    })),
+  }
 }

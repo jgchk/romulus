@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
+import { isDefined } from '$lib/utils/types'
 
 import type { PageServerLoad } from './$types'
 import { relevanceVoteSchema } from './utils'
@@ -49,7 +50,15 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     relevanceVote = relevanceVoteResponse.vote?.relevance ?? UNSET_GENRE_RELEVANCE
   }
 
-  const { akas, parents, children, influencedBy, influences, ...rest } = maybeGenre
+  const usersResponse = await locals.di
+    .authentication()
+    .getAccounts([...new Set(maybeGenre.contributors)])
+  const usersMap = usersResponse.match(
+    (users) => new Map(users.map((user) => [user.id, user])),
+    () => new Map<number, { id: number; username: string }>(),
+  )
+
+  const { akas, parents, children, influencedBy, influences, contributors, ...rest } = maybeGenre
   const genre = {
     ...rest,
     akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
@@ -57,6 +66,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     children: children.sort((a, b) => a.name.localeCompare(b.name)),
     influencedBy: influencedBy.sort((a, b) => a.name.localeCompare(b.name)),
     influences: influences.sort((a, b) => a.name.localeCompare(b.name)),
+    contributors: contributors.map((id) => usersMap.get(id)).filter(isDefined),
   }
 
   const relevanceVoteForm = await superValidate({ relevanceVote }, zod(relevanceVoteSchema))

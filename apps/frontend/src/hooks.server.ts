@@ -1,4 +1,4 @@
-import { AuthenticationClientError } from '@romulus/authentication'
+import { GenresPermission } from '@romulus/genres/permissions'
 import type { Handle } from '@sveltejs/kit'
 
 import { PUBLIC_API_BASE_URL } from '$env/static/public'
@@ -7,8 +7,6 @@ import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/
 import * as schema from '$lib/server/db/schema'
 
 import { CompositionRoot } from './composition-root'
-import { AuthorizationPermission } from '@romulus/authorization'
-import { GenresPermission } from '@romulus/genres'
 
 const pg = getPostgresConnection()
 await migrate(getDbConnection(schema, pg))
@@ -26,18 +24,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (sessionToken) {
     const whoamiResult = await event.locals.di.authentication().whoami()
-    if (whoamiResult instanceof AuthenticationClientError) {
+    if (whoamiResult.isErr()) {
       event.locals.user = undefined
     } else {
-      const account = whoamiResult.account
+      const account = whoamiResult.value.account
       event.locals.user = {
         id: account.id,
         username: account.username,
-        genreRelevanceFilter: account.genreRelevanceFilter,
-        showRelevanceTags: account.showRelevanceTags,
-        showTypeTags: account.showTypeTags,
-        showNsfw: account.showNsfw,
-        darkMode: account.darkMode,
         permissions: {
           genres: {
             canCreate: false,
@@ -48,26 +41,26 @@ export const handle: Handle = async ({ event, resolve }) => {
         },
       }
 
-      const permissionsResult = await event.locals.di.authorization().getUserPermissions(account.id)
-      if (permissionsResult instanceof Error) {
-        console.error('Failed to fetch user permissions:', permissionsResult)
+      const permissionsResult = await event.locals.di.authorization().getMyPermissions()
+      if (permissionsResult.isErr()) {
+        console.error('Failed to fetch user permissions:', permissionsResult.error)
       } else {
         event.locals.user.permissions.genres = {
-          canCreate: permissionsResult.permissions.has(GenresPermission.CreateGenres),
-          canEdit: permissionsResult.permissions.has(GenresPermission.EditGenres),
-          canDelete: permissionsResult.permissions.has(GenresPermission.DeleteGenres),
-          canVoteRelevance: permissionsResult.permissions.has(GenresPermission.VoteGenreRelevance),
+          canCreate: permissionsResult.value.has(GenresPermission.CreateGenres),
+          canEdit: permissionsResult.value.has(GenresPermission.EditGenres),
+          canDelete: permissionsResult.value.has(GenresPermission.DeleteGenres),
+          canVoteRelevance: permissionsResult.value.has(GenresPermission.VoteGenreRelevance),
         }
       }
 
       const refreshSessionResult = await event.locals.di.authentication().refreshSession()
-      if (refreshSessionResult instanceof AuthenticationClientError) {
-        console.error('Failed to refresh session:', refreshSessionResult)
+      if (refreshSessionResult.isErr()) {
+        console.error('Failed to refresh session:', refreshSessionResult.error)
       } else {
         setSessionCookie(
           {
-            token: refreshSessionResult.token,
-            expires: new Date(refreshSessionResult.expiresAt),
+            token: refreshSessionResult.value.token,
+            expires: refreshSessionResult.value.expiresAt,
           },
           event.cookies,
         )

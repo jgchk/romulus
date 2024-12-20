@@ -241,6 +241,7 @@ const genreRelevance = z.coerce
     { message: `Relevance must be between 0 and 7 (inclusive), or ${UNSET_GENRE_RELEVANCE}` },
   )
 
+export type GenreSchema = z.infer<typeof genreSchema>
 const genreSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   shortDescription: nullableString,

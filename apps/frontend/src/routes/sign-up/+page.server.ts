@@ -1,6 +1,6 @@
-import { AuthenticationClientError } from '@romulus/authentication'
-import { type Actions, redirect } from '@sveltejs/kit'
-import { fail, setError, superValidate } from 'sveltekit-superforms'
+import { AuthenticationClientError, FetchError } from '@romulus/authentication/client'
+import { type Actions, error, redirect } from '@sveltejs/kit'
+import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
@@ -43,15 +43,22 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const registerResult = await locals.di
+    const response = await locals.di
       .authentication()
       .register({ username: form.data.username, password: form.data.password.password })
-    if (registerResult instanceof AuthenticationClientError) {
-      return setError(form, 'username', 'Username is already taken')
+    if (response.isErr()) {
+      if (response.error instanceof FetchError) {
+        return error(500, `Failed to sign up: ${response.error.message}`)
+      } else if (response.error instanceof AuthenticationClientError) {
+        return error(response.error.originalError.statusCode, response.error.originalError.message)
+      } else {
+        response.error satisfies never
+        return error(500, 'An unknown error occurred')
+      }
     }
 
     setSessionCookie(
-      { token: registerResult.token, expires: new Date(registerResult.expiresAt) },
+      { token: response.value.token, expires: new Date(response.value.expiresAt) },
       cookies,
     )
 
