@@ -61,6 +61,26 @@ export type IAuthenticationClient = {
     { token: string; expiresAt: Date },
     FetchError | AuthenticationClientError
   >
+
+  createApiKey(name: string): ResultAsync<
+    {
+      id: number
+      name: string
+      key: string
+    },
+    FetchError | AuthenticationClientError
+  >
+
+  deleteApiKey(id: number): ResultAsync<void, FetchError | AuthenticationClientError>
+
+  getApiKeys(): ResultAsync<
+    {
+      createdAt: Date
+      id: number
+      name: string
+    }[],
+    FetchError | AuthenticationClientError
+  >
 }
 
 export class AuthenticationClient implements IAuthenticationClient {
@@ -193,6 +213,54 @@ export class AuthenticationClient implements IAuthenticationClient {
       .map<InferResponseType<(typeof this.client)['refresh-session']['$post']>>((res) => res.json())
       .andThen((res) => {
         if (res.success) return okAsync({ token: res.token, expiresAt: new Date(res.expiresAt) })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  createApiKey(name: string) {
+    return ResultAsync.fromPromise(
+      this.client.me['api-keys'].$post(
+        { json: { name } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.me)['api-keys']['$post']>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success) return okAsync({ id: res.id, name: res.name, key: res.key })
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  deleteApiKey(id: number) {
+    return ResultAsync.fromPromise(
+      this.client.me['api-keys'][':id'].$delete(
+        { param: { id: id.toString() } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.me)['api-keys'][':id']['$delete']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) => {
+        if (res.success) return okAsync(undefined)
+        return errAsync(new AuthenticationClientError(res.error))
+      })
+  }
+
+  getApiKeys() {
+    return ResultAsync.fromPromise(
+      this.client.me['api-keys'].$get(
+        {},
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.me)['api-keys']['$get']>>((res) => res.json())
+      .andThen((res) => {
+        if (res.success)
+          return okAsync(res.keys.map((key) => ({ ...key, createdAt: new Date(key.createdAt) })))
         return errAsync(new AuthenticationClientError(res.error))
       })
   }

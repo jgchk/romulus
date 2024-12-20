@@ -35,3 +35,16 @@ export const passwordResetTokensTable = pgTable('PasswordResetToken', {
     mode: 'date',
   }).notNull(),
 })
+
+export const apiKeysTable = pgTable('ApiKey', {
+  id: serial('id').primaryKey().notNull(),
+  name: text('name').notNull(),
+  keyHash: text('key_hash').unique().notNull(),
+  accountId: integer('account_id')
+    .notNull()
+    .references(() => accountsTable.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+  createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+})

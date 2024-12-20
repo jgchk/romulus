@@ -2,8 +2,14 @@ import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { CreateApiKeyCommand } from '../application/commands/create-api-key'
+import {
+  DeleteApiKeyCommand,
+  UnauthorizedApiKeyDeletionError,
+} from '../application/commands/delete-api-key'
 import { GetAccountQuery } from '../application/commands/get-account'
 import { GetAccountsQuery } from '../application/commands/get-accounts'
+import { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account'
 import { LoginCommand } from '../application/commands/login'
 import { LogoutCommand } from '../application/commands/logout'
 import { RefreshSessionCommand } from '../application/commands/refresh-session'
@@ -219,6 +225,82 @@ export function createRouter(
       }
 
       return c.json({ success: true, token: result.token, expiresAt: result.expiresAt } as const)
+    })
+
+    .post(
+      '/me/api-keys',
+      bearerAuth,
+      zodValidator('json', z.object({ name: z.string().min(1) })),
+      async (c) => {
+        const name = c.req.valid('json').name
+        const sessionToken = c.var.token
+
+        const whoamiQuery = new WhoamiQuery(
+          di.accountRepository(),
+          di.sessionRepository(),
+          di.sessionTokenHashRepository(),
+        )
+        const whoamiResult = await whoamiQuery.execute(sessionToken)
+        if (whoamiResult instanceof UnauthorizedError) {
+          return setError(c, whoamiResult, 401)
+        }
+
+        const createApiKeyCommand = new CreateApiKeyCommand(
+          di.apiKeyRepository(),
+          di.apiKeyTokenGenerator(),
+          di.apiKeyHashRepository(),
+        )
+        const result = await createApiKeyCommand.execute(name, whoamiResult.account.id)
+
+        return c.json({ success: true, id: result.id, name: result.name, key: result.key } as const)
+      },
+    )
+
+    .delete(
+      '/me/api-keys/:id',
+      bearerAuth,
+      zodValidator('param', z.object({ id: z.coerce.number().int() })),
+      async (c) => {
+        const id = c.req.valid('param').id
+        const sessionToken = c.var.token
+
+        const whoamiQuery = new WhoamiQuery(
+          di.accountRepository(),
+          di.sessionRepository(),
+          di.sessionTokenHashRepository(),
+        )
+        const whoamiResult = await whoamiQuery.execute(sessionToken)
+        if (whoamiResult instanceof UnauthorizedError) {
+          return setError(c, whoamiResult, 401)
+        }
+
+        const deleteApiKeyCommand = new DeleteApiKeyCommand(di.apiKeyRepository())
+        const result = await deleteApiKeyCommand.execute(id, whoamiResult.account.id)
+        if (result instanceof UnauthorizedApiKeyDeletionError) {
+          return setError(c, result, 401)
+        }
+
+        return c.json({ success: true } as const)
+      },
+    )
+
+    .get('/me/api-keys', bearerAuth, async (c) => {
+      const sessionToken = c.var.token
+
+      const whoamiQuery = new WhoamiQuery(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.sessionTokenHashRepository(),
+      )
+      const whoamiResult = await whoamiQuery.execute(sessionToken)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return setError(c, whoamiResult, 401)
+      }
+
+      const getApiKeysQuery = new GetApiKeysByAccountQuery(di.dbConnection())
+      const result = await getApiKeysQuery.execute(whoamiResult.account.id)
+
+      return c.json({ success: true, keys: result } as const)
     })
 
   return app

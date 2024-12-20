@@ -1,4 +1,5 @@
 import type { AccountRepository } from '../domain/repositories/account'
+import type { ApiKeyRepository } from '../domain/repositories/api-key'
 import type { HashRepository } from '../domain/repositories/hash-repository'
 import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token'
 import type { SessionRepository } from '../domain/repositories/session'
@@ -6,6 +7,7 @@ import type { TokenGenerator } from '../domain/repositories/token-generator'
 import { BcryptHashRepository } from '../infrastructure/bcrypt-hash-repository'
 import { CryptoTokenGenerator } from '../infrastructure/crypto-token-generator'
 import { DrizzleAccountRepository } from '../infrastructure/drizzle-account-repository'
+import { DrizzleApiKeyRepository } from '../infrastructure/drizzle-api-key-repository'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../infrastructure/drizzle-password-reset-token-repository'
 import { DrizzleSessionRepository } from '../infrastructure/drizzle-session-repository'
@@ -14,7 +16,7 @@ import { Sha256HashRepository } from '../infrastructure/sha256-hash-repository'
 export class CommandsCompositionRoot {
   constructor(private _dbConnection: IDrizzleConnection) {}
 
-  private dbConnection(): IDrizzleConnection {
+  dbConnection(): IDrizzleConnection {
     return this._dbConnection
   }
 
@@ -47,6 +49,18 @@ export class CommandsCompositionRoot {
   }
 
   passwordResetTokenHashRepository(): HashRepository {
+    return new Sha256HashRepository()
+  }
+
+  apiKeyRepository(): ApiKeyRepository {
+    return new DrizzleApiKeyRepository(this.dbConnection())
+  }
+
+  apiKeyTokenGenerator(): TokenGenerator {
+    return new CryptoTokenGenerator()
+  }
+
+  apiKeyHashRepository(): HashRepository {
     return new Sha256HashRepository()
   }
 }

@@ -386,7 +386,7 @@ describe('get-account', () => {
 
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.account[':id'].$get(
+    const res = await client.accounts[':id'].$get(
       { param: { id: '1' } },
       { headers: { authorization: `Bearer ${sessionToken}` } },
     )
@@ -410,7 +410,7 @@ describe('get-account', () => {
     const { client, registerTestUser } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.account[':id'].$get(
+    const res = await client.accounts[':id'].$get(
       { param: { id: '1' } },
       { headers: { authorization: `Bearer ${sessionToken}` } },
     )
@@ -434,7 +434,7 @@ describe('get-account', () => {
     const { client, registerTestUser } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.account[':id'].$get(
+    const res = await client.accounts[':id'].$get(
       { param: { id: '2' } },
       { headers: { authorization: `Bearer ${sessionToken}` } },
     )
@@ -453,7 +453,7 @@ describe('get-account', () => {
   test('should error if the user is not logged in', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
 
-    const res = await client.account[':id'].$get({ param: { id: '1' } })
+    const res = await client.accounts[':id'].$get({ param: { id: '1' } })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -469,7 +469,7 @@ describe('get-account', () => {
   test('should error if the session does not exist', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
 
-    const res = await client.account[':id'].$get(
+    const res = await client.accounts[':id'].$get(
       { param: { id: '1' } },
       { headers: { authorization: 'Bearer invalid-session-token' } },
     )
@@ -490,7 +490,7 @@ describe('get-account', () => {
 
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.account[':id'].$get(
+    const res = await client.accounts[':id'].$get(
       { param: { id: '2' } },
       { headers: { authorization: `Bearer ${sessionToken}` } },
     )
