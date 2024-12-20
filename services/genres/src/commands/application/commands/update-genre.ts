@@ -1,4 +1,6 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import type { AuthorizationClientError, IAuthorizationClient } from '@romulus/authorization/client'
+import type { Result } from 'neverthrow'
+import { err, errAsync, ok, okAsync } from 'neverthrow'
 
 import { UnauthorizedError } from '../../../shared/domain/unauthorized'
 import type { DerivedChildError } from '../../domain/errors/derived-child'
@@ -20,7 +22,7 @@ export class UpdateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationClient,
   ) {}
 
   async execute(
@@ -28,30 +30,31 @@ export class UpdateGenreCommand {
     data: GenreUpdate,
     accountId: number,
   ): Promise<
-    | void
-    | UnauthorizedError
-    | GenreNotFoundError
-    | SelfInfluenceError
-    | DuplicateAkaError
-    | DerivedChildError
-    | DerivedInfluenceError
-    | GenreCycleError
+    Result<
+      void,
+      | AuthorizationClientError
+      | UnauthorizedError
+      | GenreNotFoundError
+      | DuplicateAkaError
+      | DerivedChildError
+      | DerivedInfluenceError
+      | SelfInfluenceError
+      | GenreCycleError
+    >
   > {
-    const hasPermission = await this.authorization.hasPermission(
-      accountId,
-      GenresPermission.EditGenres,
-    )
-    if (!hasPermission) return new UnauthorizedError()
+    const hasPermission = await this.checkPermission()
+    if (hasPermission.isErr()) return err(hasPermission.error)
 
     const genre = await this.genreRepo.findById(id)
     if (!genre) {
-      return new GenreNotFoundError()
+      return err(new GenreNotFoundError())
     }
 
-    const updatedGenre = genre.withUpdate(data)
-    if (updatedGenre instanceof Error) {
-      return updatedGenre
+    const updatedGenreResult = genre.withUpdate(data)
+    if (updatedGenreResult.isErr()) {
+      return err(updatedGenreResult.error)
     }
+    const updatedGenre = updatedGenreResult.value
 
     const genreTree = await this.genreTreeRepo.get()
     const genreParents = data.parents ?? genreTree.getParents(id)
@@ -63,23 +66,24 @@ export class UpdateGenreCommand {
       lastGenreHistory &&
       !updatedGenre.isChangedFrom(genreParents, genreDerivedFrom, genreInfluences, lastGenreHistory)
     ) {
-      return
+      return ok(undefined)
     }
 
-    const genreTreeNode = GenreTreeNode.create(
+    const genreTreeNodeResult = GenreTreeNode.create(
       id,
       updatedGenre.name,
       genreParents,
       genreDerivedFrom,
       genreInfluences,
     )
-    if (genreTreeNode instanceof Error) {
-      return genreTreeNode
+    if (genreTreeNodeResult.isErr()) {
+      return err(genreTreeNodeResult.error)
     }
+    const genreTreeNode = genreTreeNodeResult.value
 
-    const treeError = genreTree.updateGenre(genreTreeNode)
-    if (treeError instanceof Error) {
-      return treeError
+    const updateTreeResult = genreTree.updateGenre(genreTreeNode)
+    if (updateTreeResult.isErr()) {
+      return err(updateTreeResult.error)
     }
 
     await this.genreRepo.save(updatedGenre)
@@ -96,5 +100,16 @@ export class UpdateGenreCommand {
       accountId,
     )
     await this.genreHistoryRepo.create(genreHistory)
+
+    return ok(undefined)
+  }
+
+  private checkPermission() {
+    return this.authorization
+      .checkMyPermission(GenresPermission.EditGenres)
+      .andThen((hasPermission) => {
+        if (!hasPermission) return errAsync(new UnauthorizedError())
+        return okAsync(undefined)
+      })
   }
 }

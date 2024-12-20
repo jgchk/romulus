@@ -1,3 +1,5 @@
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 import { equals } from 'ramda'
 
 import { DuplicateAkaError } from './errors/duplicate-aka'
@@ -76,18 +78,18 @@ export class Genre {
     this.updatedAt = new Date(params.updatedAt)
   }
 
-  static create(params: GenreConstructorParams): Genre | DuplicateAkaError {
+  static create(params: GenreConstructorParams): Result<Genre, DuplicateAkaError> {
     const genre = new Genre(params)
 
-    const duplicateAkaError = genre.checkDuplicateAkas()
-    if (duplicateAkaError) {
-      return duplicateAkaError
+    const duplicateAkasResult = genre.checkDuplicateAkas()
+    if (duplicateAkasResult.isErr()) {
+      return err(duplicateAkasResult.error)
     }
 
-    return genre
+    return ok(genre)
   }
 
-  private checkDuplicateAkas(): DuplicateAkaError | undefined {
+  private checkDuplicateAkas(): Result<void, DuplicateAkaError> {
     const set = new Set<string>()
 
     for (const level of Object.keys(this.akas) as (keyof typeof this.akas)[]) {
@@ -95,10 +97,12 @@ export class Genre {
         if (!set.has(aka)) {
           set.add(aka)
         } else {
-          return new DuplicateAkaError(aka, level)
+          return err(new DuplicateAkaError(aka, level))
         }
       }
     }
+
+    return ok(undefined)
   }
 
   withUpdate(data: GenreUpdate) {

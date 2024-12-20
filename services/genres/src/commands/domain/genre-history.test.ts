@@ -4,7 +4,7 @@ import { Genre } from './genre'
 import { GenreHistory } from './genre-history'
 
 describe('GenreHistory', () => {
-  const baseGenre = Genre.create({
+  const baseGenreResult = Genre.create({
     id: 1,
     name: 'Test Genre',
     type: 'STYLE',
@@ -17,9 +17,10 @@ describe('GenreHistory', () => {
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   })
-  if (baseGenre instanceof Error) {
-    expect.fail(`Genre creation failed: ${baseGenre.message}`)
+  if (baseGenreResult.isErr()) {
+    expect.fail(`Genre creation failed: ${baseGenreResult.error.message}`)
   }
+  const baseGenre = baseGenreResult.value
 
   it('should create a GenreHistory from a Genre', () => {
     const parents = new Set<number>([2, 3])
@@ -56,13 +57,14 @@ describe('GenreHistory', () => {
   })
 
   it('should handle null values for optional fields', () => {
-    const genreWithSubtitle = Genre.create({
+    const genreWithSubtitleResult = Genre.create({
       ...baseGenre,
       subtitle: 'Original Subtitle',
     })
-    if (genreWithSubtitle instanceof Error) {
-      expect.fail(`Genre creation failed: ${genreWithSubtitle.message}`)
+    if (genreWithSubtitleResult.isErr()) {
+      expect.fail(`Genre creation failed: ${genreWithSubtitleResult.error.message}`)
     }
+    const genreWithSubtitle = genreWithSubtitleResult.value
 
     const genreHistory = GenreHistory.fromGenre(
       genreWithSubtitle.id!,
@@ -76,13 +78,14 @@ describe('GenreHistory', () => {
 
     expect(genreHistory.subtitle).toBe('Original Subtitle')
 
-    const genreWithoutSubtitle = Genre.create({
+    const genreWithoutSubtitleResult = Genre.create({
       ...baseGenre,
       subtitle: undefined,
     })
-    if (genreWithoutSubtitle instanceof Error) {
-      expect.fail(`Genre creation failed: ${genreWithoutSubtitle.message}`)
+    if (genreWithoutSubtitleResult.isErr()) {
+      expect.fail(`Genre creation failed: ${genreWithoutSubtitleResult.error.message}`)
     }
+    const genreWithoutSubtitle = genreWithoutSubtitleResult.value
 
     const genreHistoryWithoutSubtitle = GenreHistory.fromGenre(
       genreWithoutSubtitle.id!,

@@ -3,14 +3,24 @@ import { z } from 'zod'
 
 import { GenreNotFoundError } from '../../commands/application/errors/genre-not-found'
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config'
+import { CustomError } from '../../shared/domain/base'
+import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
 import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../shared/infrastructure/drizzle-schema'
 import { setError } from '../../shared/web/utils'
 import { zodValidator } from '../../shared/web/zod-validator'
-import type { GenreQueriesApplication } from '../application'
+import { GetAllGenresQuery } from '../application/get-all-genres'
+import { GetGenreQuery } from '../application/get-genre'
+import { GetGenreHistoryQuery } from '../application/get-genre-history'
+import { GetGenreHistoryByAccountQuery } from '../application/get-genre-history-by-account'
+import { GetGenreRelevanceVoteByAccountQuery } from '../application/get-genre-relevance-vote-by-account'
+import { GetGenreRelevanceVotesByGenreQuery } from '../application/get-genre-relevance-votes-by-genre'
+import { GetGenreTreeQuery } from '../application/get-genre-tree'
+import { GetLatestGenreUpdatesQuery } from '../application/get-latest-genre-updates'
+import { GetRandomGenreIdQuery } from '../application/get-random-genre-id'
 
 export type GenreQueriesRouter = ReturnType<typeof createQueriesRouter>
 
-export function createQueriesRouter(application: GenreQueriesApplication) {
+export function createQueriesRouter(dbConnection: IDrizzleConnection) {
   const app = new Hono()
     .get('/genres', async (c) => {
       const url = new URL(c.req.raw.url)
@@ -27,7 +37,8 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
         )
       }
 
-      const genres = await application.getAllGenres(params.data)
+      const getAllGenresQuery = new GetAllGenresQuery(dbConnection)
+      const genres = await getAllGenresQuery.execute(params.data)
       return c.json({ success: true, ...genres } as const)
     })
 
@@ -36,7 +47,8 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       zodValidator('param', z.object({ accountId: z.coerce.number().int() })),
       async (c) => {
         const accountId = c.req.valid('param').accountId
-        const history = await application.getGenreHistoryByAccount(accountId)
+        const getGenreHistoryByAccountQuery = new GetGenreHistoryByAccountQuery(dbConnection)
+        const history = await getGenreHistoryByAccountQuery.execute(accountId)
         return c.json({ success: true, history } as const)
       },
     )
@@ -46,7 +58,8 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       zodValidator('param', z.object({ id: z.coerce.number().int() })),
       async (c) => {
         const id = c.req.valid('param').id
-        const history = await application.getGenreHistory(id)
+        const getGenreHistoryQuery = new GetGenreHistoryQuery(dbConnection)
+        const history = await getGenreHistoryQuery.execute(id)
         return c.json({ success: true, history } as const)
       },
     )
@@ -59,7 +72,10 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       ),
       async (c) => {
         const { id, accountId } = c.req.valid('param')
-        const vote = await application.getGenreRelevanceVoteByAccount(id, accountId)
+        const getGenreRelevanceVoteByAccountQuery = new GetGenreRelevanceVoteByAccountQuery(
+          dbConnection,
+        )
+        const vote = await getGenreRelevanceVoteByAccountQuery.execute(id, accountId)
         return c.json({ success: true, vote } as const)
       },
     )
@@ -69,13 +85,17 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       zodValidator('param', z.object({ id: z.coerce.number().int() })),
       async (c) => {
         const id = c.req.valid('param').id
-        const votes = await application.getGenreRelevanceVotesByGenre(id)
+        const getGenreRelevanceVotesByGenreQuery = new GetGenreRelevanceVotesByGenreQuery(
+          dbConnection,
+        )
+        const votes = await getGenreRelevanceVotesByGenreQuery.execute(id)
         return c.json({ success: true, votes })
       },
     )
 
     .get('/genre-tree', async (c) => {
-      const tree = await application.getGenreTree()
+      const getGenreTreeQuery = new GetGenreTreeQuery(dbConnection)
+      const tree = await getGenreTreeQuery.execute()
       return c.json({ success: true, tree } as const)
     })
 
@@ -84,21 +104,32 @@ export function createQueriesRouter(application: GenreQueriesApplication) {
       zodValidator('param', z.object({ id: z.coerce.number().int() })),
       async (c) => {
         const id = c.req.valid('param').id
-        const genre = await application.getGenre(id)
-        if (genre instanceof GenreNotFoundError) {
-          return setError(c, genre, 404)
-        }
-        return c.json({ success: true, genre } as const)
+        const getGenreQuery = new GetGenreQuery(dbConnection)
+        const result = await getGenreQuery.execute(id)
+
+        return result.match(
+          (genre) => c.json({ success: true, genre } as const),
+          (err) => {
+            if (err instanceof GenreNotFoundError) {
+              return setError(c, err, 404)
+            } else {
+              err satisfies never
+              return setError(c, new UnknownError(), 500)
+            }
+          },
+        )
       },
     )
 
     .get('/latest-genre-updates', async (c) => {
-      const latestUpdates = await application.getLatestGenreUpdates()
+      const getLatestGenreUpdatesQuery = new GetLatestGenreUpdatesQuery(dbConnection)
+      const latestUpdates = await getLatestGenreUpdatesQuery.execute()
       return c.json({ success: true, latestUpdates } as const)
     })
 
     .get('/random-genre', async (c) => {
-      const genre = await application.getRandomGenreId()
+      const getRandomGenreIdQuery = new GetRandomGenreIdQuery(dbConnection)
+      const genre = await getRandomGenreIdQuery.execute()
       return c.json({ success: true, genre } as const)
     })
 
@@ -189,4 +220,10 @@ function parseQueryParams(url: URL) {
       order: url.searchParams.get('order') ?? undefined,
     },
   })
+}
+
+class UnknownError extends CustomError {
+  constructor() {
+    super('UnknownError', 'An unknown error occurred')
+  }
 }

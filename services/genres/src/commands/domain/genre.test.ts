@@ -1,3 +1,4 @@
+import { err } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { DuplicateAkaError } from './errors/duplicate-aka'
@@ -21,12 +22,15 @@ describe('Genre', () => {
   describe('create', () => {
     it('creates a valid genre', () => {
       const result = Genre.create(baseGenreParams)
+      if (result.isErr()) {
+        expect.fail(`Failed to create genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Test Genre')
-        expect(result.type).toBe('STYLE')
-        expect(result.nsfw).toBe(false)
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.name).toBe('Test Genre')
+        expect(result.value.type).toBe('STYLE')
+        expect(result.value.nsfw).toBe(false)
       }
     })
 
@@ -35,10 +39,13 @@ describe('Genre', () => {
         ...baseGenreParams,
         name: '  Test Genre  ',
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to create genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Test Genre')
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.name).toBe('Test Genre')
       }
     })
 
@@ -47,10 +54,13 @@ describe('Genre', () => {
         ...baseGenreParams,
         subtitle: '  Test Subtitle  ',
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to create genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.subtitle).toBe('Test Subtitle')
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.subtitle).toBe('Test Subtitle')
       }
     })
 
@@ -63,10 +73,13 @@ describe('Genre', () => {
           tertiary: [],
         },
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to create genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.akas.primary).toEqual(['Valid AKA'])
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.akas.primary).toEqual(['Valid AKA'])
       }
     })
 
@@ -80,11 +93,7 @@ describe('Genre', () => {
         },
       })
 
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('primary')
-      }
+      expect(result).toEqual(err(new DuplicateAkaError('Duplicate', 'primary')))
     })
 
     it('returns DuplicateAkaError when same AKA exists across different levels', () => {
@@ -97,34 +106,33 @@ describe('Genre', () => {
         },
       })
 
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('secondary')
-      }
+      expect(result).toEqual(err(new DuplicateAkaError('Duplicate', 'secondary')))
     })
   })
 
   describe('withUpdate', () => {
     it('updates basic properties', () => {
       const baseGenre = Genre.create(baseGenreParams)
-      if (!(baseGenre instanceof Genre)) {
-        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      if (baseGenre.isErr()) {
+        expect.fail(`Failed to create genre: ${baseGenre.error.message}`)
       }
 
-      const result = baseGenre.withUpdate({
+      const result = baseGenre.value.withUpdate({
         name: 'Updated Name',
         subtitle: 'New Subtitle',
         type: 'TREND',
         nsfw: true,
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to update genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Updated Name')
-        expect(result.subtitle).toBe('New Subtitle')
-        expect(result.type).toBe('TREND')
-        expect(result.nsfw).toBe(true)
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.name).toBe('Updated Name')
+        expect(result.value.subtitle).toBe('New Subtitle')
+        expect(result.value.type).toBe('TREND')
+        expect(result.value.nsfw).toBe(true)
       }
     })
 
@@ -133,60 +141,62 @@ describe('Genre', () => {
         ...baseGenreParams,
         subtitle: 'Original Subtitle',
       })
-      if (!(genreWithSubtitle instanceof Genre)) {
-        expect.fail(`Failed to create genre: ${genreWithSubtitle.message}`)
+      if (genreWithSubtitle.isErr()) {
+        expect.fail(`Failed to create genre: ${genreWithSubtitle.error.message}`)
       }
 
-      const result = genreWithSubtitle.withUpdate({
+      const result = genreWithSubtitle.value.withUpdate({
         subtitle: null,
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to update genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.subtitle).toBeUndefined()
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value) {
+        expect(result.value.subtitle).toBeUndefined()
       }
     })
 
     it('updates AKAs', () => {
       const baseGenre = Genre.create(baseGenreParams)
-      if (!(baseGenre instanceof Genre)) {
-        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      if (baseGenre.isErr()) {
+        expect.fail(`Failed to create genre: ${baseGenre.error.message}`)
       }
 
-      const result = baseGenre.withUpdate({
+      const result = baseGenre.value.withUpdate({
         akas: {
           primary: ['New AKA'],
           secondary: ['Secondary AKA'],
           tertiary: ['Tertiary AKA'],
         },
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to update genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.akas.primary).toEqual(['New AKA'])
-        expect(result.akas.secondary).toEqual(['Secondary AKA'])
-        expect(result.akas.tertiary).toEqual(['Tertiary AKA'])
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value) {
+        expect(result.value.akas.primary).toEqual(['New AKA'])
+        expect(result.value.akas.secondary).toEqual(['Secondary AKA'])
+        expect(result.value.akas.tertiary).toEqual(['Tertiary AKA'])
       }
     })
 
     it('returns DuplicateAkaError when update creates duplicate AKAs', () => {
       const baseGenre = Genre.create(baseGenreParams)
-      if (!(baseGenre instanceof Genre)) {
-        expect.fail(`Failed to create genre: ${baseGenre.message}`)
+      if (baseGenre.isErr()) {
+        expect.fail(`Failed to create genre: ${baseGenre.error.message}`)
       }
 
-      const result = baseGenre.withUpdate({
+      const result = baseGenre.value.withUpdate({
         akas: {
           primary: ['Duplicate'],
           secondary: ['Duplicate'],
         },
       })
 
-      expect(result).toBeInstanceOf(DuplicateAkaError)
-      if (result instanceof DuplicateAkaError) {
-        expect(result.aka).toBe('Duplicate')
-        expect(result.level).toBe('secondary')
-      }
+      expect(result).toEqual(err(new DuplicateAkaError('Duplicate', 'secondary')))
     })
 
     it('preserves unchanged fields', () => {
@@ -197,30 +207,34 @@ describe('Genre', () => {
         longDescription: 'Original Long Description',
         notes: 'Original Notes',
       })
-      if (!(originalGenre instanceof Genre)) {
-        expect.fail(`Failed to create genre: ${originalGenre.message}`)
+      if (originalGenre.isErr()) {
+        expect.fail(`Failed to create genre: ${originalGenre.error.message}`)
       }
 
-      const result = originalGenre.withUpdate({
+      const result = originalGenre.value.withUpdate({
         name: 'Updated Name',
       })
+      if (result.isErr()) {
+        expect.fail(`Failed to update genre: ${result.error.message}`)
+      }
 
-      expect(result).toBeInstanceOf(Genre)
-      if (result instanceof Genre) {
-        expect(result.name).toBe('Updated Name')
-        expect(result.subtitle).toBe('Original Subtitle')
-        expect(result.shortDescription).toBe('Original Short Description')
-        expect(result.longDescription).toBe('Original Long Description')
-        expect(result.notes).toBe('Original Notes')
+      expect(result.value).toBeInstanceOf(Genre)
+      if (result.value instanceof Genre) {
+        expect(result.value.name).toBe('Updated Name')
+        expect(result.value.subtitle).toBe('Original Subtitle')
+        expect(result.value.shortDescription).toBe('Original Short Description')
+        expect(result.value.longDescription).toBe('Original Long Description')
+        expect(result.value.notes).toBe('Original Notes')
       }
     })
   })
 
   describe('isChangedFrom', () => {
-    const baseGenre = Genre.create(baseGenreParams)
-    if (!(baseGenre instanceof Genre)) {
-      expect.fail(`Failed to create genre: ${baseGenre.message}`)
+    const baseGenreResult = Genre.create(baseGenreParams)
+    if (baseGenreResult.isErr()) {
+      expect.fail(`Failed to create genre: ${baseGenreResult.error.message}`)
     }
+    const baseGenre = baseGenreResult.value
 
     it('detects changes in basic properties', () => {
       const history = new GenreHistory(

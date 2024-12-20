@@ -1,3 +1,4 @@
+import { err, ok, type Result } from 'neverthrow'
 import { intersection } from 'ramda'
 
 import { DerivedChildError } from './errors/derived-child'
@@ -19,22 +20,22 @@ export class GenreTreeNode {
     parents: Set<number>,
     derivedFrom: Set<number>,
     influences: Set<number>,
-  ): GenreTreeNode | DerivedChildError | DerivedInfluenceError | SelfInfluenceError {
+  ): Result<GenreTreeNode, DerivedChildError | DerivedInfluenceError | SelfInfluenceError> {
     const isDerivedAndChild = intersection([...parents], [...derivedFrom]).length > 0
     if (isDerivedAndChild) {
-      return new DerivedChildError(id)
+      return err(new DerivedChildError(id))
     }
 
     const isDerivedAndInfluence = intersection([...derivedFrom], [...influences]).length > 0
     if (isDerivedAndInfluence) {
-      return new DerivedInfluenceError(id)
+      return err(new DerivedInfluenceError(id))
     }
 
     const influencesSelf = influences.has(id)
     if (influencesSelf) {
-      return new SelfInfluenceError()
+      return err(new SelfInfluenceError())
     }
 
-    return new GenreTreeNode(id, name, parents, derivedFrom, influences)
+    return ok(new GenreTreeNode(id, name, parents, derivedFrom, influences))
   }
 }

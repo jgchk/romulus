@@ -4,7 +4,7 @@ import { GetGenreQuery } from '../../../queries/application/get-genre'
 import { GetGenreRelevanceVotesByGenreQuery } from '../../../queries/application/get-genre-relevance-votes-by-genre'
 import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
 import { UNSET_GENRE_RELEVANCE } from '../../../shared/infrastructure/drizzle-schema'
-import { MockAuthorizationApplication } from '../../../test/mock-authorization-application'
+import { MockAuthorizationClient } from '../../../test/mock-authorization-client'
 import { test } from '../../../vitest-setup'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository'
@@ -22,29 +22,29 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
 
-  if (genre instanceof Error) {
-    expect.fail(`Failed to create genre: ${genre.message}`)
+  if (genre.isErr()) {
+    expect.fail(`Failed to create genre: ${genre.error.message}`)
   }
 
   if (data.relevance !== undefined) {
     const voteRelevanceCommand = new VoteGenreRelevanceCommand(
       new DrizzleGenreRelevanceVoteRepository(dbConnection),
-      new MockAuthorizationApplication(),
+      new MockAuthorizationClient(),
     )
 
-    const result = await voteRelevanceCommand.execute(genre.id, data.relevance, accountId)
+    const result = await voteRelevanceCommand.execute(genre.value.id, data.relevance, accountId)
 
     if (result instanceof Error) {
       expect.fail(`Failed to vote on genre relevance: ${result.message}`)
     }
   }
 
-  return genre
+  return genre.value
 }
 
 function getTestGenre(
@@ -74,7 +74,7 @@ async function vote(
 ) {
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const voteResult = await voteGenreRelevance.execute(...args)
@@ -103,7 +103,10 @@ test('should delete vote and update relevance when relevance is UNSET_GENRE_RELE
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
-  expect(updatedGenre?.relevance).toBe(UNSET_GENRE_RELEVANCE)
+  if (updatedGenre.isErr()) {
+    expect.fail(`GetGenreQuery errored: ${updatedGenre.error.message}`)
+  }
+  expect(updatedGenre.value.relevance).toBe(UNSET_GENRE_RELEVANCE)
 })
 
 test('should upsert vote and update relevance when relevance is not UNSET_GENRE_RELEVANCE', async ({
@@ -130,7 +133,10 @@ test('should upsert vote and update relevance when relevance is not UNSET_GENRE_
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
-  expect(updatedGenre?.relevance).toBe(2)
+  if (updatedGenre.isErr()) {
+    expect.fail(`GetGenreQuery errored: ${updatedGenre.error.message}`)
+  }
+  expect(updatedGenre.value.relevance).toBe(2)
 })
 
 test('should calculate median relevance correctly', async ({ dbConnection }) => {
@@ -150,7 +156,10 @@ test('should calculate median relevance correctly', async ({ dbConnection }) => 
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
-  expect(updatedGenre?.relevance).toBe(3)
+  if (updatedGenre.isErr()) {
+    expect.fail(`GetGenreQuery errored: ${updatedGenre.error.message}`)
+  }
+  expect(updatedGenre.value.relevance).toBe(3)
 })
 
 test('should round median relevance to nearest integer', async ({ dbConnection }) => {
@@ -168,5 +177,8 @@ test('should round median relevance to nearest integer', async ({ dbConnection }
 
   const getGenreQuery = new GetGenreQuery(dbConnection)
   const updatedGenre = await getGenreQuery.execute(genre.id)
-  expect(updatedGenre?.relevance).toBe(3)
+  if (updatedGenre.isErr()) {
+    expect.fail(`GetGenreQuery errored: ${updatedGenre.error.message}`)
+  }
+  expect(updatedGenre.value.relevance).toBe(3)
 })

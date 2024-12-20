@@ -9,7 +9,7 @@ import { DrizzleGenreHistoryRepository } from '../../commands/infrastructure/dri
 import { DrizzleGenreRepository } from '../../commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../commands/infrastructure/drizzle-genre-tree-repository'
 import type { IDrizzleConnection } from '../../shared/infrastructure/drizzle-database'
-import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { MockAuthorizationClient } from '../../test/mock-authorization-client'
 import { test } from '../../vitest-setup'
 import { GetLatestGenreUpdatesQuery } from './get-latest-genre-updates'
 
@@ -22,16 +22,16 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
 
-  if (genre instanceof Error) {
-    expect.fail(`Failed to create genre: ${genre.message}`)
+  if (genre.isErr()) {
+    expect.fail(`Failed to create genre: ${genre.error.message}`)
   }
 
-  return genre
+  return genre.value
 }
 
 function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
@@ -118,7 +118,7 @@ test('should return latest history for an updated genre', async ({ dbConnection 
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
   const updateResult = await updateGenreCommand.execute(
     genre.id,

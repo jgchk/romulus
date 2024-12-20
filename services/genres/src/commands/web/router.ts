@@ -1,14 +1,20 @@
-import type { IAuthenticationApplication } from '@romulus/authentication'
+import type { IAuthenticationClient } from '@romulus/authentication/client'
+import { AuthorizationClientError, type IAuthorizationClient } from '@romulus/authorization/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import type { CompositionRoot } from '../../composition-root'
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config'
+import { CustomError } from '../../shared/domain/base'
 import { UnauthorizedError } from '../../shared/domain/unauthorized'
 import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../../shared/infrastructure/drizzle-schema'
 import { bearerAuth } from '../../shared/web/bearer-auth-middleware'
 import { setError } from '../../shared/web/utils'
 import { zodValidator } from '../../shared/web/zod-validator'
-import type { GenreCommandsApplication } from '../application'
+import { CreateGenreCommand } from '../application/commands/create-genre'
+import { DeleteGenreCommand } from '../application/commands/delete-genre'
+import { UpdateGenreCommand } from '../application/commands/update-genre'
+import { VoteGenreRelevanceCommand } from '../application/commands/vote-genre-relevance'
 import { GenreNotFoundError } from '../application/errors/genre-not-found'
 import { DerivedChildError } from '../domain/errors/derived-child'
 import { DerivedInfluenceError } from '../domain/errors/derived-influence'
@@ -20,17 +26,24 @@ import { SelfInfluenceError } from '../domain/errors/self-influence'
 export type GenreCommandsRouter = ReturnType<typeof createCommandsRouter>
 
 export function createCommandsRouter(
-  application: GenreCommandsApplication,
-  authentication: IAuthenticationApplication,
+  di: CompositionRoot,
+  getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
+  getAuthorizationClient: (sessionToken: string) => IAuthorizationClient,
 ) {
-  const requireUser = bearerAuth(authentication)
+  const requireUser = bearerAuth(getAuthenticationClient)
 
   const app = new Hono()
     .post('/genres', zodValidator('json', genreSchema), requireUser, async (c) => {
       const body = c.req.valid('json')
       const user = c.var.user
 
-      const result = await application.createGenre(
+      const createGenreCommand = new CreateGenreCommand(
+        di.genreRepository(),
+        di.genreTreeRepository(),
+        di.genreHistoryRepository(),
+        getAuthorizationClient(c.var.token),
+      )
+      const result = await createGenreCommand.execute(
         {
           ...body,
           subtitle: body.subtitle ?? undefined,
@@ -57,19 +70,26 @@ export function createCommandsRouter(
         user.id,
       )
 
-      if (result instanceof UnauthorizedError) {
-        return setError(c, result, 401)
-      }
-      if (
-        result instanceof SelfInfluenceError ||
-        result instanceof DuplicateAkaError ||
-        result instanceof DerivedChildError ||
-        result instanceof DerivedInfluenceError
-      ) {
-        return setError(c, result, 400)
-      }
-
-      return c.json({ success: true, id: result.id } as const)
+      return result.match(
+        (genre) => c.json({ success: true, id: genre.id } as const),
+        (err) => {
+          if (err instanceof AuthorizationClientError) {
+            return setError(c, err, 500)
+          } else if (err instanceof UnauthorizedError) {
+            return setError(c, err, 401)
+          } else if (
+            err instanceof SelfInfluenceError ||
+            err instanceof DuplicateAkaError ||
+            err instanceof DerivedChildError ||
+            err instanceof DerivedInfluenceError
+          ) {
+            return setError(c, err, 400)
+          } else {
+            err satisfies never
+            return setError(c, new UnknownError(), 500)
+          }
+        },
+      )
     })
 
     .delete(
@@ -80,16 +100,29 @@ export function createCommandsRouter(
         const id = c.req.valid('param').id
         const user = c.var.user
 
-        const result = await application.deleteGenre(id, user.id)
+        const deleteGenreCommand = new DeleteGenreCommand(
+          di.genreRepository(),
+          di.genreTreeRepository(),
+          di.genreHistoryRepository(),
+          getAuthorizationClient(c.var.token),
+        )
+        const result = await deleteGenreCommand.execute(id, user.id)
 
-        if (result instanceof UnauthorizedError) {
-          return setError(c, result, 401)
-        }
-        if (result instanceof GenreNotFoundError) {
-          return setError(c, result, 404)
-        }
-
-        return c.json({ success: true } as const)
+        return result.match(
+          () => c.json({ success: true } as const),
+          (err) => {
+            if (err instanceof AuthorizationClientError) {
+              return setError(c, err, 500)
+            } else if (err instanceof UnauthorizedError) {
+              return setError(c, err, 401)
+            } else if (err instanceof GenreNotFoundError) {
+              return setError(c, err, 404)
+            } else {
+              err satisfies never
+              return setError(c, new UnknownError(), 500)
+            }
+          },
+        )
       },
     )
 
@@ -103,7 +136,13 @@ export function createCommandsRouter(
         const body = c.req.valid('json')
         const user = c.var.user
 
-        const result = await application.updateGenre(
+        const updateGenreCommand = new UpdateGenreCommand(
+          di.genreRepository(),
+          di.genreTreeRepository(),
+          di.genreHistoryRepository(),
+          getAuthorizationClient(c.var.token),
+        )
+        const result = await updateGenreCommand.execute(
           id,
           {
             ...body,
@@ -125,24 +164,29 @@ export function createCommandsRouter(
           user.id,
         )
 
-        if (result instanceof UnauthorizedError) {
-          return setError(c, result, 401)
-        }
-        if (
-          result instanceof SelfInfluenceError ||
-          result instanceof DuplicateAkaError ||
-          result instanceof DerivedChildError ||
-          result instanceof DerivedInfluenceError ||
-          result instanceof GenreCycleError
-        ) {
-          return setError(c, result, 400)
-        }
-
-        if (result instanceof GenreNotFoundError) {
-          return setError(c, result, 404)
-        }
-
-        return c.json({ success: true } as const)
+        return result.match(
+          () => c.json({ success: true } as const),
+          (err) => {
+            if (err instanceof AuthorizationClientError) {
+              return setError(c, err, 500)
+            } else if (err instanceof UnauthorizedError) {
+              return setError(c, err, 401)
+            } else if (
+              err instanceof SelfInfluenceError ||
+              err instanceof DuplicateAkaError ||
+              err instanceof DerivedChildError ||
+              err instanceof DerivedInfluenceError ||
+              err instanceof GenreCycleError
+            ) {
+              return setError(c, err, 400)
+            } else if (err instanceof GenreNotFoundError) {
+              return setError(c, err, 404)
+            } else {
+              err satisfies never
+              return setError(c, new UnknownError(), 500)
+            }
+          },
+        )
       },
     )
 
@@ -156,16 +200,27 @@ export function createCommandsRouter(
         const body = c.req.valid('json')
         const user = c.var.user
 
-        const result = await application.voteGenreRelevance(id, body.relevanceVote, user.id)
+        const voteGenreRelevanceCommand = new VoteGenreRelevanceCommand(
+          di.genreRelevanceVoteRepository(),
+          getAuthorizationClient(c.var.token),
+        )
+        const result = await voteGenreRelevanceCommand.execute(id, body.relevanceVote, user.id)
 
-        if (result instanceof UnauthorizedError) {
-          return setError(c, result, 401)
-        }
-        if (result instanceof InvalidGenreRelevanceError) {
-          return setError(c, result, 400)
-        }
-
-        return c.json({ success: true } as const)
+        return result.match(
+          () => c.json({ success: true } as const),
+          (err) => {
+            if (err instanceof AuthorizationClientError) {
+              return setError(c, err, 500)
+            } else if (err instanceof UnauthorizedError) {
+              return setError(c, err, 401)
+            } else if (err instanceof InvalidGenreRelevanceError) {
+              return setError(c, err, 400)
+            } else {
+              err satisfies never
+              return setError(c, new UnknownError(), 500)
+            }
+          },
+        )
       },
     )
 
@@ -205,3 +260,9 @@ const genreSchema = z.object({
   relevance: genreRelevance.optional(),
   nsfw: z.boolean(),
 })
+
+class UnknownError extends CustomError {
+  constructor() {
+    super('UnknownError', 'An unknown error occurred')
+  }
+}

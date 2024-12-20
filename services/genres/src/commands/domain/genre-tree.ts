@@ -1,3 +1,5 @@
+import { err, ok, type Result } from 'neverthrow'
+
 import { GenreCycleError } from './errors/genre-cycle'
 import type { GenreTreeNode } from './genre-tree-node'
 
@@ -12,13 +14,15 @@ export class GenreTree {
     this.map.set(node.id, { node, status: 'created' })
   }
 
-  updateGenre(node: GenreTreeNode): GenreCycleError | void {
+  updateGenre(node: GenreTreeNode): Result<void, GenreCycleError> {
     this.map.set(node.id, { node, status: 'updated' })
 
     const cycle = this.findCycle()
     if (cycle) {
-      return new GenreCycleError(cycle)
+      return err(new GenreCycleError(cycle))
     }
+
+    return ok(undefined)
   }
 
   deleteGenre(id: number): void {

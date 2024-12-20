@@ -1,4 +1,5 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
+import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
 import { UnauthorizedError } from '../../../shared/domain/unauthorized'
 import { GenreHistory } from '../../domain/genre-history'
@@ -13,65 +14,72 @@ export class DeleteGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationClient,
   ) {}
 
-  async execute(
-    id: number,
-    accountId: number,
-  ): Promise<void | UnauthorizedError | GenreNotFoundError> {
-    const hasPermission = await this.authorization.hasPermission(
-      accountId,
-      GenresPermission.DeleteGenres,
-    )
-    if (!hasPermission) return new UnauthorizedError()
+  async execute(id: number, accountId: number) {
+    return this.checkPermission()
+      .andThen(() => ResultAsync.fromSafePromise(this.genreRepo.findById(id)))
+      .andThen((genre) => {
+        if (genre === undefined) return err(new GenreNotFoundError())
+        return ok(genre)
+      })
+      .andThen((genre) =>
+        ResultAsync.fromSafePromise(
+          (async () => {
+            const genreTree = await this.genreTreeRepo.get()
 
-    const genre = await this.genreRepo.findById(id)
-    if (!genre) {
-      return new GenreNotFoundError()
-    }
+            const genreParentsBeforeDeletion = genreTree.getParents(id)
+            const genreDerivedFromBeforeDeletion = genreTree.getDerivedFrom(id)
+            const genreInfluencesBeforeDeletion = genreTree.getInfluences(id)
 
-    const genreTree = await this.genreTreeRepo.get()
+            const childrenIds = genreTree.getGenreChildren(id)
+            genreTree.deleteGenre(id)
 
-    const genreParentsBeforeDeletion = genreTree.getParents(id)
-    const genreDerivedFromBeforeDeletion = genreTree.getDerivedFrom(id)
-    const genreInfluencesBeforeDeletion = genreTree.getInfluences(id)
+            await this.genreTreeRepo.save(genreTree)
 
-    const childrenIds = genreTree.getGenreChildren(id)
-    genreTree.deleteGenre(id)
+            await this.genreRepo.delete(id)
 
-    await this.genreTreeRepo.save(genreTree)
+            const genreHistory = GenreHistory.fromGenre(
+              id,
+              genre,
+              genreParentsBeforeDeletion,
+              genreDerivedFromBeforeDeletion,
+              genreInfluencesBeforeDeletion,
+              'DELETE',
+              accountId,
+            )
+            await this.genreHistoryRepo.create(genreHistory)
 
-    await this.genreRepo.delete(id)
+            // save genre history for all children
+            await Promise.all(
+              [...childrenIds].map(async (childId) => {
+                const child = await this.genreRepo.findById(childId)
+                if (!child) return
 
-    const genreHistory = GenreHistory.fromGenre(
-      id,
-      genre,
-      genreParentsBeforeDeletion,
-      genreDerivedFromBeforeDeletion,
-      genreInfluencesBeforeDeletion,
-      'DELETE',
-      accountId,
-    )
-    await this.genreHistoryRepo.create(genreHistory)
+                const childHistory = GenreHistory.fromGenre(
+                  childId,
+                  child,
+                  genreTree.getParents(childId),
+                  genreTree.getDerivedFrom(childId),
+                  genreTree.getInfluences(childId),
+                  'UPDATE',
+                  accountId,
+                )
+                await this.genreHistoryRepo.create(childHistory)
+              }),
+            )
+          })(),
+        ),
+      )
+  }
 
-    // save genre history for all children
-    await Promise.all(
-      [...childrenIds].map(async (childId) => {
-        const child = await this.genreRepo.findById(childId)
-        if (!child) return
-
-        const childHistory = GenreHistory.fromGenre(
-          childId,
-          child,
-          genreTree.getParents(childId),
-          genreTree.getDerivedFrom(childId),
-          genreTree.getInfluences(childId),
-          'UPDATE',
-          accountId,
-        )
-        await this.genreHistoryRepo.create(childHistory)
-      }),
-    )
+  private checkPermission() {
+    return this.authorization
+      .checkMyPermission(GenresPermission.DeleteGenres)
+      .andThen((hasPermission) => {
+        if (!hasPermission) return errAsync(new UnauthorizedError())
+        return okAsync(undefined)
+      })
   }
 }

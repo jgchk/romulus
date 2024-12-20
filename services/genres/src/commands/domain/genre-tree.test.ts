@@ -1,3 +1,4 @@
+import { err, ok } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { GenreCycleError } from './errors/genre-cycle'
@@ -5,13 +6,13 @@ import { GenreTree } from './genre-tree'
 import { GenreTreeNode } from './genre-tree-node'
 
 function createNode(...args: Parameters<typeof GenreTreeNode.create>): GenreTreeNode {
-  const node = GenreTreeNode.create(...args)
+  const nodeResult = GenreTreeNode.create(...args)
 
-  if (node instanceof Error) {
-    expect.fail(`Error creating genre node: ${node.message}`)
+  if (nodeResult.isErr()) {
+    expect.fail(`Error creating genre node: ${nodeResult.error.message}`)
   }
 
-  return node
+  return nodeResult.value
 }
 
 describe('GenreTree', () => {
@@ -61,7 +62,7 @@ describe('GenreTree', () => {
 
       const result = tree.updateGenre(createNode(2, 'Rock', new Set([1]), new Set(), new Set()))
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual(ok(undefined))
       expect(tree.map.get(2)?.node.parents).toEqual(new Set([1]))
     })
 
@@ -72,8 +73,7 @@ describe('GenreTree', () => {
 
       const result = tree.updateGenre(createNode(1, 'Music', new Set([2]), new Set(), new Set()))
 
-      expect(result).toBeInstanceOf(GenreCycleError)
-      expect((result as GenreCycleError).cycle).toBe('Music → Rock → Music')
+      expect(result).toEqual(err(new GenreCycleError('Music → Rock → Music')))
     })
 
     it('detects cycles in derived relationships', () => {
@@ -83,8 +83,7 @@ describe('GenreTree', () => {
 
       const result = tree.updateGenre(createNode(1, 'Blues', new Set(), new Set([2]), new Set()))
 
-      expect(result).toBeInstanceOf(GenreCycleError)
-      expect((result as GenreCycleError).cycle).toBe('Blues → Rock → Blues')
+      expect(result).toEqual(err(new GenreCycleError('Blues → Rock → Blues')))
     })
 
     it('detects cycles in mixed relationships', () => {
@@ -95,7 +94,7 @@ describe('GenreTree', () => {
 
       const result = tree.updateGenre(createNode(1, 'Blues', new Set(), new Set([3]), new Set()))
 
-      expect(result).toBeInstanceOf(GenreCycleError)
+      expect(result).toEqual(err(new GenreCycleError('Blues → Metal → Rock → Blues')))
     })
   })
 

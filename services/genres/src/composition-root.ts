@@ -1,7 +1,3 @@
-import type { IAuthenticationApplication } from '@romulus/authentication'
-import type { IAuthorizationApplication } from '@romulus/authorization'
-
-import { GenreCommandsApplication } from './commands/application'
 import type { GenreHistoryRepository } from './commands/domain/genre-history-repository'
 import type { GenreRelevanceVoteRepository } from './commands/domain/genre-relevance-vote-repository'
 import type { GenreRepository } from './commands/domain/genre-repository'
@@ -10,55 +6,28 @@ import { DrizzleGenreHistoryRepository } from './commands/infrastructure/drizzle
 import { DrizzleGenreRelevanceVoteRepository } from './commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from './commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from './commands/infrastructure/drizzle-genre-tree-repository'
-import { GenreQueriesApplication } from './queries/application'
 import type { IDrizzleConnection } from './shared/infrastructure/drizzle-database'
 
 export class CompositionRoot {
-  constructor(
-    private _dbConnection: IDrizzleConnection,
-    private _authentication: IAuthenticationApplication,
-    private _authorization: IAuthorizationApplication,
-  ) {}
+  constructor(private _dbConnection: IDrizzleConnection) {}
 
-  commands(): GenreCommandsApplication {
-    return new GenreCommandsApplication(
-      this.genreRepository(),
-      this.genreTreeRepository(),
-      this.genreHistoryRepository(),
-      this.genreRelevanceVoteRepository(),
-      this.authorization(),
-    )
-  }
-
-  queries(): GenreQueriesApplication {
-    return new GenreQueriesApplication(this.dbConnection())
-  }
-
-  authentication(): IAuthenticationApplication {
-    return this._authentication
-  }
-
-  authorization(): IAuthorizationApplication {
-    return this._authorization
-  }
-
-  private dbConnection(): IDrizzleConnection {
+  dbConnection(): IDrizzleConnection {
     return this._dbConnection
   }
 
-  private genreRepository(): GenreRepository {
+  genreRepository(): GenreRepository {
     return new DrizzleGenreRepository(this.dbConnection())
   }
 
-  private genreTreeRepository(): GenreTreeRepository {
+  genreTreeRepository(): GenreTreeRepository {
     return new DrizzleGenreTreeRepository(this.dbConnection())
   }
 
-  private genreHistoryRepository(): GenreHistoryRepository {
+  genreHistoryRepository(): GenreHistoryRepository {
     return new DrizzleGenreHistoryRepository(this.dbConnection())
   }
 
-  private genreRelevanceVoteRepository(): GenreRelevanceVoteRepository {
+  genreRelevanceVoteRepository(): GenreRelevanceVoteRepository {
     return new DrizzleGenreRelevanceVoteRepository(this.dbConnection())
   }
 }

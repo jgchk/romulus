@@ -1,10 +1,7 @@
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import type { IAuthorizationClient } from '@romulus/authorization/client'
+import { errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow'
 
 import { UnauthorizedError } from '../../../shared/domain/unauthorized'
-import type { DerivedChildError } from '../../domain/errors/derived-child'
-import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
-import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
-import type { SelfInfluenceError } from '../../domain/errors/self-influence'
 import { Genre } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
 import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
@@ -38,64 +35,55 @@ export class CreateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationClient,
   ) {}
 
-  async execute(
-    data: CreateGenreInput,
-    accountId: number,
-  ): Promise<
-    | { id: number }
-    | UnauthorizedError
-    | SelfInfluenceError
-    | DuplicateAkaError
-    | DerivedChildError
-    | DerivedInfluenceError
-  > {
-    const hasPermission = await this.authorization.hasPermission(
-      accountId,
-      GenresPermission.CreateGenres,
-    )
-    if (!hasPermission) return new UnauthorizedError()
+  async execute(data: CreateGenreInput, accountId: number) {
+    return this.checkPermission()
+      .andThen(() => Genre.create(data))
+      .andThen((genre) => {
+        const genreTreeNode = GenreTreeNode.create(
+          -1,
+          genre.name,
+          data.parents,
+          data.derivedFrom,
+          data.influences,
+        )
+        return Result.combine([ok(genre), genreTreeNode])
+      })
+      .andThen(([genre, genreTreeNode]) =>
+        ResultAsync.fromSafePromise(
+          (async () => {
+            const { id } = await this.genreRepo.save(genre)
+            genreTreeNode.id = id
 
-    const genre = Genre.create(data)
+            const genreTree = await this.genreTreeRepo.get()
+            genreTree.insertGenre(genreTreeNode)
+            await this.genreTreeRepo.save(genreTree)
 
-    if (genre instanceof Error) {
-      return genre
-    }
+            const genreHistory = GenreHistory.fromGenre(
+              id,
+              genre,
+              data.parents,
+              data.derivedFrom,
+              data.influences,
+              'CREATE',
+              accountId,
+            )
+            await this.genreHistoryRepo.create(genreHistory)
 
-    const genreTree = await this.genreTreeRepo.get()
+            return { id }
+          })(),
+        ),
+      )
+  }
 
-    const genreTreeNode = GenreTreeNode.create(
-      -1,
-      genre.name,
-      data.parents,
-      data.derivedFrom,
-      data.influences,
-    )
-    if (genreTreeNode instanceof Error) {
-      return genreTreeNode
-    }
-
-    genreTree.insertGenre(genreTreeNode)
-
-    const { id } = await this.genreRepo.save(genre)
-
-    genreTreeNode.id = id
-
-    await this.genreTreeRepo.save(genreTree)
-
-    const genreHistory = GenreHistory.fromGenre(
-      id,
-      genre,
-      data.parents,
-      data.derivedFrom,
-      data.influences,
-      'CREATE',
-      accountId,
-    )
-    await this.genreHistoryRepo.create(genreHistory)
-
-    return { id }
+  private checkPermission() {
+    return this.authorization
+      .checkMyPermission(GenresPermission.CreateGenres)
+      .andThen((hasPermission) => {
+        if (!hasPermission) return errAsync(new UnauthorizedError())
+        return okAsync(undefined)
+      })
   }
 }

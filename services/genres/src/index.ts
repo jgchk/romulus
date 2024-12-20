@@ -1,5 +1,5 @@
-import type { IAuthenticationApplication } from '@romulus/authentication'
-import type { IAuthorizationApplication } from '@romulus/authorization'
+import { AuthenticationClient } from '@romulus/authentication/client'
+import { AuthorizationClient } from '@romulus/authorization/client'
 import type { Sql } from 'postgres'
 
 import { GenresPermission } from './commands/domain/permissions'
@@ -23,40 +23,42 @@ export class GenresService {
   private constructor(
     private pg: Sql,
     private di: CompositionRoot,
+    private authenticationBaseUrl: string,
+    private authorizationBaseUrl: string,
   ) {}
 
   static async create(
     databaseUrl: string,
-    authentication: IAuthenticationApplication,
-    authorization: IAuthorizationApplication,
+    authenticationBaseUrl: string,
+    authorizationBaseUrl: string,
+    systemUserToken: string,
   ): Promise<GenresService> {
     const pg = getPostgresConnection(databaseUrl)
     const db = getDbConnection(pg)
     await migrate(db)
 
-    const di = new CompositionRoot(db, authentication, authorization)
+    const di = new CompositionRoot(db)
 
-    await authorization.ensurePermissions([
+    const authorization = new AuthorizationClient(authorizationBaseUrl, systemUserToken)
+    const result = await authorization.ensurePermissions([
       { name: GenresPermission.CreateGenres, description: undefined },
       { name: GenresPermission.EditGenres, description: undefined },
       { name: GenresPermission.DeleteGenres, description: undefined },
       { name: GenresPermission.VoteGenreRelevance, description: undefined },
     ])
+    if (result.isErr()) throw result.error
 
-    return new GenresService(pg, di)
-  }
-
-  use() {
-    return {
-      commands: () => this.di.commands(),
-      queries: () => this.di.queries(),
-    }
+    return new GenresService(pg, di, authenticationBaseUrl, authorizationBaseUrl)
   }
 
   getRouter(): Router {
     return createRouter(
-      createCommandsRouter(this.di.commands(), this.di.authentication()),
-      createQueriesRouter(this.di.queries()),
+      createCommandsRouter(
+        this.di,
+        (sessionToken) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),
+        (sessionToken) => new AuthorizationClient(this.authorizationBaseUrl, sessionToken),
+      ),
+      createQueriesRouter(this.di.dbConnection()),
     )
   }
 

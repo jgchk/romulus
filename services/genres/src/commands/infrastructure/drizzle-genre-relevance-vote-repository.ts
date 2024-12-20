@@ -6,7 +6,6 @@ import {
   genres,
   UNSET_GENRE_RELEVANCE,
 } from '../../shared/infrastructure/drizzle-schema'
-import { InvalidGenreRelevanceError } from '../domain/errors/invalid-genre-relevance'
 import { GenreRelevance } from '../domain/genre-relevance'
 import { GenreRelevanceVote } from '../domain/genre-relevance-vote'
 import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository'
@@ -49,14 +48,14 @@ export class DrizzleGenreRelevanceVoteRepository implements GenreRelevanceVoteRe
 
     for (const result of results) {
       const relevance = GenreRelevance.create(result.relevance)
-      if (relevance instanceof InvalidGenreRelevanceError) {
+      if (relevance.isErr()) {
         console.error(
-          `Error while reconstructing GenreRelevanceVotes in DrizzleGenreRelevanceVoteRepository.findByGenreId(). Invalid relevance for DB entry ${JSON.stringify(result)}. ${relevance.message}`,
+          `Error while reconstructing GenreRelevanceVotes in DrizzleGenreRelevanceVoteRepository.findByGenreId(). Invalid relevance for DB entry ${JSON.stringify(result)}. ${relevance.error.message}`,
         )
         continue
       }
 
-      const vote = new GenreRelevanceVote(result.genreId, result.accountId, relevance)
+      const vote = new GenreRelevanceVote(result.genreId, result.accountId, relevance.value)
       votes.push(vote)
     }
 

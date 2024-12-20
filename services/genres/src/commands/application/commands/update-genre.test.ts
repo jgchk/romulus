@@ -1,9 +1,10 @@
+import { err } from 'neverthrow'
 import { expect } from 'vitest'
 
 import { GetAllGenresQuery } from '../../../queries/application/get-all-genres'
 import { GetGenreHistoryQuery } from '../../../queries/application/get-genre-history'
 import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
-import { MockAuthorizationApplication } from '../../../test/mock-authorization-application'
+import { MockAuthorizationClient } from '../../../test/mock-authorization-client'
 import { test } from '../../../vitest-setup'
 import { GenreCycleError } from '../../domain/errors/genre-cycle'
 import { SelfInfluenceError } from '../../domain/errors/self-influence'
@@ -24,16 +25,16 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
 
-  if (genre instanceof Error) {
-    expect.fail(`Failed to create genre: ${genre.message}`)
+  if (genre.isErr()) {
+    expect.fail(`Failed to create genre: ${genre.error.message}`)
   }
 
-  return genre
+  return genre.value
 }
 
 function getTestGenre(data?: Partial<CreateGenreInput>): CreateGenreInput {
@@ -79,7 +80,7 @@ test('should update the genre', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const updateResult = await updateGenreCommand.execute(
@@ -134,7 +135,7 @@ test('should create a history entry', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const updateResult = await updateGenreCommand.execute(
@@ -184,12 +185,12 @@ test('should return GenreNotFoundError if genre is not found', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const result = await updateGenreCommand.execute(0, GENRE_UPDATE, 1)
 
-  expect(result).toBeInstanceOf(GenreNotFoundError)
+  expect(result).toEqual(err(new GenreNotFoundError()))
 })
 
 test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnection }) => {
@@ -200,7 +201,7 @@ test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -209,7 +210,7 @@ test('should return GenreCycleError if a 1-cycle is detected', async ({ dbConnec
     accountId,
   )
 
-  expect(result).toBeInstanceOf(GenreCycleError)
+  expect(result).toEqual(err(new GenreCycleError('Updated Genre → Updated Genre')))
 })
 
 test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnection }) => {
@@ -225,7 +226,7 @@ test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -234,7 +235,7 @@ test('should return GenreCycleError if a 2-cycle is detected', async ({ dbConnec
     accountId,
   )
 
-  expect(result).toBeInstanceOf(GenreCycleError)
+  expect(result).toEqual(err(new GenreCycleError('Updated Genre → Child → Updated Genre')))
 })
 
 test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnection }) => {
@@ -255,7 +256,7 @@ test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -264,7 +265,9 @@ test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnec
     accountId,
   )
 
-  expect(result).toBeInstanceOf(GenreCycleError)
+  expect(result).toEqual(
+    err(new GenreCycleError('Updated Genre → Grandchild → Child → Updated Genre')),
+  )
 })
 
 test('should return SelfInfluenceError if genre influences itself', async ({ dbConnection }) => {
@@ -275,7 +278,7 @@ test('should return SelfInfluenceError if genre influences itself', async ({ dbC
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const result = await updateGenreCommand.execute(
@@ -284,7 +287,7 @@ test('should return SelfInfluenceError if genre influences itself', async ({ dbC
     accountId,
   )
 
-  expect(result).toBeInstanceOf(SelfInfluenceError)
+  expect(result).toEqual(err(new SelfInfluenceError()))
 })
 
 test('should not create a history entry if no changes are detected', async ({ dbConnection }) => {
@@ -295,7 +298,7 @@ test('should not create a history entry if no changes are detected', async ({ db
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationClient(),
   )
 
   const updateResult = await updateGenreCommand.execute(

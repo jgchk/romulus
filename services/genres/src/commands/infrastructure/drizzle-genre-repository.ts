@@ -49,11 +49,11 @@ export class DrizzleGenreRepository implements GenreRepository {
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     })
-    if (genre instanceof Error) {
-      throw genre
+    if (genre.isErr()) {
+      throw genre.error
     }
 
-    return genre
+    return genre.value
   }
 
   async save(genre: Genre): Promise<{ id: number }> {
