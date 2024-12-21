@@ -2,6 +2,9 @@
   "name": "@romulus/user-settings",
   "type": "module",
   "exports": {
+    "./application": "./src/application/index.ts",
+    "./infrastructure": "./src/infrastructure/index.ts",
+    "./router": "./src/web/router.ts",
     "./client": "./src/web/client.ts"
   },
   "scripts": {
@@ -15,12 +18,11 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
     "@hono/zod-validator": "^0.4.1",
-    "@romulus/authentication": "workspace:*",
-    "@romulus/authorization": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
     "drizzle-orm": "^0.36.0",
     "hono": "^4.6.12",
+    "neverthrow": "^8.1.1",
     "oslo": "^1.2.1",
     "postgres": "^3.4.5",
     "zod": "^3.23.8"

@@ -35,6 +35,9 @@ import {
 } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
+import { UserSettingsApplication } from '@romulus/user-settings/application'
+import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
+import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
 import { err, ok, ResultAsync } from 'neverthrow'
 
@@ -49,6 +52,10 @@ async function main() {
 
   const genresInfrastructure = await GenresInfrastructure.create(
     'postgresql://postgres:postgres@localhost:5432/genres',
+  )
+
+  const userSettingsInfrastructure = await UserSettingsInfrastructure.create(
+    'postgresql://postgres:postgres@localhost:5432/user_settings',
   )
 
   const authenticationRouter = createAuthenticationRouter({
@@ -217,10 +224,33 @@ async function main() {
     getRandomGenreIdQuery: () => new GetRandomGenreIdQuery(genresInfrastructure.dbConnection()),
   })
 
+  const userSettingsRouter = createUserSettingsRouter({
+    application: () =>
+      new UserSettingsApplication(userSettingsInfrastructure.userSettingsRepository()),
+    authentication: () => ({
+      whoami: (token: string) => {
+        const whoamiQuery = new WhoamiQuery(
+          authenticationInfrastructure.accountRepo(),
+          authenticationInfrastructure.sessionRepo(),
+          authenticationInfrastructure.sessionTokenHashRepo(),
+        )
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    }),
+  })
+
   const app = new Hono()
     .route('/authentication', authenticationRouter)
     .route('/authorization', authorizationRouter)
     .route('/genres', genresRouter)
+    .route('/user-settings', userSettingsRouter)
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
 }

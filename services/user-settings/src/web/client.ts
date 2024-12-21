@@ -2,7 +2,7 @@ import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { CustomError } from '../domain/user-settings'
-import type { Router } from './router'
+import type { UserSettingsRouter } from './router'
 
 export type IUserSettingsClient = {
   getUserSettings(): Promise<
@@ -41,11 +41,11 @@ export type IUserSettingsClient = {
 }
 
 export class UserSettingsClient implements IUserSettingsClient {
-  private client: ReturnType<typeof hc<Router>>
+  private client: ReturnType<typeof hc<UserSettingsRouter>>
   private sessionToken: string | undefined
 
   constructor(baseUrl: string, sessionToken: string | undefined) {
-    this.client = hc<Router>(baseUrl)
+    this.client = hc<UserSettingsRouter>(baseUrl)
     this.sessionToken = sessionToken
   }
 
