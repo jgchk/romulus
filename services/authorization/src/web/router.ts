@@ -205,17 +205,7 @@ export function createAuthorizationRouter(deps: AuthorizationRouterDependencies)
 
         const result = await deps.application().checkMyPermission(permission, c.var.user.id)
 
-        return result.match(
-          (hasPermission) => c.json({ success: true, hasPermission } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
+        return c.json({ success: true, hasPermission: result } as const)
       },
     )
 

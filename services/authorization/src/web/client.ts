@@ -141,10 +141,7 @@ export class AuthorizationClient implements IAuthorizationClient {
       .map<InferResponseType<(typeof this.client.me.permissions)[':permission']['$get']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success) return okAsync(res.hasPermission)
-        return errAsync(new AuthorizationClientError((res as AuthorizationErrorResponse).error))
-      })
+      .map((res) => res.hasPermission)
   }
 
   getMyPermissions() {
