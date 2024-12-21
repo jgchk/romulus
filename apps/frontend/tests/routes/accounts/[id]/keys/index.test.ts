@@ -23,7 +23,7 @@ test('should create a new API key', async ({ withAccount, signInPage, apiKeysPag
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
 
-  await apiKeysPage.goto(account.id)
+  await apiKeysPage.goto()
 
   await expect(page.getByText('test-key')).not.toBeVisible()
 
@@ -53,7 +53,7 @@ test('should delete an API key', async ({
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
 
-  await apiKeysPage.goto(account.id)
+  await apiKeysPage.goto()
 
   await expect(page.getByText('test-key', { exact: true })).toBeVisible()
 
@@ -74,7 +74,7 @@ test('should create a working API key that can be used in the API Playground', a
   await signInPage.goto()
   await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
 
-  await apiKeysPage.goto(account.id)
+  await apiKeysPage.goto()
 
   // Create a new API key and copy it
   await apiKeysPage.createButton.click()

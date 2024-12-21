@@ -1,5 +1,5 @@
-import type { IAuthenticationClient } from '@romulus/authentication/client'
-import { okAsync } from 'neverthrow'
+import { FetchError, type IAuthenticationClient } from '@romulus/authentication/client'
+import { errAsync, okAsync } from 'neverthrow'
 import { describe, expect, test, vi } from 'vitest'
 
 import { actions, load } from './+page.server'
@@ -8,7 +8,6 @@ describe('load', () => {
   test('should throw error if not logged in', async () => {
     try {
       await load({
-        params: { id: '1' },
         locals: {
           user: undefined,
           di: {
@@ -27,7 +26,6 @@ describe('load', () => {
   test('should throw error if account is not the one currently logged in', async () => {
     try {
       await load({
-        params: { id: '1' },
         locals: {
           user: { id: 2 },
           di: {
@@ -43,47 +41,26 @@ describe('load', () => {
     }
   })
 
-  test('should throw error if account id is not a number', async () => {
+  test('should throw error if we fail to fetch the API keys', async () => {
     try {
       await load({
-        params: { id: 'test' },
         locals: {
           user: { id: 1 },
           di: {
             authentication: () => ({
-              getApiKeys: () => okAsync([]),
+              getApiKeys: () => errAsync(new FetchError(new Error('Random error'))),
             }),
           },
         },
       })
       expect.fail('should throw error')
     } catch (e) {
-      expect(e).toEqual({ status: 400, body: { message: 'Invalid account ID' } })
-    }
-  })
-
-  test('should throw error if account does not exist', async () => {
-    try {
-      await load({
-        params: { id: '1' },
-        locals: {
-          user: { id: 1 },
-          di: {
-            authentication: () => ({
-              getApiKeys: () => okAsync([]),
-            }),
-          },
-        },
-      })
-      expect.fail('should throw error')
-    } catch (e) {
-      expect(e).toEqual({ status: 404, body: { message: 'Account not found' } })
+      expect(e).toEqual({ status: 500, body: { message: 'Invalid account ID' } })
     }
   })
 
   test("should return no account keys if there aren't any", async () => {
     const result = await load({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {
@@ -98,7 +75,6 @@ describe('load', () => {
 
   test('should return account keys', async () => {
     const result = await load({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {
@@ -116,7 +92,6 @@ describe('load', () => {
 
   test('should return account keys in descending order of creation date', async () => {
     const result = await load({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {
@@ -140,7 +115,6 @@ describe('create', () => {
   test('should throw error if not logged in', async () => {
     try {
       await actions.create({
-        params: { id: '1' },
         locals: {
           user: undefined,
           di: {
@@ -160,7 +134,6 @@ describe('create', () => {
   test('should throw error if account is not the one currently logged in', async () => {
     try {
       await actions.create({
-        params: { id: '1' },
         locals: {
           user: { id: 2 },
           di: {
@@ -180,7 +153,6 @@ describe('create', () => {
   test('should throw error if account id is not a number', async () => {
     try {
       await actions.create({
-        params: { id: 'test' },
         locals: {
           user: { id: 1 },
           di: {
@@ -200,7 +172,6 @@ describe('create', () => {
   test('should throw error if account does not exist', async () => {
     try {
       await actions.create({
-        params: { id: '1' },
         locals: {
           user: { id: 1 },
           di: {
@@ -226,7 +197,6 @@ describe('create', () => {
     formData.set('name', 'New API Key')
 
     await actions.create({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {
@@ -246,7 +216,6 @@ describe('create', () => {
     formData.set('name', 'New API Key')
 
     const res = await actions.create({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {
@@ -270,7 +239,6 @@ describe('delete', () => {
   test('should throw error if not logged in', async () => {
     try {
       await actions.delete({
-        params: { id: '1' },
         locals: {
           user: undefined,
           di: {
@@ -290,7 +258,6 @@ describe('delete', () => {
   test('should throw error if account is not the one currently logged in', async () => {
     try {
       await actions.delete({
-        params: { id: '1' },
         locals: {
           user: undefined,
           di: {
@@ -310,7 +277,6 @@ describe('delete', () => {
   test('should throw error if account id is not a number', async () => {
     try {
       await actions.delete({
-        params: { id: 'test' },
         locals: {
           user: { id: 1 },
           di: {
@@ -335,7 +301,6 @@ describe('delete', () => {
 
     try {
       await actions.delete({
-        params: { id: apiKeyId.toString() },
         locals: {
           user: { id: 1 },
           di: {
@@ -360,7 +325,6 @@ describe('delete', () => {
     formData.set('id', '1')
 
     await actions.delete({
-      params: { id: '1' },
       locals: {
         user: { id: 1 },
         di: {

@@ -21,11 +21,11 @@ export class ApiKeysPage {
     this.apiPlaygroundLink = this.page.getByRole('link', { name: 'API Playground' })
   }
 
-  static url(accountId: number) {
-    return `/accounts/${accountId}/keys`
+  static url() {
+    return '/me/api-keys'
   }
 
-  async goto(accountId: number) {
-    await this.page.goto(ApiKeysPage.url(accountId))
+  async goto() {
+    await this.page.goto(ApiKeysPage.url())
   }
 }

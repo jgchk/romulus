@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest'
 import { DEFAULT_USER_SETTINGS } from '$lib/contexts/user-settings/types'
 import { toPrettyDate } from '$lib/utils/datetime'
 
-import { test } from '../../../../vitest-setup'
+import { test } from '../../../vitest-setup'
 import AccountAppsPage from './+page.svelte'
 
 function setup(props: Partial<ComponentProps<typeof AccountAppsPage>>) {

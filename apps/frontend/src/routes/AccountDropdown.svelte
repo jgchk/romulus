@@ -68,7 +68,7 @@
 
         <a
           class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
-          href="/accounts/{account.id}/keys"
+          href="/me/api-keys"
         >
           <Key size={18} />
           API Keys

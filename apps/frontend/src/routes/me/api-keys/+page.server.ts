@@ -6,13 +6,11 @@ import {
 import { error, fail } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
+import type { Actions, PageServerLoad, RequestEvent } from './$types'
 
 export const load = (async ({
-  params,
   locals,
 }: {
-  params: PageServerLoadEvent['params']
   locals: {
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
     di: {
@@ -22,20 +20,6 @@ export const load = (async ({
     }
   }
 }) => {
-  if (!locals.user) {
-    return error(401, 'Unauthorized')
-  }
-
-  const maybeId = z.coerce.number().int().safeParse(params.id)
-  if (!maybeId.success) {
-    return error(400, 'Invalid account ID')
-  }
-  const id = maybeId.data
-
-  if (locals.user.id !== id) {
-    return error(403, 'Unauthorized')
-  }
-
   const result = await locals.di.authentication().getApiKeys()
   if (result.isErr()) {
     if (result.error instanceof FetchError) {
@@ -53,11 +37,9 @@ export const load = (async ({
 
 export const actions = {
   create: async ({
-    params,
     locals,
     request,
   }: {
-    params: RequestEvent['params']
     locals: {
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
@@ -68,20 +50,6 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
-    if (!locals.user) {
-      return error(401, 'Unauthorized')
-    }
-
-    const maybeId = z.coerce.number().int().safeParse(params.id)
-    if (!maybeId.success) {
-      return error(400, 'Invalid account ID')
-    }
-    const id = maybeId.data
-
-    if (locals.user.id !== id) {
-      return error(403, 'Unauthorized')
-    }
-
     const data = await request.formData()
 
     const maybeName = z.string().min(1, 'Name is required').safeParse(data.get('name'))
@@ -114,11 +82,9 @@ export const actions = {
   },
 
   delete: async ({
-    params,
     locals,
     request,
   }: {
-    params: RequestEvent['params']
     locals: {
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
@@ -129,20 +95,6 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
-    if (!locals.user) {
-      return error(401, 'Unauthorized')
-    }
-
-    const maybeAccountId = z.coerce.number().int().safeParse(params.id)
-    if (!maybeAccountId.success) {
-      return error(400, 'Invalid account ID')
-    }
-    const accountId = maybeAccountId.data
-
-    if (locals.user.id !== accountId) {
-      return error(401, 'Unauthorized')
-    }
-
     const data = await request.formData()
 
     const maybeApiKeyId = z.coerce.number().int().safeParse(data.get('id'))
