@@ -1,8 +1,8 @@
-import type { WhoamiQuery } from '@romulus/authentication/application'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
 import type { AuthorizationApplication } from '../application'
+import type { IAuthenticationService } from '../domain/authentication'
 import {
   CustomError,
   DuplicatePermissionError,
@@ -30,7 +30,7 @@ class UnknownError extends CustomError {
 }
 
 export function createAuthorizationRouter(deps: AuthorizationRouterDependencies) {
-  const requireUser = bearerAuth(deps.whoami())
+  const requireUser = bearerAuth(deps.authentication())
 
   const app = new Hono()
     .post(
@@ -230,5 +230,5 @@ export function createAuthorizationRouter(deps: AuthorizationRouterDependencies)
 
 export type AuthorizationRouterDependencies = {
   application(): AuthorizationApplication
-  whoami(): WhoamiQuery
+  authentication(): IAuthenticationService
 }
