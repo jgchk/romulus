@@ -12,19 +12,31 @@ import { DrizzleAccountRepository } from './drizzle-account-repository'
 import { DrizzleApiKeyRepository } from './drizzle-api-key-repository'
 import type { IDrizzleConnection } from './drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from './drizzle-password-reset-token-repository'
-import { getDbConnection, getPostgresConnection } from './drizzle-postgres-connection'
+import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection'
 import { DrizzleSessionRepository } from './drizzle-session-repository'
 import { Sha256HashRepository } from './sha256-hash-repository'
 
 export class AuthenticationInfrastructure {
-  private pg: Sql
+  private constructor(
+    private pg: Sql,
+    private db: IDrizzleConnection,
+  ) {}
 
-  constructor(private databaseUrl: string) {
-    this.pg = getPostgresConnection(this.databaseUrl)
+  static async create(databaseUrl: string): Promise<AuthenticationInfrastructure> {
+    const pg = getPostgresConnection(databaseUrl)
+    const db = getDbConnection(pg)
+
+    await migrate(db)
+
+    return new AuthenticationInfrastructure(pg, db)
+  }
+
+  async destroy(): Promise<void> {
+    await this.pg.end()
   }
 
   dbConnection(): IDrizzleConnection {
-    return getDbConnection(this.pg)
+    return this.db
   }
 
   apiKeyRepo(): ApiKeyRepository {

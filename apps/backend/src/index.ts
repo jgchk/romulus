@@ -38,7 +38,7 @@ import { createGenresRouter } from '@romulus/genres/router'
 import { Hono } from 'hono'
 
 async function main() {
-  const authenticationInfrastructure = new AuthenticationInfrastructure(
+  const authenticationInfrastructure = await AuthenticationInfrastructure.create(
     'postgresql://postgres:postgres@localhost:5432/authn',
   )
 

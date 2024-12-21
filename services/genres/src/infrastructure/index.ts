@@ -26,6 +26,10 @@ export class GenresInfrastructure {
     return new GenresInfrastructure(pg, db)
   }
 
+  async destroy(): Promise<void> {
+    await this.pg.end()
+  }
+
   dbConnection(): IDrizzleConnection {
     return this.db
   }
