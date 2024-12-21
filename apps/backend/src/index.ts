@@ -37,16 +37,16 @@ import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
 import { Hono } from 'hono'
 
-function main() {
+async function main() {
   const authenticationInfrastructure = new AuthenticationInfrastructure(
-    'postgresql://postgres:postgres@localhost:5432/authentication',
+    'postgresql://postgres:postgres@localhost:5432/authn',
   )
 
   const authorizationInfrastructure = new AuthorizationInfrastructure(
-    'postgresql://postgres:postgres@localhost:5432/authorization',
+    'postgresql://postgres:postgres@localhost:5432/authz',
   )
 
-  const genresInfrastructure = new GenresInfrastructure(
+  const genresInfrastructure = await GenresInfrastructure.create(
     'postgresql://postgres:postgres@localhost:5432/genres',
   )
 
@@ -180,4 +180,4 @@ function main() {
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
 }
 
-main()
+void main()
