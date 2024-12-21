@@ -92,9 +92,21 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.6.12
         version: 1.6.12
+      '@romulus/authentication':
+        specifier: workspace:*
+        version: link:../../services/authentication
+      '@romulus/authorization':
+        specifier: workspace:*
+        version: link:../../services/authorization
+      '@romulus/genres':
+        specifier: workspace:*
+        version: link:../../services/genres
       '@romulus/media':
         specifier: workspace:*
         version: link:../../services/media
+      '@romulus/user-settings':
+        specifier: workspace:*
+        version: link:../../services/user-settings
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -153,21 +165,9 @@ importers:
       '@playwright/test':
         specifier: ^1.48.2
         version: 1.48.2
-      '@romulus/authentication':
-        specifier: workspace:*
-        version: link:../../services/authentication
-      '@romulus/authorization':
-        specifier: workspace:*
-        version: link:../../services/authorization
       '@romulus/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@romulus/genres':
-        specifier: workspace:*
-        version: link:../../services/genres
-      '@romulus/user-settings':
-        specifier: workspace:*
-        version: link:../../services/user-settings
       '@sveltejs/adapter-node':
         specifier: ^5.2.9
         version: 5.2.9(@sveltejs/kit@2.8.0(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.13)(vite@5.4.10(@types/node@20.17.6)))(svelte@5.1.13)(vite@5.4.10(@types/node@20.17.6)))

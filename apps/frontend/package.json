@@ -25,7 +25,11 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
     "@floating-ui/dom": "^1.6.12",
+    "@romulus/authentication": "workspace:*",
+    "@romulus/authorization": "workspace:*",
+    "@romulus/genres": "workspace:*",
     "@romulus/media": "workspace:*",
+    "@romulus/user-settings": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/ramda": "^0.30.2",
     "@types/swagger-ui": "^3.52.4",
@@ -47,11 +51,7 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@playwright/test": "^1.48.2",
-    "@romulus/authentication": "workspace:*",
-    "@romulus/authorization": "workspace:*",
     "@romulus/eslint-config": "workspace:*",
-    "@romulus/genres": "workspace:*",
-    "@romulus/user-settings": "workspace:*",
     "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.8.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
