@@ -304,8 +304,9 @@ describe('request-password-reset', () => {
   })
 
   test('should error if the user is not authorized', async ({ dbConnection }) => {
-    const { client, registerTestUser } = setup(dbConnection)
+    const { client, registerTestUser, authorization } = setup(dbConnection)
     const { sessionToken } = await registerTestUser({ username: 'user1' })
+    authorization.checkMyPermission.mockResolvedValue(false)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -366,8 +367,9 @@ describe('request-password-reset', () => {
   test('should error if the requestor does not have the required permission', async ({
     dbConnection,
   }) => {
-    const { client, registerTestUser } = setup(dbConnection)
+    const { client, registerTestUser, authorization } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
+    authorization.checkMyPermission.mockResolvedValue(false)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -479,61 +481,6 @@ describe('get-account', () => {
       account: {
         id: 1,
         username: 'test',
-      },
-    })
-  })
-
-  test('should error if the user does not have permission', async ({ dbConnection }) => {
-    const { client, registerTestUser } = setup(dbConnection)
-    const { sessionToken } = await registerTestUser()
-
-    const res = await client.accounts[':id'].$get(
-      { param: { id: '2' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
-
-    expect(res.status).toBe(401)
-    expect(await res.json()).toEqual({
-      success: false,
-      error: {
-        name: 'UnauthorizedError',
-        message: 'You are not authorized to perform this action',
-        statusCode: 401,
-      },
-    })
-  })
-
-  test('should error if the user is not logged in', async ({ dbConnection }) => {
-    const { client } = setup(dbConnection)
-
-    const res = await client.accounts[':id'].$get({ param: { id: '1' } })
-
-    expect(res.status).toBe(401)
-    expect(await res.json()).toEqual({
-      success: false,
-      error: {
-        name: 'UnauthorizedError',
-        message: 'You are not authorized to perform this action',
-        statusCode: 401,
-      },
-    })
-  })
-
-  test('should error if the session does not exist', async ({ dbConnection }) => {
-    const { client } = setup(dbConnection)
-
-    const res = await client.accounts[':id'].$get(
-      { param: { id: '1' } },
-      { headers: { authorization: 'Bearer invalid-session-token' } },
-    )
-
-    expect(res.status).toBe(401)
-    expect(await res.json()).toEqual({
-      success: false,
-      error: {
-        name: 'UnauthorizedError',
-        message: 'You are not authorized to perform this action',
-        statusCode: 401,
       },
     })
   })

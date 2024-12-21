@@ -8,7 +8,9 @@ export class MockAuthorizationApplication implements IAuthorizationApplication {
   createRole = vi.fn<IAuthorizationApplication['createRole']>()
   deleteRole = vi.fn<IAuthorizationApplication['deleteRole']>()
   assignRoleToUser = vi.fn<IAuthorizationApplication['assignRoleToUser']>()
-  checkMyPermission = vi.fn<IAuthorizationApplication['checkMyPermission']>()
+  checkMyPermission = vi
+    .fn<IAuthorizationApplication['checkMyPermission']>()
+    .mockResolvedValue(true)
   checkUserPermission = vi.fn<IAuthorizationApplication['checkUserPermission']>()
   getMyPermissions = vi.fn<IAuthorizationApplication['getMyPermissions']>()
   getUserPermissions = vi.fn<IAuthorizationApplication['getUserPermissions']>()
