@@ -4,6 +4,6 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [sveltekit()],
   optimizeDeps: {
-    exclude: ['oslo', 'phosphor-svelte'],
+    exclude: ['phosphor-svelte'],
   },
 })

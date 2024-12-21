@@ -33,7 +33,6 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.0",
     "neverthrow": "^8.1.1",
-    "oslo": "^1.2.1",
     "phosphor-svelte": "^2.0.1",
     "postgres": "^3.4.5",
     "ramda": "^0.30.1",
