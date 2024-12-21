@@ -42,7 +42,7 @@ async function main() {
     'postgresql://postgres:postgres@localhost:5432/authn',
   )
 
-  const authorizationInfrastructure = new AuthorizationInfrastructure(
+  const authorizationInfrastructure = await AuthorizationInfrastructure.create(
     'postgresql://postgres:postgres@localhost:5432/authz',
   )
 
