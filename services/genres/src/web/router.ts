@@ -1,4 +1,3 @@
-import type { WhoamiQuery } from '@romulus/authentication/application'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -17,6 +16,7 @@ import type { UpdateGenreCommand } from '../application/commands/update-genre'
 import type { VoteGenreRelevanceCommand } from '../application/commands/vote-genre-relevance'
 import { GenreNotFoundError } from '../application/errors/genre-not-found'
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config'
+import type { IAuthenticationService } from '../domain/authentication'
 import { CustomError } from '../domain/errors/base'
 import { DerivedChildError } from '../domain/errors/derived-child'
 import { DerivedInfluenceError } from '../domain/errors/derived-influence'
@@ -33,7 +33,7 @@ import { zodValidator } from './zod-validator'
 export type GenresRouter = ReturnType<typeof createGenresRouter>
 
 export type GenresRouterDependencies = {
-  whoamiQuery(): WhoamiQuery
+  authentication(): IAuthenticationService
   createGenreCommand(): CreateGenreCommand
   deleteGenreCommand(): DeleteGenreCommand
   updateGenreCommand(): UpdateGenreCommand
@@ -50,7 +50,7 @@ export type GenresRouterDependencies = {
 }
 
 export function createGenresRouter(deps: GenresRouterDependencies) {
-  const requireUser = bearerAuth(deps.whoamiQuery())
+  const requireUser = bearerAuth(deps.authentication())
 
   const app = new Hono()
     .post('/genres', zodValidator('json', genreSchema), requireUser, async (c) => {

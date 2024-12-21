@@ -142,12 +142,23 @@ async function main() {
   })
 
   const genresRouter = createGenresRouter({
-    whoamiQuery: () =>
-      new WhoamiQuery(
-        authenticationInfrastructure.accountRepo(),
-        authenticationInfrastructure.sessionRepo(),
-        authenticationInfrastructure.sessionTokenHashRepo(),
-      ),
+    authentication: () => ({
+      whoami: (token: string) => {
+        const whoamiQuery = new WhoamiQuery(
+          authenticationInfrastructure.accountRepo(),
+          authenticationInfrastructure.sessionRepo(),
+          authenticationInfrastructure.sessionTokenHashRepo(),
+        )
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    }),
     createGenreCommand: () =>
       new CreateGenreCommand(
         genresInfrastructure.genreRepo(),
