@@ -5,13 +5,13 @@ import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
 import { MockAuthorizationClient } from '../test/mock-authorization-client'
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
-import { createRouter } from './router'
+import { createAuthenticationRouter } from './router'
 
 function setup(dbConnection: IDrizzleConnection) {
   const authorization = new MockAuthorizationClient()
 
   const di = new CommandsCompositionRoot(dbConnection)
-  const app = createRouter(di, () => authorization)
+  const app = createAuthenticationRouter(di, () => authorization)
   const client = testClient(app)
 
   async function registerTestUser(user?: { username?: string; password?: string }) {

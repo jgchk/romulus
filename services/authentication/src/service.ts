@@ -9,7 +9,7 @@ import {
 } from './infrastructure/drizzle-postgres-connection'
 import { CommandsCompositionRoot } from './web/composition-root'
 import type { Router } from './web/router'
-import { createRouter } from './web/router'
+import { createAuthenticationRouter } from './web/router'
 
 export class AuthenticationService {
   private constructor(
@@ -39,7 +39,7 @@ export class AuthenticationService {
   }
 
   getRouter(): Router {
-    return createRouter(
+    return createAuthenticationRouter(
       this.di,
       (sessionToken: string) => new AuthorizationClient(this.authorizationBaseUrl, sessionToken),
     )

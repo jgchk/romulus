@@ -1,4 +1,5 @@
 packages:
+  - "apps/backend"
   - "apps/frontend"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"

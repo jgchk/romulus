@@ -1,22 +1,19 @@
-import type { IAuthorizationClient } from '@romulus/authorization/client'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-import { CreateApiKeyCommand } from '../application/commands/create-api-key'
-import {
-  DeleteApiKeyCommand,
-  UnauthorizedApiKeyDeletionError,
-} from '../application/commands/delete-api-key'
-import { GetAccountQuery } from '../application/commands/get-account'
-import { GetAccountsQuery } from '../application/commands/get-accounts'
-import { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account'
-import { LoginCommand } from '../application/commands/login'
-import { LogoutCommand } from '../application/commands/logout'
-import { RefreshSessionCommand } from '../application/commands/refresh-session'
-import { RegisterCommand } from '../application/commands/register'
-import { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
-import { ResetPasswordCommand } from '../application/commands/reset-password'
-import { WhoamiQuery } from '../application/commands/whoami'
+import type { CreateApiKeyCommand } from '../application/commands/create-api-key'
+import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key'
+import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-api-key'
+import type { GetAccountQuery } from '../application/commands/get-account'
+import type { GetAccountsQuery } from '../application/commands/get-accounts'
+import type { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account'
+import type { LoginCommand } from '../application/commands/login'
+import type { LogoutCommand } from '../application/commands/logout'
+import type { RefreshSessionCommand } from '../application/commands/refresh-session'
+import type { RegisterCommand } from '../application/commands/register'
+import type { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
+import type { ResetPasswordCommand } from '../application/commands/reset-password'
+import type { WhoamiQuery } from '../application/commands/whoami'
 import { AccountNotFoundError } from '../application/errors/account-not-found'
 import { InvalidLoginError } from '../application/errors/invalid-login'
 import { NonUniqueUsernameError } from '../application/errors/non-unique-username'
@@ -25,18 +22,29 @@ import { PasswordResetTokenNotFoundError } from '../application/errors/password-
 import { CustomError } from '../domain/errors/base'
 import { UnauthorizedError } from '../domain/errors/unauthorized'
 import { bearerAuth } from './bearer-auth-middleware'
-import type { CommandsCompositionRoot } from './composition-root'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
 
-export type Router = ReturnType<typeof createRouter>
+export type Router = ReturnType<typeof createAuthenticationRouter>
 
 const passwordSchema = z.string().min(8).max(72)
 
-export function createRouter(
-  di: CommandsCompositionRoot,
-  getAuthorizationClient: (sessionToken: string) => IAuthorizationClient,
-) {
+export type AuthorizationRouterDependencies = {
+  loginCommand(): LoginCommand
+  logoutCommand(): LogoutCommand
+  registerCommand(): RegisterCommand
+  requestPasswordResetCommand(sessionToken: string): RequestPasswordResetCommand
+  resetPasswordCommand(): ResetPasswordCommand
+  whoamiQuery(): WhoamiQuery
+  getAccountQuery(): GetAccountQuery
+  getAccountsQuery(): GetAccountsQuery
+  refreshSessionCommand(): RefreshSessionCommand
+  createApiKeyCommand(): CreateApiKeyCommand
+  deleteApiKeyCommand(): DeleteApiKeyCommand
+  getApiKeysByAccountQuery(): GetApiKeysByAccountQuery
+}
+
+export function createAuthenticationRouter(di: AuthorizationRouterDependencies) {
   const app = new Hono()
     .post(
       '/login',
@@ -44,14 +52,7 @@ export function createRouter(
       async (c) => {
         const body = c.req.valid('json')
 
-        const loginCommand = new LoginCommand(
-          di.accountRepository(),
-          di.sessionRepository(),
-          di.passwordHashRepository(),
-          di.sessionTokenHashRepository(),
-          di.sessionTokenGenerator(),
-        )
-        const result = await loginCommand.execute(body.username, body.password)
+        const result = await di.loginCommand().execute(body.username, body.password)
         if (result instanceof InvalidLoginError) {
           return setError(c, result, 401)
         }
@@ -67,11 +68,7 @@ export function createRouter(
     .post('/logout', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const logoutCommand = new LogoutCommand(
-        di.sessionRepository(),
-        di.sessionTokenHashRepository(),
-      )
-      await logoutCommand.execute(sessionToken)
+      await di.logoutCommand().execute(sessionToken)
 
       return c.json({ success: true } as const)
     })
@@ -85,14 +82,7 @@ export function createRouter(
       async (c) => {
         const body = c.req.valid('json')
 
-        const registerCommand = new RegisterCommand(
-          di.accountRepository(),
-          di.sessionRepository(),
-          di.passwordHashRepository(),
-          di.sessionTokenHashRepository(),
-          di.sessionTokenGenerator(),
-        )
-        const result = await registerCommand.execute(body.username, body.password)
+        const result = await di.registerCommand().execute(body.username, body.password)
         if (result instanceof NonUniqueUsernameError) {
           return setError(c, result, 409)
         }
@@ -113,14 +103,9 @@ export function createRouter(
         const sessionToken = c.var.token
         const { accountId } = c.req.valid('param')
 
-        const requestPasswordResetCommand = new RequestPasswordResetCommand(
-          di.passwordResetTokenRepository(),
-          di.passwordResetTokenGenerator(),
-          di.passwordResetTokenHashRepository(),
-          di.accountRepository(),
-          getAuthorizationClient(sessionToken),
-        )
-        const passwordResetToken = await requestPasswordResetCommand.execute(accountId)
+        const passwordResetToken = await di
+          .requestPasswordResetCommand(sessionToken)
+          .execute(accountId)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {
@@ -140,16 +125,7 @@ export function createRouter(
         const body = c.req.valid('json')
         const passwordResetToken = c.req.param('token')
 
-        const resetPasswordCommand = new ResetPasswordCommand(
-          di.accountRepository(),
-          di.sessionRepository(),
-          di.passwordResetTokenRepository(),
-          di.passwordResetTokenHashRepository(),
-          di.passwordHashRepository(),
-          di.sessionTokenHashRepository(),
-          di.sessionTokenGenerator(),
-        )
-        const result = await resetPasswordCommand.execute(passwordResetToken, body.password)
+        const result = await di.resetPasswordCommand().execute(passwordResetToken, body.password)
         if (
           result instanceof PasswordResetTokenNotFoundError ||
           result instanceof PasswordResetTokenExpiredError
@@ -170,12 +146,7 @@ export function createRouter(
     .get('/whoami', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const whoamiQuery = new WhoamiQuery(
-        di.accountRepository(),
-        di.sessionRepository(),
-        di.sessionTokenHashRepository(),
-      )
-      const result = await whoamiQuery.execute(sessionToken)
+      const result = await di.whoamiQuery().execute(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
@@ -189,8 +160,7 @@ export function createRouter(
       async (c) => {
         const { id } = c.req.valid('param')
 
-        const getAccountQuery = new GetAccountQuery(di.accountRepository())
-        const result = await getAccountQuery.execute(id)
+        const result = await di.getAccountQuery().execute(id)
         if (result instanceof AccountNotFoundError) {
           return setError(c, result, 404)
         }
@@ -205,8 +175,7 @@ export function createRouter(
       async (c) => {
         const ids = c.req.valid('query').id
 
-        const getAccountsQuery = new GetAccountsQuery(di.accountRepository())
-        const result = await getAccountsQuery.execute(ids)
+        const result = await di.getAccountsQuery().execute(ids)
 
         return c.json({ success: true, accounts: result } as const)
       },
@@ -215,11 +184,7 @@ export function createRouter(
     .post('/refresh-session', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const refreshSessionCommand = new RefreshSessionCommand(
-        di.sessionRepository(),
-        di.sessionTokenHashRepository(),
-      )
-      const result = await refreshSessionCommand.execute(sessionToken)
+      const result = await di.refreshSessionCommand().execute(sessionToken)
       if (result instanceof UnauthorizedError) {
         return setError(c, result, 401)
       }
@@ -235,22 +200,12 @@ export function createRouter(
         const name = c.req.valid('json').name
         const sessionToken = c.var.token
 
-        const whoamiQuery = new WhoamiQuery(
-          di.accountRepository(),
-          di.sessionRepository(),
-          di.sessionTokenHashRepository(),
-        )
-        const whoamiResult = await whoamiQuery.execute(sessionToken)
+        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
         if (whoamiResult instanceof UnauthorizedError) {
           return setError(c, whoamiResult, 401)
         }
 
-        const createApiKeyCommand = new CreateApiKeyCommand(
-          di.apiKeyRepository(),
-          di.apiKeyTokenGenerator(),
-          di.apiKeyHashRepository(),
-        )
-        const result = await createApiKeyCommand.execute(name, whoamiResult.account.id)
+        const result = await di.createApiKeyCommand().execute(name, whoamiResult.account.id)
 
         return c.json({ success: true, id: result.id, name: result.name, key: result.key } as const)
       },
@@ -264,18 +219,12 @@ export function createRouter(
         const id = c.req.valid('param').id
         const sessionToken = c.var.token
 
-        const whoamiQuery = new WhoamiQuery(
-          di.accountRepository(),
-          di.sessionRepository(),
-          di.sessionTokenHashRepository(),
-        )
-        const whoamiResult = await whoamiQuery.execute(sessionToken)
+        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
         if (whoamiResult instanceof UnauthorizedError) {
           return setError(c, whoamiResult, 401)
         }
 
-        const deleteApiKeyCommand = new DeleteApiKeyCommand(di.apiKeyRepository())
-        const result = await deleteApiKeyCommand.execute(id, whoamiResult.account.id)
+        const result = await di.deleteApiKeyCommand().execute(id, whoamiResult.account.id)
         if (result instanceof UnauthorizedApiKeyDeletionError) {
           return setError(c, result, 401)
         }
@@ -287,18 +236,12 @@ export function createRouter(
     .get('/me/api-keys', bearerAuth, async (c) => {
       const sessionToken = c.var.token
 
-      const whoamiQuery = new WhoamiQuery(
-        di.accountRepository(),
-        di.sessionRepository(),
-        di.sessionTokenHashRepository(),
-      )
-      const whoamiResult = await whoamiQuery.execute(sessionToken)
+      const whoamiResult = await di.whoamiQuery().execute(sessionToken)
       if (whoamiResult instanceof UnauthorizedError) {
         return setError(c, whoamiResult, 401)
       }
 
-      const getApiKeysQuery = new GetApiKeysByAccountQuery(di.dbConnection())
-      const result = await getApiKeysQuery.execute(whoamiResult.account.id)
+      const result = await di.getApiKeysByAccountQuery().execute(whoamiResult.account.id)
 
       return c.json({ success: true, keys: result } as const)
     })
