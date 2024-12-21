@@ -10,7 +10,7 @@ import {
 } from './infrastructure/drizzle-postgres-connection'
 import { DrizzleAuthorizerRepository } from './infrastructure/drizzle-repository'
 import { CompositionRoot } from './web/composition-root'
-import { createRouter } from './web/router'
+import { createAuthorizationRouter } from './web/router'
 
 export class AuthorizationService {
   private constructor(
@@ -40,7 +40,7 @@ export class AuthorizationService {
 
   getRouter() {
     const di = new CompositionRoot(this.db)
-    return createRouter(
+    return createAuthorizationRouter(
       di,
       this.systemUserToken,
       (sessionToken) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),

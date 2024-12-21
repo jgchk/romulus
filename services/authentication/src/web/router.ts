@@ -33,7 +33,7 @@ export type AuthorizationRouterDependencies = {
   loginCommand(): LoginCommand
   logoutCommand(): LogoutCommand
   registerCommand(): RegisterCommand
-  requestPasswordResetCommand(sessionToken: string): RequestPasswordResetCommand
+  requestPasswordResetCommand(): RequestPasswordResetCommand
   resetPasswordCommand(): ResetPasswordCommand
   whoamiQuery(): WhoamiQuery
   getAccountQuery(): GetAccountQuery
@@ -103,9 +103,14 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
         const sessionToken = c.var.token
         const { accountId } = c.req.valid('param')
 
+        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
+        if (whoamiResult instanceof UnauthorizedError) {
+          return setError(c, whoamiResult, 401)
+        }
+
         const passwordResetToken = await di
-          .requestPasswordResetCommand(sessionToken)
-          .execute(accountId)
+          .requestPasswordResetCommand()
+          .execute(accountId, whoamiResult.account.id)
         if (passwordResetToken instanceof UnauthorizedError) {
           return setError(c, passwordResetToken, 401)
         } else if (passwordResetToken instanceof AccountNotFoundError) {

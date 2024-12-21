@@ -2,7 +2,10 @@
   "name": "@romulus/authorization",
   "type": "module",
   "exports": {
-    "./client": "./src/web/client.ts"
+    "./application": "./src/application/index.ts",
+    "./infrastructure": "./src/infrastructure/index.ts",
+    "./client": "./src/web/client.ts",
+    "./router": "./src/web/router.ts"
   },
   "scripts": {
     "test": "pnpm test:unit run",

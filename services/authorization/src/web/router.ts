@@ -1,7 +1,8 @@
-import type { IAuthenticationClient } from '@romulus/authentication/client'
+import type { WhoamiQuery } from '@romulus/authentication/application'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import type { AuthorizationApplication } from '../application'
 import {
   CustomError,
   DuplicatePermissionError,
@@ -10,11 +11,10 @@ import {
   UnauthorizedError,
 } from '../domain/authorizer'
 import { bearerAuth } from './bearer-auth-middleware'
-import type { CompositionRoot } from './composition-root'
 import { setError } from './utils'
 import { zodValidator } from './zod-validator'
 
-export type Router = ReturnType<typeof createRouter>
+export type Router = ReturnType<typeof createAuthorizationRouter>
 
 const permissionSchema = z.object({ name: z.string().min(1), description: z.string().optional() })
 const roleSchema = z.object({
@@ -29,12 +29,8 @@ class UnknownError extends CustomError {
   }
 }
 
-export function createRouter(
-  di: CompositionRoot,
-  systemUserToken: string,
-  getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
-) {
-  const requireUser = bearerAuth(systemUserToken, getAuthenticationClient)
+export function createAuthorizationRouter(deps: AuthorizationRouterDependencies) {
+  const requireUser = bearerAuth(deps.whoami())
 
   const app = new Hono()
     .post(
@@ -49,7 +45,7 @@ export function createRouter(
       async (c) => {
         const permission = c.req.valid('json').permission
 
-        const result = await di
+        const result = await deps
           .application()
           .createPermission(permission.name, permission.description, c.var.user.id)
 
@@ -81,7 +77,7 @@ export function createRouter(
       async (c) => {
         const permissions = c.req.valid('json').permissions
 
-        const result = await di.application().ensurePermissions(
+        const result = await deps.application().ensurePermissions(
           permissions.map((p) => ({ name: p.name, description: p.description })),
           c.var.user.id,
         )
@@ -107,7 +103,7 @@ export function createRouter(
       async (c) => {
         const name = c.req.valid('param').name
 
-        const result = await di.application().deletePermission(name, c.var.user.id)
+        const result = await deps.application().deletePermission(name, c.var.user.id)
 
         return result.match(
           () => c.json({ success: true } as const),
@@ -130,7 +126,7 @@ export function createRouter(
       async (c) => {
         const role = c.req.valid('json').role
 
-        const result = await di
+        const result = await deps
           .application()
           .createRole(role.name, new Set(role.permissions), role.description, c.var.user.id)
 
@@ -157,7 +153,7 @@ export function createRouter(
       async (c) => {
         const name = c.req.valid('param').name
 
-        const result = await di.application().deleteRole(name, c.var.user.id)
+        const result = await deps.application().deleteRole(name, c.var.user.id)
 
         return result.match(
           () => c.json({ success: true } as const),
@@ -182,7 +178,7 @@ export function createRouter(
         const id = c.req.valid('param').id
         const name = c.req.valid('json').name
 
-        const result = await di.application().assignRoleToUser(id, name, c.var.user.id)
+        const result = await deps.application().assignRoleToUser(id, name, c.var.user.id)
 
         return result.match(
           () => c.json({ success: true } as const),
@@ -207,7 +203,7 @@ export function createRouter(
       async (c) => {
         const { permission } = c.req.valid('param')
 
-        const result = await di.application().checkMyPermission(permission, c.var.user.id)
+        const result = await deps.application().checkMyPermission(permission, c.var.user.id)
 
         return result.match(
           (hasPermission) => c.json({ success: true, hasPermission } as const),
@@ -224,7 +220,7 @@ export function createRouter(
     )
 
     .get('/me/permissions', requireUser, async (c) => {
-      const result = await di.application().getMyPermissions(c.var.user.id)
+      const result = await deps.application().getMyPermissions(c.var.user.id)
 
       return result.match(
         (permissions) => c.json({ success: true, permissions: [...permissions] } as const),
@@ -240,4 +236,9 @@ export function createRouter(
     })
 
   return app
+}
+
+export type AuthorizationRouterDependencies = {
+  application(): AuthorizationApplication
+  whoami(): WhoamiQuery
 }

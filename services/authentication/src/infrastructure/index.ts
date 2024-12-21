@@ -1,5 +1,3 @@
-import type { IAuthorizationClient } from '@romulus/authorization/client'
-import { AuthorizationClient } from '@romulus/authorization/client'
 import type { Sql } from 'postgres'
 
 import type { AccountRepository } from '../domain/repositories/account'
@@ -71,9 +69,5 @@ export class AuthenticationInfrastructure {
 
   passwordResetTokenHashRepo(): HashRepository {
     return new Sha256HashRepository()
-  }
-
-  authorization(sessionToken: string): IAuthorizationClient {
-    return new AuthorizationClient('http://localhost:3000', sessionToken)
   }
 }

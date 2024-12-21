@@ -14,12 +14,19 @@ import {
   WhoamiQuery,
 } from "@romulus/authentication/application";
 import { AuthenticationInfrastructure } from "@romulus/authentication/infrastructure";
+import { AuthorizationInfrastructure } from "@romulus/authorization/infrastructure";
 import { createAuthenticationRouter } from "@romulus/authentication/router";
+import { createAuthorizationRouter } from "@romulus/authorization/router";
+import { AuthorizationApplication } from "@romulus/authorization/application";
 import { Hono } from "hono";
 
 async function main() {
   const authenticationInfrastructure = new AuthenticationInfrastructure(
     "postgresql://postgres:postgres@localhost:5432/authentication",
+  );
+
+  const authorizationInfrastructure = new AuthorizationInfrastructure(
+    "postgresql://postgres:postgres@localhost:5432/authorization",
   );
 
   const authenticationRouter = createAuthenticationRouter({
@@ -44,13 +51,15 @@ async function main() {
         authenticationInfrastructure.sessionTokenHashRepo(),
         authenticationInfrastructure.sessionTokenGenerator(),
       ),
-    requestPasswordResetCommand: (sessionToken) =>
+    requestPasswordResetCommand: () =>
       new RequestPasswordResetCommand(
         authenticationInfrastructure.passwordResetTokenRepo(),
         authenticationInfrastructure.passwordResetTokenGenerator(),
         authenticationInfrastructure.passwordResetTokenHashRepo(),
         authenticationInfrastructure.accountRepo(),
-        authenticationInfrastructure.authorization(sessionToken),
+        new AuthorizationApplication(
+          authorizationInfrastructure.authorizerRepo(),
+        ),
       ),
     resetPasswordCommand: () =>
       new ResetPasswordCommand(
@@ -89,11 +98,24 @@ async function main() {
       new GetApiKeysByAccountQuery(authenticationInfrastructure.dbConnection()),
   });
 
-  const app = new Hono().route("/authentication", authenticationRouter);
-
-  serve(app, (info) => {
-    console.log(`Authentication server running on ${info.port}`);
+  const authorizationRouter = createAuthorizationRouter({
+    application: () =>
+      new AuthorizationApplication(
+        authorizationInfrastructure.authorizerRepo(),
+      ),
+    whoami: () =>
+      new WhoamiQuery(
+        authenticationInfrastructure.accountRepo(),
+        authenticationInfrastructure.sessionRepo(),
+        authenticationInfrastructure.sessionTokenHashRepo(),
+      ),
   });
+
+  const app = new Hono()
+    .route("/authentication", authenticationRouter)
+    .route("/authorization", authorizationRouter);
+
+  serve(app, (info) => console.log(`Backend running on ${info.port}`));
 }
 
 void main();

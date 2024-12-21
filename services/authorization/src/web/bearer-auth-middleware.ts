@@ -1,14 +1,10 @@
-import type { IAuthenticationClient } from '@romulus/authentication/client'
+import type { WhoamiQuery } from '@romulus/authentication/application'
 import { createMiddleware } from 'hono/factory'
 
 import { UnauthorizedError } from '../domain/authorizer'
-import { SYSTEM_USER_ID } from '../domain/permissions'
 import { setError } from './utils'
 
-export function bearerAuth(
-  systemUserToken: string,
-  getAuthenticationClient: (sessionToken: string) => IAuthenticationClient,
-) {
+export function bearerAuth(whoami: WhoamiQuery) {
   return createMiddleware<{
     Variables: {
       token: string
@@ -27,16 +23,12 @@ export function bearerAuth(
 
     c.set('token', token)
 
-    if (token === systemUserToken) {
-      c.set('user', { id: SYSTEM_USER_ID })
-    } else {
-      const userResponse = await getAuthenticationClient(token).whoami()
-      if (userResponse.isErr()) {
-        return setError(c, userResponse.error, 401)
-      }
-
-      c.set('user', { id: userResponse.value.account.id })
+    const userResponse = await whoami.execute(token)
+    if (userResponse instanceof Error) {
+      return setError(c, userResponse, 401)
     }
+
+    c.set('user', { id: userResponse.account.id })
 
     await next()
   })
