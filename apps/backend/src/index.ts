@@ -18,6 +18,23 @@ import { createAuthenticationRouter } from '@romulus/authentication/router'
 import { AuthorizationApplication } from '@romulus/authorization/application'
 import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
+import {
+  CreateGenreCommand,
+  DeleteGenreCommand,
+  GetAllGenresQuery,
+  GetGenreHistoryByAccountQuery,
+  GetGenreHistoryQuery,
+  GetGenreQuery,
+  GetGenreRelevanceVoteByAccountQuery,
+  GetGenreRelevanceVotesByGenreQuery,
+  GetGenreTreeQuery,
+  GetLatestGenreUpdatesQuery,
+  GetRandomGenreIdQuery,
+  UpdateGenreCommand,
+  VoteGenreRelevanceCommand,
+} from '@romulus/genres/application'
+import { GenresInfrastructure } from '@romulus/genres/infrastructure'
+import { createGenresRouter } from '@romulus/genres/router'
 import { Hono } from 'hono'
 
 function main() {
@@ -27,6 +44,10 @@ function main() {
 
   const authorizationInfrastructure = new AuthorizationInfrastructure(
     'postgresql://postgres:postgres@localhost:5432/authorization',
+  )
+
+  const genresInfrastructure = new GenresInfrastructure(
+    'postgresql://postgres:postgres@localhost:5432/genres',
   )
 
   const authenticationRouter = createAuthenticationRouter({
@@ -103,9 +124,58 @@ function main() {
       ),
   })
 
+  const genresRouter = createGenresRouter({
+    whoamiQuery: () =>
+      new WhoamiQuery(
+        authenticationInfrastructure.accountRepo(),
+        authenticationInfrastructure.sessionRepo(),
+        authenticationInfrastructure.sessionTokenHashRepo(),
+      ),
+    createGenreCommand: () =>
+      new CreateGenreCommand(
+        genresInfrastructure.genreRepo(),
+        genresInfrastructure.genreTreeRepo(),
+        genresInfrastructure.genreHistoryRepo(),
+        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+      ),
+    deleteGenreCommand: () =>
+      new DeleteGenreCommand(
+        genresInfrastructure.genreRepo(),
+        genresInfrastructure.genreTreeRepo(),
+        genresInfrastructure.genreHistoryRepo(),
+        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+      ),
+    updateGenreCommand: () =>
+      new UpdateGenreCommand(
+        genresInfrastructure.genreRepo(),
+        genresInfrastructure.genreTreeRepo(),
+        genresInfrastructure.genreHistoryRepo(),
+        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+      ),
+    voteGenreRelevanceCommand: () =>
+      new VoteGenreRelevanceCommand(
+        genresInfrastructure.genreRelevanceVoteRepo(),
+        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+      ),
+    getAllGenresQuery: () => new GetAllGenresQuery(genresInfrastructure.dbConnection()),
+    getGenreHistoryByAccountQuery: () =>
+      new GetGenreHistoryByAccountQuery(genresInfrastructure.dbConnection()),
+    getGenreHistoryQuery: () => new GetGenreHistoryQuery(genresInfrastructure.dbConnection()),
+    getGenreRelevanceVoteByAccountQuery: () =>
+      new GetGenreRelevanceVoteByAccountQuery(genresInfrastructure.dbConnection()),
+    getGenreRelevanceVotesByGenreQuery: () =>
+      new GetGenreRelevanceVotesByGenreQuery(genresInfrastructure.dbConnection()),
+    getGenreTreeQuery: () => new GetGenreTreeQuery(genresInfrastructure.dbConnection()),
+    getGenreQuery: () => new GetGenreQuery(genresInfrastructure.dbConnection()),
+    getLatestGenreUpdatesQuery: () =>
+      new GetLatestGenreUpdatesQuery(genresInfrastructure.dbConnection()),
+    getRandomGenreIdQuery: () => new GetRandomGenreIdQuery(genresInfrastructure.dbConnection()),
+  })
+
   const app = new Hono()
     .route('/authentication', authenticationRouter)
     .route('/authorization', authorizationRouter)
+    .route('/genres', genresRouter)
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
 }

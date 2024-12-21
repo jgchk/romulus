@@ -6,7 +6,7 @@ import { DrizzleGenreHistoryRepository } from './commands/infrastructure/drizzle
 import { DrizzleGenreRelevanceVoteRepository } from './commands/infrastructure/drizzle-genre-relevance-vote-repository'
 import { DrizzleGenreRepository } from './commands/infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from './commands/infrastructure/drizzle-genre-tree-repository'
-import type { IDrizzleConnection } from './shared/infrastructure/drizzle-database'
+import type { IDrizzleConnection } from './infrastructure/drizzle-database'
 
 export class CompositionRoot {
   constructor(private _dbConnection: IDrizzleConnection) {}

@@ -28,6 +28,9 @@ importers:
       '@romulus/fetch-retry':
         specifier: workspace:*
         version: link:../../packages/fetch-retry
+      '@romulus/genres':
+        specifier: workspace:*
+        version: link:../../services/genres
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6

@@ -2,8 +2,11 @@
   "name": "@romulus/genres",
   "type": "module",
   "exports": {
-    "./client": "./src/shared/web/client.ts",
-    "./permissions": "./src/commands/domain/permissions.ts"
+    "./application": "./src/application/index.ts",
+    "./infrastructure": "./src/infrastructure/index.ts",
+    "./router": "./src/web/router.ts",
+    "./client": "./src/web/client.ts",
+    "./permissions": "./src/domain/permissions.ts"
   },
   "scripts": {
     "test": "pnpm test:unit run",

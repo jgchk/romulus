@@ -1,18 +1,14 @@
-import { AuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient } from '@romulus/authorization/client'
 import type { Sql } from 'postgres'
 
-import { GenresPermission } from './commands/domain/permissions'
-import { createCommandsRouter } from './commands/web/router'
 import { CompositionRoot } from './composition-root'
-import { createQueriesRouter } from './queries/web/router'
 import {
   getDbConnection,
   getPostgresConnection,
   migrate,
-} from './shared/infrastructure/drizzle-postgres-connection'
-import type { Router } from './shared/web/router'
-import { createRouter } from './shared/web/router'
+} from './infrastructure/drizzle-postgres-connection'
+import type { GenresRouter } from './web/router'
+import { createGenresRouter } from './web/router'
 
 export class GenresService {
   private constructor(
@@ -46,15 +42,8 @@ export class GenresService {
     return new GenresService(pg, di, authenticationBaseUrl, authorizationBaseUrl)
   }
 
-  getRouter(): Router {
-    return createRouter(
-      createCommandsRouter(
-        this.di,
-        (sessionToken) => new AuthenticationClient(this.authenticationBaseUrl, sessionToken),
-        (sessionToken) => new AuthorizationClient(this.authorizationBaseUrl, sessionToken),
-      ),
-      createQueriesRouter(this.di.dbConnection()),
-    )
+  getRouter(): GenresRouter {
+    return createGenresRouter()
   }
 
   async destroy(): Promise<void> {

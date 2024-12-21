@@ -17,6 +17,7 @@
     "@romulus/authentication": "workspace:*",
     "@romulus/authorization": "workspace:*",
     "@romulus/fetch-retry": "workspace:*",
+    "@romulus/genres": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
     "drizzle-orm": "^0.36.0",
