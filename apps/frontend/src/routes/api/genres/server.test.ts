@@ -25,14 +25,12 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
               new Sha256HashRepository(),
             ),
           genres: () => ({
-            queries: () => ({
-              getAllGenres: () =>
-                Promise.resolve({
-                  success: true,
-                  data: [],
-                  pagination: { skip: 0, limit: 0, total: 0 },
-                }),
-            }),
+            getAllGenres: () =>
+              Promise.resolve({
+                success: true,
+                data: [],
+                pagination: { skip: 0, limit: 0, total: 0 },
+              }),
           }),
         },
       },
@@ -59,14 +57,12 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
               new Sha256HashRepository(),
             ),
           genres: () => ({
-            queries: () => ({
-              getAllGenres: () =>
-                Promise.resolve({
-                  success: true,
-                  data: [],
-                  pagination: { skip: 0, limit: 0, total: 0 },
-                }),
-            }),
+            getAllGenres: () =>
+              Promise.resolve({
+                success: true,
+                data: [],
+                pagination: { skip: 0, limit: 0, total: 0 },
+              }),
           }),
         },
       },
@@ -95,14 +91,12 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
               new Sha256HashRepository(),
             ),
           genres: () => ({
-            queries: () => ({
-              getAllGenres: () =>
-                Promise.resolve({
-                  success: true,
-                  data: [],
-                  pagination: { skip: 0, limit: 0, total: 0 },
-                }),
-            }),
+            getAllGenres: () =>
+              Promise.resolve({
+                success: true,
+                data: [],
+                pagination: { skip: 0, limit: 0, total: 0 },
+              }),
           }),
         },
       },
@@ -146,14 +140,12 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
               new Sha256HashRepository(),
             ),
           genres: () => ({
-            queries: () => ({
-              getAllGenres: () =>
-                Promise.resolve({
-                  success: true,
-                  data: [],
-                  pagination: { skip: 0, limit: 0, total: 0 },
-                }),
-            }),
+            getAllGenres: () =>
+              Promise.resolve({
+                success: true,
+                data: [],
+                pagination: { skip: 0, limit: 0, total: 0 },
+              }),
           }),
         },
       },

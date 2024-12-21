@@ -5,7 +5,7 @@ import { ifDefined, isNotNull } from '$lib/utils/types'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const response = await locals.di.genres().queries().getLatestGenreUpdates()
+  const response = await locals.di.genres().getLatestGenreUpdates()
   if (response instanceof Error) {
     return error(response.originalError.statusCode, response.message)
   }

@@ -28,17 +28,14 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const createResult = await locals.di.genres().commands().createGenre(form.data)
+    const createResult = await locals.di.genres().createGenre(form.data)
     if (createResult instanceof Error) {
       return error(createResult.originalError.statusCode, createResult.message)
     }
 
     const relevance = form.data.relevance
     if (relevance !== undefined) {
-      const voteResult = await locals.di
-        .genres()
-        .commands()
-        .voteGenreRelevance(createResult.id, relevance)
+      const voteResult = await locals.di.genres().voteGenreRelevance(createResult.id, relevance)
 
       if (voteResult instanceof Error) {
         return error(voteResult.originalError.statusCode, voteResult.message)

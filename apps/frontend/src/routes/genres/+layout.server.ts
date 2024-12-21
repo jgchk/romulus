@@ -6,7 +6,6 @@ export const load: LayoutServerLoad = ({ locals, cookies }) => {
   // eslint-disable-next-line returned-errors/enforce-error-handling
   const genres = locals.di
     .genres()
-    .queries()
     .getGenreTree()
     .then((res) => {
       if (res instanceof Error) throw res

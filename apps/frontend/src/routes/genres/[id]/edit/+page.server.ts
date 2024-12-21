@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const id = maybeId.data
 
-  const maybeGenre = await locals.di.genres().queries().getGenre(id)
+  const maybeGenre = await locals.di.genres().getGenre(id)
   if (maybeGenre instanceof Error) {
     return error(maybeGenre.originalError.statusCode, maybeGenre.message)
   }
@@ -53,7 +53,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const updateResult = await locals.di.genres().commands().updateGenre(id, form.data)
+    const updateResult = await locals.di.genres().updateGenre(id, form.data)
     if (updateResult instanceof Error) {
       return error(updateResult.originalError.statusCode, updateResult.message)
     }

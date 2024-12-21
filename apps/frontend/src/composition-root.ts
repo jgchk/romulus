@@ -1,7 +1,7 @@
 import { AuthenticationClient, type IAuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient, type IAuthorizationClient } from '@romulus/authorization/client'
 import { GenresClient, type IGenresClient } from '@romulus/genres/client'
-import { UserSettingsClient, type IUserSettingsClient } from '@romulus/user-settings/client'
+import { type IUserSettingsClient, UserSettingsClient } from '@romulus/user-settings/client'
 
 import type { IDrizzleConnection as IAppDrizzleConnection } from '$lib/server/db/connection'
 import type { ApiCommandService } from '$lib/server/features/api/commands/command-service'
@@ -31,19 +31,19 @@ export class CompositionRoot {
   }
 
   authentication(): IAuthenticationClient {
-    return new AuthenticationClient(this.apiBaseUrl, this.sessionToken)
+    return new AuthenticationClient(`${this.apiBaseUrl}/authentication`, this.sessionToken)
   }
 
   authorization(): IAuthorizationClient {
-    return new AuthorizationClient(this.apiBaseUrl, this.sessionToken)
+    return new AuthorizationClient(`${this.apiBaseUrl}/authorization`, this.sessionToken)
   }
 
   userSettings(): IUserSettingsClient {
-    return new UserSettingsClient(this.apiBaseUrl, this.sessionToken)
+    return new UserSettingsClient(`${this.apiBaseUrl}/user-settings`, this.sessionToken)
   }
 
   genres(): IGenresClient {
-    return new GenresClient(this.apiBaseUrl, this.sessionToken)
+    return new GenresClient(`${this.apiBaseUrl}/genres`, this.sessionToken)
   }
 
   musicCatalogCommandService(): MusicCatalogCommandService {

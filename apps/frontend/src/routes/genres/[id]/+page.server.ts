@@ -17,16 +17,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
   const id = maybeId.data
 
-  const genreResponse = await locals.di.genres().queries().getGenre(id)
+  const genreResponse = await locals.di.genres().getGenre(id)
   if (genreResponse instanceof Error) {
     return error(genreResponse.originalError.statusCode, genreResponse.originalError.message)
   }
   const maybeGenre = genreResponse.genre
 
-  const relevanceVotesResponse = await locals.di
-    .genres()
-    .queries()
-    .getGenreRelevanceVotesByGenre(id)
+  const relevanceVotesResponse = await locals.di.genres().getGenreRelevanceVotesByGenre(id)
   if (relevanceVotesResponse instanceof Error) {
     return error(
       relevanceVotesResponse.originalError.statusCode,
@@ -39,7 +36,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   if (locals.user) {
     const relevanceVoteResponse = await locals.di
       .genres()
-      .queries()
       .getGenreRelevanceVoteByAccount(id, locals.user.id)
     if (relevanceVoteResponse instanceof Error) {
       return error(
@@ -88,10 +84,7 @@ export const actions: Actions = {
       return fail(400, { form })
     }
 
-    const voteResult = await locals.di
-      .genres()
-      .commands()
-      .voteGenreRelevance(id, form.data.relevanceVote)
+    const voteResult = await locals.di.genres().voteGenreRelevance(id, form.data.relevanceVote)
     if (voteResult instanceof Error) {
       return setError(form, 'relevanceVote', voteResult.message)
     }
@@ -106,7 +99,7 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const deleteResult = await locals.di.genres().commands().deleteGenre(id)
+    const deleteResult = await locals.di.genres().deleteGenre(id)
     if (deleteResult instanceof Error) {
       return error(deleteResult.originalError.statusCode, deleteResult.message)
     }

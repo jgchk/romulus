@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
     }
   }
 
-  const response = await locals.di.genres().queries().getGenreHistoryByAccount(id)
+  const response = await locals.di.genres().getGenreHistoryByAccount(id)
   if (response instanceof Error) {
     return error(response.originalError.statusCode, response.message)
   }

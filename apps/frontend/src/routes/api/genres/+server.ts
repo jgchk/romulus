@@ -16,9 +16,7 @@ export const GET = (async ({
     user: App.Locals['user']
     di: Pick<App.Locals['di'], 'apiCommandService'> & {
       genres: () => {
-        queries: () => {
-          getAllGenres: ReturnType<IGenresClient['queries']>['getAllGenres']
-        }
+        getAllGenres: IGenresClient['getAllGenres']
       }
     }
   }
@@ -35,7 +33,7 @@ export const GET = (async ({
   }
   const data = maybeData.data
 
-  const result = await locals.di.genres().queries().getAllGenres(data)
+  const result = await locals.di.genres().getAllGenres(data)
   if (result instanceof Error) {
     return error(result.originalError.statusCode, result.message)
   }

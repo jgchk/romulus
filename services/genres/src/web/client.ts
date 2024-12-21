@@ -14,7 +14,7 @@ import type { GetLatestGenreUpdatesResult } from '../application/commands/get-la
 import { CustomError } from '../domain/errors/base'
 import type { GenreSchema, GenresRouter } from './router'
 
-export type IGenreCommandsClient = {
+export type IGenresClient = {
   createGenre(body: GenreSchema): Promise<
     | {
         readonly success: true
@@ -145,7 +145,7 @@ export type IGenreCommandsClient = {
   >
 }
 
-export class GenreCommandsClient implements IGenreCommandsClient {
+export class GenresClient implements IGenresClient {
   private client: ReturnType<typeof hc<GenresRouter>>
   private sessionToken: string | undefined
 
