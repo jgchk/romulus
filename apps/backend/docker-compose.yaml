@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres
+    restart: always
+    volumes:
+      - ./docker:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: authn,authz,genres
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
