@@ -1,4 +1,4 @@
-import { serve } from "@hono/node-server";
+import { serve } from '@hono/node-server'
 import {
   CreateApiKeyCommand,
   DeleteApiKeyCommand,
@@ -12,22 +12,22 @@ import {
   RequestPasswordResetCommand,
   ResetPasswordCommand,
   WhoamiQuery,
-} from "@romulus/authentication/application";
-import { AuthenticationInfrastructure } from "@romulus/authentication/infrastructure";
-import { AuthorizationInfrastructure } from "@romulus/authorization/infrastructure";
-import { createAuthenticationRouter } from "@romulus/authentication/router";
-import { createAuthorizationRouter } from "@romulus/authorization/router";
-import { AuthorizationApplication } from "@romulus/authorization/application";
-import { Hono } from "hono";
+} from '@romulus/authentication/application'
+import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
+import { createAuthenticationRouter } from '@romulus/authentication/router'
+import { AuthorizationApplication } from '@romulus/authorization/application'
+import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
+import { createAuthorizationRouter } from '@romulus/authorization/router'
+import { Hono } from 'hono'
 
-async function main() {
+function main() {
   const authenticationInfrastructure = new AuthenticationInfrastructure(
-    "postgresql://postgres:postgres@localhost:5432/authentication",
-  );
+    'postgresql://postgres:postgres@localhost:5432/authentication',
+  )
 
   const authorizationInfrastructure = new AuthorizationInfrastructure(
-    "postgresql://postgres:postgres@localhost:5432/authorization",
-  );
+    'postgresql://postgres:postgres@localhost:5432/authorization',
+  )
 
   const authenticationRouter = createAuthenticationRouter({
     loginCommand: () =>
@@ -57,9 +57,7 @@ async function main() {
         authenticationInfrastructure.passwordResetTokenGenerator(),
         authenticationInfrastructure.passwordResetTokenHashRepo(),
         authenticationInfrastructure.accountRepo(),
-        new AuthorizationApplication(
-          authorizationInfrastructure.authorizerRepo(),
-        ),
+        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
       ),
     resetPasswordCommand: () =>
       new ResetPasswordCommand(
@@ -77,10 +75,8 @@ async function main() {
         authenticationInfrastructure.sessionRepo(),
         authenticationInfrastructure.sessionTokenHashRepo(),
       ),
-    getAccountQuery: () =>
-      new GetAccountQuery(authenticationInfrastructure.accountRepo()),
-    getAccountsQuery: () =>
-      new GetAccountsQuery(authenticationInfrastructure.accountRepo()),
+    getAccountQuery: () => new GetAccountQuery(authenticationInfrastructure.accountRepo()),
+    getAccountsQuery: () => new GetAccountsQuery(authenticationInfrastructure.accountRepo()),
     refreshSessionCommand: () =>
       new RefreshSessionCommand(
         authenticationInfrastructure.sessionRepo(),
@@ -92,30 +88,26 @@ async function main() {
         authenticationInfrastructure.apiKeyTokenGenerator(),
         authenticationInfrastructure.apiKeyHashRepo(),
       ),
-    deleteApiKeyCommand: () =>
-      new DeleteApiKeyCommand(authenticationInfrastructure.apiKeyRepo()),
+    deleteApiKeyCommand: () => new DeleteApiKeyCommand(authenticationInfrastructure.apiKeyRepo()),
     getApiKeysByAccountQuery: () =>
       new GetApiKeysByAccountQuery(authenticationInfrastructure.dbConnection()),
-  });
+  })
 
   const authorizationRouter = createAuthorizationRouter({
-    application: () =>
-      new AuthorizationApplication(
-        authorizationInfrastructure.authorizerRepo(),
-      ),
+    application: () => new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
     whoami: () =>
       new WhoamiQuery(
         authenticationInfrastructure.accountRepo(),
         authenticationInfrastructure.sessionRepo(),
         authenticationInfrastructure.sessionTokenHashRepo(),
       ),
-  });
+  })
 
   const app = new Hono()
-    .route("/authentication", authenticationRouter)
-    .route("/authorization", authorizationRouter);
+    .route('/authentication', authenticationRouter)
+    .route('/authorization', authorizationRouter)
 
-  serve(app, (info) => console.log(`Backend running on ${info.port}`));
+  serve(app, (info) => console.log(`Backend running on ${info.port}`))
 }
 
-void main();
+main()
