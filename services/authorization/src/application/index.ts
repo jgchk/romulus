@@ -57,10 +57,9 @@ export class AuthorizationApplication {
       .map((authorizer) => this.repo.save(authorizer))
   }
 
-  checkMyPermission(permission: string, requestorUserId: number) {
-    return this.checkPermission(requestorUserId, AuthorizationPermission.CheckOwnPermissions)
-      .map(() => this.repo.get())
-      .map((authorizer) => authorizer.hasPermission(requestorUserId, permission))
+  async checkMyPermission(permission: string, requestorUserId: number) {
+    const authorizer = await this.repo.get()
+    return authorizer.hasPermission(requestorUserId, permission)
   }
 
   checkUserPermission(userId: number, permission: string, requestorUserId: number) {
