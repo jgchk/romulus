@@ -1,17 +1,85 @@
 import { testClient } from 'hono/testing'
 import { describe, expect } from 'vitest'
 
+import {
+  CreateApiKeyCommand,
+  DeleteApiKeyCommand,
+  GetAccountQuery,
+  GetAccountsQuery,
+  GetApiKeysByAccountQuery,
+  LoginCommand,
+  LogoutCommand,
+  RefreshSessionCommand,
+  RegisterCommand,
+  RequestPasswordResetCommand,
+  ResetPasswordCommand,
+  WhoamiQuery,
+} from '../application'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
-import { MockAuthorizationClient } from '../test/mock-authorization-client'
+import { MockAuthorizationApplication } from '../test/mock-authorization-application'
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
 import { createAuthenticationRouter } from './router'
 
 function setup(dbConnection: IDrizzleConnection) {
-  const authorization = new MockAuthorizationClient()
+  const authorization = new MockAuthorizationApplication()
 
   const di = new CommandsCompositionRoot(dbConnection)
-  const app = createAuthenticationRouter(di, () => authorization)
+  const app = createAuthenticationRouter({
+    loginCommand: () =>
+      new LoginCommand(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.passwordHashRepository(),
+        di.sessionTokenHashRepository(),
+        di.sessionTokenGenerator(),
+      ),
+    logoutCommand: () => new LogoutCommand(di.sessionRepository(), di.sessionTokenHashRepository()),
+    registerCommand: () =>
+      new RegisterCommand(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.passwordHashRepository(),
+        di.sessionTokenHashRepository(),
+        di.sessionTokenGenerator(),
+      ),
+    requestPasswordResetCommand: () =>
+      new RequestPasswordResetCommand(
+        di.passwordResetTokenRepository(),
+        di.passwordResetTokenGenerator(),
+        di.passwordResetTokenHashRepository(),
+        di.accountRepository(),
+        authorization,
+      ),
+    resetPasswordCommand: () =>
+      new ResetPasswordCommand(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.passwordResetTokenRepository(),
+        di.passwordResetTokenHashRepository(),
+        di.passwordHashRepository(),
+        di.sessionTokenHashRepository(),
+        di.sessionTokenGenerator(),
+      ),
+    whoamiQuery: () =>
+      new WhoamiQuery(
+        di.accountRepository(),
+        di.sessionRepository(),
+        di.sessionTokenHashRepository(),
+      ),
+    getAccountQuery: () => new GetAccountQuery(di.accountRepository()),
+    getAccountsQuery: () => new GetAccountsQuery(di.accountRepository()),
+    refreshSessionCommand: () =>
+      new RefreshSessionCommand(di.sessionRepository(), di.sessionTokenHashRepository()),
+    createApiKeyCommand: () =>
+      new CreateApiKeyCommand(
+        di.apiKeyRepository(),
+        di.apiKeyTokenGenerator(),
+        di.apiKeyHashRepository(),
+      ),
+    deleteApiKeyCommand: () => new DeleteApiKeyCommand(di.apiKeyRepository()),
+    getApiKeysByAccountQuery: () => new GetApiKeysByAccountQuery(di.dbConnection()),
+  })
   const client = testClient(app)
 
   async function registerTestUser(user?: { username?: string; password?: string }) {

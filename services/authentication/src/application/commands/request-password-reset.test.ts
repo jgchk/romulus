@@ -1,4 +1,3 @@
-import { okAsync } from 'neverthrow'
 import { describe, expect } from 'vitest'
 
 import { NewAccount } from '../../domain/entities/account'
@@ -11,7 +10,7 @@ import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-r
 import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { MockAuthorizationClient } from '../../test/mock-authorization-client'
+import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
 import { test } from '../../vitest-setup'
 import { RequestPasswordResetCommand } from './request-password-reset'
 
@@ -20,7 +19,7 @@ function setup(dbConnection: IDrizzleConnection) {
   const passwordResetTokenGeneratorRepo = new CryptoTokenGenerator()
   const passwordResetTokenHashRepo = new Sha256HashRepository()
   const accountRepo = new DrizzleAccountRepository(dbConnection)
-  const authorization = new MockAuthorizationClient()
+  const authorization = new MockAuthorizationApplication()
 
   const requestPasswordReset = new RequestPasswordResetCommand(
     passwordResetTokenRepo,
@@ -76,7 +75,7 @@ describe('RequestPasswordResetCommand', () => {
     // Create an existing token
     const existingToken = await createPasswordResetToken(account.id)
 
-    const newRawToken = await requestPasswordReset.execute(1)
+    const newRawToken = await requestPasswordReset.execute(1, 1)
     if (newRawToken instanceof Error) {
       expect.fail(`Failed to request password reset: ${newRawToken.message}`)
     }
@@ -94,7 +93,7 @@ describe('RequestPasswordResetCommand', () => {
     const { requestPasswordReset, createAccount } = setup(dbConnection)
     await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute(1)
+    const token = await requestPasswordReset.execute(1, 1)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
@@ -115,7 +114,7 @@ describe('RequestPasswordResetCommand', () => {
     const { requestPasswordReset, createAccount } = setup(dbConnection)
     await createAccount({ username: 'test', password: 'password' })
 
-    const token = await requestPasswordReset.execute(1)
+    const token = await requestPasswordReset.execute(1, 1)
     if (token instanceof Error) {
       expect.fail(`Failed to request password reset: ${token.message}`)
     }
@@ -128,9 +127,9 @@ describe('RequestPasswordResetCommand', () => {
   }) => {
     const { requestPasswordReset, createAccount, authorization } = setup(dbConnection)
     await createAccount({ username: 'test', password: 'password' })
-    authorization.checkMyPermission.mockReturnValue(okAsync(false))
+    authorization.checkMyPermission.mockResolvedValue(false)
 
-    const result = await requestPasswordReset.execute(1)
+    const result = await requestPasswordReset.execute(1, 1)
 
     expect(result).toEqual(new UnauthorizedError())
   })

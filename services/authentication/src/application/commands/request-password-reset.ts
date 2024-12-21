@@ -1,4 +1,4 @@
-import type { AuthorizationApplication } from '@romulus/authorization/application'
+import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import { createDate, TimeSpan } from 'oslo'
 
 import { PasswordResetToken } from '../../domain/entities/password-reset-token'
@@ -16,7 +16,7 @@ export class RequestPasswordResetCommand {
     private passwordResetTokenGeneratorRepo: TokenGenerator,
     private passwordResetTokenHashRepo: HashRepository,
     private accountRepo: AccountRepository,
-    private authorization: AuthorizationApplication,
+    private authorization: IAuthorizationApplication,
   ) {}
 
   async execute(
