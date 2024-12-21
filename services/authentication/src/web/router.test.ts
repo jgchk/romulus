@@ -16,13 +16,13 @@ import {
   WhoamiQuery,
 } from '../application'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
-import { MockAuthorizationApplication } from '../test/mock-authorization-application'
+import { MockAuthorizationService } from '../test/mock-authorization-service'
 import { test } from '../vitest-setup'
 import { CommandsCompositionRoot } from './composition-root'
 import { createAuthenticationRouter } from './router'
 
 function setup(dbConnection: IDrizzleConnection) {
-  const authorization = new MockAuthorizationApplication()
+  const authorization = new MockAuthorizationService()
 
   const di = new CommandsCompositionRoot(dbConnection)
   const app = createAuthenticationRouter({
@@ -306,7 +306,7 @@ describe('request-password-reset', () => {
   test('should error if the user is not authorized', async ({ dbConnection }) => {
     const { client, registerTestUser, authorization } = setup(dbConnection)
     const { sessionToken } = await registerTestUser({ username: 'user1' })
-    authorization.checkMyPermission.mockResolvedValue(false)
+    authorization.hasPermission.mockResolvedValue(false)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },
@@ -369,7 +369,7 @@ describe('request-password-reset', () => {
   }) => {
     const { client, registerTestUser, authorization } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
-    authorization.checkMyPermission.mockResolvedValue(false)
+    authorization.hasPermission.mockResolvedValue(false)
 
     const res = await client['request-password-reset'][':accountId'].$post(
       { param: { accountId: '1' } },

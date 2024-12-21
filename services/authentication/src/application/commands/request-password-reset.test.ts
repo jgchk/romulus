@@ -10,7 +10,7 @@ import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-r
 import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { MockAuthorizationService } from '../../test/mock-authorization-service'
 import { test } from '../../vitest-setup'
 import { RequestPasswordResetCommand } from './request-password-reset'
 
@@ -19,7 +19,7 @@ function setup(dbConnection: IDrizzleConnection) {
   const passwordResetTokenGeneratorRepo = new CryptoTokenGenerator()
   const passwordResetTokenHashRepo = new Sha256HashRepository()
   const accountRepo = new DrizzleAccountRepository(dbConnection)
-  const authorization = new MockAuthorizationApplication()
+  const authorization = new MockAuthorizationService()
 
   const requestPasswordReset = new RequestPasswordResetCommand(
     passwordResetTokenRepo,
@@ -127,7 +127,7 @@ describe('RequestPasswordResetCommand', () => {
   }) => {
     const { requestPasswordReset, createAccount, authorization } = setup(dbConnection)
     await createAccount({ username: 'test', password: 'password' })
-    authorization.checkMyPermission.mockResolvedValue(false)
+    authorization.hasPermission.mockResolvedValue(false)
 
     const result = await requestPasswordReset.execute(1, 1)
 

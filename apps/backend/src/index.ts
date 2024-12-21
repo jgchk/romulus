@@ -78,7 +78,12 @@ async function main() {
         authenticationInfrastructure.passwordResetTokenGenerator(),
         authenticationInfrastructure.passwordResetTokenHashRepo(),
         authenticationInfrastructure.accountRepo(),
-        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+        {
+          hasPermission: (userId, permission) =>
+            new AuthorizationApplication(
+              authorizationInfrastructure.authorizerRepo(),
+            ).checkMyPermission(permission, userId),
+        },
       ),
     resetPasswordCommand: () =>
       new ResetPasswordCommand(

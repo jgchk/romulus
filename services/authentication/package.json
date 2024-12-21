@@ -20,7 +20,6 @@
     "@electric-sql/pglite": "^0.2.12",
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.1",
-    "@romulus/authorization": "workspace:*",
     "@romulus/fetch-retry": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
