@@ -23,7 +23,6 @@
     "docker:run": "docker run --network host -p 3000:3000 --env-file .env.docker romulus"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.2.12",
     "@floating-ui/dom": "^1.6.12",
     "@romulus/authentication": "workspace:*",
     "@romulus/authorization": "workspace:*",

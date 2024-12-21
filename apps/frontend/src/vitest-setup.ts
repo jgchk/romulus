@@ -1,12 +1,7 @@
 import './app.css'
 
 import * as matchers from '@testing-library/jest-dom/matchers'
-import { sql } from 'drizzle-orm'
-import { afterAll, afterEach, beforeAll, beforeEach, expect, test as base, vi } from 'vitest'
-
-import type { IDrizzleConnection } from '$lib/server/db/connection'
-import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/pglite'
-import * as schema from '$lib/server/db/schema'
+import { afterEach, beforeAll, beforeEach, expect, test as base, vi } from 'vitest'
 
 expect.extend(matchers)
 
@@ -33,36 +28,16 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const pg = getPostgresConnection()
-const db = getDbConnection(schema, pg)
+export const test = base.extend<{ withSystemTime: (time: Date) => void }>({
+  // eslint-disable-next-line no-empty-pattern
+  withSystemTime: async ({}, use) => {
+    const withSystemTime = (time: Date) => {
+      vi.useFakeTimers()
+      vi.setSystemTime(time)
+    }
 
-afterAll(async () => {
-  await pg.close()
+    await use(withSystemTime)
+
+    vi.useRealTimers()
+  },
 })
-
-export const test = base
-  .extend<{ dbConnection: IDrizzleConnection }>({
-    // eslint-disable-next-line no-empty-pattern
-    dbConnection: async ({}, use) => {
-      await migrate(db)
-
-      await use(db)
-
-      await db.execute(sql`drop schema if exists public cascade`)
-      await db.execute(sql`create schema public`)
-      await db.execute(sql`drop schema if exists drizzle cascade`)
-    },
-  })
-  .extend<{ withSystemTime: (time: Date) => void }>({
-    // eslint-disable-next-line no-empty-pattern
-    withSystemTime: async ({}, use) => {
-      const withSystemTime = (time: Date) => {
-        vi.useFakeTimers()
-        vi.setSystemTime(time)
-      }
-
-      await use(withSystemTime)
-
-      vi.useRealTimers()
-    },
-  })

@@ -86,9 +86,6 @@ importers:
 
   apps/frontend:
     dependencies:
-      '@electric-sql/pglite':
-        specifier: ^0.2.12
-        version: 0.2.12
       '@floating-ui/dom':
         specifier: ^1.6.12
         version: 1.6.12
