@@ -14,7 +14,6 @@ export const load = (async ({
 }: {
   params: PageServerLoadEvent['params']
   locals: {
-    dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
     di: {
       authentication: () => {
@@ -60,7 +59,6 @@ export const actions = {
   }: {
     params: RequestEvent['params']
     locals: {
-      dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
         authentication: () => {
@@ -122,7 +120,6 @@ export const actions = {
   }: {
     params: RequestEvent['params']
     locals: {
-      dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
         authentication: () => {

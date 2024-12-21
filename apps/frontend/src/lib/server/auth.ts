@@ -6,7 +6,6 @@ export async function checkApiAuth(
   request: Request,
   locals: {
     user: App.Locals['user']
-    dbConnection: App.Locals['dbConnection']
     di: {
       authentication: () => {
         validateApiKey: IAuthenticationClient['validateApiKey']

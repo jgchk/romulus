@@ -3,24 +3,12 @@ import type { Handle } from '@sveltejs/kit'
 
 import { PUBLIC_API_BASE_URL } from '$env/static/public'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'
-import { getDbConnection, getPostgresConnection, migrate } from '$lib/server/db/connection/postgres'
-import * as schema from '$lib/server/db/schema'
 
 import { CompositionRoot } from './composition-root'
 
-const pg = getPostgresConnection()
-await migrate(getDbConnection(schema, pg))
-
-process.on('sveltekit:shutdown', () => {
-  void pg.end()
-})
-
 export const handle: Handle = async ({ event, resolve }) => {
-  const dbConnection = getDbConnection(schema, pg)
-  event.locals.dbConnection = dbConnection
-
   const sessionToken = getSessionCookie(event.cookies)
-  event.locals.di = new CompositionRoot(PUBLIC_API_BASE_URL, dbConnection, sessionToken)
+  event.locals.di = new CompositionRoot(PUBLIC_API_BASE_URL, sessionToken)
 
   if (sessionToken) {
     const whoamiResult = await event.locals.di.authentication().whoami()

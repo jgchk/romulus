@@ -5,7 +5,6 @@ declare global {
     // interface Error {}
     // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     interface Locals {
-      dbConnection: import('$lib/server/db/connection').IDrizzleConnection
       di: import('./composition-root').CompositionRoot
       user:
         | {
