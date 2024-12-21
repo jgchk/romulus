@@ -95,9 +95,6 @@ importers:
       '@romulus/media':
         specifier: workspace:*
         version: link:../../services/media
-      '@tanstack/svelte-query':
-        specifier: ^5.59.16
-        version: 5.59.16(svelte@5.1.13)
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -1967,14 +1964,6 @@ packages:
 
   '@swagger-api/apidom-reference@1.0.0-alpha.8':
     resolution: {integrity: sha512-mt22fvH8xZO7g5vjTY5wJqjk7O9EGjUJi7NYA8swptg+6k1Ha3cOItFVMsZIPnOcsH+V6dI4bs9fuGQ7PUvx5w==}
-
-  '@tanstack/query-core@5.59.16':
-    resolution: {integrity: sha512-crHn+G3ltqb5JG0oUv6q+PMz1m1YkjpASrXTU+sYWW9pLk0t2GybUHNRqYPZWhxgjPaVGC4yp92gSFEJgYEsPw==}
-
-  '@tanstack/svelte-query@5.59.16':
-    resolution: {integrity: sha512-s0CRtjUK0Lo+uvRU+XFxWjmTRV1hr0fe+Z/R+wDGnTzbMKSyaSKYeC0aZSQKZdAO6R/DvEVrD9tgjof1ojufnQ==}
-    peerDependencies:
-      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -5670,13 +5659,6 @@ snapshots:
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.8
     transitivePeerDependencies:
       - debug
-
-  '@tanstack/query-core@5.59.16': {}
-
-  '@tanstack/svelte-query@5.59.16(svelte@5.1.13)':
-    dependencies:
-      '@tanstack/query-core': 5.59.16
-      svelte: 5.1.13
 
   '@testing-library/dom@10.4.0':
     dependencies:
