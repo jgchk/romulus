@@ -1,7 +1,7 @@
-import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import type { Result } from 'neverthrow'
 import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
+import type { IAuthorizationService } from '../../domain/authorization'
 import type { InvalidGenreRelevanceError } from '../../domain/errors/invalid-genre-relevance'
 import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import { GenreRelevance } from '../../domain/genre-relevance'
@@ -14,7 +14,7 @@ import { median } from '../../utils'
 export class VoteGenreRelevanceCommand {
   constructor(
     private genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationService,
   ) {}
 
   async execute(
@@ -66,7 +66,7 @@ export class VoteGenreRelevanceCommand {
 
   private checkPermission(accountId: number) {
     return ResultAsync.fromSafePromise(
-      this.authorization.checkMyPermission(GenresPermission.VoteGenreRelevance, accountId),
+      this.authorization.hasPermission(accountId, GenresPermission.VoteGenreRelevance),
     ).andThen((hasPermission) => {
       if (!hasPermission) return errAsync(new UnauthorizedError())
       return okAsync(undefined)

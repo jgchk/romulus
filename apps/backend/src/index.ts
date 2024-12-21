@@ -164,27 +164,44 @@ async function main() {
         genresInfrastructure.genreRepo(),
         genresInfrastructure.genreTreeRepo(),
         genresInfrastructure.genreHistoryRepo(),
-        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+        {
+          hasPermission: (userId, permission) =>
+            new AuthorizationApplication(
+              authorizationInfrastructure.authorizerRepo(),
+            ).checkMyPermission(permission, userId),
+        },
       ),
     deleteGenreCommand: () =>
       new DeleteGenreCommand(
         genresInfrastructure.genreRepo(),
         genresInfrastructure.genreTreeRepo(),
         genresInfrastructure.genreHistoryRepo(),
-        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+        {
+          hasPermission: (userId, permission) =>
+            new AuthorizationApplication(
+              authorizationInfrastructure.authorizerRepo(),
+            ).checkMyPermission(permission, userId),
+        },
       ),
     updateGenreCommand: () =>
       new UpdateGenreCommand(
         genresInfrastructure.genreRepo(),
         genresInfrastructure.genreTreeRepo(),
         genresInfrastructure.genreHistoryRepo(),
-        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
+        {
+          hasPermission: (userId, permission) =>
+            new AuthorizationApplication(
+              authorizationInfrastructure.authorizerRepo(),
+            ).checkMyPermission(permission, userId),
+        },
       ),
     voteGenreRelevanceCommand: () =>
-      new VoteGenreRelevanceCommand(
-        genresInfrastructure.genreRelevanceVoteRepo(),
-        new AuthorizationApplication(authorizationInfrastructure.authorizerRepo()),
-      ),
+      new VoteGenreRelevanceCommand(genresInfrastructure.genreRelevanceVoteRepo(), {
+        hasPermission: (userId, permission) =>
+          new AuthorizationApplication(
+            authorizationInfrastructure.authorizerRepo(),
+          ).checkMyPermission(permission, userId),
+      }),
     getAllGenresQuery: () => new GetAllGenresQuery(genresInfrastructure.dbConnection()),
     getGenreHistoryByAccountQuery: () =>
       new GetGenreHistoryByAccountQuery(genresInfrastructure.dbConnection()),

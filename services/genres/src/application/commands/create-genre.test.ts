@@ -5,7 +5,7 @@ import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { MockAuthorizationService } from '../../test/mock-authorization-service'
 import { test } from '../../vitest-setup'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { GetGenreQuery } from './get-genre'
@@ -16,7 +16,7 @@ function setup(dbConnection: IDrizzleConnection) {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationService(),
   )
 
   return createGenreCommand

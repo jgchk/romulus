@@ -19,7 +19,6 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
     "@hono/zod-validator": "^0.4.1",
-    "@romulus/authorization": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/ramda": "^0.30.2",
     "bcryptjs": "^2.4.3",

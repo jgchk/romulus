@@ -1,7 +1,7 @@
-import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import type { Result } from 'neverthrow'
 import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
+import type { IAuthorizationService } from '../../domain/authorization'
 import type { DerivedChildError } from '../../domain/errors/derived-child'
 import type { DerivedInfluenceError } from '../../domain/errors/derived-influence'
 import type { DuplicateAkaError } from '../../domain/errors/duplicate-aka'
@@ -22,7 +22,7 @@ export class UpdateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationService,
   ) {}
 
   async execute(
@@ -105,7 +105,7 @@ export class UpdateGenreCommand {
 
   private checkPermission(accountId: number) {
     return ResultAsync.fromSafePromise(
-      this.authorization.checkMyPermission(GenresPermission.EditGenres, accountId),
+      this.authorization.hasPermission(accountId, GenresPermission.EditGenres),
     ).andThen((hasPermission) => {
       if (!hasPermission) return errAsync(new UnauthorizedError())
       return okAsync(undefined)

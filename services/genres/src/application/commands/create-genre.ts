@@ -1,6 +1,6 @@
-import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import { errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow'
 
+import type { IAuthorizationService } from '../../domain/authorization'
 import { UnauthorizedError } from '../../domain/errors/unauthorized'
 import { Genre } from '../../domain/genre'
 import { GenreHistory } from '../../domain/genre-history'
@@ -35,7 +35,7 @@ export class CreateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: IAuthorizationApplication,
+    private authorization: IAuthorizationService,
   ) {}
 
   async execute(data: CreateGenreInput, accountId: number) {
@@ -80,7 +80,7 @@ export class CreateGenreCommand {
 
   private checkPermission(accountId: number) {
     return ResultAsync.fromSafePromise(
-      this.authorization.checkMyPermission(GenresPermission.CreateGenres, accountId),
+      this.authorization.hasPermission(accountId, GenresPermission.CreateGenres),
     ).andThen((hasPermission) => {
       if (!hasPermission) return errAsync(new UnauthorizedError())
       return okAsync(undefined)

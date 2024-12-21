@@ -6,7 +6,7 @@ import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzl
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
 import { UNSET_GENRE_RELEVANCE } from '../../infrastructure/drizzle-schema'
-import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { MockAuthorizationService } from '../../test/mock-authorization-service'
 import { test } from '../../vitest-setup'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { GetGenreQuery } from './get-genre'
@@ -22,7 +22,7 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationService(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -34,7 +34,7 @@ async function createGenre(
   if (data.relevance !== undefined) {
     const voteRelevanceCommand = new VoteGenreRelevanceCommand(
       new DrizzleGenreRelevanceVoteRepository(dbConnection),
-      new MockAuthorizationApplication(),
+      new MockAuthorizationService(),
     )
 
     const result = await voteRelevanceCommand.execute(genre.value.id, data.relevance, accountId)
@@ -74,7 +74,7 @@ async function vote(
 ) {
   const voteGenreRelevance = new VoteGenreRelevanceCommand(
     new DrizzleGenreRelevanceVoteRepository(dbConnection),
-    new MockAuthorizationApplication(),
+    new MockAuthorizationService(),
   )
 
   const voteResult = await voteGenreRelevance.execute(...args)
