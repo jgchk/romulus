@@ -13,7 +13,10 @@ export const GET = (async ({
   request: Request
 }) => {
   const isAuthed = await checkApiAuth(request, locals)
-  if (!isAuthed) {
+  if (isAuthed.isErr()) {
+    return error(500, isAuthed.error.message)
+  }
+  if (!isAuthed.value) {
     return error(401, 'Unauthorized')
   }
 

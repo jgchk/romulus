@@ -1,3 +1,4 @@
+import type { IAuthenticationClient } from '@romulus/authentication/client'
 import type { IGenresClient } from '@romulus/genres/client'
 import { error, json, type RequestHandler } from '@sveltejs/kit'
 
@@ -14,7 +15,10 @@ export const GET = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: App.Locals['user']
-    di: Pick<App.Locals['di'], 'apiCommandService'> & {
+    di: {
+      authentication: () => {
+        validateApiKey: IAuthenticationClient['validateApiKey']
+      }
       genres: () => {
         getAllGenres: IGenresClient['getAllGenres']
       }
@@ -23,7 +27,10 @@ export const GET = (async ({
   request: Request
 }) => {
   const isAuthed = await checkApiAuth(request, locals)
-  if (!isAuthed) {
+  if (isAuthed.isErr()) {
+    return error(500, isAuthed.error.message)
+  }
+  if (!isAuthed.value) {
     return error(401, 'Unauthorized')
   }
 

@@ -1,12 +1,11 @@
+import { okAsync } from 'neverthrow'
 import { describe, expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
 import { CreateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/create-api-key'
 import { ValidateApiKeyCommand } from '$lib/server/features/api/commands/application/commands/validate-api-key'
-import { ApiCommandService } from '$lib/server/features/api/commands/command-service'
 import { DrizzleApiKeyRepository } from '$lib/server/features/api/commands/infrastructure/repositories/api-key/drizzle-api-key'
 import { GetApiKeysByAccountQuery } from '$lib/server/features/api/queries/application/get-api-keys-by-account'
-import { ApiQueryService } from '$lib/server/features/api/queries/query-service'
 import { Sha256HashRepository } from '$lib/server/features/common/infrastructure/repositories/hash/sha256-hash-repository'
 import { CryptoTokenGenerator } from '$lib/server/features/common/infrastructure/token/crypto-token-generator'
 
@@ -22,7 +21,9 @@ describe('load', () => {
           dbConnection,
           user: undefined,
           di: {
-            apiQueryService: () => new ApiQueryService(dbConnection),
+            authentication: () => ({
+              getApiKeys: () => okAsync([]),
+            }),
           },
         },
       })
@@ -42,7 +43,9 @@ describe('load', () => {
           dbConnection,
           user: { id: 2 },
           di: {
-            apiQueryService: () => new ApiQueryService(dbConnection),
+            authentication: () => ({
+              getApiKeys: () => okAsync([]),
+            }),
           },
         },
       })
@@ -60,7 +63,9 @@ describe('load', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            apiQueryService: () => new ApiQueryService(dbConnection),
+            authentication: () => ({
+              getApiKeys: () => okAsync([]),
+            }),
           },
         },
       })
@@ -78,7 +83,9 @@ describe('load', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            apiQueryService: () => new ApiQueryService(dbConnection),
+            authentication: () => ({
+              getApiKeys: () => okAsync([]),
+            }),
           },
         },
       })
@@ -101,7 +108,9 @@ describe('load', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          apiQueryService: () => new ApiQueryService(dbConnection),
+          authentication: () => ({
+            getApiKeys: () => okAsync([]),
+          }),
         },
       },
     })
@@ -132,7 +141,9 @@ describe('load', () => {
         dbConnection,
         user: { id: account1.id },
         di: {
-          apiQueryService: () => new ApiQueryService(dbConnection),
+          authentication: () => ({
+            getApiKeys: () => okAsync([]),
+          }),
         },
       },
     })
@@ -165,7 +176,9 @@ describe('load', () => {
         dbConnection,
         user: { id: account.id },
         di: {
-          apiQueryService: () => new ApiQueryService(dbConnection),
+          authentication: () => ({
+            getApiKeys: () => okAsync([]),
+          }),
         },
       },
     })
@@ -188,12 +201,9 @@ describe('create', () => {
           dbConnection,
           user: undefined,
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -214,12 +224,9 @@ describe('create', () => {
           dbConnection,
           user: { id: 2 },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -238,12 +245,9 @@ describe('create', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -262,12 +266,9 @@ describe('create', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -294,12 +295,9 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -332,12 +330,9 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -372,12 +367,9 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -404,12 +396,9 @@ describe('create', () => {
         dbConnection,
         user: { id: 1 },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -430,12 +419,9 @@ describe('delete', () => {
           dbConnection,
           user: undefined,
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -456,12 +442,9 @@ describe('delete', () => {
           dbConnection,
           user: undefined,
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -486,12 +469,9 @@ describe('delete', () => {
           dbConnection,
           user: { id: account.id },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost'),
@@ -515,12 +495,9 @@ describe('delete', () => {
           dbConnection,
           user: { id: 1 },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -553,12 +530,9 @@ describe('delete', () => {
         dbConnection,
         user: { id: account.id },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            deleteApiKey: () => okAsync(undefined),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -597,12 +571,9 @@ describe('delete', () => {
           dbConnection,
           user: undefined,
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -629,12 +600,9 @@ describe('delete', () => {
         dbConnection,
         user: { id: account.id },
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            deleteApiKey: () => okAsync(undefined),
+          }),
         },
       },
       request: new Request('http://localhost', { method: 'POST', body: formData }),
@@ -662,12 +630,9 @@ describe('delete', () => {
           dbConnection,
           user: { id: account.id },
           di: {
-            apiCommandService: () =>
-              new ApiCommandService(
-                new DrizzleApiKeyRepository(dbConnection),
-                new CryptoTokenGenerator(),
-                new Sha256HashRepository(),
-              ),
+            authentication: () => ({
+              deleteApiKey: () => okAsync(undefined),
+            }),
           },
         },
         request: new Request('http://localhost', { method: 'POST', body: formData }),

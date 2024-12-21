@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import type { ValidateApiKeyCommand } from '../application'
 import type { CreateApiKeyCommand } from '../application/commands/create-api-key'
 import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key'
 import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-api-key'
@@ -42,6 +43,7 @@ export type AuthorizationRouterDependencies = {
   createApiKeyCommand(): CreateApiKeyCommand
   deleteApiKeyCommand(): DeleteApiKeyCommand
   getApiKeysByAccountQuery(): GetApiKeysByAccountQuery
+  validateApiKeyCommand(): ValidateApiKeyCommand
 }
 
 export function createAuthenticationRouter(di: AuthorizationRouterDependencies) {
@@ -250,6 +252,16 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
 
       return c.json({ success: true, keys: result } as const)
     })
+
+    .post(
+      '/validate-api-key/:key',
+      zodValidator('param', z.object({ key: z.string() })),
+      async (c) => {
+        const key = c.req.valid('param').key
+        const result = await di.validateApiKeyCommand().execute(key)
+        return c.json({ success: true, valid: result } as const)
+      },
+    )
 
   return app
 }

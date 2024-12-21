@@ -81,6 +81,8 @@ export type IAuthenticationClient = {
     }[],
     FetchError | AuthenticationClientError
   >
+
+  validateApiKey(key: string): ResultAsync<boolean, FetchError>
 }
 
 export class AuthenticationClient implements IAuthenticationClient {
@@ -263,6 +265,17 @@ export class AuthenticationClient implements IAuthenticationClient {
           return okAsync(res.keys.map((key) => ({ ...key, createdAt: new Date(key.createdAt) })))
         return errAsync(new AuthenticationClientError(res.error))
       })
+  }
+
+  validateApiKey(key: string) {
+    return ResultAsync.fromPromise(
+      this.client['validate-api-key'][':key'].$post({ param: { key } }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['validate-api-key'][':key']['$post']>>((res) =>
+        res.json(),
+      )
+      .map((res) => res.valid)
   }
 }
 

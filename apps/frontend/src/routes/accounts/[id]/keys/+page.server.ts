@@ -1,7 +1,10 @@
+import {
+  AuthenticationClientError,
+  FetchError,
+  type IAuthenticationClient,
+} from '@romulus/authentication/client'
 import { error, fail } from '@sveltejs/kit'
 import { z } from 'zod'
-
-import { UnauthorizedApiKeyDeletionError } from '$lib/server/features/api/commands/application/commands/delete-api-key'
 
 import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types'
 
@@ -13,7 +16,11 @@ export const load = (async ({
   locals: {
     dbConnection: App.Locals['dbConnection']
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-    di: Pick<App.Locals['di'], 'apiQueryService'>
+    di: {
+      authentication: () => {
+        getApiKeys: IAuthenticationClient['getApiKeys']
+      }
+    }
   }
 }) => {
   if (!locals.user) {
@@ -30,9 +37,19 @@ export const load = (async ({
     return error(403, 'Unauthorized')
   }
 
-  const keys = await locals.di.apiQueryService().getApiKeysByAccount(id)
+  const result = await locals.di.authentication().getApiKeys()
+  if (result.isErr()) {
+    if (result.error instanceof FetchError) {
+      return error(500, result.error.message)
+    } else if (result.error instanceof AuthenticationClientError) {
+      return error(result.error.originalError.statusCode, result.error.message)
+    } else {
+      result.error satisfies never
+      return error(500, 'An unknown error occurred')
+    }
+  }
 
-  return { keys }
+  return { keys: result.value }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -45,7 +62,11 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-      di: Pick<App.Locals['di'], 'apiCommandService'>
+      di: {
+        authentication: () => {
+          createApiKey: IAuthenticationClient['createApiKey']
+        }
+      }
     }
     request: RequestEvent['request']
   }) => {
@@ -74,9 +95,24 @@ export const actions = {
     }
     const name = maybeName.data
 
-    const insertedKey = await locals.di.apiCommandService().createApiKey(name, id)
+    const result = await locals.di.authentication().createApiKey(name)
+    if (result.isErr()) {
+      if (result.error instanceof FetchError) {
+        return error(500, result.error.message)
+      } else if (result.error instanceof AuthenticationClientError) {
+        return error(result.error.originalError.statusCode, result.error.message)
+      } else {
+        result.error satisfies never
+        return error(500, 'An unknown error occurred')
+      }
+    }
 
-    return { success: true, id: insertedKey.id, name: insertedKey.name, key: insertedKey.key }
+    return {
+      success: true,
+      id: result.value.id,
+      name: result.value.name,
+      key: result.value.key,
+    }
   },
 
   delete: async ({
@@ -88,7 +124,11 @@ export const actions = {
     locals: {
       dbConnection: App.Locals['dbConnection']
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
-      di: Pick<App.Locals['di'], 'apiCommandService'>
+      di: {
+        authentication: () => {
+          deleteApiKey: IAuthenticationClient['deleteApiKey']
+        }
+      }
     }
     request: RequestEvent['request']
   }) => {
@@ -117,9 +157,16 @@ export const actions = {
     }
     const apiKeyId = maybeApiKeyId.data
 
-    const result = await locals.di.apiCommandService().deleteApiKey(apiKeyId, accountId)
-    if (result instanceof UnauthorizedApiKeyDeletionError) {
-      return error(401, 'Unauthorized')
+    const result = await locals.di.authentication().deleteApiKey(apiKeyId)
+    if (result.isErr()) {
+      if (result.error instanceof FetchError) {
+        return error(500, result.error.message)
+      } else if (result.error instanceof AuthenticationClientError) {
+        return error(result.error.originalError.statusCode, result.error.message)
+      } else {
+        result.error satisfies never
+        return error(500, 'An unknown error occurred')
+      }
     }
   },
 } satisfies Actions

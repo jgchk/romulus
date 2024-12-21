@@ -1,3 +1,4 @@
+import { okAsync } from 'neverthrow'
 import { expect } from 'vitest'
 
 import { AccountsDatabase } from '$lib/server/db/controllers/accounts'
@@ -18,12 +19,9 @@ test('should throw an error if no API key is provided', async ({ dbConnection })
         dbConnection,
         user: undefined,
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            validateApiKey: () => okAsync(true),
+          }),
           genres: () => ({
             getAllGenres: () =>
               Promise.resolve({
@@ -50,12 +48,9 @@ test('should throw an error if Bearer auth is malformed', async ({ dbConnection 
         dbConnection,
         user: undefined,
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            validateApiKey: () => okAsync(true),
+          }),
           genres: () => ({
             getAllGenres: () =>
               Promise.resolve({
@@ -84,12 +79,9 @@ test('should throw an error if API key does not exist', async ({ dbConnection })
         dbConnection,
         user: undefined,
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            validateApiKey: () => okAsync(true),
+          }),
           genres: () => ({
             getAllGenres: () =>
               Promise.resolve({
@@ -133,12 +125,9 @@ test('should not throw an error if a valid API key is provided via Bearer', asyn
         dbConnection,
         user: undefined,
         di: {
-          apiCommandService: () =>
-            new ApiCommandService(
-              new DrizzleApiKeyRepository(dbConnection),
-              new CryptoTokenGenerator(),
-              new Sha256HashRepository(),
-            ),
+          authentication: () => ({
+            validateApiKey: () => okAsync(true),
+          }),
           genres: () => ({
             getAllGenres: () =>
               Promise.resolve({
