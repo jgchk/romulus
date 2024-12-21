@@ -1,17 +1,17 @@
 import { err } from 'neverthrow'
 import { expect } from 'vitest'
 
-import { GetAllGenresQuery } from './get-all-genres'
-import { GetGenreHistoryQuery } from './get-genre-history'
-import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
-import { MockAuthorizationClient } from '../../../test/mock-authorization-client'
-import { test } from '../../../vitest-setup'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
+import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { test } from '../../vitest-setup'
 import { GenreNotFoundError } from '../errors/genre-not-found'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { DeleteGenreCommand } from './delete-genre'
+import { GetAllGenresQuery } from './get-all-genres'
+import { GetGenreHistoryQuery } from './get-genre-history'
 
 async function createGenre(
   data: CreateGenreInput,
@@ -22,7 +22,7 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)
@@ -61,7 +61,7 @@ test('should delete the genre', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const result = await deleteGenreCommand.execute(genre.id, accountId)
@@ -79,7 +79,7 @@ test('should throw NotFoundError if genre not found', async ({ dbConnection }) =
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const result = await deleteGenreCommand.execute(0, 1)
@@ -102,7 +102,7 @@ test('should create a genre history entry', async ({ dbConnection }) => {
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const result = await deleteGenreCommand.execute(genre.id, accountId)
@@ -156,7 +156,7 @@ test("should move child genres under deleted genre's parents", async ({ dbConnec
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const result = await deleteGenreCommand.execute(child.id, accountId)
@@ -215,7 +215,7 @@ test('should create history entries for children that were moved', async ({ dbCo
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const result = await deleteGenreCommand.execute(child.id, accountId)

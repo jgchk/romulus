@@ -1,12 +1,12 @@
 import { expect } from 'vitest'
 
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
-import { MockAuthorizationClient } from '../../../test/mock-authorization-client'
-import { test } from '../../../vitest-setup'
+import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { test } from '../../vitest-setup'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
 import { GetRandomGenreIdQuery } from './get-random-genre-id'
 
 async function createGenre(
@@ -18,7 +18,7 @@ async function createGenre(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   const genre = await createGenreCommand.execute(data, accountId)

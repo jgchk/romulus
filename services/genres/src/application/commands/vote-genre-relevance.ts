@@ -1,4 +1,4 @@
-import type { AuthorizationApplication } from '@romulus/authorization/application'
+import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import type { Result } from 'neverthrow'
 import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
@@ -14,7 +14,7 @@ import { median } from '../../utils'
 export class VoteGenreRelevanceCommand {
   constructor(
     private genreRelevanceVoteRepo: GenreRelevanceVoteRepository,
-    private authorization: AuthorizationApplication,
+    private authorization: IAuthorizationApplication,
   ) {}
 
   async execute(

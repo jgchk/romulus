@@ -1,22 +1,22 @@
 import { ok } from 'neverthrow'
 import { expect } from 'vitest'
 
-import { GetGenreQuery } from './get-genre'
-import { GetGenreHistoryQuery } from './get-genre-history'
-import type { IDrizzleConnection } from '../../../shared/infrastructure/drizzle-database'
-import { MockAuthorizationClient } from '../../../test/mock-authorization-client'
-import { test } from '../../../vitest-setup'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
+import { MockAuthorizationApplication } from '../../test/mock-authorization-application'
+import { test } from '../../vitest-setup'
 import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
+import { GetGenreQuery } from './get-genre'
+import { GetGenreHistoryQuery } from './get-genre-history'
 
 function setup(dbConnection: IDrizzleConnection) {
   const createGenreCommand = new CreateGenreCommand(
     new DrizzleGenreRepository(dbConnection),
     new DrizzleGenreTreeRepository(dbConnection),
     new DrizzleGenreHistoryRepository(dbConnection),
-    new MockAuthorizationClient(),
+    new MockAuthorizationApplication(),
   )
 
   return createGenreCommand

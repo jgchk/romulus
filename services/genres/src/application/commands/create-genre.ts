@@ -1,4 +1,4 @@
-import type { AuthorizationApplication } from '@romulus/authorization/application'
+import type { IAuthorizationApplication } from '@romulus/authorization/application'
 import { errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow'
 
 import { UnauthorizedError } from '../../domain/errors/unauthorized'
@@ -35,7 +35,7 @@ export class CreateGenreCommand {
     private genreRepo: GenreRepository,
     private genreTreeRepo: GenreTreeRepository,
     private genreHistoryRepo: GenreHistoryRepository,
-    private authorization: AuthorizationApplication,
+    private authorization: IAuthorizationApplication,
   ) {}
 
   async execute(data: CreateGenreInput, accountId: number) {
