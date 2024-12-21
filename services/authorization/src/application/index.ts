@@ -1,63 +1,10 @@
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
-import type {
-  DuplicatePermissionError,
-  PermissionNotFoundError,
-  RoleNotFoundError,
-} from '../domain/authorizer'
 import { UnauthorizedError } from '../domain/authorizer'
 import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions'
 import type { IAuthorizerRepository } from '../domain/repository'
 
-export type IAuthorizationApplication = {
-  createPermission(
-    name: string,
-    description: string | undefined,
-    requestorUserId: number,
-  ): ResultAsync<void, UnauthorizedError | DuplicatePermissionError>
-
-  ensurePermissions(
-    permissions: {
-      name: string
-      description: string | undefined
-    }[],
-    requestorUserId: number,
-  ): ResultAsync<void, UnauthorizedError>
-
-  deletePermission(name: string, requestorUserId: number): ResultAsync<void, UnauthorizedError>
-
-  createRole(
-    name: string,
-    permissions: Set<string>,
-    description: string | undefined,
-    requestorUserId: number,
-  ): ResultAsync<void, UnauthorizedError | PermissionNotFoundError>
-
-  deleteRole(name: string, requestorUserId: number): ResultAsync<void, UnauthorizedError>
-
-  assignRoleToUser(
-    userId: number,
-    roleName: string,
-    requestorUserId: number,
-  ): ResultAsync<void, UnauthorizedError | RoleNotFoundError>
-
-  checkMyPermission(permission: string, requestorUserId: number): Promise<boolean>
-
-  checkUserPermission(
-    userId: number,
-    permission: string,
-    requestorUserId: number,
-  ): ResultAsync<boolean, UnauthorizedError>
-
-  getMyPermissions(requestorUserId: number): ResultAsync<Set<string>, UnauthorizedError>
-
-  getUserPermissions(
-    userId: number,
-    requestorUserId: number,
-  ): ResultAsync<Set<string>, UnauthorizedError>
-}
-
-export class AuthorizationApplication implements IAuthorizationApplication {
+export class AuthorizationApplication {
   constructor(private repo: IAuthorizerRepository) {}
 
   createPermission(name: string, description: string | undefined, requestorUserId: number) {
