@@ -13,7 +13,12 @@ import type {
 import type { Artifact, ArtifactRegisteredEvent } from '../domain/artifacts/register-artifact'
 import type { Relation, RelationRegisteredEvent } from '../domain/artifacts/register-relation'
 
-export function createArtifactsProjection() {
+export type ArtifactsProjection = {
+  get(): ArtifactsProjectionState
+  applyEvent(event: ArtifactsEvent): void
+}
+
+export function createArtifactsProjection(): ArtifactsProjection {
   let projectionState = createInitialState()
 
   return {

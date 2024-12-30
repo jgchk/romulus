@@ -1,14 +1,15 @@
-import { hc, InferResponseType } from 'hono/client'
+import { CustomError, toError } from '@romulus/custom-error'
+import { FetchError } from '@romulus/hono-utils/errors'
+import type { InferResponseType } from 'hono/client'
+import { hc } from 'hono/client'
+import type { StatusCode } from 'hono/utils/http-status'
+import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
 import type { DefineArtifactSchemaCommand } from '../application/artifact-schemas/define-artifact-schema'
+import type { DefineRelationSchemaCommand } from '../application/artifact-schemas/define-relation-schema'
+import type { RegisterArtifactCommand } from '../application/artifacts/register-artifact'
+import type { RegisterRelationCommand } from '../application/artifacts/register-relation'
 import type { ArtifactsRouter } from './router'
-import { FetchError } from '@romulus/hono-utils/errors'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
-import { CustomError, toError } from '@romulus/custom-error'
-import { DefineRelationSchemaCommand } from '../application/artifact-schemas/define-relation-schema'
-import { RegisterArtifactCommand } from '../application/artifacts/register-artifact'
-import { StatusCode } from 'hono/utils/http-status'
-import { RegisterRelationCommand } from '../application/artifacts/register-relation'
 
 export function createArtifactsClient(baseUrl: string) {
   const client = hc<ArtifactsRouter>(baseUrl)
