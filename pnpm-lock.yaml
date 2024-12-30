@@ -370,6 +370,9 @@ importers:
       '@romulus/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@types/node':
+        specifier: ^20.14.15
+        version: 20.17.6
       eslint:
         specifier: ^9.13.0
         version: 9.13.0(jiti@2.3.3)
