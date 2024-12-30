@@ -1,4 +1,4 @@
-import { CustomError } from '../../shared/domain/errors'
+import { CustomError } from '../../../shared/domain/errors'
 
 export class MediaArtifactSchemaNotFoundError extends CustomError {
   constructor(public readonly id: string) {
