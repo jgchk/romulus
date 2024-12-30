@@ -2,16 +2,11 @@ import type { RecordOf } from 'immutable'
 import { Map } from 'immutable'
 import { Record } from 'immutable'
 
-import type {
-  ArtifactSchema,
-  ArtifactSchemaDefinedEvent,
-} from '../domain/artifact-schemas/define-artifact-schema'
-import type {
-  RelationSchema,
-  RelationSchemaDefinedEvent,
-} from '../domain/artifact-schemas/define-relation-schema'
-import type { Artifact, ArtifactRegisteredEvent } from '../domain/artifacts/register-artifact'
-import type { Relation, RelationRegisteredEvent } from '../domain/artifacts/register-relation'
+import type { ArtifactSchema } from '../domain/artifact-schemas/define-artifact-schema'
+import type { RelationSchema } from '../domain/artifact-schemas/define-relation-schema'
+import type { Artifact } from '../domain/artifacts/register-artifact'
+import type { Relation } from '../domain/artifacts/register-relation'
+import type { ArtifactsEvent } from '../domain/events'
 
 export type ArtifactsProjection = {
   get(): ArtifactsProjectionState
@@ -71,9 +66,3 @@ type ArtifactsProjectionStateProps = {
   artifacts: Map<string, Artifact>
   relations: Map<string, Relation>
 }
-
-type ArtifactsEvent =
-  | ArtifactSchemaDefinedEvent
-  | RelationSchemaDefinedEvent
-  | ArtifactRegisteredEvent
-  | RelationRegisteredEvent
