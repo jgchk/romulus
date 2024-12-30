@@ -1,3 +1,4 @@
+import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import type { AttributeSchema } from '../artifact-schemas/attributes'
@@ -11,15 +12,31 @@ export type RegisterRelationCommand = {
     targetArtifactSchema: string
     attributes: Pick<AttributeSchema, 'id' | 'type'>[]
   }
-  sourceArtifact: { id: string; schema: string }
-  targetArtifact: { id: string; schema: string }
+  relation: {
+    id: string
+    sourceArtifact: { id: string; schema: string }
+    targetArtifact: { id: string; schema: string }
+    attributes: { id: string; value: unknown }[]
+  }
+}
+
+export type Relation = {
+  id: string
+  schema: string
+  sourceArtifact: string
+  targetArtifact: string
   attributes: { id: string; value: unknown }[]
 }
 
-export function registerRelation(command: RegisterRelationCommand) {
+export function registerRelation(
+  command: RegisterRelationCommand,
+): Result<
+  RelationRegisteredEvent,
+  InvalidRelationError | MissingAttributeError | IncorrectAttributeTypeError
+> {
   if (
-    command.sourceArtifact.schema !== command.schema.sourceArtifactSchema ||
-    command.targetArtifact.schema !== command.schema.targetArtifactSchema
+    command.relation.sourceArtifact.schema !== command.schema.sourceArtifactSchema ||
+    command.relation.targetArtifact.schema !== command.schema.targetArtifactSchema
   ) {
     return err(
       new InvalidRelationError(
@@ -28,15 +45,17 @@ export function registerRelation(command: RegisterRelationCommand) {
           targetSchema: command.schema.targetArtifactSchema,
         },
         {
-          sourceSchema: command.sourceArtifact.schema,
-          targetSchema: command.targetArtifact.schema,
+          sourceSchema: command.relation.sourceArtifact.schema,
+          targetSchema: command.relation.targetArtifact.schema,
         },
       ),
     )
   }
 
   for (const attributeSchema of command.schema.attributes) {
-    const attribute = command.attributes.find((attribute) => attribute.id === attributeSchema.id)
+    const attribute = command.relation.attributes.find(
+      (attribute) => attribute.id === attributeSchema.id,
+    )
     if (attribute === undefined) {
       return err(new MissingAttributeError(attributeSchema.id))
     }
@@ -52,10 +71,11 @@ export function registerRelation(command: RegisterRelationCommand) {
   return ok(
     relationRegisteredEvent({
       relation: {
+        id: command.relation.id,
         schema: command.schema.id,
-        sourceArtifact: command.sourceArtifact.id,
-        targetArtifact: command.targetArtifact.id,
-        attributes: command.attributes,
+        sourceArtifact: command.relation.sourceArtifact.id,
+        targetArtifact: command.relation.targetArtifact.id,
+        attributes: command.relation.attributes,
       },
     }),
   )
@@ -63,12 +83,7 @@ export function registerRelation(command: RegisterRelationCommand) {
 
 export type RelationRegisteredEvent = {
   kind: 'relation-registered'
-  relation: {
-    schema: string
-    sourceArtifact: string
-    targetArtifact: string
-    attributes: { id: string; value: unknown }[]
-  }
+  relation: Relation
 }
 
 export function relationRegisteredEvent(

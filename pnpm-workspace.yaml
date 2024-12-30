@@ -1,9 +1,11 @@
 packages:
   - "apps/backend"
   - "apps/frontend"
+  - "packages/custom-error"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"
   - "packages/fetch-retry"
+  - "packages/hono-utils"
   - "services/authentication"
   - "services/authorization"
   - "services/genres"

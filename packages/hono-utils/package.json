@@ -1,0 +1,28 @@
+{
+  "name": "@romulus/hono-utils",
+  "type": "module",
+  "exports": {
+    "./errors": "./src/errors.ts",
+    "./zod-validator": "./src/zod-validator.ts"
+  },
+  "scripts": {
+    "test": "pnpm test:unit run",
+    "test:unit": "vitest",
+    "lint": "prettier --check . && tsc --noEmit && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.1",
+    "@romulus/custom-error": "workspace:*",
+    "hono": "^4.6.12",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@romulus/eslint-config": "workspace:*",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

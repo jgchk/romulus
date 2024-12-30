@@ -10,8 +10,10 @@ test('should register an artifact', () => {
       id: 'track',
       attributes: [{ id: 'title', type: 'string' }],
     },
-    id: 'long-season',
-    attributes: [{ id: 'title', value: 'Long Season' }],
+    artifact: {
+      id: 'long-season',
+      attributes: [{ id: 'title', value: 'Long Season' }],
+    },
   })
 
   expect(result).toEqual(
@@ -32,8 +34,10 @@ test('should error if required attributes are missing', () => {
       id: 'track',
       attributes: [{ id: 'title', type: 'string' }],
     },
-    id: 'long-season',
-    attributes: [],
+    artifact: {
+      id: 'long-season',
+      attributes: [],
+    },
   })
 
   expect(result).toEqual(err(new MissingAttributeError('title')))
@@ -45,8 +49,10 @@ test('should error if an attribute is the wrong type', () => {
       id: 'track',
       attributes: [{ id: 'title', type: 'string' }],
     },
-    id: 'long-season',
-    attributes: [{ id: 'title', value: 1 }],
+    artifact: {
+      id: 'long-season',
+      attributes: [{ id: 'title', value: 1 }],
+    },
   })
 
   expect(result).toEqual(err(new IncorrectAttributeTypeError('title', 'string', 1)))

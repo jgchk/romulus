@@ -12,15 +12,19 @@ test('should register a media artifact relation', () => {
       targetArtifactSchema: 'track',
       attributes: [{ id: 'track-number', type: 'number' }],
     },
-    sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
-    targetArtifact: { id: 'nowhere2go', schema: 'track' },
-    attributes: [{ id: 'track-number', value: 1 }],
+    relation: {
+      id: 'srs-nowhere2go',
+      sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
+      targetArtifact: { id: 'nowhere2go', schema: 'track' },
+      attributes: [{ id: 'track-number', value: 1 }],
+    },
   })
 
   expect(result).toEqual(
     ok({
       kind: 'relation-registered',
       relation: {
+        id: 'srs-nowhere2go',
         schema: 'album-tracks',
         sourceArtifact: 'some-rap-songs',
         targetArtifact: 'nowhere2go',
@@ -38,9 +42,12 @@ test('should error if the source artifact is not the correct schema', () => {
       targetArtifactSchema: 'track',
       attributes: [{ id: 'track-number', type: 'number' }],
     },
-    sourceArtifact: { id: 'wicked', schema: 'play' },
-    targetArtifact: { id: 'nowhere2go', schema: 'track' },
-    attributes: [{ id: 'track-number', value: 1 }],
+    relation: {
+      id: 'srs-nowhere2go',
+      sourceArtifact: { id: 'wicked', schema: 'play' },
+      targetArtifact: { id: 'nowhere2go', schema: 'track' },
+      attributes: [{ id: 'track-number', value: 1 }],
+    },
   })
 
   expect(result).toEqual(
@@ -61,9 +68,12 @@ test('should error if the target artifact is not the correct schema', () => {
       targetArtifactSchema: 'track',
       attributes: [{ id: 'track-number', type: 'number' }],
     },
-    sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
-    targetArtifact: { id: 'wicked', schema: 'play' },
-    attributes: [{ id: 'track-number', value: 1 }],
+    relation: {
+      id: 'srs-nowhere2go',
+      sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
+      targetArtifact: { id: 'wicked', schema: 'play' },
+      attributes: [{ id: 'track-number', value: 1 }],
+    },
   })
 
   expect(result).toEqual(
@@ -84,9 +94,12 @@ test('should error if required attributes are missing', () => {
       targetArtifactSchema: 'track',
       attributes: [{ id: 'track-number', type: 'number' }],
     },
-    sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
-    targetArtifact: { id: 'nowhwere2go', schema: 'track' },
-    attributes: [],
+    relation: {
+      id: 'srs-nowhere2go',
+      sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
+      targetArtifact: { id: 'nowhwere2go', schema: 'track' },
+      attributes: [],
+    },
   })
 
   expect(result).toEqual(err(new MissingAttributeError('track-number')))
@@ -100,9 +113,12 @@ test('should error if an attribute is the wrong type', () => {
       targetArtifactSchema: 'track',
       attributes: [{ id: 'track-number', type: 'number' }],
     },
-    sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
-    targetArtifact: { id: 'nowhere2go', schema: 'track' },
-    attributes: [{ id: 'track-number', value: 'one' }],
+    relation: {
+      id: 'srs-nowhere2go',
+      sourceArtifact: { id: 'some-rap-songs', schema: 'album' },
+      targetArtifact: { id: 'nowhere2go', schema: 'track' },
+      attributes: [{ id: 'track-number', value: 'one' }],
+    },
   })
 
   expect(result).toEqual(err(new IncorrectAttributeTypeError('track-number', 'number', 'one')))

@@ -2,7 +2,11 @@
   "name": "@romulus/media",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./artifacts/application": "./src/artifacts/application/index.ts",
+    "./artifacts/router": "./src/artifacts/web/router.ts",
+    "./artifacts/client": "./src/artifacts/web/client.ts",
+    "./artifacts/infrastructure": "./src/artifacts/infrastructure/projection.ts"
   },
   "scripts": {
     "test": "pnpm test:unit run",
@@ -14,7 +18,11 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
+    "@romulus/custom-error": "workspace:*",
+    "@romulus/hono-utils": "workspace:*",
     "drizzle-orm": "^0.36.0",
+    "hono": "^4.6.12",
+    "immutable": "^5.0.3",
     "neverthrow": "^8.1.1",
     "postgres": "^3.4.5",
     "zod": "^3.23.8"

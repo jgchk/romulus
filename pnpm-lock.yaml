@@ -31,6 +31,9 @@ importers:
       '@romulus/genres':
         specifier: workspace:*
         version: link:../../services/genres
+      '@romulus/media':
+        specifier: workspace:*
+        version: link:../../services/media
       '@romulus/user-settings':
         specifier: workspace:*
         version: link:../../services/user-settings
@@ -262,6 +265,28 @@ importers:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(jsdom@25.0.1)
 
+  packages/custom-error:
+    dependencies:
+      '@types/node':
+        specifier: ^20.14.15
+        version: 20.17.6
+    devDependencies:
+      '@romulus/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      eslint:
+        specifier: ^9.13.0
+        version: 9.13.0(jiti@2.3.3)
+      prettier:
+        specifier: ^3.3.3
+        version: 3.3.3
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(jsdom@25.0.1)
+
   packages/eslint-config:
     dependencies:
       '@eslint/js':
@@ -310,6 +335,37 @@ importers:
         version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(jsdom@25.0.1)
 
   packages/fetch-retry:
+    devDependencies:
+      '@romulus/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      eslint:
+        specifier: ^9.13.0
+        version: 9.13.0(jiti@2.3.3)
+      prettier:
+        specifier: ^3.3.3
+        version: 3.3.3
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(jsdom@25.0.1)
+
+  packages/hono-utils:
+    dependencies:
+      '@hono/zod-validator':
+        specifier: ^0.4.1
+        version: 0.4.1(hono@4.6.12)(zod@3.23.8)
+      '@romulus/custom-error':
+        specifier: workspace:*
+        version: link:../custom-error
+      hono:
+        specifier: ^4.6.12
+        version: 4.6.12
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@romulus/eslint-config':
         specifier: workspace:*
@@ -521,9 +577,21 @@ importers:
       '@electric-sql/pglite':
         specifier: ^0.2.12
         version: 0.2.12
+      '@romulus/custom-error':
+        specifier: workspace:*
+        version: link:../../packages/custom-error
+      '@romulus/hono-utils':
+        specifier: workspace:*
+        version: link:../../packages/hono-utils
       drizzle-orm:
         specifier: ^0.36.0
         version: 0.36.0(@electric-sql/pglite@0.2.12)(@neondatabase/serverless@0.10.1)(@types/pg@8.11.10)(postgres@3.4.5)(react@18.3.1)
+      hono:
+        specifier: ^4.6.12
+        version: 4.6.12
+      immutable:
+        specifier: ^5.0.3
+        version: 5.0.3
       neverthrow:
         specifier: ^8.1.1
         version: 8.1.1
@@ -3077,6 +3145,9 @@ packages:
   immutable@3.8.2:
     resolution: {integrity: sha512-15gZoQ38eYjEjxkorfbcgBKBL6R7T459OuK+CpcWt7O3KF4uPCx2tD0uFETlUDIyo+1789crbMhTvQBSR5yBMg==}
     engines: {node: '>=0.10.0'}
+
+  immutable@5.0.3:
+    resolution: {integrity: sha512-P8IdPQHq3lA1xVeBRi5VPqUm5HDgKnx0Ru51wZz5mjxHr5n3RWhjIpOFU7ybkUxfB+5IToy+OLaHYDBIWsv+uw==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -6890,6 +6961,8 @@ snapshots:
   ignore@5.3.2: {}
 
   immutable@3.8.2: {}
+
+  immutable@5.0.3: {}
 
   import-fresh@3.3.0:
     dependencies:

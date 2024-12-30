@@ -1,3 +1,4 @@
+import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import type { AttributeSchema } from '../artifact-schemas/attributes'
@@ -9,13 +10,22 @@ export type RegisterArtifactCommand = {
     id: string
     attributes: Pick<AttributeSchema, 'id' | 'type'>[]
   }
+  artifact: Omit<Artifact, 'schema'>
+}
+
+export type Artifact = {
   id: string
+  schema: string
   attributes: { id: string; value: unknown }[]
 }
 
-export function registerArtifact(command: RegisterArtifactCommand) {
+export function registerArtifact(
+  command: RegisterArtifactCommand,
+): Result<ArtifactRegisteredEvent, MissingAttributeError | IncorrectAttributeTypeError> {
   for (const attributeSchema of command.schema.attributes) {
-    const attribute = command.attributes.find((attribute) => attribute.id === attributeSchema.id)
+    const attribute = command.artifact.attributes.find(
+      (attribute) => attribute.id === attributeSchema.id,
+    )
     if (attribute === undefined) {
       return err(new MissingAttributeError(attributeSchema.id))
     }
@@ -29,22 +39,14 @@ export function registerArtifact(command: RegisterArtifactCommand) {
   }
   return ok(
     artifactRegisteredEvent({
-      artifact: {
-        id: command.id,
-        schema: command.schema.id,
-        attributes: command.attributes,
-      },
+      artifact: { ...command.artifact, schema: command.schema.id },
     }),
   )
 }
 
 export type ArtifactRegisteredEvent = {
   kind: 'artifact-registered'
-  artifact: {
-    id: string
-    schema: string
-    attributes: { id: string; value: unknown }[]
-  }
+  artifact: Artifact
 }
 
 export function artifactRegisteredEvent(
