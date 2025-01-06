@@ -13,6 +13,7 @@ import {
   RegisterCommand,
   RequestPasswordResetCommand,
   ResetPasswordCommand,
+  ValidateApiKeyCommand,
   WhoamiQuery,
 } from '../application'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
@@ -79,6 +80,8 @@ function setup(dbConnection: IDrizzleConnection) {
       ),
     deleteApiKeyCommand: () => new DeleteApiKeyCommand(di.apiKeyRepository()),
     getApiKeysByAccountQuery: () => new GetApiKeysByAccountQuery(di.dbConnection()),
+    validateApiKeyCommand: () =>
+      new ValidateApiKeyCommand(di.apiKeyRepository(), di.apiKeyHashRepository()),
   })
   const client = testClient(app)
 
