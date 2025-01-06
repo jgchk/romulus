@@ -80,6 +80,10 @@ export class AuthorizationApplication {
       .map((authorizer) => authorizer.getPermissions(userId))
   }
 
+  getSystemUserId() {
+    return SYSTEM_USER_ID
+  }
+
   private checkPermission(userId: number, permission: string) {
     if (userId === SYSTEM_USER_ID) return okAsync(undefined)
 
@@ -90,4 +94,17 @@ export class AuthorizationApplication {
         return okAsync(undefined)
       })
   }
+}
+
+export async function setupAuthorizationPermissions(
+  createPermissions: (
+    permissions: { name: string; description: string | undefined }[],
+  ) => Promise<void>,
+) {
+  await createPermissions(
+    Object.values(AuthorizationPermission).map((permission) => ({
+      name: permission,
+      description: undefined,
+    })),
+  )
 }
