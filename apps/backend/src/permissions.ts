@@ -1,3 +1,4 @@
+import { setupAuthenticationPermissions } from '@romulus/authentication/application'
 import { setupAuthorizationPermissions } from '@romulus/authorization/application'
 
 export async function setupPermissions(
@@ -6,4 +7,5 @@ export async function setupPermissions(
   ) => Promise<void>,
 ) {
   await setupAuthorizationPermissions(createPermissions)
+  await setupAuthenticationPermissions(createPermissions)
 }
