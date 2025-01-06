@@ -6,7 +6,7 @@
     "./artifacts/application": "./src/artifacts/commands/application/index.ts",
     "./artifacts/router": "./src/artifacts/commands/web/router.ts",
     "./artifacts/client": "./src/artifacts/commands/web/client.ts",
-    "./artifacts/infrastructure": "./src/artifacts/infrastructure/projection.ts"
+    "./artifacts/infrastructure": "./src/artifacts/commands/infrastructure/projection.ts"
   },
   "scripts": {
     "test": "pnpm test:unit run",
