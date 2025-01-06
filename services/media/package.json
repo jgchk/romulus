@@ -3,7 +3,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./artifacts/application": "./src/artifacts/application/index.ts",
+    "./artifacts/application": "./src/artifacts/commands/application/index.ts",
     "./artifacts/router": "./src/artifacts/web/router.ts",
     "./artifacts/client": "./src/artifacts/web/client.ts",
     "./artifacts/infrastructure": "./src/artifacts/infrastructure/projection.ts"
