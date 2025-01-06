@@ -4,8 +4,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./artifacts/application": "./src/artifacts/commands/application/index.ts",
-    "./artifacts/router": "./src/artifacts/web/router.ts",
-    "./artifacts/client": "./src/artifacts/web/client.ts",
+    "./artifacts/router": "./src/artifacts/commands/web/router.ts",
+    "./artifacts/client": "./src/artifacts/commands/web/client.ts",
     "./artifacts/infrastructure": "./src/artifacts/infrastructure/projection.ts"
   },
   "scripts": {
