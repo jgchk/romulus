@@ -6,6 +6,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import { toast } from '$lib/atoms/Toast/toast'
   import { pageTitle } from '$lib/utils/string'
 
   import type { PageData } from './$types'
@@ -16,7 +17,11 @@
 
   let { data }: Props = $props()
 
-  const { form, errors, constraints, delayed, enhance } = superForm(data.form)
+  const { form, errors, constraints, delayed, enhance } = superForm(data.form, {
+    onError: ({ result }) => {
+      toast.error(result.error.message)
+    },
+  })
 </script>
 
 <svelte:head>
