@@ -1,12 +1,11 @@
 import type { Context } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
 
-export function setError(
-  c: Context,
-  error: { name: string; message: string; details?: unknown },
-  statusCode: StatusCode,
-) {
-  return c.json(
+export function setError<
+  E extends { name: string; message: string; details?: unknown },
+  S extends StatusCode,
+>(c: Context, error: E, statusCode: S) {
+  return c.json<{ success: false; error: E & { statusCode: S } }, S>(
     {
       success: false,
       error: {
@@ -14,7 +13,7 @@ export function setError(
         message: error.message,
         statusCode,
         ...(error.details !== undefined ? { details: error.details } : {}),
-      },
+      } as E & { statusCode: S },
     } as const,
     statusCode,
   )

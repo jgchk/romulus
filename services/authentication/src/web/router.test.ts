@@ -95,10 +95,9 @@ function setup(dbConnection: IDrizzleConnection) {
     }
     const sessionToken = registerBody.token
 
-    const whoamiResponse = await client.whoami.$get(
-      {},
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const whoamiResponse = await client.whoami.$get({
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
     const whoamiBody = await whoamiResponse.json()
     if (whoamiBody.success === false) {
       expect.fail(`Failed to get registered user: ${whoamiBody.error.message}`)
@@ -121,7 +120,7 @@ describe('login', () => {
       success: false,
       error: {
         message: 'Incorrect username or password',
-        name: 'InvalidLogin',
+        name: 'InvalidLoginError',
         statusCode: 401,
       },
     })
@@ -136,7 +135,7 @@ describe('login', () => {
       success: false,
       error: {
         message: 'Incorrect username or password',
-        name: 'InvalidLogin',
+        name: 'InvalidLoginError',
         statusCode: 401,
       },
     })
@@ -162,19 +161,16 @@ describe('logout', () => {
     const { client, registerTestUser } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.logout.$post(
-      {},
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client.logout.$post({ header: { authorization: `Bearer ${sessionToken}` } })
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
   })
 
-  test('should error if the user is not logged in', async ({ dbConnection }) => {
+  test('should error if the authorization header is empty', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
 
-    const res = await client.logout.$post({})
+    const res = await client.logout.$post({ header: { authorization: '' } })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -192,10 +188,7 @@ describe('logout', () => {
   }) => {
     const { client } = setup(dbConnection)
 
-    const res = await client.logout.$post(
-      {},
-      { headers: { authorization: 'Bearer invalid-token' } },
-    )
+    const res = await client.logout.$post({ header: { authorization: 'Bearer invalid-token' } })
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
@@ -223,20 +216,23 @@ describe('register', () => {
     expect(await res.json()).toEqual({
       success: false,
       error: {
-        name: 'InvalidRequestError',
-        message: 'Invalid request',
+        name: 'ValidationError',
+        message: 'Request validation failed',
         statusCode: 400,
-        details: [
-          {
-            code: 'too_small',
-            exact: false,
-            inclusive: true,
-            message: 'String must contain at least 8 character(s)',
-            minimum: 8,
-            path: ['password'],
-            type: 'string',
-          },
-        ],
+        details: {
+          target: 'json',
+          issues: [
+            {
+              code: 'too_small',
+              exact: false,
+              inclusive: true,
+              message: 'String must contain at least 8 character(s)',
+              minimum: 8,
+              path: ['password'],
+              type: 'string',
+            },
+          ],
+        },
       },
     })
   })
@@ -251,20 +247,23 @@ describe('register', () => {
     expect(await res.json()).toEqual({
       success: false,
       error: {
-        name: 'InvalidRequestError',
-        message: 'Invalid request',
+        name: 'ValidationError',
+        message: 'Request validation failed',
         statusCode: 400,
-        details: [
-          {
-            code: 'too_big',
-            exact: false,
-            inclusive: true,
-            message: 'String must contain at most 72 character(s)',
-            maximum: 72,
-            path: ['password'],
-            type: 'string',
-          },
-        ],
+        details: {
+          target: 'json',
+          issues: [
+            {
+              code: 'too_big',
+              exact: false,
+              inclusive: true,
+              message: 'String must contain at most 72 character(s)',
+              maximum: 72,
+              path: ['password'],
+              type: 'string',
+            },
+          ],
+        },
       },
     })
   })
@@ -288,11 +287,12 @@ describe('register', () => {
 })
 
 describe('request-password-reset', () => {
-  test('should error if the user is not logged in', async ({ dbConnection }) => {
+  test('should error if the authorization header is empty', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
 
-    const res = await client['request-password-reset'][':accountId'].$post({
-      param: { accountId: '1' },
+    const res = await client['request-password-reset'][':userId'].$post({
+      param: { userId: 1 },
+      header: { authorization: '' },
     })
 
     expect(res.status).toBe(401)
@@ -311,10 +311,10 @@ describe('request-password-reset', () => {
     const { sessionToken } = await registerTestUser({ username: 'user1' })
     authorization.hasPermission.mockResolvedValue(false)
 
-    const res = await client['request-password-reset'][':accountId'].$post(
-      { param: { accountId: '1' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client['request-password-reset'][':userId'].$post({
+      param: { userId: 1 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -332,10 +332,10 @@ describe('request-password-reset', () => {
 
     const { sessionToken } = await registerTestUser()
 
-    const res = await client['request-password-reset'][':accountId'].$post(
-      { param: { accountId: '1' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client['request-password-reset'][':userId'].$post({
+      param: { userId: 1 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
@@ -351,10 +351,10 @@ describe('request-password-reset', () => {
 
     const { sessionToken } = await registerTestUser()
 
-    const res = await client['request-password-reset'][':accountId'].$post(
-      { param: { accountId: '2' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client['request-password-reset'][':userId'].$post({
+      param: { userId: 2 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
 
     expect(res.status).toBe(404)
     expect(await res.json()).toEqual({
@@ -374,10 +374,10 @@ describe('request-password-reset', () => {
     const { sessionToken } = await registerTestUser()
     authorization.hasPermission.mockResolvedValue(false)
 
-    const res = await client['request-password-reset'][':accountId'].$post(
-      { param: { accountId: '1' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client['request-password-reset'][':userId'].$post({
+      param: { userId: 1 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -396,10 +396,7 @@ describe('whoami', () => {
     const { client, registerTestUser } = setup(dbConnection)
     const { sessionToken } = await registerTestUser()
 
-    const res = await client.whoami.$get(
-      {},
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client.whoami.$get({ header: { authorization: `Bearer ${sessionToken}` } })
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
@@ -414,9 +411,11 @@ describe('whoami', () => {
     })
   })
 
-  test('should error if the user is not logged in', async ({ dbConnection }) => {
+  test('should error if the authorization header is empty', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
-    const res = await client.whoami.$get()
+    const res = await client.whoami.$get({
+      header: { authorization: '' },
+    })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -431,10 +430,9 @@ describe('whoami', () => {
 
   test('should error if the session does not exist', async ({ dbConnection }) => {
     const { client } = setup(dbConnection)
-    const res = await client.whoami.$get(
-      {},
-      { headers: { authorization: 'Bearer invalid-session-token' } },
-    )
+    const res = await client.whoami.$get({
+      header: { authorization: 'Bearer invalid-session-token' },
+    })
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({
@@ -452,31 +450,11 @@ describe('get-account', () => {
   test('should return the requested account', async ({ dbConnection }) => {
     const { client, registerTestUser } = setup(dbConnection)
 
-    const { sessionToken } = await registerTestUser()
+    await registerTestUser()
 
-    const res = await client.accounts[':id'].$get(
-      { param: { id: '1' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
-
-    expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({
-      success: true,
-      account: {
-        id: 1,
-        username: 'test',
-      },
+    const res = await client.accounts[':id'].$get({
+      param: { id: 1 },
     })
-  })
-
-  test('should allow getting your own account without permission', async ({ dbConnection }) => {
-    const { client, registerTestUser } = setup(dbConnection)
-    const { sessionToken } = await registerTestUser()
-
-    const res = await client.accounts[':id'].$get(
-      { param: { id: '1' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
@@ -489,14 +467,11 @@ describe('get-account', () => {
   })
 
   test('should error if the requested account does not exist', async ({ dbConnection }) => {
-    const { client, registerTestUser } = setup(dbConnection)
+    const { client } = setup(dbConnection)
 
-    const { sessionToken } = await registerTestUser()
-
-    const res = await client.accounts[':id'].$get(
-      { param: { id: '2' } },
-      { headers: { authorization: `Bearer ${sessionToken}` } },
-    )
+    const res = await client.accounts[':id'].$get({
+      param: { id: 2 },
+    })
 
     expect(res.status).toBe(404)
     expect(await res.json()).toEqual({

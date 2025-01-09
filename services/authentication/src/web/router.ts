@@ -1,5 +1,4 @@
-import { Hono } from 'hono'
-import { z } from 'zod'
+import { OpenAPIHono } from '@hono/zod-openapi'
 
 import type { ValidateApiKeyCommand } from '../application'
 import type { CreateApiKeyCommand } from '../application/commands/create-api-key'
@@ -22,13 +21,24 @@ import { PasswordResetTokenExpiredError } from '../application/errors/password-r
 import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found'
 import { CustomError } from '../domain/errors/base'
 import { UnauthorizedError } from '../domain/errors/unauthorized'
-import { bearerAuth } from './bearer-auth-middleware'
-import { setError } from './utils'
-import { zodValidator } from './zod-validator'
+import { getBearerAuthToken } from './bearer-auth-middleware'
+import {
+  createApiKeyRoute,
+  deleteApiKeyRoute,
+  getAccountRoute,
+  getAccountsRoute,
+  getApiKeysRoute,
+  loginRoute,
+  logoutRoute,
+  refreshSessionRoute,
+  registerRoute,
+  requestPasswordResetRoute,
+  resetPasswordRoute,
+  validateApiKeyRoute,
+  whoamiRoute,
+} from './routes'
 
 export type Router = ReturnType<typeof createAuthenticationRouter>
-
-const passwordSchema = z.string().min(8).max(72)
 
 export type AuthorizationRouterDependencies = {
   loginCommand(): LoginCommand
@@ -47,221 +57,450 @@ export type AuthorizationRouterDependencies = {
 }
 
 export function createAuthenticationRouter(di: AuthorizationRouterDependencies) {
-  const app = new Hono()
-    .post(
-      '/login',
-      zodValidator('json', z.object({ username: z.string(), password: z.string() })),
-      async (c) => {
-        const body = c.req.valid('json')
+  const app = new OpenAPIHono({
+    defaultHook: (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'ValidationError',
+              message: 'Request validation failed',
+              details: { target: result.target, issues: result.error.issues },
+              statusCode: 400,
+            },
+          } as const,
+          400,
+        )
+      }
+    },
+  })
+    .openapi(loginRoute, async (c) => {
+      const body = c.req.valid('json')
 
-        const result = await di.loginCommand().execute(body.username, body.password)
-        if (result instanceof InvalidLoginError) {
-          return setError(c, result, 401)
-        }
+      const result = await di.loginCommand().execute(body.username, body.password)
+      if (result instanceof InvalidLoginError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'InvalidLoginError',
+              message: result.message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-        return c.json({
+      return c.json(
+        {
           success: true,
           token: result.userSession.token,
           expiresAt: result.userSession.expiresAt,
-        } as const)
-      },
-    )
-
-    .post('/logout', bearerAuth, async (c) => {
-      const sessionToken = c.var.token
-
-      await di.logoutCommand().execute(sessionToken)
-
-      return c.json({ success: true } as const)
+        } as const,
+        200,
+      )
     })
 
-    .post(
-      '/register',
-      zodValidator(
-        'json',
-        z.object({ username: z.string().min(3).max(72), password: passwordSchema }),
-      ),
-      async (c) => {
-        const body = c.req.valid('json')
+    .openapi(logoutRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-        const result = await di.registerCommand().execute(body.username, body.password)
-        if (result instanceof NonUniqueUsernameError) {
-          return setError(c, result, 409)
-        }
+      await di.logoutCommand().execute(token)
 
-        return c.json({
+      return c.json({ success: true } as const, 200)
+    })
+
+    .openapi(registerRoute, async (c) => {
+      const body = c.req.valid('json')
+
+      const result = await di.registerCommand().execute(body.username, body.password)
+      if (result instanceof NonUniqueUsernameError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'NonUniqueUsernameError',
+              message: result.message,
+              statusCode: 409,
+            },
+          } as const,
+          409,
+        )
+      }
+
+      return c.json(
+        {
           success: true,
           token: result.newUserSession.token,
           expiresAt: result.newUserSession.expiresAt,
-        } as const)
-      },
-    )
+        } as const,
+        200,
+      )
+    })
 
-    .post(
-      '/request-password-reset/:accountId',
-      zodValidator('param', z.object({ accountId: z.coerce.number().int() })),
-      bearerAuth,
-      async (c) => {
-        const sessionToken = c.var.token
-        const { accountId } = c.req.valid('param')
+    .openapi(requestPasswordResetRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
-        if (whoamiResult instanceof UnauthorizedError) {
-          return setError(c, whoamiResult, 401)
-        }
+      const { userId } = c.req.valid('param')
 
-        const passwordResetToken = await di
-          .requestPasswordResetCommand()
-          .execute(accountId, whoamiResult.account.id)
-        if (passwordResetToken instanceof UnauthorizedError) {
-          return setError(c, passwordResetToken, 401)
-        } else if (passwordResetToken instanceof AccountNotFoundError) {
-          return setError(c, passwordResetToken, 404)
-        }
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: whoamiResult.message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-        // FIXME: We probably shouldn't be hardcoding this
-        const passwordResetLink = 'https://www.romulus.lol/reset-password/' + passwordResetToken
-        return c.json({ success: true, passwordResetLink } as const)
-      },
-    )
+      const passwordResetToken = await di
+        .requestPasswordResetCommand()
+        .execute(userId, whoamiResult.account.id)
+      if (passwordResetToken instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: passwordResetToken.message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      } else if (passwordResetToken instanceof AccountNotFoundError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'AccountNotFoundError',
+              message: passwordResetToken.message,
+              statusCode: 404,
+            },
+          } as const,
+          404,
+        )
+      }
 
-    .post(
-      '/reset-password/:token',
-      zodValidator('json', z.object({ password: passwordSchema })),
-      async (c) => {
-        const body = c.req.valid('json')
-        const passwordResetToken = c.req.param('token')
+      // FIXME: We probably shouldn't be hardcoding this
+      const passwordResetLink = 'https://www.romulus.lol/reset-password/' + passwordResetToken
+      return c.json({ success: true, passwordResetLink } as const, 200)
+    })
 
-        const result = await di.resetPasswordCommand().execute(passwordResetToken, body.password)
-        if (
-          result instanceof PasswordResetTokenNotFoundError ||
-          result instanceof PasswordResetTokenExpiredError
-        ) {
-          return setError(c, new InvalidPasswordResetTokenError(), 400)
-        } else if (result instanceof AccountNotFoundError) {
-          return setError(c, result, 404)
-        }
+    .openapi(resetPasswordRoute, async (c) => {
+      const body = c.req.valid('json')
+      const passwordResetToken = c.req.param('token')
 
-        return c.json({
+      const result = await di.resetPasswordCommand().execute(passwordResetToken, body.password)
+      if (
+        result instanceof PasswordResetTokenNotFoundError ||
+        result instanceof PasswordResetTokenExpiredError
+      ) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'InvalidPasswordResetTokenError',
+              message: new InvalidPasswordResetTokenError().message,
+              statusCode: 400,
+            },
+          } as const,
+          400,
+        )
+      } else if (result instanceof AccountNotFoundError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'AccountNotFoundError',
+              message: result.message,
+              statusCode: 404,
+            },
+          } as const,
+          404,
+        )
+      }
+
+      return c.json(
+        {
           success: true,
           token: result.userSession.token,
           expiresAt: result.userSession.expiresAt,
-        } as const)
-      },
-    )
-
-    .get('/whoami', bearerAuth, async (c) => {
-      const sessionToken = c.var.token
-
-      const result = await di.whoamiQuery().execute(sessionToken)
-      if (result instanceof UnauthorizedError) {
-        return setError(c, result, 401)
-      }
-
-      return c.json({ success: true, ...result } as const)
+        } as const,
+        200,
+      )
     })
 
-    .get(
-      '/accounts/:id',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      async (c) => {
-        const { id } = c.req.valid('param')
-
-        const result = await di.getAccountQuery().execute(id)
-        if (result instanceof AccountNotFoundError) {
-          return setError(c, result, 404)
-        }
-
-        return c.json({ success: true, account: result } as const)
-      },
-    )
-
-    .get(
-      '/accounts',
-      zodValidator('query', z.object({ id: z.coerce.number().int().array() })),
-      async (c) => {
-        const ids = c.req.valid('query').id
-
-        const result = await di.getAccountsQuery().execute(ids)
-
-        return c.json({ success: true, accounts: result } as const)
-      },
-    )
-
-    .post('/refresh-session', bearerAuth, async (c) => {
-      const sessionToken = c.var.token
-
-      const result = await di.refreshSessionCommand().execute(sessionToken)
-      if (result instanceof UnauthorizedError) {
-        return setError(c, result, 401)
+    .openapi(whoamiRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
       }
 
-      return c.json({ success: true, token: result.token, expiresAt: result.expiresAt } as const)
+      const result = await di.whoamiQuery().execute(token)
+      if (result instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      return c.json({ success: true, ...result } as const, 200)
     })
 
-    .post(
-      '/me/api-keys',
-      bearerAuth,
-      zodValidator('json', z.object({ name: z.string().min(1) })),
-      async (c) => {
-        const name = c.req.valid('json').name
-        const sessionToken = c.var.token
+    .openapi(getAccountRoute, async (c) => {
+      const { id } = c.req.valid('param')
 
-        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
-        if (whoamiResult instanceof UnauthorizedError) {
-          return setError(c, whoamiResult, 401)
-        }
+      const result = await di.getAccountQuery().execute(id)
+      if (result instanceof AccountNotFoundError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'AccountNotFoundError',
+              message: result.message,
+              statusCode: 404,
+            },
+          } as const,
+          404,
+        )
+      }
 
-        const result = await di.createApiKeyCommand().execute(name, whoamiResult.account.id)
+      return c.json({ success: true, account: result } as const, 200)
+    })
 
-        return c.json({ success: true, id: result.id, name: result.name, key: result.key } as const)
-      },
-    )
+    .openapi(getAccountsRoute, async (c) => {
+      const ids = c.req.valid('query').id
 
-    .delete(
-      '/me/api-keys/:id',
-      bearerAuth,
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      async (c) => {
-        const id = c.req.valid('param').id
-        const sessionToken = c.var.token
+      const result = await di.getAccountsQuery().execute(ids)
 
-        const whoamiResult = await di.whoamiQuery().execute(sessionToken)
-        if (whoamiResult instanceof UnauthorizedError) {
-          return setError(c, whoamiResult, 401)
-        }
+      return c.json({ success: true, accounts: result } as const, 200)
+    })
 
-        const result = await di.deleteApiKeyCommand().execute(id, whoamiResult.account.id)
-        if (result instanceof UnauthorizedApiKeyDeletionError) {
-          return setError(c, result, 401)
-        }
+    .openapi(refreshSessionRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-        return c.json({ success: true } as const)
-      },
-    )
+      const result = await di.refreshSessionCommand().execute(token)
+      if (result instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-    .get('/me/api-keys', bearerAuth, async (c) => {
-      const sessionToken = c.var.token
+      return c.json(
+        { success: true, token: result.token, expiresAt: result.expiresAt } as const,
+        200,
+      )
+    })
 
-      const whoamiResult = await di.whoamiQuery().execute(sessionToken)
+    .openapi(createApiKeyRoute, async (c) => {
+      const name = c.req.valid('json').name
+
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
       if (whoamiResult instanceof UnauthorizedError) {
-        return setError(c, whoamiResult, 401)
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const result = await di.createApiKeyCommand().execute(name, whoamiResult.account.id)
+
+      return c.json(
+        { success: true, id: result.id, name: result.name, key: result.key } as const,
+        200,
+      )
+    })
+
+    .openapi(deleteApiKeyRoute, async (c) => {
+      const id = c.req.valid('param').id
+
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const result = await di.deleteApiKeyCommand().execute(id, whoamiResult.account.id)
+      if (result instanceof UnauthorizedApiKeyDeletionError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      return c.json({ success: true } as const, 200)
+    })
+
+    .openapi(getApiKeysRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
       }
 
       const result = await di.getApiKeysByAccountQuery().execute(whoamiResult.account.id)
 
-      return c.json({ success: true, keys: result } as const)
+      return c.json({ success: true, keys: result } as const, 200)
     })
 
-    .post(
-      '/validate-api-key/:key',
-      zodValidator('param', z.object({ key: z.string() })),
-      async (c) => {
-        const key = c.req.valid('param').key
-        const result = await di.validateApiKeyCommand().execute(key)
-        return c.json({ success: true, valid: result } as const)
-      },
-    )
+    .openapi(validateApiKeyRoute, async (c) => {
+      const key = c.req.valid('param').key
+      const result = await di.validateApiKeyCommand().execute(key)
+      return c.json({ success: true, valid: result } as const, 200)
+    })
+
+  app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {
+    type: 'http',
+    scheme: 'bearer',
+  })
 
   return app
 }

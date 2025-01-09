@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import { UnauthorizedError } from '../domain/errors/unauthorized'
@@ -8,13 +9,9 @@ export const bearerAuth = createMiddleware<{
     token: string
   }
 }>(async (c, next) => {
-  const header = c.req.header('Authorization')
-  if (!header) {
-    return setError(c, new UnauthorizedError(), 401)
-  }
+  const token = getBearerAuthToken(c)
 
-  const token = header.split(' ').at(1)
-  if (!token) {
+  if (token === undefined) {
     return setError(c, new UnauthorizedError(), 401)
   }
 
@@ -22,3 +19,13 @@ export const bearerAuth = createMiddleware<{
 
   await next()
 })
+
+export function getBearerAuthToken(c: Context): string | undefined {
+  const header = c.req.header('Authorization')
+  if (!header) return
+
+  const token = header.split(' ').at(1)
+  if (!token) return
+
+  return token
+}
