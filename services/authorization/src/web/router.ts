@@ -1,225 +1,502 @@
-import { Hono } from 'hono'
-import { z } from 'zod'
+import { OpenAPIHono } from '@hono/zod-openapi'
 
 import type { AuthorizationApplication } from '../application'
 import type { IAuthenticationService } from '../domain/authentication'
 import {
-  CustomError,
   DuplicatePermissionError,
   PermissionNotFoundError,
   RoleNotFoundError,
   UnauthorizedError,
 } from '../domain/authorizer'
-import { bearerAuth } from './bearer-auth-middleware'
-import { setError } from './utils'
-import { zodValidator } from './zod-validator'
+import { getBearerAuthToken, UnauthenticatedError } from './bearer-auth-middleware'
+import {
+  assignRoleToUserRoute,
+  checkMyPermissionRoute,
+  createPermissionRoute,
+  createRoleRoute,
+  deletePermissionRoute,
+  deleteRoleRoute,
+  ensurePermissionsRoute,
+  getMyPermissionsRoute,
+} from './routes'
 
 export type Router = ReturnType<typeof createAuthorizationRouter>
 
-const permissionSchema = z.object({ name: z.string().min(1), description: z.string().optional() })
-const roleSchema = z.object({
-  name: z.string().min(1),
-  permissions: z.string().array(),
-  description: z.string().optional(),
-})
-
-class UnknownError extends CustomError {
-  constructor() {
-    super('UnknownError', 'An unknown error occurred')
-  }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function assertUnreachable(x: never): never {
+  throw new Error("Didn't expect to get here")
 }
 
 export function createAuthorizationRouter(deps: AuthorizationRouterDependencies) {
-  const requireUser = bearerAuth(deps.authentication())
-
-  const app = new Hono()
-    .post(
-      '/permissions',
-      zodValidator(
-        'json',
-        z.object({
-          permission: permissionSchema,
-        }),
-      ),
-      requireUser,
-      async (c) => {
-        const permission = c.req.valid('json').permission
-
-        const result = await deps
-          .application()
-          .createPermission(permission.name, permission.description, c.var.user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else if (err instanceof DuplicatePermissionError) {
-              return setError(c, err, 400)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
+  const app = new OpenAPIHono({
+    defaultHook: (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'ValidationError',
+              message: 'Request validation failed',
+              details: { target: result.target, issues: result.error.issues },
+              statusCode: 400,
+            },
+          } as const,
+          400,
         )
-      },
-    )
-
-    .put(
-      '/permissions',
-      zodValidator(
-        'json',
-        z.object({
-          permissions: permissionSchema.array(),
-        }),
-      ),
-      requireUser,
-      async (c) => {
-        const permissions = c.req.valid('json').permissions
-
-        const result = await deps.application().ensurePermissions(
-          permissions.map((p) => ({ name: p.name, description: p.description })),
-          c.var.user.id,
+      }
+    },
+  })
+    .openapi(createPermissionRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
         )
+      }
 
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
         )
-      },
-    )
+      }
+      const user = whoamiResponse.value
 
-    .delete(
-      '/permissions/:name',
-      zodValidator('param', z.object({ name: z.string() })),
-      requireUser,
-      async (c) => {
-        const name = c.req.valid('param').name
+      const permission = c.req.valid('json').permission
 
-        const result = await deps.application().deletePermission(name, c.var.user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .post(
-      '/roles',
-      zodValidator('json', z.object({ role: roleSchema })),
-      requireUser,
-      async (c) => {
-        const role = c.req.valid('json').role
-
-        const result = await deps
-          .application()
-          .createRole(role.name, new Set(role.permissions), role.description, c.var.user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else if (err instanceof PermissionNotFoundError) {
-              return setError(c, err, 400)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .delete(
-      '/roles/:name',
-      zodValidator('param', z.object({ name: z.string() })),
-      requireUser,
-      async (c) => {
-        const name = c.req.valid('param').name
-
-        const result = await deps.application().deleteRole(name, c.var.user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .put(
-      '/users/:id/roles',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      zodValidator('json', z.object({ name: z.string() })),
-      requireUser,
-      async (c) => {
-        const id = c.req.valid('param').id
-        const name = c.req.valid('json').name
-
-        const result = await deps.application().assignRoleToUser(id, name, c.var.user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 403)
-            } else if (err instanceof RoleNotFoundError) {
-              return setError(c, err, 400)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .get(
-      '/me/permissions/:permission',
-      zodValidator('param', z.object({ permission: z.string() })),
-      requireUser,
-      async (c) => {
-        const { permission } = c.req.valid('param')
-
-        const result = await deps.application().checkMyPermission(permission, c.var.user.id)
-
-        return c.json({ success: true, hasPermission: result } as const)
-      },
-    )
-
-    .get('/me/permissions', requireUser, async (c) => {
-      const result = await deps.application().getMyPermissions(c.var.user.id)
+      const result = await deps
+        .application()
+        .createPermission(permission.name, permission.description, user.id)
 
       return result.match(
-        (permissions) => c.json({ success: true, permissions: [...permissions] } as const),
+        () => c.json({ success: true } as const, 200),
         (err) => {
           if (err instanceof UnauthorizedError) {
-            return setError(c, err, 403)
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'UnauthorizedError',
+                  message: err.message,
+                  statusCode: 403,
+                },
+              } as const,
+              403,
+            )
+          } else if (err instanceof DuplicatePermissionError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'DuplicatePermissionError',
+                  message: err.message,
+                  statusCode: 409,
+                },
+              } as const,
+              409,
+            )
           } else {
-            err satisfies never
-            return setError(c, new UnknownError(), 500)
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(ensurePermissionsRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const permissions = c.req.valid('json').permissions
+
+      const result = await deps.application().ensurePermissions(
+        permissions.map((p) => ({ name: p.name, description: p.description })),
+        user.id,
+      )
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(deletePermissionRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const name = c.req.valid('param').name
+
+      const result = await deps.application().deletePermission(name, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(createRoleRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const role = c.req.valid('json').role
+
+      const result = await deps
+        .application()
+        .createRole(role.name, new Set(role.permissions), role.description, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else if (err instanceof PermissionNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'PermissionNotFoundError', message: err.message, statusCode: 400 },
+              } as const,
+              400,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(deleteRoleRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const name = c.req.valid('param').name
+
+      const result = await deps.application().deleteRole(name, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(assignRoleToUserRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const id = c.req.valid('param').id
+      const name = c.req.valid('json').name
+
+      const result = await deps.application().assignRoleToUser(id, name, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else if (err instanceof RoleNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'RoleNotFoundError', message: err.message, statusCode: 400 },
+              } as const,
+              400,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(checkMyPermissionRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const { permission } = c.req.valid('param')
+
+      const result = await deps.application().checkMyPermission(permission, user.id)
+
+      return c.json({ success: true, hasPermission: result } as const, 200)
+    })
+    .openapi(getMyPermissionsRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const result = await deps.application().getMyPermissions(user.id)
+
+      return result.match(
+        (permissions) => c.json({ success: true as const, permissions: [...permissions] }, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else {
+            assertUnreachable(err)
           }
         },
       )

@@ -1,7 +1,8 @@
+import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import type { IAuthenticationService } from '../domain/authentication'
-import { UnauthorizedError } from '../domain/authorizer'
+import { CustomError, UnauthorizedError } from '../domain/authorizer'
 import { setError } from './utils'
 
 export function bearerAuth(authentication: IAuthenticationService) {
@@ -11,14 +12,10 @@ export function bearerAuth(authentication: IAuthenticationService) {
       user: { id: number }
     }
   }>(async (c, next) => {
-    const header = c.req.header('Authorization')
-    if (!header) {
-      return setError(c, new UnauthorizedError(), 401)
-    }
+    const token = getBearerAuthToken(c)
 
-    const token = header.split(' ').at(1)
-    if (!token) {
-      return setError(c, new UnauthorizedError(), 401)
+    if (token === undefined) {
+      return setError(c, new UnauthenticatedError(), 401)
     }
 
     c.set('token', token)
@@ -32,4 +29,20 @@ export function bearerAuth(authentication: IAuthenticationService) {
 
     await next()
   })
+}
+
+export function getBearerAuthToken(c: Context): string | undefined {
+  const header = c.req.header('Authorization')
+  if (!header) return
+
+  const token = header.split(' ').at(1)
+  if (!token) return
+
+  return token
+}
+
+export class UnauthenticatedError extends CustomError {
+  constructor() {
+    super('UnauthenticatedError', 'You are not authenticated')
+  }
 }

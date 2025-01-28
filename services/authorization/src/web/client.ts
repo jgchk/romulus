@@ -1,40 +1,12 @@
 import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import type { InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
-import type { StatusCode } from 'hono/utils/http-status'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { err, ok, ResultAsync } from 'neverthrow'
 
 import { CustomError } from '../domain/authorizer'
 import type { Router } from './router'
 
-export type IAuthorizationClient = {
-  createPermission(
-    name: string,
-    description: string | undefined,
-  ): ResultAsync<void, AuthorizationClientError>
-
-  ensurePermissions(
-    permissions: { name: string; description?: string }[],
-  ): ResultAsync<void, AuthorizationClientError>
-
-  deletePermission(name: string): ResultAsync<void, AuthorizationClientError>
-
-  createRole(
-    name: string,
-    permissions: Set<string>,
-    description: string | undefined,
-  ): ResultAsync<void, AuthorizationClientError>
-
-  deleteRole(name: string): ResultAsync<void, AuthorizationClientError>
-
-  assignRoleToUser(userId: string, roleName: string): ResultAsync<void, AuthorizationClientError>
-
-  checkMyPermission(permission: string): ResultAsync<boolean, AuthorizationClientError>
-
-  getMyPermissions(): ResultAsync<Set<string>, AuthorizationClientError>
-}
-
-export class AuthorizationClient implements IAuthorizationClient {
+export class AuthorizationClient {
   private client: ReturnType<typeof hc<Router>>
   private sessionToken: string | undefined
 
@@ -44,135 +16,124 @@ export class AuthorizationClient implements IAuthorizationClient {
   }
 
   createPermission(name: string, description: string | undefined) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.permissions.$post(
         { json: { permission: { name, description } } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.permissions.$post>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   ensurePermissions(permissions: { name: string; description: string | undefined }[]) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.permissions.$put(
         { json: { permissions } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.permissions.$put>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   deletePermission(name: string) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.permissions[':name'].$delete(
         { param: { name } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.permissions)[':name']['$delete']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   createRole(name: string, permissions: Set<string>, description: string | undefined) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.roles.$post(
         { json: { role: { name, permissions: [...permissions], description } } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.roles.$post>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   deleteRole(name: string) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.roles[':name'].$delete(
         { param: { name } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.roles)[':name']['$delete']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
-  assignRoleToUser(userId: string, roleName: string) {
-    return ResultAsync.fromSafePromise(
+  assignRoleToUser(userId: number, roleName: string) {
+    return ResultAsync.fromPromise(
       this.client.users[':id'].roles.$put(
-        { param: { id: userId.toString() }, json: { name: roleName } },
+        { param: { id: userId }, json: { name: roleName } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.users)[':id']['roles']['$put']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success) return okAsync(undefined)
-        return errAsync(new AuthorizationClientError(res.error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   checkMyPermission(permission: string) {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.me.permissions[':permission'].$get(
         { param: { permission } },
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.me.permissions)[':permission']['$get']>>((res) =>
         res.json(),
       )
-      .map((res) => res.hasPermission)
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 
   getMyPermissions() {
-    return ResultAsync.fromSafePromise(
+    return ResultAsync.fromPromise(
       this.client.me.permissions.$get(
         {},
         { headers: { authorization: `Bearer ${this.sessionToken}` } },
       ),
+      (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.me.permissions.$get>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success) return okAsync(new Set(res.permissions))
-        return errAsync(new AuthorizationClientError((res as AuthorizationErrorResponse).error))
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res)))
   }
 }
 
-export class AuthorizationClientError extends CustomError {
-  constructor(public readonly originalError: AuthorizationError) {
-    super(originalError.name, originalError.message)
+export class FetchError extends CustomError {
+  constructor(public readonly originalError: Error) {
+    super('FetchError', `An error occurred while fetching: ${originalError.message}`)
   }
 }
 
-type AuthorizationErrorResponse = {
-  success: false
-  error: AuthorizationError
-}
-
-type AuthorizationError = {
-  name: string
-  message: string
-  statusCode: StatusCode
-  details?: unknown
+function toError(error: unknown): Error {
+  if (error instanceof Error) return error
+  if (typeof error === 'string') return new Error(error)
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return new Error(error.message)
+  }
+  return new Error(String(error))
 }
