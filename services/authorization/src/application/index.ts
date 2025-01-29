@@ -1,8 +1,8 @@
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
-import { UnauthorizedError } from '../domain/authorizer'
-import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions'
-import type { IAuthorizerRepository } from '../domain/repository'
+import { UnauthorizedError } from '../domain/authorizer.js'
+import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions.js'
+import type { IAuthorizerRepository } from '../domain/repository.js'
 
 export class AuthorizationApplication {
   constructor(private repo: IAuthorizerRepository) {}

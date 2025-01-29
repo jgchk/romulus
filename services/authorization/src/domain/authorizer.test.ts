@@ -11,7 +11,7 @@ import {
   RoleCreatedEvent,
   RoleDeletedEvent,
   RoleNotFoundError,
-} from './authorizer'
+} from './authorizer.js'
 
 describe('createPermission()', () => {
   test('should create a permission', () => {

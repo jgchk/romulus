@@ -224,20 +224,20 @@ export class CustomError extends Error {
 }
 
 export class PermissionNotFoundError extends CustomError {
-  constructor(public readonly name: string) {
-    super('PermissionNotFoundError', `No permission found with name: ${name}`)
+  constructor(public readonly permissionName: string) {
+    super('PermissionNotFoundError', `No permission found with name: ${permissionName}`)
   }
 }
 
 export class DuplicatePermissionError extends CustomError {
-  constructor(public readonly name: string) {
-    super('DuplicatePermissionError', `Permission with name ${name} already exists`)
+  constructor(public readonly permissionName: string) {
+    super('DuplicatePermissionError', `Permission with name ${permissionName} already exists`)
   }
 }
 
 export class RoleNotFoundError extends CustomError {
-  constructor(public readonly name: string) {
-    super('RoleNotFoundError', `No role found with name: ${name}`)
+  constructor(public readonly permissionName: string) {
+    super('RoleNotFoundError', `No role found with name: ${permissionName}`)
   }
 }
 

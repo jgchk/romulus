@@ -1,10 +1,10 @@
 import { err, ok } from 'neverthrow'
 import { describe, expect, test } from 'vitest'
 
-import { PermissionNotFoundError, RoleNotFoundError } from '../domain/authorizer'
-import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions'
-import { MemoryAuthorizerRepository } from '../infrastructure/memory-repository'
-import { AuthorizationApplication } from '.'
+import { PermissionNotFoundError, RoleNotFoundError } from '../domain/authorizer.js'
+import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions.js'
+import { MemoryAuthorizerRepository } from '../infrastructure/memory-repository.js'
+import { AuthorizationApplication } from './index.js'
 
 async function setup({ userPermissions = [] }: { userPermissions?: string[] } = {}) {
   const app = new AuthorizationApplication(new MemoryAuthorizerRepository())

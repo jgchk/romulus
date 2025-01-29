@@ -1,14 +1,14 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import type { AuthorizationApplication } from '../application'
-import type { IAuthenticationService } from '../domain/authentication'
+import type { AuthorizationApplication } from '../application/index.js'
+import type { IAuthenticationService } from '../domain/authentication.js'
 import {
   DuplicatePermissionError,
   PermissionNotFoundError,
   RoleNotFoundError,
   UnauthorizedError,
-} from '../domain/authorizer'
-import { getBearerAuthToken, UnauthenticatedError } from './bearer-auth-middleware'
+} from '../domain/authorizer.js'
+import { getBearerAuthToken, UnauthenticatedError } from './bearer-auth-middleware.js'
 import {
   assignRoleToUserRoute,
   checkMyPermissionRoute,
@@ -18,7 +18,7 @@ import {
   deleteRoleRoute,
   ensurePermissionsRoute,
   getMyPermissionsRoute,
-} from './routes'
+} from './routes.js'
 
 export type Router = ReturnType<typeof createAuthorizationRouter>
 

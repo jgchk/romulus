@@ -1,9 +1,9 @@
 import type { Sql } from 'postgres'
 
-import type { IAuthorizerRepository } from '../domain/repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection'
-import { DrizzleAuthorizerRepository } from './drizzle-repository'
+import type { IAuthorizerRepository } from '../domain/repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection.js'
+import { DrizzleAuthorizerRepository } from './drizzle-repository.js'
 
 export class AuthorizationInfrastructure {
   private constructor(

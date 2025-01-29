@@ -1,22 +1,22 @@
 import { eq } from 'drizzle-orm'
 
-import { Authorizer } from '../domain/authorizer'
-import { Role, RoleAssignedToUserEvent } from '../domain/authorizer'
+import { Authorizer } from '../domain/authorizer.js'
+import { Role, RoleAssignedToUserEvent } from '../domain/authorizer.js'
 import {
   Permission,
   PermissionDeletedEvent,
   RoleCreatedEvent,
   RoleDeletedEvent,
-} from '../domain/authorizer'
-import { PermissionCreatedEvent } from '../domain/authorizer'
-import type { IAuthorizerRepository } from '../domain/repository'
-import type { IDrizzleConnection } from './drizzle-database'
+} from '../domain/authorizer.js'
+import { PermissionCreatedEvent } from '../domain/authorizer.js'
+import type { IAuthorizerRepository } from '../domain/repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
 import {
   permissionsTable,
   rolePermissionsTable,
   rolesTable,
   userRolesTable,
-} from './drizzle-schema'
+} from './drizzle-schema.js'
 
 export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
   constructor(private db: IDrizzleConnection) {}

@@ -1,12 +1,12 @@
-import { Role, RoleAssignedToUserEvent } from '../domain/authorizer'
+import { Role, RoleAssignedToUserEvent } from '../domain/authorizer.js'
 import {
   Permission,
   PermissionDeletedEvent,
   RoleCreatedEvent,
   RoleDeletedEvent,
-} from '../domain/authorizer'
-import { Authorizer, PermissionCreatedEvent } from '../domain/authorizer'
-import type { IAuthorizerRepository } from '../domain/repository'
+} from '../domain/authorizer.js'
+import { Authorizer, PermissionCreatedEvent } from '../domain/authorizer.js'
+import type { IAuthorizerRepository } from '../domain/repository.js'
 
 export class MemoryAuthorizerRepository implements IAuthorizerRepository {
   private permissions: Map<string, Permission>
