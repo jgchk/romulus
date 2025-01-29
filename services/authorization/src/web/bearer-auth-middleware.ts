@@ -1,8 +1,8 @@
+import { CustomError } from '@romulus/custom-error'
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import type { IAuthenticationService } from '../domain/authentication.js'
-import { CustomError } from '../domain/authorizer.js'
 import { setError } from './utils.js'
 
 export function bearerAuth(authentication: IAuthenticationService) {

@@ -1,3 +1,4 @@
+import { CustomError } from '@romulus/custom-error'
 import { err, ok, type Result } from 'neverthrow'
 
 export class Authorizer {
@@ -213,14 +214,6 @@ export class RoleAssignedToUserEvent {
     public readonly userId: number,
     public readonly roleName: string,
   ) {}
-}
-
-export class CustomError extends Error {
-  constructor(name: string, message: string) {
-    super(message)
-    this.name = name
-    Object.setPrototypeOf(this, new.target.prototype)
-  }
 }
 
 export class PermissionNotFoundError extends CustomError {

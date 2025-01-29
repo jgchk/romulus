@@ -474,6 +474,9 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.4.1
         version: 0.4.1(hono@4.6.12)(zod@3.23.8)
+      '@romulus/custom-error':
+        specifier: workspace:*
+        version: link:../../packages/custom-error
       '@romulus/fetch-retry':
         specifier: workspace:*
         version: link:../../packages/fetch-retry
