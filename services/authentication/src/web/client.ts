@@ -1,7 +1,7 @@
 import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import type { InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { err, ok, ResultAsync } from 'neverthrow'
 
 import { CustomError } from '../domain/errors/base.js'
 import type { Router } from './router.js'
@@ -21,15 +21,9 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.login.$post>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            token: res.token,
-            expiresAt: new Date(res.expiresAt),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success ? ok({ ...res, expiresAt: new Date(res.expiresAt) }) : err(res.error),
+      )
   }
 
   logout() {
@@ -42,13 +36,7 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.logout.$post>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   register(body: { username: string; password: string }) {
@@ -57,15 +45,9 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.register.$post>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            token: res.token,
-            expiresAt: new Date(res.expiresAt),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success ? ok({ ...res, expiresAt: new Date(res.expiresAt) }) : err(res.error),
+      )
   }
 
   requestPasswordReset(body: { userId: number }) {
@@ -81,11 +63,7 @@ export class AuthenticationClient {
       .map<InferResponseType<(typeof this.client)['request-password-reset'][':userId']['$post']>>(
         (res) => res.json(),
       )
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({ success: true, passwordResetLink: res.passwordResetLink } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   resetPassword(body: { passwordResetToken: string; newPassword: string }) {
@@ -99,15 +77,9 @@ export class AuthenticationClient {
       .map<InferResponseType<(typeof this.client)['reset-password'][':token']['$post']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            token: res.token,
-            expiresAt: new Date(res.expiresAt),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success ? ok({ ...res, expiresAt: new Date(res.expiresAt) }) : err(res.error),
+      )
   }
 
   whoami() {
@@ -120,15 +92,11 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.whoami.$get>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            account: { id: res.account.id, username: res.account.username },
-            session: { expiresAt: new Date(res.session.expiresAt) },
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success
+          ? ok({ ...res, session: { ...res.session, expiresAt: new Date(res.session.expiresAt) } })
+          : err(res.error),
+      )
   }
 
   getAccount(body: { id: number }) {
@@ -139,15 +107,7 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.accounts)[':id']['$get']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            id: res.account.id,
-            username: res.account.username,
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   getAccounts(ids: number[]) {
@@ -158,17 +118,7 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client)['accounts']['$get']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            accounts: res.accounts.map((account) => ({
-              id: account.id,
-              username: account.username,
-            })),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   refreshSession() {
@@ -181,15 +131,9 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client)['refresh-session']['$post']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            token: res.token,
-            expiresAt: new Date(res.expiresAt),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success ? ok({ ...res, expiresAt: new Date(res.expiresAt) }) : err(res.error),
+      )
   }
 
   createApiKey(name: string) {
@@ -203,11 +147,7 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.me)['api-keys']['$post']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({ success: true, id: res.id, name: res.name, key: res.key } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   deleteApiKey(id: number) {
@@ -223,10 +163,7 @@ export class AuthenticationClient {
       .map<InferResponseType<(typeof this.client.me)['api-keys'][':id']['$delete']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success) return okAsync({ success: true } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   getApiKeys() {
@@ -239,14 +176,14 @@ export class AuthenticationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<(typeof this.client.me)['api-keys']['$get']>>((res) => res.json())
-      .andThen((res) => {
-        if (res.success)
-          return okAsync({
-            success: true,
-            keys: res.keys.map((key) => ({ ...key, createdAt: new Date(key.createdAt) })),
-          } as const)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              keys: res.keys.map((key) => ({ ...key, createdAt: new Date(key.createdAt) })),
+            })
+          : err(res.error),
+      )
   }
 
   validateApiKey(key: string) {
@@ -257,10 +194,7 @@ export class AuthenticationClient {
       .map<InferResponseType<(typeof this.client)['validate-api-key'][':key']['$post']>>((res) =>
         res.json(),
       )
-      .andThen((res) => {
-        if (res.success) return okAsync(res)
-        return errAsync({ success: false, error: res.error } as const)
-      })
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 }
 
