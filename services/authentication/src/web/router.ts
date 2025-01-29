@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+import { CustomError } from '@romulus/custom-error'
 
 import type { CreateApiKeyCommand } from '../application/commands/create-api-key.js'
 import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key.js'
@@ -19,7 +20,6 @@ import { NonUniqueUsernameError } from '../application/errors/non-unique-usernam
 import { PasswordResetTokenExpiredError } from '../application/errors/password-reset-token-expired.js'
 import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found.js'
 import type { ValidateApiKeyCommand } from '../application/index.js'
-import { CustomError } from '../domain/errors/base.js'
 import { UnauthorizedError } from '../domain/errors/unauthorized.js'
 import { getBearerAuthToken } from './bearer-auth-middleware.js'
 import {

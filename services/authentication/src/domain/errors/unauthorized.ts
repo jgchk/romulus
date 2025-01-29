@@ -1,4 +1,4 @@
-import { CustomError } from './base.js'
+import { CustomError } from '@romulus/custom-error'
 
 export class UnauthorizedError extends CustomError {
   constructor() {

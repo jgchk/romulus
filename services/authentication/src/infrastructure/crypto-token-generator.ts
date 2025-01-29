@@ -1,4 +1,5 @@
-import { CustomError } from '../domain/errors/base.js'
+import { CustomError } from '@romulus/custom-error'
+
 import type { TokenGenerator } from '../domain/repositories/token-generator.js'
 
 export class CryptoTokenGenerator implements TokenGenerator {
