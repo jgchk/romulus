@@ -1,3 +1,5 @@
+import { CustomError } from '@romulus/custom-error'
+
 export type UserSettingsData = {
   genreRelevanceFilter: number | undefined
   showRelevanceTags: boolean
@@ -51,14 +53,6 @@ export class UserSettings {
 
 export const MIN_GENRE_RELEVANCE = 0
 export const MAX_GENRE_RELEVANCE = 7
-
-export class CustomError extends Error {
-  constructor(name: string, message: string) {
-    super(message)
-    this.name = name
-    Object.setPrototypeOf(this, new.target.prototype)
-  }
-}
 
 export class InvalidGenreRelevanceFilterError extends CustomError {
   constructor(public readonly genreRelevanceFilter: number | undefined) {

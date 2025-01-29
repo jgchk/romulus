@@ -1,7 +1,7 @@
+import { CustomError } from '@romulus/custom-error'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import { CustomError } from '../domain/user-settings'
 import type { UserSettingsRouter } from './router'
 
 export type IUserSettingsClient = {

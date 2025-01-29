@@ -654,6 +654,9 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.4.1
         version: 0.4.1(hono@4.6.12)(zod@3.23.8)
+      '@romulus/custom-error':
+        specifier: workspace:*
+        version: link:../../packages/custom-error
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
