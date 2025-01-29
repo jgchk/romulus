@@ -1,4 +1,4 @@
-import { AuthenticationClientError, FetchError } from '@romulus/authentication/client'
+import { FetchError } from '@romulus/authentication/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
@@ -49,11 +49,8 @@ export const actions: Actions = {
     if (response.isErr()) {
       if (response.error instanceof FetchError) {
         return error(500, `Failed to sign up: ${response.error.message}`)
-      } else if (response.error instanceof AuthenticationClientError) {
-        return error(response.error.originalError.statusCode, response.error.originalError.message)
       } else {
-        response.error satisfies never
-        return error(500, 'An unknown error occurred')
+        return error(response.error.statusCode, response.error.message)
       }
     }
 

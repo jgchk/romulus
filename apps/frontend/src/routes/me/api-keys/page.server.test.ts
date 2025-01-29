@@ -1,4 +1,5 @@
-import { FetchError, type IAuthenticationClient } from '@romulus/authentication/client'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import { FetchError } from '@romulus/authentication/client'
 import { errAsync, okAsync } from 'neverthrow'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -12,7 +13,7 @@ describe('load', () => {
           user: undefined,
           di: {
             authentication: () => ({
-              getApiKeys: () => okAsync([]),
+              getApiKeys: () => okAsync({ success: true, keys: [] }),
             }),
           },
         },
@@ -30,7 +31,7 @@ describe('load', () => {
           user: { id: 2 },
           di: {
             authentication: () => ({
-              getApiKeys: () => okAsync([]),
+              getApiKeys: () => okAsync({ success: true, keys: [] }),
             }),
           },
         },
@@ -65,7 +66,7 @@ describe('load', () => {
         user: { id: 1 },
         di: {
           authentication: () => ({
-            getApiKeys: () => okAsync([]),
+            getApiKeys: () => okAsync({ success: true, keys: [] }),
           }),
         },
       },
@@ -79,7 +80,7 @@ describe('load', () => {
         user: { id: 1 },
         di: {
           authentication: () => ({
-            getApiKeys: () => okAsync([]),
+            getApiKeys: () => okAsync({ success: true, keys: [] }),
           }),
         },
       },
@@ -96,7 +97,7 @@ describe('load', () => {
         user: { id: 1 },
         di: {
           authentication: () => ({
-            getApiKeys: () => okAsync([]),
+            getApiKeys: () => okAsync({ success: true, keys: [] }),
           }),
         },
       },
@@ -119,7 +120,8 @@ describe('create', () => {
           user: undefined,
           di: {
             authentication: () => ({
-              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+              createApiKey: () =>
+                okAsync({ success: true, id: 1, name: 'test-key', key: '000-000-000' }),
             }),
           },
         },
@@ -138,7 +140,8 @@ describe('create', () => {
           user: { id: 2 },
           di: {
             authentication: () => ({
-              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+              createApiKey: () =>
+                okAsync({ success: true, id: 1, name: 'test-key', key: '000-000-000' }),
             }),
           },
         },
@@ -157,7 +160,8 @@ describe('create', () => {
           user: { id: 1 },
           di: {
             authentication: () => ({
-              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+              createApiKey: () =>
+                okAsync({ success: true, id: 1, name: 'test-key', key: '000-000-000' }),
             }),
           },
         },
@@ -176,7 +180,8 @@ describe('create', () => {
           user: { id: 1 },
           di: {
             authentication: () => ({
-              createApiKey: () => okAsync({ id: 1, name: 'test-key', key: '000-000-000' }),
+              createApiKey: () =>
+                okAsync({ success: true, id: 1, name: 'test-key', key: '000-000-000' }),
             }),
           },
         },
@@ -190,8 +195,8 @@ describe('create', () => {
 
   test('should create a new key', async () => {
     const createApiKey = vi
-      .fn<IAuthenticationClient['createApiKey']>()
-      .mockReturnValue(okAsync({ id: 1, name: 'New API Key', key: '000-000-000' }))
+      .fn<AuthenticationClient['createApiKey']>()
+      .mockReturnValue(okAsync({ success: true, id: 1, name: 'New API Key', key: '000-000-000' }))
 
     const formData = new FormData()
     formData.set('name', 'New API Key')
@@ -220,7 +225,8 @@ describe('create', () => {
         user: { id: 1 },
         di: {
           authentication: () => ({
-            createApiKey: () => okAsync({ id: 1, name: 'New API Key', key: '000-000-000' }),
+            createApiKey: () =>
+              okAsync({ success: true, id: 1, name: 'New API Key', key: '000-000-000' }),
           }),
         },
       },
@@ -243,7 +249,7 @@ describe('delete', () => {
           user: undefined,
           di: {
             authentication: () => ({
-              deleteApiKey: () => okAsync(undefined),
+              deleteApiKey: () => okAsync({ success: true }),
             }),
           },
         },
@@ -262,7 +268,7 @@ describe('delete', () => {
           user: undefined,
           di: {
             authentication: () => ({
-              deleteApiKey: () => okAsync(undefined),
+              deleteApiKey: () => okAsync({ success: true }),
             }),
           },
         },
@@ -281,7 +287,7 @@ describe('delete', () => {
           user: { id: 1 },
           di: {
             authentication: () => ({
-              deleteApiKey: () => okAsync(undefined),
+              deleteApiKey: () => okAsync({ success: true }),
             }),
           },
         },
@@ -305,7 +311,7 @@ describe('delete', () => {
           user: { id: 1 },
           di: {
             authentication: () => ({
-              deleteApiKey: () => okAsync(undefined),
+              deleteApiKey: () => okAsync({ success: true }),
             }),
           },
         },
@@ -318,8 +324,8 @@ describe('delete', () => {
 
   test('should delete the requested key', async () => {
     const deleteApiKey = vi
-      .fn<IAuthenticationClient['deleteApiKey']>()
-      .mockReturnValue(okAsync(undefined))
+      .fn<AuthenticationClient['deleteApiKey']>()
+      .mockReturnValue(okAsync({ success: true }))
 
     const formData = new FormData()
     formData.set('id', '1')

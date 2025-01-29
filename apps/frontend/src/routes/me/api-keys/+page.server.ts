@@ -1,8 +1,5 @@
-import {
-  AuthenticationClientError,
-  FetchError,
-  type IAuthenticationClient,
-} from '@romulus/authentication/client'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import { FetchError } from '@romulus/authentication/client'
 import { error, fail } from '@sveltejs/kit'
 import { z } from 'zod'
 
@@ -15,7 +12,7 @@ export const load = (async ({
     user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
     di: {
       authentication: () => {
-        getApiKeys: IAuthenticationClient['getApiKeys']
+        getApiKeys: AuthenticationClient['getApiKeys']
       }
     }
   }
@@ -24,15 +21,12 @@ export const load = (async ({
   if (result.isErr()) {
     if (result.error instanceof FetchError) {
       return error(500, result.error.message)
-    } else if (result.error instanceof AuthenticationClientError) {
-      return error(result.error.originalError.statusCode, result.error.message)
     } else {
-      result.error satisfies never
-      return error(500, 'An unknown error occurred')
+      return error(result.error.statusCode, result.error.message)
     }
   }
 
-  return { keys: result.value }
+  return { keys: result.value.keys }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -44,7 +38,7 @@ export const actions = {
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
         authentication: () => {
-          createApiKey: IAuthenticationClient['createApiKey']
+          createApiKey: AuthenticationClient['createApiKey']
         }
       }
     }
@@ -65,11 +59,8 @@ export const actions = {
     if (result.isErr()) {
       if (result.error instanceof FetchError) {
         return error(500, result.error.message)
-      } else if (result.error instanceof AuthenticationClientError) {
-        return error(result.error.originalError.statusCode, result.error.message)
       } else {
-        result.error satisfies never
-        return error(500, 'An unknown error occurred')
+        return error(result.error.statusCode, result.error.message)
       }
     }
 
@@ -89,7 +80,7 @@ export const actions = {
       user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
       di: {
         authentication: () => {
-          deleteApiKey: IAuthenticationClient['deleteApiKey']
+          deleteApiKey: AuthenticationClient['deleteApiKey']
         }
       }
     }
@@ -110,11 +101,8 @@ export const actions = {
     if (result.isErr()) {
       if (result.error instanceof FetchError) {
         return error(500, result.error.message)
-      } else if (result.error instanceof AuthenticationClientError) {
-        return error(result.error.originalError.statusCode, result.error.message)
       } else {
-        result.error satisfies never
-        return error(500, 'An unknown error occurred')
+        return error(result.error.statusCode, result.error.message)
       }
     }
   },

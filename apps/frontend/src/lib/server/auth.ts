@@ -1,5 +1,4 @@
-import type { FetchError, IAuthenticationClient } from '@romulus/authentication/client'
-import type { Result } from 'neverthrow'
+import type { AuthenticationClient } from '@romulus/authentication/client'
 import { err, ok } from 'neverthrow'
 
 export async function checkApiAuth(
@@ -8,11 +7,11 @@ export async function checkApiAuth(
     user: App.Locals['user']
     di: {
       authentication: () => {
-        validateApiKey: IAuthenticationClient['validateApiKey']
+        validateApiKey: AuthenticationClient['validateApiKey']
       }
     }
   },
-): Promise<Result<boolean, FetchError>> {
+) {
   if (locals.user) {
     return ok(true)
   }

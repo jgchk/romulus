@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     .authentication()
     .getAccounts([...new Set(response.history.map((genre) => genre.accountId).filter(isNotNull))])
   const usersMap = usersResponse.match(
-    (users) => new Map(users.map((user) => [user.id, user])),
+    ({ accounts }) => new Map(accounts.map((user) => [user.id, user])),
     () => new Map<number, { id: number; username: string }>(),
   )
 

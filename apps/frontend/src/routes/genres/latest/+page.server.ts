@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       ...new Set(response.latestUpdates.map((update) => update.genre.accountId).filter(isNotNull)),
     ])
   const usersMap = usersResponse.match(
-    (users) => new Map(users.map((user) => [user.id, user])),
+    ({ accounts }) => new Map(accounts.map((user) => [user.id, user])),
     () => new Map<number, { id: number; username: string }>(),
   )
 

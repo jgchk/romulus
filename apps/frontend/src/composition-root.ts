@@ -1,5 +1,5 @@
-import { AuthenticationClient, type IAuthenticationClient } from '@romulus/authentication/client'
-import { AuthorizationClient, type IAuthorizationClient } from '@romulus/authorization/client'
+import { AuthenticationClient } from '@romulus/authentication/client'
+import { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresClient, type IGenresClient } from '@romulus/genres/client'
 import { type IUserSettingsClient, UserSettingsClient } from '@romulus/user-settings/client'
 
@@ -9,11 +9,11 @@ export class CompositionRoot {
     private sessionToken: string | undefined,
   ) {}
 
-  authentication(): IAuthenticationClient {
+  authentication() {
     return new AuthenticationClient(`${this.apiBaseUrl}/authentication`, this.sessionToken)
   }
 
-  authorization(): IAuthorizationClient {
+  authorization() {
     return new AuthorizationClient(`${this.apiBaseUrl}/authorization`, this.sessionToken)
   }
 

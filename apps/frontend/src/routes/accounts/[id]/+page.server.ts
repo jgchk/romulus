@@ -1,4 +1,4 @@
-import { AuthenticationClientError, FetchError } from '@romulus/authentication/client'
+import { FetchError } from '@romulus/authentication/client'
 import { error } from '@sveltejs/kit'
 import { z } from 'zod'
 
@@ -23,18 +23,12 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
   const id = maybeId.data
 
-  const getAccountResponse = await locals.di.authentication().getAccount({ accountId: id })
+  const getAccountResponse = await locals.di.authentication().getAccount({ id })
   if (getAccountResponse.isErr()) {
     if (getAccountResponse.error instanceof FetchError) {
       return error(500, `Failed to fetch account: ${getAccountResponse.error.message}`)
-    } else if (getAccountResponse.error instanceof AuthenticationClientError) {
-      return error(
-        getAccountResponse.error.originalError.statusCode,
-        getAccountResponse.error.originalError.message,
-      )
     } else {
-      getAccountResponse.error satisfies never
-      return error(500, 'An unknown error occurred')
+      return error(getAccountResponse.error.statusCode, getAccountResponse.error.message)
     }
   }
 
@@ -64,7 +58,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   const limit = getIntParam(url, 'limit') ?? 30
 
   return {
-    account: { username: getAccountResponse.value.username },
+    account: { username: getAccountResponse.value.account.username },
     numCreated,
     numUpdated,
     numDeleted,
@@ -84,15 +78,12 @@ export const actions: Actions = {
     }
     const id = maybeId.data
 
-    const response = await locals.di.authentication().requestPasswordReset({ accountId: id })
+    const response = await locals.di.authentication().requestPasswordReset({ userId: id })
     if (response.isErr()) {
       if (response.error instanceof FetchError) {
         return error(500, `Failed to fetch account: ${response.error.message}`)
-      } else if (response.error instanceof AuthenticationClientError) {
-        return error(response.error.originalError.statusCode, response.error.originalError.message)
       } else {
-        response.error satisfies never
-        return error(500, 'An unknown error occurred')
+        return error(response.error.statusCode, response.error.message)
       }
     }
 

@@ -1,5 +1,5 @@
-import type { IAuthenticationClient } from '@romulus/authentication/client'
-import type { IAuthorizationClient } from '@romulus/authorization/client'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
 import type { Handle } from '@sveltejs/kit'
 
@@ -40,8 +40,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 async function getUser(
   sessionToken: string | undefined,
-  authentication: IAuthenticationClient,
-  authorization: IAuthorizationClient,
+  authentication: AuthenticationClient,
+  authorization: AuthorizationClient,
 ): Promise<App.Locals['user']> {
   if (sessionToken === undefined) return undefined
 
@@ -69,12 +69,13 @@ async function getUser(
     console.error('Failed to fetch user permissions:', permissionsResult.error)
     return user
   }
+  const permissions = permissionsResult.value.permissions
 
   user.permissions.genres = {
-    canCreate: permissionsResult.value.has(GenresPermission.CreateGenres),
-    canEdit: permissionsResult.value.has(GenresPermission.EditGenres),
-    canDelete: permissionsResult.value.has(GenresPermission.DeleteGenres),
-    canVoteRelevance: permissionsResult.value.has(GenresPermission.VoteGenreRelevance),
+    canCreate: permissions.has(GenresPermission.CreateGenres),
+    canEdit: permissions.has(GenresPermission.EditGenres),
+    canDelete: permissions.has(GenresPermission.DeleteGenres),
+    canVoteRelevance: permissions.has(GenresPermission.VoteGenreRelevance),
   }
   return user
 }
