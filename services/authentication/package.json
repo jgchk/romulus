@@ -30,7 +30,7 @@
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
     "dev": "tsx watch --env-file=.env src/index.ts",
-    "build": "rm -r dist && tsc -p tsconfig.build.json"
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
