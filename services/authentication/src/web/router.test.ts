@@ -15,12 +15,12 @@ import {
   ResetPasswordCommand,
   ValidateApiKeyCommand,
   WhoamiQuery,
-} from '../application'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
-import { MockAuthorizationService } from '../test/mock-authorization-service'
-import { test } from '../vitest-setup'
-import { CommandsCompositionRoot } from './composition-root'
-import { createAuthenticationRouter } from './router'
+} from '../application/index.js'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { MockAuthorizationService } from '../test/mock-authorization-service.js'
+import { test } from '../vitest-setup.js'
+import { CommandsCompositionRoot } from './composition-root.js'
+import { createAuthenticationRouter } from './router.js'
 
 function setup(dbConnection: IDrizzleConnection) {
   const authorization = new MockAuthorizationService()

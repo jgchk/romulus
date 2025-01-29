@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import { Session } from '../domain/entities/session'
-import type { SessionRepository } from '../domain/repositories/session'
-import type { IDrizzleConnection } from './drizzle-database'
-import { sessionsTable } from './drizzle-schema'
+import { Session } from '../domain/entities/session.js'
+import type { SessionRepository } from '../domain/repositories/session.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { sessionsTable } from './drizzle-schema.js'
 
 export class DrizzleSessionRepository implements SessionRepository {
   constructor(private db: IDrizzleConnection) {}

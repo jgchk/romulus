@@ -1,6 +1,6 @@
-import { UnauthorizedError } from '../../domain/errors/unauthorized'
-import type { HashRepository } from '../../domain/repositories/hash-repository'
-import type { SessionRepository } from '../../domain/repositories/session'
+import { UnauthorizedError } from '../../domain/errors/unauthorized.js'
+import type { HashRepository } from '../../domain/repositories/hash-repository.js'
+import type { SessionRepository } from '../../domain/repositories/session.js'
 
 export type RefreshSessionResult = {
   token: string

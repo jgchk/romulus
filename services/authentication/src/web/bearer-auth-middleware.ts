@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
-import { UnauthorizedError } from '../domain/errors/unauthorized'
-import { setError } from './utils'
+import { UnauthorizedError } from '../domain/errors/unauthorized.js'
+import { setError } from './utils.js'
 
 export const bearerAuth = createMiddleware<{
   Variables: {

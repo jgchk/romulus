@@ -1,11 +1,11 @@
-import { NewAccount } from '../../domain/entities/account'
-import { Session } from '../../domain/entities/session'
-import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username'
-import type { AccountRepository } from '../../domain/repositories/account'
-import type { HashRepository } from '../../domain/repositories/hash-repository'
-import type { SessionRepository } from '../../domain/repositories/session'
-import type { TokenGenerator } from '../../domain/repositories/token-generator'
-import { NonUniqueUsernameError } from '../errors/non-unique-username'
+import { NewAccount } from '../../domain/entities/account.js'
+import { Session } from '../../domain/entities/session.js'
+import { NonUniqueUsernameError as DomainNonUniqueUsernameError } from '../../domain/errors/non-unique-username.js'
+import type { AccountRepository } from '../../domain/repositories/account.js'
+import type { HashRepository } from '../../domain/repositories/hash-repository.js'
+import type { SessionRepository } from '../../domain/repositories/session.js'
+import type { TokenGenerator } from '../../domain/repositories/token-generator.js'
+import { NonUniqueUsernameError } from '../errors/non-unique-username.js'
 
 export type RegisterResult = {
   newUserAccount: {

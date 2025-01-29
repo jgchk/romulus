@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { CryptoTokenGenerator, InvalidTokenLengthError } from './crypto-token-generator'
+import { CryptoTokenGenerator, InvalidTokenLengthError } from './crypto-token-generator.js'
 
 describe('CryptoTokenGenerator', () => {
   function setup() {

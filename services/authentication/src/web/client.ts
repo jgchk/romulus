@@ -3,8 +3,8 @@ import type { InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
-import { CustomError } from '../domain/errors/base'
-import type { Router } from './router'
+import { CustomError } from '../domain/errors/base.js'
+import type { Router } from './router.js'
 
 export class AuthenticationClient {
   private client: ReturnType<typeof hc<Router>>

@@ -1,15 +1,15 @@
 import { describe, expect } from 'vitest'
 
-import { NewAccount } from '../../domain/entities/account'
-import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository'
-import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator'
-import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository'
-import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { test } from '../../vitest-setup'
-import { LoginCommand } from './login'
-import { LogoutCommand } from './logout'
+import { NewAccount } from '../../domain/entities/account.js'
+import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository.js'
+import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator.js'
+import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository.js'
+import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository.js'
+import { test } from '../../vitest-setup.js'
+import { LoginCommand } from './login.js'
+import { LogoutCommand } from './logout.js'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const sessionRepo = new DrizzleSessionRepository(options.dbConnection)

@@ -1,5 +1,5 @@
-import { CustomError } from '../domain/errors/base'
-import type { TokenGenerator } from '../domain/repositories/token-generator'
+import { CustomError } from '../domain/errors/base.js'
+import type { TokenGenerator } from '../domain/repositories/token-generator.js'
 
 export class CryptoTokenGenerator implements TokenGenerator {
   generate(length: number): string {

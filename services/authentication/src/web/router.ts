@@ -1,27 +1,27 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import type { ValidateApiKeyCommand } from '../application'
-import type { CreateApiKeyCommand } from '../application/commands/create-api-key'
-import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key'
-import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-api-key'
-import type { GetAccountQuery } from '../application/commands/get-account'
-import type { GetAccountsQuery } from '../application/commands/get-accounts'
-import type { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account'
-import type { LoginCommand } from '../application/commands/login'
-import type { LogoutCommand } from '../application/commands/logout'
-import type { RefreshSessionCommand } from '../application/commands/refresh-session'
-import type { RegisterCommand } from '../application/commands/register'
-import type { RequestPasswordResetCommand } from '../application/commands/request-password-reset'
-import type { ResetPasswordCommand } from '../application/commands/reset-password'
-import type { WhoamiQuery } from '../application/commands/whoami'
-import { AccountNotFoundError } from '../application/errors/account-not-found'
-import { InvalidLoginError } from '../application/errors/invalid-login'
-import { NonUniqueUsernameError } from '../application/errors/non-unique-username'
-import { PasswordResetTokenExpiredError } from '../application/errors/password-reset-token-expired'
-import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found'
-import { CustomError } from '../domain/errors/base'
-import { UnauthorizedError } from '../domain/errors/unauthorized'
-import { getBearerAuthToken } from './bearer-auth-middleware'
+import type { CreateApiKeyCommand } from '../application/commands/create-api-key.js'
+import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key.js'
+import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-api-key.js'
+import type { GetAccountQuery } from '../application/commands/get-account.js'
+import type { GetAccountsQuery } from '../application/commands/get-accounts.js'
+import type { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account.js'
+import type { LoginCommand } from '../application/commands/login.js'
+import type { LogoutCommand } from '../application/commands/logout.js'
+import type { RefreshSessionCommand } from '../application/commands/refresh-session.js'
+import type { RegisterCommand } from '../application/commands/register.js'
+import type { RequestPasswordResetCommand } from '../application/commands/request-password-reset.js'
+import type { ResetPasswordCommand } from '../application/commands/reset-password.js'
+import type { WhoamiQuery } from '../application/commands/whoami.js'
+import { AccountNotFoundError } from '../application/errors/account-not-found.js'
+import { InvalidLoginError } from '../application/errors/invalid-login.js'
+import { NonUniqueUsernameError } from '../application/errors/non-unique-username.js'
+import { PasswordResetTokenExpiredError } from '../application/errors/password-reset-token-expired.js'
+import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found.js'
+import type { ValidateApiKeyCommand } from '../application/index.js'
+import { CustomError } from '../domain/errors/base.js'
+import { UnauthorizedError } from '../domain/errors/unauthorized.js'
+import { getBearerAuthToken } from './bearer-auth-middleware.js'
 import {
   createApiKeyRoute,
   deleteApiKeyRoute,
@@ -36,7 +36,7 @@ import {
   resetPasswordRoute,
   validateApiKeyRoute,
   whoamiRoute,
-} from './routes'
+} from './routes.js'
 
 export type Router = ReturnType<typeof createAuthenticationRouter>
 

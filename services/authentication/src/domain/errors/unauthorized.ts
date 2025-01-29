@@ -1,4 +1,4 @@
-import { CustomError } from './base'
+import { CustomError } from './base.js'
 
 export class UnauthorizedError extends CustomError {
   constructor() {

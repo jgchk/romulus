@@ -1,7 +1,7 @@
 import { sha256 } from 'oslo/crypto'
 import { encodeHex } from 'oslo/encoding'
 
-import type { HashRepository } from '../domain/repositories/hash-repository'
+import type { HashRepository } from '../domain/repositories/hash-repository.js'
 
 export class Sha256HashRepository implements HashRepository {
   async hash(input: string): Promise<string> {

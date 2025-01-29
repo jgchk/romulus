@@ -1,11 +1,26 @@
 {
   "name": "@romulus/authentication",
   "type": "module",
+  "files": [
+    "dist/*"
+  ],
   "exports": {
-    "./application": "./src/application/index.ts",
-    "./infrastructure": "./src/infrastructure/index.ts",
-    "./client": "./src/web/client.ts",
-    "./router": "./src/web/router.ts"
+    "./application": {
+      "import": "./dist/application/index.js",
+      "types": "./dist/application/index.d.ts"
+    },
+    "./infrastructure": {
+      "import": "./dist/infrastructure/index.js",
+      "types": "./dist/infrastructure/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/web/client.js",
+      "types": "./dist/web/client.d.ts"
+    },
+    "./router": {
+      "import": "./dist/web/router.js",
+      "types": "./dist/web/router.d.ts"
+    }
   },
   "scripts": {
     "test": "pnpm test:unit run",
@@ -14,7 +29,8 @@
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
-    "dev": "tsx watch --env-file=.env src/index.ts"
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "rm -r dist && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",

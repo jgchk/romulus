@@ -1,14 +1,14 @@
 import { describe, expect } from 'vitest'
 
-import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository'
-import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator'
-import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository'
-import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository'
-import { test } from '../../vitest-setup'
-import { NonUniqueUsernameError } from '../errors/non-unique-username'
-import { RegisterCommand } from './register'
+import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository.js'
+import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator.js'
+import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository.js'
+import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository.js'
+import { test } from '../../vitest-setup.js'
+import { NonUniqueUsernameError } from '../errors/non-unique-username.js'
+import { RegisterCommand } from './register.js'
 
 function setupCommand(options: { dbConnection: IDrizzleConnection }) {
   const accountRepo = new DrizzleAccountRepository(options.dbConnection)

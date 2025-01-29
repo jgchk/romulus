@@ -1,5 +1,5 @@
-import type { AccountRepository } from '../../domain/repositories/account'
-import { AccountNotFoundError } from '../errors/account-not-found'
+import type { AccountRepository } from '../../domain/repositories/account.js'
+import { AccountNotFoundError } from '../errors/account-not-found.js'
 
 export class GetAccountQuery {
   constructor(private accountRepo: AccountRepository) {}

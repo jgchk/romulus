@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import { ApiKey } from '../domain/entities/api-key'
-import type { ApiKeyRepository } from '../domain/repositories/api-key'
-import type { IDrizzleConnection } from './drizzle-database'
-import { apiKeysTable } from './drizzle-schema'
+import { ApiKey } from '../domain/entities/api-key.js'
+import type { ApiKeyRepository } from '../domain/repositories/api-key.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { apiKeysTable } from './drizzle-schema.js'
 
 export class DrizzleApiKeyRepository implements ApiKeyRepository {
   constructor(private db: IDrizzleConnection) {}
@@ -29,7 +29,7 @@ export class DrizzleApiKeyRepository implements ApiKeyRepository {
   }
 
   async save(apiKey: ApiKey): Promise<{ id: number }> {
-    const [{ id }] = await this.db
+    const results = await this.db
       .insert(apiKeysTable)
       .values({
         name: apiKey.name,
@@ -37,6 +37,7 @@ export class DrizzleApiKeyRepository implements ApiKeyRepository {
         accountId: apiKey.accountId,
       })
       .returning({ id: apiKeysTable.id })
+    const id = results[0]!.id
     return { id }
   }
 

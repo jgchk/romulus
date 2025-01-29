@@ -1,5 +1,5 @@
-import type { ApiKeyRepository } from '../../domain/repositories/api-key'
-import { ApplicationError } from '../errors/base'
+import type { ApiKeyRepository } from '../../domain/repositories/api-key.js'
+import { ApplicationError } from '../errors/base.js'
 
 export class DeleteApiKeyCommand {
   constructor(private apiKeyRepo: ApiKeyRepository) {}
