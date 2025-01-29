@@ -1,4 +1,4 @@
-import { CustomError } from '../../shared/domain/errors'
+import { CustomError } from '@romulus/custom-error'
 
 export class MediaTypeTreeNotFoundError extends CustomError {
   constructor(public readonly id: string) {

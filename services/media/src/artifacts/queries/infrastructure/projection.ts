@@ -13,7 +13,7 @@ import {
   relationTable,
 } from './drizzle-schema'
 
-async function applyEvent(event: ArtifactsEvent, db: IDrizzleConnection) {
+export async function applyEvent(event: ArtifactsEvent, db: IDrizzleConnection) {
   switch (event.kind) {
     case 'artifact-schema-defined': {
       await db.transaction(async (tx) => {
