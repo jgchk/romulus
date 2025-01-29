@@ -2,14 +2,18 @@
   "name": "@romulus/custom-error",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "scripts": {
     "test": "pnpm test:unit run",
     "test:unit": "vitest",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "rm -rf ./dist && tsc"
   },
   "devDependencies": {
     "@romulus/eslint-config": "workspace:*",

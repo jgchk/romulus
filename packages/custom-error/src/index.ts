@@ -1,7 +1,7 @@
 export class CustomError extends Error {
-  public readonly name: string
-  public readonly message: string
-  public readonly cause?: Error
+  public override readonly name: string
+  public override readonly message: string
+  public override readonly cause?: Error
 
   constructor(name: string, message: string, cause?: Error) {
     super(message)
