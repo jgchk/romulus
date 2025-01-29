@@ -11,6 +11,9 @@
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write ."
   },
+  "dependencies": {
+    "@romulus/custom-error": "workspace:*"
+  },
   "devDependencies": {
     "@romulus/eslint-config": "workspace:*",
     "eslint": "^9.13.0",

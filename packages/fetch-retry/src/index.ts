@@ -1,3 +1,5 @@
+import { CustomError } from '@romulus/custom-error'
+
 type FetchRetryOptions = {
   retries: number
   retryDelay: number | ((attempt: number, error: unknown, response: Response | null) => number)
@@ -149,14 +151,6 @@ export function createFetchRetry(fetch_: typeof fetch, defaults_: Partial<FetchR
 
 function isPositiveInteger(value: unknown) {
   return Number.isInteger(value) && (value as number) >= 0
-}
-
-class CustomError extends Error {
-  constructor(name: string, message: string) {
-    super(message)
-    this.name = name
-    Object.setPrototypeOf(this, new.target.prototype)
-  }
 }
 
 class ArgumentError extends CustomError {

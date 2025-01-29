@@ -335,6 +335,10 @@ importers:
         version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(jsdom@25.0.1)
 
   packages/fetch-retry:
+    dependencies:
+      '@romulus/custom-error':
+        specifier: workspace:*
+        version: link:../custom-error
     devDependencies:
       '@romulus/eslint-config':
         specifier: workspace:*
