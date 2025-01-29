@@ -114,7 +114,9 @@ export class AuthorizationClient {
       (err) => new FetchError(toError(err)),
     )
       .map<InferResponseType<typeof this.client.me.permissions.$get>>((res) => res.json())
-      .andThen((res) => (res.success ? ok(res) : err(res)))
+      .andThen((res) =>
+        res.success ? ok({ ...res, permissions: new Set(res.permissions) }) : err(res),
+      )
   }
 }
 
