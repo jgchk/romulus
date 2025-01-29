@@ -1,3 +1,4 @@
+import { CustomError } from '@romulus/custom-error'
 import type { InferRequestType } from 'hono/client'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -11,7 +12,6 @@ import type { GetGenreResult } from '../application/commands/get-genre'
 import type { GetGenreHistoryResult } from '../application/commands/get-genre-history'
 import type { GetGenreTreeResult } from '../application/commands/get-genre-tree'
 import type { GetLatestGenreUpdatesResult } from '../application/commands/get-latest-genre-updates'
-import { CustomError } from '../domain/errors/base'
 import type { GenreSchema, GenresRouter } from './router'
 
 export type IGenresClient = {

@@ -1,3 +1,4 @@
+import { CustomError } from '@romulus/custom-error'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -17,7 +18,6 @@ import type { VoteGenreRelevanceCommand } from '../application/commands/vote-gen
 import { GenreNotFoundError } from '../application/errors/genre-not-found'
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config'
 import type { IAuthenticationService } from '../domain/authentication'
-import { CustomError } from '../domain/errors/base'
 import { DerivedChildError } from '../domain/errors/derived-child'
 import { DerivedInfluenceError } from '../domain/errors/derived-influence'
 import { DuplicateAkaError } from '../domain/errors/duplicate-aka'
