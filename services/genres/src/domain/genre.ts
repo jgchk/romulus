@@ -2,8 +2,8 @@ import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 import { equals } from 'ramda'
 
-import { DuplicateAkaError } from './errors/duplicate-aka'
-import type { GenreHistory } from './genre-history'
+import { DuplicateAkaError } from './errors/duplicate-aka.js'
+import type { GenreHistory } from './genre-history.js'
 
 export type GenreUpdate = {
   name?: string

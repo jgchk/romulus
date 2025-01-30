@@ -1,9 +1,9 @@
 import { err, ok, type Result } from 'neverthrow'
 import { intersection } from 'ramda'
 
-import { DerivedChildError } from './errors/derived-child'
-import { DerivedInfluenceError } from './errors/derived-influence'
-import { SelfInfluenceError } from './errors/self-influence'
+import { DerivedChildError } from './errors/derived-child.js'
+import { DerivedInfluenceError } from './errors/derived-influence.js'
+import { SelfInfluenceError } from './errors/self-influence.js'
 
 export class GenreTreeNode {
   private constructor(

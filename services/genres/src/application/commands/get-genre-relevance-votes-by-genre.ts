@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { genreRelevanceVotes } from '../../infrastructure/drizzle-schema'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { genreRelevanceVotes } from '../../infrastructure/drizzle-schema.js'
 
 export type GetGenreRelevanceVotesByGenreResult = {
   genreId: number

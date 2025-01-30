@@ -1,7 +1,7 @@
-import { GenreHistory } from '../domain/genre-history'
-import type { GenreHistoryRepository } from '../domain/genre-history-repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { genreHistory, genreHistoryAkas } from './drizzle-schema'
+import { GenreHistory } from '../domain/genre-history.js'
+import type { GenreHistoryRepository } from '../domain/genre-history-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { genreHistory, genreHistoryAkas } from './drizzle-schema.js'
 
 export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
   constructor(private db: IDrizzleConnection) {}
@@ -62,7 +62,7 @@ export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
 
   async create(history: GenreHistory): Promise<void> {
     await this.db.transaction(async (tx) => {
-      const [{ genreHistoryId }] = await tx
+      const results = await tx
         .insert(genreHistory)
         .values({
           name: history.name,
@@ -81,6 +81,7 @@ export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {
           accountId: history.accountId,
         })
         .returning({ genreHistoryId: genreHistory.id })
+      const genreHistoryId = results[0]!.genreHistoryId
 
       const akas = [
         ...history.akas.primary.map((name, order) => ({

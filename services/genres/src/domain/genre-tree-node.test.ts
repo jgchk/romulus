@@ -1,10 +1,10 @@
 import { err } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
-import { DerivedChildError } from './errors/derived-child'
-import { DerivedInfluenceError } from './errors/derived-influence'
-import { SelfInfluenceError } from './errors/self-influence'
-import { GenreTreeNode } from './genre-tree-node'
+import { DerivedChildError } from './errors/derived-child.js'
+import { DerivedInfluenceError } from './errors/derived-influence.js'
+import { SelfInfluenceError } from './errors/self-influence.js'
+import { GenreTreeNode } from './genre-tree-node.js'
 
 describe('GenreTreeNode', () => {
   it('should create a valid genre tree node', () => {

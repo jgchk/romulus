@@ -6,7 +6,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate as drizzleMigrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
 
-import * as schema from './drizzle-schema'
+import * as schema from './drizzle-schema.js'
 
 export function getPostgresConnection(databaseUrl: string) {
   const pg = postgres(databaseUrl)

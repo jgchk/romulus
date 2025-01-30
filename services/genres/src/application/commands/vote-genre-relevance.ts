@@ -1,15 +1,15 @@
 import type { Result } from 'neverthrow'
 import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
-import type { IAuthorizationService } from '../../domain/authorization'
-import type { InvalidGenreRelevanceError } from '../../domain/errors/invalid-genre-relevance'
-import { UnauthorizedError } from '../../domain/errors/unauthorized'
-import { GenreRelevance } from '../../domain/genre-relevance'
-import { GenreRelevanceVote } from '../../domain/genre-relevance-vote'
-import type { GenreRelevanceVoteRepository } from '../../domain/genre-relevance-vote-repository'
-import { GenresPermission } from '../../domain/permissions'
-import { UNSET_GENRE_RELEVANCE } from '../../infrastructure/drizzle-schema'
-import { median } from '../../utils'
+import type { IAuthorizationService } from '../../domain/authorization.js'
+import type { InvalidGenreRelevanceError } from '../../domain/errors/invalid-genre-relevance.js'
+import { UnauthorizedError } from '../../domain/errors/unauthorized.js'
+import { GenreRelevance } from '../../domain/genre-relevance.js'
+import { GenreRelevanceVote } from '../../domain/genre-relevance-vote.js'
+import type { GenreRelevanceVoteRepository } from '../../domain/genre-relevance-vote-repository.js'
+import { GenresPermission } from '../../domain/permissions.js'
+import { UNSET_GENRE_RELEVANCE } from '../../infrastructure/drizzle-schema.js'
+import { median } from '../../utils.js'
 
 export class VoteGenreRelevanceCommand {
   constructor(

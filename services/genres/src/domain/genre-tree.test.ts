@@ -1,9 +1,9 @@
 import { err, ok } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
-import { GenreCycleError } from './errors/genre-cycle'
-import { GenreTree } from './genre-tree'
-import { GenreTreeNode } from './genre-tree-node'
+import { GenreCycleError } from './errors/genre-cycle.js'
+import { GenreTree } from './genre-tree.js'
+import { GenreTreeNode } from './genre-tree-node.js'
 
 function createNode(...args: Parameters<typeof GenreTreeNode.create>): GenreTreeNode {
   const nodeResult = GenreTreeNode.create(...args)

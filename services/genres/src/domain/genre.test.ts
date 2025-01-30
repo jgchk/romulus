@@ -1,9 +1,9 @@
 import { err } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
-import { DuplicateAkaError } from './errors/duplicate-aka'
-import { Genre } from './genre'
-import { GenreHistory } from './genre-history'
+import { DuplicateAkaError } from './errors/duplicate-aka.js'
+import { Genre } from './genre.js'
+import { GenreHistory } from './genre-history.js'
 
 describe('Genre', () => {
   const baseGenreParams = {

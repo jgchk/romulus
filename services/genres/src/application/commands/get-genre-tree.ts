@@ -1,7 +1,7 @@
 import { asc, desc } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { genreAkas } from '../../infrastructure/drizzle-schema'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { genreAkas } from '../../infrastructure/drizzle-schema.js'
 
 export type GetGenreTreeResult = {
   id: number

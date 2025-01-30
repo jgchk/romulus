@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import { Genre } from '../domain/genre'
-import type { GenreRepository } from '../domain/genre-repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { genreAkas, genres } from './drizzle-schema'
+import { Genre } from '../domain/genre.js'
+import type { GenreRepository } from '../domain/genre-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { genreAkas, genres } from './drizzle-schema.js'
 
 export class DrizzleGenreRepository implements GenreRepository {
   constructor(private db: IDrizzleConnection) {}
@@ -66,7 +66,7 @@ export class DrizzleGenreRepository implements GenreRepository {
 
   private async create(genre: Genre): Promise<{ id: number }> {
     return this.db.transaction(async (tx) => {
-      const [{ id }] = await tx
+      const results = await tx
         .insert(genres)
         .values({
           name: genre.name,
@@ -80,6 +80,7 @@ export class DrizzleGenreRepository implements GenreRepository {
           updatedAt: genre.updatedAt,
         })
         .returning({ id: genres.id })
+      const id = results[0]!.id
 
       const akas = [
         ...genre.akas.primary.map((name, order) => ({ genreId: id, name, relevance: 3, order })),

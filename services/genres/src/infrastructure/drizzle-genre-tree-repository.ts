@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import { GenreTree } from '../domain/genre-tree'
-import type { GenreTreeNode } from '../domain/genre-tree-node'
-import type { GenreTreeRepository } from '../domain/genre-tree-repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { genreDerivedFrom, genreInfluences, genreParents } from './drizzle-schema'
+import { GenreTree } from '../domain/genre-tree.js'
+import type { GenreTreeNode } from '../domain/genre-tree-node.js'
+import type { GenreTreeRepository } from '../domain/genre-tree-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { genreDerivedFrom, genreInfluences, genreParents } from './drizzle-schema.js'
 
 export class DrizzleGenreTreeRepository implements GenreTreeRepository {
   constructor(private db: IDrizzleConnection) {}

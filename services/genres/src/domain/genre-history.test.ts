@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { Genre } from './genre'
-import { GenreHistory } from './genre-history'
+import { Genre } from './genre.js'
+import { GenreHistory } from './genre-history.js'
 
 describe('GenreHistory', () => {
   const baseGenreResult = Genre.create({

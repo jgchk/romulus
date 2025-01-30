@@ -1,4 +1,4 @@
-import { DomainError } from './base'
+import { DomainError } from './base.js'
 
 export class DerivedInfluenceError extends DomainError {
   constructor(public readonly childId: number) {

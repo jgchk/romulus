@@ -1,10 +1,10 @@
 import { and, eq } from 'drizzle-orm'
 
-import { GenreRelevance } from '../domain/genre-relevance'
-import { GenreRelevanceVote } from '../domain/genre-relevance-vote'
-import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { genreRelevanceVotes, genres, UNSET_GENRE_RELEVANCE } from './drizzle-schema'
+import { GenreRelevance } from '../domain/genre-relevance.js'
+import { GenreRelevanceVote } from '../domain/genre-relevance-vote.js'
+import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { genreRelevanceVotes, genres, UNSET_GENRE_RELEVANCE } from './drizzle-schema.js'
 
 export class DrizzleGenreRelevanceVoteRepository implements GenreRelevanceVoteRepository {
   constructor(private db: IDrizzleConnection) {}

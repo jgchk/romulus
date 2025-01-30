@@ -1,14 +1,14 @@
 import { errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow'
 
-import type { IAuthorizationService } from '../../domain/authorization'
-import { UnauthorizedError } from '../../domain/errors/unauthorized'
-import { Genre } from '../../domain/genre'
-import { GenreHistory } from '../../domain/genre-history'
-import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
-import type { GenreRepository } from '../../domain/genre-repository'
-import { GenreTreeNode } from '../../domain/genre-tree-node'
-import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
-import { GenresPermission } from '../../domain/permissions'
+import type { IAuthorizationService } from '../../domain/authorization.js'
+import { UnauthorizedError } from '../../domain/errors/unauthorized.js'
+import { Genre } from '../../domain/genre.js'
+import { GenreHistory } from '../../domain/genre-history.js'
+import type { GenreHistoryRepository } from '../../domain/genre-history-repository.js'
+import type { GenreRepository } from '../../domain/genre-repository.js'
+import { GenreTreeNode } from '../../domain/genre-tree-node.js'
+import type { GenreTreeRepository } from '../../domain/genre-tree-repository.js'
+import { GenresPermission } from '../../domain/permissions.js'
 
 export type CreateGenreInput = {
   name: string

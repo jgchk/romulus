@@ -1,4 +1,4 @@
-import { ApplicationError } from './base'
+import { ApplicationError } from './base.js'
 
 export class GenreNotFoundError extends ApplicationError {
   constructor() {

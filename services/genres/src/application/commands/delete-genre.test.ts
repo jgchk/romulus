@@ -1,17 +1,17 @@
 import { err } from 'neverthrow'
 import { expect } from 'vitest'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
-import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import { MockAuthorizationService } from '../../test/mock-authorization-service'
-import { test } from '../../vitest-setup'
-import { GenreNotFoundError } from '../errors/genre-not-found'
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
-import { DeleteGenreCommand } from './delete-genre'
-import { GetAllGenresQuery } from './get-all-genres'
-import { GetGenreHistoryQuery } from './get-genre-history'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
+import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository.js'
+import { MockAuthorizationService } from '../../test/mock-authorization-service.js'
+import { test } from '../../vitest-setup.js'
+import { GenreNotFoundError } from '../errors/genre-not-found.js'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre.js'
+import { DeleteGenreCommand } from './delete-genre.js'
+import { GetAllGenresQuery } from './get-all-genres.js'
+import { GetGenreHistoryQuery } from './get-genre-history.js'
 
 async function createGenre(
   data: CreateGenreInput,
@@ -133,9 +133,9 @@ test('should create a genre history entry', async ({ dbConnection }) => {
     type: 'STYLE',
   })
 
-  expect(genreHistory[1].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
-  expect(genreHistory[1].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
-  expect(genreHistory[1].createdAt).not.toEqual(pastDate)
+  expect(genreHistory[1]!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[1]!.createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[1]!.createdAt).not.toEqual(pastDate)
 })
 
 test("should move child genres under deleted genre's parents", async ({ dbConnection }) => {
@@ -248,9 +248,9 @@ test('should create history entries for children that were moved', async ({ dbCo
     treeGenreId: child.id,
     type: 'STYLE',
   })
-  expect(childHistory[1].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
-  expect(childHistory[1].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
-  expect(childHistory[1].createdAt).not.toEqual(pastDate)
+  expect(childHistory[1]!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(childHistory[1]!.createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(childHistory[1]!.createdAt).not.toEqual(pastDate)
 
   const grandchildHistory = await getGenreHistoryQuery.execute(grandchild.id)
   expect(grandchildHistory).toHaveLength(2)
@@ -272,7 +272,7 @@ test('should create history entries for children that were moved', async ({ dbCo
     treeGenreId: grandchild.id,
     type: 'STYLE',
   })
-  expect(grandchildHistory[1].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
-  expect(grandchildHistory[1].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
-  expect(grandchildHistory[1].createdAt).not.toEqual(pastDate)
+  expect(grandchildHistory[1]!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(grandchildHistory[1]!.createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(grandchildHistory[1]!.createdAt).not.toEqual(pastDate)
 })

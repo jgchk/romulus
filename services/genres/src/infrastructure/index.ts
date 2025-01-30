@@ -1,15 +1,15 @@
 import type { Sql } from 'postgres'
 
-import type { GenreHistoryRepository } from '../domain/genre-history-repository'
-import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository'
-import type { GenreRepository } from '../domain/genre-repository'
-import type { GenreTreeRepository } from '../domain/genre-tree-repository'
-import type { IDrizzleConnection } from './drizzle-database'
-import { DrizzleGenreHistoryRepository } from './drizzle-genre-history-repository'
-import { DrizzleGenreRelevanceVoteRepository } from './drizzle-genre-relevance-vote-repository'
-import { DrizzleGenreRepository } from './drizzle-genre-repository'
-import { DrizzleGenreTreeRepository } from './drizzle-genre-tree-repository'
-import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection'
+import type { GenreHistoryRepository } from '../domain/genre-history-repository.js'
+import type { GenreRelevanceVoteRepository } from '../domain/genre-relevance-vote-repository.js'
+import type { GenreRepository } from '../domain/genre-repository.js'
+import type { GenreTreeRepository } from '../domain/genre-tree-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { DrizzleGenreHistoryRepository } from './drizzle-genre-history-repository.js'
+import { DrizzleGenreRelevanceVoteRepository } from './drizzle-genre-relevance-vote-repository.js'
+import { DrizzleGenreRepository } from './drizzle-genre-repository.js'
+import { DrizzleGenreTreeRepository } from './drizzle-genre-tree-repository.js'
+import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection.js'
 
 export class GenresInfrastructure {
   private constructor(

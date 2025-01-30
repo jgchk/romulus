@@ -2,10 +2,10 @@ import { asc, eq } from 'drizzle-orm'
 import { err, ok, ResultAsync } from 'neverthrow'
 import { uniq } from 'ramda'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import type { Genre } from '../../infrastructure/drizzle-schema'
-import { genreAkas, genreHistory, genres } from '../../infrastructure/drizzle-schema'
-import { GenreNotFoundError } from '../errors/genre-not-found'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { Genre } from '../../infrastructure/drizzle-schema.js'
+import { genreAkas, genreHistory, genres } from '../../infrastructure/drizzle-schema.js'
+import { GenreNotFoundError } from '../errors/genre-not-found.js'
 
 export type GetGenreResult = {
   id: number

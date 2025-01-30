@@ -7,12 +7,12 @@ import type {
   GetAllGenresQueryIncludeFields,
   GetAllGenresQueryInput,
   GetAllGenresQueryResult,
-} from '../application/commands/get-all-genres'
-import type { GetGenreResult } from '../application/commands/get-genre'
-import type { GetGenreHistoryResult } from '../application/commands/get-genre-history'
-import type { GetGenreTreeResult } from '../application/commands/get-genre-tree'
-import type { GetLatestGenreUpdatesResult } from '../application/commands/get-latest-genre-updates'
-import type { GenreSchema, GenresRouter } from './router'
+} from '../application/commands/get-all-genres.js'
+import type { GetGenreResult } from '../application/commands/get-genre.js'
+import type { GetGenreHistoryResult } from '../application/commands/get-genre-history.js'
+import type { GetGenreTreeResult } from '../application/commands/get-genre-tree.js'
+import type { GetLatestGenreUpdatesResult } from '../application/commands/get-latest-genre-updates.js'
+import type { GenreSchema, GenresRouter } from './router.js'
 
 export type IGenresClient = {
   createGenre(body: GenreSchema): Promise<

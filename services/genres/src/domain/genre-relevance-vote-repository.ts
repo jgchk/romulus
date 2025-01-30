@@ -1,5 +1,5 @@
-import type { GenreRelevance } from './genre-relevance'
-import type { GenreRelevanceVote } from './genre-relevance-vote'
+import type { GenreRelevance } from './genre-relevance.js'
+import type { GenreRelevanceVote } from './genre-relevance-vote.js'
 
 export type GenreRelevanceVoteRepository = {
   save(genreRelevanceVote: GenreRelevanceVote): Promise<void>

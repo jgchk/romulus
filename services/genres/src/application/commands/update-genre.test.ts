@@ -1,20 +1,20 @@
 import { err } from 'neverthrow'
 import { expect } from 'vitest'
 
-import { GenreCycleError } from '../../domain/errors/genre-cycle'
-import { SelfInfluenceError } from '../../domain/errors/self-influence'
-import type { GenreUpdate } from '../../domain/genre'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
-import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import { MockAuthorizationService } from '../../test/mock-authorization-service'
-import { test } from '../../vitest-setup'
-import { GenreNotFoundError } from '../errors/genre-not-found'
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
-import { GetAllGenresQuery } from './get-all-genres'
-import { GetGenreHistoryQuery } from './get-genre-history'
-import { UpdateGenreCommand } from './update-genre'
+import { GenreCycleError } from '../../domain/errors/genre-cycle.js'
+import { SelfInfluenceError } from '../../domain/errors/self-influence.js'
+import type { GenreUpdate } from '../../domain/genre.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
+import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository.js'
+import { MockAuthorizationService } from '../../test/mock-authorization-service.js'
+import { test } from '../../vitest-setup.js'
+import { GenreNotFoundError } from '../errors/genre-not-found.js'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre.js'
+import { GetAllGenresQuery } from './get-all-genres.js'
+import { GetGenreHistoryQuery } from './get-genre-history.js'
+import { UpdateGenreCommand } from './update-genre.js'
 
 async function createGenre(
   data: CreateGenreInput,
@@ -175,9 +175,9 @@ test('should create a history entry', async ({ dbConnection }) => {
     }),
   )
 
-  expect(genreHistory[1].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
-  expect(genreHistory[1].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
-  expect(genreHistory[1].createdAt).not.toEqual(pastDate)
+  expect(genreHistory[1]!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[1]!.createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[1]!.createdAt).not.toEqual(pastDate)
 })
 
 test('should return GenreNotFoundError if genre is not found', async ({ dbConnection }) => {

@@ -1,9 +1,9 @@
 import { intersection } from 'ramda'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import type { DrizzleGetAllGenresQueryInput } from '../../infrastructure/drizzle-get-all-genres'
-import { DrizzleGetAllGenresQuery } from '../../infrastructure/drizzle-get-all-genres'
-import type { Genre, GenreType } from '../../infrastructure/drizzle-schema'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { DrizzleGetAllGenresQueryInput } from '../../infrastructure/drizzle-get-all-genres.js'
+import { DrizzleGetAllGenresQuery } from '../../infrastructure/drizzle-get-all-genres.js'
+import type { Genre, GenreType } from '../../infrastructure/drizzle-schema.js'
 
 export type GetAllGenresQueryInput<I extends GetAllGenresQueryIncludeFields = never> = {
   skip?: number
@@ -152,7 +152,7 @@ export class GetAllGenresQuery {
     const parentsMap = allParentChildren.reduce(
       (acc, val) => {
         acc[val.parentId] = acc[val.parentId] ?? []
-        acc[val.parentId].push(val.childId)
+        acc[val.parentId]!.push(val.childId)
         return acc
       },
       {} as Record<number, number[]>,

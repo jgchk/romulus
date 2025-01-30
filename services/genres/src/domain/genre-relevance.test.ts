@@ -1,9 +1,9 @@
 import { err } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
-import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config'
-import { InvalidGenreRelevanceError } from './errors/invalid-genre-relevance'
-import { GenreRelevance } from './genre-relevance'
+import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config.js'
+import { InvalidGenreRelevanceError } from './errors/invalid-genre-relevance.js'
+import { GenreRelevance } from './genre-relevance.js'
 
 describe('GenreRelevance', () => {
   describe('create', () => {

@@ -1,4 +1,4 @@
-import { DomainError } from './base'
+import { DomainError } from './base.js'
 
 export class GenreCycleError extends DomainError {
   constructor(public cycle: string) {

@@ -1,13 +1,13 @@
 import { err, errAsync, ok, okAsync, ResultAsync } from 'neverthrow'
 
-import type { IAuthorizationService } from '../../domain/authorization'
-import { UnauthorizedError } from '../../domain/errors/unauthorized'
-import { GenreHistory } from '../../domain/genre-history'
-import type { GenreHistoryRepository } from '../../domain/genre-history-repository'
-import type { GenreRepository } from '../../domain/genre-repository'
-import type { GenreTreeRepository } from '../../domain/genre-tree-repository'
-import { GenresPermission } from '../../domain/permissions'
-import { GenreNotFoundError } from '../errors/genre-not-found'
+import type { IAuthorizationService } from '../../domain/authorization.js'
+import { UnauthorizedError } from '../../domain/errors/unauthorized.js'
+import { GenreHistory } from '../../domain/genre-history.js'
+import type { GenreHistoryRepository } from '../../domain/genre-history-repository.js'
+import type { GenreRepository } from '../../domain/genre-repository.js'
+import type { GenreTreeRepository } from '../../domain/genre-tree-repository.js'
+import { GenresPermission } from '../../domain/permissions.js'
+import { GenreNotFoundError } from '../errors/genre-not-found.js'
 
 export class DeleteGenreCommand {
   constructor(

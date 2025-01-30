@@ -1,7 +1,7 @@
 import { err, ok, type Result } from 'neverthrow'
 
-import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config'
-import { InvalidGenreRelevanceError } from './errors/invalid-genre-relevance'
+import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config.js'
+import { InvalidGenreRelevanceError } from './errors/invalid-genre-relevance.js'
 
 export class GenreRelevance {
   private constructor(public readonly relevance: number) {}

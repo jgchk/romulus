@@ -1,14 +1,14 @@
 import { expect } from 'vitest'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
-import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import { MockAuthorizationService } from '../../test/mock-authorization-service'
-import { test } from '../../vitest-setup'
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
-import { GetLatestGenreUpdatesQuery } from './get-latest-genre-updates'
-import { UpdateGenreCommand } from './update-genre'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
+import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository.js'
+import { MockAuthorizationService } from '../../test/mock-authorization-service.js'
+import { test } from '../../vitest-setup.js'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre.js'
+import { GetLatestGenreUpdatesQuery } from './get-latest-genre-updates.js'
+import { UpdateGenreCommand } from './update-genre.js'
 
 async function createGenre(
   data: CreateGenreInput,

@@ -6,7 +6,7 @@ import type { PgliteDatabase } from 'drizzle-orm/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { migrate as drizzleMigrate } from 'drizzle-orm/pglite/migrator'
 
-import * as schema from './drizzle-schema'
+import * as schema from './drizzle-schema.js'
 
 export function getPGlitePostgresConnection() {
   return new PGlite()

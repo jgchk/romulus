@@ -1,12 +1,30 @@
 {
   "name": "@romulus/genres",
   "type": "module",
+  "files": [
+    "dist/*"
+  ],
   "exports": {
-    "./application": "./src/application/index.ts",
-    "./infrastructure": "./src/infrastructure/index.ts",
-    "./router": "./src/web/router.ts",
-    "./client": "./src/web/client.ts",
-    "./permissions": "./src/domain/permissions.ts"
+    "./application": {
+      "import": "./dist/application/index.ts",
+      "types": "./dist/application/index.d.ts"
+    },
+    "./infrastructure": {
+      "import": "./dist/infrastructure/index.ts",
+      "types": "./dist/infrastructure/index.d.ts"
+    },
+    "./router": {
+      "import": "./dist/web/router.ts",
+      "types": "./dist/web/router.d.ts"
+    },
+    "./client": {
+      "import": "./dist/web/client.ts",
+      "types": "./dist/web/client.d.ts"
+    },
+    "./permissions": {
+      "import": "./dist/domain/permissions.ts",
+      "types": "./dist/domain/permissions.d.ts"
+    }
   },
   "scripts": {
     "test": "pnpm test:unit run",
@@ -14,7 +32,8 @@
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",

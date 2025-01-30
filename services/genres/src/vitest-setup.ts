@@ -1,12 +1,12 @@
 import { sql } from 'drizzle-orm'
 import { afterAll, test as base, vi } from 'vitest'
 
-import type { IDrizzleConnection } from './infrastructure/drizzle-database'
+import type { IDrizzleConnection } from './infrastructure/drizzle-database.js'
 import {
   getPGliteDbConnection,
   getPGlitePostgresConnection,
   migratePGlite,
-} from './infrastructure/drizzle-pglite-connection'
+} from './infrastructure/drizzle-pglite-connection.js'
 
 const pg = getPGlitePostgresConnection()
 const db = getPGliteDbConnection(pg)

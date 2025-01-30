@@ -1,8 +1,8 @@
 import { createMiddleware } from 'hono/factory'
 
-import type { IAuthenticationService } from '../domain/authentication'
-import { UnauthorizedError } from '../domain/errors/unauthorized'
-import { setError } from './utils'
+import type { IAuthenticationService } from '../domain/authentication.js'
+import { UnauthorizedError } from '../domain/errors/unauthorized.js'
+import { setError } from './utils.js'
 
 export function bearerAuth(authentication: IAuthenticationService) {
   return createMiddleware<{

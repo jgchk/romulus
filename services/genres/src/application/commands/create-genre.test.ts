@@ -1,15 +1,15 @@
 import { ok } from 'neverthrow'
 import { expect } from 'vitest'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database'
-import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository'
-import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository'
-import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository'
-import { MockAuthorizationService } from '../../test/mock-authorization-service'
-import { test } from '../../vitest-setup'
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre'
-import { GetGenreQuery } from './get-genre'
-import { GetGenreHistoryQuery } from './get-genre-history'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
+import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'
+import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository.js'
+import { MockAuthorizationService } from '../../test/mock-authorization-service.js'
+import { test } from '../../vitest-setup.js'
+import { CreateGenreCommand, type CreateGenreInput } from './create-genre.js'
+import { GetGenreQuery } from './get-genre.js'
+import { GetGenreHistoryQuery } from './get-genre-history.js'
 
 function setup(dbConnection: IDrizzleConnection) {
   const createGenreCommand = new CreateGenreCommand(
@@ -213,7 +213,7 @@ test('should insert a history entry', async ({ dbConnection }) => {
     },
   ])
 
-  expect(genreHistory[0].createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
-  expect(genreHistory[0].createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
-  expect(genreHistory[0].createdAt).not.toEqual(pastDate)
+  expect(genreHistory[0]!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeExecute.getTime())
+  expect(genreHistory[0]!.createdAt.getTime()).toBeLessThanOrEqual(afterExecute.getTime())
+  expect(genreHistory[0]!.createdAt).not.toEqual(pastDate)
 })

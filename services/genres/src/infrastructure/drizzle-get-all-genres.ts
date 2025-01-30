@@ -1,13 +1,13 @@
 import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from './drizzle-database'
+import type { IDrizzleConnection } from './drizzle-database.js'
 import {
   type Genre,
   genreAkas,
   genres,
   type GenreType,
   UNSET_GENRE_RELEVANCE,
-} from './drizzle-schema'
+} from './drizzle-schema.js'
 
 export type DrizzleGetAllGenresQueryInput<I extends IncludeFields = never> = {
   skip?: number
@@ -224,7 +224,7 @@ export class DrizzleGetAllGenresQuery {
     return {
       // @ts-expect-error - we are dynamically adding new fields
       results,
-      total: totalResults.length > 0 ? totalResults[0].total : 0,
+      total: totalResults.length > 0 ? totalResults[0]!.total : 0,
     }
   }
 }
