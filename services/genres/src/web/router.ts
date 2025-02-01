@@ -1,6 +1,4 @@
-import { CustomError } from '@romulus/custom-error'
-import { Hono } from 'hono'
-import { z } from 'zod'
+import { OpenAPIHono } from '@hono/zod-openapi'
 
 import type { CreateGenreCommand } from '../application/commands/create-genre.js'
 import type { DeleteGenreCommand } from '../application/commands/delete-genre.js'
@@ -16,7 +14,6 @@ import type { GetRandomGenreIdQuery } from '../application/commands/get-random-g
 import type { UpdateGenreCommand } from '../application/commands/update-genre.js'
 import type { VoteGenreRelevanceCommand } from '../application/commands/vote-genre-relevance.js'
 import { GenreNotFoundError } from '../application/errors/genre-not-found.js'
-import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
 import { DerivedChildError } from '../domain/errors/derived-child.js'
 import { DerivedInfluenceError } from '../domain/errors/derived-influence.js'
@@ -25,10 +22,22 @@ import { GenreCycleError } from '../domain/errors/genre-cycle.js'
 import { InvalidGenreRelevanceError } from '../domain/errors/invalid-genre-relevance.js'
 import { SelfInfluenceError } from '../domain/errors/self-influence.js'
 import { UnauthorizedError } from '../domain/errors/unauthorized.js'
-import { GENRE_TYPES, UNSET_GENRE_RELEVANCE } from '../infrastructure/drizzle-schema.js'
-import { bearerAuth } from './bearer-auth-middleware.js'
-import { setError } from './utils.js'
-import { zodValidator } from './zod-validator.js'
+import { getBearerAuthToken, UnauthenticatedError } from './bearer-auth-middleware.js'
+import {
+  createGenreRoute,
+  deleteGenreRoute,
+  getAllGenresRoute,
+  getGenreHistoryByAccountRoute,
+  getGenreHistoryRoute,
+  getGenreRelevanceVoteByAccountRoute,
+  getGenreRelevanceVotesByGenreRoute,
+  getGenreRoute,
+  getGenreTreeRoute,
+  getLatestGenreUpdatesRoute,
+  getRandomGenreIdRoute,
+  updateGenreRoute,
+  voteGenreRelevanceRoute,
+} from './routes.js'
 
 export type GenresRouter = ReturnType<typeof createGenresRouter>
 
@@ -49,13 +58,64 @@ export type GenresRouterDependencies = {
   getRandomGenreIdQuery(): GetRandomGenreIdQuery
 }
 
-export function createGenresRouter(deps: GenresRouterDependencies) {
-  const requireUser = bearerAuth(deps.authentication())
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function assertUnreachable(x: never): never {
+  throw new Error("Didn't expect to get here")
+}
 
-  const app = new Hono()
-    .post('/genres', zodValidator('json', genreSchema), requireUser, async (c) => {
+export function createGenresRouter(deps: GenresRouterDependencies) {
+  const app = new OpenAPIHono({
+    defaultHook: (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'ValidationError',
+              message: 'Request validation failed',
+              details: { target: result.target, issues: result.error.issues },
+              statusCode: 400,
+            },
+          } as const,
+          400,
+        )
+      }
+    },
+  })
+    .openapi(createGenreRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
       const body = c.req.valid('json')
-      const user = c.var.user
 
       const result = await deps.createGenreCommand().execute(
         {
@@ -85,353 +145,376 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
       )
 
       return result.match(
-        (genre) => c.json({ success: true, id: genre.id } as const),
+        (genre) => c.json({ success: true, id: genre.id } as const, 200),
         (err) => {
           if (err instanceof UnauthorizedError) {
-            return setError(c, err, 401)
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'UnauthorizedError',
+                  message: err.message,
+                  statusCode: 403,
+                },
+              } as const,
+              403,
+            )
           } else if (
             err instanceof SelfInfluenceError ||
             err instanceof DuplicateAkaError ||
             err instanceof DerivedChildError ||
             err instanceof DerivedInfluenceError
           ) {
-            return setError(c, err, 400)
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 400,
+                },
+              } as const,
+              400,
+            )
           } else {
-            err satisfies never
-            return setError(c, new UnknownError(), 500)
+            assertUnreachable(err)
           }
         },
       )
     })
-
-    .delete(
-      '/genres/:id',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      requireUser,
-      async (c) => {
-        const id = c.req.valid('param').id
-        const user = c.var.user
-
-        const result = await deps.deleteGenreCommand().execute(id, user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 401)
-            } else if (err instanceof GenreNotFoundError) {
-              return setError(c, err, 404)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .put(
-      '/genres/:id',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      zodValidator('json', genreSchema),
-      requireUser,
-      async (c) => {
-        const id = c.req.valid('param').id
-        const body = c.req.valid('json')
-        const user = c.var.user
-
-        const result = await deps.updateGenreCommand().execute(
-          id,
+    .openapi(deleteGenreRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
           {
-            ...body,
-            parents: new Set(body.parents),
-            derivedFrom: new Set(body.derivedFrom),
-            influences: new Set(body.influencedBy),
-            akas: {
-              primary: body.primaryAkas?.length
-                ? body.primaryAkas?.split(',').map((aka) => aka.trim())
-                : [],
-              secondary: body.secondaryAkas?.length
-                ? body.secondaryAkas?.split(',').map((aka) => aka.trim())
-                : [],
-              tertiary: body.tertiaryAkas?.length
-                ? body.tertiaryAkas?.split(',').map((aka) => aka.trim())
-                : [],
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
             },
-          },
-          user.id,
-        )
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 401)
-            } else if (
-              err instanceof SelfInfluenceError ||
-              err instanceof DuplicateAkaError ||
-              err instanceof DerivedChildError ||
-              err instanceof DerivedInfluenceError ||
-              err instanceof GenreCycleError
-            ) {
-              return setError(c, err, 400)
-            } else if (err instanceof GenreNotFoundError) {
-              return setError(c, err, 404)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .post(
-      '/genres/:id/relevance/votes',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      zodValidator('json', z.object({ relevanceVote: genreRelevance })),
-      requireUser,
-      async (c) => {
-        const id = c.req.valid('param').id
-        const body = c.req.valid('json')
-        const user = c.var.user
-
-        const result = await deps
-          .voteGenreRelevanceCommand()
-          .execute(id, body.relevanceVote, user.id)
-
-        return result.match(
-          () => c.json({ success: true } as const),
-          (err) => {
-            if (err instanceof UnauthorizedError) {
-              return setError(c, err, 401)
-            } else if (err instanceof InvalidGenreRelevanceError) {
-              return setError(c, err, 400)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .get('/genres', async (c) => {
-      const url = new URL(c.req.raw.url)
-      const params = parseQueryParams(url)
-      if (params.success === false) {
-        return setError(
-          c,
-          {
-            name: 'InvalidRequestError',
-            message: 'Invalid request',
-            details: params.error.issues,
-          },
-          400,
+          } as const,
+          401,
         )
       }
 
-      const genres = await deps.getAllGenresQuery().execute(params.data)
-      return c.json({ success: true, ...genres } as const)
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const id = c.req.valid('param').id
+
+      const result = await deps.deleteGenreCommand().execute(id, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'UnauthorizedError',
+                  message: err.message,
+                  statusCode: 403,
+                },
+              } as const,
+              403,
+            )
+          } else if (err instanceof GenreNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 404,
+                },
+              } as const,
+              404,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
     })
+    .openapi(updateGenreRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-    .get(
-      '/genres/history/by-account/:accountId',
-      zodValidator('param', z.object({ accountId: z.coerce.number().int() })),
-      async (c) => {
-        const accountId = c.req.valid('param').accountId
-        const history = await deps.getGenreHistoryByAccountQuery().execute(accountId)
-        return c.json({ success: true, history } as const)
-      },
-    )
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
 
-    .get(
-      '/genres/:id/history',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      async (c) => {
-        const id = c.req.valid('param').id
-        const history = await deps.getGenreHistoryQuery().execute(id)
-        return c.json({ success: true, history } as const)
-      },
-    )
+      const id = c.req.valid('param').id
+      const body = c.req.valid('json')
 
-    .get(
-      '/genres/:id/relevance/votes/:accountId',
-      zodValidator(
-        'param',
-        z.object({ id: z.coerce.number().int(), accountId: z.coerce.number().int() }),
-      ),
-      async (c) => {
-        const { id, accountId } = c.req.valid('param')
-        const vote = await deps.getGenreRelevanceVoteByAccountQuery().execute(id, accountId)
-        return c.json({ success: true, vote } as const)
-      },
-    )
+      const result = await deps.updateGenreCommand().execute(
+        id,
+        {
+          ...body,
+          parents: new Set(body.parents),
+          derivedFrom: new Set(body.derivedFrom),
+          influences: new Set(body.influencedBy),
+          akas: {
+            primary: body.primaryAkas?.length
+              ? body.primaryAkas?.split(',').map((aka) => aka.trim())
+              : [],
+            secondary: body.secondaryAkas?.length
+              ? body.secondaryAkas?.split(',').map((aka) => aka.trim())
+              : [],
+            tertiary: body.tertiaryAkas?.length
+              ? body.tertiaryAkas?.split(',').map((aka) => aka.trim())
+              : [],
+          },
+        },
+        user.id,
+      )
 
-    .get(
-      '/genres/:id/relevance/votes',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      async (c) => {
-        const id = c.req.valid('param').id
-        const votes = await deps.getGenreRelevanceVotesByGenreQuery().execute(id)
-        return c.json({ success: true, votes })
-      },
-    )
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'UnauthorizedError',
+                  message: err.message,
+                  statusCode: 403,
+                },
+              } as const,
+              403,
+            )
+          } else if (
+            err instanceof SelfInfluenceError ||
+            err instanceof DuplicateAkaError ||
+            err instanceof DerivedChildError ||
+            err instanceof DerivedInfluenceError ||
+            err instanceof GenreCycleError
+          ) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 400,
+                },
+              } as const,
+              400,
+            )
+          } else if (err instanceof GenreNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 404,
+                },
+              } as const,
+              404,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(voteGenreRelevanceRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
 
-    .get('/genre-tree', async (c) => {
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const id = c.req.valid('param').id
+      const body = c.req.valid('json')
+
+      const result = await deps.voteGenreRelevanceCommand().execute(id, body.relevanceVote, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: 'UnauthorizedError',
+                  message: err.message,
+                  statusCode: 403,
+                },
+              } as const,
+              403,
+            )
+          } else if (err instanceof InvalidGenreRelevanceError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 400,
+                },
+              } as const,
+              400,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(getAllGenresRoute, async (c) => {
+      const query = c.req.valid('query')
+
+      const genres = await deps.getAllGenresQuery().execute({
+        skip: query.skip,
+        limit: query.limit,
+        include: query.include,
+        filter: {
+          name: query.name,
+          subtitle: query.subtitle,
+          type: query.type,
+          relevance: query.relevance,
+          nsfw: query.nsfw,
+          shortDescription: query.shortDescription,
+          longDescription: query.longDescription,
+          notes: query.notes,
+          createdAt: query.createdAt,
+          updatedAt: query.updatedAt,
+          createdBy: query.createdBy,
+          parents: query.parent,
+          ancestors: query.ancestor,
+        },
+        sort: {
+          field: query.sort,
+          order: query.order,
+        },
+      })
+
+      return c.json({ success: true, ...genres } as const, 200)
+    })
+    .openapi(getGenreHistoryByAccountRoute, async (c) => {
+      const accountId = c.req.valid('param').accountId
+      const history = await deps.getGenreHistoryByAccountQuery().execute(accountId)
+      return c.json({ success: true, history } as const, 200)
+    })
+    .openapi(getGenreHistoryRoute, async (c) => {
+      const id = c.req.valid('param').id
+      const history = await deps.getGenreHistoryQuery().execute(id)
+      return c.json({ success: true, history } as const, 200)
+    })
+    .openapi(getGenreRelevanceVoteByAccountRoute, async (c) => {
+      const { id, accountId } = c.req.valid('param')
+      const vote = await deps.getGenreRelevanceVoteByAccountQuery().execute(id, accountId)
+      return c.json({ success: true, vote } as const, 200)
+    })
+    .openapi(getGenreRelevanceVotesByGenreRoute, async (c) => {
+      const id = c.req.valid('param').id
+      const votes = await deps.getGenreRelevanceVotesByGenreQuery().execute(id)
+      return c.json({ success: true, votes } as const, 200)
+    })
+    .openapi(getGenreTreeRoute, async (c) => {
       const tree = await deps.getGenreTreeQuery().execute()
       return c.json({ success: true, tree } as const)
     })
+    .openapi(getGenreRoute, async (c) => {
+      const id = c.req.valid('param').id
+      const result = await deps.getGenreQuery().execute(id)
 
-    .get(
-      '/genres/:id',
-      zodValidator('param', z.object({ id: z.coerce.number().int() })),
-      async (c) => {
-        const id = c.req.valid('param').id
-        const result = await deps.getGenreQuery().execute(id)
-
-        return result.match(
-          (genre) => c.json({ success: true, genre } as const),
-          (err) => {
-            if (err instanceof GenreNotFoundError) {
-              return setError(c, err, 404)
-            } else {
-              err satisfies never
-              return setError(c, new UnknownError(), 500)
-            }
-          },
-        )
-      },
-    )
-
-    .get('/latest-genre-updates', async (c) => {
+      return result.match(
+        (genre) => c.json({ success: true, genre } as const, 200),
+        (err) => {
+          if (err instanceof GenreNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'GenreNotFoundError', message: err.message, statusCode: 404 },
+              } as const,
+              404,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(getLatestGenreUpdatesRoute, async (c) => {
       const latestUpdates = await deps.getLatestGenreUpdatesQuery().execute()
       return c.json({ success: true, latestUpdates } as const)
     })
-
-    .get('/random-genre', async (c) => {
+    .openapi(getRandomGenreIdRoute, async (c) => {
       const genre = await deps.getRandomGenreIdQuery().execute()
       return c.json({ success: true, genre } as const)
     })
 
   return app
-}
-
-const nullableString = z
-  .string()
-  .optional()
-  .nullable()
-  .transform((s) => (s?.length ? s : null))
-
-const genreRelevance = z.coerce
-  .number()
-  .int()
-  .refine(
-    (v) => v === UNSET_GENRE_RELEVANCE || (v >= MIN_GENRE_RELEVANCE && v <= MAX_GENRE_RELEVANCE),
-    { message: `Relevance must be between 0 and 7 (inclusive), or ${UNSET_GENRE_RELEVANCE}` },
-  )
-
-export type GenreSchema = z.infer<typeof genreSchema>
-const genreSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  shortDescription: nullableString,
-  longDescription: nullableString,
-  notes: nullableString,
-  type: z.enum(GENRE_TYPES),
-  subtitle: nullableString,
-
-  primaryAkas: nullableString,
-  secondaryAkas: nullableString,
-  tertiaryAkas: nullableString,
-
-  parents: z.number().int().array(),
-  derivedFrom: z.number().int().array(),
-  influencedBy: z.number().int().array(),
-
-  relevance: genreRelevance.optional(),
-  nsfw: z.boolean(),
-})
-
-const FIND_ALL_INCLUDE = ['parents', 'influencedBy', 'akas'] as const
-const FIND_ALL_SORT_FIELD = [
-  'id',
-  'name',
-  'subtitle',
-  'type',
-  'relevance',
-  'nsfw',
-  'shortDescription',
-  'longDescription',
-  'notes',
-  'createdAt',
-  'updatedAt',
-] as const
-const FIND_ALL_SORT_ORDER = ['asc', 'desc'] as const
-
-const getAllGenresQuerySchema = z.object({
-  skip: z.coerce.number().int().optional(),
-  limit: z.coerce.number().int().min(0).max(100).optional(),
-  include: z.enum(FIND_ALL_INCLUDE).array().optional(),
-  filter: z
-    .object({
-      name: z.string().optional(),
-      subtitle: z.string().nullable().optional(),
-      type: z.enum(GENRE_TYPES).optional(),
-      relevance: genreRelevance.nullable().optional(),
-      nsfw: z
-        .enum(['true', 'false'])
-        .transform((v) => v === 'true')
-        .optional(),
-      shortDescription: z.string().nullable().optional(),
-      longDescription: z.string().nullable().optional(),
-      notes: z.string().nullable().optional(),
-      createdAt: z.coerce.date().optional(),
-      updatedAt: z.coerce.date().optional(),
-      createdBy: z.coerce.number().int().optional(),
-      parents: z.coerce.number().int().array().optional(),
-      ancestors: z.coerce.number().int().array().optional(),
-    })
-    .optional(),
-  sort: z
-    .object({
-      field: z.enum(FIND_ALL_SORT_FIELD).optional(),
-      order: z.enum(FIND_ALL_SORT_ORDER).optional(),
-    })
-    .optional(),
-})
-
-function parseQueryParams(url: URL) {
-  const parents = url.searchParams.getAll('parent')
-  const ancestors = url.searchParams.getAll('ancestor')
-
-  return getAllGenresQuerySchema.safeParse({
-    skip: url.searchParams.get('skip') ?? undefined,
-    limit: url.searchParams.get('limit') ?? undefined,
-    include: url.searchParams.getAll('include'),
-    filter: {
-      name: url.searchParams.get('name') ?? undefined,
-      subtitle: url.searchParams.get('subtitle') ?? undefined,
-      type: url.searchParams.get('type') ?? undefined,
-      relevance: url.searchParams.get('relevance') ?? undefined,
-      nsfw: url.searchParams.get('nsfw') ?? undefined,
-      shortDescription: url.searchParams.get('shortDescription') ?? undefined,
-      longDescription: url.searchParams.get('longDescription') ?? undefined,
-      notes: url.searchParams.get('notes') ?? undefined,
-      createdAt: url.searchParams.get('createdAt') ?? undefined,
-      updatedAt: url.searchParams.get('updatedAt') ?? undefined,
-      createdBy: url.searchParams.get('createdBy') ?? undefined,
-      parents: parents.length === 0 ? undefined : parents,
-      ancestors: ancestors.length === 0 ? undefined : ancestors,
-    },
-    sort: {
-      field: url.searchParams.get('sort') ?? undefined,
-      order: url.searchParams.get('order') ?? undefined,
-    },
-  })
-}
-
-class UnknownError extends CustomError {
-  constructor() {
-    super('UnknownError', 'An unknown error occurred')
-  }
 }

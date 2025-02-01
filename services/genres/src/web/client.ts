@@ -1,151 +1,17 @@
 import { CustomError } from '@romulus/custom-error'
-import type { InferRequestType } from 'hono/client'
+import type { InferRequestType, InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
+import { err, ok, ResultAsync } from 'neverthrow'
 
 import type {
   GetAllGenresQueryIncludeFields,
   GetAllGenresQueryInput,
   GetAllGenresQueryResult,
 } from '../application/commands/get-all-genres.js'
-import type { GetGenreResult } from '../application/commands/get-genre.js'
-import type { GetGenreHistoryResult } from '../application/commands/get-genre-history.js'
-import type { GetGenreTreeResult } from '../application/commands/get-genre-tree.js'
-import type { GetLatestGenreUpdatesResult } from '../application/commands/get-latest-genre-updates.js'
-import type { GenreSchema, GenresRouter } from './router.js'
+import type { GenresRouter } from './router.js'
 
-export type IGenresClient = {
-  createGenre(body: GenreSchema): Promise<
-    | {
-        readonly success: true
-        readonly id: number
-      }
-    | GenresClientError
-  >
-
-  deleteGenre(id: number): Promise<
-    | {
-        readonly success: true
-      }
-    | GenresClientError
-  >
-
-  updateGenre(
-    id: number,
-    body: GenreSchema,
-  ): Promise<
-    | {
-        readonly success: true
-      }
-    | GenresClientError
-  >
-
-  voteGenreRelevance(
-    id: number,
-    relevanceVote: number,
-  ): Promise<
-    | {
-        readonly success: true
-      }
-    | GenresClientError
-  >
-
-  getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(
-    query: GetAllGenresQueryInput<I>,
-  ): Promise<GetAllGenresQueryResult<I> | GenresClientError>
-
-  getGenreHistoryByAccount(accountId: number): Promise<
-    | {
-        success: true
-        history: {
-          createdAt: Date
-          id: number
-          name: string
-          type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-          subtitle: string | null
-          operation: 'CREATE' | 'UPDATE' | 'DELETE'
-          treeGenreId: number
-          nsfw: boolean
-        }[]
-      }
-    | GenresClientError
-  >
-
-  getGenreHistory(genreId: number): Promise<
-    | {
-        history: GetGenreHistoryResult
-        success: true
-      }
-    | GenresClientError
-  >
-
-  getGenreRelevanceVoteByAccount(
-    genreId: number,
-    accountId: number,
-  ): Promise<
-    | {
-        readonly success: true
-        readonly vote:
-          | {
-              genreId: number
-              accountId: number
-              relevance: number
-              createdAt: Date
-              updatedAt: Date
-            }
-          | undefined
-      }
-    | GenresClientError
-  >
-
-  getGenreRelevanceVotesByGenre(genreId: number): Promise<
-    | {
-        success: boolean
-        votes: {
-          genreId: number
-          accountId: number
-          relevance: number
-          createdAt: string
-          updatedAt: string
-        }[]
-      }
-    | GenresClientError
-  >
-
-  getGenreTree(): Promise<
-    | {
-        tree: GetGenreTreeResult
-        success: true
-      }
-    | GenresClientError
-  >
-
-  getGenre(genreId: number): Promise<
-    | {
-        success: true
-        genre: GetGenreResult
-      }
-    | GenresClientError
-  >
-
-  getLatestGenreUpdates(): Promise<
-    | {
-        readonly success: true
-        readonly latestUpdates: GetLatestGenreUpdatesResult
-      }
-    | GenresClientError
-  >
-
-  getRandomGenreId(): Promise<
-    | {
-        readonly success: true
-        readonly genre: number | undefined
-      }
-    | GenresClientError
-  >
-}
-
-export class GenresClient implements IGenresClient {
+export class GenresClient {
   private client: ReturnType<typeof hc<GenresRouter>>
   private sessionToken: string | undefined
 
@@ -155,231 +21,253 @@ export class GenresClient implements IGenresClient {
   }
 
   async createGenre(body: InferRequestType<typeof this.client.genres.$post>['json']) {
-    const response = await this.client.genres.$post(
-      { json: body },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+    return ResultAsync.fromPromise(
+      this.client.genres.$post(
+        { json: body },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<typeof this.client.genres.$post>>((res) => res.json())
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   async deleteGenre(id: number) {
-    const response = await this.client.genres[':id'].$delete(
-      { param: { id: id.toString() } },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].$delete(
+        { param: { id } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<(typeof this.client.genres)[':id']['$delete']>>((res) => res.json())
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   async updateGenre(
     id: number,
     body: InferRequestType<(typeof this.client.genres)[':id']['$put']>['json'],
   ) {
-    const response = await this.client.genres[':id'].$put(
-      { param: { id: id.toString() }, json: body },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].$put(
+        { param: { id }, json: body },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<(typeof this.client.genres)[':id']['$put']>>((res) => res.json())
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   async voteGenreRelevance(id: number, relevanceVote: number) {
-    const response = await this.client.genres[':id'].relevance.votes.$post(
-      {
-        param: { id: id.toString() },
-        json: { relevanceVote },
-      },
-      { headers: { authorization: `Bearer ${this.sessionToken}` } },
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].relevance.votes.$post(
+        {
+          param: { id },
+          json: { relevanceVote },
+        },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
     )
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError(responseBody.error)
-    }
-    return responseBody
+      .map<InferResponseType<(typeof this.client.genres)[':id']['relevance']['votes']['$post']>>(
+        (res) => res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   async getAllGenres<I extends GetAllGenresQueryIncludeFields = never>(
     query: GetAllGenresQueryInput<I>,
   ) {
-    const response = await this.client.genres.$get({
-      query: {
-        skip: query.skip?.toString(),
-        limit: query.limit?.toString(),
-        include: query.include,
+    return ResultAsync.fromPromise(
+      this.client.genres.$get({
+        query: {
+          skip: query.skip,
+          limit: query.limit,
+          include: query.include,
 
-        name: query.filter?.name,
-        subtitle: query.filter?.subtitle,
-        type: query.filter?.type,
-        relevance: query.filter?.relevance,
-        nsfw: query.filter?.nsfw,
-        shortDescription: query.filter?.shortDescription,
-        longDescription: query.filter?.longDescription,
-        notes: query.filter?.notes,
-        createdAt: query.filter?.createdAt,
-        updatedAt: query.filter?.updatedAt,
-        createdBy: query.filter?.createdBy?.toString(),
-        parents: query.filter?.parents,
-        ancestors: query.filter?.ancestors,
+          name: query.filter?.name,
+          subtitle: query.filter?.subtitle ?? undefined,
+          type: query.filter?.type,
+          relevance: query.filter?.relevance ?? undefined,
+          nsfw: query.filter?.nsfw != null ? (query.filter.nsfw ? 'true' : 'false') : undefined,
+          shortDescription: query.filter?.shortDescription ?? undefined,
+          longDescription: query.filter?.longDescription ?? undefined,
+          notes: query.filter?.notes ?? undefined,
+          createdAt: query.filter?.createdAt,
+          updatedAt: query.filter?.updatedAt,
+          createdBy: query.filter?.createdBy,
+          parent: query.filter?.parents,
+          ancestor: query.filter?.ancestors,
 
-        sort: query.sort?.field,
-        order: query.sort?.order,
-      },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError(responseBody.error)
-    }
-    return {
-      ...responseBody,
-      data: responseBody.data.map((genre) => ({
-        ...genre,
-        createdAt: new Date(genre.createdAt),
-        updatedAt: new Date(genre.updatedAt),
-      })) as unknown as GetAllGenresQueryResult<I>['data'],
-    }
+          sort: query.sort?.field,
+          order: query.sort?.order,
+        },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<typeof this.client.genres.$get>>((res) => res.json())
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              data: res.data.map((genre) => ({
+                ...genre,
+                createdAt: new Date(genre.createdAt),
+                updatedAt: new Date(genre.updatedAt),
+              })) as unknown as GetAllGenresQueryResult<I>['data'],
+            })
+          : err(res.error),
+      )
   }
 
   async getGenreHistoryByAccount(accountId: number) {
-    const response = await this.client.genres.history['by-account'][':accountId'].$get({
-      param: { accountId: accountId.toString() },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      history: responseBody.history.map((history) => ({
-        ...history,
-        createdAt: new Date(history.createdAt),
-      })),
-    }
+    return ResultAsync.fromPromise(
+      this.client.genres.history['by-account'][':accountId'].$get({
+        param: { accountId },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<
+        InferResponseType<(typeof this.client.genres.history)['by-account'][':accountId']['$get']>
+      >((res) => res.json())
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              history: res.history.map((history) => ({
+                ...history,
+                createdAt: new Date(history.createdAt),
+              })),
+            })
+          : err(res.error),
+      )
   }
 
   async getGenreHistory(genreId: number) {
-    const response = await this.client.genres[':id'].history.$get({
-      param: { id: genreId.toString() },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      history: responseBody.history.map((history) => ({
-        ...history,
-        createdAt: new Date(history.createdAt),
-      })),
-    }
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].history.$get({
+        param: { id: genreId },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.genres)[':id']['history']['$get']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              history: res.history.map((history) => ({
+                ...history,
+                createdAt: new Date(history.createdAt),
+              })),
+            })
+          : err(res.error),
+      )
   }
 
   async getGenreRelevanceVoteByAccount(genreId: number, accountId: number) {
-    const response = await this.client.genres[':id'].relevance.votes[':accountId'].$get({
-      param: { id: genreId.toString(), accountId: accountId.toString() },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      vote:
-        responseBody.vote !== undefined
-          ? {
-              ...responseBody.vote,
-              createdAt: new Date(responseBody.vote.createdAt),
-              updatedAt: new Date(responseBody.vote.updatedAt),
-            }
-          : undefined,
-    }
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].relevance.votes[':accountId'].$get({
+        param: { id: genreId, accountId },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<
+        InferResponseType<
+          (typeof this.client.genres)[':id']['relevance']['votes'][':accountId']['$get']
+        >
+      >((res) => res.json())
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              vote:
+                res.vote !== undefined
+                  ? {
+                      ...res.vote,
+                      createdAt: new Date(res.vote.createdAt),
+                      updatedAt: new Date(res.vote.updatedAt),
+                    }
+                  : undefined,
+            })
+          : err(res.error),
+      )
   }
 
   async getGenreRelevanceVotesByGenre(genreId: number) {
-    const response = await this.client.genres[':id'].relevance.votes.$get({
-      param: { id: genreId.toString() },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return responseBody
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].relevance.votes.$get({
+        param: { id: genreId },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.genres)[':id']['relevance']['votes']['$get']>>(
+        (res) => res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
 
   async getGenreTree() {
-    const response = await this.client['genre-tree'].$get()
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      tree: responseBody.tree.map((genre) => ({
-        ...genre,
-        updatedAt: new Date(genre.updatedAt),
-      })),
-    }
+    return ResultAsync.fromPromise(
+      this.client['genre-tree'].$get(),
+      (err) => new FetchError(toError(err)),
+    ).map<InferResponseType<(typeof this.client)['genre-tree']['$get']>>((res) => res.json())
   }
 
   async getGenre(genreId: number) {
-    const response = await this.client.genres[':id'].$get({
-      param: { id: genreId.toString() },
-    })
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      genre: {
-        ...responseBody.genre,
-        createdAt: new Date(responseBody.genre.createdAt),
-        updatedAt: new Date(responseBody.genre.updatedAt),
-      },
-    }
+    return ResultAsync.fromPromise(
+      this.client.genres[':id'].$get({
+        param: { id: genreId },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.genres)[':id']['$get']>>((res) => res.json())
+      .andThen((res) =>
+        res.success
+          ? ok({
+              ...res,
+              genre: {
+                ...res.genre,
+                createdAt: new Date(res.genre.createdAt),
+                updatedAt: new Date(res.genre.updatedAt),
+              },
+            })
+          : err(res.error),
+      )
   }
 
   async getLatestGenreUpdates() {
-    const response = await this.client['latest-genre-updates'].$get()
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return {
-      ...responseBody,
-      latestUpdates: responseBody.latestUpdates.map((update) => ({
-        ...update,
-        genre: { ...update.genre, createdAt: new Date(update.genre.createdAt) },
-        previousHistory:
-          update.previousHistory !== undefined
-            ? { ...update.previousHistory, createdAt: new Date(update.previousHistory.createdAt) }
-            : undefined,
-      })),
-    }
+    return ResultAsync.fromPromise(
+      this.client['latest-genre-updates'].$get(),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['latest-genre-updates']['$get']>>((res) =>
+        res.json(),
+      )
+      .map((res) => ({
+        ...res,
+        latestUpdates: res.latestUpdates.map((update) => ({
+          ...update,
+          genre: { ...update.genre, createdAt: new Date(update.genre.createdAt) },
+          previousHistory:
+            update.previousHistory !== undefined
+              ? {
+                  ...update.previousHistory,
+                  createdAt: new Date(update.previousHistory.createdAt),
+                }
+              : undefined,
+        })),
+      }))
   }
 
   async getRandomGenreId() {
-    const response = await this.client['random-genre'].$get()
-    const responseBody = await response.json()
-    if (!responseBody.success) {
-      return new GenresClientError((responseBody as unknown as GenresErrorResponse).error)
-    }
-    return responseBody
+    return ResultAsync.fromPromise(
+      this.client['random-genre'].$get(),
+      (err) => new FetchError(toError(err)),
+    ).map<InferResponseType<(typeof this.client)['random-genre']['$get']>>((res) => res.json())
   }
-}
-
-type GenresErrorResponse = {
-  success: false
-  error: GenresError
 }
 
 type GenresError = {
@@ -393,4 +281,24 @@ export class GenresClientError extends CustomError {
   constructor(public readonly originalError: GenresError) {
     super(originalError.name, originalError.message)
   }
+}
+
+export class FetchError extends CustomError {
+  constructor(public readonly originalError: Error) {
+    super('FetchError', `An error occurred while fetching: ${originalError.message}`)
+  }
+}
+
+function toError(error: unknown): Error {
+  if (error instanceof Error) return error
+  if (typeof error === 'string') return new Error(error)
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return new Error(error.message)
+  }
+  return new Error(String(error))
 }

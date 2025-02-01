@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
+    "@hono/zod-openapi": "^0.18.3",
     "@hono/zod-validator": "^0.4.1",
     "@romulus/custom-error": "workspace:*",
     "@types/bcryptjs": "^2.4.6",

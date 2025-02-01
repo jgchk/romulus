@@ -1,9 +1,9 @@
 import { CustomError } from '@romulus/custom-error'
 
-export class DomainError extends CustomError {
+export class DomainError<Name extends string = string> extends CustomError<Name> {
   private readonly __tag = 'DomainError'
 
-  constructor(name: string, message: string) {
+  constructor(name: Name, message: string) {
     super(name, message)
   }
 }

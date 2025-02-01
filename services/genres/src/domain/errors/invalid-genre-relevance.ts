@@ -1,7 +1,7 @@
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../../config.js'
 import { DomainError } from './base.js'
 
-export class InvalidGenreRelevanceError extends DomainError {
+export class InvalidGenreRelevanceError extends DomainError<'InvalidGenreRelevanceError'> {
   constructor(public readonly relevance: number) {
     super(
       'InvalidGenreRelevanceError',
