@@ -1,9 +1,9 @@
-export class CustomError extends Error {
-  public override readonly name: string
+export class CustomError<Name extends string = string> extends Error {
+  public override readonly name: Name
   public override readonly message: string
   public override readonly cause?: Error
 
-  constructor(name: string, message: string, cause?: Error) {
+  constructor(name: Name, message: string, cause?: Error) {
     super(message)
     this.name = name
     this.message = message
