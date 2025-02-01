@@ -13,20 +13,25 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const id = maybeId.data
 
   const response = await locals.di.genres().getGenreHistory(id)
-  if (response instanceof Error) {
-    return error(response.originalError.statusCode, response.message)
+  if (response.isErr()) {
+    return error(
+      response.error.name === 'FetchError' ? 500 : response.error.statusCode,
+      response.error.message,
+    )
   }
 
   const usersResponse = await locals.di
     .authentication()
-    .getAccounts([...new Set(response.history.map((genre) => genre.accountId).filter(isNotNull))])
+    .getAccounts([
+      ...new Set(response.value.history.map((genre) => genre.accountId).filter(isNotNull)),
+    ])
   const usersMap = usersResponse.match(
     ({ accounts }) => new Map(accounts.map((user) => [user.id, user])),
     () => new Map<number, { id: number; username: string }>(),
   )
 
   return {
-    genreHistory: response.history.map((genre) => ({
+    genreHistory: response.value.history.map((genre) => ({
       ...genre,
       account: genre.accountId !== null ? (usersMap.get(genre.accountId) ?? null) : null,
     })),

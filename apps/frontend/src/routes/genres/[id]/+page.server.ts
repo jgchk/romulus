@@ -1,3 +1,4 @@
+import { FetchError } from '@romulus/genres/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
@@ -18,32 +19,38 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const id = maybeId.data
 
   const genreResponse = await locals.di.genres().getGenre(id)
-  if (genreResponse instanceof Error) {
-    return error(genreResponse.originalError.statusCode, genreResponse.originalError.message)
+  if (genreResponse.isErr()) {
+    if (genreResponse.error instanceof FetchError) {
+      return error(500, genreResponse.error.message)
+    } else {
+      return error(genreResponse.error.statusCode, genreResponse.error.message)
+    }
   }
-  const maybeGenre = genreResponse.genre
+  const maybeGenre = genreResponse.value.genre
 
   const relevanceVotesResponse = await locals.di.genres().getGenreRelevanceVotesByGenre(id)
-  if (relevanceVotesResponse instanceof Error) {
-    return error(
-      relevanceVotesResponse.originalError.statusCode,
-      relevanceVotesResponse.originalError.message,
-    )
+  if (relevanceVotesResponse.isErr()) {
+    if (relevanceVotesResponse.error instanceof FetchError) {
+      return error(500, relevanceVotesResponse.error.message)
+    } else {
+      return error(relevanceVotesResponse.error.statusCode, relevanceVotesResponse.error.message)
+    }
   }
-  const relevanceVotes = countBy(relevanceVotesResponse.votes, (vote) => vote.relevance)
+  const relevanceVotes = countBy(relevanceVotesResponse.value.votes, (vote) => vote.relevance)
 
   let relevanceVote = UNSET_GENRE_RELEVANCE
   if (locals.user) {
     const relevanceVoteResponse = await locals.di
       .genres()
       .getGenreRelevanceVoteByAccount(id, locals.user.id)
-    if (relevanceVoteResponse instanceof Error) {
-      return error(
-        relevanceVoteResponse.originalError.statusCode,
-        relevanceVoteResponse.originalError.message,
-      )
+    if (relevanceVoteResponse.isErr()) {
+      if (relevanceVoteResponse.error instanceof FetchError) {
+        return error(500, relevanceVoteResponse.error.message)
+      } else {
+        return error(relevanceVoteResponse.error.statusCode, relevanceVoteResponse.error.message)
+      }
     }
-    relevanceVote = relevanceVoteResponse.vote?.relevance ?? UNSET_GENRE_RELEVANCE
+    relevanceVote = relevanceVoteResponse.value.vote?.relevance ?? UNSET_GENRE_RELEVANCE
   }
 
   const usersResponse = await locals.di
@@ -100,8 +107,12 @@ export const actions: Actions = {
     const id = maybeId.data
 
     const deleteResult = await locals.di.genres().deleteGenre(id)
-    if (deleteResult instanceof Error) {
-      return error(deleteResult.originalError.statusCode, deleteResult.message)
+    if (deleteResult.isErr()) {
+      if (deleteResult.error instanceof FetchError) {
+        return error(500, deleteResult.error.message)
+      } else {
+        return error(deleteResult.error.statusCode, deleteResult.error.message)
+      }
     }
 
     return redirect(302, '/genres')

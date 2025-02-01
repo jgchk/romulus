@@ -1,6 +1,6 @@
 import { AuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient } from '@romulus/authorization/client'
-import { GenresClient, type IGenresClient } from '@romulus/genres/client'
+import { GenresClient } from '@romulus/genres/client'
 import { type IUserSettingsClient, UserSettingsClient } from '@romulus/user-settings/client'
 
 export class CompositionRoot {
@@ -21,7 +21,7 @@ export class CompositionRoot {
     return new UserSettingsClient(`${this.apiBaseUrl}/user-settings`, this.sessionToken)
   }
 
-  genres(): IGenresClient {
+  genres() {
     return new GenresClient(`${this.apiBaseUrl}/genres`, this.sessionToken)
   }
 }

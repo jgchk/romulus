@@ -496,12 +496,20 @@ export const getGenreHistoryRoute = createRoute({
               .object({
                 id: z.number().int(),
                 name: z.string(),
-                type: z.enum(GENRE_TYPES),
                 subtitle: z.string().nullable(),
-                operation: z.enum(GENRE_OPERATIONS),
-                createdAt: z.string(),
-                treeGenreId: z.number().int(),
+                akas: z.string().array(),
+                type: z.enum(GENRE_TYPES),
+                shortDescription: z.string().nullable(),
+                longDescription: z.string().nullable(),
                 nsfw: z.boolean(),
+                notes: z.string().nullable(),
+                parentGenreIds: z.number().int().array(),
+                derivedFromGenreIds: z.number().int().array(),
+                influencedByGenreIds: z.number().int().array(),
+                treeGenreId: z.number().int(),
+                createdAt: z.date(),
+                operation: z.enum(GENRE_OPERATIONS),
+                accountId: z.number().int().nullable(),
               })
               .array(),
           }),
@@ -621,7 +629,16 @@ export const getGenreTreeRoute = createRoute({
               z.object({
                 id: z.number().int(),
                 name: z.string(),
-                children: z.array(z.number().int()),
+                subtitle: z.string().nullable(),
+                type: z.enum(GENRE_TYPES),
+                akas: z.string().array(),
+                parents: z.number().int().array(),
+                children: z.number().int().array(),
+                derivedFrom: z.number().int().array(),
+                derivations: z.number().int().array(),
+                relevance: z.number().int(),
+                nsfw: z.boolean(),
+                updatedAt: z.date(),
               }),
             ),
           }),
@@ -650,14 +667,63 @@ export const getGenreRoute = createRoute({
               id: z.number().int(),
               name: z.string(),
               subtitle: z.string().nullable(),
-              shortDescription: z.string().nullable(),
-              longDescription: z.string().nullable(),
-              notes: z.string().nullable(),
               type: z.enum(GENRE_TYPES),
               relevance: genreRelevance,
               nsfw: z.boolean(),
+              shortDescription: z.string().nullable(),
+              longDescription: z.string().nullable(),
+              notes: z.string().nullable(),
               createdAt: z.string(),
               updatedAt: z.string(),
+              akas: z.object({
+                primary: z.string().array(),
+                secondary: z.string().array(),
+                tertiary: z.string().array(),
+              }),
+              parents: z
+                .object({
+                  id: z.number().int(),
+                  name: z.string(),
+                  type: z.enum(GENRE_TYPES),
+                  subtitle: z.string().nullable(),
+                  nsfw: z.boolean(),
+                })
+                .array(),
+              children: z
+                .object({
+                  id: z.number().int(),
+                  name: z.string(),
+                  type: z.enum(GENRE_TYPES),
+                })
+                .array(),
+              derivedFrom: z
+                .object({
+                  id: z.number().int(),
+                  name: z.string(),
+                  type: z.enum(GENRE_TYPES),
+                  subtitle: z.string().nullable(),
+                  nsfw: z.boolean(),
+                })
+                .array(),
+              influencedBy: z
+                .object({
+                  id: z.number().int(),
+                  name: z.string(),
+                  type: z.enum(GENRE_TYPES),
+                  subtitle: z.string().nullable(),
+                  nsfw: z.boolean(),
+                })
+                .array(),
+              influences: z
+                .object({
+                  id: z.number().int(),
+                  name: z.string(),
+                  type: z.enum(GENRE_TYPES),
+                  subtitle: z.string().nullable(),
+                  nsfw: z.boolean(),
+                })
+                .array(),
+              contributors: z.number().int().array(),
             }),
           }),
         },

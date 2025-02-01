@@ -29,19 +29,27 @@ export const actions: Actions = {
     }
 
     const createResult = await locals.di.genres().createGenre(form.data)
-    if (createResult instanceof Error) {
-      return error(createResult.originalError.statusCode, createResult.message)
+    if (createResult.isErr()) {
+      return error(
+        createResult.error.name === 'FetchError' ? 500 : createResult.error.statusCode,
+        createResult.error.message,
+      )
     }
 
     const relevance = form.data.relevance
     if (relevance !== undefined) {
-      const voteResult = await locals.di.genres().voteGenreRelevance(createResult.id, relevance)
+      const voteResult = await locals.di
+        .genres()
+        .voteGenreRelevance(createResult.value.id, relevance)
 
-      if (voteResult instanceof Error) {
-        return error(voteResult.originalError.statusCode, voteResult.message)
+      if (voteResult.isErr()) {
+        return error(
+          voteResult.error.name === 'FetchError' ? 500 : voteResult.error.statusCode,
+          voteResult.error.message,
+        )
       }
     }
 
-    redirect(302, `/genres/${createResult.id}`)
+    redirect(302, `/genres/${createResult.value.id}`)
   },
 }

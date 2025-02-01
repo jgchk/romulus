@@ -19,11 +19,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const id = maybeId.data
 
   const maybeGenre = await locals.di.genres().getGenre(id)
-  if (maybeGenre instanceof Error) {
-    return error(maybeGenre.originalError.statusCode, maybeGenre.message)
+  if (maybeGenre.isErr()) {
+    return error(
+      maybeGenre.error.name === 'FetchError' ? 500 : maybeGenre.error.statusCode,
+      maybeGenre.error.message,
+    )
   }
 
-  const { akas, ...genre } = maybeGenre.genre
+  const { akas, ...genre } = maybeGenre.value.genre
 
   const data = {
     ...genre,
@@ -54,8 +57,11 @@ export const actions: Actions = {
     }
 
     const updateResult = await locals.di.genres().updateGenre(id, form.data)
-    if (updateResult instanceof Error) {
-      return error(updateResult.originalError.statusCode, updateResult.message)
+    if (updateResult.isErr()) {
+      return error(
+        updateResult.error.name === 'FetchError' ? 500 : updateResult.error.statusCode,
+        updateResult.error.message,
+      )
     }
 
     redirect(302, `/genres/${id}`)

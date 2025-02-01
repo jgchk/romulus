@@ -213,7 +213,12 @@ export class GenresClient {
     return ResultAsync.fromPromise(
       this.client['genre-tree'].$get(),
       (err) => new FetchError(toError(err)),
-    ).map<InferResponseType<(typeof this.client)['genre-tree']['$get']>>((res) => res.json())
+    )
+      .map<InferResponseType<(typeof this.client)['genre-tree']['$get']>>((res) => res.json())
+      .map((res) => ({
+        ...res,
+        tree: res.tree.map((genre) => ({ ...genre, updatedAt: new Date(genre.updatedAt) })),
+      }))
   }
 
   async getGenre(genreId: number) {
@@ -283,7 +288,7 @@ export class GenresClientError extends CustomError {
   }
 }
 
-export class FetchError extends CustomError {
+export class FetchError extends CustomError<'FetchError'> {
   constructor(public readonly originalError: Error) {
     super('FetchError', `An error occurred while fetching: ${originalError.message}`)
   }

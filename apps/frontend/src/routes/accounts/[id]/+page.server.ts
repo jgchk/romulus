@@ -33,10 +33,13 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
 
   const response = await locals.di.genres().getGenreHistoryByAccount(id)
-  if (response instanceof Error) {
-    return error(response.originalError.statusCode, response.message)
+  if (response.isErr()) {
+    return error(
+      response.error.name === 'FetchError' ? 500 : response.error.statusCode,
+      response.error.message,
+    )
   }
-  const history = response.history
+  const history = response.value.history
 
   const numCreated = new Set(
     history.filter((h) => h.operation === 'CREATE').map((h) => h.treeGenreId),
