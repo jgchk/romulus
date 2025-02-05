@@ -28,7 +28,11 @@ async function main() {
     }
   })
 
-  await setupDevEnvironment(infrastructure)
+  try {
+    await setupDevEnvironment(infrastructure)
+  } catch (error) {
+    console.error('Error setting up dev environment', error)
+  }
 
   const app = new Hono()
     .route('/authentication', getAuthenticationRouter(infrastructure))

@@ -65,7 +65,7 @@ function assertUnreachable(x: never): never {
 
 export function createGenresRouter(deps: GenresRouterDependencies) {
   const app = new OpenAPIHono({
-    defaultHook: (result, c) => {
+    defaultHook: async (result, c) => {
       if (!result.success) {
         return c.json(
           {
@@ -159,9 +159,24 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
               } as const,
               403,
             )
+          } else if (err instanceof DuplicateAkaError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  details: {
+                    aka: err.aka,
+                    level: err.level,
+                  },
+                  statusCode: 400,
+                },
+              } as const,
+              400,
+            )
           } else if (
             err instanceof SelfInfluenceError ||
-            err instanceof DuplicateAkaError ||
             err instanceof DerivedChildError ||
             err instanceof DerivedInfluenceError
           ) {
@@ -325,9 +340,24 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
               } as const,
               403,
             )
+          } else if (err instanceof DuplicateAkaError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  details: {
+                    aka: err.aka,
+                    level: err.level,
+                  },
+                  statusCode: 400,
+                },
+              } as const,
+              400,
+            )
           } else if (
             err instanceof SelfInfluenceError ||
-            err instanceof DuplicateAkaError ||
             err instanceof DerivedChildError ||
             err instanceof DerivedInfluenceError ||
             err instanceof GenreCycleError

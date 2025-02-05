@@ -31,15 +31,32 @@ const genreSchema = z.object({
   derivedFrom: z.number().int().array(),
   influencedBy: z.number().int().array(),
 
-  relevance: genreRelevance.optional(),
   nsfw: z.boolean(),
 })
 
 const ValidationErrorSchema = z.object({
   name: z.literal('ValidationError'),
   message: z.string(),
-  details: z.any(),
+  details: z.object({
+    target: z.enum(['json', 'form', 'query', 'param', 'header', 'cookie']),
+    issues: z
+      .object({
+        path: z.string().or(z.number()).array(),
+        message: z.string(),
+        fatal: z.boolean().optional(),
+      })
+      .array(),
+  }),
   statusCode: z.literal(400),
+})
+
+const DuplicateAkaErrorSchema = z.object({
+  name: z.literal('DuplicateAkaError'),
+  message: z.string(),
+  details: z.object({
+    aka: z.string(),
+    level: z.enum(['primary', 'secondary', 'tertiary']),
+  }),
 })
 
 const UnauthenticatedErrorSchema = z.object({
@@ -91,10 +108,10 @@ export const createGenreRoute = createRoute({
             success: z.literal(false),
             error: z.union([
               ValidationErrorSchema,
+              DuplicateAkaErrorSchema,
               z.object({
                 name: z.union([
                   z.literal('SelfInfluenceError'),
-                  z.literal('DuplicateAkaError'),
                   z.literal('DerivedChildError'),
                   z.literal('DerivedInfluenceError'),
                 ]),
@@ -220,10 +237,10 @@ export const updateGenreRoute = createRoute({
             success: z.literal(false),
             error: z.union([
               ValidationErrorSchema,
+              DuplicateAkaErrorSchema,
               z.object({
                 name: z.union([
                   z.literal('SelfInfluenceError'),
-                  z.literal('DuplicateAkaError'),
                   z.literal('DerivedChildError'),
                   z.literal('DerivedInfluenceError'),
                   z.literal('GenreCycleError'),

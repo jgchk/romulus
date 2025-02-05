@@ -51,6 +51,10 @@
       onSubmit?.()
     },
 
+    onError: ({ result }) => {
+      toast.error(result.error.message)
+    },
+
     onUpdated: ({ form }) => {
       if (!form.valid) {
         toast.error('The form has errors. Please correct them before submitting.')

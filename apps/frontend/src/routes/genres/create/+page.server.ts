@@ -1,5 +1,5 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { genreSchema } from '$lib/server/api/genres/types'
@@ -30,23 +30,72 @@ export const actions: Actions = {
 
     const createResult = await locals.di.genres().createGenre(form.data)
     if (createResult.isErr()) {
-      return error(
-        createResult.error.name === 'FetchError' ? 500 : createResult.error.statusCode,
-        createResult.error.message,
-      )
+      switch (createResult.error.name) {
+        case 'FetchError': {
+          return error(500, createResult.error.message)
+        }
+        case 'ValidationError': {
+          for (const issue of createResult.error.details.issues) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setError(form, issue.path as any, issue.message)
+          }
+          return fail(400, { form })
+        }
+        case 'DuplicateAkaError': {
+          return setError(
+            form,
+            `${createResult.error.details.level}Akas`,
+            createResult.error.message,
+          )
+        }
+        case 'DerivedChildError':
+        case 'DerivedInfluenceError': {
+          return setError(form, 'derivedFrom._errors', createResult.error.message)
+        }
+        case 'SelfInfluenceError': {
+          return setError(form, 'influencedBy._errors', createResult.error.message)
+        }
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError': {
+          return error(createResult.error.statusCode, createResult.error.message)
+        }
+        default: {
+          createResult.error satisfies never
+          return error(500, 'An unknown error occurred')
+        }
+      }
     }
 
     const relevance = form.data.relevance
-    if (relevance !== undefined) {
+    if (relevance !== undefined && relevance !== UNSET_GENRE_RELEVANCE) {
       const voteResult = await locals.di
         .genres()
         .voteGenreRelevance(createResult.value.id, relevance)
 
       if (voteResult.isErr()) {
-        return error(
-          voteResult.error.name === 'FetchError' ? 500 : voteResult.error.statusCode,
-          voteResult.error.message,
-        )
+        switch (voteResult.error.name) {
+          case 'FetchError': {
+            return error(500, voteResult.error.message)
+          }
+          case 'ValidationError': {
+            return setError(
+              form,
+              'relevance',
+              voteResult.error.details.issues.map((issue) => issue.message).join(', '),
+            )
+          }
+          case 'UnauthenticatedError':
+          case 'UnauthorizedError': {
+            return error(voteResult.error.statusCode, voteResult.error.message)
+          }
+          case 'InvalidGenreRelevanceError': {
+            return setError(form, 'relevance', voteResult.error.message)
+          }
+          default: {
+            voteResult.error satisfies never
+            return error(500, 'An unknown error occurred')
+          }
+        }
       }
     }
 
