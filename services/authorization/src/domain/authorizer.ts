@@ -159,6 +159,10 @@ export class Authorizer {
     return permissions
   }
 
+  getAllPermissions(): Permission[] {
+    return [...this.permissions.values()]
+  }
+
   getUncommittedEvents(): AuthorizerEvent[] {
     return [...this.uncommittedEvents]
   }

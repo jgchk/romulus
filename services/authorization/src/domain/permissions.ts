@@ -10,6 +10,7 @@ export const AuthorizationPermission = {
   CheckOwnPermissions: 'authorization:check-own-permissions',
   GetUserPermissions: 'authorization:get-user-permissions',
   GetOwnPermissions: 'authorization:get-own-permissions',
+  GetAllPermissions: 'authorization:get-all-permissions',
 } as const
 
 export type AuthorizationPermission =

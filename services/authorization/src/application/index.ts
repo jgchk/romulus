@@ -80,6 +80,12 @@ export class AuthorizationApplication {
       .map((authorizer) => authorizer.getPermissions(userId))
   }
 
+  getAllPermissions(requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.GetAllPermissions)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.getAllPermissions())
+  }
+
   getSystemUserId() {
     return SYSTEM_USER_ID
   }

@@ -4,6 +4,7 @@ import { describe, expect, test } from 'vitest'
 import {
   Authorizer,
   DuplicatePermissionError,
+  Permission,
   PermissionCreatedEvent,
   PermissionDeletedEvent,
   PermissionNotFoundError,
@@ -221,5 +222,25 @@ describe('hasPermission()', () => {
     ])
 
     expect(authorizer.hasPermission(0, 'permission')).toBe(false)
+  })
+})
+
+describe('getAllPermissions()', () => {
+  test('should return nothing if there are no permissions', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    expect(authorizer.getAllPermissions()).toEqual([])
+  })
+
+  test('should return all permissions', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission1', undefined),
+      new PermissionCreatedEvent('permission2', undefined),
+    ])
+
+    expect(authorizer.getAllPermissions()).toEqual([
+      new Permission('permission1', undefined),
+      new Permission('permission2', undefined),
+    ])
   })
 })
