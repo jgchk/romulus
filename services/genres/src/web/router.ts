@@ -65,7 +65,7 @@ function assertUnreachable(x: never): never {
 
 export function createGenresRouter(deps: GenresRouterDependencies) {
   const app = new OpenAPIHono({
-    defaultHook: async (result, c) => {
+    defaultHook: (result, c) => {
       if (!result.success) {
         return c.json(
           {
