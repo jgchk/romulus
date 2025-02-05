@@ -1,6 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-import { GENRE_OPERATIONS, GENRE_TYPES } from '../infrastructure/drizzle-schema.js'
+import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config.js'
+import {
+  GENRE_OPERATIONS,
+  GENRE_TYPES,
+  UNSET_GENRE_RELEVANCE,
+} from '../infrastructure/drizzle-schema.js'
 
 const nullableString = z
   .string()
@@ -11,9 +16,12 @@ const nullableString = z
 const genreRelevance = z.coerce
   .number()
   .int()
-  .refine((v) => v === -1 || (v >= 0 && v <= 7), {
-    message: 'Relevance must be between 0 and 7 (inclusive), or -1',
-  })
+  .refine(
+    (v) => v === UNSET_GENRE_RELEVANCE || (v >= MIN_GENRE_RELEVANCE && v <= MAX_GENRE_RELEVANCE),
+    {
+      message: `Relevance must be between ${MIN_GENRE_RELEVANCE} and ${MAX_GENRE_RELEVANCE} (inclusive), or ${UNSET_GENRE_RELEVANCE}`,
+    },
+  )
 
 const genreSchema = z.object({
   name: z.string().min(1, 'Name is required'),
