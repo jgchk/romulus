@@ -6,23 +6,23 @@
   ],
   "exports": {
     "./application": {
-      "import": "./dist/application/index.ts",
+      "import": "./dist/application/index.js",
       "types": "./dist/application/index.d.ts"
     },
     "./infrastructure": {
-      "import": "./dist/infrastructure/index.ts",
+      "import": "./dist/infrastructure/index.js",
       "types": "./dist/infrastructure/index.d.ts"
     },
     "./router": {
-      "import": "./dist/web/router.ts",
+      "import": "./dist/web/router.js",
       "types": "./dist/web/router.d.ts"
     },
     "./client": {
-      "import": "./dist/web/client.ts",
+      "import": "./dist/web/client.js",
       "types": "./dist/web/client.d.ts"
     },
     "./permissions": {
-      "import": "./dist/domain/permissions.ts",
+      "import": "./dist/domain/permissions.js",
       "types": "./dist/domain/permissions.d.ts"
     }
   },
