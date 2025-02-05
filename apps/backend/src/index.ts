@@ -1,7 +1,8 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 
-import { createAuthorizationApplication } from './application'
+import { createAuthenticationApplication, createAuthorizationApplication } from './application'
+import type { Infrastructure } from './infrastructure'
 import { createInfrastructure } from './infrastructure'
 import { setupPermissions } from './permissions'
 import {
@@ -27,6 +28,8 @@ async function main() {
     }
   })
 
+  await setupDevEnvironment(infrastructure)
+
   const app = new Hono()
     .route('/authentication', getAuthenticationRouter(infrastructure))
     .route('/authorization', getAuthorizationRouter(infrastructure))
@@ -35,6 +38,31 @@ async function main() {
     .route('/user-settings', getUserSettingsRouter(infrastructure))
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
+}
+
+async function setupDevEnvironment(infrastructure: Infrastructure) {
+  const authentication = createAuthenticationApplication(infrastructure)
+  const admin = await authentication.registerCommand().execute('admin', 'admin')
+  if (admin instanceof Error) throw admin
+
+  const authorization = createAuthorizationApplication(infrastructure)
+  const permissions = await authorization.getAllPermissions(authorization.getSystemUserId())
+  if (permissions.isErr()) throw permissions.error
+
+  const role = await authorization.createRole(
+    'admins',
+    new Set(permissions.value.map((p) => p.name)),
+    undefined,
+    authorization.getSystemUserId(),
+  )
+  if (role.isErr()) throw role.error
+
+  const result = await authorization.assignRoleToUser(
+    admin.newUserAccount.id,
+    'admins',
+    authorization.getSystemUserId(),
+  )
+  if (result.isErr()) throw result.error
 }
 
 void main()
