@@ -28,6 +28,11 @@ async function main() {
     }
   })
 
+  const result = await authorization.setupRoles()
+  if (result.isErr()) {
+    console.error(result.error)
+  }
+
   try {
     await setupDevEnvironment(infrastructure)
   } catch (error) {
@@ -53,17 +58,9 @@ async function setupDevEnvironment(infrastructure: Infrastructure) {
   const permissions = await authorization.getAllPermissions(authorization.getSystemUserId())
   if (permissions.isErr()) throw permissions.error
 
-  const role = await authorization.createRole(
-    'admins',
-    new Set(permissions.value.map((p) => p.name)),
-    undefined,
-    authorization.getSystemUserId(),
-  )
-  if (role.isErr()) throw role.error
-
   const result = await authorization.assignRoleToUser(
     admin.newUserAccount.id,
-    'admins',
+    'admin',
     authorization.getSystemUserId(),
   )
   if (result.isErr()) throw result.error

@@ -62,17 +62,37 @@ export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
     const events = authorizer.getUncommittedEvents()
     for (const event of events) {
       if (event instanceof PermissionCreatedEvent) {
-        await this.db.insert(permissionsTable).values({
-          name: event.name,
-          description: event.description,
-        })
+        await this.db
+          .insert(permissionsTable)
+          .values({
+            name: event.name,
+            description: event.description,
+          })
+          .onConflictDoUpdate({
+            target: [permissionsTable.name],
+            set: {
+              description: event.description ?? null,
+            },
+          })
       } else if (event instanceof PermissionDeletedEvent) {
         await this.db.delete(permissionsTable).where(eq(permissionsTable.name, event.name))
       } else if (event instanceof RoleCreatedEvent) {
-        await this.db.insert(rolesTable).values({
-          name: event.name,
-          description: event.description,
-        })
+        await this.db
+          .insert(rolesTable)
+          .values({
+            name: event.name,
+            description: event.description,
+          })
+          .onConflictDoUpdate({
+            target: [rolesTable.name],
+            set: {
+              description: event.description ?? null,
+            },
+          })
+
+        await this.db
+          .delete(rolePermissionsTable)
+          .where(eq(rolePermissionsTable.roleName, event.name))
         await this.db.insert(rolePermissionsTable).values(
           [...event.permissions].map((p) => ({
             roleName: event.name,
@@ -82,10 +102,13 @@ export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
       } else if (event instanceof RoleDeletedEvent) {
         await this.db.delete(rolesTable).where(eq(rolesTable.name, event.name))
       } else if (event instanceof RoleAssignedToUserEvent) {
-        await this.db.insert(userRolesTable).values({
-          userId: event.userId,
-          roleName: event.roleName,
-        })
+        await this.db
+          .insert(userRolesTable)
+          .values({
+            userId: event.userId,
+            roleName: event.roleName,
+          })
+          .onConflictDoNothing()
       } else {
         event satisfies never
       }

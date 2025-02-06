@@ -90,6 +90,14 @@ export class AuthorizationApplication {
     return SYSTEM_USER_ID
   }
 
+  setupRoles() {
+    return ResultAsync.combineWithAllErrors(
+      Object.entries(roles).map(([role, permissions]) =>
+        this.createRole(role, new Set(permissions), undefined, SYSTEM_USER_ID),
+      ),
+    )
+  }
+
   private checkPermission(userId: number, permission: string) {
     if (userId === SYSTEM_USER_ID) return okAsync(undefined)
 
@@ -114,3 +122,24 @@ export async function setupAuthorizationPermissions(
     })),
   )
 }
+
+const roles = {
+  admin: [
+    'authentication:request-password-reset',
+    'authorization:create-permissions',
+    'authorization:delete-permissions',
+    'authorization:create-roles',
+    'authorization:delete-roles',
+    'authorization:assign-roles',
+    'authorization:check-user-permissions',
+    'authorization:get-user-permissions',
+    'authorization:get-all-permissions',
+  ],
+  'genre-editor': [
+    'genres:create-genres',
+    'genres:edit-genres',
+    'genres:delete-genres',
+    'genres:vote-genre-relevance',
+  ],
+  default: ['authorization:check-own-permissions', 'authorization:get-own-permissions'],
+} as const
