@@ -7,7 +7,9 @@ export default [
       ecmaVersion: 2020,
       sourceType: 'module',
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['eslint.config.js'],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
