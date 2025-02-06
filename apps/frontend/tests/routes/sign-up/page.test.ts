@@ -2,7 +2,6 @@ import { expect } from '@playwright/test'
 
 import { test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
-import { deleteAccounts } from '../../utils'
 
 const EXISTING_ACCOUNT = {
   username: 'existing-username-sign-up',
@@ -14,10 +13,6 @@ const NEW_ACCOUNT = {
   password: 'test-password-sign-up',
 }
 
-test.afterEach(async ({ dbConnection }) => {
-  await deleteAccounts([NEW_ACCOUNT.username], dbConnection)
-})
-
 test('should show error if password and confirm password do not match', async ({ signUpPage }) => {
   await signUpPage.goto()
   await signUpPage.usernameInput.fill(NEW_ACCOUNT.username)
@@ -27,8 +22,9 @@ test('should show error if password and confirm password do not match', async ({
   await expect(signUpPage.formError).toContainText('Passwords do not match')
 })
 
-test('should show error if username is already taken', async ({ withAccount, signUpPage }) => {
-  await withAccount(EXISTING_ACCOUNT)
+test('should show error if username is already taken', async ({ signUpPage }) => {
+  await signUpPage.signUp(EXISTING_ACCOUNT.username, EXISTING_ACCOUNT.password)
+
   await signUpPage.goto()
   await signUpPage.usernameInput.fill(EXISTING_ACCOUNT.username)
   await signUpPage.passwordInput.fill(NEW_ACCOUNT.password)
