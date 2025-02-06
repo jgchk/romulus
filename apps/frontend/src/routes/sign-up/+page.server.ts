@@ -1,6 +1,6 @@
 import { FetchError } from '@romulus/authentication/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, superValidate, setError } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { setSessionCookie } from '$lib/cookie'
@@ -29,10 +29,24 @@ export const actions: Actions = {
       .authentication()
       .register({ username: form.data.username, password: form.data.password.password })
     if (response.isErr()) {
-      if (response.error instanceof FetchError) {
-        return error(500, `Failed to sign up: ${response.error.message}`)
-      } else {
-        return error(response.error.statusCode, response.error.message)
+      switch (response.error.name) {
+        case 'FetchError': {
+          return error(500, `Failed to sign up: ${response.error.message}`)
+        }
+        case 'ValidationError': {
+          for (const issue of response.error.details.issues) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setError(form, issue.path as any, issue.message)
+          }
+          return fail(400, { form })
+        }
+        case 'NonUniqueUsernameError': {
+          return setError(form, 'username', response.error.message)
+        }
+        default: {
+          response.error satisfies never
+          return error(500, 'An unknown error occurred')
+        }
       }
     }
 

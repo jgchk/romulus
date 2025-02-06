@@ -198,7 +198,7 @@ export class AuthenticationClient {
   }
 }
 
-export class FetchError extends CustomError {
+export class FetchError extends CustomError<'FetchError'> {
   constructor(public readonly originalError: Error) {
     super('FetchError', `An error occurred while fetching: ${originalError.message}`)
   }

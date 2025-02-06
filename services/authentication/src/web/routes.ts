@@ -6,15 +6,14 @@ const ValidationErrorSchema = z.object({
   name: z.literal('ValidationError'),
   message: z.string(),
   details: z.object({
-    target: z.union([
-      z.literal('json'),
-      z.literal('form'),
-      z.literal('query'),
-      z.literal('param'),
-      z.literal('header'),
-      z.literal('cookie'),
-    ]),
-    issues: z.object({ code: z.string(), message: z.string() }).array(),
+    target: z.enum(['json', 'form', 'query', 'param', 'header', 'cookie']),
+    issues: z
+      .object({
+        path: z.string().or(z.number()).array(),
+        message: z.string(),
+        fatal: z.boolean().optional(),
+      })
+      .array(),
   }),
   statusCode: z.literal(400),
 })
