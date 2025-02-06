@@ -2,42 +2,24 @@ import { FetchError } from '@romulus/authentication/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
-import { z } from 'zod'
 
 import { setSessionCookie } from '$lib/cookie'
 
 import type { PageServerLoad } from './$types'
-
-const schema = z
-  .object({
-    username: z.string(),
-    password: z.object({
-      password: z.string(),
-      confirmPassword: z.string(),
-    }),
-  })
-  .superRefine((data, ctx) => {
-    if (data.password.password !== data.password.confirmPassword) {
-      return ctx.addIssue({
-        path: ['password', 'confirmPassword'],
-        message: 'Passwords do not match',
-        code: 'custom',
-      })
-    }
-  })
+import { signUpSchema } from './common'
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.user) {
     return redirect(302, '/')
   }
 
-  const form = await superValidate(zod(schema))
+  const form = await superValidate(zod(signUpSchema))
   return { form }
 }
 
 export const actions: Actions = {
   default: async ({ request, cookies, locals }) => {
-    const form = await superValidate(request, zod(schema))
+    const form = await superValidate(request, zod(signUpSchema))
 
     if (!form.valid) {
       return fail(400, { form })
