@@ -1,5 +1,5 @@
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
@@ -58,10 +58,46 @@ export const actions: Actions = {
 
     const updateResult = await locals.di.genres().updateGenre(id, form.data)
     if (updateResult.isErr()) {
-      return error(
-        updateResult.error.name === 'FetchError' ? 500 : updateResult.error.statusCode,
-        updateResult.error.message,
-      )
+      switch (updateResult.error.name) {
+        case 'FetchError': {
+          return error(500, updateResult.error.message)
+        }
+        case 'ValidationError': {
+          for (const issue of updateResult.error.details.issues) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setError(form, issue.path as any, issue.message)
+          }
+          return fail(400, { form })
+        }
+        case 'GenreNotFoundError': {
+          return error(404, updateResult.error.message)
+        }
+        case 'DuplicateAkaError': {
+          return setError(
+            form,
+            `${updateResult.error.details.level}Akas`,
+            updateResult.error.message,
+          )
+        }
+        case 'DerivedChildError':
+        case 'DerivedInfluenceError': {
+          return setError(form, 'derivedFrom._errors', updateResult.error.message)
+        }
+        case 'SelfInfluenceError': {
+          return setError(form, 'influencedBy._errors', updateResult.error.message)
+        }
+        case 'GenreCycleError': {
+          return setError(form, 'parents._errors', updateResult.error.message)
+        }
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError': {
+          return error(updateResult.error.statusCode, updateResult.error.message)
+        }
+        default: {
+          updateResult.error satisfies never
+          return error(500, 'An unknown error occurred')
+        }
+      }
     }
 
     redirect(302, `/genres/${id}`)
