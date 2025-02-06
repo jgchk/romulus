@@ -1,7 +1,11 @@
 import { err, ok } from 'neverthrow'
 import { describe, expect, test } from 'vitest'
 
-import { PermissionNotFoundError, RoleNotFoundError } from '../domain/authorizer.js'
+import {
+  PermissionNotFoundError,
+  RoleNotFoundError,
+  UnauthorizedError,
+} from '../domain/authorizer.js'
 import { AuthorizationPermission, SYSTEM_USER_ID } from '../domain/permissions.js'
 import { MemoryAuthorizerRepository } from '../infrastructure/memory-repository.js'
 import { AuthorizationApplication } from './index.js'
@@ -103,6 +107,16 @@ describe('createRole()', () => {
 
     expect(result).toEqual(err(new PermissionNotFoundError('permission')))
   })
+
+  test('should error if the user does not have the required permission', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [],
+    })
+
+    const result = await app.createRole('role', new Set(['permission']), undefined, userId)
+
+    expect(result).toEqual(err(new UnauthorizedError()))
+  })
 })
 
 describe('deleteRole()', () => {
@@ -126,6 +140,42 @@ describe('deleteRole()', () => {
     const result = await app.deleteRole('role', userId)
 
     expect(result).toEqual(ok(undefined))
+  })
+})
+
+describe('setDefaultRole()', () => {
+  test('should set the default role', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [AuthorizationPermission.SetDefaultRole],
+    })
+    const r1 = await app.createRole('role', new Set(), undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+
+    const result = await app.setDefaultRole('role', userId)
+
+    expect(result).toEqual(ok(undefined))
+  })
+
+  test('should error if the role does not exist', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [AuthorizationPermission.SetDefaultRole],
+    })
+
+    const result = await app.setDefaultRole('role', userId)
+
+    expect(result).toEqual(err(new RoleNotFoundError('role')))
+  })
+
+  test('should error if the user does not have the required permission', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [],
+    })
+    const r1 = await app.createRole('role', new Set(), undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+
+    const result = await app.setDefaultRole('role', userId)
+
+    expect(result).toEqual(err(new UnauthorizedError()))
   })
 })
 
@@ -218,5 +268,44 @@ describe('checkMyPermission()', () => {
     const hasPermission = await app.checkMyPermission('permission', userId)
 
     expect(hasPermission).toBe(false)
+  })
+
+  test('should return true for a default permission if no user id is provided', async () => {
+    const { app } = await setup()
+    const r1 = await app.createPermission('permission', undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+    const r2 = await app.createRole('role', new Set(['permission']), undefined, SYSTEM_USER_ID)
+    expect(r2).toEqual(ok(undefined))
+    const r3 = await app.setDefaultRole('role', SYSTEM_USER_ID)
+    expect(r3).toEqual(ok(undefined))
+
+    const hasPermission = await app.checkMyPermission('permission', undefined)
+
+    expect(hasPermission).toBe(true)
+  })
+})
+
+describe('getMyPermissions()', () => {
+  test('should return the default permissions if there is a default role and no user id is provided', async () => {
+    const { app } = await setup()
+    const r1 = await app.createPermission(
+      'authorization:get-own-permissions',
+      undefined,
+      SYSTEM_USER_ID,
+    )
+    expect(r1).toEqual(ok(undefined))
+    const r2 = await app.createRole(
+      'role',
+      new Set(['authorization:get-own-permissions']),
+      undefined,
+      SYSTEM_USER_ID,
+    )
+    expect(r2).toEqual(ok(undefined))
+    const r3 = await app.setDefaultRole('role', SYSTEM_USER_ID)
+    expect(r3).toEqual(ok(undefined))
+
+    const permissions = await app.getMyPermissions(undefined)
+
+    expect(permissions).toEqual(ok(new Set(['authorization:get-own-permissions'])))
   })
 })

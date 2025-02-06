@@ -50,6 +50,13 @@ export class AuthorizationApplication {
       .map((authorizer) => this.repo.save(authorizer))
   }
 
+  setDefaultRole(name: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.SetDefaultRole)
+      .map(() => this.repo.get())
+      .andThrough((authorizer) => authorizer.setDefaultRole(name))
+      .map((authorizer) => this.repo.save(authorizer))
+  }
+
   assignRoleToUser(userId: number, roleName: string, requestorUserId: number) {
     return this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
       .map(() => this.repo.get())
@@ -57,7 +64,7 @@ export class AuthorizationApplication {
       .map((authorizer) => this.repo.save(authorizer))
   }
 
-  async checkMyPermission(permission: string, requestorUserId: number) {
+  async checkMyPermission(permission: string, requestorUserId: number | undefined) {
     const authorizer = await this.repo.get()
     return authorizer.hasPermission(requestorUserId, permission)
   }
@@ -68,7 +75,7 @@ export class AuthorizationApplication {
       .map((authorizer) => authorizer.hasPermission(userId, permission))
   }
 
-  getMyPermissions(requestorUserId: number) {
+  getMyPermissions(requestorUserId: number | undefined) {
     return this.checkPermission(requestorUserId, AuthorizationPermission.GetOwnPermissions)
       .map(() => this.repo.get())
       .map((authorizer) => authorizer.getPermissions(requestorUserId))
@@ -95,10 +102,10 @@ export class AuthorizationApplication {
       Object.entries(roles).map(([role, permissions]) =>
         this.createRole(role, new Set(permissions), undefined, SYSTEM_USER_ID),
       ),
-    )
+    ).andThen(() => this.setDefaultRole('default', SYSTEM_USER_ID))
   }
 
-  private checkPermission(userId: number, permission: string) {
+  private checkPermission(userId: number | undefined, permission: string) {
     if (userId === SYSTEM_USER_ID) return okAsync(undefined)
 
     return ResultAsync.fromSafePromise(this.repo.get())

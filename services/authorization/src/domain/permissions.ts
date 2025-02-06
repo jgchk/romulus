@@ -5,6 +5,7 @@ export const AuthorizationPermission = {
   DeletePermissions: 'authorization:delete-permissions',
   CreateRoles: 'authorization:create-roles',
   DeleteRoles: 'authorization:delete-roles',
+  SetDefaultRole: 'authorization:set-default-role',
   AssignRoles: 'authorization:assign-roles',
   CheckUserPermissions: 'authorization:check-user-permissions',
   CheckOwnPermissions: 'authorization:check-own-permissions',

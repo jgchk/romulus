@@ -4,12 +4,14 @@ import { err, ok, type Result } from 'neverthrow'
 export class Authorizer {
   private permissions: Map<string, Permission>
   private roles: Map<string, Role>
+  private defaultRole: string | undefined
   private userRoles: Map<number, Set<string>>
   private uncommittedEvents: AuthorizerEvent[]
 
   private constructor() {
     this.permissions = new Map()
     this.roles = new Map()
+    this.defaultRole = undefined
     this.userRoles = new Map()
     this.uncommittedEvents = []
   }
@@ -17,11 +19,13 @@ export class Authorizer {
   static fromState(
     permissions: Map<string, Permission>,
     roles: Map<string, Role>,
+    defaultRole: string | undefined,
     userRoles: Map<number, Set<string>>,
   ): Authorizer {
     const authorizer = new Authorizer()
     authorizer.permissions = permissions
     authorizer.roles = roles
+    authorizer.defaultRole = defaultRole
     authorizer.userRoles = userRoles
     return authorizer
   }
@@ -93,6 +97,18 @@ export class Authorizer {
     this.addEvent(event)
   }
 
+  setDefaultRole(name: string): Result<void, RoleNotFoundError> {
+    if (!this.roles.has(name)) {
+      return err(new RoleNotFoundError(name))
+    }
+
+    const event = new DefaultRoleSetEvent(name)
+    this.applyEvent(event)
+    this.addEvent(event)
+
+    return ok(undefined)
+  }
+
   assignRoleToUser(userId: number, roleName: string): Result<void, RoleNotFoundError> {
     if (!this.roles.has(roleName)) {
       return err(new RoleNotFoundError(roleName))
@@ -120,6 +136,8 @@ export class Authorizer {
       for (const userRoles of this.userRoles.values()) {
         userRoles.delete(event.name)
       }
+    } else if (event instanceof DefaultRoleSetEvent) {
+      this.defaultRole = event.name
     } else if (event instanceof RoleAssignedToUserEvent) {
       const userRoles = this.userRoles.get(event.userId) ?? new Set()
       userRoles.add(event.roleName)
@@ -133,8 +151,9 @@ export class Authorizer {
     this.uncommittedEvents.push(event)
   }
 
-  hasPermission(userId: number, permission: string): boolean {
-    const userRoles = this.userRoles.get(userId) ?? new Set()
+  hasPermission(userId: number | undefined, permission: string): boolean {
+    const userRoles = this.getUserRoles(userId)
+
     for (const roleName of userRoles) {
       const role = this.roles.get(roleName)
       if (role?.permissions.has(permission)) {
@@ -145,8 +164,9 @@ export class Authorizer {
     return false
   }
 
-  getPermissions(userId: number): Set<string> {
-    const userRoles = this.userRoles.get(userId) ?? new Set()
+  getPermissions(userId: number | undefined): Set<string> {
+    const userRoles = this.getUserRoles(userId)
+
     const permissions = new Set<string>()
     for (const roleName of userRoles) {
       const role = this.roles.get(roleName)
@@ -157,6 +177,13 @@ export class Authorizer {
       }
     }
     return permissions
+  }
+
+  private getUserRoles(userId: number | undefined) {
+    return new Set([
+      ...(userId !== undefined ? (this.userRoles.get(userId) ?? []) : []),
+      ...(this.defaultRole !== undefined ? [this.defaultRole] : []),
+    ])
   }
 
   getAllPermissions(): Permission[] {
@@ -188,6 +215,7 @@ type AuthorizerEvent =
   | PermissionDeletedEvent
   | RoleCreatedEvent
   | RoleDeletedEvent
+  | DefaultRoleSetEvent
   | RoleAssignedToUserEvent
 
 export class PermissionCreatedEvent {
@@ -210,6 +238,10 @@ export class RoleCreatedEvent {
 }
 
 export class RoleDeletedEvent {
+  constructor(public readonly name: string) {}
+}
+
+export class DefaultRoleSetEvent {
   constructor(public readonly name: string) {}
 }
 

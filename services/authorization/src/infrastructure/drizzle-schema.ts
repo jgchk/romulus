@@ -1,6 +1,13 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, primaryKey, text } from 'drizzle-orm/pg-core'
 
+export const defaultRoleTable = pgTable('default_role', {
+  roleName: text('role_name')
+    .primaryKey()
+    .notNull()
+    .references(() => rolesTable.name, { onDelete: 'cascade' }),
+})
+
 export const permissionsTable = pgTable('permissions', {
   name: text('name').primaryKey().notNull(),
   description: text('description'),

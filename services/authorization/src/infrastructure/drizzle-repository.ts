@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import { Authorizer } from '../domain/authorizer.js'
+import { Authorizer, DefaultRoleSetEvent } from '../domain/authorizer.js'
 import { Role, RoleAssignedToUserEvent } from '../domain/authorizer.js'
 import {
   Permission,
@@ -12,6 +12,7 @@ import { PermissionCreatedEvent } from '../domain/authorizer.js'
 import type { IAuthorizerRepository } from '../domain/repository.js'
 import type { IDrizzleConnection } from './drizzle-database.js'
 import {
+  defaultRoleTable,
   permissionsTable,
   rolePermissionsTable,
   rolesTable,
@@ -55,7 +56,11 @@ export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
       userRolesMap.set(ur.userId, roles)
     }
 
-    return Authorizer.fromState(permissionsMap, rolesMap, userRolesMap)
+    const defaultRole = await this.db.query.defaultRoleTable
+      .findFirst()
+      .then((row) => row?.roleName)
+
+    return Authorizer.fromState(permissionsMap, rolesMap, defaultRole, userRolesMap)
   }
 
   async save(authorizer: Authorizer) {
@@ -77,30 +82,35 @@ export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
       } else if (event instanceof PermissionDeletedEvent) {
         await this.db.delete(permissionsTable).where(eq(permissionsTable.name, event.name))
       } else if (event instanceof RoleCreatedEvent) {
-        await this.db
-          .insert(rolesTable)
-          .values({
-            name: event.name,
-            description: event.description,
-          })
-          .onConflictDoUpdate({
-            target: [rolesTable.name],
-            set: {
-              description: event.description ?? null,
-            },
-          })
+        await this.db.transaction(async (tx) => {
+          await tx
+            .insert(rolesTable)
+            .values({
+              name: event.name,
+              description: event.description,
+            })
+            .onConflictDoUpdate({
+              target: [rolesTable.name],
+              set: {
+                description: event.description ?? null,
+              },
+            })
 
-        await this.db
-          .delete(rolePermissionsTable)
-          .where(eq(rolePermissionsTable.roleName, event.name))
-        await this.db.insert(rolePermissionsTable).values(
-          [...event.permissions].map((p) => ({
-            roleName: event.name,
-            permissionName: p,
-          })),
-        )
+          await tx.delete(rolePermissionsTable).where(eq(rolePermissionsTable.roleName, event.name))
+          await tx.insert(rolePermissionsTable).values(
+            [...event.permissions].map((p) => ({
+              roleName: event.name,
+              permissionName: p,
+            })),
+          )
+        })
       } else if (event instanceof RoleDeletedEvent) {
         await this.db.delete(rolesTable).where(eq(rolesTable.name, event.name))
+      } else if (event instanceof DefaultRoleSetEvent) {
+        await this.db.transaction(async (tx) => {
+          await tx.delete(defaultRoleTable)
+          await tx.insert(defaultRoleTable).values({ roleName: event.name })
+        })
       } else if (event instanceof RoleAssignedToUserEvent) {
         await this.db
           .insert(userRolesTable)

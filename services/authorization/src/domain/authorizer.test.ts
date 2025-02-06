@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import {
   Authorizer,
+  DefaultRoleSetEvent,
   DuplicatePermissionError,
   Permission,
   PermissionCreatedEvent,
@@ -223,6 +224,99 @@ describe('hasPermission()', () => {
 
     expect(authorizer.hasPermission(0, 'permission')).toBe(false)
   })
+
+  test('should return true if the permission is part of the default role', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+    ])
+
+    expect(authorizer.hasPermission(0, 'permission')).toBe(true)
+  })
+
+  test('should return true if the permission is part of the default role and no user id is provided', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+    ])
+
+    expect(authorizer.hasPermission(undefined, 'permission')).toBe(true)
+  })
+
+  test('should return false if the permission was part of a deleted default role', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+      new RoleDeletedEvent('role'),
+    ])
+
+    expect(authorizer.hasPermission(0, 'permission')).toEqual(false)
+  })
+})
+
+describe('getPermissions()', () => {
+  test('should return nothing if the user has no permissions', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    expect(authorizer.getPermissions(0)).toEqual(new Set())
+  })
+
+  test('should return the user permissions', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new RoleAssignedToUserEvent(0, 'role'),
+    ])
+
+    expect(authorizer.getPermissions(0)).toEqual(new Set(['permission']))
+  })
+
+  test('should return the default permissions if there is a default role', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+    ])
+
+    expect(authorizer.getPermissions(0)).toEqual(new Set(['permission']))
+  })
+
+  test('should return the default permissions if there is a default role and no user id is provided', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+    ])
+
+    expect(authorizer.getPermissions(undefined)).toEqual(new Set(['permission']))
+  })
+
+  test('should merge user roles and default role permissions', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('user-permission', undefined),
+      new PermissionCreatedEvent('default-permission', undefined),
+      new RoleCreatedEvent('user-role', new Set(['user-permission']), undefined),
+      new RoleCreatedEvent('default-role', new Set(['default-permission']), undefined),
+      new RoleAssignedToUserEvent(0, 'user-role'),
+      new DefaultRoleSetEvent('default-role'),
+    ])
+
+    expect(authorizer.getPermissions(0)).toEqual(new Set(['user-permission', 'default-permission']))
+  })
+
+  test('should not return default permissions if the default role was deleted', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new DefaultRoleSetEvent('role'),
+      new RoleDeletedEvent('role'),
+    ])
+
+    expect(authorizer.getPermissions(0)).toEqual(new Set([]))
+  })
 })
 
 describe('getAllPermissions()', () => {
@@ -242,5 +336,37 @@ describe('getAllPermissions()', () => {
       new Permission('permission1', undefined),
       new Permission('permission2', undefined),
     ])
+  })
+})
+
+describe('setDefaultRole()', () => {
+  test('should set the default role', () => {
+    const authorizer = Authorizer.fromEvents([new RoleCreatedEvent('role', new Set(), undefined)])
+
+    const result = authorizer.setDefaultRole('role')
+    expect(result).toEqual(ok(undefined))
+
+    expect(authorizer.getUncommittedEvents()).toEqual([new DefaultRoleSetEvent('role')])
+  })
+
+  test('should overwrite the default role', () => {
+    const authorizer = Authorizer.fromEvents([
+      new RoleCreatedEvent('role', new Set(), undefined),
+      new RoleCreatedEvent('newRole', new Set(), undefined),
+      new DefaultRoleSetEvent('role'),
+    ])
+
+    const result = authorizer.setDefaultRole('newRole')
+    expect(result).toEqual(ok(undefined))
+
+    expect(authorizer.getUncommittedEvents()).toEqual([new DefaultRoleSetEvent('newRole')])
+  })
+
+  test('should error if the role does not exist', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    const result = authorizer.setDefaultRole('role')
+
+    expect(result).toEqual(err(new RoleNotFoundError('role')))
   })
 })
