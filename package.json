@@ -3,16 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.2.0",
   "scripts": {
-    "dev": "pnpm -r --workspace-concurrency=Infinity --no-sort dev",
-    "lint": "pnpm -r lint",
-    "lint:fix": "pnpm -r lint:fix",
-    "format": "pnpm -r format",
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "test:unit": "pnpm -r test:unit",
-    "test:e2e": "pnpm -r test:e2e",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "format": "turbo format",
+    "build": "turbo build",
+    "test": "turbo test",
+    "test:unit": "turbo test:unit",
+    "test:e2e": "turbo test:e2e",
     "docker:build": "docker build -t romulus .",
     "docker:run": "docker run --network host -p 3000:3000 --env-file .env.docker romulus"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0"
   }
 }
