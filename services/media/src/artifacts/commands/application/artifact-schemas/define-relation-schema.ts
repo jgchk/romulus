@@ -21,7 +21,7 @@ export type DefineRelationSchemaCommandHandler = ReturnType<
 >
 
 export function createDefineRelationSchemaCommandHandler(
-  saveRelationSchemaEvent: (event: RelationSchemaDefinedEvent) => Promise<void>,
+  saveRelationSchemaEvent: (event: RelationSchemaDefinedEvent) => Promise<void> | void,
 ) {
   return async function (command: DefineRelationSchemaCommand) {
     const result = defineRelationSchema({ relationSchema: command.relationSchema })

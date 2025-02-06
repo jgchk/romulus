@@ -226,17 +226,17 @@ export function createGenresApplication(infrastructure: Infrastructure) {
 
 export function createMediaApplication(infrastructure: Infrastructure) {
   return {
-    handleDefineArtifactSchemaCommand: createDefineArtifactSchemaCommandHandler(async (event) => {
+    handleDefineArtifactSchemaCommand: createDefineArtifactSchemaCommandHandler((event) => {
       infrastructure.media.applyEvent(event)
     }),
-    handleDefineRelationSchemaCommand: createDefineRelationSchemaCommandHandler(async (event) => {
+    handleDefineRelationSchemaCommand: createDefineRelationSchemaCommandHandler((event) => {
       infrastructure.media.applyEvent(event)
     }),
     handleRegisterArtifactCommand: createRegisterArtifactCommandHandler(
       (id) => {
         return Promise.resolve(infrastructure.media.get().artifactSchemas.get(id))
       },
-      async (event) => {
+      (event) => {
         infrastructure.media.applyEvent(event)
       },
     ),
@@ -247,7 +247,7 @@ export function createMediaApplication(infrastructure: Infrastructure) {
         const targetArtifact = infrastructure.media.get().artifacts.get(ids.targetArtifactId)
         return Promise.resolve({ schema, sourceArtifact, targetArtifact })
       },
-      async (event) => {
+      (event) => {
         infrastructure.media.applyEvent(event)
       },
     ),

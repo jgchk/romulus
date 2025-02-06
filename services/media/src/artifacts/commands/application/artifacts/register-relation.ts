@@ -25,7 +25,7 @@ export function createRegisterRelationCommandHandler(
     sourceArtifact: Artifact | undefined
     targetArtifact: Artifact | undefined
   }>,
-  saveRelationEvent: (event: RelationRegisteredEvent) => Promise<void>,
+  saveRelationEvent: (event: RelationRegisteredEvent) => Promise<void> | void,
 ) {
   return async function (command: RegisterRelationCommand) {
     const { schema, sourceArtifact, targetArtifact } = await getState({

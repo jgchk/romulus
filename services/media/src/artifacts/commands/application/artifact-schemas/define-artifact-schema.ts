@@ -15,7 +15,7 @@ export type DefineArtifactSchemaCommandHandler = ReturnType<
 >
 
 export function createDefineArtifactSchemaCommandHandler(
-  saveArtifactSchemaEvent: (event: ArtifactSchemaDefinedEvent) => Promise<void>,
+  saveArtifactSchemaEvent: (event: ArtifactSchemaDefinedEvent) => Promise<void> | void,
 ) {
   return async function (command: DefineArtifactSchemaCommand) {
     const result = defineArtifactSchema({ artifactSchema: command.artifactSchema })

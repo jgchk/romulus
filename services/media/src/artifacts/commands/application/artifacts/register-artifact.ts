@@ -13,7 +13,7 @@ export type RegisterArtifactCommandHandler = ReturnType<typeof createRegisterArt
 
 export function createRegisterArtifactCommandHandler(
   getArtifactSchema: (id: string) => Promise<ArtifactSchema | undefined>,
-  saveArtifactEvent: (event: ArtifactRegisteredEvent) => Promise<void>,
+  saveArtifactEvent: (event: ArtifactRegisteredEvent) => Promise<void> | void,
 ) {
   return async function (command: RegisterArtifactCommand) {
     const schema = await getArtifactSchema(command.artifact.schema)
