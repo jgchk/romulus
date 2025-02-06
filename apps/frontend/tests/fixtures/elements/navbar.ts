@@ -8,4 +8,10 @@ export class Navbar {
     this.accountDropdown = this.page.getByRole('button', { name: 'Account Dropdown' })
     this.logOutButton = this.page.getByRole('button', { name: 'Sign Out' })
   }
+
+  async signOut() {
+    await this.accountDropdown.click()
+    await this.logOutButton.click()
+    await this.page.waitForResponse('/sign-out')
+  }
 }

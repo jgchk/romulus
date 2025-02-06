@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
+import { GenresPage } from './genres'
+
 export class SignUpPage {
   static readonly url = '/sign-up'
 
@@ -19,5 +21,13 @@ export class SignUpPage {
 
   async goto() {
     await this.page.goto(SignUpPage.url)
+  }
+
+  async signUp(username: string, password: string) {
+    await this.usernameInput.fill(username)
+    await this.passwordInput.fill(password)
+    await this.confirmPasswordInput.fill(password)
+    await this.submitButton.click()
+    await this.page.waitForURL(GenresPage.url)
   }
 }

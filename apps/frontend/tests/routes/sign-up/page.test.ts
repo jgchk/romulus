@@ -22,8 +22,10 @@ test('should show error if password and confirm password do not match', async ({
   await expect(signUpPage.formError).toContainText('Passwords do not match')
 })
 
-test('should show error if username is already taken', async ({ signUpPage }) => {
+test('should show error if username is already taken', async ({ signUpPage, navbar }) => {
+  await signUpPage.goto()
   await signUpPage.signUp(EXISTING_ACCOUNT.username, EXISTING_ACCOUNT.password)
+  await navbar.signOut()
 
   await signUpPage.goto()
   await signUpPage.usernameInput.fill(EXISTING_ACCOUNT.username)
@@ -54,9 +56,7 @@ test('should be able to log in after successful sign up', async ({
   await signUpPage.submitButton.click()
   await expect(signUpPage.page).toHaveURL(GenresPage.url)
 
-  await navbar.accountDropdown.click()
-  await navbar.logOutButton.click()
-  await expect(navbar.accountDropdown).not.toBeVisible()
+  await navbar.signOut()
 
   await signInPage.goto()
   await signInPage.usernameInput.fill(NEW_ACCOUNT.username)
