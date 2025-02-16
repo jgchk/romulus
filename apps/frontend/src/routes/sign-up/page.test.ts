@@ -3,18 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { expect, it } from 'vitest'
+import type { z } from 'zod'
 
 import { DEFAULT_USER_SETTINGS } from '$lib/contexts/user-settings/types'
 
 import SignUpPage from './+page.svelte'
 import { signUpSchema } from './common'
-import type { z } from 'zod'
 
 async function setup({ form }: { form?: SuperValidated<z.infer<typeof signUpSchema>> } = {}) {
   const returned = render(SignUpPage, {
     props: {
       data: {
-        user: mockUser,
+        user: undefined,
         settings: DEFAULT_USER_SETTINGS,
         form:
           form ??
@@ -40,26 +40,6 @@ async function setup({ form }: { form?: SuperValidated<z.infer<typeof signUpSche
     getSubmitButton,
     getFormError,
   }
-}
-
-const mockUser = {
-  id: 0,
-  username: 'username',
-  darkMode: false,
-  genreRelevanceFilter: 0,
-  showRelevanceTags: false,
-  showTypeTags: false,
-  showNsfw: false,
-  permissions: {
-    genres: {
-      canCreate: true,
-      canEdit: true,
-      canDelete: true,
-      canVoteRelevance: true,
-    },
-  },
-  createdAt: new Date(),
-  updatedAt: new Date(),
 }
 
 it('should tab between username, password, confirm password, and submit fields', async () => {
