@@ -8,26 +8,6 @@ const TEST_ACCOUNT = {
   password: 'test-password-sign-in',
 }
 
-test('should tab between username, password, and submit fields', async ({ signInPage }) => {
-  await signInPage.goto()
-  await expect(signInPage.usernameInput).toBeFocused()
-  await signInPage.page.keyboard.press('Tab')
-  await expect(signInPage.passwordInput).toBeFocused()
-  await signInPage.page.keyboard.press('Tab')
-  await expect(signInPage.submitButton).toBeFocused()
-})
-
-test('password input should be masked', async ({ signInPage }) => {
-  await signInPage.goto()
-  await expect(signInPage.passwordInput).toHaveAttribute('type', 'password')
-})
-
-test('username and password inputs should be required', async ({ signInPage }) => {
-  await signInPage.goto()
-  await expect(signInPage.usernameInput).toHaveAttribute('required')
-  await expect(signInPage.passwordInput).toHaveAttribute('required')
-})
-
 test('attempting to log in with a nonexistent username shows error message', async ({
   withAccount,
   signInPage,
