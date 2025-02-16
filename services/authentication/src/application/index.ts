@@ -1,6 +1,7 @@
 import { AuthenticationPermission } from '../domain/permissions.js'
 
 export { CreateApiKeyCommand } from './commands/create-api-key.js'
+export { DeleteAccountCommand } from './commands/delete-account.js'
 export { DeleteApiKeyCommand } from './commands/delete-api-key.js'
 export { GetAccountQuery } from './commands/get-account.js'
 export { GetAccountsQuery } from './commands/get-accounts.js'

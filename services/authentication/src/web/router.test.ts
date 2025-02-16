@@ -3,6 +3,7 @@ import { describe, expect } from 'vitest'
 
 import {
   CreateApiKeyCommand,
+  DeleteAccountCommand,
   DeleteApiKeyCommand,
   GetAccountQuery,
   GetAccountsQuery,
@@ -44,6 +45,7 @@ function setup(dbConnection: IDrizzleConnection) {
         di.sessionTokenHashRepository(),
         di.sessionTokenGenerator(),
       ),
+    deleteAccountCommand: () => new DeleteAccountCommand(di.accountRepository(), authorization),
     requestPasswordResetCommand: () =>
       new RequestPasswordResetCommand(
         di.passwordResetTokenRepository(),
@@ -282,6 +284,64 @@ describe('register', () => {
         message: 'Username is already taken',
         statusCode: 409,
       },
+    })
+  })
+})
+
+describe('delete-account', () => {
+  test('should error if the authorization header is empty', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.accounts[':id'].$delete({
+      param: { id: 1 },
+      header: { authorization: '' },
+    })
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthorizedError',
+        message: 'You are not authorized to perform this action',
+        statusCode: 401,
+      },
+    })
+  })
+
+  test('should error if the user is not authorized', async ({ dbConnection }) => {
+    const { client, registerTestUser, authorization } = setup(dbConnection)
+    const { sessionToken } = await registerTestUser({ username: 'user1' })
+    authorization.hasPermission.mockResolvedValue(false)
+
+    const res = await client.accounts[':id'].$delete({
+      param: { id: 99 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({
+      success: false,
+      error: {
+        message: 'You are not authorized to perform this action',
+        name: 'UnauthorizedError',
+        statusCode: 401,
+      },
+    })
+  })
+
+  test('should delete a user', async ({ dbConnection }) => {
+    const { client, registerTestUser } = setup(dbConnection)
+
+    const { sessionToken } = await registerTestUser()
+
+    const res = await client.accounts[':id'].$delete({
+      param: { id: 1 },
+      header: { authorization: `Bearer ${sessionToken}` },
+    })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      success: true,
     })
   })
 })

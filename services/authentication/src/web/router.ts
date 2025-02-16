@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { CustomError } from '@romulus/custom-error'
 
 import type { CreateApiKeyCommand } from '../application/commands/create-api-key.js'
+import type { DeleteAccountCommand } from '../application/commands/delete-account.js'
 import type { DeleteApiKeyCommand } from '../application/commands/delete-api-key.js'
 import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-api-key.js'
 import type { GetAccountQuery } from '../application/commands/get-account.js'
@@ -24,6 +25,7 @@ import { UnauthorizedError } from '../domain/errors/unauthorized.js'
 import { getBearerAuthToken } from './bearer-auth-middleware.js'
 import {
   createApiKeyRoute,
+  deleteAccountRoute,
   deleteApiKeyRoute,
   getAccountRoute,
   getAccountsRoute,
@@ -44,6 +46,7 @@ export type AuthorizationRouterDependencies = {
   loginCommand(): LoginCommand
   logoutCommand(): LogoutCommand
   registerCommand(): RegisterCommand
+  deleteAccountCommand(): DeleteAccountCommand
   requestPasswordResetCommand(): RequestPasswordResetCommand
   resetPasswordCommand(): ResetPasswordCommand
   whoamiQuery(): WhoamiQuery
@@ -150,6 +153,57 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
         } as const,
         200,
       )
+    })
+
+    .openapi(deleteAccountRoute, async (c) => {
+      const { id } = c.req.valid('param')
+
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: whoamiResult.message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const result = await di.deleteAccountCommand().execute(id, whoamiResult.account.id)
+      if (result instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: result.message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      return c.json({ success: true } as const, 200)
     })
 
     .openapi(requestPasswordResetRoute, async (c) => {

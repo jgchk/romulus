@@ -179,6 +179,54 @@ export const registerRoute = createRoute({
   },
 })
 
+export const deleteAccountRoute = createRoute({
+  method: 'delete',
+  path: '/accounts/{id}',
+  security: [{ Bearer: [] }],
+  request: {
+    headers: HeadersSchema,
+    params: z.object({ id: z.coerce.number().int() }),
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(true),
+          }),
+        },
+      },
+      description: 'The password reset link for the user',
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: ValidationErrorSchema,
+          }),
+        },
+      },
+      description: 'The request is invalid',
+    },
+    401: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: z.object({
+              name: z.literal('UnauthorizedError'),
+              message: z.string(),
+              statusCode: z.literal(401),
+            }),
+          }),
+        },
+      },
+      description: 'The user is not authorized to perform this action',
+    },
+  },
+})
+
 export const requestPasswordResetRoute = createRoute({
   method: 'post',
   path: '/request-password-reset/{userId}',

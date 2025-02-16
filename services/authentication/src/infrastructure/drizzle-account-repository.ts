@@ -89,6 +89,10 @@ export class DrizzleAccountRepository implements AccountRepository {
       })
       .where(eq(accountsTable.id, id))
   }
+
+  async delete(id: number): Promise<void> {
+    await this.db.delete(accountsTable).where(eq(accountsTable.id, id))
+  }
 }
 
 function isPostgresError(error: unknown, code: string, constraint: string): boolean {
