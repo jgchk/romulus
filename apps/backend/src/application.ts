@@ -1,5 +1,6 @@
 import {
   CreateApiKeyCommand,
+  DeleteAccountCommand,
   DeleteApiKeyCommand,
   GetAccountQuery,
   GetAccountsQuery,
@@ -40,6 +41,12 @@ import { UserSettingsApplication } from '@romulus/user-settings/application'
 import type { Infrastructure } from './infrastructure'
 
 export function createAuthenticationApplication(infrastructure: Infrastructure) {
+  const authorization = {
+    hasPermission(userId: number, permission: string) {
+      return createAuthorizationApplication(infrastructure).checkMyPermission(permission, userId)
+    },
+  }
+
   return {
     loginCommand() {
       return new LoginCommand(
@@ -65,20 +72,16 @@ export function createAuthenticationApplication(infrastructure: Infrastructure) 
         infrastructure.authentication.sessionTokenGenerator(),
       )
     },
+    deleteAccountCommand() {
+      return new DeleteAccountCommand(infrastructure.authentication.accountRepo(), authorization)
+    },
     requestPasswordResetCommand() {
       return new RequestPasswordResetCommand(
         infrastructure.authentication.passwordResetTokenRepo(),
         infrastructure.authentication.passwordResetTokenGenerator(),
         infrastructure.authentication.passwordResetTokenHashRepo(),
         infrastructure.authentication.accountRepo(),
-        {
-          hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure).checkMyPermission(
-              permission,
-              userId,
-            )
-          },
-        },
+        authorization,
       )
     },
     resetPasswordCommand() {
