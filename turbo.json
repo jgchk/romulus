@@ -8,6 +8,9 @@
     "lint": {
       "dependsOn": ["^lint"]
     },
+    "lint:fix": {
+      "dependsOn": ["^lint:fix"]
+    },
     "dev": {
       "dependsOn": ["^build"],
       "persistent": true,
