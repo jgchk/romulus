@@ -6,11 +6,15 @@ import type { Handle } from '@sveltejs/kit'
 import { PUBLIC_API_BASE_URL } from '$env/static/public'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'
 
-import { CompositionRoot } from './composition-root'
+import { createCompositionRoot } from './composition-root'
 
 export const handle: Handle = async ({ event, resolve }) => {
   const sessionToken = getSessionCookie(event.cookies)
-  event.locals.di = new CompositionRoot(PUBLIC_API_BASE_URL, sessionToken)
+  event.locals.di = createCompositionRoot({
+    baseUrl: PUBLIC_API_BASE_URL,
+    sessionToken,
+    fetch: event.fetch,
+  })
 
   event.locals.user = await getUser(
     sessionToken,

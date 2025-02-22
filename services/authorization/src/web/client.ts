@@ -10,9 +10,15 @@ export class AuthorizationClient {
   private client: ReturnType<typeof hc<Router>>
   private sessionToken: string | undefined
 
-  constructor(baseUrl: string, sessionToken: string | undefined) {
-    this.client = hc<Router>(baseUrl, { fetch: createExponentialBackoffFetch(fetch) })
-    this.sessionToken = sessionToken
+  constructor(options: {
+    baseUrl: string
+    sessionToken: string | undefined
+    fetch?: typeof fetch
+  }) {
+    this.client = hc<Router>(options.baseUrl, {
+      fetch: createExponentialBackoffFetch(options.fetch ?? fetch),
+    })
+    this.sessionToken = options.sessionToken
   }
 
   createPermission(name: string, description: string | undefined) {

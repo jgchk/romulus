@@ -1,6 +1,5 @@
-import { FetchError } from '@romulus/authentication/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate, setError } from 'sveltekit-superforms'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { setSessionCookie } from '$lib/cookie'

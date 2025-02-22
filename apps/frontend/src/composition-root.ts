@@ -1,27 +1,67 @@
 import { AuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresClient } from '@romulus/genres/client'
-import { type IUserSettingsClient, UserSettingsClient } from '@romulus/user-settings/client'
+import { UserSettingsClient } from '@romulus/user-settings/client'
 
-export class CompositionRoot {
-  constructor(
-    private apiBaseUrl: string,
-    private sessionToken: string | undefined,
-  ) {}
+export type CompositionRoot = ReturnType<typeof createCompositionRoot>
 
-  authentication() {
-    return new AuthenticationClient(`${this.apiBaseUrl}/authentication`, this.sessionToken)
+export function createCompositionRoot(options: {
+  baseUrl: string
+  sessionToken: string
+  fetch: typeof fetch
+}) {
+  return {
+    authentication: () => createAuthenticationClient(options),
+    authorization: () => createAuthorizationClient(options),
+    userSettings: () => createUserSettingsClient(options),
+    genres: () => createGenresClient(options),
   }
+}
 
-  authorization() {
-    return new AuthorizationClient(`${this.apiBaseUrl}/authorization`, this.sessionToken)
-  }
+function createAuthenticationClient(options: {
+  baseUrl: string
+  sessionToken: string
+  fetch: typeof fetch
+}) {
+  return new AuthenticationClient({
+    baseUrl: `${options.baseUrl}/authentication`,
+    sessionToken: options.sessionToken,
+    fetch: options.fetch,
+  })
+}
 
-  userSettings(): IUserSettingsClient {
-    return new UserSettingsClient(`${this.apiBaseUrl}/user-settings`, this.sessionToken)
-  }
+function createAuthorizationClient(options: {
+  baseUrl: string
+  sessionToken: string
+  fetch: typeof fetch
+}) {
+  return new AuthorizationClient({
+    baseUrl: `${options.baseUrl}/authorization`,
+    sessionToken: options.sessionToken,
+    fetch: options.fetch,
+  })
+}
 
-  genres() {
-    return new GenresClient(`${this.apiBaseUrl}/genres`, this.sessionToken)
-  }
+function createUserSettingsClient(options: {
+  baseUrl: string
+  sessionToken: string
+  fetch: typeof fetch
+}) {
+  return new UserSettingsClient({
+    baseUrl: `${options.baseUrl}/user-settings`,
+    sessionToken: options.sessionToken,
+    fetch: options.fetch,
+  })
+}
+
+function createGenresClient(options: {
+  baseUrl: string
+  sessionToken: string
+  fetch: typeof fetch
+}) {
+  return new GenresClient({
+    baseUrl: `${options.baseUrl}/genres`,
+    sessionToken: options.sessionToken,
+    fetch: options.fetch,
+  })
 }

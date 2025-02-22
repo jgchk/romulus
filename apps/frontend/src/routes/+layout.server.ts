@@ -1,5 +1,6 @@
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
+
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = async ({ locals }) => {

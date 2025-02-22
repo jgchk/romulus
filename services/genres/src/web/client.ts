@@ -1,4 +1,5 @@
 import { CustomError } from '@romulus/custom-error'
+import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import type { InferRequestType, InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -15,9 +16,15 @@ export class GenresClient {
   private client: ReturnType<typeof hc<GenresRouter>>
   private sessionToken: string | undefined
 
-  constructor(baseUrl: string, sessionToken: string | undefined) {
-    this.client = hc<GenresRouter>(baseUrl)
-    this.sessionToken = sessionToken
+  constructor(options: {
+    baseUrl: string
+    sessionToken: string | undefined
+    fetch?: typeof fetch
+  }) {
+    this.client = hc<GenresRouter>(options.baseUrl, {
+      fetch: createExponentialBackoffFetch(options.fetch ?? fetch),
+    })
+    this.sessionToken = options.sessionToken
   }
 
   async createGenre(body: InferRequestType<typeof this.client.genres.$post>['json']) {

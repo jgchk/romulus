@@ -41,6 +41,7 @@
     "@hono/zod-openapi": "^0.18.3",
     "@hono/zod-validator": "^0.4.1",
     "@romulus/custom-error": "workspace:*",
+    "@romulus/fetch-retry": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/ramda": "^0.30.2",
     "bcryptjs": "^2.4.3",

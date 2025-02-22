@@ -1,52 +1,23 @@
 import { CustomError } from '@romulus/custom-error'
+import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import type { UserSettingsRouter } from './router'
 
-export type IUserSettingsClient = {
-  getUserSettings(): Promise<
-    | {
-        readonly success: true
-        readonly settings: {
-          readonly genreRelevanceFilter: number | null
-          readonly showRelevanceTags: boolean
-          readonly showTypeTags: boolean
-          readonly showNsfw: boolean
-          readonly darkMode: boolean
-        }
-      }
-    | UserSettingsClientError
-  >
-
-  updateUserSettings(body: {
-    genreRelevanceFilter: number | undefined
-    showRelevanceTags: boolean
-    showTypeTags: boolean
-    showNsfw: boolean
-    darkMode: boolean
-  }): Promise<
-    | {
-        readonly success: true
-        readonly settings: {
-          genreRelevanceFilter: number | null
-          showRelevanceTags: boolean
-          showTypeTags: boolean
-          showNsfw: boolean
-          darkMode: boolean
-        }
-      }
-    | UserSettingsClientError
-  >
-}
-
-export class UserSettingsClient implements IUserSettingsClient {
+export class UserSettingsClient {
   private client: ReturnType<typeof hc<UserSettingsRouter>>
   private sessionToken: string | undefined
 
-  constructor(baseUrl: string, sessionToken: string | undefined) {
-    this.client = hc<UserSettingsRouter>(baseUrl)
-    this.sessionToken = sessionToken
+  constructor(options: {
+    baseUrl: string
+    sessionToken: string | undefined
+    fetch?: typeof fetch
+  }) {
+    this.client = hc<UserSettingsRouter>(options.baseUrl, {
+      fetch: createExponentialBackoffFetch(options.fetch ?? fetch),
+    })
+    this.sessionToken = options.sessionToken
   }
 
   async getUserSettings() {
