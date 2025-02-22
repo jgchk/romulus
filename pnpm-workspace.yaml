@@ -1,6 +1,7 @@
 packages:
   - "apps/backend"
   - "apps/frontend"
+  - "migrations/monolith-to-modules"
   - "packages/custom-error"
   - "packages/eslint-config"
   - "packages/eslint-plugin-returned-errors"

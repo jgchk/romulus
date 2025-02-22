@@ -1,0 +1,30 @@
+{
+  "name": "@romulus/monolith-to-modules-migration",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm test:unit run",
+    "test:unit": "vitest",
+    "lint": "prettier --check . && tsc --noEmit && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write .",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@romulus/authentication": "workspace:*",
+    "arktype": "^2.0.4",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.12",
+    "@romulus/eslint-config": "workspace:*",
+    "@types/node": "^20.14.15",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.27.0",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

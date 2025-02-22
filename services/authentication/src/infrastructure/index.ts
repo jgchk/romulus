@@ -16,6 +16,9 @@ import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postg
 import { DrizzleSessionRepository } from './drizzle-session-repository.js'
 import { Sha256HashRepository } from './sha256-hash-repository.js'
 
+export * as pg from './drizzle-postgres-connection.js'
+export * as pglite from './drizzle-pglite-connection.js'
+
 export class AuthenticationInfrastructure {
   private constructor(
     private pg: Sql,
