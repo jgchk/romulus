@@ -274,6 +274,9 @@ importers:
       '@romulus/authentication':
         specifier: workspace:*
         version: link:../../services/authentication
+      '@romulus/user-settings':
+        specifier: workspace:*
+        version: link:../../services/user-settings
       arktype:
         specifier: ^2.0.4
         version: 2.0.4

@@ -1,10 +1,8 @@
-import { pglite } from '@romulus/authentication/infrastructure'
-
-import { env } from './env.js'
-import type { PGlite } from '@electric-sql/pglite'
 import postgres from 'postgres'
 
-export async function migrateUsers(
+import { env } from '../env.js'
+
+export async function migrateAccounts(
   migrateSchema: () => Promise<void>,
   execQuery: (query: string) => Promise<void>,
 ) {

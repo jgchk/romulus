@@ -1,13 +1,13 @@
 import { pglite } from '@romulus/authentication/infrastructure'
 import { expect } from 'vitest'
 
-import { migrateUsers } from './migrate.js'
-import { test } from './vitest-setup.js'
+import { migrateAccounts } from './accounts.js'
+import { test } from '../vitest-setup.js'
 
-test('should migrate all users', async ({ dbConnection }) => {
+test('should migrate all accounts', async ({ dbConnection }) => {
   const drizzle = pglite.getPGliteDbConnection(dbConnection)
 
-  await migrateUsers(
+  await migrateAccounts(
     async () => {
       await pglite.migratePGlite(drizzle)
     },

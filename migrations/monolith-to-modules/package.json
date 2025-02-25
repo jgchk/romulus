@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@romulus/authentication": "workspace:*",
+    "@romulus/user-settings": "workspace:*",
     "arktype": "^2.0.4",
     "postgres": "^3.4.5"
   },
