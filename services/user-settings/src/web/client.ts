@@ -3,7 +3,7 @@ import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import type { UserSettingsRouter } from './router'
+import type { UserSettingsRouter } from './router.js'
 
 export class UserSettingsClient {
   private client: ReturnType<typeof hc<UserSettingsRouter>>

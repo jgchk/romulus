@@ -1,6 +1,6 @@
-import type { IUserSettingsRepository } from '../domain/repository'
-import type { UserSettingsData } from '../domain/user-settings'
-import { UserSettings } from '../domain/user-settings'
+import type { IUserSettingsRepository } from '../domain/repository.js'
+import type { UserSettingsData } from '../domain/user-settings.js'
+import { UserSettings } from '../domain/user-settings.js'
 
 export class MemoryUserSettingsRepository implements IUserSettingsRepository {
   private settings = new Map<number, UserSettingsData>()

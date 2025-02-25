@@ -1,12 +1,12 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-import type { UserSettingsApplication } from '../application'
-import type { IAuthenticationService } from '../domain/authentication'
-import { InvalidGenreRelevanceFilterError } from '../domain/user-settings'
-import { bearerAuth } from './bearer-auth-middleware'
-import { setError } from './utils'
-import { zodValidator } from './zod-validator'
+import type { UserSettingsApplication } from '../application/index.js'
+import type { IAuthenticationService } from '../domain/authentication.js'
+import { InvalidGenreRelevanceFilterError } from '../domain/user-settings.js'
+import { bearerAuth } from './bearer-auth-middleware.js'
+import { setError } from './utils.js'
+import { zodValidator } from './zod-validator.js'
 
 export type UserSettingsRouter = ReturnType<typeof createUserSettingsRouter>
 

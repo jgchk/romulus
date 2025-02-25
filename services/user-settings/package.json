@@ -2,10 +2,22 @@
   "name": "@romulus/user-settings",
   "type": "module",
   "exports": {
-    "./application": "./src/application/index.ts",
-    "./infrastructure": "./src/infrastructure/index.ts",
-    "./router": "./src/web/router.ts",
-    "./client": "./src/web/client.ts"
+    "./application": {
+      "import": "./dist/application/index.js",
+      "types": "./dist/application/index.d.ts"
+    },
+    "./infrastructure": {
+      "import": "./dist/infrastructure/index.js",
+      "types": "./dist/infrastructure/index.d.ts"
+    },
+    "./router": {
+      "import": "./dist/web/router.js",
+      "types": "./dist/web/router.d.ts"
+    },
+    "./client": {
+      "import": "./src/web/client.js",
+      "types": "./dist/web/client.d.ts"
+    }
   },
   "scripts": {
     "test": "pnpm test:unit run",
@@ -13,7 +25,8 @@
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/infrastructure/migrations ./dist/infrastructure/migrations"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",

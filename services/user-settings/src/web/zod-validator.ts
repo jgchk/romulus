@@ -2,7 +2,7 @@ import { zValidator as honoZodValidator } from '@hono/zod-validator'
 import type { Env, Input, MiddlewareHandler, ValidationTargets } from 'hono'
 import type { z } from 'zod'
 
-import { setError } from './utils'
+import { setError } from './utils.js'
 
 export function zodValidator<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

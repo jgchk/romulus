@@ -1,5 +1,5 @@
-import type { IUserSettingsRepository } from '../domain/repository'
-import type { UserSettingsData } from '../domain/user-settings'
+import type { IUserSettingsRepository } from '../domain/repository.js'
+import type { UserSettingsData } from '../domain/user-settings.js'
 
 export type GetUserSettingsQuery = {
   userId: number

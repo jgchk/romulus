@@ -1,5 +1,5 @@
-import type { MaybePromise } from '../utils'
-import type { UserSettings } from './user-settings'
+import type { MaybePromise } from '../utils.js'
+import type { UserSettings } from './user-settings.js'
 
 export type IUserSettingsRepository = {
   get(userId: number): MaybePromise<UserSettings>

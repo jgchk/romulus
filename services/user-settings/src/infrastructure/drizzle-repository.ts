@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import type { IUserSettingsRepository } from '../domain/repository'
-import { UserSettings } from '../domain/user-settings'
-import type { IDrizzleConnection } from './drizzle-database'
-import { userSettingsTable } from './drizzle-schema'
+import type { IUserSettingsRepository } from '../domain/repository.js'
+import { UserSettings } from '../domain/user-settings.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import { userSettingsTable } from './drizzle-schema.js'
 
 export const UNSET_GENRE_RELEVANCE = 99
 
