@@ -5,6 +5,9 @@ import type { IDrizzleConnection } from './drizzle-database.js'
 import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection.js'
 import { DrizzleAuthorizerRepository } from './drizzle-repository.js'
 
+export * as pglite from './drizzle-pglite-connection.js'
+export * as pg from './drizzle-postgres-connection.js'
+
 export class AuthorizationInfrastructure {
   private constructor(
     private pg: Sql,

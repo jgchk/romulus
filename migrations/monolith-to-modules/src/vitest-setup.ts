@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite'
-import { afterAll, test as base, vi } from 'vitest'
+import { afterAll, test as base } from 'vitest'
 
 const pg = new PGlite()
 
@@ -14,5 +14,6 @@ export const test = base.extend<{ dbConnection: PGlite }>({
 
     await pg.exec('drop schema if exists public cascade')
     await pg.exec('create schema public')
+    await pg.exec('drop schema if exists drizzle cascade')
   },
 })
