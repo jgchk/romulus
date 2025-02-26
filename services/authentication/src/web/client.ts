@@ -56,6 +56,22 @@ export class AuthenticationClient {
       )
   }
 
+  deleteAccount(id: number) {
+    return ResultAsync.fromPromise(
+      this.client.accounts[':id'].$delete({
+        param: { id },
+        header: {
+          authorization: `Bearer ${this.sessionToken}`,
+        },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['accounts'][':id']['$delete']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
+  }
+
   requestPasswordReset(body: { userId: number }) {
     return ResultAsync.fromPromise(
       this.client['request-password-reset'][':userId'].$post({
