@@ -21,7 +21,7 @@ export async function migrateGenres(
 }
 
 async function migrateGenreDocuments(
-  monolith: postgres.Sql<{}>,
+  monolith: postgres.Sql,
   execQuery: (query: string) => Promise<void>,
 ) {
   const genres = (await monolith`SELECT * FROM "Genre"`).map((row) => ({
@@ -45,10 +45,7 @@ async function migrateGenreDocuments(
   `)
 }
 
-async function migrateAkas(
-  monolith: postgres.Sql<{}>,
-  execQuery: (query: string) => Promise<void>,
-) {
+async function migrateAkas(monolith: postgres.Sql, execQuery: (query: string) => Promise<void>) {
   const akas = (await monolith`SELECT * FROM "GenreAka"`).map((row) => ({
     genreId: row.genreId as number,
     name: row.name as string,
@@ -63,10 +60,7 @@ async function migrateAkas(
   `)
 }
 
-async function migrateDerived(
-  monolith: postgres.Sql<{}>,
-  execQuery: (query: string) => Promise<void>,
-) {
+async function migrateDerived(monolith: postgres.Sql, execQuery: (query: string) => Promise<void>) {
   const derived = (await monolith`SELECT * FROM "GenreDerivedFrom"`).map((row) => ({
     derivedFromId: row.derivedFromId as number,
     derivationId: row.derivationId as number,
@@ -80,7 +74,7 @@ async function migrateDerived(
 }
 
 async function migrateGenreHistory(
-  monolith: postgres.Sql<{}>,
+  monolith: postgres.Sql,
   execQuery: (query: string) => Promise<void>,
 ) {
   const history = (await monolith`SELECT * FROM "GenreHistory"`).map((row) => ({
@@ -109,7 +103,7 @@ async function migrateGenreHistory(
 }
 
 async function migrateGenreHistoryAkas(
-  monolith: postgres.Sql<{}>,
+  monolith: postgres.Sql,
   execQuery: (query: string) => Promise<void>,
 ) {
   const akas = (await monolith`SELECT * FROM "GenreHistoryAka"`).map((row) => ({
@@ -127,7 +121,7 @@ async function migrateGenreHistoryAkas(
 }
 
 async function migrateInfluences(
-  monolith: postgres.Sql<{}>,
+  monolith: postgres.Sql,
   execQuery: (query: string) => Promise<void>,
 ) {
   const influences = (await monolith`SELECT * FROM "GenreInfluences"`).map((row) => ({
@@ -142,10 +136,7 @@ async function migrateInfluences(
   `)
 }
 
-async function migrateParents(
-  monolith: postgres.Sql<{}>,
-  execQuery: (query: string) => Promise<void>,
-) {
+async function migrateParents(monolith: postgres.Sql, execQuery: (query: string) => Promise<void>) {
   const parents = (await monolith`SELECT * FROM "GenreParents"`).map((row) => ({
     parentId: row.parentId as number,
     childId: row.childId as number,
@@ -159,7 +150,7 @@ async function migrateParents(
 }
 
 async function migrateRelevanceVotes(
-  monolith: postgres.Sql<{}>,
+  monolith: postgres.Sql,
   execQuery: (query: string) => Promise<void>,
 ) {
   const votes = (await monolith`SELECT * FROM "GenreRelevanceVote"`).map((row) => ({

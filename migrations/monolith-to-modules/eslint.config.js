@@ -1,11 +1,11 @@
-import baseConfig from "@romulus/eslint-config";
+import baseConfig from '@romulus/eslint-config'
 
 export default [
   ...baseConfig,
   {
     languageOptions: {
       ecmaVersion: 2020,
-      sourceType: "module",
+      sourceType: 'module',
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
@@ -13,6 +13,6 @@ export default [
     },
   },
   {
-    ignores: ["dist/*"],
+    ignores: ['dist/*'],
   },
-];
+]

@@ -2,6 +2,7 @@ import { setupAuthenticationPermissions } from '@romulus/authentication/applicat
 import { setupAuthorizationPermissions } from '@romulus/authorization/application'
 import { setupGenresPermissions } from '@romulus/genres/application'
 import postgres from 'postgres'
+
 import { env } from '../env.js'
 
 export async function migratePermissions(
