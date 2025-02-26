@@ -11,6 +11,9 @@ import { DrizzleGenreRepository } from './drizzle-genre-repository.js'
 import { DrizzleGenreTreeRepository } from './drizzle-genre-tree-repository.js'
 import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection.js'
 
+export * as pglite from './drizzle-pglite-connection.js'
+export * as pg from './drizzle-postgres-connection.js'
+
 export class GenresInfrastructure {
   private constructor(
     private pg: Sql,
