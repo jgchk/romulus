@@ -1,2 +1,0 @@
-ALTER TABLE "GenreHistoryAka" DROP CONSTRAINT "GenreHistoryAka_pkey";--> statement-breakpoint
-ALTER TABLE "GenreHistoryAka" ADD CONSTRAINT "GenreHistoryAka_genreId_name_pk" PRIMARY KEY("genreId","name");

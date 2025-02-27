@@ -1,6 +1,0 @@
-export * from './accounts'
-export * from './artists'
-export * from './genres'
-export * from './release-issues'
-export * from './releases'
-export * from './tracks'

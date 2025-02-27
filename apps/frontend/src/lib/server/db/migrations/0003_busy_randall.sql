@@ -1,2 +1,0 @@
-ALTER TABLE "GenreRelevanceVote" DROP CONSTRAINT "GenreRelevanceVote_pkey";--> statement-breakpoint
-ALTER TABLE "GenreRelevanceVote" ADD CONSTRAINT "GenreRelevanceVote_genreId_accountId_pk" PRIMARY KEY("genreId","accountId");
