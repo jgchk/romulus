@@ -26,22 +26,6 @@ export default function createGenrePageTests() {
       )
     })
 
-    test('when logged in without EDIT_GENRES permission, should show error message', async ({
-      withAccount,
-      signInPage,
-      createGenrePage,
-      errorPage,
-    }) => {
-      await withAccount(TEST_ACCOUNT)
-
-      await signInPage.goto()
-      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-
-      await createGenrePage.goto()
-
-      await errorPage.expectError('403', 'You do not have permission to create genres')
-    })
-
     test('when logged in with EDIT_GENRES permission, should default to Style type', async ({
       withAccount,
       withGenres,

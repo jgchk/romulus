@@ -7,7 +7,11 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
 
-export const load = (async ({ locals }: { locals: { user: App.Locals['user'] } }) => {
+export const load = (async ({
+  locals,
+}: {
+  locals: { user?: { permissions: { genres: { canCreate: boolean } } } }
+}) => {
   if (!locals.user?.permissions.genres.canCreate) {
     return error(403, { message: 'You do not have permission to create genres' })
   }
