@@ -1,17 +1,6 @@
 import { type Page, test as base } from '@playwright/test'
+import { AuthenticationClient } from '@romulus/authentication/client'
 
-import { type IDrizzleConnection } from '$lib/server/db/connection'
-import { getDbConnection, getPostgresConnection } from '$lib/server/db/connection/postgres'
-import type { Account, Genre, InsertAccount } from '$lib/server/db/schema'
-import * as schema from '$lib/server/db/schema'
-
-import {
-  createAccounts,
-  createGenres,
-  deleteAccounts,
-  deleteGenres,
-  type InsertTestGenre,
-} from '../utils'
 import { GenreTree } from './elements/genre-tree'
 import { Navbar } from './elements/navbar'
 import { ApiKeysPage } from './pages/api-keys'
@@ -24,6 +13,45 @@ import { GenreHistoryPage } from './pages/genre-history'
 import { GenresPage } from './pages/genres'
 import { SignInPage } from './pages/sign-in'
 import { SignUpPage } from './pages/sign-up'
+
+export async function deleteAccount(
+  signInPage: SignInPage,
+  account: { username: string; password: string },
+) {
+  const authSessionCookie = await ensureAuthSessionCookie(signInPage, account)
+
+  const client = new AuthenticationClient({
+    baseUrl: `http://localhost:3000/authentication`,
+    sessionToken: authSessionCookie.value,
+  })
+  const whoami = await client.whoami()
+  if (whoami.isErr()) throw whoami.error
+  const id = whoami.value.account.id
+
+  const deleteAccount = await client.deleteAccount(id)
+  if (deleteAccount.isErr()) throw deleteAccount.error
+}
+
+async function ensureAuthSessionCookie(
+  signInPage: SignInPage,
+  account: { username: string; password: string },
+) {
+  let authSessionCookie = await getAuthSessionCookie(signInPage)
+  if (authSessionCookie !== undefined) return authSessionCookie
+
+  await signInPage.goto()
+  await signInPage.signIn(account.username, account.password)
+
+  authSessionCookie = await getAuthSessionCookie(signInPage)
+  if (authSessionCookie === undefined) throw new Error('auth_session cookie not found')
+  return authSessionCookie
+}
+
+async function getAuthSessionCookie(signInPage: SignInPage) {
+  const cookies = await signInPage.page.context().cookies()
+  const authSessionCookie = cookies.find((cookie) => cookie.name === 'auth_session')
+  return authSessionCookie
+}
 
 export const test = base
   .extend<{ page: Page }>({
@@ -49,55 +77,23 @@ export const test = base
       await use(page)
     },
   })
-  .extend<{ dbConnection: IDrizzleConnection }>({
+  .extend<{
+    cleanup: (fn: () => Promise<void>) => void
+  }>({
     // eslint-disable-next-line no-empty-pattern
-    dbConnection: async ({}, use) => {
-      const pg = getPostgresConnection()
-      await use(getDbConnection(schema, pg))
-      await pg.end()
-    },
-  })
-  .extend<{
-    withAccount: (account: InsertAccount) => Promise<Account>
-  }>({
-    withAccount: async ({ dbConnection }, use) => {
-      const accounts: Account[] = []
+    cleanup: async ({}, use) => {
+      const cleanupFunctions: (() => Promise<void>)[] = []
 
-      const withAccount = async (data: InsertAccount): Promise<Account> => {
-        const [account] = await createAccounts([data], dbConnection)
-        accounts.push(account)
-        return account
+      const addCleanupFunction = (fn: () => Promise<void>) => {
+        cleanupFunctions.push(fn)
       }
 
-      await use(withAccount)
+      await use(addCleanupFunction)
 
-      await deleteAccounts(
-        accounts.map((account) => account.username),
-        dbConnection,
-      )
-    },
-  })
-  .extend<{
-    withGenres: (genres: InsertTestGenre[], accountId: Account['id']) => Promise<Genre[]>
-  }>({
-    withGenres: async ({ dbConnection }, use) => {
-      const genres: Genre[] = []
-
-      const withGenre = async (
-        data: InsertTestGenre[],
-        accountId: Account['id'],
-      ): Promise<Genre[]> => {
-        const newGenres = await createGenres(data, accountId, dbConnection)
-        genres.push(...newGenres)
-        return newGenres
+      cleanupFunctions.reverse()
+      for (const cleanupFunction of cleanupFunctions) {
+        await cleanupFunction()
       }
-
-      await use(withGenre)
-
-      await deleteGenres(
-        genres.map((genre) => genre.id),
-        dbConnection,
-      )
     },
   })
   .extend<{

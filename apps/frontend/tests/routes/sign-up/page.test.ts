@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 
-import { test } from '../../fixtures'
+import { deleteAccount, test } from '../../fixtures'
 import { GenresPage } from '../../fixtures/pages/genres'
 
 const EXISTING_ACCOUNT = {
@@ -22,9 +22,15 @@ test('should show error if password and confirm password do not match', async ({
   await expect(signUpPage.formError).toContainText('Passwords do not match')
 })
 
-test('should show error if username is already taken', async ({ signUpPage, navbar }) => {
+test('should show error if username is already taken', async ({
+  signUpPage,
+  navbar,
+  signInPage,
+  cleanup,
+}) => {
   await signUpPage.goto()
   await signUpPage.signUp(EXISTING_ACCOUNT.username, EXISTING_ACCOUNT.password)
+  cleanup(() => deleteAccount(signInPage, EXISTING_ACCOUNT))
   await navbar.signOut()
 
   await signUpPage.goto()
@@ -35,7 +41,13 @@ test('should show error if username is already taken', async ({ signUpPage, navb
   await expect(signUpPage.formError).toContainText('Username is already taken')
 })
 
-test('should redirect to genres page after successful sign up', async ({ signUpPage }) => {
+test('should redirect to genres page after successful sign up', async ({
+  signUpPage,
+  signInPage,
+  cleanup,
+}) => {
+  cleanup(() => deleteAccount(signInPage, NEW_ACCOUNT))
+
   await signUpPage.goto()
   await signUpPage.usernameInput.fill(NEW_ACCOUNT.username)
   await signUpPage.passwordInput.fill(NEW_ACCOUNT.password)
@@ -48,7 +60,10 @@ test('should be able to log in after successful sign up', async ({
   signUpPage,
   signInPage,
   navbar,
+  cleanup,
 }) => {
+  cleanup(() => deleteAccount(signInPage, NEW_ACCOUNT))
+
   await signUpPage.goto()
   await signUpPage.usernameInput.fill(NEW_ACCOUNT.username)
   await signUpPage.passwordInput.fill(NEW_ACCOUNT.password)
