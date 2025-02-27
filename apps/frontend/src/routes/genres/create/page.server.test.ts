@@ -24,3 +24,8 @@ it('should return an error message when logged in without create genre permissio
     expect(err.body).toEqual({ message: 'You do not have permission to create genres' })
   }
 })
+
+it('should default to Style type', async () => {
+  const res = await load({ locals: { user: { permissions: { genres: { canCreate: true } } } } })
+  expect(res.form.data.type).toBe('STYLE')
+})

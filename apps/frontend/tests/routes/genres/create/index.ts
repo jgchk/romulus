@@ -26,31 +26,6 @@ export default function createGenrePageTests() {
       )
     })
 
-    test('when logged in with EDIT_GENRES permission, should default to Style type', async ({
-      withAccount,
-      withGenres,
-      signInPage,
-      createGenrePage,
-    }) => {
-      const account = await withAccount({ ...TEST_ACCOUNT, permissions: ['EDIT_GENRES'] })
-      await withGenres(
-        [
-          { name: 'parent-one' },
-          { name: 'parent-two' },
-          { name: 'influence-one' },
-          { name: 'influence-two' },
-        ],
-        account.id,
-      )
-
-      await signInPage.goto()
-      await signInPage.signIn(TEST_ACCOUNT.username, TEST_ACCOUNT.password)
-
-      await createGenrePage.goto()
-
-      await expect(createGenrePage.typeInput).toHaveText('Style')
-    })
-
     test('when logged in with EDIT_GENRES permission, should create a genre with all fields filled', async ({
       withAccount,
       withGenres,
