@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "dotenv -e .env -- vite dev",
-    "build": "vite build && cp -r ./src/lib/server/db/migrations ./build/server/migrations && cp -r ./src/lib/server/db/migrations ./.svelte-kit/output/server/migrations",
+    "build": "vite build",
     "build:vercel": "pnpm build && pnpm db:migrate",
     "preview": "vite preview",
     "test": "pnpm run test:unit run && pnpm run test:e2e",
