@@ -1,3 +1,4 @@
+import type { GenresClient } from '@romulus/genres/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
@@ -24,8 +25,14 @@ export const load = (async ({
   return { form }
 }) satisfies PageServerLoad
 
-export const actions: Actions = {
-  default: async ({ request, locals }) => {
+export const actions = {
+  default: async ({
+    request,
+    locals,
+  }: {
+    request: Request
+    locals: { di: { genres: () => Pick<GenresClient, 'createGenre' | 'voteGenreRelevance'> } }
+  }) => {
     const form = await superValidate(request, zod(genreSchema))
 
     if (!form.valid) {
@@ -105,4 +112,4 @@ export const actions: Actions = {
 
     redirect(302, `/genres/${createResult.value.id}`)
   },
-}
+} satisfies Actions
