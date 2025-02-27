@@ -7,7 +7,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = (async ({ locals }: { locals: { user: App.Locals['user'] } }) => {
   if (!locals.user?.permissions.genres.canCreate) {
     return error(403, { message: 'You do not have permission to create genres' })
   }
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     { errors: false },
   )
   return { form }
-}
+}) satisfies PageServerLoad
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
