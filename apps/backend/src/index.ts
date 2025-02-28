@@ -51,19 +51,34 @@ async function main() {
 
 async function setupDevEnvironment(infrastructure: Infrastructure) {
   const authentication = createAuthenticationApplication(infrastructure)
-  const admin = await authentication.registerCommand().execute('admin', 'admin')
-  if (admin instanceof Error) throw admin
+
+  const admin = await ensureAdminAccount(authentication)
 
   const authorization = createAuthorizationApplication(infrastructure)
   const permissions = await authorization.getAllPermissions(authorization.getSystemUserId())
   if (permissions.isErr()) throw permissions.error
 
-  const result = await authorization.assignRoleToUser(
-    admin.newUserAccount.id,
-    'admin',
-    authorization.getSystemUserId(),
-  )
-  if (result.isErr()) throw result.error
+  const roles = ['default', 'genre-editor', 'admin']
+  for (const role of roles) {
+    const result = await authorization.assignRoleToUser(
+      admin.id,
+      role,
+      authorization.getSystemUserId(),
+    )
+    if (result.isErr()) throw result.error
+  }
+}
+
+async function ensureAdminAccount(
+  authentication: ReturnType<typeof createAuthenticationApplication>,
+): Promise<{ id: number }> {
+  const registerResult = await authentication.registerCommand().execute('admin', 'admin')
+  if (!(registerResult instanceof Error)) return { id: registerResult.newUserAccount.id }
+
+  const loginResult = await authentication.loginCommand().execute('admin', 'admin')
+  if (!(loginResult instanceof Error)) return { id: loginResult.userAccount.id }
+
+  throw registerResult
 }
 
 void main()
