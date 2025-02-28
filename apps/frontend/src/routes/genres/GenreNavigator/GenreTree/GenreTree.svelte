@@ -4,13 +4,15 @@
 
   import GenreTreeNode from './GenreTreeNode.svelte'
   import { getNewPath, isPathValid } from './path'
-  import { type TreeGenre, treeState } from './state'
+  import { getTreeStateContext, type TreeGenre } from './state'
 
   type Props = {
     genres: TreeGenre[]
   }
 
   let { genres }: Props = $props()
+
+  const treeState = getTreeStateContext()
 
   $effect(() => {
     treeState.setGenres(genres)

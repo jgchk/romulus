@@ -12,7 +12,7 @@
 
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
-  import { treeState } from './state'
+  import { getTreeStateContext } from './state'
 
   type Props = {
     id: number
@@ -21,6 +21,8 @@
   }
 
   let { id, path, treeRef }: Props = $props()
+
+  const treeState = getTreeStateContext()
 
   let genre = $derived($treeState.genres.get(id))
 

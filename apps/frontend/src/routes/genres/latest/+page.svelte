@@ -2,7 +2,7 @@
   import { pageTitle } from '$lib/utils/string'
 
   import GenreDiff from '../GenreDiff.svelte'
-  import { treeState } from '../GenreNavigator/GenreTree/state'
+  import { getTreeStateContext } from '../GenreNavigator/GenreTree/state'
   import type { PageData } from './$types'
 
   type Props = {
@@ -10,6 +10,8 @@
   }
 
   let { data }: Props = $props()
+
+  const treeState = getTreeStateContext()
 
   treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)

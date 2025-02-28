@@ -1,4 +1,5 @@
 import { equals } from 'ramda'
+import { getContext, setContext } from 'svelte'
 import { writable } from 'svelte/store'
 
 import type { LayoutData } from '../../$types'
@@ -12,7 +13,7 @@ type TreeState = {
   expanded: Set<string>
 }
 
-const createTreeState = () => {
+export const createTreeState = () => {
   const { subscribe, update } = writable<TreeState>({
     genres: new Map(),
     selectedId: undefined,
@@ -64,4 +65,10 @@ const createTreeState = () => {
   }
 }
 
-export const treeState = createTreeState()
+export type TreeStateStore = ReturnType<typeof createTreeState>
+
+export const TREE_STATE_KEY = Symbol('tree-state-context')
+
+export const setTreeStateContext = (value: TreeStateStore) => setContext(TREE_STATE_KEY, value)
+
+export const getTreeStateContext = () => getContext<TreeStateStore>(TREE_STATE_KEY)

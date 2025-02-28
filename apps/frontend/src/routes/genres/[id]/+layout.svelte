@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { treeState } from '../GenreNavigator/GenreTree/state'
+  import { getTreeStateContext } from '../GenreNavigator/GenreTree/state'
   import type { LayoutData } from './$types'
 
   type Props = {
@@ -8,6 +8,8 @@
   }
 
   let { data, children }: Props = $props()
+
+  const treeState = getTreeStateContext()
 
   treeState.setSelectedId(data.id)
   $effect(() => {

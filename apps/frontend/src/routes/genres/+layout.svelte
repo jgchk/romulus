@@ -8,6 +8,7 @@
 
   import type { LayoutData } from './$types'
   import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
+  import { createTreeState, setTreeStateContext } from './GenreNavigator/GenreTree/state'
 
   type Props = {
     data: LayoutData
@@ -24,6 +25,8 @@
       document.cookie = `genres.leftPaneSize=${leftPaneSize}; path=/; max-age=31536000`
     }
   })
+
+  setTreeStateContext(createTreeState())
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
