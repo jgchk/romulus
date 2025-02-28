@@ -11,7 +11,6 @@
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { GenreHistory } from '$lib/server/db/schema'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
   import { cn } from '$lib/utils/dom'
@@ -19,26 +18,27 @@
 
   import type { LayoutData } from './$types'
 
-  type HistorySubset = Pick<
-    GenreHistory,
-    | 'name'
-    | 'subtitle'
-    | 'type'
-    | 'nsfw'
-    | 'shortDescription'
-    | 'longDescription'
-    | 'notes'
-    | 'parentGenreIds'
-    | 'derivedFromGenreIds'
-    | 'influencedByGenreIds'
-    | 'operation'
-    | 'createdAt'
-    | 'treeGenreId'
-  > & { akas: string[]; account: { id: number; username: string } | null }
+  type GenreHistoryData = {
+    name: string
+    subtitle: string | null
+    type: string
+    nsfw: boolean
+    shortDescription: string | null
+    longDescription: string | null
+    notes: string | null
+    parentGenreIds: number[]
+    derivedFromGenreIds: number[]
+    influencedByGenreIds: number[]
+    operation: GenreOperation
+    createdAt: Date
+    treeGenreId: number
+    akas: string[]
+    account: { id: number; username: string } | null
+  }
 
   type Props = {
-    previousHistory: Omit<HistorySubset, 'account'> | undefined
-    currentHistory: HistorySubset
+    previousHistory: Omit<GenreHistoryData, 'account'> | undefined
+    currentHistory: GenreHistoryData
     genres: LayoutData['streamed']['genres']
   }
 
