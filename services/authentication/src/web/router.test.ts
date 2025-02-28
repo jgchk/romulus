@@ -544,3 +544,28 @@ describe('get-account', () => {
     })
   })
 })
+
+describe('get-accounts', () => {
+  test('should return the requested account when only one account is requested', async ({
+    dbConnection,
+  }) => {
+    const { client, registerTestUser } = setup(dbConnection)
+
+    await registerTestUser()
+
+    const res = await client.accounts.$get({
+      query: { id: [1] },
+    })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      success: true,
+      accounts: [
+        {
+          id: 1,
+          username: 'test',
+        },
+      ],
+    })
+  })
+})

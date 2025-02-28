@@ -462,7 +462,7 @@ export const getAccountsRoute = createRoute({
   security: [{ Bearer: [] }],
   request: {
     query: z.object({
-      id: z.coerce.number().int().array(),
+      id: z.coerce.number().int().array().or(z.coerce.number().int()),
     }),
   },
   responses: {

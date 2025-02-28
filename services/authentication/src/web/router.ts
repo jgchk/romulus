@@ -39,6 +39,7 @@ import {
   validateApiKeyRoute,
   whoamiRoute,
 } from './routes.js'
+import { ensureArray } from './utils.js'
 
 export type Router = ReturnType<typeof createAuthenticationRouter>
 
@@ -373,7 +374,7 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
     })
 
     .openapi(getAccountsRoute, async (c) => {
-      const ids = c.req.valid('query').id
+      const ids = ensureArray(c.req.valid('query').id)
 
       const result = await di.getAccountsQuery().execute(ids)
 
