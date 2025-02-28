@@ -75,6 +75,9 @@ function createComponentModel(renderedComponent: ReturnType<typeof renderCompone
           get: () => getByRole(node, 'button', { name: 'Expand' }),
           query: () => queryByRole(node, 'button', { name: 'Expand' }),
         },
+        link: {
+          get: () => getByRole(node, 'link'),
+        },
       })
     },
   }
@@ -201,6 +204,32 @@ it('should show an expand button for a parent genre but not a leaf genre', async
   const childNode = await waitFor(() => genreNode.get(1))
   const childExpandButton = childNode.expandButton.query()
   expect(childExpandButton).toBeNull()
+})
+
+it('should expand a genre when clicking the link rather than the expand button', async () => {
+  const { user, genreNode } = setup(
+    {
+      genres: [
+        createExampleGenre({ id: 0, children: [1], name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
+    },
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
+      },
+    },
+  )
+
+  const parentNode = genreNode.get(0)
+  await user.click(parentNode.link.get())
+
+  const childNode = await waitFor(() => genreNode.get(1))
+  expect(childNode).toBeVisible()
 })
 
 it('should show the collapse all button when a genre is expanded', async () => {
