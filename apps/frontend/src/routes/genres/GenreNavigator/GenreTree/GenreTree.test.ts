@@ -1,4 +1,4 @@
-import { getByRole, queryByRole, render } from '@testing-library/svelte'
+import { getByRole, queryByRole, render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { readable, writable } from 'svelte/store'
@@ -7,6 +7,7 @@ import { expect, it } from 'vitest'
 import { USER_CONTEXT_KEY } from '$lib/contexts/user'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { withProps } from '$lib/utils/object'
 
 import GenreTree from './GenreTree.svelte'
 import { createTreeState, TREE_STATE_KEY, type TreeGenre } from './state'
@@ -16,8 +17,21 @@ function setup(
   context: { user: App.Locals['user'] | undefined; userSettings?: Partial<UserSettings> },
 ) {
   const user = userEvent.setup()
+  const renderedComponent = renderComponent(props, context)
+  const componentModel = createComponentModel(renderedComponent)
 
-  const returned = render(GenreTree, {
+  return {
+    user,
+    ...renderedComponent,
+    ...componentModel,
+  }
+}
+
+function renderComponent(
+  props: ComponentProps<typeof GenreTree>,
+  context: { user: App.Locals['user'] | undefined; userSettings?: Partial<UserSettings> },
+) {
+  return render(GenreTree, {
     props,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     context: new Map<any, any>([
@@ -29,11 +43,48 @@ function setup(
       [TREE_STATE_KEY, createTreeState()],
     ]),
   })
+}
 
-  return {
-    user,
-    ...returned,
+function createComponentModel(renderedComponent: ReturnType<typeof renderComponent>) {
+  const emptyState = {
+    get: () => renderedComponent.getByText('No genres found.'),
+    query: () => renderedComponent.queryByText('No genres found.'),
   }
+
+  const createGenreLink = {
+    get: () => renderedComponent.getByRole('link', { name: 'Create one.' }),
+    query: () => renderedComponent.queryByRole('link', { name: 'Create one.' }),
+  }
+
+  const genreNode = {
+    get: (index = 0) => {
+      const nodes = renderedComponent
+        .getByLabelText('Genre Tree')
+        .querySelectorAll('.genre-tree-node')
+      const node = nodes[index]
+
+      if (!node) {
+        expect.fail(`Expected a genre tree node to exist at index ${index}`)
+      }
+      if (!(node instanceof HTMLElement)) {
+        expect.fail(`Expected genre tree node to be an HTMLElement at index ${index}`)
+      }
+
+      return withProps(node, {
+        expandButton: {
+          get: () => getByRole(node, 'button', { name: 'Expand' }),
+          query: () => queryByRole(node, 'button', { name: 'Expand' }),
+        },
+      })
+    },
+  }
+
+  const collapseAllButton = {
+    get: () => getByRole(renderedComponent.container, 'button', { name: 'Collapse All' }),
+    query: () => queryByRole(renderedComponent.container, 'button', { name: 'Collapse All' }),
+  }
+
+  return { emptyState, createGenreLink, genreNode, collapseAllButton }
 }
 
 function createExampleGenre(data?: Partial<TreeGenre>): TreeGenre {
@@ -56,28 +107,25 @@ function createExampleGenre(data?: Partial<TreeGenre>): TreeGenre {
 }
 
 it('should show an empty state when there are no genres', () => {
-  const { getByText } = setup({ genres: [] }, { user: undefined })
+  const { emptyState } = setup({ genres: [] }, { user: undefined })
 
-  const emptyState = getByText('No genres found.')
-  expect(emptyState).toBeVisible()
+  expect(emptyState.get()).toBeVisible()
 })
 
 it('should not show an empty state when there is one genre', () => {
-  const { queryByText } = setup({ genres: [createExampleGenre()] }, { user: undefined })
+  const { emptyState } = setup({ genres: [createExampleGenre()] }, { user: undefined })
 
-  const emptyState = queryByText('No genres found.')
-  expect(emptyState).toBeNull()
+  expect(emptyState.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is not logged in', () => {
-  const { queryByRole } = setup({ genres: [] }, { user: undefined })
+  const { createGenreLink } = setup({ genres: [] }, { user: undefined })
 
-  const createGenreLink = queryByRole('link', { name: 'Create one.' })
-  expect(createGenreLink).toBeNull()
+  expect(createGenreLink.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is logged in but does not have create genre permission', () => {
-  const { queryByRole } = setup(
+  const { createGenreLink } = setup(
     { genres: [] },
     {
       user: {
@@ -90,12 +138,11 @@ it('should not show a create genre CTA when the user is logged in but does not h
     },
   )
 
-  const createGenreLink = queryByRole('link', { name: 'Create one.' })
-  expect(createGenreLink).toBeNull()
+  expect(createGenreLink.query()).toBeNull()
 })
 
 it('should show a create genre CTA when the user has create genre permission', () => {
-  const { getByRole } = setup(
+  const { createGenreLink } = setup(
     { genres: [] },
     {
       user: {
@@ -108,12 +155,11 @@ it('should show a create genre CTA when the user has create genre permission', (
     },
   )
 
-  const createGenreLink = getByRole('link', { name: 'Create one.' })
-  expect(createGenreLink).toBeVisible()
+  expect(createGenreLink.get()).toBeVisible()
 })
 
 it('should not be expandable when there is 1 genre', () => {
-  const { getByLabelText } = setup(
+  const { genreNode } = setup(
     { genres: [createExampleGenre()] },
     {
       user: {
@@ -126,20 +172,15 @@ it('should not be expandable when there is 1 genre', () => {
     },
   )
 
-  const node = getByLabelText('Genre Tree').querySelector('.genre-tree-node')
-  if (node === null) expect.fail('Expected a genre tree node to exist')
-  if (!(node instanceof HTMLElement)) expect.fail('Expected genre tree node to be an HTMLElement')
-
-  const expandButton = queryByRole(node, 'button', { name: 'Expand' })
-  expect(expandButton).toBeNull()
+  expect(genreNode.get().expandButton.query()).toBeNull()
 })
 
 it('should show an expand button for a parent genre but not a leaf genre', async () => {
-  const { getByLabelText, findByLabelText, user } = setup(
+  const { user, genreNode } = setup(
     {
       genres: [
-        createExampleGenre({ id: 0, children: [1] }),
-        createExampleGenre({ id: 1, parents: [0] }),
+        createExampleGenre({ id: 0, children: [1], name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
       ],
     },
     {
@@ -153,27 +194,17 @@ it('should show an expand button for a parent genre but not a leaf genre', async
     },
   )
 
-  const parentNode = getByLabelText('Genre Tree').querySelector('.genre-tree-node')
-  if (parentNode === null) expect.fail('Expected parent genre tree node to exist')
-  if (!(parentNode instanceof HTMLElement))
-    expect.fail('Expected parent genre tree node to be an HTMLElement')
-
-  const parentExpandButton = getByRole(parentNode, 'button', { name: 'Expand' })
+  const parentNode = genreNode.get(0)
+  const parentExpandButton = parentNode.expandButton.get()
   await user.click(parentExpandButton)
 
-  const childNode = (await findByLabelText('Genre Tree')).querySelector(
-    '.genre-tree-node:nth-child(1)',
-  )
-  if (childNode === null) expect.fail('Expected child genre tree node to exist')
-  if (!(childNode instanceof HTMLElement))
-    expect.fail('Expected child genre tree node to be an HTMLElement')
-
-  const childExpandButton = queryByRole(childNode, 'button', { name: 'Expand' })
+  const childNode = await waitFor(() => genreNode.get(1))
+  const childExpandButton = childNode.expandButton.query()
   expect(childExpandButton).toBeNull()
 })
 
 it('should show the collapse all button when a genre is expanded', async () => {
-  const { queryByRole, getByRole, user } = setup(
+  const { user, collapseAllButton, genreNode } = setup(
     {
       genres: [
         createExampleGenre({ id: 0, children: [1] }),
@@ -191,10 +222,9 @@ it('should show the collapse all button when a genre is expanded', async () => {
     },
   )
 
-  expect(queryByRole('button', { name: 'Collapse All' })).toBeNull()
+  expect(collapseAllButton.query()).toBeNull()
 
-  const expandButton = getByRole('button', { name: 'Expand' })
-  await user.click(expandButton)
+  await user.click(genreNode.get().expandButton.get())
 
-  expect(getByRole('button', { name: 'Collapse All' })).toBeVisible()
+  expect(collapseAllButton.get()).toBeVisible()
 })
