@@ -3,7 +3,7 @@ import { type Readable } from 'svelte/store'
 
 export type UserStore = Readable<App.Locals['user'] | undefined>
 
-const USER_CONTEXT_KEY = Symbol('user-context')
+export const USER_CONTEXT_KEY = Symbol('user-context')
 
 export const setUserContext = (value: UserStore) => setContext(USER_CONTEXT_KEY, value)
 
