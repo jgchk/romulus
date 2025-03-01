@@ -1,4 +1,4 @@
-import { getByRole, queryByRole, render, waitFor } from '@testing-library/svelte'
+import { getByRole, queryByRole, render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { readable, writable } from 'svelte/store'
@@ -80,11 +80,34 @@ function createComponentModel(renderedComponent: ReturnType<typeof renderCompone
         },
       })
     },
+    query: (index = 0) => {
+      const nodes = renderedComponent
+        .getByLabelText('Genre Tree')
+        .querySelectorAll('.genre-tree-node')
+      const node = nodes[index]
+
+      if (!node) {
+        return null
+      }
+      if (!(node instanceof HTMLElement)) {
+        expect.fail(`Expected genre tree node to be an HTMLElement at index ${index}`)
+      }
+
+      return withProps(node, {
+        expandButton: {
+          get: () => getByRole(node, 'button', { name: 'Expand' }),
+          query: () => queryByRole(node, 'button', { name: 'Expand' }),
+        },
+        link: {
+          get: () => getByRole(node, 'link'),
+        },
+      })
+    },
   }
 
   const collapseAllButton = {
-    get: () => getByRole(renderedComponent.container, 'button', { name: 'Collapse All' }),
-    query: () => queryByRole(renderedComponent.container, 'button', { name: 'Collapse All' }),
+    get: () => renderedComponent.getByRole('button', { name: 'Collapse All' }),
+    query: () => renderedComponent.queryByRole('button', { name: 'Collapse All' }),
   }
 
   return { emptyState, createGenreLink, genreNode, collapseAllButton }
@@ -201,7 +224,7 @@ it('should show an expand button for a parent genre but not a leaf genre', async
   const parentExpandButton = parentNode.expandButton.get()
   await user.click(parentExpandButton)
 
-  const childNode = await waitFor(() => genreNode.get(1))
+  const childNode = genreNode.get(1)
   const childExpandButton = childNode.expandButton.query()
   expect(childExpandButton).toBeNull()
 })
@@ -228,7 +251,7 @@ it('should expand a genre when clicking the link rather than the expand button',
   const parentNode = genreNode.get(0)
   await user.click(parentNode.link.get())
 
-  const childNode = await waitFor(() => genreNode.get(1))
+  const childNode = genreNode.get(1)
   expect(childNode).toBeVisible()
 })
 
@@ -256,4 +279,31 @@ it('should show the collapse all button when a genre is expanded', async () => {
   await user.click(genreNode.get().expandButton.get())
 
   expect(collapseAllButton.get()).toBeVisible()
+})
+
+it('should collapse all genres upon clicking the collapse all button', async () => {
+  const { user, collapseAllButton, genreNode } = setup(
+    {
+      genres: [
+        createExampleGenre({ id: 0, children: [1], name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
+    },
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
+      },
+    },
+  )
+
+  await user.click(genreNode.get(0).expandButton.get())
+  expect(genreNode.get(1)).toBeVisible()
+
+  await user.click(collapseAllButton.get())
+
+  expect(genreNode.query(1)).toBeNull()
 })
