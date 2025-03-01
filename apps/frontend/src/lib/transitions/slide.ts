@@ -13,6 +13,13 @@ export function slide(
   node: Element,
   { delay = 0, duration = 200, easing = cubicOut, axis = 'x', opacitySpeed = 2 }: SlideProps = {},
 ): TransitionConfig {
+  // Svelte 5 uses the Web Aniimations API for transitions, which is not available in JSDOM
+  // or happy-dom. For testing, we simply return an empty object to skip the transition.
+  // See here for more details: https://github.com/testing-library/svelte-testing-library/issues/416
+  if (import.meta.env.NODE_ENV === 'test') {
+    return {}
+  }
+
   const style = getComputedStyle(node)
   const opacity = +style.opacity
   const primary_dimension = axis === 'y' ? 'height' : 'width'
