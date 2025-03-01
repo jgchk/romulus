@@ -307,3 +307,24 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 
   expect(genreNode.query(1)).toBeNull()
 })
+
+it('should open the genre page when clicking a genre link', async () => {
+  const { user, genreNode } = setup(
+    { genres: [createExampleGenre({ id: 0 })] },
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
+      },
+    },
+  )
+
+  window.location.href = '/genres'
+
+  await user.click(genreNode.get().link.get())
+
+  expect(window.location.pathname).toBe('/genres/0')
+})
