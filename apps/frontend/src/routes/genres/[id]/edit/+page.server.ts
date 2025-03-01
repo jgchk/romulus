@@ -1,3 +1,4 @@
+import type { GenresClient } from '@romulus/genres/client'
 import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
@@ -7,7 +8,16 @@ import { genreSchema } from '$lib/server/api/genres/types'
 
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load = (async ({
+  locals,
+  params,
+}: {
+  locals: {
+    di: { genres: () => { getGenre: GenresClient['getGenre'] } }
+    user?: { permissions: { genres: { canEdit: boolean } } }
+  }
+  params: { id: string }
+}) => {
   if (!locals.user?.permissions.genres.canEdit) {
     return error(403, { message: 'You do not have permission to edit genres' })
   }
@@ -40,7 +50,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const form = await superValidate(data, zod(genreSchema))
   return { form }
-}
+}) satisfies PageServerLoad
 
 export const actions: Actions = {
   default: async ({ params, request, locals }) => {
