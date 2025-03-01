@@ -19,7 +19,7 @@
     "db:stop": "cd apps/backend && docker compose down"
   },
   "devDependencies": {
-    "turbo": "^2.4.0"
+    "turbo": "^2.4.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
