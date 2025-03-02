@@ -1,12 +1,12 @@
 import type { GenresClient } from '@romulus/genres/client'
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({
   locals,
@@ -30,10 +30,17 @@ export const load = (async ({
 
   const maybeGenre = await locals.di.genres().getGenre(id)
   if (maybeGenre.isErr()) {
-    return error(
-      maybeGenre.error.name === 'FetchError' ? 500 : maybeGenre.error.statusCode,
-      maybeGenre.error.message,
-    )
+    switch (maybeGenre.error.name) {
+      case 'FetchError': {
+        return error(500, maybeGenre.error.message)
+      }
+      case 'ValidationError': {
+        return error(400, { message: maybeGenre.error.message })
+      }
+      case 'GenreNotFoundError': {
+        return error(404, maybeGenre.error.message)
+      }
+    }
   }
 
   const { akas, ...genre } = maybeGenre.value.genre
@@ -52,8 +59,16 @@ export const load = (async ({
   return { form }
 }) satisfies PageServerLoad
 
-export const actions: Actions = {
-  default: async ({ params, request, locals }) => {
+export const actions = {
+  default: async ({
+    params,
+    request,
+    locals,
+  }: {
+    params: { id: string }
+    request: Request
+    locals: { di: { genres: () => { updateGenre: GenresClient['updateGenre'] } } }
+  }) => {
     const maybeId = z.coerce.number().int().safeParse(params.id)
     if (!maybeId.success) {
       return error(400, { message: 'Invalid genre ID' })
@@ -112,4 +127,4 @@ export const actions: Actions = {
 
     redirect(302, `/genres/${id}`)
   },
-}
+} satisfies Actions
