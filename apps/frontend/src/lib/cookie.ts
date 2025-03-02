@@ -21,7 +21,7 @@ function getSessionCookieOptions({
 
 export function setSessionCookie(
   { secure = IS_SECURE, expires, token }: { secure?: boolean; expires: Date; token: string },
-  cookies: Cookies,
+  cookies: Pick<Cookies, 'set'>,
 ) {
   cookies.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions({ secure, expires }))
 }

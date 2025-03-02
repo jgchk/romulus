@@ -1,25 +1,33 @@
-import { FetchError } from '@romulus/authentication/client'
-import { type Actions, error, redirect } from '@sveltejs/kit'
-import { fail, superValidate } from 'sveltekit-superforms'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import { type Cookies, error, redirect } from '@sveltejs/kit'
+import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { setSessionCookie } from '$lib/cookie'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 import { signInSchema } from './common'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = (async ({ locals }: { locals: { user: object | undefined } }) => {
   if (locals.user) {
     return redirect(302, '/')
   }
 
   const form = await superValidate(zod(signInSchema))
   return { form }
-}
+}) satisfies PageServerLoad
 
-export const actions: Actions = {
-  default: async ({ request, cookies, locals }) => {
-    const form = await superValidate(request, zod(signInSchema))
+export const actions = {
+  default: async ({
+    request,
+    cookies,
+    locals,
+  }: {
+    request: Request
+    cookies: Pick<Cookies, 'set'>
+    locals: { di: { authentication: () => { login: AuthenticationClient['login'] } } }
+  }) => {
+    const form = await superValidate(request, zod(signInSchema), { strict: true })
 
     if (!form.valid) {
       return fail(400, { form })
@@ -29,10 +37,20 @@ export const actions: Actions = {
       .authentication()
       .login({ username: form.data.username, password: form.data.password })
     if (response.isErr()) {
-      if (response.error instanceof FetchError) {
-        return error(500, `Failed to sign in: ${response.error.message}`)
-      } else {
-        return error(response.error.statusCode, response.error.message)
+      switch (response.error.name) {
+        case 'FetchError': {
+          return error(500, response.error.message)
+        }
+        case 'ValidationError': {
+          for (const issue of response.error.details.issues) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setError(form, issue.path as any, issue.message)
+          }
+          return fail(400, { form })
+        }
+        case 'InvalidLoginError': {
+          return error(401, response.error.message)
+        }
       }
     }
 
@@ -43,4 +61,4 @@ export const actions: Actions = {
 
     redirect(302, '/genres')
   },
-}
+} satisfies Actions

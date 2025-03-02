@@ -61,6 +61,12 @@ export default [
     },
   },
   {
+    files: ['**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
+  {
     ignores: ['**/.DS_Store', 'node_modules', 'build', '.svelte-kit', 'package', 'coverage'],
   },
 ]
