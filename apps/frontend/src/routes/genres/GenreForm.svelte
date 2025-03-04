@@ -63,7 +63,7 @@
   })
 </script>
 
-<form method="POST" use:enhance class="flex h-full flex-col">
+<form method="post" use:enhance class="flex h-full flex-col">
   <div class="flex-1 space-y-3 overflow-auto p-4">
     <InputGroup errors={$errors.name}>
       <Label for="name">Name</Label>

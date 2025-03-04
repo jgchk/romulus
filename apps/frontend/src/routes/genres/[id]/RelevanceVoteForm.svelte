@@ -26,7 +26,7 @@
   })
 </script>
 
-<form method="POST" action="?/relevance" use:enhance class={class_}>
+<form method="post" action="?/relevance" use:enhance class={class_}>
   <InputGroup errors={$errors.relevanceVote}>
     <Label for="relevance-vote">Your Vote</Label>
     <div class="flex items-center gap-1">

@@ -341,7 +341,7 @@
   >
     {#snippet buttons()}
       <form
-        method="POST"
+        method="post"
         action="?/delete"
         use:enhance={() => {
           isDeleteLoading = true

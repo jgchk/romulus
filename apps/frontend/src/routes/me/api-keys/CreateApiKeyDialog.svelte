@@ -19,7 +19,7 @@
 </script>
 
 <form
-  method="POST"
+  method="post"
   action="?/create"
   onsubmit={(e) => {
     if (disableFormSubmission) {

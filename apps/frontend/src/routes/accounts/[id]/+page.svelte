@@ -26,7 +26,7 @@
     <div class="flex h-full max-h-full min-h-0 flex-col">
       <div class="text-xl font-bold">{data.account.username}</div>
       {#if $user?.id === 1}
-        <form method="POST" action="?/createPasswordResetLink">
+        <form method="post" action="?/createPasswordResetLink">
           <Button type="submit">Create Password Reset Link</Button>
         </form>
         {#if form?.verificationLink}

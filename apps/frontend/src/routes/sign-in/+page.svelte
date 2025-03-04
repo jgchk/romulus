@@ -29,7 +29,7 @@
 </svelte:head>
 
 <div class="flex h-full w-full items-center justify-center">
-  <form method="POST" use:enhance class="space-y-2">
+  <form method="post" use:enhance class="space-y-2">
     <InputGroup errors={$errors.username}>
       <Label for="username">Username</Label>
       <Input

@@ -90,7 +90,7 @@
           {/if}
         </button>
 
-        <form method="POST" action="/sign-out" use:enhance>
+        <form method="post" action="/sign-out" use:enhance>
           <button
             class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
             type="submit"

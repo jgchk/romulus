@@ -19,7 +19,7 @@
 
   {#snippet buttons()}
     <form
-      method="POST"
+      method="post"
       action="?/delete"
       onsubmit={(e) => {
         if (disableFormSubmission) {
