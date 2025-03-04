@@ -9,7 +9,7 @@ export const load = (async ({
   locals,
 }: {
   locals: {
-    user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+    user: object | undefined
     di: {
       authentication: () => {
         getApiKeys: AuthenticationClient['getApiKeys']
@@ -17,6 +17,10 @@ export const load = (async ({
     }
   }
 }) => {
+  if (locals.user === undefined) {
+    return error(401, 'Unauthorized')
+  }
+
   const result = await locals.di.authentication().getApiKeys()
   if (result.isErr()) {
     if (result.error instanceof FetchError) {
@@ -35,7 +39,7 @@ export const actions = {
     request,
   }: {
     locals: {
-      user: Pick<NonNullable<App.Locals['user']>, 'id'> | undefined
+      user: object | undefined
       di: {
         authentication: () => {
           createApiKey: AuthenticationClient['createApiKey']
@@ -44,6 +48,10 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
+    if (locals.user === undefined) {
+      return error(401, 'Unauthorized')
+    }
+
     const data = await request.formData()
 
     const maybeName = z.string().min(1, 'Name is required').safeParse(data.get('name'))
@@ -86,6 +94,10 @@ export const actions = {
     }
     request: RequestEvent['request']
   }) => {
+    if (locals.user === undefined) {
+      return error(401, 'Unauthorized')
+    }
+
     const data = await request.formData()
 
     const maybeApiKeyId = z.coerce.number().int().safeParse(data.get('id'))
