@@ -1,24 +1,33 @@
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import { type Cookies, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { setSessionCookie } from '$lib/cookie'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 import { signUpSchema } from './common'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = (async ({ locals }: { locals: { user: object | undefined } }) => {
   if (locals.user) {
     return redirect(302, '/')
   }
 
   const form = await superValidate(zod(signUpSchema))
   return { form }
-}
+}) satisfies PageServerLoad
 
-export const actions: Actions = {
-  default: async ({ request, cookies, locals }) => {
-    const form = await superValidate(request, zod(signUpSchema))
+export const actions = {
+  default: async ({
+    request,
+    cookies,
+    locals,
+  }: {
+    request: Request
+    cookies: Pick<Cookies, 'set'>
+    locals: { di: { authentication: () => { register: AuthenticationClient['register'] } } }
+  }) => {
+    const form = await superValidate(request, zod(signUpSchema), { strict: true })
 
     if (!form.valid) {
       return fail(400, { form })
@@ -30,7 +39,7 @@ export const actions: Actions = {
     if (response.isErr()) {
       switch (response.error.name) {
         case 'FetchError': {
-          return error(500, `Failed to sign up: ${response.error.message}`)
+          return error(500, response.error.message)
         }
         case 'ValidationError': {
           for (const issue of response.error.details.issues) {
@@ -56,4 +65,4 @@ export const actions: Actions = {
 
     redirect(302, '/genres')
   },
-}
+} satisfies Actions
