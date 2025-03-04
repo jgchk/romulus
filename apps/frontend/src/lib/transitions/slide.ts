@@ -1,6 +1,8 @@
 import { cubicOut } from 'svelte/easing'
 import type { EasingFunction, TransitionConfig } from 'svelte/transition'
 
+import { disableTransitionInUnitTests } from './utils'
+
 type SlideProps = {
   delay?: number
   duration?: number
@@ -11,7 +13,13 @@ type SlideProps = {
 
 export function slide(
   node: Element,
-  { delay = 0, duration = 200, easing = cubicOut, axis = 'x', opacitySpeed = 2 }: SlideProps = {},
+  {
+    delay = 0,
+    duration = disableTransitionInUnitTests(200),
+    easing = cubicOut,
+    axis = 'x',
+    opacitySpeed = 2,
+  }: SlideProps = {},
 ): TransitionConfig {
   const style = getComputedStyle(node)
   const opacity = +style.opacity
