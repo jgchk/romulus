@@ -4,6 +4,7 @@
   import { fade, scale } from 'svelte/transition'
 
   import { trapFocus } from '$lib/actions/trapFocus'
+  import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { tw } from '$lib/utils/dom'
 
   type Props = {
@@ -33,7 +34,7 @@
     type="button"
     class="absolute h-full w-full cursor-default bg-black opacity-50"
     onclick={close}
-    transition:fade={{ duration: 125 }}
+    transition:fade={{ duration: disableTransitionInUnitTests(125) }}
     tabindex="-1"
   ></button>
 
@@ -42,7 +43,7 @@
       'relative flex max-h-full w-full max-w-md flex-col rounded-lg border border-gray-200 bg-gray-100 shadow-lg dark:border-gray-700 dark:bg-gray-800',
       class_,
     )}
-    transition:scale={{ start: 0.95, duration: 125 }}
+    transition:scale={{ start: 0.95, duration: disableTransitionInUnitTests(125) }}
     use:trapFocus
   >
     {#if title !== undefined}
