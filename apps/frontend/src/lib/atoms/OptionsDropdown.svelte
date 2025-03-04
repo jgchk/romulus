@@ -9,6 +9,7 @@
   import { fade } from 'svelte/transition'
 
   import type { Action } from '$lib/actions/types'
+  import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { tw } from '$lib/utils/dom'
 
   type Props = {
@@ -36,7 +37,7 @@
 <div
   role="listbox"
   class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-  transition:fade={{ duration: 75 }}
+  transition:fade={{ duration: disableTransitionInUnitTests(75) }}
   tabindex="-1"
   use:popoverElement
 >

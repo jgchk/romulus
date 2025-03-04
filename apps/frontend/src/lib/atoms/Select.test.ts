@@ -122,7 +122,7 @@ describe('Interaction', () => {
     expect(queryListbox()).not.toBeNull()
   })
 
-  it.skip('should close the options list when clicking outside', async () => {
+  it('should close the options list when clicking outside', async () => {
     const { user, getButton, queryListbox } = setup({
       options: [
         { value: 'a', label: 'ayy' },
@@ -135,7 +135,7 @@ describe('Interaction', () => {
     await waitFor(() => expect(queryListbox()).toBeNull())
   })
 
-  it.skip('should close the options list upon option selection', async () => {
+  it('should close the options list upon option selection', async () => {
     const { user, getButton, getListbox, queryListbox } = setup({
       options: [
         { value: 'a', label: 'ayy' },
@@ -162,7 +162,7 @@ describe('Keyboard Navigation', () => {
     expect(queryListbox()).toBeNull()
   })
 
-  it.skip('should close the options list upon tabbing out of the button', async () => {
+  it('should close the options list upon tabbing out of the button', async () => {
     const { user, getButton, queryListbox } = setup({
       options: [
         { value: 'a', label: 'ayy' },

@@ -128,7 +128,7 @@ test('renders all options when input is focused', async () => {
   expect(options[4]).toHaveTextContent(/^Zero Meta$/)
 })
 
-test.skip('closes the options when clicking outside', async () => {
+test('closes the options when clicking outside', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
     genres: data,

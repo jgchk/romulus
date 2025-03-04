@@ -9,6 +9,7 @@
 
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
+  import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { cn } from '$lib/utils/dom'
 
   import type { Option, SelectProps } from './Select'
@@ -118,7 +119,7 @@
       role="listbox"
       class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
       use:popoverElement
-      transition:fade={{ duration: 75 }}
+      transition:fade={{ duration: disableTransitionInUnitTests(75) }}
     >
       {#each options as option, i (option.value)}
         <li>
