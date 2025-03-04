@@ -31,3 +31,8 @@ type AllPropertiesTrue<T> = {
 }
 
 export type MaybePromise<T> = T | Promise<T>
+
+export function willNeverHappen(value: never): never {
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  throw new Error(`This should never happen: ${value}`)
+}

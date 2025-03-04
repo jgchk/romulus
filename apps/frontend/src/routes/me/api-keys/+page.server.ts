@@ -23,10 +23,20 @@ export const load = (async ({
 
   const result = await locals.di.authentication().getApiKeys()
   if (result.isErr()) {
-    if (result.error instanceof FetchError) {
-      return error(500, result.error.message)
-    } else {
-      return error(result.error.statusCode, result.error.message)
+    switch (result.error.name) {
+      case 'FetchError': {
+        return error(500, result.error.message)
+      }
+      case 'ValidationError': {
+        return error(400, result.error.message)
+      }
+      case 'UnauthorizedError': {
+        return error(401, result.error.message)
+      }
+      default: {
+        result.error satisfies never
+        return error(500, 'An unknown error occurred')
+      }
     }
   }
 
@@ -65,10 +75,20 @@ export const actions = {
 
     const result = await locals.di.authentication().createApiKey(name)
     if (result.isErr()) {
-      if (result.error instanceof FetchError) {
-        return error(500, result.error.message)
-      } else {
-        return error(result.error.statusCode, result.error.message)
+      switch (result.error.name) {
+        case 'FetchError': {
+          return error(500, result.error.message)
+        }
+        case 'ValidationError': {
+          return error(400, result.error.message)
+        }
+        case 'UnauthorizedError': {
+          return error(401, result.error.message)
+        }
+        default: {
+          result.error satisfies never
+          return error(500, 'An unknown error occurred')
+        }
       }
     }
 
