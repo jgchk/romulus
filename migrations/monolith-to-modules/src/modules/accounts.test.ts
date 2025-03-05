@@ -35,3 +35,35 @@ test('should migrate all accounts', async ({ dbConnection }) => {
     updatedAt: expect.any(Date) as Date,
   })
 })
+
+test('should migrate all api keys', async ({ dbConnection }) => {
+  const drizzle = pglite.getPGliteDbConnection(dbConnection)
+
+  await migrateAccounts(
+    async () => {
+      await pglite.migratePGlite(drizzle)
+    },
+    async (query: string) => {
+      await dbConnection.exec(query)
+    },
+  )
+
+  const apiKeys = await drizzle.query.apiKeysTable.findMany({
+    orderBy: (table, { asc }) => asc(table.id),
+  })
+  expect(apiKeys).toHaveLength(7)
+  expect(apiKeys[0]).toEqual({
+    id: 8,
+    name: 'new-key',
+    accountId: 44,
+    keyHash: expect.any(String) as string,
+    createdAt: expect.any(Date) as Date,
+  })
+  expect(apiKeys[apiKeys.length - 1]).toEqual({
+    id: 16,
+    name: 'Krik_iddqd',
+    accountId: 103,
+    keyHash: expect.any(String) as string,
+    createdAt: expect.any(Date) as Date,
+  })
+})
