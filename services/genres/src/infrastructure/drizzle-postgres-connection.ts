@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate as drizzleMigrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
 
+import { withProps } from '../utils.js'
 import * as schema from './drizzle-schema.js'
 
 export function getPostgresConnection(databaseUrl: string) {
@@ -20,7 +21,7 @@ export function getDbConnection(pg: postgres.Sql) {
     logger: process.env.LOGGING === 'true',
   })
 
-  return drizzleClient
+  return withProps(drizzleClient, { close: () => pg.end() })
 }
 
 export async function migrate<S extends Record<string, unknown>>(db: PostgresJsDatabase<S>) {
