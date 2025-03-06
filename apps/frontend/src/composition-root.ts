@@ -7,7 +7,7 @@ export type CompositionRoot = ReturnType<typeof createCompositionRoot>
 
 export function createCompositionRoot(options: {
   baseUrl: string
-  sessionToken: string
+  sessionToken: string | undefined
   fetch: typeof fetch
 }) {
   return {
@@ -20,7 +20,7 @@ export function createCompositionRoot(options: {
 
 function createAuthenticationClient(options: {
   baseUrl: string
-  sessionToken: string
+  sessionToken: string | undefined
   fetch: typeof fetch
 }) {
   return new AuthenticationClient({
@@ -32,7 +32,7 @@ function createAuthenticationClient(options: {
 
 function createAuthorizationClient(options: {
   baseUrl: string
-  sessionToken: string
+  sessionToken: string | undefined
   fetch: typeof fetch
 }) {
   return new AuthorizationClient({
@@ -44,7 +44,7 @@ function createAuthorizationClient(options: {
 
 function createUserSettingsClient(options: {
   baseUrl: string
-  sessionToken: string
+  sessionToken: string | undefined
   fetch: typeof fetch
 }) {
   return new UserSettingsClient({
@@ -56,7 +56,7 @@ function createUserSettingsClient(options: {
 
 function createGenresClient(options: {
   baseUrl: string
-  sessionToken: string
+  sessionToken: string | undefined
   fetch: typeof fetch
 }) {
   return new GenresClient({
