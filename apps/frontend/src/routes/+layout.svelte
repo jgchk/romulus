@@ -1,7 +1,6 @@
 <script lang="ts">
   import '../app.css'
 
-  import { onMount } from 'svelte'
   import { writable } from 'svelte/store'
 
   import Card from '$lib/atoms/Card.svelte'
