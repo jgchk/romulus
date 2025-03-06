@@ -2,14 +2,19 @@
   import { tooltip } from '$lib/actions/tooltip'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { Genre } from '$lib/server/db/schema'
-  import type { GenreMatch } from '$lib/types/genres'
+  import type { GenreMatch, GenreType } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
 
   import { searchStore } from './state'
 
   type Props = {
-    match: GenreMatch<Pick<Genre, 'id' | 'name' | 'subtitle' | 'type' | 'nsfw'>>
+    match: GenreMatch<{
+      id: number
+      name: string
+      subtitle: string | null
+      type: GenreType
+      nsfw: boolean
+    }>
   }
 
   let { match }: Props = $props()
