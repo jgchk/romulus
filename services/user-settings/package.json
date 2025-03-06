@@ -20,8 +20,6 @@
     }
   },
   "scripts": {
-    "test": "pnpm test:unit run",
-    "test:unit": "vitest",
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",

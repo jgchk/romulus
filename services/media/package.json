@@ -9,8 +9,9 @@
     "./artifacts/infrastructure": "./src/artifacts/commands/infrastructure/projection.ts"
   },
   "scripts": {
-    "test": "pnpm test:unit run",
-    "test:unit": "vitest",
+    "test": "pnpm test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",

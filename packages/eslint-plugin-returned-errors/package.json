@@ -2,8 +2,9 @@
   "name": "eslint-plugin-returned-errors",
   "type": "module",
   "scripts": {
-    "test": "pnpm run test:unit run",
-    "test:unit": "vitest",
+    "test": "pnpm test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "format": "prettier --write ."

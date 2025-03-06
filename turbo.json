@@ -15,6 +15,17 @@
       "dependsOn": ["^build"],
       "persistent": true,
       "cache": false
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:unit": {
+      "dependsOn": ["^build"]
+    },
+    "test:unit:watch": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
     }
   }
 }
