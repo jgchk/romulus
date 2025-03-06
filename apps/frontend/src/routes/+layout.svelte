@@ -36,13 +36,6 @@
   $effect(() => {
     userSettings.updateUser(data.settings)
   })
-
-  // Used to indicate when hydration is complete for Playwright tests
-  // See: https://github.com/microsoft/playwright/issues/19858#issuecomment-1377088645
-  // and: https://spin.atomicobject.com/hydration-sveltekit-tests/
-  onMount(() => {
-    document.body.classList.add('started')
-  })
 </script>
 
 <DarkModeApplier />

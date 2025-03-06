@@ -22,7 +22,6 @@
     ".svelte-kit/types/**/$types.d.ts",
     "drizzle.config.ts",
     "eslint.config.js",
-    "playwright.config.ts",
     "postcss.config.js",
     "svelte.config.js",
     "tailwind.config.ts",

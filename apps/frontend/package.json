@@ -13,8 +13,6 @@
     "lint": "prettier --check . && pnpm check && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
-    "test:e2e": "svelte-kit sync && playwright test",
-    "test:e2e:dev": "svelte-kit sync && NODE_ENV=development playwright test",
     "test:unit": "vitest",
     "db:migrate": "node ./src/lib/server/db/migrate.js",
     "db:generate": "drizzle-kit generate",
@@ -47,7 +45,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
-    "@playwright/test": "^1.48.2",
     "@romulus/eslint-config": "workspace:*",
     "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.8.0",
