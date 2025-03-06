@@ -5,5 +5,6 @@ export default defineConfig({
     css: true,
     include: ['./src/**/*.test.ts'],
     setupFiles: ['./src/vitest-setup.ts'],
+    fileParallelism: false,
   },
 })
