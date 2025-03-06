@@ -67,7 +67,7 @@ describe('refreshSession', () => {
   test('should return new token and expiry when session is refreshed', async ({ dbConnection }) => {
     const { refreshSession, createAccount, createSession } = setupCommand({ dbConnection })
 
-    const account = await createAccount({ username: 'testuser', password: 'password123' })
+    const account = await createAccount({ username: 'testuser-refresh', password: 'password123' })
     const session = await createSession(account.id)
 
     const result = await refreshSession.execute(session.token)
@@ -81,7 +81,7 @@ describe('refreshSession', () => {
   test('should error when session is expired', async ({ dbConnection, withSystemTime }) => {
     const { refreshSession, createAccount, createSession } = setupCommand({ dbConnection })
 
-    const account = await createAccount({ username: 'testuser', password: 'password123' })
+    const account = await createAccount({ username: 'testuser-expiry', password: 'password123' })
     const session = await createSession(account.id)
 
     // 100 years in the future

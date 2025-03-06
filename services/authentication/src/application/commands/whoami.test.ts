@@ -59,7 +59,7 @@ describe('getSession', () => {
   test('should return account and session when session is valid', async ({ dbConnection }) => {
     const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
 
-    const account = await createAccount({ username: 'testuser', password: 'password123' })
+    const account = await createAccount({ username: 'testuser-session', password: 'password123' })
     const session = await createSession(account.id)
 
     const result = await validateSession.execute(session.token)
@@ -86,7 +86,10 @@ describe('getSession', () => {
   test('should error when session is expired', async ({ dbConnection, withSystemTime }) => {
     const { validateSession, createAccount, createSession } = setupCommand({ dbConnection })
 
-    const account = await createAccount({ username: 'testuser', password: 'password123' })
+    const account = await createAccount({
+      username: 'testuser-session-expiry',
+      password: 'password123',
+    })
     const session = await createSession(account.id)
 
     // 10 years in the future
