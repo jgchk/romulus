@@ -67,7 +67,7 @@ describe('getSession', () => {
     expect(result).toEqual({
       account: {
         id: account.id,
-        username: 'testuser',
+        username: 'testuser-session',
       },
       session: {
         expiresAt: session.expiresAt,
