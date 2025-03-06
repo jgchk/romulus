@@ -1,4 +1,5 @@
-import { test as base, vi } from 'vitest'
+import { sql } from 'drizzle-orm'
+import { afterAll, test as base, vi } from 'vitest'
 
 import type { IDrizzleConnection } from './infrastructure/drizzle-database.js'
 import {
@@ -7,18 +8,24 @@ import {
   migratePGlite,
 } from './infrastructure/drizzle-pglite-connection.js'
 
+const pg = getPGlitePostgresConnection()
+const db = getPGliteDbConnection(pg)
+
+afterAll(async () => {
+  await pg.close()
+})
+
 export const test = base
   .extend<{ dbConnection: IDrizzleConnection }>({
     // eslint-disable-next-line no-empty-pattern
     dbConnection: async ({}, use) => {
-      const pg = getPGlitePostgresConnection()
-      const db = getPGliteDbConnection(pg)
-
       await migratePGlite(db)
 
       await use(db)
 
-      await pg.close()
+      await db.execute(sql`drop schema if exists public cascade`)
+      await db.execute(sql`create schema public`)
+      await db.execute(sql`drop schema if exists drizzle cascade`)
     },
   })
   .extend<{ withSystemTime: (time: Date) => void }>({
