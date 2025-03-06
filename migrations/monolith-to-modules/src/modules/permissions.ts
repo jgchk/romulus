@@ -12,6 +12,8 @@ export async function migratePermissions(
   await migrateSchema()
 
   async function insertPermissions(permissions: { name: string; description?: string }[]) {
+    if (permissions.length === 0) return
+
     await execQuery(`
       INSERT INTO "permissions"
         (name, description)
@@ -65,10 +67,13 @@ export async function migratePermissions(
   const genreEditors = (
     await monolith`SELECT id FROM "Account" WHERE 'EDIT_GENRES'=any("permissions")`
   ).map((row) => row.id as number)
-  await execQuery(`
+
+  if (genreEditors.length > 0) {
+    await execQuery(`
     INSERT INTO "user_roles"
       (user_id, role_name)
     VALUES
       ${genreEditors.map((userId) => `(${userId}, 'genre-editor')`).join(', ')}
   `)
+  }
 }

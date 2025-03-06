@@ -67,3 +67,49 @@ test('should migrate all api keys', async ({ dbConnection }) => {
     createdAt: expect.any(Date) as Date,
   })
 })
+
+test('should migrate all password reset tokens', async ({ dbConnection }) => {
+  const drizzle = pglite.getPGliteDbConnection(dbConnection)
+
+  await migrateAccounts(
+    async () => {
+      await pglite.migratePGlite(drizzle)
+    },
+    async (query: string) => {
+      await dbConnection.exec(query)
+    },
+  )
+
+  const passwordResetTokens = await drizzle.query.passwordResetTokensTable.findMany({
+    orderBy: (table, { asc }) => asc(table.tokenHash),
+  })
+  expect(passwordResetTokens).toHaveLength(0)
+})
+
+test('should migrate all sessions', async ({ dbConnection }) => {
+  const drizzle = pglite.getPGliteDbConnection(dbConnection)
+
+  await migrateAccounts(
+    async () => {
+      await pglite.migratePGlite(drizzle)
+    },
+    async (query: string) => {
+      await dbConnection.exec(query)
+    },
+  )
+
+  const apiKeys = await drizzle.query.sessionsTable.findMany({
+    orderBy: (table, { asc }) => asc(table.tokenHash),
+  })
+  expect(apiKeys).toHaveLength(372)
+  expect(apiKeys[0]).toEqual({
+    tokenHash: expect.any(String) as string,
+    userId: 65,
+    expiresAt: expect.any(Date) as Date,
+  })
+  expect(apiKeys[apiKeys.length - 1]).toEqual({
+    tokenHash: expect.any(String) as string,
+    userId: 42,
+    expiresAt: expect.any(Date) as Date,
+  })
+})

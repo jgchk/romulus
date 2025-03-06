@@ -18,11 +18,12 @@ export async function migrateUserSettings(
     showNsfw: row.showNsfw as boolean,
   }))
 
-  const query = `
-    INSERT INTO "user_settings"
-      (id, "genreRelevanceFilter", "showRelevanceTags", "showTypeTags", "showNsfw", "darkMode")
-    VALUES
-      ${accounts.map((account) => `(${account.id}, ${account.genreRelevanceFilter}, ${account.showRelevanceTags}, ${account.showTypeTags}, ${account.showNsfw}, ${account.darkMode})`).join(', ')}
-  `
-  await execQuery(query)
+  if (accounts.length > 0) {
+    await execQuery(`
+      INSERT INTO "user_settings"
+        (id, "genreRelevanceFilter", "showRelevanceTags", "showTypeTags", "showNsfw", "darkMode")
+      VALUES
+        ${accounts.map((account) => `(${account.id}, ${account.genreRelevanceFilter}, ${account.showRelevanceTags}, ${account.showTypeTags}, ${account.showNsfw}, ${account.darkMode})`).join(', ')}
+    `)
+  }
 }

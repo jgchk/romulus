@@ -37,6 +37,9 @@ async function migrateGenreDocuments(
     subtitle: row.subtitle as string | null,
     nsfw: row.nsfw as boolean,
   }))
+
+  if (genres.length === 0) return
+
   await execQuery(`
     INSERT INTO "Genre"
       (id, name, "shortDescription", "longDescription", "createdAt", "updatedAt", notes, type, relevance, subtitle, nsfw)
@@ -52,6 +55,9 @@ async function migrateAkas(monolith: postgres.Sql, execQuery: (query: string) =>
     relevance: row.relevance as number,
     order: row.order as number,
   }))
+
+  if (akas.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreAka"
       ("genreId", name, relevance, "order")
@@ -65,6 +71,9 @@ async function migrateDerived(monolith: postgres.Sql, execQuery: (query: string)
     derivedFromId: row.derivedFromId as number,
     derivationId: row.derivationId as number,
   }))
+
+  if (derived.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreDerivedFrom"
       ("derivedFromId", "derivationId")
@@ -94,6 +103,9 @@ async function migrateGenreHistory(
     nsfw: row.nsfw as boolean,
     derivedFromGenreIds: row.derivedFromGenreIds as number[] | null,
   }))
+
+  if (history.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreHistory"
       (id, name, type, "shortDescription", "longDescription", notes, "parentGenreIds", "influencedByGenreIds", "treeGenreId", "createdAt", operation, "accountId", subtitle, nsfw, "derivedFromGenreIds")
@@ -112,6 +124,9 @@ async function migrateGenreHistoryAkas(
     relevance: row.relevance as number,
     order: row.order as number,
   }))
+
+  if (akas.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreHistoryAka"
       ("genreId", name, relevance, "order")
@@ -128,6 +143,9 @@ async function migrateInfluences(
     influencedId: row.influencedId as number,
     influencerId: row.influencerId as number,
   }))
+
+  if (influences.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreInfluences"
       ("influencedId", "influencerId")
@@ -141,6 +159,9 @@ async function migrateParents(monolith: postgres.Sql, execQuery: (query: string)
     parentId: row.parentId as number,
     childId: row.childId as number,
   }))
+
+  if (parents.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreParents"
       ("parentId", "childId")
@@ -160,6 +181,9 @@ async function migrateRelevanceVotes(
     createdAt: row.createdAt as Date,
     updatedAt: row.updatedAt as Date,
   }))
+
+  if (votes.length === 0) return
+
   await execQuery(`
     INSERT INTO "GenreRelevanceVote"
       ("genreId", "accountId", relevance, "createdAt", "updatedAt")
