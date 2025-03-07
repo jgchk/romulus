@@ -15,8 +15,8 @@
     "test:unit:watch": "turbo test:unit:watch --filter=!@romulus/monolith-to-modules-migration",
     "docker:build": "docker build -t romulus .",
     "docker:run": "docker run --network host -p 3000:3000 --env-file .env.docker romulus",
-    "db:start": "cd apps/backend && docker compose up",
-    "db:stop": "cd apps/backend && docker compose down"
+    "db:start": "cd docker/db && docker compose up",
+    "db:stop": "cd docker/db && docker compose down"
   },
   "devDependencies": {
     "turbo": "^2.4.4"
