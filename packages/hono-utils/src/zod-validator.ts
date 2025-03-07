@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator'
 import type { ValidationTargets } from 'hono'
 import type { ZodType, ZodTypeDef } from 'zod'
 
-import { setError } from './errors'
+import { setError } from './errors.js'
 
 export function zodValidator<
   T extends keyof ValidationTargets,

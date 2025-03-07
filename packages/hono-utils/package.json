@@ -2,13 +2,20 @@
   "name": "@romulus/hono-utils",
   "type": "module",
   "exports": {
-    "./errors": "./src/errors.ts",
-    "./zod-validator": "./src/zod-validator.ts"
+    "./errors": {
+      "import": "./dist/errors.js",
+      "types": "./dist/errors.d.ts"
+    },
+    "./zod-validator": {
+      "import": "./dist/zod-validator.js",
+      "types": "./dist/zod-validator.d.ts"
+    }
   },
   "scripts": {
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",

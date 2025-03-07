@@ -28,7 +28,7 @@ export class UnknownError extends CustomError {
 }
 
 export class FetchError extends CustomError {
-  constructor(public readonly cause: Error) {
+  constructor(public override readonly cause: Error) {
     super('FetchError', `An error occurred while fetching: ${cause.message}`, cause)
   }
 }
