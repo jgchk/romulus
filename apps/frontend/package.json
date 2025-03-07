@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "dotenv -e .env -- vite dev",
     "build": "vite build",
-    "build:vercel": "pnpm build && pnpm db:migrate",
     "preview": "vite preview",
     "test": "pnpm test:unit",
     "test:unit": "vitest run",
