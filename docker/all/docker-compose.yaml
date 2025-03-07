@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  postgres:
+    extends:
+      file: ../db/docker-compose.yaml
+      service: postgres
+
+  adminer:
+    extends:
+      file: ../db/docker-compose.yaml
+      service: adminer
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: ./apps/backend/Dockerfile
+    environment:
+      AUTHENTICATION_DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/authn"
+      AUTHORIZATION_DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/authz"
+      GENRES_DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/genres"
+      USER_SETTINGS_DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/user_settings"
+    ports:
+      - 3000:3000
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: ./apps/frontend/Dockerfile
+    environment:
+      ORIGIN: "http://localhost:3001"
+      API_BASE_URL: "http://backend:3000"
+    ports:
+      - 3001:3000

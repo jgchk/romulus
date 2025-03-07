@@ -3,15 +3,21 @@ import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
 import type { Handle } from '@sveltejs/kit'
 
-import { PUBLIC_API_BASE_URL } from '$env/static/public'
+import { env } from '$env/dynamic/private'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'
 
 import { createCompositionRoot } from './composition-root'
 
+const API_BASE_URL = env.API_BASE_URL
+if (API_BASE_URL === undefined) {
+  console.error('API_BASE_URL is required')
+  process.exit(1)
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
   const sessionToken = getSessionCookie(event.cookies)
   event.locals.di = createCompositionRoot({
-    baseUrl: PUBLIC_API_BASE_URL,
+    baseUrl: API_BASE_URL,
     sessionToken,
     fetch: event.fetch,
   })
