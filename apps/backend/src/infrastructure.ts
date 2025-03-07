@@ -5,6 +5,8 @@ import type { ArtifactsProjection } from '@romulus/media/artifacts/infrastructur
 import { createArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
+import { env } from './env.js'
+
 export type Infrastructure = {
   authentication: AuthenticationInfrastructure
   authorization: AuthorizationInfrastructure
@@ -14,19 +16,11 @@ export type Infrastructure = {
 }
 
 export async function createInfrastructure(): Promise<Infrastructure> {
-  const authentication = await AuthenticationInfrastructure.create(
-    'postgresql://postgres:postgres@localhost:5432/authn',
-  )
-  const authorization = await AuthorizationInfrastructure.create(
-    'postgresql://postgres:postgres@localhost:5432/authz',
-  )
-  const genres = await GenresInfrastructure.create(
-    'postgresql://postgres:postgres@localhost:5432/genres',
-  )
+  const authentication = await AuthenticationInfrastructure.create(env.AUTHENTICATION_DATABASE_URL)
+  const authorization = await AuthorizationInfrastructure.create(env.AUTHORIZATION_DATABASE_URL)
+  const genres = await GenresInfrastructure.create(env.GENRES_DATABASE_URL)
   const media = createArtifactsProjection()
-  const userSettings = await UserSettingsInfrastructure.create(
-    'postgresql://postgres:postgres@localhost:5432/user_settings',
-  )
+  const userSettings = await UserSettingsInfrastructure.create(env.USER_SETTINGS_DATABASE_URL)
 
   return { authentication, authorization, genres, media, userSettings }
 }

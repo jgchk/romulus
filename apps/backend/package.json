@@ -20,13 +20,13 @@
     "@romulus/media": "workspace:*",
     "@romulus/user-settings": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
+    "arktype": "^2.0.4",
     "bcryptjs": "^2.4.3",
     "drizzle-orm": "^0.36.0",
     "hono": "^4.6.12",
     "neverthrow": "^8.1.1",
     "oslo": "^1.2.1",
-    "postgres": "^3.4.5",
-    "zod": "^3.23.8"
+    "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@romulus/eslint-config": "workspace:*",
