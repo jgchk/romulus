@@ -10,13 +10,13 @@ export type DefineArtifactSchemaCommand = {
   }
 }
 
-export type DefineArtifactSchemaCommandHandler = ReturnType<
-  typeof createDefineArtifactSchemaCommandHandler
->
+export type DefineArtifactSchemaCommandHandler = (
+  command: DefineArtifactSchemaCommand,
+) => Promise<void>
 
 export function createDefineArtifactSchemaCommandHandler(
   saveArtifactSchemaEvent: (event: ArtifactSchemaDefinedEvent) => Promise<void> | void,
-) {
+): DefineArtifactSchemaCommandHandler {
   return async function (command: DefineArtifactSchemaCommand) {
     const result = defineArtifactSchema({ artifactSchema: command.artifactSchema })
     await saveArtifactSchemaEvent(result)

@@ -1,9 +1,15 @@
+import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import type { RelationSchema } from '../../domain/artifact-schemas/define-relation-schema.js'
 import type { Artifact } from '../../domain/artifacts/register-artifact.js'
 import type { Relation, RelationRegisteredEvent } from '../../domain/artifacts/register-relation.js'
 import { registerRelation } from '../../domain/artifacts/register-relation.js'
+import type {
+  IncorrectAttributeTypeError,
+  InvalidRelationError,
+  MissingAttributeError,
+} from '../../domain/errors.js'
 import {
   MediaArtifactNotFoundError,
   MediaArtifactRelationSchemaNotFoundError,
@@ -13,7 +19,18 @@ export type RegisterRelationCommand = {
   relation: Relation
 }
 
-export type RegisterRelationCommandHandler = ReturnType<typeof createRegisterRelationCommandHandler>
+export type RegisterRelationCommandHandler = (
+  command: RegisterRelationCommand,
+) => Promise<
+  Result<
+    undefined,
+    | MediaArtifactRelationSchemaNotFoundError
+    | MediaArtifactNotFoundError
+    | InvalidRelationError
+    | MissingAttributeError
+    | IncorrectAttributeTypeError
+  >
+>
 
 export function createRegisterRelationCommandHandler(
   getState: (ids: {
@@ -26,7 +43,7 @@ export function createRegisterRelationCommandHandler(
     targetArtifact: Artifact | undefined
   }>,
   saveRelationEvent: (event: RelationRegisteredEvent) => Promise<void> | void,
-) {
+): RegisterRelationCommandHandler {
   return async function (command: RegisterRelationCommand) {
     const { schema, sourceArtifact, targetArtifact } = await getState({
       schemaId: command.relation.schema,

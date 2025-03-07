@@ -10,6 +10,8 @@ import type { RegisterRelationCommandHandler } from '../application/artifacts/re
 import {
   IncorrectAttributeTypeError,
   InvalidRelationError,
+  MediaArtifactNotFoundError,
+  MediaArtifactRelationSchemaNotFoundError,
   MediaArtifactSchemaNotFoundError,
   MissingAttributeError,
 } from '../domain/errors.js'
@@ -90,6 +92,10 @@ export function createArtifactsRouter(deps: ArtifactsRouterDependencies) {
             switch (true) {
               case error instanceof MediaArtifactSchemaNotFoundError:
                 return setError(c, error, 404)
+              case error instanceof MissingAttributeError:
+                return setError(c, error, 400)
+              case error instanceof IncorrectAttributeTypeError:
+                return setError(c, error, 400)
               default: {
                 error satisfies never
                 return setError(c, new UnknownError(), 500)
@@ -123,6 +129,10 @@ export function createArtifactsRouter(deps: ArtifactsRouterDependencies) {
           () => c.json({ success: true } as const),
           (error) => {
             switch (true) {
+              case error instanceof MediaArtifactRelationSchemaNotFoundError:
+                return setError(c, error, 404)
+              case error instanceof MediaArtifactNotFoundError:
+                return setError(c, error, 404)
               case error instanceof MissingAttributeError:
                 return setError(c, error, 400)
               case error instanceof IncorrectAttributeTypeError:
