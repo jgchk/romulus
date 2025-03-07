@@ -38,7 +38,7 @@ import {
 } from '@romulus/media/artifacts/application'
 import { UserSettingsApplication } from '@romulus/user-settings/application'
 
-import type { Infrastructure } from './infrastructure'
+import type { Infrastructure } from './infrastructure.js'
 
 export function createAuthenticationApplication(infrastructure: Infrastructure) {
   const authorization = {

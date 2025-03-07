@@ -1,17 +1,17 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 
-import { createAuthenticationApplication, createAuthorizationApplication } from './application'
-import type { Infrastructure } from './infrastructure'
-import { createInfrastructure } from './infrastructure'
-import { setupPermissions } from './permissions'
+import { createAuthenticationApplication, createAuthorizationApplication } from './application.js'
+import type { Infrastructure } from './infrastructure.js'
+import { createInfrastructure } from './infrastructure.js'
+import { setupPermissions } from './permissions.js'
 import {
   getAuthenticationRouter,
   getAuthorizationRouter,
   getGenresRouter,
   getMediaRouter,
   getUserSettingsRouter,
-} from './web'
+} from './web.js'
 
 async function main() {
   const infrastructure = await createInfrastructure()

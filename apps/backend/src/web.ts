@@ -11,8 +11,8 @@ import {
   createGenresApplication,
   createMediaApplication,
   createUserSettingsApplication,
-} from './application'
-import type { Infrastructure } from './infrastructure'
+} from './application.js'
+import type { Infrastructure } from './infrastructure.js'
 
 export function getAuthenticationRouter(infrastructure: Infrastructure) {
   const application = createAuthenticationApplication(infrastructure)
