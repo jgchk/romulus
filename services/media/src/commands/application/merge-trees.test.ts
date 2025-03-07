@@ -1,16 +1,16 @@
 import { expect, test } from 'vitest'
 
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MediaTypeAlreadyExistsError, WillCreateCycleError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { AddMediaTypeCommand } from './add-media-type'
-import { AddParentToMediaTypeCommand } from './add-parent-to-media-type'
-import { CopyTreeCommand } from './copy-tree'
-import { CreateTreeCommand } from './create-tree'
-import { MergeTreesCommand } from './merge-trees'
-import { SetMainTreeCommand } from './set-main-tree'
-import { TestHelper } from './test-helper'
+import { UnauthorizedError } from '../domain/errors.js'
+import { MediaTypeTreeNotFoundError } from '../domain/errors.js'
+import { MediaTypeAlreadyExistsError, WillCreateCycleError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { AddMediaTypeCommand } from './add-media-type.js'
+import { AddParentToMediaTypeCommand } from './add-parent-to-media-type.js'
+import { CopyTreeCommand } from './copy-tree.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { MergeTreesCommand } from './merge-trees.js'
+import { SetMainTreeCommand } from './set-main-tree.js'
+import { TestHelper } from './test-helper.js'
 
 test('should merge two trees when the user owns both trees', async () => {
   // given

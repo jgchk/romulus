@@ -1,4 +1,4 @@
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 
 export class GetMediaTypeTreeQuery {
   constructor(public readonly treeId: string) {}

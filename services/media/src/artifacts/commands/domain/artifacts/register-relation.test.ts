@@ -1,8 +1,12 @@
 import { err, ok } from 'neverthrow'
 import { expect, test } from 'vitest'
 
-import { IncorrectAttributeTypeError, InvalidRelationError, MissingAttributeError } from '../errors'
-import { registerRelation } from './register-relation'
+import {
+  IncorrectAttributeTypeError,
+  InvalidRelationError,
+  MissingAttributeError,
+} from '../errors.js'
+import { registerRelation } from './register-relation.js'
 
 test('should register a media artifact relation', () => {
   const result = registerRelation({

@@ -1,8 +1,8 @@
 import { err, ok } from 'neverthrow'
 import { expect, test } from 'vitest'
 
-import { IncorrectAttributeTypeError, MissingAttributeError } from '../errors'
-import { registerArtifact } from './register-artifact'
+import { IncorrectAttributeTypeError, MissingAttributeError } from '../errors.js'
+import { registerArtifact } from './register-artifact.js'
 
 test('should register an artifact', () => {
   const result = registerArtifact({

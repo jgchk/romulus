@@ -1,18 +1,18 @@
 import { expect } from 'vitest'
 
-import { MemoryEventStore } from '../../shared/infrastructure/memory-event-store'
-import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository'
-import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type'
+import { MemoryEventStore } from '../../shared/infrastructure/memory-event-store.js'
+import { MemoryTreeRepository } from '../infrastructure/memory-tree-repository.js'
+import { AddMediaTypeCommand, AddMediaTypeCommandHandler } from './add-media-type.js'
 import {
   AddParentToMediaTypeCommand,
   AddParentToMediaTypeCommandHandler,
-} from './add-parent-to-media-type'
-import { CopyTreeCommand, CopyTreeCommandHandler } from './copy-tree'
-import { CreateTreeCommand, CreateTreeCommandHandler } from './create-tree'
-import { MergeTreesCommand, MergeTreesCommandHandler } from './merge-trees'
-import { RemoveMediaTypeCommand, RemoveMediaTypeCommandHandler } from './remove-media-type'
-import { RequestMergeTreesCommand, RequestMergeTreesCommandHandler } from './request-merge'
-import { SetMainTreeCommand, SetMainTreeCommandHandler } from './set-main-tree'
+} from './add-parent-to-media-type.js'
+import { CopyTreeCommand, CopyTreeCommandHandler } from './copy-tree.js'
+import { CreateTreeCommand, CreateTreeCommandHandler } from './create-tree.js'
+import { MergeTreesCommand, MergeTreesCommandHandler } from './merge-trees.js'
+import { RemoveMediaTypeCommand, RemoveMediaTypeCommandHandler } from './remove-media-type.js'
+import { RequestMergeTreesCommand, RequestMergeTreesCommandHandler } from './request-merge.js'
+import { SetMainTreeCommand, SetMainTreeCommandHandler } from './set-main-tree.js'
 
 export class TestHelper {
   treeRepo: MemoryTreeRepository = new MemoryTreeRepository(new MemoryEventStore())

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { AttributeSchema } from '../artifact-schemas/attributes'
+import type { AttributeSchema } from '../artifact-schemas/attributes.js'
 
 export function checkAttributeType(
   value: unknown,

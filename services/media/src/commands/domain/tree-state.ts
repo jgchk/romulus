@@ -3,7 +3,7 @@ import {
   MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
   WillCreateCycleError,
-} from './errors'
+} from './errors.js'
 
 export type TreeStateEvent =
   | MediaTypeAddedEvent

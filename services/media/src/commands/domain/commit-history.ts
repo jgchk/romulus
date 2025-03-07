@@ -3,8 +3,8 @@ import type {
   MediaTypeMergeRequestedEvent,
   MediaTypeTreeCreatedEvent,
   MediaTypeTreeEvent,
-} from '../../shared/domain/events'
-import { MediaTypeTreeNotFoundError } from './errors'
+} from '../../shared/domain/events.js'
+import { MediaTypeTreeNotFoundError } from './errors.js'
 
 type CommitEvent = Exclude<
   MediaTypeTreeEvent,

@@ -1,7 +1,7 @@
-import { UnauthorizedError } from '../domain/errors'
-import { PermissionChecker } from '../domain/permissions'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
-import type { MediaTypeTreesRole } from '../domain/roles'
+import { UnauthorizedError } from '../domain/errors.js'
+import { PermissionChecker } from '../domain/permissions.js'
+import type { IMediaTypeTreeRepository } from '../domain/repository.js'
+import type { MediaTypeTreesRole } from '../domain/roles.js'
 
 export class AddMediaTypeCommand {
   constructor(

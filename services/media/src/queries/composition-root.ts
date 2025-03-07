@@ -1,5 +1,5 @@
-import { GetMediaTypeTreeQueryHandler } from './application/get-media-type-tree'
-import type { IDrizzleConnection } from './infrastructure/drizzle-database'
+import { GetMediaTypeTreeQueryHandler } from './application/get-media-type-tree.js'
+import type { IDrizzleConnection } from './infrastructure/drizzle-database.js'
 
 export class QueriesCompositionRoot {
   constructor(private _db: IDrizzleConnection) {}

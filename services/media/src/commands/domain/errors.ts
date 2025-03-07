@@ -19,10 +19,10 @@ export class MediaTypeTreeAlreadyExistsError extends CustomError {
 }
 
 export class MediaTypeTreeNameInvalidError extends CustomError {
-  constructor(public readonly name: string) {
+  constructor(public readonly treeName: string) {
     super(
       'MediaTypeTreeNameInvalidError',
-      `Media type tree name must contain at least one non-whitespace character: "${name}"`,
+      `Media type tree name must contain at least one non-whitespace character: "${treeName}"`,
     )
   }
 }
@@ -40,10 +40,10 @@ export class MediaTypeNotFoundError extends CustomError {
 }
 
 export class MediaTypeNameInvalidError extends CustomError {
-  constructor(public readonly name: string) {
+  constructor(public readonly mediaTypeName: string) {
     super(
       'MediaTypeNameInvalidError',
-      `Media type name must contain at least one non-whitespace character: "${name}"`,
+      `Media type name must contain at least one non-whitespace character: "${mediaTypeName}"`,
     )
   }
 }

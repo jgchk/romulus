@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
-import { artifactTable } from '../infrastructure/drizzle-schema'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { artifactTable } from '../infrastructure/drizzle-schema.js'
 
 export type GetArtifactQuery = {
   id: string

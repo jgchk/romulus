@@ -1,9 +1,9 @@
 import { err, ok } from 'neverthrow'
 
-import type { ArtifactSchema } from '../../domain/artifact-schemas/define-artifact-schema'
-import type { Artifact, ArtifactRegisteredEvent } from '../../domain/artifacts/register-artifact'
-import { registerArtifact } from '../../domain/artifacts/register-artifact'
-import { MediaArtifactSchemaNotFoundError } from '../../domain/errors'
+import type { ArtifactSchema } from '../../domain/artifact-schemas/define-artifact-schema.js'
+import type { Artifact, ArtifactRegisteredEvent } from '../../domain/artifacts/register-artifact.js'
+import { registerArtifact } from '../../domain/artifacts/register-artifact.js'
+import { MediaArtifactSchemaNotFoundError } from '../../domain/errors.js'
 
 export type RegisterArtifactCommand = {
   artifact: Artifact

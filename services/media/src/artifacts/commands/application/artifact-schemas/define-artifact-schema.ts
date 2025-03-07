@@ -1,6 +1,6 @@
-import type { AttributeSchema } from '../../domain/artifact-schemas/attributes'
-import type { ArtifactSchemaDefinedEvent } from '../../domain/artifact-schemas/define-artifact-schema'
-import { defineArtifactSchema } from '../../domain/artifact-schemas/define-artifact-schema'
+import type { AttributeSchema } from '../../domain/artifact-schemas/attributes.js'
+import type { ArtifactSchemaDefinedEvent } from '../../domain/artifact-schemas/define-artifact-schema.js'
+import { defineArtifactSchema } from '../../domain/artifact-schemas/define-artifact-schema.js'
 
 export type DefineArtifactSchemaCommand = {
   artifactSchema: {

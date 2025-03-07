@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest'
 
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MediaTypeNotFoundError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { AddMediaTypeCommand } from './add-media-type'
-import { CreateTreeCommand } from './create-tree'
-import { RemoveMediaTypeCommand } from './remove-media-type'
-import { SetMainTreeCommand } from './set-main-tree'
-import { TestHelper } from './test-helper'
+import { UnauthorizedError } from '../domain/errors.js'
+import { MediaTypeTreeNotFoundError } from '../domain/errors.js'
+import { MediaTypeNotFoundError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { AddMediaTypeCommand } from './add-media-type.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { RemoveMediaTypeCommand } from './remove-media-type.js'
+import { SetMainTreeCommand } from './set-main-tree.js'
+import { TestHelper } from './test-helper.js'
 
 test('should remove a media type from the tree', async () => {
   // given

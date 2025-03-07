@@ -1,13 +1,13 @@
 import { err, ok } from 'neverthrow'
 
-import type { RelationSchema } from '../../domain/artifact-schemas/define-relation-schema'
-import type { Artifact } from '../../domain/artifacts/register-artifact'
-import type { Relation, RelationRegisteredEvent } from '../../domain/artifacts/register-relation'
-import { registerRelation } from '../../domain/artifacts/register-relation'
+import type { RelationSchema } from '../../domain/artifact-schemas/define-relation-schema.js'
+import type { Artifact } from '../../domain/artifacts/register-artifact.js'
+import type { Relation, RelationRegisteredEvent } from '../../domain/artifacts/register-relation.js'
+import { registerRelation } from '../../domain/artifacts/register-relation.js'
 import {
   MediaArtifactNotFoundError,
   MediaArtifactRelationSchemaNotFoundError,
-} from '../../domain/errors'
+} from '../../domain/errors.js'
 
 export type RegisterRelationCommand = {
   relation: Relation

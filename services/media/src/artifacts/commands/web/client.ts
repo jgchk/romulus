@@ -5,11 +5,11 @@ import { hc } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
-import type { DefineArtifactSchemaCommand } from '../application/artifact-schemas/define-artifact-schema'
-import type { DefineRelationSchemaCommand } from '../application/artifact-schemas/define-relation-schema'
-import type { RegisterArtifactCommand } from '../application/artifacts/register-artifact'
-import type { RegisterRelationCommand } from '../application/artifacts/register-relation'
-import type { ArtifactsRouter } from './router'
+import type { DefineArtifactSchemaCommand } from '../application/artifact-schemas/define-artifact-schema.js'
+import type { DefineRelationSchemaCommand } from '../application/artifact-schemas/define-relation-schema.js'
+import type { RegisterArtifactCommand } from '../application/artifacts/register-artifact.js'
+import type { RegisterRelationCommand } from '../application/artifacts/register-relation.js'
+import type { ArtifactsRouter } from './router.js'
 
 export function createArtifactsClient(baseUrl: string) {
   const client = hc<ArtifactsRouter>(baseUrl)
@@ -77,7 +77,7 @@ type ArtifactsError = {
 }
 
 export class ArtifactsApiError extends CustomError {
-  constructor(public readonly cause: ArtifactsError) {
+  constructor(public override readonly cause: ArtifactsError) {
     super(cause.name, cause.message, cause)
   }
 }

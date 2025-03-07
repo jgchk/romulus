@@ -1,4 +1,4 @@
-import type { AttributeSchema } from './attributes'
+import type { AttributeSchema } from './attributes.js'
 
 export type DefineRelationSchemaCommand = {
   relationSchema: RelationSchema

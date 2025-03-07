@@ -8,22 +8,22 @@ import {
   type MediaTypeTreeEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
-} from '../../shared/domain/events'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database'
+} from '../../shared/domain/events.js'
+import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import {
   mediaTypeChildrenTable,
   mediaTypeTable,
   mediaTypeTreeTable,
-} from '../infrastructure/drizzle-schema'
-import { CommitHistory } from './commit-history'
-import { MediaTypeTreeNotFoundError } from './errors'
+} from '../infrastructure/drizzle-schema.js'
+import { CommitHistory } from './commit-history.js'
+import { MediaTypeTreeNotFoundError } from './errors.js'
 import {
   MediaTypeAddedEvent as MediaTypeAddedToTreeEvent,
   MediaTypeRemovedEvent as MediaTypeRemovedFromTreeEvent,
   MediaTypeTreesMergedEvent as MediaTypeTreesMergedInTreeEvent,
   ParentAddedToMediaTypeEvent as ParentAddedToMediaTypeInTreeEvent,
-} from './tree-state'
-import { TreeState, type TreeStateEvent } from './tree-state'
+} from './tree-state.js'
+import { TreeState, type TreeStateEvent } from './tree-state.js'
 
 export class MediaTypeTreesProjectionBuilder {
   private constructor(

@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { AddMediaTypeCommand } from './add-media-type'
-import { CreateTreeCommand } from './create-tree'
-import { SetMainTreeCommand } from './set-main-tree'
-import { TestHelper } from './test-helper'
+import { UnauthorizedError } from '../domain/errors.js'
+import { MediaTypeTreeNotFoundError } from '../domain/errors.js'
+import { MediaTypeAlreadyExistsError, MediaTypeNameInvalidError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { AddMediaTypeCommand } from './add-media-type.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { SetMainTreeCommand } from './set-main-tree.js'
+import { TestHelper } from './test-helper.js'
 
 test('should add a media type to the tree', async () => {
   // given

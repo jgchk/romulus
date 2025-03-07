@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { CreateTreeCommand } from './create-tree'
-import { SetMainTreeCommand } from './set-main-tree'
-import { TestHelper } from './test-helper'
+import { MediaTypeTreeNotFoundError, UnauthorizedError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { SetMainTreeCommand } from './set-main-tree.js'
+import { TestHelper } from './test-helper.js'
 
 test('should set the main tree id', async () => {
   // given

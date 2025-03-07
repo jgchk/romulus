@@ -4,15 +4,15 @@ import { afterAll, test as base } from 'vitest'
 import {
   GetMediaTypeTreeQuery,
   GetMediaTypeTreeQueryHandler,
-} from './queries/application/get-media-type-tree'
-import { MediaTypeTreesProjectionBuilder } from './queries/domain/media-type-tree-db'
-import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database'
+} from './queries/application/get-media-type-tree.js'
+import { MediaTypeTreesProjectionBuilder } from './queries/domain/media-type-tree-db.js'
+import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
 import {
   getPGliteDbConnection,
   getPGlitePostgresConnection,
   migratePGlite,
-} from './queries/infrastructure/drizzle-pglite-connection'
-import type { MediaTypeTreeEvent } from './shared/domain/events'
+} from './queries/infrastructure/drizzle-pglite-connection.js'
+import type { MediaTypeTreeEvent } from './shared/domain/events.js'
 
 export class TestHelper {
   private db: IDrizzleConnection

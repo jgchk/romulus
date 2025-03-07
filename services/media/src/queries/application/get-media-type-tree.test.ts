@@ -6,9 +6,9 @@ import {
   MediaTypeTreeCreatedEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
-} from '../../shared/domain/events'
-import { test } from '../../vitest-setup'
-import { GetMediaTypeTreeQuery } from './get-media-type-tree'
+} from '../../shared/domain/events.js'
+import { test } from '../../vitest-setup.js'
+import { GetMediaTypeTreeQuery } from './get-media-type-tree.js'
 
 const uuid = () => crypto.randomUUID()
 

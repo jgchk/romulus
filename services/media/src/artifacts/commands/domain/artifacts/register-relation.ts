@@ -1,9 +1,13 @@
 import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
-import type { AttributeSchema } from '../artifact-schemas/attributes'
-import { IncorrectAttributeTypeError, InvalidRelationError, MissingAttributeError } from '../errors'
-import { checkAttributeType } from './attributes'
+import type { AttributeSchema } from '../artifact-schemas/attributes.js'
+import {
+  IncorrectAttributeTypeError,
+  InvalidRelationError,
+  MissingAttributeError,
+} from '../errors.js'
+import { checkAttributeType } from './attributes.js'
 
 export type RegisterRelationCommand = {
   schema: {

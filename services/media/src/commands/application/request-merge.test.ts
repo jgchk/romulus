@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { CreateTreeCommand } from './create-tree'
-import { RequestMergeTreesCommand } from './request-merge'
-import { TestHelper } from './test-helper'
+import { MediaTypeTreeNotFoundError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { RequestMergeTreesCommand } from './request-merge.js'
+import { TestHelper } from './test-helper.js'
 
 test('should request a merge between two trees', async () => {
   // given

@@ -1,7 +1,7 @@
-import type { MediaTypeTreeNotFoundError } from '../domain/errors'
-import { UnauthorizedError } from '../domain/errors'
-import type { IMediaTypeTreeRepository } from '../domain/repository'
-import { MediaTypeTreesRole } from '../domain/roles'
+import type { MediaTypeTreeNotFoundError } from '../domain/errors.js'
+import { UnauthorizedError } from '../domain/errors.js'
+import type { IMediaTypeTreeRepository } from '../domain/repository.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
 
 export class SetMainTreeCommand {
   constructor(

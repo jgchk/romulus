@@ -1,10 +1,10 @@
-import { CommandsCompositionRoot } from './commands/composition-root'
-import { QueriesCompositionRoot } from './queries/composition-root'
-import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database'
+import { CommandsCompositionRoot } from './commands/composition-root.js'
+import { QueriesCompositionRoot } from './queries/composition-root.js'
+import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
 import {
   getDbConnection,
   getPostgresConnection,
-} from './queries/infrastructure/drizzle-postgres-connection'
+} from './queries/infrastructure/drizzle-postgres-connection.js'
 
 export class CompositionRoot {
   private _db: IDrizzleConnection

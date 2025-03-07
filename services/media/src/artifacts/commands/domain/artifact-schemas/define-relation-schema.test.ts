@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { defineRelationSchema } from './define-relation-schema'
+import { defineRelationSchema } from './define-relation-schema.js'
 
 test('should register a relation schema', () => {
   const result = defineRelationSchema({

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 
-import type { ArtifactsEvent } from '../../commands/domain/events'
-import type { IDrizzleConnection } from './drizzle-database'
+import type { ArtifactsEvent } from '../../commands/domain/events.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
 import {
   artifactAttributeSchemaTable,
   artifactAttributeTable,
@@ -11,7 +11,7 @@ import {
   relationAttributeTable,
   relationSchemaTable,
   relationTable,
-} from './drizzle-schema'
+} from './drizzle-schema.js'
 
 export async function applyEvent(event: ArtifactsEvent, db: IDrizzleConnection) {
   switch (event.kind) {

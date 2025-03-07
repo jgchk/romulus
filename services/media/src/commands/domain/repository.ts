@@ -1,4 +1,4 @@
-import type { MediaTypeTree } from './tree'
+import type { MediaTypeTree } from './tree.js'
 
 export type IMediaTypeTreeRepository = {
   get(id: string): MaybePromise<MediaTypeTree>

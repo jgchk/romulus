@@ -1,9 +1,9 @@
-import type { AttributeSchema } from '../../domain/artifact-schemas/attributes'
-import type { RelationSchemaType } from '../../domain/artifact-schemas/define-relation-schema'
+import type { AttributeSchema } from '../../domain/artifact-schemas/attributes.js'
+import type { RelationSchemaType } from '../../domain/artifact-schemas/define-relation-schema.js'
 import {
   defineRelationSchema,
   type RelationSchemaDefinedEvent,
-} from '../../domain/artifact-schemas/define-relation-schema'
+} from '../../domain/artifact-schemas/define-relation-schema.js'
 
 export type DefineRelationSchemaCommand = {
   relationSchema: {

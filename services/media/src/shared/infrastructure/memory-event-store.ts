@@ -1,4 +1,4 @@
-import type { IEventStore } from '../domain/event-store'
+import type { IEventStore } from '../domain/event-store.js'
 
 export class MemoryEventStore<Event extends object> implements IEventStore<Event> {
   private events: Map<string, (Event & { _sequence: number })[]>

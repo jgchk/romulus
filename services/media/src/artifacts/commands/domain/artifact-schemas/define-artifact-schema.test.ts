@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { defineArtifactSchema } from './define-artifact-schema'
+import { defineArtifactSchema } from './define-artifact-schema.js'
 
 test('should register a new media artifact schema', () => {
   const result = defineArtifactSchema({

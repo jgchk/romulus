@@ -3,16 +3,16 @@ import { zodValidator } from '@romulus/hono-utils/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-import type { DefineArtifactSchemaCommandHandler } from '../application/artifact-schemas/define-artifact-schema'
-import type { DefineRelationSchemaCommandHandler } from '../application/artifact-schemas/define-relation-schema'
-import type { RegisterArtifactCommandHandler } from '../application/artifacts/register-artifact'
-import type { RegisterRelationCommandHandler } from '../application/artifacts/register-relation'
+import type { DefineArtifactSchemaCommandHandler } from '../application/artifact-schemas/define-artifact-schema.js'
+import type { DefineRelationSchemaCommandHandler } from '../application/artifact-schemas/define-relation-schema.js'
+import type { RegisterArtifactCommandHandler } from '../application/artifacts/register-artifact.js'
+import type { RegisterRelationCommandHandler } from '../application/artifacts/register-relation.js'
 import {
   IncorrectAttributeTypeError,
   InvalidRelationError,
   MediaArtifactSchemaNotFoundError,
   MissingAttributeError,
-} from '../domain/errors'
+} from '../domain/errors.js'
 
 export type ArtifactsRouter = ReturnType<typeof createArtifactsRouter>
 

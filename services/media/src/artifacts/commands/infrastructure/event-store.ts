@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 
-import type { ArtifactsEvent } from '../domain/events'
+import type { ArtifactsEvent } from '../domain/events.js'
 
 export function createEventStore() {
   const emitter = new EventEmitter()

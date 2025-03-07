@@ -1,4 +1,4 @@
-import { CompositionRoot } from './composition-root'
+import { CompositionRoot } from './composition-root.js'
 
 export class MediaService {
   constructor(private root: CompositionRoot) {}

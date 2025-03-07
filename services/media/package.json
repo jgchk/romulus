@@ -2,11 +2,26 @@
   "name": "@romulus/media",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./artifacts/application": "./src/artifacts/commands/application/index.ts",
-    "./artifacts/router": "./src/artifacts/commands/web/router.ts",
-    "./artifacts/client": "./src/artifacts/commands/web/client.ts",
-    "./artifacts/infrastructure": "./src/artifacts/commands/infrastructure/projection.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./artifacts/application": {
+      "import": "./dist/artifacts/commands/application/index.js",
+      "types": "./dist/artifacts/commands/application/index.d.ts"
+    },
+    "./artifacts/router": {
+      "import": "./dist/artifacts/commands/web/router.js",
+      "types": "./dist/artifacts/commands/web/router.d.ts"
+    },
+    "./artifacts/client": {
+      "import": "./dist/artifacts/commands/web/client.js",
+      "types": "./dist/artifacts/commands/web/client.d.ts"
+    },
+    "./artifacts/infrastructure": {
+      "import": "./dist/artifacts/commands/infrastructure/projection.js",
+      "types": "./dist/artifacts/commands/infrastructure/projection.d.ts"
+    }
   },
   "scripts": {
     "test": "pnpm test:unit",
@@ -15,7 +30,8 @@
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/queries/infrastructure/migrations ./dist/queries/infrastructure/migrations"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",

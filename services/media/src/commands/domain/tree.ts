@@ -7,27 +7,27 @@ import {
   type MediaTypeTreeEvent,
   MediaTypeTreesMergedEvent,
   ParentAddedToMediaTypeEvent,
-} from '../../shared/domain/events'
-import { CommitHistory } from './commit-history'
+} from '../../shared/domain/events.js'
+import { CommitHistory } from './commit-history.js'
 import type {
   MediaTypeAlreadyExistsError,
   MediaTypeNameInvalidError,
   MediaTypeNotFoundError,
   WillCreateCycleError,
-} from './errors'
+} from './errors.js'
 import {
   MediaTypeMergeRequestNotFoundError,
   MediaTypeTreeAlreadyExistsError,
   MediaTypeTreeNameInvalidError,
   MediaTypeTreeNotFoundError,
-} from './errors'
-import { TreeState, type TreeStateEvent } from './tree-state'
+} from './errors.js'
+import { TreeState, type TreeStateEvent } from './tree-state.js'
 import {
   MediaTypeAddedEvent as MediaTypeAddedToTreeEvent,
   MediaTypeRemovedEvent as MediaTypeRemovedFromTreeEvent,
   MediaTypeTreesMergedEvent as MediaTypeTreesMergedInTreeEvent,
   ParentAddedToMediaTypeEvent as ParentAddedToMediaTypeInTreeEvent,
-} from './tree-state'
+} from './tree-state.js'
 
 export class MediaTypeTree {
   private id: string

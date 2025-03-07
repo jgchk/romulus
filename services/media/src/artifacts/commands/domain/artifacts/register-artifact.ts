@@ -1,9 +1,9 @@
 import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
-import type { AttributeSchema } from '../artifact-schemas/attributes'
-import { IncorrectAttributeTypeError, MissingAttributeError } from '../errors'
-import { checkAttributeType } from './attributes'
+import type { AttributeSchema } from '../artifact-schemas/attributes.js'
+import { IncorrectAttributeTypeError, MissingAttributeError } from '../errors.js'
+import { checkAttributeType } from './attributes.js'
 
 export type RegisterArtifactCommand = {
   schema: {

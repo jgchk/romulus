@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { UnauthorizedError } from '../domain/errors'
-import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNameInvalidError } from '../domain/errors'
-import { MediaTypeTreesRole } from '../domain/roles'
-import { CreateTreeCommand } from './create-tree'
-import { TestHelper } from './test-helper'
+import { UnauthorizedError } from '../domain/errors.js'
+import { MediaTypeTreeAlreadyExistsError, MediaTypeTreeNameInvalidError } from '../domain/errors.js'
+import { MediaTypeTreesRole } from '../domain/roles.js'
+import { CreateTreeCommand } from './create-tree.js'
+import { TestHelper } from './test-helper.js'
 
 test('should create a media type tree', async () => {
   // given

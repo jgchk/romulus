@@ -1,4 +1,4 @@
-import { MediaTypeTreesRole } from './roles'
+import { MediaTypeTreesRole } from './roles.js'
 
 export class PermissionChecker {
   static canCreateTree(roles: Set<MediaTypeTreesRole>): boolean {
