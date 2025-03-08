@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_openid_connect_provider" "github_actions" {
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
@@ -38,19 +40,50 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Action" : [
           "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
-          "ecr:PutImage"
+          "ecr:DescribeRepositories",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart",
+          "ecr:ListTagsForResource"
         ],
         "Resource" : "*"
       },
       {
         "Effect" : "Allow",
         "Action" : [
-          "secretsmanager:GetSecretValue"
+          "ecs:DescribeClusters",
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:DeregisterTaskDefinition"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "iam:GetRole",
+          "iam:PassRole",
+          "iam:ListRolePolicies",
+          "iam:GetPolicy",
+          "iam:ListAttachedRolePolicies",
+          "iam:GetPolicyVersion"
+        ],
+        "Resource" : [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs_execution_role",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/SecretsManagerAccess"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetResourcePolicy"
         ],
         "Resource" : "arn:aws:secretsmanager:us-east-2:*:secret:postgresdb-credentials*"
       },
@@ -59,9 +92,13 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Action" : [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:ListTagsForResource"
         ],
-        "Resource" : "arn:aws:logs:us-east-2:*:log-group:/ecs/*"
+        "Resource" : [
+          "arn:aws:logs:us-east-2:${data.aws_caller_identity.current.account_id}:log-group:*"
+        ]
       },
       {
         "Effect" : "Allow",
@@ -74,6 +111,53 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "arn:aws:s3:::romulus-terraform-state-bucket",
           "arn:aws:s3:::romulus-terraform-state-bucket/*"
         ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ec2:DescribeVpcs",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeVpcAttribute",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeRouteTables",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeVpcEndpoints",
+          "ec2:DescribePrefixLists",
+          "ec2:DescribeNetworkInterfaces"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "servicediscovery:GetNamespace",
+          "servicediscovery:ListTagsForResource",
+          "servicediscovery:GetService"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeListenerAttributes"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "rds:DescribeDBSubnetGroups",
+          "rds:ListTagsForResource",
+          "rds:DescribeDBInstances"
+        ],
+        "Resource" : "*"
       }
     ]
   })
