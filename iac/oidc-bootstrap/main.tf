@@ -7,6 +7,11 @@ terraform {
     }
   }
 
+  backend "s3" {
+    bucket = "romulus-terraform-state-bucket"
+    key    = "oidc.tfstate"
+    region = "us-east-2"
+  }
 
   required_version = ">= 1.11.1"
 }
