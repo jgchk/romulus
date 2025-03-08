@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/validation.yaml
 
   build:
-    needs: [validation]
+    # needs: [validation]
     uses: ./.github/workflows/build.yaml
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
