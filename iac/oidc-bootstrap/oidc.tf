@@ -40,8 +40,11 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "ecs:*",
           "s3:*",
           "logs:*",
-          "secretsmanager:GetSecretValue",
-          "iam:PassRole",
+          "iam:*",
+          "elasticloadbalancing:*",
+          "rds:*",
+          "secretsmanager:*",
+          "servicediscovery:*",
           "ec2:Describe*"
         ],
         Resource = "*"
