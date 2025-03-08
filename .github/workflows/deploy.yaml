@@ -1,12 +1,19 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: ["Push"]
-    types:
-      - completed
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      frontend_image_tag:
+        required: true
+        type: string
+        description: "The tag for the frontend image"
+      backend_image_tag:
+        required: true
+        type: string
+        description: "The tag for the backend image"
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
 
 env:
   NODE_VERSION: 20.x
@@ -14,7 +21,6 @@ env:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     permissions:
@@ -36,13 +42,6 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Get image tag from output
-        id: get-image-tag
-        run: |
-          # Fetch the version tag from the build workflow
-          VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
-          echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
-
       - name: Terraform Init
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform init
@@ -51,5 +50,5 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: |
           terraform apply -auto-approve \
-            -var="frontend_image_tag=${{ steps.get-image-tag.outputs.version_tag }}" \
-            -var="backend_image_tag=${{ steps.get-image-tag.outputs.version_tag }}"
+            -var="frontend_image_tag=${{ inputs.frontend_image_tag }}" \
+            -var="backend_image_tag=${{ inputs.backend_image_tag }}"
