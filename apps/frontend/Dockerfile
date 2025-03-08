@@ -6,7 +6,7 @@ FROM base AS build
 COPY . /app
 WORKDIR /app
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter=frontend build
+RUN pnpm build
 
 FROM base AS main
 COPY --from=build /app /prod
