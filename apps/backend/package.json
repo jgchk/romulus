@@ -22,6 +22,7 @@
     "@types/bcryptjs": "^2.4.6",
     "arktype": "^2.0.4",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.0",
     "hono": "^4.6.12",
     "neverthrow": "^8.1.1",
