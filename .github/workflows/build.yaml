@@ -1,5 +1,8 @@
 on:
   workflow_call:
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
 
 jobs:
   docker:
