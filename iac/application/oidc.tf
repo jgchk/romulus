@@ -26,9 +26,9 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-resource "aws_iam_policy" "ecr_access" {
-  name        = "ECRAccessPolicy"
-  description = "Allow pushing to ECR repositories"
+resource "aws_iam_policy" "github_actions_deploy" {
+  name        = "GitHubActionsDeployPolicy"
+  description = "Allow GitHub Actions to deploy application"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -36,86 +36,16 @@ resource "aws_iam_policy" "ecr_access" {
       {
         Effect = "Allow",
         Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-          "ecr:GetAuthorizationToken"
-        ],
-        Resource = [
-          aws_ecr_repository.frontend.arn,
-          aws_ecr_repository.backend.arn
-        ]
-      },
-      {
-        Effect   = "Allow",
-        Action   = "ecr:GetAuthorizationToken",
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "github_actions_ecr" {
-  role       = aws_iam_role.github_actions.name
-  policy_arn = aws_iam_policy.ecr_access.arn
-}
-
-resource "aws_iam_policy" "ecs_deploy_access" {
-  name        = "ECSDeployAccess"
-  description = "Allow updating ECS services and task definitions"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "ecs:DescribeServices",
-          "ecs:UpdateService",
-          "ecs:DescribeTaskDefinition",
-          "ecs:RegisterTaskDefinition",
-          "ecs:ListTaskDefinitions",
-          "iam:PassRole"
+          "ecr:*",
+          "ecs:*",
+          "s3:*",
+          "logs:*",
+          "secretsmanager:GetSecretValue",
+          "iam:PassRole",
+          "ec2:Describe*"
         ],
         Resource = "*"
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "github_actions_ecs" {
-  role       = aws_iam_role.github_actions.name
-  policy_arn = aws_iam_policy.ecs_deploy_access.arn
-}
-
-resource "aws_iam_policy" "terraform_state_access" {
-  name        = "TerraformStateAccess"
-  description = "Allow access to S3 bucket for Terraform state"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:ListBucket"
-        ],
-        Resource = [
-          "arn:aws:s3:::romulus-terraform-state-bucket",
-          "arn:aws:s3:::romulus-terraform-state-bucket/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "github_actions_terraform_state" {
-  role       = aws_iam_role.github_actions.name
-  policy_arn = aws_iam_policy.terraform_state_access.arn
 }
