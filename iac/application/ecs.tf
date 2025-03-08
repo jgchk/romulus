@@ -66,6 +66,24 @@ resource "aws_ecs_task_definition" "backend" {
     portMappings = [{
       containerPort = 8080
     }]
+    environment = [
+      {
+        name  = "AUTHENTICATION_DATABASE_URL"
+        value = "postgresql://${aws_db_instance.authentication.username}:${aws_db_instance.authentication.password}@${aws_db_instance.authentication.endpoint}/${aws_db_instance.authentication.db_name}?sslmode=require"
+      },
+      {
+        name  = "AUTHORIZATION_DATABASE_URL"
+        value = "postgresql://${aws_db_instance.authorization.username}:${aws_db_instance.authorization.password}@${aws_db_instance.authorization.endpoint}/${aws_db_instance.authorization.db_name}?sslmode=require"
+      },
+      {
+        name  = "GENRES_DATABASE_URL"
+        value = "postgresql://${aws_db_instance.genres.username}:${aws_db_instance.genres.password}@${aws_db_instance.genres.endpoint}/${aws_db_instance.genres.db_name}?sslmode=require"
+      },
+      {
+        name  = "USER_SETTINGS_DATABASE_URL"
+        value = "postgresql://${aws_db_instance.user_settings.username}:${aws_db_instance.user_settings.password}@${aws_db_instance.user_settings.endpoint}/${aws_db_instance.user_settings.db_name}?sslmode=require"
+      }
+    ]
     logConfiguration = {
       logDriver = "awslogs"
       options = {
