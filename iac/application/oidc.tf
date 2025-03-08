@@ -91,3 +91,31 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecs" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.ecs_deploy_access.arn
 }
+
+resource "aws_iam_policy" "terraform_state_access" {
+  name        = "TerraformStateAccess"
+  description = "Allow access to S3 bucket for Terraform state"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "arn:aws:s3:::romulus-terraform-state-bucket",
+          "arn:aws:s3:::romulus-terraform-state-bucket/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_terraform_state" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.terraform_state_access.arn
+}
