@@ -1,3 +1,16 @@
+# Add these variables at the top of iac/application/ecs.tf
+variable "frontend_image_tag" {
+  description = "Tag for the frontend ECR image"
+  type        = string
+  default     = "latest" # Fallback to latest if not specified
+}
+
+variable "backend_image_tag" {
+  description = "Tag for the backend ECR image"
+  type        = string
+  default     = "latest" # Fallback to latest if not specified
+}
+
 resource "aws_ecs_cluster" "main" {
   name = "main-cluster"
 }
@@ -32,7 +45,7 @@ resource "aws_ecs_task_definition" "frontend" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   container_definitions = jsonencode([{
     name  = "frontend"
-    image = "${aws_ecr_repository.frontend.repository_url}:latest"
+    image = "${aws_ecr_repository.frontend.repository_url}:${var.frontend_image_tag}"
     portMappings = [{
       containerPort = 3000
     }]
@@ -66,7 +79,7 @@ resource "aws_ecs_task_definition" "backend" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   container_definitions = jsonencode([{
     name  = "backend"
-    image = "${aws_ecr_repository.backend.repository_url}:latest"
+    image = "${aws_ecr_repository.backend.repository_url}:${var.backend_image_tag}"
     portMappings = [{
       containerPort = 3000
     }]
@@ -105,6 +118,10 @@ resource "aws_ecs_service" "frontend" {
   task_definition = aws_ecs_task_definition.frontend.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+
+  # This forces a new deployment when task definition changes
+  force_new_deployment = true
+
   network_configuration {
     subnets          = aws_subnet.private[*].id
     security_groups  = [aws_security_group.frontend.id]
@@ -123,6 +140,10 @@ resource "aws_ecs_service" "backend" {
   task_definition = aws_ecs_task_definition.backend.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+
+  # This forces a new deployment when task definition changes
+  force_new_deployment = true
+
   network_configuration {
     subnets          = aws_subnet.private[*].id
     security_groups  = [aws_security_group.backend.id]
@@ -132,4 +153,3 @@ resource "aws_ecs_service" "backend" {
     registry_arn = aws_service_discovery_service.backend.arn
   }
 }
-

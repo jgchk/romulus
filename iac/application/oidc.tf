@@ -63,3 +63,31 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecr" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.ecr_access.arn
 }
+
+resource "aws_iam_policy" "ecs_deploy_access" {
+  name        = "ECSDeployAccess"
+  description = "Allow updating ECS services and task definitions"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:ListTaskDefinitions",
+          "iam:PassRole"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_ecs" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.ecs_deploy_access.arn
+}

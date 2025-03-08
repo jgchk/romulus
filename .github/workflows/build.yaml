@@ -3,10 +3,20 @@ on:
     secrets:
       AWS_ACCOUNT_ID:
         required: true
+    outputs:
+      frontend_image_tag:
+        description: "The tag for the frontend image"
+        value: ${{ jobs.docker.outputs.frontend_image_tag }}
+      backend_image_tag:
+        description: "The tag for the backend image"
+        value: ${{ jobs.docker.outputs.backend_image_tag }}
 
 jobs:
   docker:
     runs-on: ubuntu-latest
+    outputs:
+      frontend_image_tag: ${{ steps.set-outputs.outputs.frontend_image_tag }}
+      backend_image_tag: ${{ steps.set-outputs.outputs.backend_image_tag }}
 
     permissions:
       id-token: write
@@ -15,6 +25,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Generate image tags
+        id: tags
+        run: |
+          # Create version tag using timestamp and commit SHA
+          VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
+          echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -38,23 +55,27 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: frontend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ steps.tags.outputs.version_tag }}
         run: |
           docker build . -f apps/frontend/Dockerfile -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=$IMAGE_TAG" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "frontend_image_tag=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Frontend image $IMAGE_TAG pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
 
       - name: Build, tag, and push backend image to Amazon ECR
         shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: backend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ steps.tags.outputs.version_tag }}
         run: |
           docker build . -f apps/backend/Dockerfile -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=$IMAGE_TAG" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "backend_image_tag=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Backend image $IMAGE_TAG pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          echo "frontend_image_tag=${{ env.frontend_image_tag }}" >> $GITHUB_OUTPUT
+          echo "backend_image_tag=${{ env.backend_image_tag }}" >> $GITHUB_OUTPUT

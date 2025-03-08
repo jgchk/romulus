@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Push"]
+    types:
+      - completed
+    branches:
+      - main
+
+env:
+  NODE_VERSION: 20.x
+  TERRAFORM_DIR: iac/application
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Get image tag from output
+        id: get-image-tag
+        run: |
+          # Fetch the version tag from the build workflow
+          VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
+          echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
+
+      - name: Apply Terraform with new image tags
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="frontend_image_tag=${{ steps.get-image-tag.outputs.version_tag }}" \
+            -var="backend_image_tag=${{ steps.get-image-tag.outputs.version_tag }}"
