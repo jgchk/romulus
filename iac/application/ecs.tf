@@ -23,6 +23,36 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_ecs_task_definition" "frontend" {
+  family                   = "frontend"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  container_definitions = jsonencode([{
+    name  = "frontend"
+    image = "${aws_ecr_repository.frontend.repository_url}:latest"
+    portMappings = [{
+      containerPort = 3000
+    }]
+    environment = [
+      {
+        name  = "API_BASE_URL"
+        value = "http://backend.local:8080"
+      }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = "/ecs/frontend"
+        "awslogs-region"        = "us-east-2"
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
+  }])
+}
+
 resource "aws_ecs_task_definition" "backend" {
   family                   = "backend"
   requires_compatibilities = ["FARGATE"]
@@ -36,28 +66,14 @@ resource "aws_ecs_task_definition" "backend" {
     portMappings = [{
       containerPort = 8080
     }]
-  }])
-}
-
-resource "aws_ecs_task_definition" "frontend" {
-  family                   = "frontend"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  container_definitions = jsonencode([{
-    name  = "frontend"
-    image = "${aws_ecr_repository.frontend.repository_url}:latest"
-    portMappings = [{
-      containerPort = 80
-    }]
-    environment = [
-      {
-        name  = "BACKEND_URL"
-        value = "http://backend.local:8080"
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = "/ecs/backend"
+        "awslogs-region"        = "us-east-2"
+        "awslogs-stream-prefix" = "ecs"
       }
-    ]
+    }
   }])
 }
 
@@ -72,6 +88,11 @@ resource "aws_ecs_service" "frontend" {
     security_groups  = [aws_security_group.frontend.id]
     assign_public_ip = false
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.frontend.arn
+    container_name   = "frontend"
+    container_port   = 3000
+  }
 }
 
 resource "aws_ecs_service" "backend" {
@@ -85,4 +106,8 @@ resource "aws_ecs_service" "backend" {
     security_groups  = [aws_security_group.backend.id]
     assign_public_ip = false
   }
+  service_registries {
+    registry_arn = aws_service_discovery_service.backend.arn
+  }
 }
+
