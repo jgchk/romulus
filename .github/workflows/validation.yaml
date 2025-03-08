@@ -26,8 +26,6 @@ jobs:
 
       - name: Build
         run: pnpm build
-        env:
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
 
       - name: Lint
         run: pnpm run lint
