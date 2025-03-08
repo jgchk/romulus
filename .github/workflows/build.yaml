@@ -27,7 +27,6 @@ jobs:
           registries: ${{ inputs.aws_account_id }}
 
       - name: Build, tag, and push frontend image to Amazon ECR
-        id: build-publish
         shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -41,7 +40,6 @@ jobs:
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       - name: Build, tag, and push backend image to Amazon ECR
-        id: build-publish
         shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
