@@ -31,23 +31,49 @@ resource "aws_iam_policy" "github_actions_deploy" {
   description = "Allow GitHub Actions to deploy application"
 
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Effect = "Allow",
-        Action = [
-          "ecr:*",
-          "ecs:*",
-          "s3:*",
-          "logs:*",
-          "iam:*",
-          "elasticloadbalancing:*",
-          "rds:*",
-          "secretsmanager:*",
-          "servicediscovery:*",
-          "ec2:Describe*"
+        "Effect" : "Allow",
+        "Action" : [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:PutImage"
         ],
-        Resource = "*"
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "secretsmanager:GetSecretValue"
+        ],
+        "Resource" : "arn:aws:secretsmanager:us-east-2:*:secret:postgresdb-credentials*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource" : "arn:aws:logs:us-east-2:*:log-group:/ecs/*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::romulus-terraform-state-bucket",
+          "arn:aws:s3:::romulus-terraform-state-bucket/*"
+        ]
       }
     ]
   })
