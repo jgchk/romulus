@@ -40,6 +40,10 @@ resource "aws_ecs_task_definition" "frontend" {
       {
         name  = "API_BASE_URL"
         value = "http://backend.local:8080"
+      },
+      {
+        name  = "ORIGIN"
+        value = "http://${aws_lb.frontend.dns_name}"
       }
     ]
     logConfiguration = {
