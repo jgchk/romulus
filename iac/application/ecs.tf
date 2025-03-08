@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "frontend" {
     environment = [
       {
         name  = "API_BASE_URL"
-        value = "http://backend.local:8080"
+        value = "http://backend.local:3000"
       },
       {
         name  = "ORIGIN"
@@ -68,7 +68,7 @@ resource "aws_ecs_task_definition" "backend" {
     name  = "backend"
     image = "${aws_ecr_repository.backend.repository_url}:latest"
     portMappings = [{
-      containerPort = 8080
+      containerPort = 3000
     }]
     environment = [
       {
