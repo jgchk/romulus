@@ -13,4 +13,5 @@ jobs:
     uses: ./.github/workflows/validation.yaml
 
   build:
+    needs: [validation]
     uses: ./.github/workflows/build.yaml
