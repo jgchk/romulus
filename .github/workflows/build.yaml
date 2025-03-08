@@ -12,10 +12,63 @@ on:
         value: ${{ jobs.docker.outputs.backend_image_tag }}
 
 jobs:
-  docker:
+  frontend:
     runs-on: ubuntu-latest
     outputs:
       frontend_image_tag: ${{ steps.set-outputs.outputs.frontend_image_tag }}
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate image tags
+        id: tags
+        run: |
+          # Create version tag using timestamp and commit SHA
+          VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
+          echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ secrets.AWS_ACCOUNT_ID }}
+
+      - name: Build, tag, and push image to Amazon ECR
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: frontend
+          IMAGE_TAG: ${{ steps.tags.outputs.version_tag }}
+        run: |
+          docker build . -f apps/frontend/Dockerfile -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "frontend_image_tag=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Frontend image $IMAGE_TAG pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          echo "frontend_image_tag=${{ env.frontend_image_tag }}" >> $GITHUB_OUTPUT
+
+  backend:
+    runs-on: ubuntu-latest
+    outputs:
       backend_image_tag: ${{ steps.set-outputs.outputs.backend_image_tag }}
 
     permissions:
@@ -50,19 +103,7 @@ jobs:
         with:
           registries: ${{ secrets.AWS_ACCOUNT_ID }}
 
-      - name: Build, tag, and push frontend image to Amazon ECR
-        shell: bash
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: frontend
-          IMAGE_TAG: ${{ steps.tags.outputs.version_tag }}
-        run: |
-          docker build . -f apps/frontend/Dockerfile -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "frontend_image_tag=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "Frontend image $IMAGE_TAG pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-
-      - name: Build, tag, and push backend image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR
         shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -77,5 +118,4 @@ jobs:
       - name: Set outputs
         id: set-outputs
         run: |
-          echo "frontend_image_tag=${{ env.frontend_image_tag }}" >> $GITHUB_OUTPUT
           echo "backend_image_tag=${{ env.backend_image_tag }}" >> $GITHUB_OUTPUT
