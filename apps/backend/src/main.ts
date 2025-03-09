@@ -6,7 +6,10 @@ import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructu
 import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
-import { createArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
+import {
+  type ArtifactsProjection,
+  createArtifactsProjection,
+} from '@romulus/media/artifacts/infrastructure'
 import { createArtifactsRouter } from '@romulus/media/artifacts/router'
 import type { UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
@@ -44,20 +47,34 @@ export async function main({
   setupAdminAccountForDevelopment?: typeof _setupAdminAccountForDevelopment
 }) {
   const {
-    authenticationApplication,
-    authorizationApplication,
-    genresApplication,
-    mediaApplication,
-    userSettingsApplication,
-  } = await createApplications(config)
+    authenticationInfrastructure,
+    authorizationInfrastructure,
+    genresInfrastructure,
+    mediaInfrastructure,
+    userSettingsInfrastructure,
+  } = await createInfrastructure(config)
 
-  const router = createRouter(
+  const {
     authenticationApplication,
     authorizationApplication,
     genresApplication,
     mediaApplication,
     userSettingsApplication,
-  )
+  } = createApplications({
+    authenticationInfrastructure,
+    authorizationInfrastructure,
+    genresInfrastructure,
+    mediaInfrastructure,
+    userSettingsInfrastructure,
+  })
+
+  const router = createRouter({
+    authenticationApplication,
+    authorizationApplication,
+    genresApplication,
+    mediaApplication,
+    userSettingsApplication,
+  })
 
   await setupPermissions(async (permissions) => {
     const result = await authorizationApplication.ensurePermissions(
@@ -85,7 +102,7 @@ export async function main({
   serve(router, (info) => console.log(`Backend running on ${info.port}`))
 }
 
-async function createApplications(config: Config) {
+async function createInfrastructure(config: Config) {
   const authenticationInfrastructure = await AuthenticationInfrastructure.create(
     config.authenticationDatabaseUrl,
   )
@@ -98,6 +115,28 @@ async function createApplications(config: Config) {
     config.userSettingsDatabaseUrl,
   )
 
+  return {
+    authenticationInfrastructure,
+    authorizationInfrastructure,
+    genresInfrastructure,
+    mediaInfrastructure,
+    userSettingsInfrastructure,
+  }
+}
+
+function createApplications({
+  authenticationInfrastructure,
+  authorizationInfrastructure,
+  genresInfrastructure,
+  mediaInfrastructure,
+  userSettingsInfrastructure,
+}: {
+  authenticationInfrastructure: AuthenticationInfrastructure
+  authorizationInfrastructure: AuthorizationInfrastructure
+  genresInfrastructure: GenresInfrastructure
+  mediaInfrastructure: ArtifactsProjection
+  userSettingsInfrastructure: UserSettingsInfrastructure
+}) {
   const authenticationApplication = createAuthenticationApplication({
     infrastructure: authenticationInfrastructure,
     authorizationService: {
@@ -127,13 +166,19 @@ async function createApplications(config: Config) {
   }
 }
 
-function createRouter(
-  authenticationApplication: AuthenticationApplication,
-  authorizationApplication: AuthorizationApplication,
-  genresApplication: GenresApplication,
-  mediaApplication: MediaApplication,
-  userSettingsApplication: UserSettingsApplication,
-) {
+function createRouter({
+  authenticationApplication,
+  authorizationApplication,
+  genresApplication,
+  mediaApplication,
+  userSettingsApplication,
+}: {
+  authenticationApplication: AuthenticationApplication
+  authorizationApplication: AuthorizationApplication
+  genresApplication: GenresApplication
+  mediaApplication: MediaApplication
+  userSettingsApplication: UserSettingsApplication
+}) {
   const authenticationRouter = createAuthenticationRouter(authenticationApplication)
   const authorizationRouter = createAuthorizationRouter({
     application: () => authorizationApplication,
