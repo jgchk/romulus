@@ -41,8 +41,7 @@ import {
 } from '@romulus/media/artifacts/application'
 import type { ArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { UserSettingsApplication } from '@romulus/user-settings/application'
-
-import type { Infrastructure } from './infrastructure.js'
+import type { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
 export type AuthenticationApplication = ReturnType<typeof createAuthenticationApplication>
 
@@ -242,6 +241,6 @@ export function createMediaApplication(infrastructure: ArtifactsProjection) {
   }
 }
 
-export function createUserSettingsApplication(infrastructure: Infrastructure) {
-  return new UserSettingsApplication(infrastructure.userSettings.userSettingsRepository())
+export function createUserSettingsApplication(infrastructure: UserSettingsInfrastructure) {
+  return new UserSettingsApplication(infrastructure.userSettingsRepository())
 }
