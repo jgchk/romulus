@@ -112,6 +112,18 @@ resource "aws_ecs_task_definition" "backend" {
         value = "postgresql://${aws_db_instance.user_settings.username}:${aws_db_instance.user_settings.password}@${aws_db_instance.user_settings.endpoint}/${aws_db_instance.user_settings.db_name}?sslmode=require"
       }
     ]
+    healthCheck = {
+      command = [
+        "CMD-SHELL",
+        # Forward output to logs
+        # See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/view-container-health.html
+        "wget -q --tries=1 --spider --server-response http://localhost:3000/health >> /proc/1/fd/1 2>&1 || exit 1"
+      ]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
     logConfiguration = {
       logDriver = "awslogs"
       options = {

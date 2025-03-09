@@ -42,6 +42,7 @@ async function main() {
   }
 
   const app = new Hono()
+    .get('/health', (c) => c.json({ success: true }))
     .route('/authentication', getAuthenticationRouter(infrastructure))
     .route('/authorization', getAuthorizationRouter(infrastructure))
     .route('/genres', getGenresRouter(infrastructure))
