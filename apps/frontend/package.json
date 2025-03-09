@@ -47,7 +47,7 @@
     "@eslint/js": "^9.14.0",
     "@romulus/eslint-config": "workspace:*",
     "@sveltejs/adapter-node": "^5.2.9",
-    "@sveltejs/kit": "^2.8.0",
+    "@sveltejs/kit": "^2.19.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/svelte": "^5.2.4",
