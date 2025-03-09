@@ -363,8 +363,8 @@ importers:
         version: 5.6.3
     devDependencies:
       '@typescript-eslint/rule-tester':
-        specifier: ^8.14.0
-        version: 8.14.0(eslint@9.22.0(jiti@2.3.3))(typescript@5.6.3)
+        specifier: ^8.26.0
+        version: 8.26.0(eslint@9.22.0(jiti@2.3.3))(typescript@5.6.3)
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
@@ -2255,6 +2255,12 @@ packages:
 
   '@typescript-eslint/rule-tester@8.14.0':
     resolution: {integrity: sha512-q5Gi0CMFLojXZMvdWTIjOcBtV3qUg2xtUJocBxkd6PZ5YfHw9bd/Q+P5vtBu1Mrjs8OhId5WpOaMqjbUXLLBYA==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
+
+  '@typescript-eslint/rule-tester@8.26.0':
+    resolution: {integrity: sha512-o6UDdOWGpkdXpfG+iVC/caucZptQfbcXLoWWRyKVXYW5PDTqN9HDXlDXS0jKtqT0gIHdNuYKflo+ELv7oW7cvw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
@@ -6159,6 +6165,20 @@ snapshots:
       - supports-color
       - typescript
 
+  '@typescript-eslint/rule-tester@8.26.0(eslint@9.22.0(jiti@2.3.3))(typescript@5.6.3)':
+    dependencies:
+      '@typescript-eslint/parser': 8.26.0(eslint@9.22.0(jiti@2.3.3))(typescript@5.6.3)
+      '@typescript-eslint/typescript-estree': 8.26.0(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.26.0(eslint@9.22.0(jiti@2.3.3))(typescript@5.6.3)
+      ajv: 6.12.6
+      eslint: 9.22.0(jiti@2.3.3)
+      json-stable-stringify-without-jsonify: 1.0.1
+      lodash.merge: 4.6.2
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+
   '@typescript-eslint/scope-manager@8.12.2':
     dependencies:
       '@typescript-eslint/types': 8.12.2
@@ -6240,7 +6260,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.0(typescript@5.6.3)
     optionalDependencies:
       typescript: 5.6.3
@@ -7489,7 +7509,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   math-intrinsics@1.1.0: {}
 
