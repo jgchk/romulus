@@ -123,9 +123,6 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
-      drizzle-orm:
-        specifier: ^0.36.0
-        version: 0.36.0(@electric-sql/pglite@0.2.12)(@neondatabase/serverless@0.10.1)(@types/pg@8.11.10)(postgres@3.4.5)(react@18.3.1)
       neverthrow:
         specifier: ^8.1.1
         version: 8.1.1
@@ -208,9 +205,6 @@ importers:
       dotenv-cli:
         specifier: ^7.4.2
         version: 7.4.2
-      drizzle-kit:
-        specifier: ^0.27.0
-        version: 0.27.0
       eslint:
         specifier: ^9.13.0
         version: 9.13.0(jiti@2.3.3)

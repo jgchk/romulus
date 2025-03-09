@@ -20,7 +20,6 @@
     ".svelte-kit/ambient.d.ts",
     ".svelte-kit/non-ambient.d.ts",
     ".svelte-kit/types/**/$types.d.ts",
-    "drizzle.config.ts",
     "eslint.config.js",
     "postcss.config.js",
     "svelte.config.js",
