@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:20-alpine AS base
 RUN npm install --global corepack@latest
 RUN corepack enable pnpm
 
