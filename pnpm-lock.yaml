@@ -384,6 +384,9 @@ importers:
       '@romulus/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@types/node':
+        specifier: ^20.14.15
+        version: 20.17.24
       eslint:
         specifier: ^9.22.0
         version: 9.22.0(jiti@2.3.3)
@@ -6019,7 +6022,6 @@ snapshots:
   '@types/node@20.17.24':
     dependencies:
       undici-types: 6.19.8
-    optional: true
 
   '@types/node@20.17.6':
     dependencies:

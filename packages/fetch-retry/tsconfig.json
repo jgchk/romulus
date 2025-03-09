@@ -1,12 +1,26 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "checkJs": true,
-    "skipLibCheck": true,
-    "downlevelIteration": true,
+    /* Base Options: */
     "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler"
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    /* If transpiling with TypeScript: */
+    "module": "NodeNext",
+    "sourceMap": true,
+
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": ["src/**/*", "eslint.config.js", "drizzle.config.ts", "vitest.config.ts"]
+  "include": ["src/**/*", "eslint.config.js"]
 }
