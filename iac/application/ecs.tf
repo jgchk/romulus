@@ -59,7 +59,12 @@ resource "aws_ecs_task_definition" "frontend" {
       }
     ]
     healthCheck = {
-      command     = ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      command = [
+        "CMD-SHELL",
+        # Forward output to logs
+        # See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/view-container-health.html
+        "curl -f http://localhost:3000/ >> /proc/1/fd/1 2>&1  || exit 1"
+      ]
       interval    = 30
       timeout     = 5
       retries     = 3
