@@ -1,13 +1,10 @@
 export class CustomError<Name extends string = string> extends Error {
   public override readonly name: Name
-  public override readonly message: string
   public override readonly cause?: Error
 
   constructor(name: Name, message: string, cause?: Error) {
-    super(message)
+    super(message, { cause })
     this.name = name
-    this.message = message
-    this.cause = cause
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
