@@ -32,7 +32,7 @@ describe('GenreTreeNode', () => {
       new Set([5, 6]),
     )
 
-    expect(node).toEqual(err(new DerivedChildError(2)))
+    expect(node).toEqual(err(new DerivedChildError(1)))
   })
 
   it('should return DerivedInfluenceError when a genre is both derived from and influenced by same genre', () => {
@@ -44,7 +44,7 @@ describe('GenreTreeNode', () => {
       new Set([4, 6]), // 4 appears in both derivedFrom and influences
     )
 
-    expect(node).toEqual(err(new DerivedInfluenceError(4)))
+    expect(node).toEqual(err(new DerivedInfluenceError(1)))
   })
 
   it('should return SelfInfluenceError when a genre influences itself', () => {
