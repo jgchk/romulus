@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "frontend" {
 
   health_check {
     enabled             = true
-    path                = "/"
+    path                = "/api/health"
     port                = "traffic-port"
     healthy_threshold   = 2
     unhealthy_threshold = 3
