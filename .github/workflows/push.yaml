@@ -23,6 +23,8 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      ALLOWED_SSH_IP: ${{ secrets.ALLOWED_SSH_IP }}
+      BASTION_PUBLIC_KEY: ${{ secrets.BASTION_PUBLIC_KEY }}
     with:
       frontend_image_tag: ${{ needs.build.outputs.frontend_image_tag }}
       backend_image_tag: ${{ needs.build.outputs.backend_image_tag }}

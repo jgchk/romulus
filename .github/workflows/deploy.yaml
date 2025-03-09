@@ -51,4 +51,6 @@ jobs:
         run: |
           terraform apply -auto-approve \
             -var="frontend_image_tag=${{ inputs.frontend_image_tag }}" \
-            -var="backend_image_tag=${{ inputs.backend_image_tag }}"
+            -var="backend_image_tag=${{ inputs.backend_image_tag }}" \
+            -var="allowed_ssh_ip=${{ secrets.ALLOWED_SSH_IP }}" \
+            -var="bastion_public_key=${{ secrets.BASTION_PUBLIC_KEY }}"
