@@ -52,7 +52,7 @@
   "devDependencies": {
     "@romulus/eslint-config": "workspace:*",
     "@types/node": "^20.14.15",
-    "drizzle-kit": "^0.27.0",
+    "drizzle-kit": "^0.30.5",
     "eslint": "^9.22.0",
     "prettier": "^3.3.3",
     "tsx": "^4.19.2",
