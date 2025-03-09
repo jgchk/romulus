@@ -1,4 +1,3 @@
-# Add these variables at the top of iac/application/ecs.tf
 variable "frontend_image_tag" {
   description = "Tag for the frontend ECR image"
   type        = string
