@@ -19,7 +19,7 @@
     "eslint-plugin-returned-errors": "workspace:*",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.12.2"
+    "typescript-eslint": "^8.26.0"
   },
   "devDependencies": {
     "prettier": "^3.3.3"
