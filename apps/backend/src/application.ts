@@ -44,7 +44,6 @@ import { UserSettingsApplication } from '@romulus/user-settings/application'
 import type { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
 export type AuthenticationApplication = ReturnType<typeof createAuthenticationApplication>
-
 export function createAuthenticationApplication({
   infrastructure,
   authorizationService,
@@ -141,6 +140,7 @@ export function createAuthorizationApplication(infrastructure: AuthorizationInfr
   return new AuthorizationApplication(infrastructure.authorizerRepo())
 }
 
+export type GenresApplication = ReturnType<typeof createGenresApplication>
 export function createGenresApplication({
   infrastructure,
   authorizationService,
@@ -211,6 +211,7 @@ export function createGenresApplication({
   }
 }
 
+export type MediaApplication = ReturnType<typeof createMediaApplication>
 export function createMediaApplication(infrastructure: ArtifactsProjection) {
   return {
     handleDefineArtifactSchemaCommand: createDefineArtifactSchemaCommandHandler((event) => {
