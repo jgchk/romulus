@@ -1,4 +1,3 @@
-import { createAuthenticationRouter } from '@romulus/authentication/router'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { createGenresRouter } from '@romulus/genres/router'
 import { createArtifactsRouter } from '@romulus/media/artifacts/router'
@@ -13,11 +12,6 @@ import {
   createUserSettingsApplication,
 } from './application.js'
 import type { Infrastructure } from './infrastructure.js'
-
-export function getAuthenticationRouter(infrastructure: Infrastructure) {
-  const application = createAuthenticationApplication(infrastructure)
-  return createAuthenticationRouter(application)
-}
 
 export function getAuthorizationRouter(infrastructure: Infrastructure) {
   return createAuthorizationRouter({

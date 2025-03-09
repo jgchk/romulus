@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server'
+import { createAuthenticationRouter } from '@romulus/authentication/router'
 import { Hono } from 'hono'
 
 import { createAuthenticationApplication, createAuthorizationApplication } from './application.js'
@@ -6,7 +7,6 @@ import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } f
 import { createInfrastructure } from './infrastructure.js'
 import { setupPermissions } from './permissions.js'
 import {
-  getAuthenticationRouter,
   getAuthorizationRouter,
   getGenresRouter,
   getMediaRouter,
@@ -34,7 +34,9 @@ export async function main({
     userSettingsDatabaseUrl: config.userSettingsDatabaseUrl,
   })
 
+  const authentication = createAuthenticationApplication(infrastructure)
   const authorization = createAuthorizationApplication(infrastructure)
+
   await setupPermissions(async (permissions) => {
     const result = await authorization.ensurePermissions(
       permissions,
@@ -53,14 +55,14 @@ export async function main({
 
   if (config.enableDevAdminAccount) {
     await setupAdminAccountForDevelopment({
-      authentication: createAuthenticationApplication(infrastructure),
+      authentication,
       authorization: createAuthorizationApplication(infrastructure),
     })
   }
 
   const app = new Hono()
     .get('/health', (c) => c.json({ success: true }))
-    .route('/authentication', getAuthenticationRouter(infrastructure))
+    .route('/authentication', createAuthenticationRouter(authentication))
     .route('/authorization', getAuthorizationRouter(infrastructure))
     .route('/genres', getGenresRouter(infrastructure))
     .route('/media', getMediaRouter(infrastructure))
