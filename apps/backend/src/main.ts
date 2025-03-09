@@ -30,20 +30,18 @@ import {
 import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } from './dev.js'
 import { setupPermissions } from './permissions.js'
 
-export type Config = {
-  authenticationDatabaseUrl: string
-  authorizationDatabaseUrl: string
-  genresDatabaseUrl: string
-  userSettingsDatabaseUrl: string
-
-  enableDevAdminAccount: boolean
-}
-
 export async function main({
   config,
   setupAdminAccountForDevelopment = _setupAdminAccountForDevelopment,
 }: {
-  config: Config
+  config: {
+    authenticationDatabaseUrl: string
+    authorizationDatabaseUrl: string
+    genresDatabaseUrl: string
+    userSettingsDatabaseUrl: string
+
+    enableDevAdminAccount: boolean
+  }
   setupAdminAccountForDevelopment?: typeof _setupAdminAccountForDevelopment
 }) {
   const {
@@ -102,7 +100,12 @@ export async function main({
   serve(router, (info) => console.log(`Backend running on ${info.port}`))
 }
 
-async function createInfrastructure(config: Config) {
+async function createInfrastructure(config: {
+  authenticationDatabaseUrl: string
+  authorizationDatabaseUrl: string
+  genresDatabaseUrl: string
+  userSettingsDatabaseUrl: string
+}) {
   const authenticationInfrastructure = await AuthenticationInfrastructure.create(
     config.authenticationDatabaseUrl,
   )
