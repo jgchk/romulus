@@ -48,30 +48,30 @@ export async function main({
     config.userSettingsDatabaseUrl,
   )
 
-  const authentication = createAuthenticationApplication({
+  const authenticationApplication = createAuthenticationApplication({
     infrastructure: authenticationInfrastructure,
     authorizationService: {
       hasPermission(userId: number, permission: string) {
-        return authorization.checkMyPermission(permission, userId)
+        return authorizationApplication.checkMyPermission(permission, userId)
       },
     },
   })
-  const authorization = createAuthorizationApplication(authorizationInfrastructure)
+  const authorizationApplication = createAuthorizationApplication(authorizationInfrastructure)
   const genres = createGenresApplication({
     infrastructure: genresInfrastructure,
     authorizationService: {
       hasPermission(userId: number, permission: string) {
-        return authorization.checkMyPermission(permission, userId)
+        return authorizationApplication.checkMyPermission(permission, userId)
       },
     },
   })
-  const media = createMediaApplication(mediaInfrastructure)
-  const userSettings = createUserSettingsApplication(userSettingsInfrastructure)
+  const mediaApplication = createMediaApplication(mediaInfrastructure)
+  const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
 
   await setupPermissions(async (permissions) => {
-    const result = await authorization.ensurePermissions(
+    const result = await authorizationApplication.ensurePermissions(
       permissions,
-      authorization.getSystemUserId(),
+      authorizationApplication.getSystemUserId(),
     )
 
     if (result.isErr()) {
@@ -79,28 +79,28 @@ export async function main({
     }
   })
 
-  const result = await authorization.setupRoles()
+  const result = await authorizationApplication.setupRoles()
   if (result.isErr()) {
     console.error(result.error)
   }
 
   if (config.enableDevAdminAccount) {
     await setupAdminAccountForDevelopment({
-      authentication,
-      authorization,
+      authentication: authenticationApplication,
+      authorization: authorizationApplication,
     })
   }
 
   const app = new Hono()
     .get('/health', (c) => c.json({ success: true }))
-    .route('/authentication', createAuthenticationRouter(authentication))
+    .route('/authentication', createAuthenticationRouter(authenticationApplication))
     .route(
       '/authorization',
       createAuthorizationRouter({
-        application: () => authorization,
+        application: () => authorizationApplication,
         authentication: () => ({
           whoami: (token: string) => {
-            const whoamiQuery = authentication.whoamiQuery()
+            const whoamiQuery = authenticationApplication.whoamiQuery()
 
             // eslint-disable-next-line returned-errors/enforce-error-handling
             return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
@@ -120,7 +120,7 @@ export async function main({
         ...genres,
         authentication: () => ({
           whoami: (token: string) => {
-            const whoamiQuery = authentication.whoamiQuery()
+            const whoamiQuery = authenticationApplication.whoamiQuery()
 
             // eslint-disable-next-line returned-errors/enforce-error-handling
             return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
@@ -134,14 +134,14 @@ export async function main({
         }),
       }),
     )
-    .route('/media', createArtifactsRouter(media))
+    .route('/media', createArtifactsRouter(mediaApplication))
     .route(
       '/user-settings',
       createUserSettingsRouter({
-        application: () => userSettings,
+        application: () => userSettingsApplication,
         authentication: () => ({
           whoami: (token: string) => {
-            const whoamiQuery = authentication.whoamiQuery()
+            const whoamiQuery = authenticationApplication.whoamiQuery()
 
             // eslint-disable-next-line returned-errors/enforce-error-handling
             return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
