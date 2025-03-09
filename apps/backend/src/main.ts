@@ -79,11 +79,7 @@ export async function main({
   })
 
   await setupPermissions(authorizationApplication)
-
-  const result = await authorizationApplication.setupRoles()
-  if (result.isErr()) {
-    console.error(result.error)
-  }
+  await setupRoles(authorizationApplication)
 
   if (config.enableDevAdminAccount) {
     await setupAdminAccountForDevelopment({
@@ -258,5 +254,12 @@ async function setupPermissions(authorizationApplication: AuthorizationApplicati
     if (result.isErr()) {
       throw result.error
     }
+  }
+}
+
+async function setupRoles(authorizationApplication: AuthorizationApplication) {
+  const result = await authorizationApplication.setupRoles()
+  if (result.isErr()) {
+    console.error(result.error)
   }
 }
