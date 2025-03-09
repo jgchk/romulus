@@ -47,7 +47,7 @@ export async function main({
       },
     },
   })
-  const authorization = createAuthorizationApplication(infrastructure)
+  const authorization = createAuthorizationApplication(infrastructure.authorization)
   const genres = createGenresApplication(infrastructure)
   const media = createMediaApplication(infrastructure)
   const userSettings = createUserSettingsApplication(infrastructure)
@@ -71,7 +71,7 @@ export async function main({
   if (config.enableDevAdminAccount) {
     await setupAdminAccountForDevelopment({
       authentication,
-      authorization: createAuthorizationApplication(infrastructure),
+      authorization,
     })
   }
 

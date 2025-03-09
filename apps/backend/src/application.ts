@@ -16,6 +16,7 @@ import {
 } from '@romulus/authentication/application'
 import type { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { AuthorizationApplication } from '@romulus/authorization/application'
+import type { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import {
   CreateGenreCommand,
   DeleteGenreCommand,
@@ -135,8 +136,8 @@ export function createAuthenticationApplication({
   }
 }
 
-export function createAuthorizationApplication(infrastructure: Infrastructure) {
-  return new AuthorizationApplication(infrastructure.authorization.authorizerRepo())
+export function createAuthorizationApplication(infrastructure: AuthorizationInfrastructure) {
+  return new AuthorizationApplication(infrastructure.authorizerRepo())
 }
 
 export function createGenresApplication(infrastructure: Infrastructure) {
@@ -148,7 +149,7 @@ export function createGenresApplication(infrastructure: Infrastructure) {
         infrastructure.genres.genreHistoryRepo(),
         {
           hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure).checkMyPermission(
+            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
               permission,
               userId,
             )
@@ -163,7 +164,7 @@ export function createGenresApplication(infrastructure: Infrastructure) {
         infrastructure.genres.genreHistoryRepo(),
         {
           hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure).checkMyPermission(
+            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
               permission,
               userId,
             )
@@ -178,7 +179,7 @@ export function createGenresApplication(infrastructure: Infrastructure) {
         infrastructure.genres.genreHistoryRepo(),
         {
           hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure).checkMyPermission(
+            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
               permission,
               userId,
             )
@@ -189,7 +190,7 @@ export function createGenresApplication(infrastructure: Infrastructure) {
     voteGenreRelevanceCommand() {
       return new VoteGenreRelevanceCommand(infrastructure.genres.genreRelevanceVoteRepo(), {
         hasPermission(userId, permission) {
-          return createAuthorizationApplication(infrastructure).checkMyPermission(
+          return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
             permission,
             userId,
           )
