@@ -1,4 +1,9 @@
+import type { ArkErrors } from 'arktype'
 import { type } from 'arktype'
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
+
+export type Env = typeof envSchema.infer
 
 const envSchema = type({
   AUTHENTICATION_DATABASE_URL: 'string > 0',
@@ -9,11 +14,12 @@ const envSchema = type({
   ENABLE_DEV_ADMIN_ACCOUNT: '"true" | "false"',
 }).pipe((env) => ({ ...env, ENABLE_DEV_ADMIN_ACCOUNT: env.ENABLE_DEV_ADMIN_ACCOUNT === 'true' }))
 
-const envResult = envSchema(process.env)
+export function readEnvironmentVariables(): Result<Env, ArkErrors> {
+  const envResult = envSchema(process.env)
 
-if (envResult instanceof type.errors) {
-  console.error(envResult.summary)
-  process.exit(1)
+  if (envResult instanceof type.errors) {
+    return err(envResult)
+  }
+
+  return ok(envResult)
 }
-
-export const env = envResult

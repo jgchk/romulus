@@ -3,6 +3,9 @@
   "type": "module",
   "scripts": {
     "db:generate": "drizzle-kit generate",
+    "test": "pnpm test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",

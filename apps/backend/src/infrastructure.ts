@@ -5,8 +5,6 @@ import type { ArtifactsProjection } from '@romulus/media/artifacts/infrastructur
 import { createArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
-import { env } from './env.js'
-
 export type Infrastructure = {
   authentication: AuthenticationInfrastructure
   authorization: AuthorizationInfrastructure
@@ -15,12 +13,22 @@ export type Infrastructure = {
   userSettings: UserSettingsInfrastructure
 }
 
-export async function createInfrastructure(): Promise<Infrastructure> {
-  const authentication = await AuthenticationInfrastructure.create(env.AUTHENTICATION_DATABASE_URL)
-  const authorization = await AuthorizationInfrastructure.create(env.AUTHORIZATION_DATABASE_URL)
-  const genres = await GenresInfrastructure.create(env.GENRES_DATABASE_URL)
+export async function createInfrastructure({
+  authenticationDatabaseUrl,
+  authorizationDatabaseUrl,
+  genresDatabaseUrl,
+  userSettingsDatabaseUrl,
+}: {
+  authenticationDatabaseUrl: string
+  authorizationDatabaseUrl: string
+  genresDatabaseUrl: string
+  userSettingsDatabaseUrl: string
+}): Promise<Infrastructure> {
+  const authentication = await AuthenticationInfrastructure.create(authenticationDatabaseUrl)
+  const authorization = await AuthorizationInfrastructure.create(authorizationDatabaseUrl)
+  const genres = await GenresInfrastructure.create(genresDatabaseUrl)
   const media = createArtifactsProjection()
-  const userSettings = await UserSettingsInfrastructure.create(env.USER_SETTINGS_DATABASE_URL)
+  const userSettings = await UserSettingsInfrastructure.create(userSettingsDatabaseUrl)
 
   return { authentication, authorization, genres, media, userSettings }
 }

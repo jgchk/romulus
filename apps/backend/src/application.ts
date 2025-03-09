@@ -40,6 +40,8 @@ import { UserSettingsApplication } from '@romulus/user-settings/application'
 
 import type { Infrastructure } from './infrastructure.js'
 
+export type AuthenticationApplication = ReturnType<typeof createAuthenticationApplication>
+
 export function createAuthenticationApplication(infrastructure: Infrastructure) {
   const authorization = {
     hasPermission(userId: number, permission: string) {
