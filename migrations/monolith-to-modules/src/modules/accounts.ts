@@ -6,6 +6,10 @@ export async function migrateAccounts(
   migrateSchema: () => Promise<void>,
   execQuery: (query: string) => Promise<void>,
 ) {
+  await execQuery('drop schema if exists public cascade')
+  await execQuery('create schema public')
+  await execQuery('drop schema if exists drizzle cascade')
+
   await migrateSchema()
 
   const monolith = postgres(env.MONOLITH_DATABASE_URL)

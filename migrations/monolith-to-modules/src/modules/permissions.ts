@@ -9,6 +9,10 @@ export async function migratePermissions(
   migrateSchema: () => Promise<void>,
   execQuery: (query: string) => Promise<void>,
 ) {
+  await execQuery('drop schema if exists public cascade')
+  await execQuery('create schema public')
+  await execQuery('drop schema if exists drizzle cascade')
+
   await migrateSchema()
 
   async function insertPermissions(permissions: { name: string; description?: string }[]) {
