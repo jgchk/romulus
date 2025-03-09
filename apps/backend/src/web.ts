@@ -1,18 +1,8 @@
-import { createArtifactsRouter } from '@romulus/media/artifacts/router'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import {
-  createAuthenticationApplication,
-  createMediaApplication,
-  createUserSettingsApplication,
-} from './application.js'
+import { createAuthenticationApplication, createUserSettingsApplication } from './application.js'
 import type { Infrastructure } from './infrastructure.js'
-
-export function getMediaRouter(infrastructure: Infrastructure) {
-  const application = createMediaApplication(infrastructure)
-  return createArtifactsRouter(application)
-}
 
 export function getUserSettingsRouter(infrastructure: Infrastructure) {
   return createUserSettingsRouter({

@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { createGenresRouter } from '@romulus/genres/router'
+import { createArtifactsRouter } from '@romulus/media/artifacts/router'
 import { Hono } from 'hono'
 import { err, ok, ResultAsync } from 'neverthrow'
 
@@ -9,11 +10,12 @@ import {
   createAuthenticationApplication,
   createAuthorizationApplication,
   createGenresApplication,
+  createMediaApplication,
 } from './application.js'
 import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } from './dev.js'
 import { createInfrastructure } from './infrastructure.js'
 import { setupPermissions } from './permissions.js'
-import { getMediaRouter, getUserSettingsRouter } from './web.js'
+import { getUserSettingsRouter } from './web.js'
 
 export async function main({
   config,
@@ -39,6 +41,7 @@ export async function main({
   const authentication = createAuthenticationApplication(infrastructure)
   const authorization = createAuthorizationApplication(infrastructure)
   const genres = createGenresApplication(infrastructure)
+  const media = createMediaApplication(infrastructure)
 
   await setupPermissions(async (permissions) => {
     const result = await authorization.ensurePermissions(
@@ -106,7 +109,7 @@ export async function main({
         }),
       }),
     )
-    .route('/media', getMediaRouter(infrastructure))
+    .route('/media', createArtifactsRouter(media))
     .route('/user-settings', getUserSettingsRouter(infrastructure))
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
