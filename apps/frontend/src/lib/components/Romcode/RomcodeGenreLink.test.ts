@@ -32,43 +32,43 @@ const setup = (
 }
 
 test('renders just the genre name for non-nsfw genres', () => {
-  const { container } = setup({
+  const { getByRole, queryByTestId } = setup({
     id: 1,
     genres: [{ id: 1, name: 'Genre Name', nsfw: false }],
   })
 
-  const renderedText = container.textContent
-  expect(renderedText).toBe('Genre Name')
+  expect(getByRole('link')).toHaveTextContent('Genre Name')
+  expect(queryByTestId('nsfw-indicator')).toBeNull()
 })
 
 it('renders just the override text for non-nsfw genres', () => {
-  const { container } = setup({
+  const { getByRole, queryByTestId } = setup({
     id: 1,
     text: 'Override Text',
     genres: [{ id: 1, name: 'Genre Name', nsfw: false }],
   })
 
-  const renderedText = container.textContent
-  expect(renderedText).toBe('Override Text')
+  expect(getByRole('link')).toHaveTextContent('Override Text')
+  expect(queryByTestId('nsfw-indicator')).toBeNull()
 })
 
 it('renders the genre name with an nsfw indicator for nsfw genres', () => {
-  const { container } = setup({
+  const { getByRole, getByTestId } = setup({
     id: 1,
     genres: [{ id: 1, name: 'Genre Name', nsfw: true }],
   })
 
-  const renderedText = container.textContent
-  expect(renderedText).toBe('Genre Name N')
+  expect(getByRole('link')).toHaveTextContent('Genre Name')
+  expect(getByTestId('nsfw-indicator')).toBeVisible()
 })
 
 it('renders the override text with an nsfw indicator for nsfw genres', () => {
-  const { container } = setup({
+  const { getByRole, getByTestId } = setup({
     id: 1,
     text: 'Override Text',
     genres: [{ id: 1, name: 'Genre Name', nsfw: true }],
   })
 
-  const renderedText = container.textContent
-  expect(renderedText).toBe('Override Text N')
+  expect(getByRole('link')).toHaveTextContent('Override Text')
+  expect(getByTestId('nsfw-indicator')).toBeVisible()
 })
