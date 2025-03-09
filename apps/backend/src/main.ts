@@ -56,7 +56,7 @@ export async function main({
       },
     },
   })
-  const media = createMediaApplication(infrastructure)
+  const media = createMediaApplication(infrastructure.media)
   const userSettings = createUserSettingsApplication(infrastructure)
 
   await setupPermissions(async (permissions) => {

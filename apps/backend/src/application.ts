@@ -39,6 +39,7 @@ import {
   createRegisterArtifactCommandHandler,
   createRegisterRelationCommandHandler,
 } from '@romulus/media/artifacts/application'
+import type { ArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { UserSettingsApplication } from '@romulus/user-settings/application'
 
 import type { Infrastructure } from './infrastructure.js'
@@ -211,31 +212,31 @@ export function createGenresApplication({
   }
 }
 
-export function createMediaApplication(infrastructure: Infrastructure) {
+export function createMediaApplication(infrastructure: ArtifactsProjection) {
   return {
     handleDefineArtifactSchemaCommand: createDefineArtifactSchemaCommandHandler((event) => {
-      infrastructure.media.applyEvent(event)
+      infrastructure.applyEvent(event)
     }),
     handleDefineRelationSchemaCommand: createDefineRelationSchemaCommandHandler((event) => {
-      infrastructure.media.applyEvent(event)
+      infrastructure.applyEvent(event)
     }),
     handleRegisterArtifactCommand: createRegisterArtifactCommandHandler(
       (id) => {
-        return Promise.resolve(infrastructure.media.get().artifactSchemas.get(id))
+        return Promise.resolve(infrastructure.get().artifactSchemas.get(id))
       },
       (event) => {
-        infrastructure.media.applyEvent(event)
+        infrastructure.applyEvent(event)
       },
     ),
     handleRegisterRelationCommand: createRegisterRelationCommandHandler(
       (ids: { schemaId: string; sourceArtifactId: string; targetArtifactId: string }) => {
-        const schema = infrastructure.media.get().relationSchemas.get(ids.schemaId)
-        const sourceArtifact = infrastructure.media.get().artifacts.get(ids.sourceArtifactId)
-        const targetArtifact = infrastructure.media.get().artifacts.get(ids.targetArtifactId)
+        const schema = infrastructure.get().relationSchemas.get(ids.schemaId)
+        const sourceArtifact = infrastructure.get().artifacts.get(ids.sourceArtifactId)
+        const targetArtifact = infrastructure.get().artifacts.get(ids.targetArtifactId)
         return Promise.resolve({ schema, sourceArtifact, targetArtifact })
       },
       (event) => {
-        infrastructure.media.applyEvent(event)
+        infrastructure.applyEvent(event)
       },
     ),
   }
