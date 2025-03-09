@@ -15,6 +15,7 @@
       {errors[0]}
     {:else}
       <ul class="list-disc pl-4">
+        <!-- eslint-disable-next-line svelte/require-each-key -->
         {#each errors as error}
           <li>{error}</li>
         {/each}

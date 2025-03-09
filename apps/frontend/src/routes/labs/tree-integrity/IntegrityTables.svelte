@@ -21,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each misplacedScenes as entry}
+      {#each misplacedScenes as entry (entry.id)}
         <tr>
           <td class="p-1 px-2">
             <GenreLink

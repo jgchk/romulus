@@ -36,18 +36,18 @@
 >
   {match.genre.name}
   {#if match.genre.subtitle}
-    {' '}
+    &nbsp;
     <span
       class="text-[0.8rem] text-gray-500 transition group-hover:text-gray-600 dark:group-hover:text-gray-400"
       >[{match.genre.subtitle}]</span
     >
   {/if}
   {#if match.matchedAka}
-    {' '}
+    &nbsp;
     <span class="text-[0.8rem]">({match.matchedAka})</span>
   {/if}
   {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
-    {' '}
+    &nbsp;
     <GenreTypeChip type={match.genre.type} />
   {/if}
   {#if match.genre.nsfw}

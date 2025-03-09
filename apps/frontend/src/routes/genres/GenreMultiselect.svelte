@@ -74,10 +74,10 @@
 >
   {#snippet selected({ option })}
     <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
-      <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}{' '}<span
+      <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}&nbsp;<span
           class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
         >{/if}{#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-        {' '}
+        &nbsp;
         <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
       {/if}
     </div>
@@ -87,17 +87,17 @@
     <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
       {option.data.genre.name}
       {#if option.data.genre.subtitle}
-        {' '}
+        &nbsp;
         <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
           >[{option.data.genre.subtitle}]</span
         >
       {/if}
       {#if option.data.matchedAka}
-        {' '}
+        &nbsp;
         <span class="text-[0.8rem]">({option.data.matchedAka})</span>
       {/if}
       {#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-        {' '}
+        &nbsp;
         <GenreTypeChip type={option.data.genre.type} />
       {/if}
     </div>

@@ -87,7 +87,7 @@
       >
         <span class="genre-tree-node__name">{genre.name}</span>
         {#if genre.subtitle}
-          {' '}
+          &nbsp;
           <span
             class={cn(
               'genre-tree-node__subtitle text-[0.8rem] transition',
@@ -100,11 +100,11 @@
           </span>
         {/if}
         {#if $userSettings.showTypeTags && genre.type !== 'STYLE'}
-          {' '}
+          &nbsp;
           <GenreTypeChip type={genre.type} />
         {/if}
         {#if $userSettings.showRelevanceTags}
-          {' '}
+          &nbsp;
           <RelevanceChip relevance={genre.relevance} />
         {/if}
         {#if genre.nsfw}

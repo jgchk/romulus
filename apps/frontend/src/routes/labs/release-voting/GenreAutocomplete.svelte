@@ -52,17 +52,17 @@
     <div class={cn(option.value.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
       {option.value.genre.name}
       {#if option.value.genre.subtitle}
-        {' '}
+        &nbsp;
         <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
           >[{option.value.genre.subtitle}]</span
         >
       {/if}
       {#if option.value.matchedAka}
-        {' '}
+        &nbsp;
         <span class="text-[0.8rem]">({option.value.matchedAka})</span>
       {/if}
       {#if $userSettings.showTypeTags && option.value.genre.type !== 'STYLE'}
-        {' '}
+        &nbsp;
         <GenreTypeChip type={option.value.genre.type} />
       {/if}
     </div>

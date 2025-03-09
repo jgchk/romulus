@@ -70,15 +70,15 @@
         >
           {match.genre.name}
           {#if match.genre.subtitle}
-            {' '}
+            &nbsp;
             <span class="text-sm text-gray-600">[{match.genre.subtitle}]</span>
           {/if}
           {#if match.matchedAka}
-            {' '}
+            &nbsp;
             <span class="text-sm">({match.matchedAka})</span>
           {/if}
           {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
-            {' '}
+            &nbsp;
             <GenreTypeChip type={match.genre.type} />
           {/if}
           {#if match.genre.nsfw}

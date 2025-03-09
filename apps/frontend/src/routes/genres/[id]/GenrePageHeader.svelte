@@ -16,7 +16,7 @@
   <h1 class="text-2xl font-bold text-gray-600 transition dark:text-gray-300">
     <span data-testid="genre-name">{name}</span>
     {#if subtitle}
-      {' '}
+      &nbsp;
       <span class="genre-subtitle text-lg text-gray-500">[{subtitle}]</span>
     {/if}
     {#if nsfw}

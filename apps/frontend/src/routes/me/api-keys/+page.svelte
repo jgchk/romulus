@@ -20,6 +20,8 @@
     onDelete?: (id: number) => void
   }
 
+  // FIXME: Passing in onCreate and onDelete here was a hack to get unit tests working. We should probably just refactor the unit tests.
+  // eslint-disable-next-line svelte/valid-prop-names-in-kit-pages
   let { data, form, disableFormSubmission = false, onCreate, onDelete }: Props = $props()
 
   let showCreateDialog = $state(false)

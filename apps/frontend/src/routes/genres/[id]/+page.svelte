@@ -85,10 +85,7 @@
 
       <div>
         <div>
-          <Label>Relevance</Label>
-          {#if $user?.permissions.genres.canVoteRelevance}
-            {' '}
-            <button
+          <Label>Relevance</Label>{#if $user?.permissions.genres.canVoteRelevance}&nbsp;<button
               type="button"
               class="text-xs text-primary-500 hover:underline"
               onclick={() => (isVoting = !isVoting)}
@@ -99,8 +96,7 @@
         </div>
         <div class="genre-relevance">
           {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
-            None set.{' '}
-            <button
+            None set.&nbps;<button
               type="button"
               class="text-primary-500 hover:underline"
               onclick={() => (isVoting = true)}
@@ -232,8 +228,7 @@
             {/await}
           {:else}
             <span>
-              Missing a short description.{' '}
-              {#if $user?.permissions.genres.canEdit}
+              Missing a short description.&nbsp;{#if $user?.permissions.genres.canEdit}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=shortDescription"
                   class="text-primary-500 hover:underline"
@@ -261,8 +256,7 @@
             {/await}
           {:else}
             <span>
-              Missing a long description.{' '}
-              {#if $user?.permissions.genres.canEdit}
+              Missing a long description.&nbsp;{#if $user?.permissions.genres.canEdit}
                 <a
                   href="/genres/{data.genre.id}/edit?focus=longDescription"
                   class="text-primary-500 hover:underline"
@@ -346,7 +340,6 @@
         use:enhance={() => {
           isDeleteLoading = true
 
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           return async ({ update }) => {
             await update()
             isDeleteLoading = false

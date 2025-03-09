@@ -104,7 +104,7 @@
     <div
       class="h-6 w-9 cursor-default border-r border-gray-300 text-sm text-gray-700 transition dark:border-gray-700 dark:text-gray-300"
     >
-      {relevance}{' '}<HelpTip tooltip={relevanceData[relevance].docs} />
+      {relevance}&nbsp;<HelpTip tooltip={relevanceData[relevance].docs} />
     </div>
 
     {#if percentage > 0}

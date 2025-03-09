@@ -144,7 +144,7 @@
     <Input id="username" bind:value={username} />
   </InputGroup>
 
-  {#each voteCategories as category}
+  {#each voteCategories as category (category.id)}
     <div class="space-y-2">
       <GenreVoteForm
         genres={category.items}

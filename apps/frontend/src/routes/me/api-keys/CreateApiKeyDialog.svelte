@@ -26,7 +26,14 @@
       e.preventDefault()
     }
 
-    onCreate?.({ name: new FormData(e.currentTarget).get('name')?.toString() ?? '' })
+    const nameFormValue = new FormData(e.currentTarget).get('name')
+    if (nameFormValue instanceof File) {
+      console.error('Unexpected file input for name')
+      return
+    }
+    const name = nameFormValue ?? ''
+
+    onCreate?.({ name })
   }}
   use:enhance={() => {
     return ({ result, update }) => {

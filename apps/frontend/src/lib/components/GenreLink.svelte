@@ -31,9 +31,9 @@
     content: 'Enable NSFW genres in settings to view this genre',
     enabled: nsfw && !$userSettings.showNsfw,
   }}
-  >{name}{#if subtitle}{' '}<span class="text-[0.875em] text-primary-600 transition"
+  >{name}{#if subtitle}&nbsp;<span class="text-[0.875em] text-primary-600 transition"
       >[{subtitle}]</span
-    >{/if}{#if type && type !== 'STYLE' && $userSettings.showTypeTags}{' '}<GenreTypeChip
+    >{/if}{#if type && type !== 'STYLE' && $userSettings.showTypeTags}&nbsp;<GenreTypeChip
       {type}
       class="bg-primary-100 text-primary-400"
     />{/if}</a
