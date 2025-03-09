@@ -14,6 +14,10 @@ on:
     secrets:
       AWS_ACCOUNT_ID:
         required: true
+      ALLOWED_SSH_IP:
+        required: true
+      BASTION_PUBLIC_KEY:
+        required: true
 
 env:
   NODE_VERSION: 20.x
