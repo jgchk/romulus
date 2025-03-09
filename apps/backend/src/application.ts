@@ -14,6 +14,7 @@ import {
   ValidateApiKeyCommand,
   WhoamiQuery,
 } from '@romulus/authentication/application'
+import type { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { AuthorizationApplication } from '@romulus/authorization/application'
 import {
   CreateGenreCommand,
@@ -42,98 +43,94 @@ import type { Infrastructure } from './infrastructure.js'
 
 export type AuthenticationApplication = ReturnType<typeof createAuthenticationApplication>
 
-export function createAuthenticationApplication(infrastructure: Infrastructure) {
-  const authorization = {
-    hasPermission(userId: number, permission: string) {
-      return createAuthorizationApplication(infrastructure).checkMyPermission(permission, userId)
-    },
+export function createAuthenticationApplication({
+  infrastructure,
+  authorizationService,
+}: {
+  infrastructure: AuthenticationInfrastructure
+  authorizationService: {
+    hasPermission: (userId: number, permission: string) => Promise<boolean>
   }
-
+}) {
   return {
     loginCommand() {
       return new LoginCommand(
-        infrastructure.authentication.accountRepo(),
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.passwordHashRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
-        infrastructure.authentication.sessionTokenGenerator(),
+        infrastructure.accountRepo(),
+        infrastructure.sessionRepo(),
+        infrastructure.passwordHashRepo(),
+        infrastructure.sessionTokenHashRepo(),
+        infrastructure.sessionTokenGenerator(),
       )
     },
     logoutCommand() {
-      return new LogoutCommand(
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
-      )
+      return new LogoutCommand(infrastructure.sessionRepo(), infrastructure.sessionTokenHashRepo())
     },
     registerCommand() {
       return new RegisterCommand(
-        infrastructure.authentication.accountRepo(),
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.passwordHashRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
-        infrastructure.authentication.sessionTokenGenerator(),
+        infrastructure.accountRepo(),
+        infrastructure.sessionRepo(),
+        infrastructure.passwordHashRepo(),
+        infrastructure.sessionTokenHashRepo(),
+        infrastructure.sessionTokenGenerator(),
       )
     },
     deleteAccountCommand() {
-      return new DeleteAccountCommand(infrastructure.authentication.accountRepo(), authorization)
+      return new DeleteAccountCommand(infrastructure.accountRepo(), authorizationService)
     },
     requestPasswordResetCommand() {
       return new RequestPasswordResetCommand(
-        infrastructure.authentication.passwordResetTokenRepo(),
-        infrastructure.authentication.passwordResetTokenGenerator(),
-        infrastructure.authentication.passwordResetTokenHashRepo(),
-        infrastructure.authentication.accountRepo(),
-        authorization,
+        infrastructure.passwordResetTokenRepo(),
+        infrastructure.passwordResetTokenGenerator(),
+        infrastructure.passwordResetTokenHashRepo(),
+        infrastructure.accountRepo(),
+        authorizationService,
       )
     },
     resetPasswordCommand() {
       return new ResetPasswordCommand(
-        infrastructure.authentication.accountRepo(),
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.passwordResetTokenRepo(),
-        infrastructure.authentication.passwordResetTokenHashRepo(),
-        infrastructure.authentication.passwordHashRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
-        infrastructure.authentication.sessionTokenGenerator(),
+        infrastructure.accountRepo(),
+        infrastructure.sessionRepo(),
+        infrastructure.passwordResetTokenRepo(),
+        infrastructure.passwordResetTokenHashRepo(),
+        infrastructure.passwordHashRepo(),
+        infrastructure.sessionTokenHashRepo(),
+        infrastructure.sessionTokenGenerator(),
       )
     },
     whoamiQuery() {
       return new WhoamiQuery(
-        infrastructure.authentication.accountRepo(),
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
+        infrastructure.accountRepo(),
+        infrastructure.sessionRepo(),
+        infrastructure.sessionTokenHashRepo(),
       )
     },
     getAccountQuery() {
-      return new GetAccountQuery(infrastructure.authentication.accountRepo())
+      return new GetAccountQuery(infrastructure.accountRepo())
     },
     getAccountsQuery() {
-      return new GetAccountsQuery(infrastructure.authentication.accountRepo())
+      return new GetAccountsQuery(infrastructure.accountRepo())
     },
     refreshSessionCommand() {
       return new RefreshSessionCommand(
-        infrastructure.authentication.sessionRepo(),
-        infrastructure.authentication.sessionTokenHashRepo(),
+        infrastructure.sessionRepo(),
+        infrastructure.sessionTokenHashRepo(),
       )
     },
     createApiKeyCommand() {
       return new CreateApiKeyCommand(
-        infrastructure.authentication.apiKeyRepo(),
-        infrastructure.authentication.apiKeyTokenGenerator(),
-        infrastructure.authentication.apiKeyHashRepo(),
+        infrastructure.apiKeyRepo(),
+        infrastructure.apiKeyTokenGenerator(),
+        infrastructure.apiKeyHashRepo(),
       )
     },
     deleteApiKeyCommand() {
-      return new DeleteApiKeyCommand(infrastructure.authentication.apiKeyRepo())
+      return new DeleteApiKeyCommand(infrastructure.apiKeyRepo())
     },
     getApiKeysByAccountQuery() {
-      return new GetApiKeysByAccountQuery(infrastructure.authentication.dbConnection())
+      return new GetApiKeysByAccountQuery(infrastructure.dbConnection())
     },
     validateApiKeyCommand() {
-      return new ValidateApiKeyCommand(
-        infrastructure.authentication.apiKeyRepo(),
-        infrastructure.authentication.apiKeyHashRepo(),
-      )
+      return new ValidateApiKeyCommand(infrastructure.apiKeyRepo(), infrastructure.apiKeyHashRepo())
     },
   }
 }

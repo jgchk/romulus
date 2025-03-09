@@ -39,7 +39,14 @@ export async function main({
     userSettingsDatabaseUrl: config.userSettingsDatabaseUrl,
   })
 
-  const authentication = createAuthenticationApplication(infrastructure)
+  const authentication = createAuthenticationApplication({
+    infrastructure: infrastructure.authentication,
+    authorizationService: {
+      hasPermission(userId: number, permission: string) {
+        return authorization.checkMyPermission(permission, userId)
+      },
+    },
+  })
   const authorization = createAuthorizationApplication(infrastructure)
   const genres = createGenresApplication(infrastructure)
   const media = createMediaApplication(infrastructure)
