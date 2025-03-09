@@ -3,6 +3,7 @@ import { createAuthenticationRouter } from '@romulus/authentication/router'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { createGenresRouter } from '@romulus/genres/router'
 import { createArtifactsRouter } from '@romulus/media/artifacts/router'
+import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
 import { err, ok, ResultAsync } from 'neverthrow'
 
@@ -11,11 +12,11 @@ import {
   createAuthorizationApplication,
   createGenresApplication,
   createMediaApplication,
+  createUserSettingsApplication,
 } from './application.js'
 import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } from './dev.js'
 import { createInfrastructure } from './infrastructure.js'
 import { setupPermissions } from './permissions.js'
-import { getUserSettingsRouter } from './web.js'
 
 export async function main({
   config,
@@ -42,6 +43,7 @@ export async function main({
   const authorization = createAuthorizationApplication(infrastructure)
   const genres = createGenresApplication(infrastructure)
   const media = createMediaApplication(infrastructure)
+  const userSettings = createUserSettingsApplication(infrastructure)
 
   await setupPermissions(async (permissions) => {
     const result = await authorization.ensurePermissions(
@@ -110,7 +112,26 @@ export async function main({
       }),
     )
     .route('/media', createArtifactsRouter(media))
-    .route('/user-settings', getUserSettingsRouter(infrastructure))
+    .route(
+      '/user-settings',
+      createUserSettingsRouter({
+        application: () => userSettings,
+        authentication: () => ({
+          whoami: (token: string) => {
+            const whoamiQuery = authentication.whoamiQuery()
+
+            // eslint-disable-next-line returned-errors/enforce-error-handling
+            return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+              if (res instanceof Error) {
+                return err(res)
+              } else {
+                return ok({ id: res.account.id })
+              }
+            })
+          },
+        }),
+      }),
+    )
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
 }
