@@ -5,10 +5,15 @@ RUN corepack enable pnpm
 FROM base AS build
 COPY . /app
 WORKDIR /app
+RUN pnpx turbo prune @romulus/frontend
+
+FROM base AS install
+WORKDIR /app
+COPY --from=build /app/out .
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
 FROM base AS main
-COPY --from=build /app /prod
+COPY --from=install /app /prod
 WORKDIR /prod/apps/frontend
 CMD [ "node", "build" ]
