@@ -32,6 +32,7 @@ import {
   UpdateGenreCommand,
   VoteGenreRelevanceCommand,
 } from '@romulus/genres/application'
+import type { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import {
   createDefineArtifactSchemaCommandHandler,
   createDefineRelationSchemaCommandHandler,
@@ -140,89 +141,72 @@ export function createAuthorizationApplication(infrastructure: AuthorizationInfr
   return new AuthorizationApplication(infrastructure.authorizerRepo())
 }
 
-export function createGenresApplication(infrastructure: Infrastructure) {
+export function createGenresApplication({
+  infrastructure,
+  authorizationService,
+}: {
+  infrastructure: GenresInfrastructure
+  authorizationService: {
+    hasPermission: (userId: number, permission: string) => Promise<boolean>
+  }
+}) {
   return {
     createGenreCommand() {
       return new CreateGenreCommand(
-        infrastructure.genres.genreRepo(),
-        infrastructure.genres.genreTreeRepo(),
-        infrastructure.genres.genreHistoryRepo(),
-        {
-          hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
-              permission,
-              userId,
-            )
-          },
-        },
+        infrastructure.genreRepo(),
+        infrastructure.genreTreeRepo(),
+        infrastructure.genreHistoryRepo(),
+        authorizationService,
       )
     },
     deleteGenreCommand() {
       return new DeleteGenreCommand(
-        infrastructure.genres.genreRepo(),
-        infrastructure.genres.genreTreeRepo(),
-        infrastructure.genres.genreHistoryRepo(),
-        {
-          hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
-              permission,
-              userId,
-            )
-          },
-        },
+        infrastructure.genreRepo(),
+        infrastructure.genreTreeRepo(),
+        infrastructure.genreHistoryRepo(),
+        authorizationService,
       )
     },
     updateGenreCommand() {
       return new UpdateGenreCommand(
-        infrastructure.genres.genreRepo(),
-        infrastructure.genres.genreTreeRepo(),
-        infrastructure.genres.genreHistoryRepo(),
-        {
-          hasPermission(userId, permission) {
-            return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
-              permission,
-              userId,
-            )
-          },
-        },
+        infrastructure.genreRepo(),
+        infrastructure.genreTreeRepo(),
+        infrastructure.genreHistoryRepo(),
+        authorizationService,
       )
     },
     voteGenreRelevanceCommand() {
-      return new VoteGenreRelevanceCommand(infrastructure.genres.genreRelevanceVoteRepo(), {
-        hasPermission(userId, permission) {
-          return createAuthorizationApplication(infrastructure.authorization).checkMyPermission(
-            permission,
-            userId,
-          )
-        },
-      })
+      return new VoteGenreRelevanceCommand(
+        infrastructure.genreRelevanceVoteRepo(),
+        authorizationService,
+      )
     },
     getAllGenresQuery() {
-      return new GetAllGenresQuery(infrastructure.genres.dbConnection())
+      return new GetAllGenresQuery(infrastructure.dbConnection())
     },
     getGenreHistoryByAccountQuery() {
-      return new GetGenreHistoryByAccountQuery(infrastructure.genres.dbConnection())
+      return new GetGenreHistoryByAccountQuery(infrastructure.dbConnection())
     },
     getGenreHistoryQuery() {
-      return new GetGenreHistoryQuery(infrastructure.genres.dbConnection())
+      return new GetGenreHistoryQuery(infrastructure.dbConnection())
     },
     getGenreRelevanceVoteByAccountQuery() {
-      return new GetGenreRelevanceVoteByAccountQuery(infrastructure.genres.dbConnection())
+      return new GetGenreRelevanceVoteByAccountQuery(infrastructure.dbConnection())
     },
     getGenreRelevanceVotesByGenreQuery() {
-      return new GetGenreRelevanceVotesByGenreQuery(infrastructure.genres.dbConnection())
+      return new GetGenreRelevanceVotesByGenreQuery(infrastructure.dbConnection())
     },
     getGenreTreeQuery() {
-      return new GetGenreTreeQuery(infrastructure.genres.dbConnection())
+      return new GetGenreTreeQuery(infrastructure.dbConnection())
     },
     getGenreQuery() {
-      return new GetGenreQuery(infrastructure.genres.dbConnection())
+      return new GetGenreQuery(infrastructure.dbConnection())
     },
     getLatestGenreUpdatesQuery() {
-      return new GetLatestGenreUpdatesQuery(infrastructure.genres.dbConnection())
+      return new GetLatestGenreUpdatesQuery(infrastructure.dbConnection())
     },
     getRandomGenreIdQuery() {
-      return new GetRandomGenreIdQuery(infrastructure.genres.dbConnection())
+      return new GetRandomGenreIdQuery(infrastructure.dbConnection())
     },
   }
 }

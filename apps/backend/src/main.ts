@@ -48,7 +48,14 @@ export async function main({
     },
   })
   const authorization = createAuthorizationApplication(infrastructure.authorization)
-  const genres = createGenresApplication(infrastructure)
+  const genres = createGenresApplication({
+    infrastructure: infrastructure.genres,
+    authorizationService: {
+      hasPermission(userId: number, permission: string) {
+        return authorization.checkMyPermission(permission, userId)
+      },
+    },
+  })
   const media = createMediaApplication(infrastructure)
   const userSettings = createUserSettingsApplication(infrastructure)
 
