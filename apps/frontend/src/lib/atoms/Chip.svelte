@@ -4,7 +4,11 @@
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'
   import { tw } from '$lib/utils/dom'
 
-  type Props = HTMLAttributes<HTMLSpanElement> & { text: string; tooltip?: string }
+  type Props = Omit<HTMLAttributes<HTMLSpanElement>, 'class'> & {
+    text: string
+    tooltip?: string
+    class?: string
+  }
 
   let { text, tooltip, class: class_, ...rest }: Props = $props()
 </script>
