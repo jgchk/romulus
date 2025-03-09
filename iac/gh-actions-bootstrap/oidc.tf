@@ -124,7 +124,15 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "ec2:DescribeSubnets",
           "ec2:DescribeVpcEndpoints",
           "ec2:DescribePrefixLists",
-          "ec2:DescribeNetworkInterfaces"
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeKeyPairs",
+          "ec2:DescribeImages",
+          "ec2:DescribeInstances",
+          "ec2:DescribeInstanceTypes",
+          "ec2:DescribeTags",
+          "ec2:DescribeInstanceAttribute",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeInstanceCreditSpecifications"
         ],
         "Resource" : "*"
       },
