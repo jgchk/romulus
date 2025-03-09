@@ -58,6 +58,13 @@ resource "aws_ecs_task_definition" "frontend" {
         value = "http://${aws_lb.frontend.dns_name}"
       }
     ]
+    healthCheck = {
+      command     = ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
     logConfiguration = {
       logDriver = "awslogs"
       options = {
