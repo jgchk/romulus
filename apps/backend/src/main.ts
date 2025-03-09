@@ -1,9 +1,14 @@
 import { serve } from '@hono/node-server'
+import { setupAuthenticationPermissions } from '@romulus/authentication/application'
 import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
-import type { AuthorizationApplication } from '@romulus/authorization/application'
+import {
+  type AuthorizationApplication,
+  setupAuthorizationPermissions,
+} from '@romulus/authorization/application'
 import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
+import { setupGenresPermissions } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
 import {
@@ -28,7 +33,6 @@ import {
   type MediaApplication,
 } from './application.js'
 import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } from './dev.js'
-import { setupPermissions } from './permissions.js'
 
 export async function main({
   config,
@@ -74,16 +78,7 @@ export async function main({
     userSettingsApplication,
   })
 
-  await setupPermissions(async (permissions) => {
-    const result = await authorizationApplication.ensurePermissions(
-      permissions,
-      authorizationApplication.getSystemUserId(),
-    )
-
-    if (result.isErr()) {
-      throw result.error
-    }
-  })
+  await setupPermissions(authorizationApplication)
 
   const result = await authorizationApplication.setupRoles()
   if (result.isErr()) {
@@ -245,4 +240,23 @@ function createRouter({
     .route('/user-settings', userSettingsRouter)
 
   return router
+}
+
+async function setupPermissions(authorizationApplication: AuthorizationApplication) {
+  await setupAuthorizationPermissions(createPermissions)
+  await setupAuthenticationPermissions(createPermissions)
+  await setupGenresPermissions(createPermissions)
+
+  async function createPermissions(
+    permissions: { name: string; description: string | undefined }[],
+  ) {
+    const result = await authorizationApplication.ensurePermissions(
+      permissions,
+      authorizationApplication.getSystemUserId(),
+    )
+
+    if (result.isErr()) {
+      throw result.error
+    }
+  }
 }
