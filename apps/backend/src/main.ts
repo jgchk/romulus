@@ -57,7 +57,7 @@ export async function main({
     },
   })
   const authorizationApplication = createAuthorizationApplication(authorizationInfrastructure)
-  const genres = createGenresApplication({
+  const genresApplication = createGenresApplication({
     infrastructure: genresInfrastructure,
     authorizationService: {
       hasPermission(userId: number, permission: string) {
@@ -67,6 +67,67 @@ export async function main({
   })
   const mediaApplication = createMediaApplication(mediaInfrastructure)
   const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
+
+  const authenticationRouter = createAuthenticationRouter(authenticationApplication)
+  const authorizationRouter = createAuthorizationRouter({
+    application: () => authorizationApplication,
+    authentication: () => ({
+      whoami: (token: string) => {
+        const whoamiQuery = authenticationApplication.whoamiQuery()
+
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    }),
+  })
+  const genresRouter = createGenresRouter({
+    ...genresApplication,
+    authentication: () => ({
+      whoami: (token: string) => {
+        const whoamiQuery = authenticationApplication.whoamiQuery()
+
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    }),
+  })
+  const mediaRouter = createArtifactsRouter(mediaApplication)
+  const userSettingsRouter = createUserSettingsRouter({
+    application: () => userSettingsApplication,
+    authentication: () => ({
+      whoami: (token: string) => {
+        const whoamiQuery = authenticationApplication.whoamiQuery()
+
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    }),
+  })
+  const router = new Hono()
+    .get('/health', (c) => c.json({ success: true }))
+    .route('/authentication', authenticationRouter)
+    .route('/authorization', authorizationRouter)
+    .route('/genres', genresRouter)
+    .route('/media', mediaRouter)
+    .route('/user-settings', userSettingsRouter)
 
   await setupPermissions(async (permissions) => {
     const result = await authorizationApplication.ensurePermissions(
@@ -91,70 +152,5 @@ export async function main({
     })
   }
 
-  const app = new Hono()
-    .get('/health', (c) => c.json({ success: true }))
-    .route('/authentication', createAuthenticationRouter(authenticationApplication))
-    .route(
-      '/authorization',
-      createAuthorizationRouter({
-        application: () => authorizationApplication,
-        authentication: () => ({
-          whoami: (token: string) => {
-            const whoamiQuery = authenticationApplication.whoamiQuery()
-
-            // eslint-disable-next-line returned-errors/enforce-error-handling
-            return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
-              if (res instanceof Error) {
-                return err(res)
-              } else {
-                return ok({ id: res.account.id })
-              }
-            })
-          },
-        }),
-      }),
-    )
-    .route(
-      '/genres',
-      createGenresRouter({
-        ...genres,
-        authentication: () => ({
-          whoami: (token: string) => {
-            const whoamiQuery = authenticationApplication.whoamiQuery()
-
-            // eslint-disable-next-line returned-errors/enforce-error-handling
-            return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
-              if (res instanceof Error) {
-                return err(res)
-              } else {
-                return ok({ id: res.account.id })
-              }
-            })
-          },
-        }),
-      }),
-    )
-    .route('/media', createArtifactsRouter(mediaApplication))
-    .route(
-      '/user-settings',
-      createUserSettingsRouter({
-        application: () => userSettingsApplication,
-        authentication: () => ({
-          whoami: (token: string) => {
-            const whoamiQuery = authenticationApplication.whoamiQuery()
-
-            // eslint-disable-next-line returned-errors/enforce-error-handling
-            return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
-              if (res instanceof Error) {
-                return err(res)
-              } else {
-                return ok({ id: res.account.id })
-              }
-            })
-          },
-        }),
-      }),
-    )
-
-  serve(app, (info) => console.log(`Backend running on ${info.port}`))
+  serve(router, (info) => console.log(`Backend running on ${info.port}`))
 }
