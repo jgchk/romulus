@@ -15,7 +15,7 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     outputs:
-      frontend_image_tag: ${{ steps.set-outputs.outputs.frontend_image_tag }}
+      frontend_image_tag: ${{ steps.tags.outputs.version_tag }}
     permissions:
       id-token: write
       contents: read
@@ -26,7 +26,6 @@ jobs:
       - name: Generate image tags
         id: tags
         run: |
-          # Create version tag using timestamp and commit SHA
           VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
           echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
 
@@ -35,11 +34,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
           aws-region: us-east-2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_wrapper: false
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -55,15 +49,10 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/frontend:${{ steps.tags.outputs.version_tag }}
 
-      - name: Set outputs
-        id: set-outputs
-        run: |
-          echo "frontend_image_tag=${{ steps.tags.outputs.version_tag }}" >> $GITHUB_OUTPUT
-
   backend:
     runs-on: ubuntu-latest
     outputs:
-      backend_image_tag: ${{ steps.set-outputs.outputs.backend_image_tag }}
+      backend_image_tag: ${{ steps.tags.outputs.version_tag }}
     permissions:
       id-token: write
       contents: read
@@ -74,7 +63,6 @@ jobs:
       - name: Generate image tags
         id: tags
         run: |
-          # Create version tag using timestamp and commit SHA
           VERSION_TAG=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::8}
           echo "version_tag=$VERSION_TAG" >> $GITHUB_OUTPUT
 
@@ -83,11 +71,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
           aws-region: us-east-2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_wrapper: false
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -102,8 +85,3 @@ jobs:
           file: apps/backend/Dockerfile
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/backend:${{ steps.tags.outputs.version_tag }}
-
-      - name: Set outputs
-        id: set-outputs
-        run: |
-          echo "backend_image_tag=${{ steps.tags.outputs.version_tag }}" >> $GITHUB_OUTPUT
