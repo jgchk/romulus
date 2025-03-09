@@ -36,32 +36,37 @@ export async function main({
   }
   setupAdminAccountForDevelopment?: typeof _setupAdminAccountForDevelopment
 }) {
-  const infrastructure = await createInfrastructure({
-    authenticationDatabaseUrl: config.authenticationDatabaseUrl,
-    authorizationDatabaseUrl: config.authorizationDatabaseUrl,
-    genresDatabaseUrl: config.genresDatabaseUrl,
-    userSettingsDatabaseUrl: config.userSettingsDatabaseUrl,
-  })
+  const authenticationInfrastructure = await AuthenticationInfrastructure.create(
+    config.authenticationDatabaseUrl,
+  )
+  const authorizationInfrastructure = await AuthorizationInfrastructure.create(
+    config.authorizationDatabaseUrl,
+  )
+  const genresInfrastructure = await GenresInfrastructure.create(config.genresDatabaseUrl)
+  const mediaInfrastructure = createArtifactsProjection()
+  const userSettingsInfrastructure = await UserSettingsInfrastructure.create(
+    config.userSettingsDatabaseUrl,
+  )
 
   const authentication = createAuthenticationApplication({
-    infrastructure: infrastructure.authentication,
+    infrastructure: authenticationInfrastructure,
     authorizationService: {
       hasPermission(userId: number, permission: string) {
         return authorization.checkMyPermission(permission, userId)
       },
     },
   })
-  const authorization = createAuthorizationApplication(infrastructure.authorization)
+  const authorization = createAuthorizationApplication(authorizationInfrastructure)
   const genres = createGenresApplication({
-    infrastructure: infrastructure.genres,
+    infrastructure: genresInfrastructure,
     authorizationService: {
       hasPermission(userId: number, permission: string) {
         return authorization.checkMyPermission(permission, userId)
       },
     },
   })
-  const media = createMediaApplication(infrastructure.media)
-  const userSettings = createUserSettingsApplication(infrastructure.userSettings)
+  const media = createMediaApplication(mediaInfrastructure)
+  const userSettings = createUserSettingsApplication(userSettingsInfrastructure)
 
   await setupPermissions(async (permissions) => {
     const result = await authorization.ensurePermissions(
@@ -152,24 +157,4 @@ export async function main({
     )
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
-}
-
-async function createInfrastructure({
-  authenticationDatabaseUrl,
-  authorizationDatabaseUrl,
-  genresDatabaseUrl,
-  userSettingsDatabaseUrl,
-}: {
-  authenticationDatabaseUrl: string
-  authorizationDatabaseUrl: string
-  genresDatabaseUrl: string
-  userSettingsDatabaseUrl: string
-}) {
-  const authentication = await AuthenticationInfrastructure.create(authenticationDatabaseUrl)
-  const authorization = await AuthorizationInfrastructure.create(authorizationDatabaseUrl)
-  const genres = await GenresInfrastructure.create(genresDatabaseUrl)
-  const media = createArtifactsProjection()
-  const userSettings = await UserSettingsInfrastructure.create(userSettingsDatabaseUrl)
-
-  return { authentication, authorization, genres, media, userSettings }
 }
