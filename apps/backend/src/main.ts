@@ -1,8 +1,13 @@
 import { serve } from '@hono/node-server'
+import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
+import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
+import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
+import { createArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { createArtifactsRouter } from '@romulus/media/artifacts/router'
+import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
 import { err, ok, ResultAsync } from 'neverthrow'
@@ -15,7 +20,6 @@ import {
   createUserSettingsApplication,
 } from './application.js'
 import { setupAdminAccountForDevelopment as _setupAdminAccountForDevelopment } from './dev.js'
-import { createInfrastructure } from './infrastructure.js'
 import { setupPermissions } from './permissions.js'
 
 export async function main({
@@ -148,4 +152,24 @@ export async function main({
     )
 
   serve(app, (info) => console.log(`Backend running on ${info.port}`))
+}
+
+async function createInfrastructure({
+  authenticationDatabaseUrl,
+  authorizationDatabaseUrl,
+  genresDatabaseUrl,
+  userSettingsDatabaseUrl,
+}: {
+  authenticationDatabaseUrl: string
+  authorizationDatabaseUrl: string
+  genresDatabaseUrl: string
+  userSettingsDatabaseUrl: string
+}) {
+  const authentication = await AuthenticationInfrastructure.create(authenticationDatabaseUrl)
+  const authorization = await AuthorizationInfrastructure.create(authorizationDatabaseUrl)
+  const genres = await GenresInfrastructure.create(genresDatabaseUrl)
+  const media = createArtifactsProjection()
+  const userSettings = await UserSettingsInfrastructure.create(userSettingsDatabaseUrl)
+
+  return { authentication, authorization, genres, media, userSettings }
 }
