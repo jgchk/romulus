@@ -38,6 +38,7 @@ import {
   updateGenreRoute,
   voteGenreRelevanceRoute,
 } from './routes.js'
+import { ensureArray } from './utils.js'
 
 export type GenresRouter = ReturnType<typeof createGenresRouter>
 
@@ -468,7 +469,7 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
       const genres = await deps.getAllGenresQuery().execute({
         skip: query.skip,
         limit: query.limit,
-        include: query.include,
+        include: ensureArray(query.include ?? []),
         filter: {
           name: query.name,
           subtitle: query.subtitle,

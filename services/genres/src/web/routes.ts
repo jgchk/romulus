@@ -392,7 +392,7 @@ export const getAllGenresRoute = createRoute({
     query: z.object({
       skip: z.coerce.number().int().optional(),
       limit: z.coerce.number().int().min(0).max(100).optional(),
-      include: z.enum(FIND_ALL_INCLUDE).array().optional(),
+      include: z.enum(FIND_ALL_INCLUDE).array().or(z.enum(FIND_ALL_INCLUDE)).optional(),
       name: z.string().optional(),
       subtitle: z.string().optional(),
       type: z.enum(GENRE_TYPES).optional(),
