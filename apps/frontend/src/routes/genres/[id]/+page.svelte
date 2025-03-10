@@ -96,7 +96,7 @@
         </div>
         <div class="genre-relevance">
           {#if data.genre.relevance === UNSET_GENRE_RELEVANCE}
-            None set.&nbps;<button
+            None set.&nbsp;<button
               type="button"
               class="text-primary-500 hover:underline"
               onclick={() => (isVoting = true)}
