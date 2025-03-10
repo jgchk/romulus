@@ -469,7 +469,7 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
       const genres = await deps.getAllGenresQuery().execute({
         skip: query.skip,
         limit: query.limit,
-        include: ensureArray(query.include ?? []),
+        include: query.include === undefined ? undefined : ensureArray(query.include),
         filter: {
           name: query.name,
           subtitle: query.subtitle,
@@ -482,7 +482,7 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
           createdAt: query.createdAt,
           updatedAt: query.updatedAt,
           createdBy: query.createdBy,
-          parents: query.parent,
+          parents: query.parent === undefined ? undefined : ensureArray(query.parent),
           ancestors: query.ancestor,
         },
         sort: {

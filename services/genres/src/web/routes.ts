@@ -407,7 +407,7 @@ export const getAllGenresRoute = createRoute({
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
       createdBy: z.coerce.number().int().optional(),
-      parent: z.coerce.number().int().array().optional(),
+      parent: z.coerce.number().int().array().or(z.coerce.number().int()).optional(),
       ancestor: z.coerce.number().int().array().optional(),
       sort: z.enum(FIND_ALL_SORT_FIELD).optional(),
       order: z.enum(FIND_ALL_SORT_ORDER).optional(),

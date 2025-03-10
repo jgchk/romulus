@@ -91,4 +91,34 @@ describe('get-all-genres', () => {
 
     expect(res.status).toBe(200)
   })
+
+  test('should accept no parent', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { parent: [] },
+    })
+
+    expect(res.status).toBe(200)
+  })
+
+  test('should accept a single parent', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { parent: [1] },
+    })
+
+    expect(res.status).toBe(200)
+  })
+
+  test('should accept multiple parents', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { parent: [1, 2] },
+    })
+
+    expect(res.status).toBe(200)
+  })
 })
