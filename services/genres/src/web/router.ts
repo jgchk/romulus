@@ -483,7 +483,7 @@ export function createGenresRouter(deps: GenresRouterDependencies) {
           updatedAt: query.updatedAt,
           createdBy: query.createdBy,
           parents: query.parent === undefined ? undefined : ensureArray(query.parent),
-          ancestors: query.ancestor,
+          ancestors: query.ancestor === undefined ? undefined : ensureArray(query.ancestor),
         },
         sort: {
           field: query.sort,

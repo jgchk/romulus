@@ -121,4 +121,34 @@ describe('get-all-genres', () => {
 
     expect(res.status).toBe(200)
   })
+
+  test('should accept no ancestor', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { ancestor: [] },
+    })
+
+    expect(res.status).toBe(200)
+  })
+
+  test('should accept a single ancestor', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { ancestor: [1] },
+    })
+
+    expect(res.status).toBe(200)
+  })
+
+  test('should accept multiple ancestors', async ({ dbConnection }) => {
+    const { client } = setup(dbConnection)
+
+    const res = await client.genres.$get({
+      query: { ancestor: [1, 2] },
+    })
+
+    expect(res.status).toBe(200)
+  })
 })
