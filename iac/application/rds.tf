@@ -30,7 +30,7 @@ resource "aws_db_instance" "authentication" {
   vpc_security_group_ids    = [aws_security_group.postgres.id]
   db_name                   = "authn"
   skip_final_snapshot       = false
-  final_snapshot_identifier = "authentication-final-snapshot-${timestamp()}"
+  final_snapshot_identifier = "authentication-final-snapshot-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # Backup configuration
   backup_retention_period = 7
@@ -51,7 +51,7 @@ resource "aws_db_instance" "authorization" {
   vpc_security_group_ids    = [aws_security_group.postgres.id]
   db_name                   = "authz"
   skip_final_snapshot       = false
-  final_snapshot_identifier = "authorization-final-snapshot-${timestamp()}"
+  final_snapshot_identifier = "authorization-final-snapshot-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # Backup configuration
   backup_retention_period = 7
@@ -72,7 +72,7 @@ resource "aws_db_instance" "genres" {
   vpc_security_group_ids    = [aws_security_group.postgres.id]
   db_name                   = "genres"
   skip_final_snapshot       = false
-  final_snapshot_identifier = "genres-final-snapshot-${timestamp()}"
+  final_snapshot_identifier = "genres-final-snapshot-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # Backup configuration
   backup_retention_period = 7
@@ -93,7 +93,7 @@ resource "aws_db_instance" "user_settings" {
   vpc_security_group_ids    = [aws_security_group.postgres.id]
   db_name                   = "user_settings"
   skip_final_snapshot       = false
-  final_snapshot_identifier = "user-settings-final-snapshot-${timestamp()}"
+  final_snapshot_identifier = "user-settings-final-snapshot-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # Backup configuration
   backup_retention_period = 7
