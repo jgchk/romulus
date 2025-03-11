@@ -30,6 +30,12 @@ resource "aws_db_instance" "authentication" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
   db_name                = "authn"
   skip_final_snapshot    = true
+
+  # Backup configuration
+  backup_retention_period = 7
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Sun:04:30-Sun:05:30"
+  copy_tags_to_snapshot   = true
 }
 
 resource "aws_db_instance" "authorization" {
@@ -44,6 +50,12 @@ resource "aws_db_instance" "authorization" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
   db_name                = "authz"
   skip_final_snapshot    = true
+
+  # Backup configuration
+  backup_retention_period = 7
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Sun:04:30-Sun:05:30"
+  copy_tags_to_snapshot   = true
 }
 
 resource "aws_db_instance" "genres" {
@@ -58,6 +70,12 @@ resource "aws_db_instance" "genres" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
   db_name                = "genres"
   skip_final_snapshot    = true
+
+  # Backup configuration
+  backup_retention_period = 7
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Sun:04:30-Sun:05:30"
+  copy_tags_to_snapshot   = true
 }
 
 resource "aws_db_instance" "user_settings" {
@@ -72,4 +90,10 @@ resource "aws_db_instance" "user_settings" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
   db_name                = "user_settings"
   skip_final_snapshot    = true
+
+  # Backup configuration
+  backup_retention_period = 7
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Sun:04:30-Sun:05:30"
+  copy_tags_to_snapshot   = true
 }
