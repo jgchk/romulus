@@ -55,7 +55,7 @@ resource "aws_ecs_task_definition" "frontend" {
       },
       {
         name  = "ORIGIN"
-        value = "http://${aws_lb.frontend.dns_name}"
+        value = "https://${var.domain_name}"
       }
     ]
     healthCheck = {
@@ -159,6 +159,8 @@ resource "aws_ecs_service" "frontend" {
     container_name   = "frontend"
     container_port   = 3000
   }
+
+  depends_on = [aws_lb_listener.frontend_https]
 }
 
 resource "aws_ecs_service" "backend" {
