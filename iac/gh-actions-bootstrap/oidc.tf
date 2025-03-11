@@ -164,9 +164,21 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Action" : [
           "rds:DescribeDBSubnetGroups",
           "rds:ListTagsForResource",
-          "rds:DescribeDBInstances"
+          "rds:DescribeDBInstances",
+          "rds:ModifyDBInstance"
         ],
         "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem"
+        ],
+        "Resource" : [
+          "arn:aws:dynamodb:us-east-2:${data.aws_caller_identity.current.account_id}:table/terraform-locks"
+        ]
       }
     ]
   })
