@@ -9,6 +9,11 @@ terraform {
       source  = "hashicorp/random"
       version = "3.7.1"
     }
+
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "5.1.0"
+    }
   }
 
   backend "s3" {
