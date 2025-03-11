@@ -7,9 +7,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "romulus-terraform-state-bucket"
-    key    = "terraform.tfstate"
-    region = "us-east-2"
+    bucket         = "romulus-terraform-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "us-east-2"
+    dynamodb_table = "terraform-locks"
   }
 
   required_version = ">= 1.11.1"
