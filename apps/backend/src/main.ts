@@ -1,4 +1,4 @@
-import { serve } from '@hono/node-server'
+import { type HttpBindings, serve } from '@hono/node-server'
 import { setupAuthenticationPermissions } from '@romulus/authentication/application'
 import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
@@ -20,7 +20,9 @@ import type { UserSettingsApplication } from '@romulus/user-settings/application
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
+import { requestId } from 'hono/request-id'
 import { err, ok, ResultAsync } from 'neverthrow'
+import { pinoHttp } from 'pino-http'
 
 import {
   type AuthenticationApplication,
@@ -224,7 +226,21 @@ function createRouter({
     }),
   })
 
-  const router = new Hono()
+  const router = new Hono<{ Bindings: HttpBindings }>()
+    .use(requestId())
+    .use(async (c, next) => {
+      // pass hono's request-id to pino-http
+      c.env.incoming.id = c.var.requestId
+
+      // map express style middleware to hono
+      await new Promise<void>((resolve) =>
+        pinoHttp()(c.env.incoming, c.env.outgoing, () => resolve()),
+      )
+
+      // c.set('logger', c.env.incoming.log)
+
+      await next()
+    })
     .get('/health', (c) => c.json({ success: true }))
     .route('/authentication', authenticationRouter)
     .route('/authorization', authorizationRouter)

@@ -27,6 +27,8 @@
     "hono": "^4.6.12",
     "neverthrow": "^8.1.1",
     "oslo": "^1.2.1",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
