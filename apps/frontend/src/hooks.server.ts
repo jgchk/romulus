@@ -1,10 +1,11 @@
 import type { AuthenticationClient } from '@romulus/authentication/client'
 import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
-import type { Handle } from '@sveltejs/kit'
+import type { Handle, HandleFetch } from '@sveltejs/kit'
 
 import { env } from '$env/dynamic/private'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'
+import { createLogger } from '$lib/server/logger'
 
 import { createCompositionRoot } from './composition-root'
 
@@ -14,7 +15,13 @@ if (API_BASE_URL === undefined) {
   process.exit(1)
 }
 
+const logger = createLogger()
+
 export const handle: Handle = async ({ event, resolve }) => {
+  const startTime = Date.now()
+
+  event.locals.requestId = event.request.headers.get('X-Request-Id') ?? crypto.randomUUID()
+
   const sessionToken = getSessionCookie(event.cookies)
   event.locals.di = createCompositionRoot({
     baseUrl: API_BASE_URL,
@@ -44,8 +51,23 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   const response = await resolve(event)
+  const endTime = Date.now()
+
+  logger.http({
+    requestId: event.locals.requestId,
+    request: event.request,
+    response: response,
+    startTime,
+    endTime,
+  })
 
   return response
+}
+
+export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
+  request.headers.set('X-Request-Id', event.locals.requestId)
+
+  return fetch(request)
 }
 
 async function getUser(

@@ -28,6 +28,7 @@
     "@types/swagger-ui": "^3.52.4",
     "neverthrow": "^8.1.1",
     "phosphor-svelte": "^2.0.1",
+    "pino": "^9.6.0",
     "postgres": "^3.4.5",
     "ramda": "^0.30.1",
     "string-similarity-js": "^2.1.4",

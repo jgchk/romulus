@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
+
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
   namespace App {
     // interface Error {}
-    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     interface Locals {
+      requestId: string
       di: import('./composition-root').CompositionRoot
       user:
         | {

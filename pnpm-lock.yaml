@@ -132,6 +132,9 @@ importers:
       phosphor-svelte:
         specifier: ^2.0.1
         version: 2.0.1(svelte@5.22.6)
+      pino:
+        specifier: ^9.6.0
+        version: 9.6.0
       postgres:
         specifier: ^3.4.5
         version: 3.4.5
