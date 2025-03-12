@@ -1,4 +1,4 @@
-import { type HttpBindings, serve } from '@hono/node-server'
+import { serve } from '@hono/node-server'
 import { setupAuthenticationPermissions } from '@romulus/authentication/application'
 import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
@@ -22,7 +22,6 @@ import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
 import { requestId } from 'hono/request-id'
 import { err, ok, ResultAsync } from 'neverthrow'
-import { pinoHttp } from 'pino-http'
 
 import {
   type AuthenticationApplication,
@@ -34,6 +33,7 @@ import {
   type GenresApplication,
   type MediaApplication,
 } from './application.js'
+import { createLogger } from './logger.js'
 
 export async function main({
   config,
@@ -226,20 +226,24 @@ function createRouter({
     }),
   })
 
-  const router = new Hono<{ Bindings: HttpBindings }>()
+  const logger = createLogger()
+
+  const router = new Hono()
     .use(requestId())
     .use(async (c, next) => {
-      // pass hono's request-id to pino-http
-      c.env.incoming.id = c.var.requestId
-
-      // map express style middleware to hono
-      await new Promise<void>((resolve) =>
-        pinoHttp()(c.env.incoming, c.env.outgoing, () => resolve()),
-      )
-
-      // c.set('logger', c.env.incoming.log)
+      const startTime = Date.now()
 
       await next()
+
+      const endTime = Date.now()
+
+      logger.http({
+        requestId: c.get('requestId'),
+        request: c.req.raw,
+        response: c.res,
+        startTime,
+        endTime,
+      })
     })
     .get('/health', (c) => c.json({ success: true }))
     .route('/authentication', authenticationRouter)
