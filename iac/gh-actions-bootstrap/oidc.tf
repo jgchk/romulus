@@ -179,6 +179,16 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Resource" : [
           "arn:aws:dynamodb:us-east-2:${data.aws_caller_identity.current.account_id}:table/terraform-locks"
         ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "acm:DescribeCertificate",
+          "acm:ListTagsForCertificate"
+        ],
+        "Resource" : [
+          "arn:aws:acm:us-east-2:${data.aws_caller_identity.current.account_id}:certificate/*"
+        ]
       }
     ]
   })
