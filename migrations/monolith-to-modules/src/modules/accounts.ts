@@ -40,6 +40,10 @@ async function migrateUserAccounts(
     VALUES
       ${accounts.map((account) => `(${account.id}, '${account.username}', '${account.password}', '${account.createdAt.toISOString()}', '${account.updatedAt.toISOString()}')`).join(', ')}
   `)
+
+  await execQuery(`
+    SELECT setval('"Account_id_seq"', ${Math.max(...accounts.map((account) => account.id))})
+  `)
 }
 
 async function migrateApiKeys(monolith: postgres.Sql, execQuery: (query: string) => Promise<void>) {
@@ -58,6 +62,10 @@ async function migrateApiKeys(monolith: postgres.Sql, execQuery: (query: string)
       (id, name, key_hash, account_id, "createdAt")
     VALUES
       ${apiKeys.map((apiKey) => `(${apiKey.id}, '${apiKey.name}', '${apiKey.keyHash}', ${apiKey.accountId}, '${apiKey.createdAt.toISOString()}')`).join(', ')}
+  `)
+
+  await execQuery(`
+    SELECT setval('"ApiKey_id_seq"', ${Math.max(...apiKeys.map((apiKey) => apiKey.id))})
   `)
 }
 

@@ -50,6 +50,10 @@ async function migrateGenreDocuments(
     VALUES
       ${genres.map((genre) => `(${genre.id}, ${processString(genre.name)}, ${processString(genre.shortDescription)}, ${processString(genre.longDescription)}, '${genre.createdAt.toISOString()}', '${genre.updatedAt.toISOString()}', ${processString(genre.notes)}, '${genre.type}', ${genre.relevance}, ${processString(genre.subtitle)}, ${genre.nsfw})`).join(', ')}
   `)
+
+  await execQuery(`
+    SELECT setval('"Genre_id_seq"', ${Math.max(...genres.map((genre) => genre.id))})
+  `)
 }
 
 async function migrateAkas(monolith: postgres.Sql, execQuery: (query: string) => Promise<void>) {
@@ -115,6 +119,10 @@ async function migrateGenreHistory(
       (id, name, type, "shortDescription", "longDescription", notes, "parentGenreIds", "influencedByGenreIds", "treeGenreId", "createdAt", operation, "accountId", subtitle, nsfw, "derivedFromGenreIds")
     VALUES
       ${history.map((entry) => `(${entry.id}, ${processString(entry.name)}, ${processString(entry.type)}, ${processString(entry.shortDescription)}, ${processString(entry.longDescription)}, ${processString(entry.notes)}, ${processArray(entry.parentGenreIds)}, ${processArray(entry.influencedByGenreIds)}, ${entry.treeGenreId}, '${entry.createdAt.toISOString()}', '${entry.operation}', ${entry.accountId}, ${processString(entry.subtitle)}, ${entry.nsfw}, ${entry.derivedFromGenreIds === null ? 'null' : processArray(entry.derivedFromGenreIds)})`).join(', ')}
+  `)
+
+  await execQuery(`
+    SELECT setval('"GenreHistory_id_seq"', ${Math.max(...history.map((entry) => entry.id))})
   `)
 }
 
