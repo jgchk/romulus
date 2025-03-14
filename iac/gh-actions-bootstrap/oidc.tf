@@ -189,7 +189,29 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Resource" : [
           "arn:aws:acm:us-east-2:${data.aws_caller_identity.current.account_id}:certificate/*"
         ]
-      }
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "wafv2:GetRegexPatternSet",
+          "wafv2:ListTagsForResource",
+          "wafv2:GetWebACL",
+          "wafv2:GetLoggingConfiguration",
+        ],
+        "Resource" : [
+          "arn:aws:wafv2:us-east-2:${data.aws_caller_identity.current.account_id}:regional/regexpatternset/DotEnvPatternSet/*",
+          "arn:aws:wafv2:us-east-2:${data.aws_caller_identity.current.account_id}:regional/webacl/BlockMaliciousRequests/*"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "wafv2:GetWebACLForResource"
+        ],
+        "Resource" : [
+          "arn:aws:wafv2:us-east-2:${data.aws_caller_identity.current.account_id}:regional/webacl/*/*"
+        ]
+      },
     ]
   })
 }
