@@ -37,6 +37,12 @@ resource "aws_db_instance" "authentication" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "Sun:04:30-Sun:05:30"
   copy_tags_to_snapshot   = true
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+    ]
+  }
 }
 
 resource "aws_db_instance" "authorization" {
@@ -58,6 +64,12 @@ resource "aws_db_instance" "authorization" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "Sun:04:30-Sun:05:30"
   copy_tags_to_snapshot   = true
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+    ]
+  }
 }
 
 resource "aws_db_instance" "genres" {
@@ -79,6 +91,12 @@ resource "aws_db_instance" "genres" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "Sun:04:30-Sun:05:30"
   copy_tags_to_snapshot   = true
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+    ]
+  }
 }
 
 resource "aws_db_instance" "user_settings" {
@@ -100,4 +118,10 @@ resource "aws_db_instance" "user_settings" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "Sun:04:30-Sun:05:30"
   copy_tags_to_snapshot   = true
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+    ]
+  }
 }
