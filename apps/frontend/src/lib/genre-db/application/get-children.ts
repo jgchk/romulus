@@ -13,7 +13,7 @@ export function createGetChildrenQuery(db: GenreDatabase) {
         resolve(request.result)
       }
       request.onerror = () => {
-        reject(new Error('Error getting genre'))
+        reject(new Error('Error getting children'))
       }
     })
   }
