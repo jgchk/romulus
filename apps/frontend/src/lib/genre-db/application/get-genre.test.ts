@@ -4,7 +4,7 @@ import { createGenreDatabase } from '../infrastructure/db'
 import { createGetGenreQuery } from './get-genre'
 
 it('should return the genre if it exists', async () => {
-  const db = await createGenreDatabase()
+  const db = await createGenreDatabase(new IDBFactory())
   db.transaction('genres', 'readwrite').objectStore('genres').add({ id: 1 })
 
   const getGenreQuery = createGetGenreQuery(db)
@@ -12,7 +12,7 @@ it('should return the genre if it exists', async () => {
 })
 
 it('should return undefined if the genre does not exist', async () => {
-  const db = await createGenreDatabase()
+  const db = await createGenreDatabase(new IDBFactory())
   const getGenreQuery = createGetGenreQuery(db)
   expect(await getGenreQuery(1)).toBeUndefined()
 })
