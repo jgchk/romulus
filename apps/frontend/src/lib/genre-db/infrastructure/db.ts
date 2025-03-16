@@ -1,4 +1,6 @@
-export function createGenreDatabase(): Promise<IDBDatabase> {
+export type GenreDatabase = IDBDatabase
+
+export function createGenreDatabase(): Promise<GenreDatabase> {
   const openRequest = indexedDB.open('genre-tree', 1)
   return new Promise<IDBDatabase>((resolve, reject) => {
     openRequest.onsuccess = () => {
