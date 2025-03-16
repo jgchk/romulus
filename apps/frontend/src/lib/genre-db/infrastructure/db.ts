@@ -14,6 +14,10 @@ export function createGenreDatabase(idbFactory: IDBFactory = indexedDB): Promise
       const genresObjectStore = db.createObjectStore('genres', { keyPath: 'id' })
       genresObjectStore.createIndex('parents', 'parents', { unique: false })
       genresObjectStore.createIndex('parents-multi', 'parents', { unique: false, multiEntry: true })
+      genresObjectStore.createIndex('derivedFrom-multi', 'derivedFrom', {
+        unique: false,
+        multiEntry: true,
+      })
     }
   })
 }
