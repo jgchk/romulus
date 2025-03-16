@@ -1,14 +1,20 @@
 import { expect, it, vi } from 'vitest'
 
 import { createGenreDatabase } from '../infrastructure/db'
+import { createExampleGenre } from '../types'
 import { createGetGenreQuery } from './get-genre'
+import { createSetGenreCommand } from './set-genre'
 
 it('should return the genre if it exists', async () => {
   const db = await createGenreDatabase(new IDBFactory())
-  db.transaction('genres', 'readwrite').objectStore('genres').add({ id: 1 })
+
+  const genre = createExampleGenre({ id: 1 })
+
+  const setGenre = createSetGenreCommand(db)
+  await setGenre(genre)
 
   const getGenreQuery = createGetGenreQuery(db)
-  expect(await getGenreQuery(1)).toEqual({ id: 1 })
+  expect(await getGenreQuery(1)).toEqual(genre)
 })
 
 it('should return undefined if the genre does not exist', async () => {
