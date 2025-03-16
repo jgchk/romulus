@@ -1,8 +1,10 @@
 import type { GenreDatabase } from '../infrastructure/db'
 import type { TreeGenre } from '../types'
 
-export function createGetRootGenresQuery(db: GenreDatabase) {
-  return function () {
+export type GetRootGenresQuery = () => Promise<TreeGenre[]>
+
+export function createGetRootGenresQuery(db: GenreDatabase): GetRootGenresQuery {
+  return function getRootGenres() {
     const request = db
       .transaction('genres')
       .objectStore('genres')

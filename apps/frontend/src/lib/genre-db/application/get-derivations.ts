@@ -1,7 +1,9 @@
 import type { GenreDatabase } from '../infrastructure/db'
 import type { TreeGenre } from '../types'
 
-export function createGetDerivationsQuery(db: GenreDatabase) {
+export type GetDerivationsQuery = (id: number) => Promise<TreeGenre[]>
+
+export function createGetDerivationsQuery(db: GenreDatabase): GetDerivationsQuery {
   return async function getDerivations(id: number) {
     const request = db
       .transaction('genres')
