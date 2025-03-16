@@ -5,7 +5,7 @@ import { createExampleGenre } from '../types'
 import { createGetChildrenQuery } from './get-children'
 import { createSetGenreCommand } from './set-genre'
 
-it('should return the IDs of the children of a genre', async () => {
+it('should return the children of a genre', async () => {
   const db = await createGenreDatabase(new IDBFactory())
 
   const genres = [
