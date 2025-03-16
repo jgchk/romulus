@@ -6,21 +6,13 @@
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
-  import Loader from '$lib/atoms/Loader.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { slide } from '$lib/transitions/slide'
 
   import GenreSearchResults from './GenreSearchResults.svelte'
   import GenreTree from './GenreTree/GenreTree.svelte'
-  import type { TreeGenre } from './GenreTree/state'
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
-
-  type Props = {
-    genres: Promise<TreeGenre[]>
-  }
-
-  let { genres }: Props = $props()
 
   let showSettings = $state(false)
   let isSearching = $derived($searchStore.debouncedFilter)
@@ -69,17 +61,11 @@
   {/if}
 
   <div class="flex-1 overflow-auto">
-    {#await genres}
-      <div class="center h-full max-h-96 w-full">
-        <Loader size={32} class="text-primary-500" />
-      </div>
-    {:then genres}
-      {#if isSearching}
-        <GenreSearchResults {genres} />
-      {:else}
-        <GenreTree {genres} />
-      {/if}
-    {/await}
+    {#if isSearching}
+      <GenreSearchResults />
+    {:else}
+      <GenreTree />
+    {/if}
   </div>
 
   {#if $user?.permissions.genres.canCreate}

@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { getTreeStateContext } from '../GenreNavigator/GenreTree/state'
+  import { getGenreTreeStoreContext } from '../genre-tree-store.svelte'
+  import {
+    getSelectedGenreIdFromTreePath,
+    getTreeStateStoreContext,
+  } from '../tree-state-store.svelte'
   import type { LayoutData } from './$types'
 
   type Props = {
@@ -9,11 +13,27 @@
 
   let { data, children }: Props = $props()
 
-  const treeState = getTreeStateContext()
+  const tree = getGenreTreeStoreContext()
+  const treeState = getTreeStateStoreContext()
 
-  treeState.setSelectedId(data.id)
   $effect(() => {
-    treeState.setSelectedId(data.id)
+    const selectedPath = treeState.getSelectedPath()
+    if (selectedPath === undefined) {
+      const newPath = tree.getPathTo(data.id)
+      treeState.setSelectedPath(newPath)
+      if (newPath !== undefined) {
+        treeState.expandAlongPath(newPath)
+      }
+    } else {
+      const selectedId = getSelectedGenreIdFromTreePath(selectedPath)
+      if (selectedId === undefined || selectedId !== data.id) {
+        const newPath = tree.getPathTo(data.id)
+        treeState.setSelectedPath(newPath)
+        if (newPath !== undefined) {
+          treeState.expandAlongPath(newPath)
+        }
+      }
+    }
   })
 </script>
 

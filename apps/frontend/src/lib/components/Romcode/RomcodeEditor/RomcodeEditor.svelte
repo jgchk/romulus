@@ -10,7 +10,7 @@
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
-  import { makeGenreTag, type SimpleGenre } from '$lib/types/genres'
+  import { makeGenreTag } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
   import Romcode from '../Romcode.svelte'
@@ -19,7 +19,6 @@
   type Props = {
     id?: string
     value?: string
-    genres: SimpleGenre[]
     disabled?: boolean
     autofocus?: boolean
     class?: string
@@ -29,7 +28,6 @@
   let {
     id,
     value = $bindable(''),
-    genres,
     disabled = false,
     autofocus = false,
     class: class_,
@@ -148,7 +146,7 @@
     </div>
   {:else if tab === Tabs.VIEW}
     <div class="flex-1 overflow-auto px-2 py-1">
-      <Romcode data={value} {genres} />
+      <Romcode data={value} />
     </div>
   {/if}
 
@@ -180,7 +178,6 @@
 
 {#if showGenreDialog}
   <GenreSearchDialog
-    {genres}
     filter={typeof showGenreDialog === 'string' ? showGenreDialog : undefined}
     on:close={() => (showGenreDialog = false)}
     on:select={(e) => {

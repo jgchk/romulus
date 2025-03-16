@@ -2,7 +2,7 @@
   import { pageTitle } from '$lib/utils/string'
 
   import GenreForm from '../GenreForm.svelte'
-  import { getTreeStateContext } from '../GenreNavigator/GenreTree/state'
+  import { getTreeStateStoreContext } from '../tree-state-store.svelte'
   import type { PageData } from './$types'
 
   type Props = {
@@ -11,9 +11,8 @@
 
   let { data }: Props = $props()
 
-  const treeState = getTreeStateContext()
+  const treeState = getTreeStateStoreContext()
 
-  treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
 </script>
 
@@ -21,4 +20,4 @@
   <title>{pageTitle('New Genre', 'Genres')}</title>
 </svelte:head>
 
-<GenreForm data={data.form} showRelevance genres={data.streamed.genres} />
+<GenreForm data={data.form} showRelevance />

@@ -3,15 +3,18 @@
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { tw } from '$lib/utils/dom'
 
+  import { getGenreTreeStoreContext } from '../../../routes/genres/genre-tree-store.svelte'
+
   type Props = {
     id: number
     text?: string
-    genres: { id: number; name: string; nsfw: boolean }[]
   }
 
-  let { id, text, genres }: Props = $props()
+  let { id, text }: Props = $props()
 
-  let genre = $derived(genres.find((genre) => genre.id === id))
+  const tree = getGenreTreeStoreContext()
+
+  let genre = $derived(tree.getGenre(id))
 
   const userSettings = getUserSettingsContext()
 </script>

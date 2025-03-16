@@ -4,12 +4,11 @@
 
   type Props = {
     data: string
-    genres: { id: number; name: string; nsfw: boolean }[]
   }
 
-  let { data, genres }: Props = $props()
+  let { data }: Props = $props()
 
   let root = $derived(parser(data))
 </script>
 
-<RomcodeNode node={root} {genres} />
+<RomcodeNode node={root} />

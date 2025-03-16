@@ -147,7 +147,6 @@
   {#each voteCategories as category (category.id)}
     <div class="space-y-2">
       <GenreVoteForm
-        genres={category.items}
         id={category.id}
         label={category.label}
         onVote={(item) => {

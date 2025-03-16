@@ -2,56 +2,14 @@
   import Button from '$lib/atoms/Button.svelte'
   import { getUserContext } from '$lib/contexts/user'
 
+  import { getGenreTreeStoreContext } from '../../genre-tree-store.svelte'
+  import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
-  import { getNewPath, isPathValid } from './path'
-  import { getTreeStateContext, type TreeGenre } from './state'
 
-  type Props = {
-    genres: TreeGenre[]
-  }
+  const tree = getGenreTreeStoreContext()
+  const treeState = getTreeStateStoreContext()
 
-  let { genres }: Props = $props()
-
-  const treeState = getTreeStateContext()
-
-  $effect(() => {
-    treeState.setGenres(genres)
-  })
-
-  let topLevelGenres = $derived(
-    genres.filter((genre) => genre.parents.length === 0 && genre.derivedFrom.length === 0),
-  )
-
-  $effect(() => {
-    if ($treeState.selectedId !== undefined) {
-      if (
-        $treeState.selectedPath === undefined ||
-        !isPathValid($treeState.genres, $treeState.selectedId, $treeState.selectedPath)
-      ) {
-        const newPath = getNewPath(
-          $treeState.genres,
-          $treeState.expanded,
-          undefined,
-          $treeState.selectedId,
-        )
-        treeState.setSelectedPath(newPath?.path)
-      }
-    }
-  })
-
-  let isAnyTopLevelExpanded = $derived(
-    [...$treeState.expanded].some((key) => {
-      const isTopLevel = !key.includes('-')
-      if (!isTopLevel) return false
-
-      const genre = genres.find((genre) => genre.id === parseInt(key))
-      if (!genre) return false
-
-      const hasChildren = genre.children.length > 0
-      const hasDerivations = genre.derivations.length > 0
-      return hasChildren || hasDerivations
-    }),
-  )
+  let topLevelGenres = $derived(tree.getRootGenres())
 
   let ref: HTMLElement | undefined = $state()
 
@@ -62,8 +20,8 @@
   {#if topLevelGenres.length > 0}
     <div bind:this={ref} class="flex-1 overflow-auto p-2 pl-1">
       <ul>
-        {#each topLevelGenres as genre (genre.id)}
-          <GenreTreeNode id={genre.id} path={[genre.id]} treeRef={ref} />
+        {#each topLevelGenres as genreId (genreId)}
+          <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} />
         {/each}
       </ul>
     </div>
@@ -78,7 +36,7 @@
     </div>
   {/if}
 
-  {#if isAnyTopLevelExpanded}
+  {#if treeState.isExpandedAtRootLevel()}
     <div class="w-full border-t border-gray-200 transition dark:border-gray-800">
       <Button class="w-full rounded-none" kind="text" onClick={() => treeState.collapseAll()}>
         Collapse All

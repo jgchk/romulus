@@ -2,7 +2,7 @@
   import Loader from '$lib/atoms/Loader.svelte'
   import { pageTitle } from '$lib/utils/string'
 
-  import { getTreeStateContext } from '../GenreNavigator/GenreTree/state'
+  import { getTreeStateStoreContext } from '../tree-state-store.svelte'
   import type { PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
@@ -12,9 +12,8 @@
 
   let { data }: Props = $props()
 
-  const treeState = getTreeStateContext()
+  const treeState = getTreeStateStoreContext()
 
-  treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
 </script>
 

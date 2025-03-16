@@ -16,7 +16,6 @@
   import Footer from './Footer.svelte'
   import type { GenreFormField } from './GenreForm'
   import GenreMultiselect from './GenreMultiselect.svelte'
-  import type { TreeGenre } from './GenreNavigator/GenreTree/state'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
   import RelevanceSelect from './RelevanceSelect.svelte'
 
@@ -25,11 +24,10 @@
     data: SuperValidated<Infer<GenreSchema>>
     autoFocus?: GenreFormField
     showRelevance?: boolean
-    genres: Promise<TreeGenre[]>
     onSubmit?: () => void
   }
 
-  let { id, data, autoFocus = 'name', showRelevance = false, genres, onSubmit }: Props = $props()
+  let { id, data, autoFocus = 'name', showRelevance = false, onSubmit }: Props = $props()
 
   let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = $state(undefined)
 
@@ -181,74 +179,35 @@
 
     <InputGroup errors={$errors.parents?._errors}>
       <Label for="parents">Parents</Label>
-      {#await genres}
-        <GenreMultiselect
-          id="parents"
-          class="genre-parents w-full"
-          value={[]}
-          exclude={id !== undefined ? [id] : []}
-          genres={[]}
-          disabled
-          {...$constraints.parents}
-        />
-      {:then genres}
-        <GenreMultiselect
-          id="parents"
-          class="genre-parents w-full"
-          bind:value={$form.parents}
-          exclude={id !== undefined ? [id] : []}
-          {genres}
-          {...$constraints.parents}
-        />
-      {/await}
+      <GenreMultiselect
+        id="parents"
+        class="genre-parents w-full"
+        bind:value={$form.parents}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.parents}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.derivedFrom?._errors}>
       <Label for="derives">Derived From</Label>
-      {#await genres}
-        <GenreMultiselect
-          id="derives"
-          class="genre-derives w-full"
-          value={[]}
-          exclude={id !== undefined ? [id] : []}
-          genres={[]}
-          disabled
-          {...$constraints.derivedFrom}
-        />
-      {:then genres}
-        <GenreMultiselect
-          id="derives"
-          class="genre-derives w-full"
-          bind:value={$form.derivedFrom}
-          exclude={id !== undefined ? [id] : []}
-          {genres}
-          {...$constraints.derivedFrom}
-        />
-      {/await}
+      <GenreMultiselect
+        id="derives"
+        class="genre-derives w-full"
+        bind:value={$form.derivedFrom}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.derivedFrom}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
       <Label for="influences">Influences</Label>
-      {#await genres}
-        <GenreMultiselect
-          id="influences"
-          class="genre-influences w-full"
-          value={[]}
-          exclude={id !== undefined ? [id] : []}
-          genres={[]}
-          disabled
-          {...$constraints.influencedBy}
-        />
-      {:then genres}
-        <GenreMultiselect
-          id="influences"
-          class="genre-influences w-full"
-          bind:value={$form.influencedBy}
-          exclude={id !== undefined ? [id] : []}
-          {genres}
-          {...$constraints.influencedBy}
-        />
-      {/await}
+      <GenreMultiselect
+        id="influences"
+        class="genre-influences w-full"
+        bind:value={$form.influencedBy}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.influencedBy}
+      />
     </InputGroup>
 
     {#if showRelevance}
@@ -269,71 +228,35 @@
 
     <InputGroup errors={$errors.shortDescription}>
       <Label for="short-description">Short Description</Label>
-      {#await genres}
-        <RomcodeEditor
-          class="w-full"
-          id="short-description"
-          value={$form.shortDescription ?? ''}
-          onChange={(value) => ($form.shortDescription = value)}
-          genres={[]}
-          disabled
-        />
-      {:then genres}
-        <RomcodeEditor
-          class="w-full"
-          id="short-description"
-          value={$form.shortDescription ?? ''}
-          onChange={(value) => ($form.shortDescription = value)}
-          {genres}
-          autofocus={autoFocus === 'shortDescription'}
-        />
-      {/await}
+      <RomcodeEditor
+        class="w-full"
+        id="short-description"
+        value={$form.shortDescription ?? ''}
+        onChange={(value) => ($form.shortDescription = value)}
+        autofocus={autoFocus === 'shortDescription'}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.longDescription}>
       <Label for="long-description">Long Description</Label>
-      {#await genres}
-        <RomcodeEditor
-          class="w-full"
-          id="long-description"
-          value={$form.longDescription ?? ''}
-          onChange={(value) => ($form.longDescription = value)}
-          genres={[]}
-          disabled
-        />
-      {:then genres}
-        <RomcodeEditor
-          class="w-full"
-          id="long-description"
-          value={$form.longDescription ?? ''}
-          onChange={(value) => ($form.longDescription = value)}
-          {genres}
-          autofocus={autoFocus === 'longDescription'}
-        />
-      {/await}
+      <RomcodeEditor
+        class="w-full"
+        id="long-description"
+        value={$form.longDescription ?? ''}
+        onChange={(value) => ($form.longDescription = value)}
+        autofocus={autoFocus === 'longDescription'}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.notes}>
       <Label for="notes">Notes</Label>
-      {#await genres}
-        <RomcodeEditor
-          class="w-full"
-          id="notes"
-          value={$form.notes ?? ''}
-          onChange={(value) => ($form.notes = value)}
-          genres={[]}
-          disabled
-        />
-      {:then genres}
-        <RomcodeEditor
-          class="w-full"
-          id="notes"
-          value={$form.notes ?? ''}
-          onChange={(value) => ($form.notes = value)}
-          {genres}
-          autofocus={autoFocus === 'notes'}
-        />
-      {/await}
+      <RomcodeEditor
+        class="w-full"
+        id="notes"
+        value={$form.notes ?? ''}
+        onChange={(value) => ($form.notes = value)}
+        autofocus={autoFocus === 'notes'}
+      />
     </InputGroup>
   </div>
 

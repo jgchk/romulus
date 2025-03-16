@@ -3,24 +3,23 @@
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
 
+  import type { TreeGenre } from '../../genres/genre-tree-store.svelte'
   import GenreAutocomplete from './GenreAutocomplete.svelte'
-  import type { Genre } from './types'
 
   type Props = {
-    genres: Genre[]
     id: string
     label: string
-    onVote: (genre: Genre) => void
+    onVote: (genre: TreeGenre) => void
   }
 
-  let { genres, id, label, onVote }: Props = $props()
+  let { id, label, onVote }: Props = $props()
 
-  let chosenGenre = $state<Genre | undefined>()
+  let chosenGenre = $state<TreeGenre | undefined>()
 </script>
 
 <InputGroup>
   <Label for={id}>{label}</Label>
-  <GenreAutocomplete {id} {genres} onSelect={(genre) => (chosenGenre = genre)} />
+  <GenreAutocomplete {id} onSelect={(genre) => (chosenGenre = genre)} />
   {#if chosenGenre}
     {@const cg = chosenGenre}
     <Button onClick={() => onVote(cg)}>Vote</Button>

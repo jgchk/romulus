@@ -3,18 +3,16 @@
   import Autocomplete from '$lib/atoms/Autocomplete.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import { searchGenres } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'
 
-  import type { Genre } from './types'
+  import { getGenreTreeStoreContext, type TreeGenre } from '../../genres/genre-tree-store.svelte'
 
   type Props = Omit<AutocompleteProps<number>, 'value' | 'options' | 'onSelect' | 'option'> & {
-    genres: Genre[]
-    onSelect?: (genre: Genre) => void
+    onSelect?: (genre: TreeGenre) => void
   }
 
-  let { onSelect, genres, ...rest }: Props = $props()
+  let { onSelect, ...rest }: Props = $props()
 
   let value = $state('')
   let debouncedFilter = $state('')
@@ -27,8 +25,10 @@
     return () => clearTimeout(timeout)
   })
 
+  const tree = getGenreTreeStoreContext()
   let options = $derived(
-    searchGenres(genres, debouncedFilter)
+    tree
+      .search(debouncedFilter)
       .slice(0, 100)
       .map((match) => ({
         value: match,

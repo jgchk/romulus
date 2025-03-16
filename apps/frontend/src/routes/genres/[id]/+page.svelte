@@ -217,15 +217,7 @@
         <Label>Short Description</Label>
         <div class="genre-short-description">
           {#if data.genre.shortDescription}
-            {#await data.streamed.genres}
-              <div class="w-[75%] space-y-2 pt-1">
-                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
-                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
-                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
-              </div>
-            {:then genres}
-              <Romcode data={data.genre.shortDescription} {genres} />
-            {/await}
+            <Romcode data={data.genre.shortDescription} />
           {:else}
             <span>
               Missing a short description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -245,15 +237,7 @@
         <Label>Long Description</Label>
         <div class="genre-long-description">
           {#if data.genre.longDescription}
-            {#await data.streamed.genres}
-              <div class="w-[75%] space-y-2 pt-1">
-                <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
-                <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
-                <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
-              </div>
-            {:then genres}
-              <Romcode data={data.genre.longDescription} {genres} />
-            {/await}
+            <Romcode data={data.genre.longDescription} />
           {:else}
             <span>
               Missing a long description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -274,17 +258,9 @@
           <Label>Notes</Label>
           <div>
             {#if showNotes}
-              {#await data.streamed.genres}
-                <div class="w-[75%] space-y-2 pt-1">
-                  <div class="skeleton relative h-4 w-[90%] overflow-hidden rounded"></div>
-                  <div class="skeleton relative h-4 w-[100%] overflow-hidden rounded"></div>
-                  <div class="skeleton relative h-4 w-[75%] overflow-hidden rounded"></div>
-                </div>
-              {:then genres}
-                <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
-                  <Romcode data={data.genre.notes} {genres} />
-                </div>
-              {/await}
+              <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
+                <Romcode data={data.genre.notes} />
+              </div>
             {/if}
             <button
               type="button"

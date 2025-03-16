@@ -1,11 +1,10 @@
 <script lang="ts">
   import { pageTitle } from '$lib/utils/string'
 
-  import { getTreeStateContext } from './GenreNavigator/GenreTree/state'
+  import { getTreeStateStoreContext } from './tree-state-store.svelte'
 
-  const treeState = getTreeStateContext()
+  const treeState = getTreeStateStoreContext()
 
-  treeState.setSelectedId(undefined)
   treeState.setSelectedPath(undefined)
 </script>
 

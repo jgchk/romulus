@@ -35,8 +35,6 @@ it('should be blurred when the genre is NSFW and the showNsfw setting is off', a
   const { user, getByRole } = setup(
     {
       match: {
-        id: 0,
-        weight: 0.25,
         genre: {
           id: 0,
           name: 'Test',
@@ -64,8 +62,6 @@ it('should not be blurred when the genre is NSFW and the showNsfw setting is on'
   const { user, getByRole, queryByRole } = setup(
     {
       match: {
-        id: 0,
-        weight: 0.25,
         genre: {
           id: 0,
           name: 'Test',
@@ -91,8 +87,6 @@ it('should not be blurred when the genre is not NSFW', async () => {
   const { user, getByRole, queryByRole } = setup(
     {
       match: {
-        id: 0,
-        weight: 0.25,
         genre: {
           id: 0,
           name: 'Test',

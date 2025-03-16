@@ -467,21 +467,15 @@
             >Short Description</Label
           >
           <div class="text-sm" data-testid="genre-diff-short-description">
-            {#await genres}
-              <div class="flex h-[26px] items-center">
-                <LoaderLine class="text-gray-500" />
-              </div>
-            {:then genres}
-              {#if changed.shortDescription === 'delete'}
-                <span class="line-through opacity-50">
-                  <Romcode data={previousHistory?.shortDescription ?? ''} {genres} />
-                </span>
-              {:else}
-                <span>
-                  <Romcode data={currentHistory.shortDescription ?? ''} {genres} />
-                </span>
-              {/if}
-            {/await}
+            {#if changed.shortDescription === 'delete'}
+              <span class="line-through opacity-50">
+                <Romcode data={previousHistory?.shortDescription ?? ''} />
+              </span>
+            {:else}
+              <span>
+                <Romcode data={currentHistory.shortDescription ?? ''} />
+              </span>
+            {/if}
           </div>
         </div>
       {/if}
@@ -492,21 +486,15 @@
             >Long Description</Label
           >
           <div class="text-sm" data-testid="genre-diff-long-description">
-            {#await genres}
-              <div class="flex h-[26px] items-center">
-                <LoaderLine class="text-gray-500" />
-              </div>
-            {:then genres}
-              {#if changed.longDescription === 'delete'}
-                <span class="line-through opacity-50">
-                  <Romcode data={previousHistory?.longDescription ?? ''} {genres} />
-                </span>
-              {:else}
-                <span>
-                  <Romcode data={currentHistory.longDescription ?? ''} {genres} />
-                </span>
-              {/if}
-            {/await}
+            {#if changed.longDescription === 'delete'}
+              <span class="line-through opacity-50">
+                <Romcode data={previousHistory?.longDescription ?? ''} />
+              </span>
+            {:else}
+              <span>
+                <Romcode data={currentHistory.longDescription ?? ''} />
+              </span>
+            {/if}
           </div>
         </div>
       {/if}
@@ -515,21 +503,15 @@
         <div class={cn(!changed.notes && 'opacity-50')}>
           <Label class={cn('text-xs', getLabelClass(changed.notes))}>Notes</Label>
           <div class="text-sm" data-testid="genre-diff-notes">
-            {#await genres}
-              <div class="flex h-[26px] items-center">
-                <LoaderLine class="text-gray-500" />
-              </div>
-            {:then genres}
-              {#if changed.notes === 'delete'}
-                <span class="line-through opacity-50">
-                  <Romcode data={previousHistory?.notes ?? ''} {genres} />
-                </span>
-              {:else}
-                <span>
-                  <Romcode data={currentHistory.notes ?? ''} {genres} />
-                </span>
-              {/if}
-            {/await}
+            {#if changed.notes === 'delete'}
+              <span class="line-through opacity-50">
+                <Romcode data={previousHistory?.notes ?? ''} />
+              </span>
+            {:else}
+              <span>
+                <Romcode data={currentHistory.notes ?? ''} />
+              </span>
+            {/if}
           </div>
         </div>
       {/if}

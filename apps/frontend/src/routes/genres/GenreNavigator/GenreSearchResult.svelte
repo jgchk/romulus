@@ -2,19 +2,22 @@
   import { tooltip } from '$lib/actions/tooltip'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { GenreMatch, GenreType } from '$lib/types/genres'
+  import type { GenreType } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
 
   import { searchStore } from './state'
 
   type Props = {
-    match: GenreMatch<{
-      id: number
-      name: string
-      subtitle: string | null
-      type: GenreType
-      nsfw: boolean
-    }>
+    match: {
+      genre: {
+        id: number
+        name: string
+        type: GenreType
+        subtitle: string | null
+        nsfw: boolean
+      }
+      matchedAka?: string
+    }
   }
 
   let { match }: Props = $props()

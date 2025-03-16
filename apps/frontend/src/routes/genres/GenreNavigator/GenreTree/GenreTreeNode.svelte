@@ -10,9 +10,10 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
+  import { getGenreTreeStoreContext } from '../../genre-tree-store.svelte'
+  import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
-  import { getTreeStateContext } from './state'
 
   type Props = {
     id: number
@@ -22,16 +23,20 @@
 
   let { id, path, treeRef }: Props = $props()
 
-  const treeState = getTreeStateContext()
+  const tree = getGenreTreeStoreContext()
+  const treeState = getTreeStateStoreContext()
 
-  let genre = $derived($treeState.genres.get(id))
+  let genre = tree.getGenre(id)
 
-  let isSelected = $derived($treeState.selectedPath && equals($treeState.selectedPath, path))
-  let isExpanded = $derived($treeState.expanded.has(path.join('-')))
-  let isExpandable = $derived(!!genre?.children.length || !!genre?.derivations.length)
+  const children = tree.getChildren(id)
+  const derivations = tree.getDerivations(id)
 
-  let isDerivedExpandable = $derived(!!genre?.derivations.length)
-  let isDerivedExpanded = $derived($treeState.expanded.has([...path, 'derived'].join('-')))
+  let isSelected = $derived(equals(treeState.getSelectedPath(), path))
+  let isExpanded = $derived(treeState.isExpanded(path))
+  let isExpandable = children.length > 0 || derivations.length > 0
+
+  let isDerivedExpandable = derivations.length > 0
+  let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
 
   let ref: HTMLElement | undefined = $state()
   $effect(() => {
@@ -62,7 +67,13 @@
         size="sm"
         tooltip={isExpanded ? 'Collapse' : 'Expand'}
         class={cn('ml-1 flex-shrink-0 text-gray-500', !isExpandable && 'invisible')}
-        onClick={() => treeState.setExpanded(path, !isExpanded)}
+        onClick={() => {
+          if (isExpanded) {
+            treeState.setCollapsed(path)
+          } else {
+            treeState.setExpanded(path)
+          }
+        }}
       >
         <CaretRight class={cn('transition', isExpanded && 'rotate-90')} />
       </IconButton>
@@ -77,8 +88,8 @@
           genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
         onclick={() => {
-          treeState.setSelectedId(id)
           treeState.setSelectedPath(path)
+          treeState.setExpanded(path)
         }}
         use:tooltip={{
           content: 'Enable NSFW content in settings to view this genre',
@@ -118,9 +129,9 @@
 
     {#if isExpanded && isExpandable}
       <div transition:slide|local={{ axis: 'y' }}>
-        {#if genre.children.length > 0}
+        {#if children.length > 0}
           <ul>
-            {#each genre.children as childId (childId)}
+            {#each children as childId (childId)}
               {@const childPath = [...path, childId]}
               <GenreTreeNode id={childId} path={childPath} {treeRef} />
             {/each}
@@ -134,7 +145,13 @@
                 size="sm"
                 tooltip={isDerivedExpanded ? 'Collapse' : 'Expand'}
                 class={cn('ml-1 flex-shrink-0 text-gray-500', !isDerivedExpandable && 'invisible')}
-                onClick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
+                onClick={() => {
+                  if (isDerivedExpanded) {
+                    treeState.setCollapsed([...path, 'derived'])
+                  } else {
+                    treeState.setExpanded([...path, 'derived'])
+                  }
+                }}
               >
                 <CaretRight class={cn('transition', isDerivedExpanded && 'rotate-90')} />
               </IconButton>
@@ -142,7 +159,13 @@
               <button
                 type="button"
                 class="block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-left text-[0.93rem] italic text-gray-500 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-white"
-                onclick={() => treeState.setExpanded([...path, 'derived'], !isDerivedExpanded)}
+                onclick={() => {
+                  if (isDerivedExpanded) {
+                    treeState.setCollapsed([...path, 'derived'])
+                  } else {
+                    treeState.setExpanded([...path, 'derived'])
+                  }
+                }}
               >
                 Derived Genres
               </button>
@@ -150,7 +173,7 @@
 
             {#if isDerivedExpanded && isDerivedExpandable}
               <ul transition:slide|local={{ axis: 'y' }}>
-                {#each genre.derivations as derivationId (derivationId)}
+                {#each derivations as derivationId (derivationId)}
                   {@const derivationPath = [...path, 'derived' as const, derivationId]}
                   <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
                 {/each}
