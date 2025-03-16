@@ -3,6 +3,7 @@ import { expect, it, vi } from 'vitest'
 import { createGenreDatabase } from '../infrastructure/db'
 import { createExampleGenre } from '../types'
 import { createClearGenresCommand } from './clear-genres'
+import { createGetGenreCountQuery } from './get-genre-count'
 import { createSetGenreCommand } from './set-genre'
 
 it('should do nothing if no genres are present', async () => {
@@ -10,9 +11,10 @@ it('should do nothing if no genres are present', async () => {
   const clearGenres = createClearGenresCommand(db)
   await clearGenres()
 
-  const count = db.transaction('genres').objectStore('genres').count()
-  const c = await new Promise((resolve) => (count.onsuccess = () => resolve(count.result)))
-  expect(c).toBe(0)
+  const getGenreCount = createGetGenreCountQuery(db)
+  const count = await getGenreCount()
+
+  expect(count).toBe(0)
 })
 
 it('should clear all genres', async () => {
@@ -24,9 +26,10 @@ it('should clear all genres', async () => {
   const clearGenres = createClearGenresCommand(db)
   await clearGenres()
 
-  const count = db.transaction('genres').objectStore('genres').count()
-  const c = await new Promise((resolve) => (count.onsuccess = () => resolve(count.result)))
-  expect(c).toBe(0)
+  const getGenreCount = createGetGenreCountQuery(db)
+  const count = await getGenreCount()
+
+  expect(count).toBe(0)
 })
 
 it('should reject with an error if the clear request fails', async () => {
