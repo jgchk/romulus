@@ -60,6 +60,7 @@
     "eslint-plugin-returned-errors": "workspace:*",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-svelte": "^3.0.3",
+    "fake-indexeddb": "^6.0.0",
     "globals": "^15.11.0",
     "happy-dom": "^17.1.8",
     "jsdom": "^25.0.1",

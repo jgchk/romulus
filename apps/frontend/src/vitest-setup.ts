@@ -1,4 +1,5 @@
 import './app.css'
+import 'fake-indexeddb/auto'
 
 import * as matchers from '@testing-library/jest-dom/matchers'
 import { expect, test as base, vi } from 'vitest'
