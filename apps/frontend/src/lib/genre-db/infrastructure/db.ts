@@ -11,7 +11,8 @@ export function createGenreDatabase(idbFactory: IDBFactory = indexedDB): Promise
     }
     openRequest.onupgradeneeded = () => {
       const db = openRequest.result
-      db.createObjectStore('genres', { keyPath: 'id' })
+      const genresObjectStore = db.createObjectStore('genres', { keyPath: 'id' })
+      genresObjectStore.createIndex('parents', 'parents')
     }
   })
 }

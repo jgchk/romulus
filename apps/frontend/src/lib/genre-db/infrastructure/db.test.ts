@@ -28,6 +28,11 @@ describe('createGenreDatabase', () => {
     expect(db.transaction('genres').objectStore('genres').keyPath).toBe('id')
   })
 
+  it('should set up an index on parents', async () => {
+    const db = await createGenreDatabase(new IDBFactory())
+    expect(db.transaction('genres').objectStore('genres').indexNames).toContain('parents')
+  })
+
   it('should reject if the database cannot be opened', async () => {
     const idbFactory = new IDBFactory()
 
