@@ -12,7 +12,7 @@
   import { tw } from '$lib/utils/dom'
 
   type Props = {
-    options: Option[]
+    options: Option[] | Promise<Option[]>
     popoverElement: Action
     focusedIndex: number
     hasMore?: boolean
@@ -39,42 +39,51 @@
   tabindex="-1"
   use:popoverElement
 >
-  {#if options.length === 0}
-    <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">No results</div>
-  {:else}
-    {#each options as option, i (option.value)}
-      <button
-        type="button"
-        class={tw(
-          'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
-          focusedIndex === i && 'border-secondary-500',
-        )}
-        tabindex="-1"
-        onclick={() => onSelect?.({ option, i })}
-        onmouseenter={() => (focusedIndex = i)}
-        data-testId="multiselect__option"
-      >
-        {#if optionSnippet}
-          {@render optionSnippet({ option })}
-        {:else}
-          {option.label}
-        {/if}
-      </button>
-    {/each}
+  {#await options}
+    <div>Loading...</div>
+  {:then options}
+    {#if options.length === 0}
+      <div class="select-none px-2 py-1 text-gray-700 transition dark:text-gray-300">
+        No results
+      </div>
+    {:else}
+      {#each options as option, i (option.value)}
+        <button
+          type="button"
+          class={tw(
+            'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+            focusedIndex === i && 'border-secondary-500',
+          )}
+          tabindex="-1"
+          onclick={() => onSelect?.({ option, i })}
+          onmouseenter={() => (focusedIndex = i)}
+          data-testId="multiselect__option"
+        >
+          {#if optionSnippet}
+            {@render optionSnippet({ option })}
+          {:else}
+            {option.label}
+          {/if}
+        </button>
+      {/each}
 
-    {#if hasMore}
-      <button
-        type="button"
-        class={tw(
-          'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
-          focusedIndex === options.length && 'border-secondary-500',
-        )}
-        tabindex="-1"
-        onclick={() => onLoadMore?.()}
-        onmouseenter={() => (focusedIndex = options.length)}
-      >
-        Load More...
-      </button>
+      {#if hasMore}
+        <button
+          type="button"
+          class={tw(
+            'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
+            focusedIndex === options.length && 'border-secondary-500',
+          )}
+          tabindex="-1"
+          onclick={() => onLoadMore?.()}
+          onmouseenter={() => (focusedIndex = options.length)}
+        >
+          Load More...
+        </button>
+      {/if}
     {/if}
-  {/if}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+  {:catch error}
+    <div>Error: Failed to load options</div>
+  {/await}
 </div>
