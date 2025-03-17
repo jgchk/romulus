@@ -328,11 +328,11 @@
       {popoverElement}
       bind:focusedIndex
       {hasMore}
-      on:select={({ detail: { option } }) => {
+      onSelect={({ option }) => {
         handleSelect(option)
         inputRef?.focus()
       }}
-      on:loadMore={() => handleLoadMore()}
+      onLoadMore={() => handleLoadMore()}
     >
       {#snippet option({ option })}
         {#if optionSnippet}

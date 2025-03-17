@@ -5,7 +5,6 @@
 
 <script lang="ts" generics="Option extends O">
   import type { Snippet } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import { fade } from 'svelte/transition'
 
   import type { Action } from '$lib/actions/types'
@@ -18,6 +17,8 @@
     focusedIndex: number
     hasMore?: boolean
     option?: Snippet<[{ option: Option }]>
+    onSelect?: (data: { option: Option; i: number }) => void
+    onLoadMore?: () => void
   }
 
   let {
@@ -26,12 +27,9 @@
     focusedIndex = $bindable(),
     hasMore = false,
     option: optionSnippet,
+    onSelect,
+    onLoadMore,
   }: Props = $props()
-
-  const dispatch = createEventDispatcher<{
-    select: { option: Option; i: number }
-    loadMore: undefined
-  }>()
 </script>
 
 <div
@@ -52,7 +50,7 @@
           focusedIndex === i && 'border-secondary-500',
         )}
         tabindex="-1"
-        onclick={() => dispatch('select', { option, i })}
+        onclick={() => onSelect?.({ option, i })}
         onmouseenter={() => (focusedIndex = i)}
         data-testId="multiselect__option"
       >
@@ -72,7 +70,7 @@
           focusedIndex === options.length && 'border-secondary-500',
         )}
         tabindex="-1"
-        onclick={() => dispatch('loadMore')}
+        onclick={() => onLoadMore?.()}
         onmouseenter={() => (focusedIndex = options.length)}
       >
         Load More...

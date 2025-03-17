@@ -140,7 +140,7 @@
       {options}
       {popoverElement}
       bind:focusedIndex
-      on:select={({ detail: { option } }) => {
+      onSelect={({ option }) => {
         handleSelect(option)
         inputRef?.focus()
       }}
