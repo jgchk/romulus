@@ -3,7 +3,7 @@ import { diceCoefficient, toAscii } from '$lib/utils/string'
 import type { TreeGenre } from '../types'
 import type { GetAllGenresQuery } from './get-all-genres'
 
-export type SearchGenresQuery = (query: string) => Promise<TreeGenre[]>
+export type SearchGenresQuery = (query: string) => Promise<GenreMatch<TreeGenre>[]>
 
 export function createSearchGenresQuery(getAllGenres: GetAllGenresQuery): SearchGenresQuery {
   return async function searchGenres(query: string) {
@@ -11,13 +11,13 @@ export function createSearchGenresQuery(getAllGenres: GetAllGenresQuery): Search
 
     const matches = search(query, genres)
 
-    return matches.map((match) => match.genre)
+    return matches
   }
 }
 
 type SearchGenre = { id: number; name: string; subtitle: string | null; akas: string[] }
 
-type GenreMatch<Genre extends SearchGenre> = {
+export type GenreMatch<Genre extends SearchGenre> = {
   id: number
   genre: Genre
   matchedAka?: string
