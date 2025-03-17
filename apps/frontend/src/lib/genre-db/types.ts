@@ -1,5 +1,7 @@
 import type { GenreType } from '$lib/types/genres'
 
+export type TreePath = (number | 'derived')[]
+
 export type TreeGenre = {
   id: number
   name: string
