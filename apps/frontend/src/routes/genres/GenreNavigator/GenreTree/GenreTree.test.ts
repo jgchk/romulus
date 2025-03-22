@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event'
 import { readable, writable } from 'svelte/store'
 import { expect, it } from 'vitest'
 
-import { QUERY_CLIENT_KEY } from '$lib/contexts/tanstack-query'
 import { USER_CONTEXT_KEY } from '$lib/contexts/user'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
@@ -59,7 +58,7 @@ async function renderComponent(context: {
       [TREE_STATE_STORE_KEY, createTreeStateStore()],
       [GENRE_TREE_STORE_KEY, createGenreTreeStore(genres)],
       [
-        QUERY_CLIENT_KEY,
+        '$$_queryClient',
         new QueryClient({
           defaultOptions: {
             queries: {

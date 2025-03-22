@@ -27,7 +27,6 @@
         previousHistory={entry.previousHistory}
         currentHistory={entry.genre}
         genres={data.streamed.genres}
-        genreDatabase={data.genreDatabase}
       />
     {/each}
   </div>

@@ -10,7 +10,6 @@
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
-  import type { GenreDatabase } from '$lib/genre-db/infrastructure/db'
   import { makeGenreTag } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
@@ -24,7 +23,6 @@
     autofocus?: boolean
     class?: string
     onChange?: (value: string) => void
-    genreDatabase: GenreDatabase | undefined
   }
 
   let {
@@ -34,7 +32,6 @@
     autofocus = false,
     class: class_,
     onChange,
-    genreDatabase,
   }: Props = $props()
 
   let tab: Tab = $state(Tabs.EDIT)
@@ -149,9 +146,7 @@
     </div>
   {:else if tab === Tabs.VIEW}
     <div class="flex-1 overflow-auto px-2 py-1">
-      {#if genreDatabase}
-        <Romcode data={value} {genreDatabase} />
-      {/if}
+      <Romcode data={value} />
     </div>
   {/if}
 

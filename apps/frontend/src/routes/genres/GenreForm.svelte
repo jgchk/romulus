@@ -11,7 +11,6 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
-  import type { GenreDatabase } from '$lib/genre-db/infrastructure/db'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
   import Footer from './Footer.svelte'
@@ -26,17 +25,9 @@
     autoFocus?: GenreFormField
     showRelevance?: boolean
     onSubmit?: () => void
-    genreDatabase: GenreDatabase | undefined
   }
 
-  let {
-    id,
-    data,
-    autoFocus = 'name',
-    showRelevance = false,
-    onSubmit,
-    genreDatabase,
-  }: Props = $props()
+  let { id, data, autoFocus = 'name', showRelevance = false, onSubmit }: Props = $props()
 
   let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = $state(undefined)
 
@@ -243,7 +234,6 @@
         value={$form.shortDescription ?? ''}
         onChange={(value) => ($form.shortDescription = value)}
         autofocus={autoFocus === 'shortDescription'}
-        {genreDatabase}
       />
     </InputGroup>
 
@@ -255,7 +245,6 @@
         value={$form.longDescription ?? ''}
         onChange={(value) => ($form.longDescription = value)}
         autofocus={autoFocus === 'longDescription'}
-        {genreDatabase}
       />
     </InputGroup>
 
@@ -267,7 +256,6 @@
         value={$form.notes ?? ''}
         onChange={(value) => ($form.notes = value)}
         autofocus={autoFocus === 'notes'}
-        {genreDatabase}
       />
     </InputGroup>
   </div>
