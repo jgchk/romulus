@@ -32,16 +32,18 @@
 
   let genre = tree.getGenre(id)
 
-  const childrenQuery = createQuery(createGenreDatabaseQueries(genreDatabase).getChildren(id))
-
-  const derivations = tree.getDerivations(id)
+  const genreDatabaseQueries = createGenreDatabaseQueries(genreDatabase)
+  const childrenQuery = createQuery(genreDatabaseQueries.getChildren(id))
+  const derivationsQuery = createQuery(genreDatabaseQueries.getDerivations(id))
 
   let isSelected = $derived(equals(treeState.getSelectedPath(), path))
   let isExpanded = $derived(treeState.isExpanded(path))
-  let isExpandable = $derived(($childrenQuery.data ?? []).length > 0 || derivations.length > 0)
+  let isExpandable = $derived(
+    ($childrenQuery.data ?? []).length > 0 || ($derivationsQuery.data ?? []).length > 0,
+  )
 
-  let isDerivedExpandable = derivations.length > 0
-  let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
+  let isDerivedExpandable = $derived(($derivationsQuery.data ?? []).length > 0)
+  let isDerivedExpanded = $derived(treeState.isExpanded([...path, 'derived']))
 
   let ref: HTMLElement | undefined = $state()
   $effect(() => {
@@ -181,15 +183,18 @@
 
             {#if isDerivedExpanded && isDerivedExpandable}
               <ul transition:slide|local={{ axis: 'y' }}>
-                {#each derivations as derivationId (derivationId)}
-                  {@const derivationPath = [...path, 'derived' as const, derivationId]}
-                  <GenreTreeNode
-                    id={derivationId}
-                    path={derivationPath}
-                    {treeRef}
-                    {genreDatabase}
-                  />
-                {/each}
+                {#if $derivationsQuery.data}
+                  {@const derivations = $derivationsQuery.data}
+                  {#each derivations as derivation (derivation.id)}
+                    {@const derivationPath = [...path, 'derived' as const, derivation.id]}
+                    <GenreTreeNode
+                      id={derivation.id}
+                      path={derivationPath}
+                      {treeRef}
+                      {genreDatabase}
+                    />
+                  {/each}
+                {/if}
               </ul>
             {/if}
           </div>
