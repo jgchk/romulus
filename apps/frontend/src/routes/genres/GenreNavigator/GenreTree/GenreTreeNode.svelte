@@ -7,6 +7,8 @@
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import { createGetChildrenQuery } from '$lib/features/genres/queries/get-children'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
@@ -19,21 +21,22 @@
     id: number
     path: (number | 'derived')[]
     treeRef: HTMLElement | undefined
+    genres: TreeGenre[]
   }
 
-  let { id, path, treeRef }: Props = $props()
+  let { id, path, treeRef, genres }: Props = $props()
 
   const tree = getGenreTreeStoreContext()
   const treeState = getTreeStateStoreContext()
 
   let genre = tree.getGenre(id)
 
-  const children = tree.getChildren(id)
+  const children = $derived(createGetChildrenQuery(genres)(id))
   const derivations = tree.getDerivations(id)
 
   let isSelected = $derived(equals(treeState.getSelectedPath(), path))
   let isExpanded = $derived(treeState.isExpanded(path))
-  let isExpandable = children.length > 0 || derivations.length > 0
+  let isExpandable = $derived(children.length > 0 || derivations.length > 0)
 
   let isDerivedExpandable = derivations.length > 0
   let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
@@ -133,7 +136,7 @@
           <ul>
             {#each children as childId (childId)}
               {@const childPath = [...path, childId]}
-              <GenreTreeNode id={childId} path={childPath} {treeRef} />
+              <GenreTreeNode id={childId} path={childPath} {treeRef} {genres} />
             {/each}
           </ul>
         {/if}
@@ -175,7 +178,7 @@
               <ul transition:slide|local={{ axis: 'y' }}>
                 {#each derivations as derivationId (derivationId)}
                   {@const derivationPath = [...path, 'derived' as const, derivationId]}
-                  <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
+                  <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} {genres} />
                 {/each}
               </ul>
             {/if}

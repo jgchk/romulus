@@ -23,7 +23,7 @@
     <div bind:this={ref} class="flex-1 overflow-auto p-2 pl-1">
       <ul>
         {#each topLevelGenres as genreId (genreId)}
-          <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} />
+          <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} {genres} />
         {/each}
       </ul>
     </div>
