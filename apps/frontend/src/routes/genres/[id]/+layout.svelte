@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
-  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import {
     getSelectedGenreIdFromTreePath,
@@ -21,7 +20,7 @@
     async function expandToCurrentGenre() {
       const selectedPath = treeState.getSelectedPath()
       if (selectedPath === undefined) {
-        const genres = createGenreStore(await data.streamed.genres)
+        const genres = await data.streamed.genres
         const newPath = createGetPathToQuery(genres)(data.id)
         treeState.setSelectedPath(newPath)
         if (newPath !== undefined) {
@@ -30,7 +29,7 @@
       } else {
         const selectedId = getSelectedGenreIdFromTreePath(selectedPath)
         if (selectedId === undefined || selectedId !== data.id) {
-          const genres = createGenreStore(await data.streamed.genres)
+          const genres = await data.streamed.genres
           const newPath = createGetPathToQuery(genres)(data.id)
           treeState.setSelectedPath(newPath)
           if (newPath !== undefined) {

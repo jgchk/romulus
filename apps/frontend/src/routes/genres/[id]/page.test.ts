@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 
 import GenrePage from './+page.svelte'
 import { relevanceVoteSchema } from './utils'
@@ -77,7 +78,7 @@ async function setup(
         genre: mockGenre,
         leftPaneSize: undefined,
         streamed: {
-          genres: Promise.resolve([]),
+          genres: Promise.resolve(createGenreStore([])),
         },
         relevanceVotes: new Map(),
         relevanceVoteForm,

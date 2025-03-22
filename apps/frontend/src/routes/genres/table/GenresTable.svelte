@@ -9,6 +9,8 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import LimitSelect from '$lib/components/LimitSelect.svelte'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
 
   import RelevanceChip from '../GenreNavigator/GenreTree/RelevanceChip.svelte'
@@ -16,25 +18,28 @@
   import ColumnHeader from './ColumnHeader.svelte'
 
   type Props = {
-    genres: Awaited<PageData['streamed']['genres']>
+    genres: GenreStore
     data: PageData
   }
 
   let { genres, data }: Props = $props()
 
-  let visibleGenres: Awaited<PageData['streamed']['genres']> = $derived.by(() => {
-    let val = genres.sort((a, b) => {
-      switch (data.sort) {
-        case 'name':
-          return a.name.localeCompare(b.name)
-        case 'type':
-          return a.type.localeCompare(b.type)
-        case 'relevance':
-          return a.relevance - b.relevance
-        case 'updated':
-          return a.updatedAt.getTime() - b.updatedAt.getTime()
-      }
-    })
+  let visibleGenres: TreeGenre[] = $derived.by(() => {
+    let val = genres
+      .values()
+      .toArray()
+      .sort((a, b) => {
+        switch (data.sort) {
+          case 'name':
+            return a.name.localeCompare(b.name)
+          case 'type':
+            return a.type.localeCompare(b.type)
+          case 'relevance':
+            return a.relevance - b.relevance
+          case 'updated':
+            return a.updatedAt.getTime() - b.updatedAt.getTime()
+        }
+      })
 
     if (data.order === 'desc') {
       val = val.reverse()
@@ -56,7 +61,7 @@
     return '?' + params.toString()
   }
 
-  let totalPages = $derived(Math.ceil(genres.length / data.limit))
+  let totalPages = $derived(Math.ceil(genres.size / data.limit))
   let firstPageHref = $derived(withPage($page.url.searchParams, 1))
   let lastPageHref = $derived(withPage($page.url.searchParams, totalPages))
   let previousPageHref = $derived(withPage($page.url.searchParams, data.page - 1))

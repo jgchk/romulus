@@ -1,3 +1,4 @@
+import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 import { ifDefined } from '$lib/utils/types'
 
 import type { LayoutServerLoad } from './$types'
@@ -10,6 +11,7 @@ export const load: LayoutServerLoad = ({ locals, cookies }) => {
       if (res.isErr()) throw res.error
       return res.value.tree
     })
+    .then((genres) => createGenreStore(genres))
 
   const leftPaneSize = ifDefined(cookies.get('genres.leftPaneSize'), (v) => {
     const value = Number.parseInt(v)

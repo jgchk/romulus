@@ -1,6 +1,5 @@
 <script lang="ts">
   import LinkButton from '$lib/atoms/LinkButton.svelte'
-  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import Footer from '../../Footer.svelte'
@@ -45,7 +44,7 @@
             <GenreDiff
               previousHistory={data.genreHistory[i - 1]}
               currentHistory={entry}
-              genres={data.streamed.genres.then(createGenreStore)}
+              genres={data.streamed.genres}
             />
           {/each}
         </div>
