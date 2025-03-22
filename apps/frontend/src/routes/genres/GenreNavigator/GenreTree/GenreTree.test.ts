@@ -193,8 +193,8 @@ it('should show an expand button for a parent genre but not a leaf genre', async
   const { user, genreNode } = setup(
     {
       genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+        createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
+        createExampleGenre({ id: 1, name: 'Child' }),
       ],
     },
     {
@@ -221,8 +221,8 @@ it('should expand a genre when clicking the link rather than the expand button',
   const { user, genreNode } = setup(
     {
       genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+        createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
+        createExampleGenre({ id: 1, name: 'Child' }),
       ],
     },
     {
@@ -245,7 +245,7 @@ it('should expand a genre when clicking the link rather than the expand button',
 
 it('should show the collapse all button when a genre is expanded', async () => {
   const { user, collapseAllButton, genreNode } = setup(
-    { genres: [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, parents: [0] })] },
+    { genres: [createExampleGenre({ id: 0, children: [1] }), createExampleGenre({ id: 1 })] },
     {
       user: {
         id: 0,
@@ -268,8 +268,8 @@ it('should collapse all genres upon clicking the collapse all button', async () 
   const { user, collapseAllButton, genreNode } = setup(
     {
       genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+        createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
+        createExampleGenre({ id: 1, name: 'Child' }),
       ],
     },
     {

@@ -7,7 +7,7 @@ it('should return the data for a given genre', () => {
     {
       id: 0,
       name: 'Zero',
-      parents: [],
+      children: [1],
       derivedFrom: [],
       nsfw: false,
       subtitle: null,
@@ -19,7 +19,7 @@ it('should return the data for a given genre', () => {
     {
       id: 1,
       name: 'One',
-      parents: [0],
+      children: [],
       derivedFrom: [],
       nsfw: false,
       subtitle: null,
@@ -35,7 +35,7 @@ it('should return the data for a given genre', () => {
   expect(getGenre(1)).toEqual({
     id: 1,
     name: 'One',
-    parents: [0],
+    children: [],
     derivedFrom: [],
     nsfw: false,
     subtitle: null,

@@ -5,10 +5,10 @@ import { createExampleGenre } from './types'
 
 it('should return the shortest path to a genre', () => {
   const genres = [
-    createExampleGenre({ id: 0, parents: [] }),
-    createExampleGenre({ id: 1, parents: [0] }),
-    createExampleGenre({ id: 2, parents: [1] }),
-    createExampleGenre({ id: 3, parents: [2] }),
+    createExampleGenre({ id: 0, children: [1] }),
+    createExampleGenre({ id: 1, children: [2] }),
+    createExampleGenre({ id: 2, children: [3] }),
+    createExampleGenre({ id: 3, children: [] }),
   ]
 
   const getPathTo = createGetPathToQuery(genres)
@@ -31,7 +31,7 @@ it('should return the shortest path to a genre', () => {
       updatedAt: new Date(),
       derivedFrom: [],
       akas: [],
-      parents: [],
+      children: [2],
     },
     {
       id: 2,
@@ -43,7 +43,7 @@ it('should return the shortest path to a genre', () => {
       updatedAt: new Date(),
       derivedFrom: [],
       akas: [],
-      parents: [1],
+      children: [],
     },
     {
       id: 3,
@@ -55,7 +55,7 @@ it('should return the shortest path to a genre', () => {
       updatedAt: new Date(),
       derivedFrom: [],
       akas: [],
-      parents: [],
+      children: [],
     },
   ]
 

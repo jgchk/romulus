@@ -17,15 +17,15 @@ export function createGetPathToQuery(genres: TreeGenre[]): GetPathToQuery {
       return undefined
     }
 
-    // If the target is a root genre, return a path with just itself
-    if (genre.parents.length === 0) {
-      return [id]
-    }
-
     // Initialize BFS data structures
     const parentMap = new Map<number, number>() // Maps genre ID to its parent in the shortest path
     const queue: number[] = [] // Queue for BFS traversal
     const roots = getRootGenres() // Get all root genres (no parents)
+
+    // If the target is a root genre, return a path with just itself
+    if (roots.includes(id)) {
+      return [id]
+    }
 
     // Seed the queue with all root genres
     for (const root of roots) {

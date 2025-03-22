@@ -23,9 +23,10 @@
     path: (number | 'derived')[]
     treeRef: HTMLElement | undefined
     genres: TreeGenre[]
+    hasParent: boolean
   }
 
-  let { id, path, treeRef, genres }: Props = $props()
+  let { id, path, treeRef, genres, hasParent }: Props = $props()
 
   const treeState = getTreeStateStoreContext()
 
@@ -61,9 +62,7 @@
 {#if genre}
   <li
     bind:this={ref}
-    class={cn(
-      genre.parents.length > 0 && 'ml-4 border-l border-gray-200 transition dark:border-gray-800',
-    )}
+    class={cn(hasParent && 'ml-4 border-l border-gray-200 transition dark:border-gray-800')}
   >
     <div class="genre-tree-node flex">
       <IconButton
@@ -136,7 +135,7 @@
           <ul>
             {#each children as childId (childId)}
               {@const childPath = [...path, childId]}
-              <GenreTreeNode id={childId} path={childPath} {treeRef} {genres} />
+              <GenreTreeNode id={childId} path={childPath} {treeRef} {genres} hasParent />
             {/each}
           </ul>
         {/if}
@@ -178,7 +177,13 @@
               <ul transition:slide|local={{ axis: 'y' }}>
                 {#each derivations as derivationId (derivationId)}
                   {@const derivationPath = [...path, 'derived' as const, derivationId]}
-                  <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} {genres} />
+                  <GenreTreeNode
+                    id={derivationId}
+                    path={derivationPath}
+                    {treeRef}
+                    {genres}
+                    hasParent
+                  />
                 {/each}
               </ul>
             {/if}

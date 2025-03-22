@@ -3,7 +3,7 @@ import type { GenreType } from '$lib/types/genres'
 export type TreeGenre = {
   id: number
   name: string
-  parents: number[]
+  children: number[]
   derivedFrom: number[]
   nsfw: boolean
   subtitle: string | null
@@ -21,7 +21,7 @@ export function createExampleGenre(data?: Partial<TreeGenre>): TreeGenre {
     type: 'STYLE',
     akas: [],
     nsfw: false,
-    parents: [],
+    children: [],
     derivedFrom: [],
     relevance: 1,
     updatedAt: new Date(),
