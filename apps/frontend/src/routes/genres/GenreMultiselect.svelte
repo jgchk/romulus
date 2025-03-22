@@ -2,8 +2,11 @@
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import { createGetGenreQuery } from '$lib/features/genres/queries/get-genre'
-  import { createSearchGenresQuery, type GenreMatch } from '$lib/features/genres/queries/search'
+  import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
+  import {
+    createSearchGenresQuery,
+    type GenreMatch,
+  } from '$lib/features/genres/queries/application/search'
   import { cn } from '$lib/utils/dom'
   import { isDefined, type Timeout } from '$lib/utils/types'
 

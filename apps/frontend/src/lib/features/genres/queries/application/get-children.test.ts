@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
+import { createExampleGenre } from '../types'
 import { createGetChildrenQuery } from './get-children'
-import { createExampleGenre } from './types'
 
 it('should return the IDs of the children of a genre', () => {
   const genres = [

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
+import { createExampleGenre } from '../types'
 import { createIsPathValidQuery } from './is-path-valid'
-import { createExampleGenre } from './types'
 
 it('should return true if the path is valid', () => {
   const genres = [

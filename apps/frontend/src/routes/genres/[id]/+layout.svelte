@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createGetPathToQuery } from '$lib/features/genres/queries/get-path-to'
+  import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
 
   import {
     getSelectedGenreIdFromTreePath,

@@ -1,7 +1,7 @@
+import type { TreeGenre } from '../types'
 import { createGetChildrenQuery } from './get-children'
 import { createGetGenreQuery } from './get-genre'
 import { createGetRootGenresQuery } from './get-root-genres'
-import type { TreeGenre } from './types'
 
 export type GetPathToQuery = (id: number) => number[] | undefined
 

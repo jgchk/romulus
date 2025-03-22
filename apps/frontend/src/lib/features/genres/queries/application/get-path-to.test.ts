@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
+import { createExampleGenre } from '../types'
 import { createGetPathToQuery } from './get-path-to'
-import { createExampleGenre } from './types'
 
 it('should return the shortest path to a genre', () => {
   const genres = [

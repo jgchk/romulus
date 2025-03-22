@@ -1,7 +1,7 @@
+import type { TreeGenre, TreePath } from '../types'
 import { createGetChildrenQuery } from './get-children'
 import { createGetDerivationsQuery } from './get-derivations'
 import { createGetRootGenresQuery } from './get-root-genres'
-import type { TreeGenre, TreePath } from './types'
 
 export type IsPathValidQuery = (path: TreePath) => boolean
 

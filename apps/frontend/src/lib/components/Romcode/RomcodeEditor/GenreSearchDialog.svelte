@@ -9,7 +9,7 @@
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import { createSearchGenresQuery } from '$lib/features/genres/queries/search'
+  import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { tw } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'

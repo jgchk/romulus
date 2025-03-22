@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
   import { getUserContext } from '$lib/contexts/user'
-  import { createGetRootGenresQuery } from '$lib/features/genres/queries/get-root-genres'
+  import { createGetRootGenresQuery } from '$lib/features/genres/queries/application/get-root-genres'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
 
   import { getTreeStateStoreContext } from '../../tree-state-store.svelte'

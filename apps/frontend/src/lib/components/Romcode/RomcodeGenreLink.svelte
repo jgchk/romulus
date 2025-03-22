@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import { createGetGenreQuery } from '$lib/features/genres/queries/get-genre'
+  import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { tw } from '$lib/utils/dom'
 

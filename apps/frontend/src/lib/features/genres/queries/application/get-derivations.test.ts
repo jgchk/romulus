@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
+import { createExampleGenre } from '../types'
 import { createGetDerivationsQuery } from './get-derivations'
-import { createExampleGenre } from './types'
 
 it('should return the IDs of the derived genres of a genre', () => {
   const genres = [
