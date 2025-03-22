@@ -1,15 +1,17 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
   import { getUserContext } from '$lib/contexts/user'
+  import { createGetRootGenresQuery } from '$lib/features/genres/queries/get-root-genres'
 
-  import { getGenreTreeStoreContext } from '../../genre-tree-store.svelte'
+  import { type TreeGenre } from '../../genre-tree-store.svelte'
   import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
 
-  const tree = getGenreTreeStoreContext()
+  let { genres }: { genres: TreeGenre[] } = $props()
+
   const treeState = getTreeStateStoreContext()
 
-  let topLevelGenres = $derived(tree.getRootGenres())
+  let topLevelGenres = $derived(createGetRootGenresQuery(genres)())
 
   let ref: HTMLElement | undefined = $state()
 

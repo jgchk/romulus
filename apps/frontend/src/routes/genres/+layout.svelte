@@ -42,7 +42,7 @@
   onSmallScreenCollapseto={$page.url.pathname === '/genres' ? 'left' : 'right'}
 >
   {#snippet left()}
-    <GenreNavigator />
+    <GenreNavigator genres={data.streamed.genres} />
   {/snippet}
   {#snippet right()}
     <Card class="h-full overflow-auto">

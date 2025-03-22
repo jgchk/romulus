@@ -7,13 +7,10 @@ import { expect, it } from 'vitest'
 import { USER_CONTEXT_KEY } from '$lib/contexts/user'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createExampleGenre } from '$lib/features/genres/queries/types'
 import { withProps } from '$lib/utils/object'
 
-import {
-  createGenreTreeStore,
-  GENRE_TREE_STORE_KEY,
-  type TreeGenre,
-} from '../../genre-tree-store.svelte'
+import { createGenreTreeStore, GENRE_TREE_STORE_KEY } from '../../genre-tree-store.svelte'
 import { createTreeStateStore, TREE_STATE_STORE_KEY } from '../../tree-state-store.svelte'
 import GenreTree from './GenreTree.svelte'
 
@@ -22,7 +19,6 @@ function setup(
   context: {
     user: App.Locals['user'] | undefined
     userSettings?: Partial<UserSettings>
-    genres?: TreeGenre[]
   },
 ) {
   const user = userEvent.setup()
@@ -41,7 +37,6 @@ function renderComponent(
   context: {
     user: App.Locals['user'] | undefined
     userSettings?: Partial<UserSettings>
-    genres?: TreeGenre[]
   },
 ) {
   return render(GenreTree, {
@@ -54,7 +49,8 @@ function renderComponent(
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...context.userSettings }),
       ],
       [TREE_STATE_STORE_KEY, createTreeStateStore()],
-      [GENRE_TREE_STORE_KEY, createGenreTreeStore(context?.genres ?? [])],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      [GENRE_TREE_STORE_KEY, createGenreTreeStore(props.genres)],
     ]),
   })
 }
@@ -127,44 +123,27 @@ function createComponentModel(renderedComponent: ReturnType<typeof renderCompone
   return { emptyState, createGenreLink, genreNode, collapseAllButton }
 }
 
-function createExampleGenre(data?: Partial<TreeGenre>): TreeGenre {
-  return {
-    id: 0,
-    name: 'Test Genre',
-    subtitle: null,
-    type: 'STYLE',
-    akas: [],
-    nsfw: false,
-    parents: [],
-    derivedFrom: [],
-    relevance: 1,
-    updatedAt: new Date(),
-
-    ...data,
-  }
-}
-
 it('should show an empty state when there are no genres', () => {
-  const { emptyState } = setup({}, { user: undefined, genres: [] })
+  const { emptyState } = setup({ genres: [] }, { user: undefined })
 
   expect(emptyState.get()).toBeVisible()
 })
 
 it('should not show an empty state when there is one genre', () => {
-  const { emptyState } = setup({}, { user: undefined, genres: [createExampleGenre()] })
+  const { emptyState } = setup({ genres: [createExampleGenre()] }, { user: undefined })
 
   expect(emptyState.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is not logged in', () => {
-  const { createGenreLink } = setup({}, { user: undefined, genres: [] })
+  const { createGenreLink } = setup({ genres: [] }, { user: undefined })
 
   expect(createGenreLink.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is logged in but does not have create genre permission', () => {
   const { createGenreLink } = setup(
-    {},
+    { genres: [] },
     {
       user: {
         id: 0,
@@ -173,7 +152,6 @@ it('should not show a create genre CTA when the user is logged in but does not h
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [],
     },
   )
 
@@ -182,7 +160,7 @@ it('should not show a create genre CTA when the user is logged in but does not h
 
 it('should show a create genre CTA when the user has create genre permission', () => {
   const { createGenreLink } = setup(
-    {},
+    { genres: [] },
     {
       user: {
         id: 0,
@@ -191,7 +169,6 @@ it('should show a create genre CTA when the user has create genre permission', (
           genres: { canCreate: true, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [],
     },
   )
 
@@ -200,7 +177,7 @@ it('should show a create genre CTA when the user has create genre permission', (
 
 it('should not be expandable when there is 1 genre', () => {
   const { genreNode } = setup(
-    {},
+    { genres: [createExampleGenre()] },
     {
       user: {
         id: 0,
@@ -209,7 +186,6 @@ it('should not be expandable when there is 1 genre', () => {
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [createExampleGenre()],
     },
   )
 
@@ -218,7 +194,12 @@ it('should not be expandable when there is 1 genre', () => {
 
 it('should show an expand button for a parent genre but not a leaf genre', async () => {
   const { user, genreNode } = setup(
-    {},
+    {
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
+    },
     {
       user: {
         id: 0,
@@ -227,10 +208,6 @@ it('should show an expand button for a parent genre but not a leaf genre', async
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-      ],
     },
   )
 
@@ -245,7 +222,12 @@ it('should show an expand button for a parent genre but not a leaf genre', async
 
 it('should expand a genre when clicking the link rather than the expand button', async () => {
   const { user, genreNode } = setup(
-    {},
+    {
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
+    },
     {
       user: {
         id: 0,
@@ -254,10 +236,6 @@ it('should expand a genre when clicking the link rather than the expand button',
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-      ],
     },
   )
 
@@ -270,7 +248,7 @@ it('should expand a genre when clicking the link rather than the expand button',
 
 it('should show the collapse all button when a genre is expanded', async () => {
   const { user, collapseAllButton, genreNode } = setup(
-    {},
+    { genres: [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, parents: [0] })] },
     {
       user: {
         id: 0,
@@ -279,7 +257,6 @@ it('should show the collapse all button when a genre is expanded', async () => {
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, parents: [0] })],
     },
   )
 
@@ -292,7 +269,12 @@ it('should show the collapse all button when a genre is expanded', async () => {
 
 it('should collapse all genres upon clicking the collapse all button', async () => {
   const { user, collapseAllButton, genreNode } = setup(
-    {},
+    {
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
+    },
     {
       user: {
         id: 0,
@@ -301,10 +283,6 @@ it('should collapse all genres upon clicking the collapse all button', async () 
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [
-        createExampleGenre({ id: 0, name: 'Parent' }),
-        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-      ],
     },
   )
 
@@ -318,7 +296,7 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 
 it('should open the genre page when clicking a genre link', async () => {
   const { user, genreNode } = setup(
-    {},
+    { genres: [createExampleGenre({ id: 0 })] },
     {
       user: {
         id: 0,
@@ -327,7 +305,6 @@ it('should open the genre page when clicking a genre link', async () => {
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
         },
       },
-      genres: [createExampleGenre({ id: 0 })],
     },
   )
 
