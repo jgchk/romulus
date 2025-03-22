@@ -1,9 +1,9 @@
-import type { TreeGenre } from '../types'
+import type { GenreStore } from '../infrastructure'
 
 export type GetChildrenQuery = (id: number) => number[]
 
-export function createGetChildrenQuery(genres: TreeGenre[]): GetChildrenQuery {
+export function createGetChildrenQuery(store: GenreStore): GetChildrenQuery {
   return function getChildren(id: number) {
-    return genres.find((genre) => genre.id === id)?.children ?? []
+    return store.get(id)?.children ?? []
   }
 }

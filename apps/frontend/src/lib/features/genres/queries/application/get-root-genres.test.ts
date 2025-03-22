@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createExampleGenre } from '../types'
 import { createGetRootGenresQuery } from './get-root-genres'
 
@@ -11,7 +12,7 @@ it('should return the IDs of all genres with no parents', () => {
     createExampleGenre({ id: 3 }),
   ]
 
-  const getRootGenres = createGetRootGenresQuery(genres)
+  const getRootGenres = createGetRootGenresQuery(createGenreStore(genres))
 
   expect(getRootGenres()).toEqual([0, 3])
 })

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createGetGenreQuery } from './get-genre'
 
 it('should return the data for a given genre', () => {
@@ -30,7 +31,7 @@ it('should return the data for a given genre', () => {
     },
   ]
 
-  const getGenre = createGetGenreQuery(genres)
+  const getGenre = createGetGenreQuery(createGenreStore(genres))
 
   expect(getGenre(1)).toEqual({
     id: 1,

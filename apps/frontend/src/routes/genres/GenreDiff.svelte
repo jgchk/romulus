@@ -11,7 +11,7 @@
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
   import { cn } from '$lib/utils/dom'
@@ -38,7 +38,7 @@
   type Props = {
     previousHistory: Omit<GenreHistoryData, 'account'> | undefined
     currentHistory: GenreHistoryData
-    genres: Promise<TreeGenre[]>
+    genres: Promise<GenreStore>
   }
 
   let { previousHistory, currentHistory, genres }: Props = $props()
@@ -249,7 +249,7 @@
               {#if changed.parentGenreIds === 'delete'}
                 <CommaList items={currentHistory.parentGenreIds ?? []} class="block text-gray-500">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -262,7 +262,7 @@
               {:else if changed.parentGenreIds === 'update'}
                 <CommaList items={currentHistory.parentGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}
@@ -275,7 +275,7 @@
                   class="block text-gray-500"
                 >
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -288,7 +288,7 @@
               {:else}
                 <CommaList items={currentHistory.parentGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}
@@ -319,7 +319,7 @@
                   class="block text-gray-500"
                 >
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -332,7 +332,7 @@
               {:else if changed.derivedFromGenreIds === 'update'}
                 <CommaList items={currentHistory.derivedFromGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}
@@ -345,7 +345,7 @@
                   class="block text-gray-500"
                 >
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -358,7 +358,7 @@
               {:else}
                 <CommaList items={currentHistory.derivedFromGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}
@@ -389,7 +389,7 @@
                   class="block text-gray-500"
                 >
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -402,7 +402,7 @@
               {:else if changed.influencedByGenreIds === 'update'}
                 <CommaList items={currentHistory.influencedByGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}
@@ -415,7 +415,7 @@
                   class="block text-gray-500"
                 >
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="line-through hover:underline" href="/genres/{genre.id}"
                         >{genre.name}</a
@@ -428,7 +428,7 @@
               {:else}
                 <CommaList items={currentHistory.influencedByGenreIds ?? []} class="block">
                   {#snippet children({ item: id })}
-                    {@const genre = genres.find((g) => g.id === id)}
+                    {@const genre = genres.get(id)}
                     {#if genre}
                       <a class="hover:underline" href="/genres/{genre.id}">{genre.name}</a>
                     {:else}

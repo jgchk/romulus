@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createExampleGenre } from '../types'
 import { createGetDerivationsQuery } from './get-derivations'
 
@@ -10,7 +11,7 @@ it('should return the IDs of the derived genres of a genre', () => {
     createExampleGenre({ id: 2, derivedFrom: [0] }),
   ]
 
-  const getDerivations = createGetDerivationsQuery(genres)
+  const getDerivations = createGetDerivationsQuery(createGenreStore(genres))
 
   expect(getDerivations(0)).toEqual([1, 2])
 })

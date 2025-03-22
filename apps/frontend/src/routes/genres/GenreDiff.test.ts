@@ -6,6 +6,7 @@ import { expect, it } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 
 import { test } from '../../vitest-setup'
 import GenreDiff from './GenreDiff.svelte'
@@ -52,7 +53,7 @@ it('should show the genre operation', () => {
   const { getByTestId } = setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
-    genres: Promise.resolve([]),
+    genres: Promise.resolve(createGenreStore([])),
   })
   expect(getByTestId('genre-diff-operation')).toHaveTextContent('Delete')
 })
@@ -61,7 +62,7 @@ it('should show the account who made the operation', () => {
   const { getByTestId } = setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
-    genres: Promise.resolve([]),
+    genres: Promise.resolve(createGenreStore([])),
   })
   const usernameLink = getByTestId('genre-diff-account')
   expect(usernameLink).toHaveTextContent('Username')
@@ -74,7 +75,7 @@ test('should show the time since the operation', ({ withSystemTime }) => {
   const { getByTestId } = setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
-    genres: Promise.resolve([]),
+    genres: Promise.resolve(createGenreStore([])),
   })
 
   expect(getByTestId('genre-diff-time')).toHaveTextContent('0s')
@@ -84,7 +85,7 @@ it('should include NSFW status when it is changed to true', () => {
   const { getByTestId } = setup({
     previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
     currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
-    genres: Promise.resolve([]),
+    genres: Promise.resolve(createGenreStore([])),
   })
   expect(getByTestId('genre-diff-nsfw')).toHaveTextContent('True')
 })
@@ -93,7 +94,7 @@ it('should include NSFW status when it is changed to false', () => {
   const { getByTestId } = setup({
     previousHistory: { ...mockHistory, nsfw: true, operation: 'CREATE' },
     currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
-    genres: Promise.resolve([]),
+    genres: Promise.resolve(createGenreStore([])),
   })
   expect(getByTestId('genre-diff-nsfw')).toHaveTextContent('False')
 })
@@ -103,7 +104,7 @@ it('should blur the diff when the genre is NSFW and showNsfw is false', async ()
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
-      genres: Promise.resolve([]),
+      genres: Promise.resolve(createGenreStore([])),
     },
     { userSettings: { showNsfw: false } },
   )
@@ -124,7 +125,7 @@ it('should not blur the diff when the genre is NSFW and showNsfw is true', async
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
-      genres: Promise.resolve([]),
+      genres: Promise.resolve(createGenreStore([])),
     },
     { userSettings: { showNsfw: true } },
   )
@@ -143,7 +144,7 @@ it('should not blur the diff when the genre is not NSFW', async () => {
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
-      genres: Promise.resolve([]),
+      genres: Promise.resolve(createGenreStore([])),
     },
     { userSettings: { showNsfw: false } },
   )

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import { pageTitle } from '$lib/utils/string'
 
   import GenreDiff from '../GenreDiff.svelte'
@@ -26,7 +27,7 @@
       <GenreDiff
         previousHistory={entry.previousHistory}
         currentHistory={entry.genre}
-        genres={data.streamed.genres}
+        genres={data.streamed.genres.then(createGenreStore)}
       />
     {/each}
   </div>

@@ -1,9 +1,10 @@
+import type { GenreStore } from '../infrastructure'
 import type { TreeGenre } from '../types'
 
 export type GetGenreQuery = (id: number) => TreeGenre | undefined
 
-export function createGetGenreQuery(genres: TreeGenre[]): GetGenreQuery {
+export function createGetGenreQuery(genres: GenreStore): GetGenreQuery {
   return function getGenre(id: number) {
-    return genres.find((genre) => genre.id === id)
+    return genres.get(id)
   }
 }

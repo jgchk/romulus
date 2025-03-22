@@ -7,6 +7,7 @@ import { expect, it } from 'vitest'
 import { USER_CONTEXT_KEY } from '$lib/contexts/user'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 import { createExampleGenre } from '$lib/features/genres/queries/types'
 import { withProps } from '$lib/utils/object'
 
@@ -121,26 +122,29 @@ function createComponentModel(renderedComponent: ReturnType<typeof renderCompone
 }
 
 it('should show an empty state when there are no genres', () => {
-  const { emptyState } = setup({ genres: [] }, { user: undefined })
+  const { emptyState } = setup({ genres: createGenreStore([]) }, { user: undefined })
 
   expect(emptyState.get()).toBeVisible()
 })
 
 it('should not show an empty state when there is one genre', () => {
-  const { emptyState } = setup({ genres: [createExampleGenre()] }, { user: undefined })
+  const { emptyState } = setup(
+    { genres: createGenreStore([createExampleGenre()]) },
+    { user: undefined },
+  )
 
   expect(emptyState.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is not logged in', () => {
-  const { createGenreLink } = setup({ genres: [] }, { user: undefined })
+  const { createGenreLink } = setup({ genres: createGenreStore([]) }, { user: undefined })
 
   expect(createGenreLink.query()).toBeNull()
 })
 
 it('should not show a create genre CTA when the user is logged in but does not have create genre permission', () => {
   const { createGenreLink } = setup(
-    { genres: [] },
+    { genres: createGenreStore([]) },
     {
       user: {
         id: 0,
@@ -157,7 +161,7 @@ it('should not show a create genre CTA when the user is logged in but does not h
 
 it('should show a create genre CTA when the user has create genre permission', () => {
   const { createGenreLink } = setup(
-    { genres: [] },
+    { genres: createGenreStore([]) },
     {
       user: {
         id: 0,
@@ -174,7 +178,7 @@ it('should show a create genre CTA when the user has create genre permission', (
 
 it('should not be expandable when there is 1 genre', () => {
   const { genreNode } = setup(
-    { genres: [createExampleGenre()] },
+    { genres: createGenreStore([createExampleGenre()]) },
     {
       user: {
         id: 0,
@@ -192,10 +196,10 @@ it('should not be expandable when there is 1 genre', () => {
 it('should show an expand button for a parent genre but not a leaf genre', async () => {
   const { user, genreNode } = setup(
     {
-      genres: [
+      genres: createGenreStore([
         createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
         createExampleGenre({ id: 1, name: 'Child' }),
-      ],
+      ]),
     },
     {
       user: {
@@ -220,10 +224,10 @@ it('should show an expand button for a parent genre but not a leaf genre', async
 it('should expand a genre when clicking the link rather than the expand button', async () => {
   const { user, genreNode } = setup(
     {
-      genres: [
+      genres: createGenreStore([
         createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
         createExampleGenre({ id: 1, name: 'Child' }),
-      ],
+      ]),
     },
     {
       user: {
@@ -245,7 +249,12 @@ it('should expand a genre when clicking the link rather than the expand button',
 
 it('should show the collapse all button when a genre is expanded', async () => {
   const { user, collapseAllButton, genreNode } = setup(
-    { genres: [createExampleGenre({ id: 0, children: [1] }), createExampleGenre({ id: 1 })] },
+    {
+      genres: createGenreStore([
+        createExampleGenre({ id: 0, children: [1] }),
+        createExampleGenre({ id: 1 }),
+      ]),
+    },
     {
       user: {
         id: 0,
@@ -267,10 +276,10 @@ it('should show the collapse all button when a genre is expanded', async () => {
 it('should collapse all genres upon clicking the collapse all button', async () => {
   const { user, collapseAllButton, genreNode } = setup(
     {
-      genres: [
+      genres: createGenreStore([
         createExampleGenre({ id: 0, name: 'Parent', children: [1] }),
         createExampleGenre({ id: 1, name: 'Child' }),
-      ],
+      ]),
     },
     {
       user: {
@@ -293,7 +302,7 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 
 it('should open the genre page when clicking a genre link', async () => {
   const { user, genreNode } = setup(
-    { genres: [createExampleGenre({ id: 0 })] },
+    { genres: createGenreStore([createExampleGenre({ id: 0 })]) },
     {
       user: {
         id: 0,

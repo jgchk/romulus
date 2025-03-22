@@ -5,12 +5,12 @@
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import GenreSearchResult from './GenreSearchResult.svelte'
   import { searchStore } from './state'
 
-  let { genres }: { genres: TreeGenre[] } = $props()
+  let { genres }: { genres: GenreStore } = $props()
 
   let matches = $derived(createSearchGenresQuery(genres)($searchStore.debouncedFilter))
 

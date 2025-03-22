@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createExampleGenre } from '../types'
 import { createGetChildrenQuery } from './get-children'
 
@@ -10,7 +11,7 @@ it('should return the IDs of the children of a genre', () => {
     createExampleGenre({ id: 2, children: [] }),
   ]
 
-  const getChildren = createGetChildrenQuery(genres)
+  const getChildren = createGetChildrenQuery(createGenreStore(genres))
 
   expect(getChildren(0)).toEqual([1, 2])
 })

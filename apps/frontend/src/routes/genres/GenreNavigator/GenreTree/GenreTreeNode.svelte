@@ -10,7 +10,7 @@
   import { createGetChildrenQuery } from '$lib/features/genres/queries/application/get-children'
   import { createGetDerivationsQuery } from '$lib/features/genres/queries/application/get-derivations'
   import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
@@ -22,7 +22,7 @@
     id: number
     path: (number | 'derived')[]
     treeRef: HTMLElement | undefined
-    genres: TreeGenre[]
+    genres: GenreStore
     hasParent: boolean
   }
 

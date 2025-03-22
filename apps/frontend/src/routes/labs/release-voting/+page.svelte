@@ -2,6 +2,7 @@
   import Input from '$lib/atoms/Input.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import { ifDefined } from '$lib/utils/types'
 
   import type { PageData } from './$types'
@@ -152,7 +153,7 @@
         onVote={(item) => {
           category.setVotes(voteFor(item.id, category.votes))
         }}
-        genres={data.genres}
+        genres={createGenreStore(data.genres)}
       />
 
       {#each formatVotes(category.votes) as { genre, agree, disagree } (genre.id)}

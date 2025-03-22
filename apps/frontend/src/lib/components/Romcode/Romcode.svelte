@@ -1,13 +1,13 @@
 <script lang="ts">
   import LoaderLine from '$lib/atoms/LoaderLine.svelte'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import { parser } from './parser'
   import RomcodeNode from './RomcodeNode.svelte'
 
   type Props = {
     data: string
-    genres: Promise<TreeGenre[]>
+    genres: Promise<GenreStore>
   }
 
   let { data, genres }: Props = $props()

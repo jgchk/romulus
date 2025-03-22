@@ -2,13 +2,13 @@
   import { tooltip } from '$lib/actions/tooltip'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { tw } from '$lib/utils/dom'
 
   type Props = {
     id: number
     text?: string
-    genres: TreeGenre[]
+    genres: GenreStore
   }
 
   let { id, text, genres }: Props = $props()

@@ -4,13 +4,14 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { cn } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'
 
   type Props = Omit<AutocompleteProps<number>, 'value' | 'options' | 'onSelect' | 'option'> & {
     onSelect?: (genre: TreeGenre) => void
-    genres: TreeGenre[]
+    genres: GenreStore
   }
 
   let { onSelect, genres, ...rest }: Props = $props()

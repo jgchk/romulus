@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createExampleGenre } from '../types'
 import { createIsPathValidQuery } from './is-path-valid'
 
@@ -11,7 +12,7 @@ it('should return true if the path is valid', () => {
     createExampleGenre({ id: 3, children: [] }),
   ]
 
-  const isPathValid = createIsPathValidQuery(genres)
+  const isPathValid = createIsPathValidQuery(createGenreStore(genres))
 
   expect(isPathValid([0])).toBe(true)
   expect(isPathValid([0, 1])).toBe(true)
@@ -27,7 +28,7 @@ it('should return false if the path is not valid', () => {
     createExampleGenre({ id: 3, children: [] }),
   ]
 
-  const isPathValid = createIsPathValidQuery(genres)
+  const isPathValid = createIsPathValidQuery(createGenreStore(genres))
 
   expect(isPathValid([])).toBe(false)
   expect(isPathValid([1])).toBe(false)

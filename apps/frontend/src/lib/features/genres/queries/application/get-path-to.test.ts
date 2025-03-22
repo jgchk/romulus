@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 
+import { createGenreStore } from '../infrastructure'
 import { createExampleGenre } from '../types'
 import { createGetPathToQuery } from './get-path-to'
 
@@ -11,7 +12,7 @@ it('should return the shortest path to a genre', () => {
     createExampleGenre({ id: 3, children: [] }),
   ]
 
-  const getPathTo = createGetPathToQuery(genres)
+  const getPathTo = createGetPathToQuery(createGenreStore(genres))
 
   expect(getPathTo(0)).toEqual([0])
   expect(getPathTo(1)).toEqual([0, 1])
@@ -59,7 +60,7 @@ it('should return the shortest path to a genre', () => {
     },
   ]
 
-  const getPathTo = createGetPathToQuery(genres)
+  const getPathTo = createGetPathToQuery(createGenreStore(genres))
 
   expect(getPathTo(2)).toEqual([1, 2])
 })

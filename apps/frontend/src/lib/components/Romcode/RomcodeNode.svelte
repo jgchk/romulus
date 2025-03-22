@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import RomcodeGenreLink from './RomcodeGenreLink.svelte'
   import RomcodeNode from './RomcodeNode.svelte'
@@ -7,7 +7,7 @@
 
   type Props = {
     node: Node
-    genres: TreeGenre[]
+    genres: GenreStore
   }
 
   let { node, genres }: Props = $props()

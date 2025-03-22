@@ -1,5 +1,6 @@
 import { diceCoefficient, toAscii } from '$lib/utils/string'
 
+import type { GenreStore } from '../infrastructure'
 import type { TreeGenre } from '../types'
 
 export type SearchGenresQuery = (query: string) => GenreMatch[]
@@ -11,11 +12,11 @@ export type GenreMatch = {
   weight: number
 }
 
-export function createSearchGenresQuery(genres: TreeGenre[]): SearchGenresQuery {
+export function createSearchGenresQuery(genres: GenreStore): SearchGenresQuery {
   return function searchGenres(query: string) {
     const m: GenreMatch[] = []
 
-    for (const genre of genres) {
+    for (const genre of genres.values()) {
       let name = genre.name
       if (genre.subtitle) {
         name += ` [${genre.subtitle}]`

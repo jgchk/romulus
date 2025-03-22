@@ -2,6 +2,7 @@
   import Button from '$lib/atoms/Button.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
 
   import GenreAutocomplete from './GenreAutocomplete.svelte'
@@ -10,7 +11,7 @@
     id: string
     label: string
     onVote: (genre: TreeGenre) => void
-    genres: TreeGenre[]
+    genres: GenreStore
   }
 
   let { id, label, onVote, genres }: Props = $props()

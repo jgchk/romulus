@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import { pageTitle } from '$lib/utils/string'
 
   import GenreForm from '../GenreForm.svelte'
@@ -20,4 +21,4 @@
   <title>{pageTitle('New Genre', 'Genres')}</title>
 </svelte:head>
 
-<GenreForm data={data.form} showRelevance genres={data.streamed.genres} />
+<GenreForm data={data.form} showRelevance genres={data.streamed.genres.then(createGenreStore)} />

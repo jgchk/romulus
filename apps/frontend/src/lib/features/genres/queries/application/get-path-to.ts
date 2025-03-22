@@ -1,11 +1,11 @@
-import type { TreeGenre } from '../types'
+import type { GenreStore } from '../infrastructure'
 import { createGetChildrenQuery } from './get-children'
 import { createGetGenreQuery } from './get-genre'
 import { createGetRootGenresQuery } from './get-root-genres'
 
 export type GetPathToQuery = (id: number) => number[] | undefined
 
-export function createGetPathToQuery(genres: TreeGenre[]): GetPathToQuery {
+export function createGetPathToQuery(genres: GenreStore): GetPathToQuery {
   return function getPathTo(id: number) {
     const getGenre = createGetGenreQuery(genres)
     const getRootGenres = createGetRootGenresQuery(genres)

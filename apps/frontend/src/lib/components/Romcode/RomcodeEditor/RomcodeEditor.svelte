@@ -10,7 +10,7 @@
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { makeGenreTag } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
@@ -24,7 +24,7 @@
     autofocus?: boolean
     class?: string
     onChange?: (value: string) => void
-    genres: Promise<TreeGenre[]>
+    genres: Promise<GenreStore>
   }
 
   let {

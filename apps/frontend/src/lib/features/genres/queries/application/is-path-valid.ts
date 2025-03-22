@@ -1,11 +1,12 @@
-import type { TreeGenre, TreePath } from '../types'
+import type { GenreStore } from '../infrastructure'
+import type { TreePath } from '../types'
 import { createGetChildrenQuery } from './get-children'
 import { createGetDerivationsQuery } from './get-derivations'
 import { createGetRootGenresQuery } from './get-root-genres'
 
 export type IsPathValidQuery = (path: TreePath) => boolean
 
-export function createIsPathValidQuery(genres: TreeGenre[]): IsPathValidQuery {
+export function createIsPathValidQuery(genres: GenreStore): IsPathValidQuery {
   return function isPathValid(path: TreePath) {
     const getRootGenres = createGetRootGenresQuery(genres)
     const getDerivations = createGetDerivationsQuery(genres)

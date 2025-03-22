@@ -8,6 +8,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { getUserContext } from '$lib/contexts/user'
+  import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { AsyncGenresRune } from '$lib/features/genres/rune.svelte'
   import { slide } from '$lib/transitions/slide'
 
@@ -66,10 +67,11 @@
 
   <div class="flex-1 overflow-auto">
     {#if genres.data}
+      {@const genreStore = createGenreStore(genres.data)}
       {#if isSearching}
-        <GenreSearchResults genres={genres.data} />
+        <GenreSearchResults genres={genreStore} />
       {:else}
-        <GenreTree genres={genres.data} />
+        <GenreTree genres={genreStore} />
       {/if}
     {:else if genres.error}
       <div>Error fetching genres</div>

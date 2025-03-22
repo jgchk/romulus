@@ -6,6 +6,7 @@ import { expect, it, test } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 import { createExampleGenre } from '$lib/features/genres/queries/types'
 
 import RomcodeGenreLink from './RomcodeGenreLink.svelte'
@@ -36,7 +37,7 @@ const setup = (
 test('renders just the genre name for non-nsfw genres', () => {
   const { getByRole, queryByTestId } = setup({
     id: 1,
-    genres: [createExampleGenre({ id: 1, name: 'Genre Name', nsfw: false })],
+    genres: createGenreStore([createExampleGenre({ id: 1, name: 'Genre Name', nsfw: false })]),
   })
 
   expect(getByRole('link')).toHaveTextContent('Genre Name')
@@ -47,7 +48,7 @@ it('renders just the override text for non-nsfw genres', () => {
   const { getByRole, queryByTestId } = setup({
     id: 1,
     text: 'Override Text',
-    genres: [createExampleGenre({ id: 1, name: 'Genre Name', nsfw: false })],
+    genres: createGenreStore([createExampleGenre({ id: 1, name: 'Genre Name', nsfw: false })]),
   })
 
   expect(getByRole('link')).toHaveTextContent('Override Text')
@@ -57,7 +58,7 @@ it('renders just the override text for non-nsfw genres', () => {
 it('renders the genre name with an nsfw indicator for nsfw genres', () => {
   const { getByRole, getByTestId } = setup({
     id: 1,
-    genres: [createExampleGenre({ id: 1, name: 'Genre Name', nsfw: true })],
+    genres: createGenreStore([createExampleGenre({ id: 1, name: 'Genre Name', nsfw: true })]),
   })
 
   expect(getByRole('link')).toHaveTextContent('Genre Name')
@@ -68,7 +69,7 @@ it('renders the override text with an nsfw indicator for nsfw genres', () => {
   const { getByRole, getByTestId } = setup({
     id: 1,
     text: 'Override Text',
-    genres: [createExampleGenre({ id: 1, name: 'Genre Name', nsfw: true })],
+    genres: createGenreStore([createExampleGenre({ id: 1, name: 'Genre Name', nsfw: true })]),
   })
 
   expect(getByRole('link')).toHaveTextContent('Override Text')
