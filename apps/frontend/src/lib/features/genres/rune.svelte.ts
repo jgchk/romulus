@@ -1,3 +1,5 @@
+import { untrack } from 'svelte'
+
 import { useLocalStorage } from '$lib/runes/use-local-storage.svelte'
 import { usePromise } from '$lib/runes/use-promise.svelte'
 
@@ -20,7 +22,10 @@ export function useGenres(promise: Promise<GenreStore>): AsyncGenresRune {
 
   $effect(() => {
     if (p.data) {
-      ls.value = p.data.values().toArray()
+      const genres = p.data.values().toArray()
+      untrack(() => {
+        ls.value = genres
+      })
     }
   })
 
