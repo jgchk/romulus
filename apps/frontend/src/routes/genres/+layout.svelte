@@ -7,7 +7,6 @@
   import SplitPane from '$lib/atoms/SplitPane.svelte'
 
   import type { LayoutData } from './$types'
-  import { createAsyncGenreTreeStore, setGenreTreeStoreContext } from './genre-tree-store.svelte'
   import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
   import { createTreeStateStore, setTreeStateStoreContext } from './tree-state-store.svelte'
 
@@ -27,7 +26,6 @@
     }
   })
 
-  setGenreTreeStoreContext(createAsyncGenreTreeStore(data.streamed.genres))
   setTreeStateStoreContext(createTreeStateStore())
 </script>
 

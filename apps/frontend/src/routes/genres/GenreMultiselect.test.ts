@@ -5,12 +5,8 @@ import { expect, it, test, vi } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import type { TreeGenre } from '$lib/features/genres/queries/types'
 
-import {
-  createGenreTreeStore,
-  GENRE_TREE_STORE_KEY,
-  type TreeGenre,
-} from './genre-tree-store.svelte'
 import type { GenreMultiselectProps } from './GenreMultiselect'
 import GenreMultiselect from './GenreMultiselect.svelte'
 
@@ -89,7 +85,6 @@ const setup = (
         USER_SETTINGS_CONTEXT_KEY,
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
       ],
-      [GENRE_TREE_STORE_KEY, createGenreTreeStore(options?.genres ?? [])],
     ]),
   })
 

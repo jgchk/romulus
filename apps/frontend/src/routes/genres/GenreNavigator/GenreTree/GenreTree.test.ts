@@ -10,7 +10,6 @@ import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-set
 import { createExampleGenre } from '$lib/features/genres/queries/types'
 import { withProps } from '$lib/utils/object'
 
-import { createGenreTreeStore, GENRE_TREE_STORE_KEY } from '../../genre-tree-store.svelte'
 import { createTreeStateStore, TREE_STATE_STORE_KEY } from '../../tree-state-store.svelte'
 import GenreTree from './GenreTree.svelte'
 
@@ -49,8 +48,6 @@ function renderComponent(
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...context.userSettings }),
       ],
       [TREE_STATE_STORE_KEY, createTreeStateStore()],
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      [GENRE_TREE_STORE_KEY, createGenreTreeStore(props.genres)],
     ]),
   })
 }

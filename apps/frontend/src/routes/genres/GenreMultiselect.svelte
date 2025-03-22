@@ -3,11 +3,10 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createGetGenreQuery } from '$lib/features/genres/queries/get-genre'
-  import { createSearchGenresQuery } from '$lib/features/genres/queries/search'
+  import { createSearchGenresQuery, type GenreMatch } from '$lib/features/genres/queries/search'
   import { cn } from '$lib/utils/dom'
   import { isDefined, type Timeout } from '$lib/utils/types'
 
-  import { type GenreMatch } from './genre-tree-store.svelte'
   import type { GenreMultiselectProps } from './GenreMultiselect'
 
   type Props = GenreMultiselectProps
