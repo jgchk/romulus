@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createQuery } from '@tanstack/svelte-query'
   import { CaretRight } from 'phosphor-svelte'
   import { equals } from 'ramda'
 
@@ -8,8 +7,6 @@
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { GenreDatabase } from '$lib/genre-db/infrastructure/db'
-  import { createGenreDatabaseQueries } from '$lib/genre-db/tanstack-query'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
@@ -22,23 +19,21 @@
     id: number
     path: (number | 'derived')[]
     treeRef: HTMLElement | undefined
-    genreDatabase: GenreDatabase
   }
 
-  let { id, path, treeRef, genreDatabase }: Props = $props()
+  let { id, path, treeRef }: Props = $props()
 
   const tree = getGenreTreeStoreContext()
   const treeState = getTreeStateStoreContext()
 
   let genre = tree.getGenre(id)
 
-  const childrenQuery = createQuery(createGenreDatabaseQueries(genreDatabase).getChildren(id))
-
+  const children = tree.getChildren(id)
   const derivations = tree.getDerivations(id)
 
   let isSelected = $derived(equals(treeState.getSelectedPath(), path))
   let isExpanded = $derived(treeState.isExpanded(path))
-  let isExpandable = $derived(($childrenQuery.data ?? []).length > 0 || derivations.length > 0)
+  let isExpandable = children.length > 0 || derivations.length > 0
 
   let isDerivedExpandable = derivations.length > 0
   let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
@@ -134,16 +129,13 @@
 
     {#if isExpanded && isExpandable}
       <div transition:slide|local={{ axis: 'y' }}>
-        {#if $childrenQuery.data}
-          {@const children = $childrenQuery.data}
-          {#if children.length > 0}
-            <ul>
-              {#each children as child (child.id)}
-                {@const childPath = [...path, child.id]}
-                <GenreTreeNode id={child.id} path={childPath} {treeRef} {genreDatabase} />
-              {/each}
-            </ul>
-          {/if}
+        {#if children.length > 0}
+          <ul>
+            {#each children as childId (childId)}
+              {@const childPath = [...path, childId]}
+              <GenreTreeNode id={childId} path={childPath} {treeRef} />
+            {/each}
+          </ul>
         {/if}
 
         {#if isDerivedExpandable}
@@ -183,12 +175,7 @@
               <ul transition:slide|local={{ axis: 'y' }}>
                 {#each derivations as derivationId (derivationId)}
                   {@const derivationPath = [...path, 'derived' as const, derivationId]}
-                  <GenreTreeNode
-                    id={derivationId}
-                    path={derivationPath}
-                    {treeRef}
-                    {genreDatabase}
-                  />
+                  <GenreTreeNode id={derivationId} path={derivationPath} {treeRef} />
                 {/each}
               </ul>
             {/if}

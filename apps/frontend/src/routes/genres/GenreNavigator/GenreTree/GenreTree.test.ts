@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/svelte-query'
-import { findByRole, getByRole, queryByRole, render, waitFor } from '@testing-library/svelte'
+import { getByRole, queryByRole, render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { readable, writable } from 'svelte/store'
 import { expect, it } from 'vitest'
@@ -99,7 +99,6 @@ function createComponentModel(renderedComponent: Awaited<ReturnType<typeof rende
       return withProps(node, {
         expandButton: {
           get: () => getByRole(node, 'button', { name: 'Expand' }),
-          find: () => findByRole(node, 'button', { name: 'Expand' }),
           query: () => queryByRole(node, 'button', { name: 'Expand' }),
         },
         link: {
@@ -251,7 +250,7 @@ it('should show an expand button for a parent genre but not a leaf genre', async
   })
 
   const parentNode = await waitFor(() => genreNode.get(0))
-  const parentExpandButton = await parentNode.expandButton.find()
+  const parentExpandButton = parentNode.expandButton.get()
   await user.click(parentExpandButton)
 
   const childNode = genreNode.get(1)
@@ -297,7 +296,7 @@ it('should show the collapse all button when a genre is expanded', async () => {
 
   expect(collapseAllButton.query()).toBeNull()
 
-  await user.click(await genreNode.get().expandButton.find())
+  await user.click(genreNode.get().expandButton.get())
 
   expect(collapseAllButton.get()).toBeVisible()
 })
@@ -319,7 +318,7 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 
   await waitFor(() => genreNode.get(0))
 
-  await user.click(await genreNode.get(0).expandButton.find())
+  await user.click(genreNode.get(0).expandButton.get())
   expect(genreNode.get(1)).toBeVisible()
 
   await user.click(collapseAllButton.get())
