@@ -1,14 +1,12 @@
-import { QueryClient } from '@tanstack/svelte-query'
-import { getByRole, queryByRole, render, waitFor } from '@testing-library/svelte'
+import { getByRole, queryByRole, render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
+import type { ComponentProps } from 'svelte'
 import { readable, writable } from 'svelte/store'
 import { expect, it } from 'vitest'
 
 import { USER_CONTEXT_KEY } from '$lib/contexts/user'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
-import { createGenreDatabaseApplication } from '$lib/genre-db/application'
-import { createGenreDatabase } from '$lib/genre-db/infrastructure/db'
 import { withProps } from '$lib/utils/object'
 
 import {
@@ -19,13 +17,16 @@ import {
 import { createTreeStateStore, TREE_STATE_STORE_KEY } from '../../tree-state-store.svelte'
 import GenreTree from './GenreTree.svelte'
 
-async function setup(context: {
-  user: App.Locals['user'] | undefined
-  userSettings?: Partial<UserSettings>
-  genres?: TreeGenre[]
-}) {
+function setup(
+  props: ComponentProps<typeof GenreTree>,
+  context: {
+    user: App.Locals['user'] | undefined
+    userSettings?: Partial<UserSettings>
+    genres?: TreeGenre[]
+  },
+) {
   const user = userEvent.setup()
-  const renderedComponent = await renderComponent(context)
+  const renderedComponent = renderComponent(props, context)
   const componentModel = createComponentModel(renderedComponent)
 
   return {
@@ -35,19 +36,16 @@ async function setup(context: {
   }
 }
 
-async function renderComponent(context: {
-  user: App.Locals['user'] | undefined
-  userSettings?: Partial<UserSettings>
-  genres?: TreeGenre[]
-}) {
-  const genres = context.genres ?? []
-
-  const genreDatabase = await createGenreDatabase(new IDBFactory())
-  const app = createGenreDatabaseApplication(genreDatabase)
-  await app.seedGenres(genres)
-
+function renderComponent(
+  props: ComponentProps<typeof GenreTree>,
+  context: {
+    user: App.Locals['user'] | undefined
+    userSettings?: Partial<UserSettings>
+    genres?: TreeGenre[]
+  },
+) {
   return render(GenreTree, {
-    props: { genreDatabase },
+    props,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     context: new Map<any, any>([
       [USER_CONTEXT_KEY, readable(context.user)],
@@ -56,22 +54,12 @@ async function renderComponent(context: {
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...context.userSettings }),
       ],
       [TREE_STATE_STORE_KEY, createTreeStateStore()],
-      [GENRE_TREE_STORE_KEY, createGenreTreeStore(genres)],
-      [
-        '$$_queryClient',
-        new QueryClient({
-          defaultOptions: {
-            queries: {
-              retry: false,
-            },
-          },
-        }),
-      ],
+      [GENRE_TREE_STORE_KEY, createGenreTreeStore(context?.genres ?? [])],
     ]),
   })
 }
 
-function createComponentModel(renderedComponent: Awaited<ReturnType<typeof renderComponent>>) {
+function createComponentModel(renderedComponent: ReturnType<typeof renderComponent>) {
   const emptyState = {
     get: () => renderedComponent.getByText('No genres found.'),
     query: () => renderedComponent.queryByText('No genres found.'),
@@ -156,100 +144,97 @@ function createExampleGenre(data?: Partial<TreeGenre>): TreeGenre {
   }
 }
 
-it('should show an empty state when there are no genres', async () => {
-  const { emptyState } = await setup({ user: undefined, genres: [] })
+it('should show an empty state when there are no genres', () => {
+  const { emptyState } = setup({}, { user: undefined, genres: [] })
 
-  await waitFor(() => {
-    expect(emptyState.get()).toBeVisible()
-  })
+  expect(emptyState.get()).toBeVisible()
 })
 
-it('should not show an empty state when there is one genre', async () => {
-  const { emptyState } = await setup({ user: undefined, genres: [createExampleGenre()] })
+it('should not show an empty state when there is one genre', () => {
+  const { emptyState } = setup({}, { user: undefined, genres: [createExampleGenre()] })
 
-  await waitFor(() => {
-    expect(emptyState.query()).toBeNull()
-  })
+  expect(emptyState.query()).toBeNull()
 })
 
-it('should not show a create genre CTA when the user is not logged in', async () => {
-  const { emptyState, createGenreLink } = await setup({ user: undefined, genres: [] })
+it('should not show a create genre CTA when the user is not logged in', () => {
+  const { createGenreLink } = setup({}, { user: undefined, genres: [] })
 
-  await waitFor(() => {
-    expect(emptyState.get()).toBeVisible()
-    expect(createGenreLink.query()).toBeNull()
-  })
+  expect(createGenreLink.query()).toBeNull()
 })
 
-it('should not show a create genre CTA when the user is logged in but does not have create genre permission', async () => {
-  const { emptyState, createGenreLink } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+it('should not show a create genre CTA when the user is logged in but does not have create genre permission', () => {
+  const { createGenreLink } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [],
     },
-    genres: [],
-  })
+  )
 
-  await waitFor(() => {
-    expect(emptyState.get()).toBeVisible()
-    expect(createGenreLink.query()).toBeNull()
-  })
+  expect(createGenreLink.query()).toBeNull()
 })
 
-it('should show a create genre CTA when the user has create genre permission', async () => {
-  const { emptyState, createGenreLink } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: true, canEdit: false, canDelete: false, canVoteRelevance: false },
+it('should show a create genre CTA when the user has create genre permission', () => {
+  const { createGenreLink } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: true, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [],
     },
-    genres: [],
-  })
+  )
 
-  await waitFor(() => {
-    expect(emptyState.get()).toBeVisible()
-    expect(createGenreLink.get()).toBeVisible()
-  })
+  expect(createGenreLink.get()).toBeVisible()
 })
 
-it('should not be expandable when there is 1 genre', async () => {
-  const { genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+it('should not be expandable when there is 1 genre', () => {
+  const { genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [createExampleGenre()],
     },
-    genres: [createExampleGenre()],
-  })
+  )
 
-  await waitFor(() => {
-    expect(genreNode.get().expandButton.query()).toBeNull()
-  })
+  expect(genreNode.get().expandButton.query()).toBeNull()
 })
 
 it('should show an expand button for a parent genre but not a leaf genre', async () => {
-  const { user, genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+  const { user, genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
     },
-    genres: [
-      createExampleGenre({ id: 0, name: 'Parent' }),
-      createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-    ],
-  })
+  )
 
-  const parentNode = await waitFor(() => genreNode.get(0))
+  const parentNode = genreNode.get(0)
   const parentExpandButton = parentNode.expandButton.get()
   await user.click(parentExpandButton)
 
@@ -259,21 +244,24 @@ it('should show an expand button for a parent genre but not a leaf genre', async
 })
 
 it('should expand a genre when clicking the link rather than the expand button', async () => {
-  const { user, genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+  const { user, genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
     },
-    genres: [
-      createExampleGenre({ id: 0, name: 'Parent' }),
-      createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-    ],
-  })
+  )
 
-  const parentNode = await waitFor(() => genreNode.get(0))
+  const parentNode = genreNode.get(0)
   await user.click(parentNode.link.get())
 
   const childNode = genreNode.get(1)
@@ -281,18 +269,19 @@ it('should expand a genre when clicking the link rather than the expand button',
 })
 
 it('should show the collapse all button when a genre is expanded', async () => {
-  const { user, collapseAllButton, genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+  const { user, collapseAllButton, genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, parents: [0] })],
     },
-    genres: [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, parents: [0] })],
-  })
-
-  await waitFor(() => genreNode.get(0))
+  )
 
   expect(collapseAllButton.query()).toBeNull()
 
@@ -302,21 +291,22 @@ it('should show the collapse all button when a genre is expanded', async () => {
 })
 
 it('should collapse all genres upon clicking the collapse all button', async () => {
-  const { user, collapseAllButton, genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+  const { user, collapseAllButton, genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [
+        createExampleGenre({ id: 0, name: 'Parent' }),
+        createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
+      ],
     },
-    genres: [
-      createExampleGenre({ id: 0, name: 'Parent' }),
-      createExampleGenre({ id: 1, parents: [0], name: 'Child' }),
-    ],
-  })
-
-  await waitFor(() => genreNode.get(0))
+  )
 
   await user.click(genreNode.get(0).expandButton.get())
   expect(genreNode.get(1)).toBeVisible()
@@ -327,18 +317,19 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 })
 
 it('should open the genre page when clicking a genre link', async () => {
-  const { user, genreNode } = await setup({
-    user: {
-      id: 0,
-      username: 'test-user',
-      permissions: {
-        genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+  const { user, genreNode } = setup(
+    {},
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
       },
+      genres: [createExampleGenre({ id: 0 })],
     },
-    genres: [createExampleGenre({ id: 0 })],
-  })
-
-  await waitFor(() => genreNode.get(0))
+  )
 
   window.location.href = '/genres'
 
