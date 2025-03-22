@@ -5,6 +5,7 @@
   import { page } from '$app/stores'
   import Card from '$lib/atoms/Card.svelte'
   import SplitPane from '$lib/atoms/SplitPane.svelte'
+  import { useGenres } from '$lib/features/genres/rune.svelte'
 
   import type { LayoutData } from './$types'
   import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
@@ -27,6 +28,8 @@
   })
 
   setTreeStateStoreContext(createTreeStateStore())
+
+  const asyncGenresRune = useGenres(data.streamed.genres)
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
@@ -40,7 +43,7 @@
   onSmallScreenCollapseto={$page.url.pathname === '/genres' ? 'left' : 'right'}
 >
   {#snippet left()}
-    <GenreNavigator genres={data.streamed.genres} />
+    <GenreNavigator genres={asyncGenresRune} />
   {/snippet}
   {#snippet right()}
     <Card class="h-full overflow-auto">

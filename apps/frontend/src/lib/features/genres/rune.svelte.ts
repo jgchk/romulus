@@ -3,9 +3,17 @@ import { usePromise } from '$lib/runes/use-promise.svelte'
 
 import type { TreeGenre } from './queries/types'
 
-export function useGenres(promise: Promise<TreeGenre[]>, initialValue: TreeGenre[]) {
+export type AsyncGenresRune = {
+  readonly data: TreeGenre[] | undefined
+  readonly loading: boolean
+  readonly error: Error | undefined
+}
+
+export function useGenres(promise: Promise<TreeGenre[]>): AsyncGenresRune {
   const ls = useLocalStorage<TreeGenre[] | undefined>('genre-tree', undefined)
   const p = usePromise<TreeGenre[] | undefined>(promise, undefined)
+
+  const data = $derived(p.data ?? ls.value ?? undefined)
 
   $effect(() => {
     if (p.data) {
@@ -15,7 +23,7 @@ export function useGenres(promise: Promise<TreeGenre[]>, initialValue: TreeGenre
 
   return {
     get data() {
-      return p.data ?? ls.value ?? initialValue
+      return data
     },
     get loading() {
       return p.loading

@@ -8,7 +8,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { getUserContext } from '$lib/contexts/user'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import type { AsyncGenresRune } from '$lib/features/genres/rune.svelte'
   import { slide } from '$lib/transitions/slide'
 
   import GenreSearchResults from './GenreSearchResults.svelte'
@@ -16,7 +16,7 @@
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
 
-  let { genres }: { genres: Promise<TreeGenre[]> } = $props()
+  let { genres }: { genres: AsyncGenresRune } = $props()
 
   let showSettings = $state(false)
   let isSearching = $derived($searchStore.debouncedFilter)
@@ -65,15 +65,17 @@
   {/if}
 
   <div class="flex-1 overflow-auto">
-    {#await genres}
-      <Loader />
-    {:then genres}
+    {#if genres.data}
       {#if isSearching}
-        <GenreSearchResults {genres} />
+        <GenreSearchResults genres={genres.data} />
       {:else}
-        <GenreTree {genres} />
+        <GenreTree genres={genres.data} />
       {/if}
-    {/await}
+    {:else if genres.error}
+      <div>Error fetching genres</div>
+    {:else}
+      <Loader />
+    {/if}
   </div>
 
   {#if $user?.permissions.genres.canCreate}
