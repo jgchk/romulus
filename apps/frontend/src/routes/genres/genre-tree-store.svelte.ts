@@ -207,6 +207,7 @@ export function createAsyncGenreTreeStore(genresPromise: Promise<TreeGenre[]>) {
     store.getGenre = newStore.getGenre
     store.isPathValid = newStore.isPathValid
     store.getPathTo = newStore.getPathTo
+    store.search = newStore.search
   })
 
   return store
