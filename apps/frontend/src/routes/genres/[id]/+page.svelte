@@ -217,7 +217,7 @@
         <Label>Short Description</Label>
         <div class="genre-short-description">
           {#if data.genre.shortDescription}
-            <Romcode data={data.genre.shortDescription} />
+            <Romcode data={data.genre.shortDescription} genreDatabase={data.genreDatabase} />
           {:else}
             <span>
               Missing a short description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -237,7 +237,7 @@
         <Label>Long Description</Label>
         <div class="genre-long-description">
           {#if data.genre.longDescription}
-            <Romcode data={data.genre.longDescription} />
+            <Romcode data={data.genre.longDescription} genreDatabase={data.genreDatabase} />
           {:else}
             <span>
               Missing a long description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -259,7 +259,7 @@
           <div>
             {#if showNotes}
               <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
-                <Romcode data={data.genre.notes} />
+                <Romcode data={data.genre.notes} genreDatabase={data.genreDatabase} />
               </div>
             {/if}
             <button

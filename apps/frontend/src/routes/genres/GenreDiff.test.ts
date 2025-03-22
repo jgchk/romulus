@@ -6,6 +6,8 @@ import { expect, it } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { createGenreDatabaseApplication } from '$lib/genre-db/application'
+import { createGenreDatabase } from '$lib/genre-db/infrastructure/db'
 
 import { test } from '../../vitest-setup'
 import GenreDiff from './GenreDiff.svelte'
@@ -31,13 +33,19 @@ const mockHistory = {
   },
 }
 
-function setup(
-  props: ComponentProps<typeof GenreDiff>,
+async function setup(
+  props: Omit<ComponentProps<typeof GenreDiff>, 'genreDatabase'>,
   options: { userSettings?: Partial<UserSettings> } = {},
 ) {
   const user = userEvent.setup()
+
+  const genreDatabase = await createGenreDatabase(new IDBFactory())
+  const app = createGenreDatabaseApplication(genreDatabase)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  await app.seedGenres(await props.genres)
+
   const rendered = render(GenreDiff, {
-    props,
+    props: { ...props, genreDatabase },
     context: new Map([
       [
         USER_SETTINGS_CONTEXT_KEY,
@@ -48,8 +56,8 @@ function setup(
   return { ...rendered, user }
 }
 
-it('should show the genre operation', () => {
-  const { getByTestId } = setup({
+it('should show the genre operation', async () => {
+  const { getByTestId } = await setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
     genres: Promise.resolve([]),
@@ -57,8 +65,8 @@ it('should show the genre operation', () => {
   expect(getByTestId('genre-diff-operation')).toHaveTextContent('Delete')
 })
 
-it('should show the account who made the operation', () => {
-  const { getByTestId } = setup({
+it('should show the account who made the operation', async () => {
+  const { getByTestId } = await setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
     genres: Promise.resolve([]),
@@ -68,20 +76,20 @@ it('should show the account who made the operation', () => {
   expect(usernameLink).toHaveAttribute('href', '/accounts/0')
 })
 
-test('should show the time since the operation', ({ withSystemTime }) => {
-  withSystemTime(mockHistory.createdAt)
-
-  const { getByTestId } = setup({
+test('should show the time since the operation', async ({ withSystemTime }) => {
+  const { getByTestId } = await setup({
     previousHistory: undefined,
     currentHistory: mockHistory,
     genres: Promise.resolve([]),
   })
 
+  withSystemTime(mockHistory.createdAt)
+
   expect(getByTestId('genre-diff-time')).toHaveTextContent('0s')
 })
 
-it('should include NSFW status when it is changed to true', () => {
-  const { getByTestId } = setup({
+it('should include NSFW status when it is changed to true', async () => {
+  const { getByTestId } = await setup({
     previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
     currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
     genres: Promise.resolve([]),
@@ -89,8 +97,8 @@ it('should include NSFW status when it is changed to true', () => {
   expect(getByTestId('genre-diff-nsfw')).toHaveTextContent('True')
 })
 
-it('should include NSFW status when it is changed to false', () => {
-  const { getByTestId } = setup({
+it('should include NSFW status when it is changed to false', async () => {
+  const { getByTestId } = await setup({
     previousHistory: { ...mockHistory, nsfw: true, operation: 'CREATE' },
     currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },
     genres: Promise.resolve([]),
@@ -99,7 +107,7 @@ it('should include NSFW status when it is changed to false', () => {
 })
 
 it('should blur the diff when the genre is NSFW and showNsfw is false', async () => {
-  const { user, getByTestId, getByRole } = setup(
+  const { user, getByTestId, getByRole } = await setup(
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
@@ -120,7 +128,7 @@ it('should blur the diff when the genre is NSFW and showNsfw is false', async ()
 })
 
 it('should not blur the diff when the genre is NSFW and showNsfw is true', async () => {
-  const { user, getByTestId, queryByRole } = setup(
+  const { user, getByTestId, queryByRole } = await setup(
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: true, operation: 'UPDATE' },
@@ -139,7 +147,7 @@ it('should not blur the diff when the genre is NSFW and showNsfw is true', async
 })
 
 it('should not blur the diff when the genre is not NSFW', async () => {
-  const { user, getByTestId, queryByRole } = setup(
+  const { user, getByTestId, queryByRole } = await setup(
     {
       previousHistory: { ...mockHistory, nsfw: false, operation: 'CREATE' },
       currentHistory: { ...mockHistory, nsfw: false, operation: 'UPDATE' },

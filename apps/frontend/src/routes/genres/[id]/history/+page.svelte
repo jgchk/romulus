@@ -45,6 +45,7 @@
               previousHistory={data.genreHistory[i - 1]}
               currentHistory={entry}
               genres={data.streamed.genres}
+              genreDatabase={data.genreDatabase}
             />
           {/each}
         </div>

@@ -20,4 +20,4 @@
   <title>{pageTitle('New Genre', 'Genres')}</title>
 </svelte:head>
 
-<GenreForm data={data.form} showRelevance />
+<GenreForm data={data.form} showRelevance genreDatabase={data.genreDatabase} />
