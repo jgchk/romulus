@@ -1,20 +1,19 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import { createGetGenreQuery } from '$lib/features/genres/queries/get-genre'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { tw } from '$lib/utils/dom'
-
-  import { getGenreTreeStoreContext } from '../../../routes/genres/genre-tree-store.svelte'
 
   type Props = {
     id: number
     text?: string
+    genres: TreeGenre[]
   }
 
-  let { id, text }: Props = $props()
+  let { id, text, genres }: Props = $props()
 
-  const tree = getGenreTreeStoreContext()
-
-  let genre = $derived(tree.getGenre(id))
+  let genre = $derived(createGetGenreQuery(genres)(id))
 
   const userSettings = getUserSettingsContext()
 </script>

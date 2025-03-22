@@ -17,4 +17,4 @@
   >
 </svelte:head>
 
-<GenreForm data={data.form} autoFocus={data.autoFocus} id={data.id} />
+<GenreForm data={data.form} autoFocus={data.autoFocus} id={data.id} genres={data.streamed.genres} />

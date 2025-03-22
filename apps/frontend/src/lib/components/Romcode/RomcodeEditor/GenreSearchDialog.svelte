@@ -9,19 +9,17 @@
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import { createSearchGenresQuery } from '$lib/features/genres/queries/search'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { tw } from '$lib/utils/dom'
   import type { Timeout } from '$lib/utils/types'
 
-  import {
-    getGenreTreeStoreContext,
-    type TreeGenre,
-  } from '../../../../routes/genres/genre-tree-store.svelte'
-
   type Props = {
     filter?: string
+    genres: TreeGenre[]
   }
 
-  let { filter = $bindable('') }: Props = $props()
+  let { filter = $bindable(''), genres }: Props = $props()
 
   let debouncedFilter = $state(filter)
 
@@ -33,8 +31,7 @@
     return () => clearTimeout(timeout)
   })
 
-  const tree = getGenreTreeStoreContext()
-  let results = $derived(tree.search(debouncedFilter))
+  let results = $derived(createSearchGenresQuery(genres)(debouncedFilter))
 
   const dispatch = createEventDispatcher<{ close: undefined; select: TreeGenre }>()
 

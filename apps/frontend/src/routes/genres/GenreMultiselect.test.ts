@@ -105,7 +105,7 @@ const setup = (
 }
 
 test('renders selected genres', () => {
-  const { queryAllByTestId } = setup({ value: data.map((g) => g.id) }, { genres: data })
+  const { queryAllByTestId } = setup({ value: data.map((g) => g.id), genres: data })
 
   const selected = queryAllByTestId('multiselect__selected')
 
@@ -119,8 +119,8 @@ test('renders selected genres', () => {
 
 test('renders selected genres with no type chips when showTypeTags is disabled', () => {
   const { queryAllByTestId } = setup(
-    { value: data.map((g) => g.id) },
-    { genres: data, userSettings: { showTypeTags: false } },
+    { value: data.map((g) => g.id), genres: data },
+    { userSettings: { showTypeTags: false } },
   )
 
   const selected = queryAllByTestId('multiselect__selected')
@@ -134,19 +134,15 @@ test('renders selected genres with no type chips when showTypeTags is disabled',
 })
 
 test('renders no selected genres when value is empty', () => {
-  const { queryAllByTestId } = setup({ value: [] }, { genres: data })
+  const { queryAllByTestId } = setup({ value: [], genres: data })
   expect(queryAllByTestId('multiselect__selected')).toHaveLength(0)
 })
 
 test('renders all options when input is focused', async () => {
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-    },
-    {
-      genres: data,
-    },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    genres: data,
+  })
 
   await user.click(input)
 
@@ -160,14 +156,10 @@ test('renders all options when input is focused', async () => {
 })
 
 test('closes the options when clicking outside', async () => {
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-    },
-    {
-      genres: data,
-    },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    genres: data,
+  })
 
   await user.click(input)
   expect(queryAllByTestId('multiselect__option')).toHaveLength(data.length)
@@ -180,13 +172,11 @@ test('closes the options when clicking outside', async () => {
 
 test('selects the top search result when hitting enter', async () => {
   const onChange = vi.fn()
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-      onChange,
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    onChange,
+    genres: data,
+  })
 
   await user.click(input)
   await user.keyboard('{enter}')
@@ -201,13 +191,11 @@ test('selects the top search result when hitting enter', async () => {
 
 test('selects the next search result when pressing down arrow', async () => {
   const onChange = vi.fn()
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-      onChange,
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    onChange,
+    genres: data,
+  })
 
   await user.click(input)
   await user.keyboard('{arrowdown}')
@@ -223,13 +211,11 @@ test('selects the next search result when pressing down arrow', async () => {
 
 test('wraps around when navigating the search results with arrow keys', async () => {
   const onChange = vi.fn()
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-      onChange,
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    onChange,
+    genres: data,
+  })
 
   await user.click(input)
   await user.keyboard('{arrowdown}'.repeat(data.length))
@@ -245,13 +231,11 @@ test('wraps around when navigating the search results with arrow keys', async ()
 
 test('selects an option when clicked', async () => {
   const onChange = vi.fn()
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-      onChange,
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    onChange,
+    genres: data,
+  })
 
   await user.click(input)
 
@@ -266,23 +250,19 @@ test('selects an option when clicked', async () => {
 })
 
 test('does not display nonexistent genres', () => {
-  const { queryAllByTestId } = setup(
-    {
-      value: [5],
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId } = setup({
+    value: [5],
+    genres: data,
+  })
 
   expect(queryAllByTestId('multiselect__selected')).toHaveLength(0)
 })
 
 test('should match on names', async () => {
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    genres: data,
+  })
 
   await user.click(input)
   await user.type(input, 'Three')
@@ -295,12 +275,10 @@ test('should match on names', async () => {
 })
 
 test('should match on AKAs', async () => {
-  const { queryAllByTestId, user, input } = setup(
-    {
-      value: [],
-    },
-    { genres: data },
-  )
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    genres: data,
+  })
 
   await user.click(input)
   await user.type(input, 'Five')
@@ -316,9 +294,6 @@ it('blurs NSFW options when showNsfw is disabled', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [],
-    },
-    {
-      userSettings: { showNsfw: false },
       genres: [
         {
           id: 5,
@@ -333,6 +308,9 @@ it('blurs NSFW options when showNsfw is disabled', async () => {
           updatedAt: new Date(),
         },
       ],
+    },
+    {
+      userSettings: { showNsfw: false },
     },
   )
 
@@ -347,9 +325,6 @@ it('does not blur NSFW options when showNsfw is enabled', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [],
-    },
-    {
-      userSettings: { showNsfw: true },
       genres: [
         {
           id: 5,
@@ -364,6 +339,9 @@ it('does not blur NSFW options when showNsfw is enabled', async () => {
           updatedAt: new Date(),
         },
       ],
+    },
+    {
+      userSettings: { showNsfw: true },
     },
   )
 
@@ -378,9 +356,6 @@ it('does not blur non-NSFW options', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [],
-    },
-    {
-      userSettings: { showNsfw: false },
       genres: [
         {
           id: 5,
@@ -395,6 +370,9 @@ it('does not blur non-NSFW options', async () => {
           updatedAt: new Date(),
         },
       ],
+    },
+    {
+      userSettings: { showNsfw: false },
     },
   )
 
@@ -409,9 +387,6 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [5],
-    },
-    {
-      userSettings: { showNsfw: false },
       genres: [
         {
           id: 5,
@@ -426,6 +401,9 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
           updatedAt: new Date(),
         },
       ],
+    },
+    {
+      userSettings: { showNsfw: false },
     },
   )
 
@@ -440,9 +418,6 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [5],
-    },
-    {
-      userSettings: { showNsfw: true },
       genres: [
         {
           id: 5,
@@ -458,6 +433,9 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
         },
       ],
     },
+    {
+      userSettings: { showNsfw: true },
+    },
   )
 
   await user.click(input)
@@ -471,9 +449,6 @@ it('does not blur selected non-NSFW options', async () => {
   const { queryAllByTestId, user, input } = setup(
     {
       value: [5],
-    },
-    {
-      userSettings: { showNsfw: false },
       genres: [
         {
           id: 5,
@@ -488,6 +463,9 @@ it('does not blur selected non-NSFW options', async () => {
           updatedAt: new Date(),
         },
       ],
+    },
+    {
+      userSettings: { showNsfw: false },
     },
   )
 

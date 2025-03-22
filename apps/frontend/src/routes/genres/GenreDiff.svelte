@@ -11,12 +11,11 @@
   import AccountLink from '$lib/components/AccountLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import type { GenreOperation } from '$lib/types/genres'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
   import { cn } from '$lib/utils/dom'
   import { capitalize } from '$lib/utils/string'
-
-  import type { LayoutData } from './$types'
 
   type GenreHistoryData = {
     name: string
@@ -39,7 +38,7 @@
   type Props = {
     previousHistory: Omit<GenreHistoryData, 'account'> | undefined
     currentHistory: GenreHistoryData
-    genres: LayoutData['streamed']['genres']
+    genres: Promise<TreeGenre[]>
   }
 
   let { previousHistory, currentHistory, genres }: Props = $props()
@@ -469,11 +468,11 @@
           <div class="text-sm" data-testid="genre-diff-short-description">
             {#if changed.shortDescription === 'delete'}
               <span class="line-through opacity-50">
-                <Romcode data={previousHistory?.shortDescription ?? ''} />
+                <Romcode data={previousHistory?.shortDescription ?? ''} {genres} />
               </span>
             {:else}
               <span>
-                <Romcode data={currentHistory.shortDescription ?? ''} />
+                <Romcode data={currentHistory.shortDescription ?? ''} {genres} />
               </span>
             {/if}
           </div>
@@ -488,11 +487,11 @@
           <div class="text-sm" data-testid="genre-diff-long-description">
             {#if changed.longDescription === 'delete'}
               <span class="line-through opacity-50">
-                <Romcode data={previousHistory?.longDescription ?? ''} />
+                <Romcode data={previousHistory?.longDescription ?? ''} {genres} />
               </span>
             {:else}
               <span>
-                <Romcode data={currentHistory.longDescription ?? ''} />
+                <Romcode data={currentHistory.longDescription ?? ''} {genres} />
               </span>
             {/if}
           </div>
@@ -505,11 +504,11 @@
           <div class="text-sm" data-testid="genre-diff-notes">
             {#if changed.notes === 'delete'}
               <span class="line-through opacity-50">
-                <Romcode data={previousHistory?.notes ?? ''} />
+                <Romcode data={previousHistory?.notes ?? ''} {genres} />
               </span>
             {:else}
               <span>
-                <Romcode data={currentHistory.notes ?? ''} />
+                <Romcode data={currentHistory.notes ?? ''} {genres} />
               </span>
             {/if}
           </div>

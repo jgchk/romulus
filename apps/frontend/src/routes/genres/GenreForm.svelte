@@ -11,6 +11,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
   import Footer from './Footer.svelte'
@@ -25,9 +26,10 @@
     autoFocus?: GenreFormField
     showRelevance?: boolean
     onSubmit?: () => void
+    genres: Promise<TreeGenre[]>
   }
 
-  let { id, data, autoFocus = 'name', showRelevance = false, onSubmit }: Props = $props()
+  let { id, data, autoFocus = 'name', showRelevance = false, onSubmit, genres }: Props = $props()
 
   let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = $state(undefined)
 
@@ -179,35 +181,44 @@
 
     <InputGroup errors={$errors.parents?._errors}>
       <Label for="parents">Parents</Label>
-      <GenreMultiselect
-        id="parents"
-        class="genre-parents w-full"
-        bind:value={$form.parents}
-        exclude={id !== undefined ? [id] : []}
-        {...$constraints.parents}
-      />
+      {#await genres then genres}
+        <GenreMultiselect
+          id="parents"
+          class="genre-parents w-full"
+          bind:value={$form.parents}
+          exclude={id !== undefined ? [id] : []}
+          {...$constraints.parents}
+          {genres}
+        />
+      {/await}
     </InputGroup>
 
     <InputGroup errors={$errors.derivedFrom?._errors}>
       <Label for="derives">Derived From</Label>
-      <GenreMultiselect
-        id="derives"
-        class="genre-derives w-full"
-        bind:value={$form.derivedFrom}
-        exclude={id !== undefined ? [id] : []}
-        {...$constraints.derivedFrom}
-      />
+      {#await genres then genres}
+        <GenreMultiselect
+          id="derives"
+          class="genre-derives w-full"
+          bind:value={$form.derivedFrom}
+          exclude={id !== undefined ? [id] : []}
+          {...$constraints.derivedFrom}
+          {genres}
+        />
+      {/await}
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
       <Label for="influences">Influences</Label>
-      <GenreMultiselect
-        id="influences"
-        class="genre-influences w-full"
-        bind:value={$form.influencedBy}
-        exclude={id !== undefined ? [id] : []}
-        {...$constraints.influencedBy}
-      />
+      {#await genres then genres}
+        <GenreMultiselect
+          id="influences"
+          class="genre-influences w-full"
+          bind:value={$form.influencedBy}
+          exclude={id !== undefined ? [id] : []}
+          {...$constraints.influencedBy}
+          {genres}
+        />
+      {/await}
     </InputGroup>
 
     {#if showRelevance}
@@ -234,6 +245,7 @@
         value={$form.shortDescription ?? ''}
         onChange={(value) => ($form.shortDescription = value)}
         autofocus={autoFocus === 'shortDescription'}
+        {genres}
       />
     </InputGroup>
 
@@ -245,6 +257,7 @@
         value={$form.longDescription ?? ''}
         onChange={(value) => ($form.longDescription = value)}
         autofocus={autoFocus === 'longDescription'}
+        {genres}
       />
     </InputGroup>
 
@@ -256,6 +269,7 @@
         value={$form.notes ?? ''}
         onChange={(value) => ($form.notes = value)}
         autofocus={autoFocus === 'notes'}
+        {genres}
       />
     </InputGroup>
   </div>

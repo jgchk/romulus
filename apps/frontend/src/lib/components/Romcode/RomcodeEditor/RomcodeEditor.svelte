@@ -10,6 +10,7 @@
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { makeGenreTag } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 
@@ -23,6 +24,7 @@
     autofocus?: boolean
     class?: string
     onChange?: (value: string) => void
+    genres: Promise<TreeGenre[]>
   }
 
   let {
@@ -32,6 +34,7 @@
     autofocus = false,
     class: class_,
     onChange,
+    genres,
   }: Props = $props()
 
   let tab: Tab = $state(Tabs.EDIT)
@@ -146,7 +149,7 @@
     </div>
   {:else if tab === Tabs.VIEW}
     <div class="flex-1 overflow-auto px-2 py-1">
-      <Romcode data={value} />
+      <Romcode data={value} {genres} />
     </div>
   {/if}
 
@@ -177,12 +180,15 @@
 </div>
 
 {#if showGenreDialog}
-  <GenreSearchDialog
-    filter={typeof showGenreDialog === 'string' ? showGenreDialog : undefined}
-    on:close={() => (showGenreDialog = false)}
-    on:select={(e) => {
-      handleInsertGenreTag(e.detail.id)
-      showGenreDialog = false
-    }}
-  />
+  {#await genres then genres}
+    <GenreSearchDialog
+      filter={typeof showGenreDialog === 'string' ? showGenreDialog : undefined}
+      on:close={() => (showGenreDialog = false)}
+      on:select={(e) => {
+        handleInsertGenreTag(e.detail.id)
+        showGenreDialog = false
+      }}
+      {genres}
+    />
+  {/await}
 {/if}

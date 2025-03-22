@@ -2,24 +2,24 @@
   import Multiselect from '$lib/atoms/Multiselect.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import { createGetGenreQuery } from '$lib/features/genres/queries/get-genre'
+  import { createSearchGenresQuery } from '$lib/features/genres/queries/search'
   import { cn } from '$lib/utils/dom'
   import { isDefined, type Timeout } from '$lib/utils/types'
 
-  import { type GenreMatch, getGenreTreeStoreContext } from './genre-tree-store.svelte'
+  import { type GenreMatch } from './genre-tree-store.svelte'
   import type { GenreMultiselectProps } from './GenreMultiselect'
 
   type Props = GenreMultiselectProps
 
-  let { value = $bindable(), exclude = [], onChange = undefined, ...rest }: Props = $props()
+  let { value = $bindable(), exclude = [], onChange = undefined, genres, ...rest }: Props = $props()
 
   let excludeSet = $derived(new Set(exclude))
-
-  const tree = getGenreTreeStoreContext()
 
   let values = $derived(
     value
       .map((id) => {
-        const genre = tree.getGenre(id)
+        const genre = createGetGenreQuery(genres)(id)
         if (!genre) return
 
         const data: GenreMatch = {
@@ -50,8 +50,7 @@
   })
 
   let options = $derived(
-    tree
-      .search(debouncedFilter)
+    createSearchGenresQuery(genres)(debouncedFilter)
       .filter((match) => !excludeSet.has(match.genre.id))
       .slice(0, 100)
       .map((match) => ({
