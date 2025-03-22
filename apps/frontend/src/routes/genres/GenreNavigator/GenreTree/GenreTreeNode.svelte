@@ -8,6 +8,7 @@
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createGetChildrenQuery } from '$lib/features/genres/queries/get-children'
+  import { createGetDerivationsQuery } from '$lib/features/genres/queries/get-derivations'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
@@ -32,13 +33,13 @@
   let genre = tree.getGenre(id)
 
   const children = $derived(createGetChildrenQuery(genres)(id))
-  const derivations = tree.getDerivations(id)
+  const derivations = $derived(createGetDerivationsQuery(genres)(id))
 
   let isSelected = $derived(equals(treeState.getSelectedPath(), path))
   let isExpanded = $derived(treeState.isExpanded(path))
   let isExpandable = $derived(children.length > 0 || derivations.length > 0)
 
-  let isDerivedExpandable = derivations.length > 0
+  let isDerivedExpandable = $derived(derivations.length > 0)
   let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
 
   let ref: HTMLElement | undefined = $state()
