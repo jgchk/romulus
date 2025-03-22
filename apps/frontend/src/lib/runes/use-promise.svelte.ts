@@ -13,7 +13,7 @@ export function usePromise<T>(promise: Promise<T>, initialValue: T) {
     }
   }
 
-  const fetchData = async (): Promise<[Error, null] | [null, T]> => {
+  const waitForPromise = async (): Promise<[Error, null] | [null, T]> => {
     try {
       const res = await promise
       return [null, res]
@@ -23,10 +23,10 @@ export function usePromise<T>(promise: Promise<T>, initialValue: T) {
     }
   }
 
-  const handleUrlChange = async () => {
+  const handleWaitForPromise = async () => {
     setLoading(true)
 
-    const [err, response] = await fetchData()
+    const [err, response] = await waitForPromise()
 
     if (err) {
       setLoading(false)
@@ -39,7 +39,7 @@ export function usePromise<T>(promise: Promise<T>, initialValue: T) {
   }
 
   $effect(() => {
-    void handleUrlChange()
+    void handleWaitForPromise()
   })
 
   return {
