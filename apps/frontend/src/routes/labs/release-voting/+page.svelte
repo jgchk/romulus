@@ -152,6 +152,7 @@
         onVote={(item) => {
           category.setVotes(voteFor(item.id, category.votes))
         }}
+        genres={data.genres}
       />
 
       {#each formatVotes(category.votes) as { genre, agree, disagree } (genre.id)}
