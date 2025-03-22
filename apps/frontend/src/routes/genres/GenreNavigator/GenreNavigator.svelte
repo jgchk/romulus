@@ -65,15 +65,15 @@
   {/if}
 
   <div class="flex-1 overflow-auto">
-    {#if isSearching}
-      <GenreSearchResults />
-    {:else}
-      {#await genres}
-        <Loader />
-      {:then genres}
+    {#await genres}
+      <Loader />
+    {:then genres}
+      {#if isSearching}
+        <GenreSearchResults {genres} />
+      {:else}
         <GenreTree {genres} />
-      {/await}
-    {/if}
+      {/if}
+    {/await}
   </div>
 
   {#if $user?.permissions.genres.canCreate}

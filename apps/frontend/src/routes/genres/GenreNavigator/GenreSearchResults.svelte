@@ -4,13 +4,15 @@
 <script lang="ts">
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import { getUserContext } from '$lib/contexts/user'
+  import { createSearchGenresQuery } from '$lib/features/genres/queries/search'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
 
-  import { getGenreTreeStoreContext } from '../genre-tree-store.svelte'
   import GenreSearchResult from './GenreSearchResult.svelte'
   import { searchStore } from './state'
 
-  const tree = getGenreTreeStoreContext()
-  let matches = $derived(tree.search($searchStore.debouncedFilter))
+  let { genres }: { genres: TreeGenre[] } = $props()
+
+  let matches = $derived(createSearchGenresQuery(genres)($searchStore.debouncedFilter))
 
   const user = getUserContext()
 </script>
