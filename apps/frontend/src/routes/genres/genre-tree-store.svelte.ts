@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte'
 
+import { browser } from '$app/environment'
 import type { GenreType } from '$lib/types/genres'
 import { diceCoefficient, toAscii } from '$lib/utils/string'
 
@@ -197,7 +198,8 @@ export type GenreMatch = {
 }
 
 export function createAsyncGenreTreeStore(genresPromise: Promise<TreeGenre[]>) {
-  const store = $state<GenreTreeStore>(createGenreTreeStore([]))
+  const cached = getCachedGenreTree()
+  const store = $state<GenreTreeStore>(createGenreTreeStore(cached ?? []))
 
   void genresPromise.then((genres) => {
     const newStore = createGenreTreeStore(genres)
@@ -208,9 +210,27 @@ export function createAsyncGenreTreeStore(genresPromise: Promise<TreeGenre[]>) {
     store.isPathValid = newStore.isPathValid
     store.getPathTo = newStore.getPathTo
     store.search = newStore.search
+
+    setCachedGenreTree(genres)
   })
 
   return store
+}
+
+function getCachedGenreTree() {
+  if (!browser) return undefined
+
+  const localStorageData = localStorage.getItem('genre-tree')
+  const localStorageTree =
+    localStorageData !== null ? (JSON.parse(localStorageData) as TreeGenre[]) : null
+
+  return localStorageTree
+}
+
+function setCachedGenreTree(genres: TreeGenre[]) {
+  if (!browser) return
+
+  localStorage.setItem('genre-tree', JSON.stringify(genres))
 }
 
 export const GENRE_TREE_STORE_KEY = Symbol('genre-tree-store-context')
