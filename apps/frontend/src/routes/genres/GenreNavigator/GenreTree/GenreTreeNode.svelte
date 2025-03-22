@@ -13,7 +13,6 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
-  import { getGenreTreeStoreContext } from '../../genre-tree-store.svelte'
   import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
@@ -27,12 +26,10 @@
 
   let { id, path, treeRef, genreDatabase }: Props = $props()
 
-  const tree = getGenreTreeStoreContext()
   const treeState = getTreeStateStoreContext()
 
-  let genre = tree.getGenre(id)
-
   const genreDatabaseQueries = createGenreDatabaseQueries(genreDatabase)
+  const genreQuery = createQuery(genreDatabaseQueries.getGenre(id))
   const childrenQuery = createQuery(genreDatabaseQueries.getChildren(id))
   const derivationsQuery = createQuery(genreDatabaseQueries.getDerivations(id))
 
@@ -62,7 +59,8 @@
   const userSettings = getUserSettingsContext()
 </script>
 
-{#if genre}
+{#if $genreQuery.data}
+  {@const genre = $genreQuery.data}
   <li
     bind:this={ref}
     class={cn(
