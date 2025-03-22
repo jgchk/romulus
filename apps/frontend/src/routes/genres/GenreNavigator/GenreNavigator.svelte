@@ -6,13 +6,21 @@
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
+  import Loader from '$lib/atoms/Loader.svelte'
   import { getUserContext } from '$lib/contexts/user'
+  import type { GenreDatabase } from '$lib/genre-db/infrastructure/db'
   import { slide } from '$lib/transitions/slide'
 
   import GenreSearchResults from './GenreSearchResults.svelte'
   import GenreTree from './GenreTree/GenreTree.svelte'
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
+
+  type Props = {
+    genreDatabase: GenreDatabase | undefined
+  }
+
+  let { genreDatabase }: Props = $props()
 
   let showSettings = $state(false)
   let isSearching = $derived($searchStore.debouncedFilter)
@@ -63,8 +71,10 @@
   <div class="flex-1 overflow-auto">
     {#if isSearching}
       <GenreSearchResults />
+    {:else if genreDatabase}
+      <GenreTree {genreDatabase} />
     {:else}
-      <GenreTree />
+      <Loader />
     {/if}
   </div>
 
