@@ -21,6 +21,7 @@
     "@floating-ui/dom": "^1.6.12",
     "@romulus/authentication": "workspace:*",
     "@romulus/authorization": "workspace:*",
+    "@romulus/custom-error": "workspace:*",
     "@romulus/genres": "workspace:*",
     "@romulus/media": "workspace:*",
     "@romulus/user-settings": "workspace:*",
