@@ -254,7 +254,7 @@ it('should show an expand button for a parent genre but not a leaf genre', async
   const parentExpandButton = await parentNode.expandButton.find()
   await user.click(parentExpandButton)
 
-  const childNode = await waitFor(() => genreNode.get(1))
+  const childNode = genreNode.get(1)
   const childExpandButton = childNode.expandButton.query()
   expect(childExpandButton).toBeNull()
 })
@@ -277,7 +277,7 @@ it('should expand a genre when clicking the link rather than the expand button',
   const parentNode = await waitFor(() => genreNode.get(0))
   await user.click(parentNode.link.get())
 
-  const childNode = await waitFor(() => genreNode.get(1))
+  const childNode = genreNode.get(1)
   expect(childNode).toBeVisible()
 })
 
@@ -320,9 +320,7 @@ it('should collapse all genres upon clicking the collapse all button', async () 
   await waitFor(() => genreNode.get(0))
 
   await user.click(await genreNode.get(0).expandButton.find())
-  await waitFor(() => {
-    expect(genreNode.get(1)).toBeVisible()
-  })
+  expect(genreNode.get(1)).toBeVisible()
 
   await user.click(collapseAllButton.get())
 
