@@ -40,7 +40,7 @@
   let isExpandable = $derived(children.length > 0 || derivations.length > 0)
 
   let isDerivedExpandable = $derived(derivations.length > 0)
-  let isDerivedExpanded = treeState.isExpanded([...path, 'derived'])
+  let isDerivedExpanded = $derived(treeState.isExpanded([...path, 'derived']))
 
   let ref: HTMLElement | undefined = $state()
   $effect(() => {
@@ -142,7 +142,7 @@
 
         {#if isDerivedExpandable}
           <div class="ml-4">
-            <div class="flex">
+            <div class="flex" data-testid="derived-genres">
               <IconButton
                 size="sm"
                 tooltip={isDerivedExpanded ? 'Collapse' : 'Expand'}
@@ -168,6 +168,7 @@
                     treeState.setExpanded([...path, 'derived'])
                   }
                 }}
+                data-testid="derived-genres-name"
               >
                 Derived Genres
               </button>

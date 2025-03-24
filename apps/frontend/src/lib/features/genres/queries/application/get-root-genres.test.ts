@@ -16,3 +16,11 @@ it('should return the IDs of all genres with no parents', () => {
 
   expect(getRootGenres()).toEqual([0, 3])
 })
+
+it('should not return derived genres', () => {
+  const genres = [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, derivedFrom: [0] })]
+
+  const getRootGenres = createGetRootGenresQuery(createGenreStore(genres))
+
+  expect(getRootGenres()).toEqual([0])
+})

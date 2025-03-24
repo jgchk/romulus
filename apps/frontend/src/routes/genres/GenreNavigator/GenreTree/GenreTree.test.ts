@@ -1,4 +1,4 @@
-import { getByRole, queryByRole, render } from '@testing-library/svelte'
+import { getByRole, getByTestId, queryByRole, render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
 import { readable, writable } from 'svelte/store'
@@ -113,12 +113,36 @@ function createComponentModel(renderedComponent: ReturnType<typeof renderCompone
     },
   }
 
+  const derivedGenresNode = {
+    get: (index = 0) => {
+      const nodes = renderedComponent.getAllByTestId('derived-genres')
+      const node = nodes[index]
+
+      if (!node) {
+        expect.fail(`Expected a derived genres node to exist at index ${index}`)
+      }
+      if (!(node instanceof HTMLElement)) {
+        expect.fail(`Expected a derived genres node to be an HTMLElement at index ${index}`)
+      }
+
+      return withProps(node, {
+        expandButton: {
+          get: () => getByRole(node, 'button', { name: 'Expand' }),
+          query: () => queryByRole(node, 'button', { name: 'Expand' }),
+        },
+        name: {
+          get: () => getByTestId(node, 'derived-genres-name'),
+        },
+      })
+    },
+  }
+
   const collapseAllButton = {
     get: () => renderedComponent.getByRole('button', { name: 'Collapse All' }),
     query: () => renderedComponent.queryByRole('button', { name: 'Collapse All' }),
   }
 
-  return { emptyState, createGenreLink, genreNode, collapseAllButton }
+  return { emptyState, createGenreLink, genreNode, derivedGenresNode, collapseAllButton }
 }
 
 it('should show an empty state when there are no genres', () => {
@@ -300,6 +324,35 @@ it('should collapse all genres upon clicking the collapse all button', async () 
   expect(genreNode.query(1)).toBeNull()
 })
 
+it('should open the derived genres upon clicking its expand button', async () => {
+  const { user, genreNode, derivedGenresNode } = setup(
+    {
+      genres: createGenreStore([
+        createExampleGenre({ id: 0 }),
+        createExampleGenre({ id: 1, derivedFrom: [0] }),
+      ]),
+    },
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
+      },
+    },
+  )
+
+  await user.click(genreNode.get(0).expandButton.get())
+
+  const derivedGenres = derivedGenresNode.get()
+  expect(derivedGenres).toBeVisible()
+
+  await user.click(derivedGenres.expandButton.get())
+
+  expect(genreNode.get(1)).toBeVisible()
+})
+
 it('should open the genre page when clicking a genre link', async () => {
   const { user, genreNode } = setup(
     { genres: createGenreStore([createExampleGenre({ id: 0 })]) },
@@ -319,4 +372,31 @@ it('should open the genre page when clicking a genre link', async () => {
   await user.click(genreNode.get().link.get())
 
   expect(window.location.pathname).toBe('/genres/0')
+})
+
+it('should not show derived genres at the root level', () => {
+  const { genreNode } = setup(
+    {
+      genres: createGenreStore([
+        createExampleGenre({ id: 0, name: 'Zero' }),
+        createExampleGenre({ id: 1, name: 'One', derivedFrom: [0] }),
+      ]),
+    },
+    {
+      user: {
+        id: 0,
+        username: 'test-user',
+        permissions: {
+          genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+        },
+      },
+    },
+  )
+
+  const rootGenre = genreNode.get(0)
+  expect(rootGenre).toBeVisible()
+  expect(rootGenre).toHaveTextContent('Zero')
+
+  const derivedGenre = genreNode.query(1)
+  expect(derivedGenre).toBeNull()
 })
