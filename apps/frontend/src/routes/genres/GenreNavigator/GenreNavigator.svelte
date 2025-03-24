@@ -74,7 +74,9 @@
     {:else if genres.error}
       <div>Error fetching genres</div>
     {:else}
-      <Loader />
+      <div class="center h-full max-h-96 w-full">
+        <Loader size={32} class="text-primary-500" />
+      </div>
     {/if}
   </div>
 
