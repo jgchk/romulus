@@ -147,6 +147,24 @@ it('should open the derived genres upon clicking its expand button', async () =>
   expect(genreNode.get(1)).toBeVisible()
 })
 
+it('should open the derived genres upon clicking its name', async () => {
+  const { user, genreNode, derivedGenresNode } = setup({
+    genres: createGenreStore([
+      createExampleGenre({ id: 0 }),
+      createExampleGenre({ id: 1, derivedFrom: [0] }),
+    ]),
+  })
+
+  await user.click(genreNode.get(0).expandButton.get())
+
+  const derivedGenres = derivedGenresNode.get()
+  expect(derivedGenres).toBeVisible()
+
+  await user.click(derivedGenres.name.get())
+
+  expect(genreNode.get(1)).toBeVisible()
+})
+
 it('should open the genre page when clicking a genre link', async () => {
   const { user, genreNode } = setup({ genres: createGenreStore([createExampleGenre({ id: 0 })]) })
 
