@@ -132,8 +132,8 @@ it('should collapse all genres upon clicking the collapse all button', async () 
 it('should open the derived genres upon clicking its expand button', async () => {
   const { user, genreNode, derivedGenresNode } = setup({
     genres: createGenreStore([
-      createExampleGenre({ id: 0 }),
-      createExampleGenre({ id: 1, derivedFrom: [0] }),
+      createExampleGenre({ id: 0, derivations: [1] }),
+      createExampleGenre({ id: 1 }),
     ]),
   })
 
@@ -150,8 +150,8 @@ it('should open the derived genres upon clicking its expand button', async () =>
 it('should open the derived genres upon clicking its name', async () => {
   const { user, genreNode, derivedGenresNode } = setup({
     genres: createGenreStore([
-      createExampleGenre({ id: 0 }),
-      createExampleGenre({ id: 1, derivedFrom: [0] }),
+      createExampleGenre({ id: 0, derivations: [1] }),
+      createExampleGenre({ id: 1 }),
     ]),
   })
 
@@ -178,8 +178,8 @@ it('should open the genre page when clicking a genre link', async () => {
 it('should not show derived genres at the root level', () => {
   const { genreNode } = setup({
     genres: createGenreStore([
-      createExampleGenre({ id: 0, name: 'Zero' }),
-      createExampleGenre({ id: 1, name: 'One', derivedFrom: [0] }),
+      createExampleGenre({ id: 0, name: 'Zero', derivations: [1] }),
+      createExampleGenre({ id: 1, name: 'One' }),
     ]),
   })
 

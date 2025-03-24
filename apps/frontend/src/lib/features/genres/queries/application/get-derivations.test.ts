@@ -6,9 +6,9 @@ import { createGetDerivationsQuery } from './get-derivations'
 
 it('should return the IDs of the derived genres of a genre', () => {
   const genres = [
-    createExampleGenre({ id: 0, derivedFrom: [] }),
-    createExampleGenre({ id: 1, derivedFrom: [0] }),
-    createExampleGenre({ id: 2, derivedFrom: [0] }),
+    createExampleGenre({ id: 0, derivations: [1, 2] }),
+    createExampleGenre({ id: 1 }),
+    createExampleGenre({ id: 2 }),
   ]
 
   const getDerivations = createGetDerivationsQuery(createGenreStore(genres))

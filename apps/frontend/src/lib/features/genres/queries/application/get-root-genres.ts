@@ -11,8 +11,8 @@ export function createGetRootGenresQuery(genres: GenreStore): GetRootGenresQuery
         childIds.add(childId)
       }
 
-      if (node.derivedFrom.length > 0) {
-        childIds.add(node.id)
+      for (const derivation of node.derivations) {
+        childIds.add(derivation)
       }
     }
 

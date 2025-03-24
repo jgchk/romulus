@@ -35,7 +35,7 @@
       if (selectedId === undefined || selectedId !== data.id) {
         if (asyncGenresRune.data) {
           const genres = asyncGenresRune.data
-          const newPath = createGetPathToQuery(genres)(data.id)
+          const newPath = createGetPathToQuery(genres)(data.id, selectedPath)
           treeState.setSelectedPath(newPath)
           if (newPath !== undefined) {
             treeState.expandAlongPath(newPath)

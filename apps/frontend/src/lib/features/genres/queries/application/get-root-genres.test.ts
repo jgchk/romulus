@@ -18,7 +18,7 @@ it('should return the IDs of all genres with no parents', () => {
 })
 
 it('should not return derived genres', () => {
-  const genres = [createExampleGenre({ id: 0 }), createExampleGenre({ id: 1, derivedFrom: [0] })]
+  const genres = [createExampleGenre({ id: 0, derivations: [1] }), createExampleGenre({ id: 1 })]
 
   const getRootGenres = createGetRootGenresQuery(createGenreStore(genres))
 

@@ -1,66 +1,162 @@
 import type { GenreStore } from '../infrastructure'
+import type { TreePath } from '../types'
 import { createGetChildrenQuery } from './get-children'
+import { createGetDerivationsQuery } from './get-derivations'
 import { createGetGenreQuery } from './get-genre'
 import { createGetRootGenresQuery } from './get-root-genres'
 
-export type GetPathToQuery = (id: number) => number[] | undefined
+export type GetPathToQuery = (id: number, existingPath?: TreePath) => TreePath | undefined
 
 export function createGetPathToQuery(genres: GenreStore): GetPathToQuery {
-  return function getPathTo(id: number) {
-    const getGenre = createGetGenreQuery(genres)
-    const getRootGenres = createGetRootGenresQuery(genres)
-    const getChildren = createGetChildrenQuery(genres)
+  const getGenre = createGetGenreQuery(genres)
+  const getRootGenres = createGetRootGenresQuery(genres)
+  const getChildren = createGetChildrenQuery(genres)
+  const getDerivations = createGetDerivationsQuery(genres)
 
-    // Check if the target genre exists
-    const genre = getGenre(id)
-    if (!genre) {
+  function getPathTo(id: number, existingPath?: TreePath): TreePath | undefined {
+    if (!getGenre(id)) {
       return undefined
     }
 
-    // Initialize BFS data structures
-    const parentMap = new Map<number, number>() // Maps genre ID to its parent in the shortest path
-    const queue: number[] = [] // Queue for BFS traversal
-    const roots = getRootGenres() // Get all root genres (no parents)
-
-    // If the target is a root genre, return a path with just itself
-    if (roots.includes(id)) {
-      return [id]
+    if (existingPath && existingPath.length > 0) {
+      const pathUsingExistingPath = findPathUsingExistingPath(id, existingPath)
+      if (pathUsingExistingPath !== undefined) {
+        return pathUsingExistingPath
+      }
     }
 
-    // Seed the queue with all root genres
-    for (const root of roots) {
-      queue.push(root)
-      parentMap.set(root, -1) // Use -1 as a sentinel value for roots
+    return findAbsoluteShortestPath(id)
+  }
+
+  function findPathUsingExistingPath(id: number, existingPath: TreePath): TreePath | undefined {
+    if (!getGenre(id)) {
+      return undefined
     }
 
-    // Perform BFS
+    const parentMap = new Map<
+      number,
+      { type: 'parent'; id: number } | { type: 'derivedFrom'; id: number }
+    >()
+    const queue: number[] = []
+
+    const rootChildren = getChildren(existingPath[existingPath.length - 1] as number)
+    if (rootChildren.includes(id)) {
+      return [...existingPath, id]
+    }
+    for (const rootChild of rootChildren) {
+      queue.push(rootChild)
+      parentMap.set(rootChild, { type: 'parent', id: -1 }) // Sentinel for roots
+    }
+
+    const rootDerivations = getDerivations(existingPath[existingPath.length - 1] as number)
+    if (rootDerivations.includes(id)) {
+      return [...existingPath, 'derived', id]
+    }
+    for (const rootDerivation of rootDerivations) {
+      queue.push(rootDerivation)
+      parentMap.set(rootDerivation, { type: 'derivedFrom', id: -1 }) // Sentinel for roots
+    }
+
     while (queue.length > 0) {
-      const current = queue.shift()! // Dequeue the next genre
-      const children = getChildren(current) // Get its children
+      const current = queue.shift()!
+
+      const children = getChildren(current)
       for (const child of children) {
         if (!parentMap.has(child)) {
-          // If child hasn't been visited
-          parentMap.set(child, current) // Record its parent
-          queue.push(child) // Enqueue the child
+          parentMap.set(child, { type: 'parent', id: current })
+          queue.push(child)
+        }
+      }
+
+      const derivations = getDerivations(current)
+      for (const derivation of derivations) {
+        if (!parentMap.has(derivation)) {
+          parentMap.set(derivation, { type: 'derivedFrom', id: current })
+          queue.push(derivation)
         }
       }
     }
 
-    // Check if the target is reachable
     if (!parentMap.has(id)) {
-      return undefined // Target not reachable from any root
+      return undefined
     }
 
-    // Reconstruct the path from target to root
-    const path: number[] = []
-    let current: number | undefined = id
-    while (current !== undefined && current !== -1) {
-      path.push(current)
-      current = parentMap.get(current) // Move to the parent
+    const path: TreePath = [id]
+    let current: { type: 'parent'; id: number } | { type: 'derivedFrom'; id: number } | undefined =
+      parentMap.get(id)
+    while (current !== undefined && current.id !== -1) {
+      if (current.type === 'derivedFrom') {
+        path.push('derived', current.id)
+      } else {
+        path.push(current.id)
+      }
+
+      current = parentMap.get(current.id)
+    }
+    path.reverse()
+    return [...existingPath, ...path]
+  }
+
+  function findAbsoluteShortestPath(id: number): TreePath | undefined {
+    if (!getGenre(id)) {
+      return undefined
     }
 
-    // Reverse the path to go from root to target
+    const parentMap = new Map<
+      number,
+      { type: 'parent'; id: number } | { type: 'derivedFrom'; id: number }
+    >()
+    const queue: number[] = []
+
+    const roots = getRootGenres()
+    if (roots.includes(id)) {
+      return [id]
+    }
+
+    for (const root of roots) {
+      queue.push(root)
+      parentMap.set(root, { type: 'parent', id: -1 }) // Sentinel for roots
+    }
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+
+      const children = getChildren(current)
+      for (const child of children) {
+        if (!parentMap.has(child)) {
+          parentMap.set(child, { type: 'parent', id: current })
+          queue.push(child)
+        }
+      }
+
+      const derivations = getDerivations(current)
+      for (const derivation of derivations) {
+        if (!parentMap.has(derivation)) {
+          parentMap.set(derivation, { type: 'derivedFrom', id: current })
+          queue.push(derivation)
+        }
+      }
+    }
+
+    if (!parentMap.has(id)) {
+      return undefined
+    }
+
+    const path: TreePath = [id]
+    let current: { type: 'parent'; id: number } | { type: 'derivedFrom'; id: number } | undefined =
+      parentMap.get(id)
+    while (current !== undefined && current.id !== -1) {
+      if (current.type === 'derivedFrom') {
+        path.push('derived', current.id)
+      } else {
+        path.push(current.id)
+      }
+
+      current = parentMap.get(current.id)
+    }
     path.reverse()
     return path
   }
+
+  return getPathTo
 }
