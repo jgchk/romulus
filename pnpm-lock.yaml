@@ -126,6 +126,9 @@ importers:
       '@types/swagger-ui':
         specifier: ^3.52.4
         version: 3.52.4
+      devalue:
+        specifier: ^5.1.1
+        version: 5.1.1
       neverthrow:
         specifier: ^8.1.1
         version: 8.1.1

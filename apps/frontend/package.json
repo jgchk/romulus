@@ -27,6 +27,7 @@
     "@romulus/user-settings": "workspace:*",
     "@types/ramda": "^0.30.2",
     "@types/swagger-ui": "^3.52.4",
+    "devalue": "^5.1.1",
     "neverthrow": "^8.1.1",
     "phosphor-svelte": "^2.0.1",
     "pino": "^9.6.0",
