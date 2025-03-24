@@ -17,7 +17,7 @@
 
   treeState.setSelectedPath(undefined)
 
-  const asyncGenresRune = useGenres(data.streamed.genres)
+  const asyncGenresRune = $derived(useGenres(data.streamed.genres))
 </script>
 
 <svelte:head>

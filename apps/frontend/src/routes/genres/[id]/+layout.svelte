@@ -17,7 +17,7 @@
 
   const treeState = getTreeStateStoreContext()
 
-  const asyncGenresRune = useGenres(data.streamed.genres)
+  const asyncGenresRune = $derived(useGenres(data.streamed.genres))
 
   $effect(() => {
     const selectedPath = treeState.getSelectedPath()

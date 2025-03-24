@@ -29,7 +29,7 @@
 
   setTreeStateStoreContext(createTreeStateStore())
 
-  const asyncGenresRune = useGenres(data.streamed.genres)
+  const asyncGenresRune = $derived(useGenres(data.streamed.genres))
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
