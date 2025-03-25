@@ -1,11 +1,5 @@
 <script lang="ts">
   import { pageTitle } from '$lib/utils/string'
-
-  import { getTreeStateStoreContext } from './tree-state-store.svelte'
-
-  const treeState = getTreeStateStoreContext()
-
-  treeState.setSelectedPath(undefined)
 </script>
 
 <svelte:head>

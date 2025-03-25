@@ -1,8 +1,8 @@
 <script lang="ts">
   import { CaretRight } from 'phosphor-svelte'
-  import { equals } from 'ramda'
 
   import { browser } from '$app/environment'
+  import { page } from '$app/state'
   import { tooltip } from '$lib/actions/tooltip'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
@@ -14,7 +14,7 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
-  import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
+  import { getTreeStateStoreContext, stringifyTreePath } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
 
@@ -35,7 +35,13 @@
   const children = $derived(createGetChildrenQuery(genres)(id))
   const derivations = $derived(createGetDerivationsQuery(genres)(id))
 
-  let isSelected = $derived(equals(treeState.getSelectedPath(), path))
+  const selectedId = $derived.by(() => {
+    if (page.url.pathname.startsWith('/genres/') && 'id' in page.params) {
+      const id = page.params.id
+      return Number.parseInt(id, 10)
+    }
+  })
+  let isSelected = $derived(selectedId === id)
   let isExpanded = $derived(treeState.isExpanded(path))
   let isExpandable = $derived(children.length > 0 || derivations.length > 0)
 
@@ -81,7 +87,7 @@
       </IconButton>
 
       <a
-        href="/genres/{id}"
+        href="/genres/{id}?selected-path={stringifyTreePath(path)}"
         class={tw(
           'group block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] transition hover:border-opacity-[0.03] hover:bg-gray-200 dark:border-white dark:border-opacity-0 dark:hover:bg-gray-800',
           isSelected
@@ -90,7 +96,6 @@
           genre.nsfw && !$userSettings.showNsfw && 'blur-sm',
         )}
         onclick={() => {
-          treeState.setSelectedPath(path)
           treeState.setExpanded(path)
         }}
         use:tooltip={{

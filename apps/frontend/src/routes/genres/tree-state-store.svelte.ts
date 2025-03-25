@@ -4,7 +4,6 @@ import { SvelteSet } from 'svelte/reactivity'
 export type TreePath = (number | 'derived')[]
 
 export function createTreeStateStore() {
-  let selectedPath = $state<TreePath | undefined>(undefined)
   const expandedPaths = new SvelteSet<string>()
 
   return {
@@ -35,14 +34,6 @@ export function createTreeStateStore() {
       return false
     },
 
-    setSelectedPath(path: TreePath | undefined) {
-      selectedPath = path
-    },
-
-    getSelectedPath() {
-      return selectedPath
-    },
-
     expandAlongPath(path: TreePath) {
       for (let i = 1; i <= path.length; i++) {
         const subPath = path.slice(0, i)
@@ -50,6 +41,17 @@ export function createTreeStateStore() {
       }
     },
   }
+}
+
+export function stringifyTreePath(path: TreePath) {
+  return path.join('-')
+}
+
+export function unstringifyTreePath(pathString: string): TreePath {
+  return pathString.split('-').map((segment) => {
+    if (segment === 'derived') return segment
+    return parseInt(segment, 10)
+  })
 }
 
 export function getSelectedGenreIdFromTreePath(path: TreePath): number | undefined {

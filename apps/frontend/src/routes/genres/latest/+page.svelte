@@ -2,7 +2,6 @@
   import { pageTitle } from '$lib/utils/string'
 
   import GenreDiff from '../GenreDiff.svelte'
-  import { getTreeStateStoreContext } from '../tree-state-store.svelte'
   import type { PageData } from './$types'
 
   type Props = {
@@ -10,10 +9,6 @@
   }
 
   let { data }: Props = $props()
-
-  const treeState = getTreeStateStoreContext()
-
-  treeState.setSelectedPath(undefined)
 </script>
 
 <svelte:head>

@@ -62,14 +62,6 @@ describe('collapseAll', () => {
   })
 })
 
-describe('setSelectedPath', () => {
-  it('should set the selected path', () => {
-    const store = createTreeStateStore()
-    store.setSelectedPath([0, 1])
-    expect(store.getSelectedPath()).toEqual([0, 1])
-  })
-})
-
 describe('expandAlongPath', () => {
   it('should expand every subpath along the given path', () => {
     const store = createTreeStateStore()

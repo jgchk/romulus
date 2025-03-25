@@ -3,7 +3,6 @@
   import { useGenres } from '$lib/features/genres/rune.svelte'
   import { pageTitle } from '$lib/utils/string'
 
-  import { getTreeStateStoreContext } from '../tree-state-store.svelte'
   import type { PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
@@ -12,10 +11,6 @@
   }
 
   let { data }: Props = $props()
-
-  const treeState = getTreeStateStoreContext()
-
-  treeState.setSelectedPath(undefined)
 
   const asyncGenresRune = $derived(useGenres(data.streamed.genres))
 </script>
