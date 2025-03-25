@@ -1,7 +1,7 @@
 variable "domain_name" {
   description = "The domain for the application"
   type        = string
-  default     = "new.romulus.lol"
+  default     = "romulus.lol"
 }
 
 variable "cloudflare_zone_id" {
@@ -38,10 +38,19 @@ resource "cloudflare_dns_record" "cert_validation" {
   proxied = false
 }
 
-resource "cloudflare_dns_record" "app" {
+resource "cloudflare_dns_record" "root" {
   zone_id = var.cloudflare_zone_id
   type    = "CNAME"
-  name    = "new"
+  name    = "@"
+  content = aws_lb.frontend.dns_name
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_dns_record" "www" {
+  zone_id = var.cloudflare_zone_id
+  type    = "CNAME"
+  name    = "www"
   content = aws_lb.frontend.dns_name
   ttl     = 1
   proxied = true
