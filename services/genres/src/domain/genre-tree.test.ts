@@ -94,7 +94,7 @@ describe('GenreTree', () => {
 
       const result = tree.updateGenre(createNode(1, 'Blues', new Set(), new Set([3]), new Set()))
 
-      expect(result).toEqual(err(new GenreCycleError('Blues → Metal → Rock → Blues')))
+      expect(result).toEqual(err(new GenreCycleError('Blues → Rock → Metal → Blues')))
     })
   })
 

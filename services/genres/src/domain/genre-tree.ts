@@ -17,9 +17,14 @@ export class GenreTree {
   updateGenre(node: GenreTreeNode): Result<void, GenreCycleError> {
     this.map.set(node.id, { node, status: 'updated' })
 
-    const cycle = this.findCycle()
-    if (cycle) {
-      return err(new GenreCycleError(cycle))
+    for (const parentId of [...node.parents, ...node.derivedFrom]) {
+      const cycle = this.hasPath(parentId, node.id)
+      if (cycle) {
+        const formattedCycle = [...cycle, node.id]
+          .map((id) => this.map.get(id)!.node.name)
+          .join(' → ')
+        return err(new GenreCycleError(formattedCycle))
+      }
     }
 
     return ok(undefined)
@@ -79,38 +84,35 @@ export class GenreTree {
     return children
   }
 
-  private findCycle(): string | undefined {
-    for (const genre of [...this.map.values()].filter((node) => node.status !== 'deleted')) {
-      const cycle = this.findCycleInner(genre.node.id, [])
-      if (cycle) {
-        const formattedCycle = cycle.map((id) => this.map.get(id)!.node.name).join(' → ')
-        return formattedCycle
+  hasPath(source: number, destination: number): number[] | undefined {
+    const visited = new Set<number>()
+    const path: number[] = []
+
+    const dfs = (current: number): number[] | undefined => {
+      if (current === destination) {
+        return [...path, current].reverse()
       }
-    }
-  }
 
-  private findCycleInner(id: number, stack: number[]): number[] | false {
-    if (stack.includes(id)) {
-      return [...stack, id]
-    }
+      visited.add(current)
+      path.push(current)
 
-    const genre = this.map.get(id)
-    if (!genre || genre.status === 'deleted') return false
-
-    for (const parentId of genre.node.parents) {
-      const cycle = this.findCycleInner(parentId, [...stack, id])
-      if (cycle) {
-        return cycle
+      const genre = this.map.get(current)
+      const neighbors =
+        genre?.status === 'deleted'
+          ? []
+          : new Set([...(genre?.node.parents ?? []), ...(genre?.node.derivedFrom ?? [])])
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          const cyclePath = dfs(neighbor)
+          if (cyclePath) {
+            return cyclePath
+          }
+        }
       }
+
+      path.pop()
     }
 
-    for (const derivedFromId of genre.node.derivedFrom) {
-      const cycle = this.findCycleInner(derivedFromId, [...stack, id])
-      if (cycle) {
-        return cycle
-      }
-    }
-
-    return false
+    return dfs(source)
   }
 }

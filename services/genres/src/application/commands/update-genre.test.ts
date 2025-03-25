@@ -266,7 +266,7 @@ test('should return GenreCycleError if a 3-cycle is detected', async ({ dbConnec
   )
 
   expect(result).toEqual(
-    err(new GenreCycleError('Updated Genre → Grandchild → Child → Updated Genre')),
+    err(new GenreCycleError('Updated Genre → Child → Grandchild → Updated Genre')),
   )
 })
 
