@@ -1,9 +1,8 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../vitest-setup.js'
-import { mediaTypeCreatedEvent } from '../../commands/domain/create-media-type.js'
-import { mediaTypeDeletedEvent } from '../../commands/domain/delete-media-type.js'
-import { mediaTypeUpdatedEvent } from '../../commands/domain/update-media-type.js'
+import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
+import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import { applyEvent } from './projection.js'
 

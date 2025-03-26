@@ -1,10 +1,11 @@
 import { err, ok } from 'neverthrow'
 import { expect, it } from 'vitest'
 
-import { mediaTypeCreatedEvent } from './create-media-type.js'
+import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
+import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from './errors.js'
 import { createProjectionFromEvents } from './projection.js'
-import { createUpdateMediaTypeCommand, mediaTypeUpdatedEvent } from './update-media-type.js'
+import { createUpdateMediaTypeCommand } from './update-media-type.js'
 
 it('should update a media type', () => {
   const projection = createProjectionFromEvents([

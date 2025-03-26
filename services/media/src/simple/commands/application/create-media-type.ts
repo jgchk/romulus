@@ -1,11 +1,8 @@
 import { err, ok, type Result } from 'neverthrow'
 
 import type { MaybePromise } from '../../../utils.js'
-import {
-  createMediaType,
-  type CreateMediaTypeCommand,
-  type MediaTypeCreatedEvent,
-} from '../domain/create-media-type.js'
+import { type MediaTypeCreatedEvent } from '../../common/domain/events.js'
+import { createMediaType, type CreateMediaTypeCommand } from '../domain/create-media-type.js'
 import type { MediaTypeTreeCycleError } from '../domain/errors.js'
 
 export function createCreateMediaTypeCommand(

@@ -1,9 +1,8 @@
 import { expect, it } from 'vitest'
 
-import { mediaTypeCreatedEvent } from './create-media-type.js'
-import { mediaTypeDeletedEvent } from './delete-media-type.js'
+import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
+import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
 import { applyEvent } from './projection.js'
-import { mediaTypeUpdatedEvent } from './update-media-type.js'
 
 it('should add a genre upon media-type-created event', () => {
   const result = applyEvent(

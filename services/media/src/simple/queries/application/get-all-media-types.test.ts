@@ -1,7 +1,7 @@
 import { expect } from 'vitest'
 
 import { test } from '../../../vitest-setup.js'
-import { mediaTypeCreatedEvent } from '../../commands/domain/create-media-type.js'
+import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
 import { createGetAllMediaTypesQuery } from './get-all-media-types.js'
 import { applyEvent } from './projection.js'
 
