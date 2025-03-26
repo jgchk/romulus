@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import GenreForm from '../../GenreForm.svelte'
@@ -9,6 +12,8 @@
   }
 
   let { data }: Props = $props()
+
+  const genreTreeQuery = createQuery(genreQueries.tree())
 </script>
 
 <svelte:head>
@@ -17,4 +22,9 @@
   >
 </svelte:head>
 
-<GenreForm data={data.form} autoFocus={data.autoFocus} id={data.id} genres={data.streamed.genres} />
+<GenreForm
+  data={data.form}
+  autoFocus={data.autoFocus}
+  id={data.id}
+  genres={$genreTreeQuery.promise}
+/>

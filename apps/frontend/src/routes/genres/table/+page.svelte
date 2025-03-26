@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+
   import Loader from '$lib/atoms/Loader.svelte'
-  import { useGenres } from '$lib/features/genres/rune.svelte'
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { pageTitle } from '$lib/utils/string'
 
   import type { PageData } from './$types'
@@ -12,16 +14,16 @@
 
   let { data }: Props = $props()
 
-  const asyncGenresRune = $derived(useGenres(data.streamed.genres))
+  const genreTreeQuery = createQuery(genreQueries.tree())
 </script>
 
 <svelte:head>
   <title>{pageTitle('Table', 'Genres')}</title>
 </svelte:head>
 
-{#if asyncGenresRune.data}
-  <GenresTable genres={asyncGenresRune.data} {data} />
-{:else if asyncGenresRune.error}
+{#if $genreTreeQuery.data}
+  <GenresTable genres={$genreTreeQuery.data} {data} />
+{:else if $genreTreeQuery.error}
   <div>Error fetching genres</div>
 {:else}
   <div class="center h-full max-h-96 w-full">

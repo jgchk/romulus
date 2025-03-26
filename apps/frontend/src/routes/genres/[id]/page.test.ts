@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/svelte-query'
 import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
@@ -9,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
+import { genreQueries } from '$lib/features/genres/tanstack'
 
 import GenrePage from './+page.svelte'
 import { relevanceVoteSchema } from './utils'
@@ -68,6 +70,16 @@ async function setup(
     zod(relevanceVoteSchema),
   )
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        experimental_prefetchInRender: true,
+        enabled: false,
+      },
+    },
+  })
+  queryClient.setQueryData(genreQueries.tree().queryKey, createGenreStore([]))
+
   const returned = render(GenrePage, {
     props: {
       ...props,
@@ -77,19 +89,18 @@ async function setup(
         settings: DEFAULT_USER_SETTINGS,
         genre: mockGenre,
         leftPaneSize: undefined,
-        streamed: {
-          genres: Promise.resolve(createGenreStore([])),
-        },
         relevanceVotes: new Map(),
         relevanceVoteForm,
         ...props?.data,
       },
     },
-    context: new Map([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: new Map<any, any>([
       [
         USER_SETTINGS_CONTEXT_KEY,
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
       ],
+      ['$$_queryClient', queryClient],
     ]),
   })
 

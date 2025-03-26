@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
   import { GearSix } from 'phosphor-svelte'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -8,7 +9,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { getUserContext } from '$lib/contexts/user'
-  import type { AsyncGenresRune } from '$lib/features/genres/rune.svelte'
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { slide } from '$lib/transitions/slide'
 
   import GenreSearchResults from './GenreSearchResults.svelte'
@@ -16,12 +17,12 @@
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
 
-  let { genres }: { genres: AsyncGenresRune } = $props()
-
   let showSettings = $state(false)
   let isSearching = $derived($searchStore.debouncedFilter)
 
   const user = getUserContext()
+
+  const genreTreeQuery = createQuery(genreQueries.tree())
 </script>
 
 <Card class="flex h-full w-full flex-col overflow-hidden">
@@ -65,13 +66,14 @@
   {/if}
 
   <div class="flex-1 overflow-auto">
-    {#if genres.data}
+    {#if $genreTreeQuery.data}
+      {@const genres = $genreTreeQuery.data}
       {#if isSearching}
-        <GenreSearchResults genres={genres.data} />
+        <GenreSearchResults {genres} />
       {:else}
-        <GenreTree genres={genres.data} />
+        <GenreTree {genres} />
       {/if}
-    {:else if genres.error}
+    {:else if $genreTreeQuery.error}
       <div>Error fetching genres</div>
     {:else}
       <div class="center h-full max-h-96 w-full">

@@ -120,6 +120,9 @@ importers:
       '@romulus/user-settings':
         specifier: workspace:*
         version: link:../../services/user-settings
+      '@tanstack/svelte-query':
+        specifier: ^5.69.0
+        version: 5.69.0(svelte@5.22.6)
       '@types/ramda':
         specifier: ^0.30.2
         version: 0.30.2
@@ -2113,6 +2116,14 @@ packages:
   '@swaggerexpert/cookie@2.0.2':
     resolution: {integrity: sha512-DPI8YJ0Vznk4CT+ekn3rcFNq1uQwvUHZhH6WvTSPD0YKBIlMS9ur2RYKghXuxxOiqOam/i4lHJH4xTIiTgs3Mg==}
     engines: {node: '>=12.20.0'}
+
+  '@tanstack/query-core@5.69.0':
+    resolution: {integrity: sha512-Kn410jq6vs1P8Nm+ZsRj9H+U3C0kjuEkYLxbiCyn3MDEiYor1j2DGVULqAz62SLZtUZ/e9Xt6xMXiJ3NJ65WyQ==}
+
+  '@tanstack/svelte-query@5.69.0':
+    resolution: {integrity: sha512-4zn8uW76PQCIvFHS/JbvxtdjlglF1BaH9wZiiEWRp5lnlcwr+4NHYlvzXI6z7Ff4ZuJvPjVBNhrwFYfJjL+gOQ==}
+    peerDependencies:
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -6023,6 +6034,13 @@ snapshots:
   '@swaggerexpert/cookie@2.0.2':
     dependencies:
       apg-lite: 1.0.4
+
+  '@tanstack/query-core@5.69.0': {}
+
+  '@tanstack/svelte-query@5.69.0(svelte@5.22.6)':
+    dependencies:
+      '@tanstack/query-core': 5.69.0
+      svelte: 5.22.6
 
   '@testing-library/dom@10.4.0':
     dependencies:

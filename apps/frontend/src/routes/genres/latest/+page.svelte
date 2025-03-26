@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { pageTitle } from '$lib/utils/string'
 
   import GenreDiff from '../GenreDiff.svelte'
@@ -9,6 +12,8 @@
   }
 
   let { data }: Props = $props()
+
+  const genreTreeQuery = createQuery(genreQueries.tree())
 </script>
 
 <svelte:head>
@@ -21,7 +26,7 @@
       <GenreDiff
         previousHistory={entry.previousHistory}
         currentHistory={entry.genre}
-        genres={data.streamed.genres}
+        genres={$genreTreeQuery.promise}
       />
     {/each}
   </div>

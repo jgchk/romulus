@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+
   import { goto } from '$app/navigation'
   import { page } from '$app/state'
   import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
-  import { useGenres } from '$lib/features/genres/rune.svelte'
+  import { genreQueries } from '$lib/features/genres/tanstack'
 
   import {
     getTreeStateStoreContext,
@@ -20,7 +22,7 @@
 
   const treeState = getTreeStateStoreContext()
 
-  const asyncGenresRune = $derived(useGenres(data.streamed.genres))
+  const genreTreeQuery = createQuery(genreQueries.tree())
 
   const selectedPath = $derived.by(() => {
     const selectedPathString = page.url.searchParams.get('selected-path')
@@ -31,8 +33,8 @@
 
   $effect(() => {
     if (selectedPath === undefined) {
-      if (asyncGenresRune.data) {
-        const genres = asyncGenresRune.data
+      if ($genreTreeQuery.data) {
+        const genres = $genreTreeQuery.data
         const newPath = createGetPathToQuery(genres)(data.id)
         if (newPath !== undefined) {
           void goto(`?selected-path=${stringifyTreePath(newPath)}`, {

@@ -25,6 +25,7 @@
     "@romulus/genres": "workspace:*",
     "@romulus/media": "workspace:*",
     "@romulus/user-settings": "workspace:*",
+    "@tanstack/svelte-query": "^5.69.0",
     "@types/ramda": "^0.30.2",
     "@types/swagger-ui": "^3.52.4",
     "devalue": "^5.1.1",

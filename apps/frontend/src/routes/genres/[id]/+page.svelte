@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
   import { fade } from 'svelte/transition'
 
   import { enhance } from '$app/forms'
@@ -12,6 +13,7 @@
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
@@ -36,6 +38,8 @@
 
   const user = getUserContext()
   const userSettings = getUserSettingsContext()
+
+  const genreTreeQuery = createQuery(genreQueries.tree())
 </script>
 
 <svelte:head>
@@ -217,7 +221,7 @@
         <Label>Short Description</Label>
         <div class="genre-short-description">
           {#if data.genre.shortDescription}
-            <Romcode data={data.genre.shortDescription} genres={data.streamed.genres} />
+            <Romcode data={data.genre.shortDescription} genres={$genreTreeQuery.promise} />
           {:else}
             <span>
               Missing a short description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -237,7 +241,7 @@
         <Label>Long Description</Label>
         <div class="genre-long-description">
           {#if data.genre.longDescription}
-            <Romcode data={data.genre.longDescription} genres={data.streamed.genres} />
+            <Romcode data={data.genre.longDescription} genres={$genreTreeQuery.promise} />
           {:else}
             <span>
               Missing a long description.&nbsp;{#if $user?.permissions.genres.canEdit}
@@ -259,7 +263,7 @@
           <div>
             {#if showNotes}
               <div class="genre-notes" transition:slide|local={{ axis: 'y' }}>
-                <Romcode data={data.genre.notes} genres={data.streamed.genres} />
+                <Romcode data={data.genre.notes} genres={$genreTreeQuery.promise} />
               </div>
             {/if}
             <button
