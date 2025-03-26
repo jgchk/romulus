@@ -4,6 +4,7 @@
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
   import { writable } from 'svelte/store'
 
+  import { browser } from '$app/environment'
   import Card from '$lib/atoms/Card.svelte'
   import Toaster from '$lib/atoms/Toast/Toaster.svelte'
   import { setUserContext, type UserStore } from '$lib/contexts/user'
@@ -40,6 +41,7 @@
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
+        enabled: browser,
         experimental_prefetchInRender: true,
       },
     },
