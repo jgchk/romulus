@@ -1,8 +1,9 @@
-import { err, ok, Result } from 'neverthrow'
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from './errors.js'
-import type { MediaType } from './types.js'
 import type { Projection } from './projection.js'
+import type { MediaType } from './types.js'
 
 export function createUpdateMediaTypeCommand(projection: Projection) {
   return function updateMediaType(

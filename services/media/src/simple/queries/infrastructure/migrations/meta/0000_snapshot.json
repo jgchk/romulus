@@ -27,12 +27,8 @@
           "name": "media_type_parents_parent_id_media_types_id_fk",
           "tableFrom": "media_type_parents",
           "tableTo": "media_types",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -40,12 +36,8 @@
           "name": "media_type_parents_child_id_media_types_id_fk",
           "tableFrom": "media_type_parents",
           "tableTo": "media_types",
-          "columnsFrom": [
-            "child_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["child_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }

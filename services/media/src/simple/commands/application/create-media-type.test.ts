@@ -1,10 +1,10 @@
 import { err, ok } from 'neverthrow'
 import { expect, it } from 'vitest'
 
+import type { MediaTypeEvent } from '../../common/domain/events.js'
 import { MemoryEventStore } from '../../common/infrastructure/memory-event-store.js'
 import { mediaTypeCreatedEvent } from '../domain/create-media-type.js'
 import { MediaTypeTreeCycleError } from '../domain/errors.js'
-import type { MediaTypeEvent } from '../../common/domain/events.js'
 import { MEDIA_TYPE_TREE_EVENT_STORE_KEY } from './common.js'
 import { createCreateMediaTypeCommand } from './create-media-type.js'
 

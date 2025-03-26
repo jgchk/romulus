@@ -1,9 +1,9 @@
 import { err, ok, type Result } from 'neverthrow'
 
 import type { MaybePromise } from '../../../utils.js'
+import type { MediaTypeEvent } from '../../common/domain/events.js'
 import type { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/errors.js'
 import { createProjectionFromEvents } from '../domain/projection.js'
-import type { MediaTypeEvent } from '../../common/domain/events.js'
 import * as domain from '../domain/update-media-type.js'
 
 export function createUpdateMediaTypeCommand(

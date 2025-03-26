@@ -11,11 +11,6 @@ import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { setupGenresPermissions } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
-import {
-  type ArtifactsProjection,
-  createArtifactsProjection,
-} from '@romulus/media/artifacts/infrastructure'
-import { createArtifactsRouter } from '@romulus/media/artifacts/router'
 import type { UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
@@ -28,10 +23,8 @@ import {
   createAuthenticationApplication,
   createAuthorizationApplication,
   createGenresApplication,
-  createMediaApplication,
   createUserSettingsApplication,
   type GenresApplication,
-  type MediaApplication,
 } from './application.js'
 import { createLogger } from './logger.js'
 
@@ -51,7 +44,6 @@ export async function main({
     authenticationInfrastructure,
     authorizationInfrastructure,
     genresInfrastructure,
-    mediaInfrastructure,
     userSettingsInfrastructure,
   } = await createInfrastructure(config)
 
@@ -59,13 +51,11 @@ export async function main({
     authenticationApplication,
     authorizationApplication,
     genresApplication,
-    mediaApplication,
     userSettingsApplication,
   } = createApplications({
     authenticationInfrastructure,
     authorizationInfrastructure,
     genresInfrastructure,
-    mediaInfrastructure,
     userSettingsInfrastructure,
   })
 
@@ -73,7 +63,6 @@ export async function main({
     authenticationApplication,
     authorizationApplication,
     genresApplication,
-    mediaApplication,
     userSettingsApplication,
   })
 
@@ -103,7 +92,6 @@ async function createInfrastructure(config: {
     config.authorizationDatabaseUrl,
   )
   const genresInfrastructure = await GenresInfrastructure.create(config.genresDatabaseUrl)
-  const mediaInfrastructure = createArtifactsProjection()
   const userSettingsInfrastructure = await UserSettingsInfrastructure.create(
     config.userSettingsDatabaseUrl,
   )
@@ -112,7 +100,6 @@ async function createInfrastructure(config: {
     authenticationInfrastructure,
     authorizationInfrastructure,
     genresInfrastructure,
-    mediaInfrastructure,
     userSettingsInfrastructure,
   }
 }
@@ -121,13 +108,11 @@ function createApplications({
   authenticationInfrastructure,
   authorizationInfrastructure,
   genresInfrastructure,
-  mediaInfrastructure,
   userSettingsInfrastructure,
 }: {
   authenticationInfrastructure: AuthenticationInfrastructure
   authorizationInfrastructure: AuthorizationInfrastructure
   genresInfrastructure: GenresInfrastructure
-  mediaInfrastructure: ArtifactsProjection
   userSettingsInfrastructure: UserSettingsInfrastructure
 }) {
   const authenticationApplication = createAuthenticationApplication({
@@ -147,14 +132,12 @@ function createApplications({
       },
     },
   })
-  const mediaApplication = createMediaApplication(mediaInfrastructure)
   const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
 
   return {
     authenticationApplication,
     authorizationApplication,
     genresApplication,
-    mediaApplication,
     userSettingsApplication,
   }
 }
@@ -163,13 +146,11 @@ function createRouter({
   authenticationApplication,
   authorizationApplication,
   genresApplication,
-  mediaApplication,
   userSettingsApplication,
 }: {
   authenticationApplication: AuthenticationApplication
   authorizationApplication: AuthorizationApplication
   genresApplication: GenresApplication
-  mediaApplication: MediaApplication
   userSettingsApplication: UserSettingsApplication
 }) {
   const authenticationRouter = createAuthenticationRouter(authenticationApplication)
@@ -207,7 +188,6 @@ function createRouter({
       },
     }),
   })
-  const mediaRouter = createArtifactsRouter(mediaApplication)
   const userSettingsRouter = createUserSettingsRouter({
     application: () => userSettingsApplication,
     authentication: () => ({
@@ -249,7 +229,6 @@ function createRouter({
     .route('/authentication', authenticationRouter)
     .route('/authorization', authorizationRouter)
     .route('/genres', genresRouter)
-    .route('/media', mediaRouter)
     .route('/user-settings', userSettingsRouter)
 
   return router

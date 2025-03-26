@@ -33,13 +33,6 @@ import {
   VoteGenreRelevanceCommand,
 } from '@romulus/genres/application'
 import type { GenresInfrastructure } from '@romulus/genres/infrastructure'
-import {
-  createDefineArtifactSchemaCommandHandler,
-  createDefineRelationSchemaCommandHandler,
-  createRegisterArtifactCommandHandler,
-  createRegisterRelationCommandHandler,
-} from '@romulus/media/artifacts/application'
-import type { ArtifactsProjection } from '@romulus/media/artifacts/infrastructure'
 import { UserSettingsApplication } from '@romulus/user-settings/application'
 import type { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
@@ -208,37 +201,6 @@ export function createGenresApplication({
     getRandomGenreIdQuery() {
       return new GetRandomGenreIdQuery(infrastructure.dbConnection())
     },
-  }
-}
-
-export type MediaApplication = ReturnType<typeof createMediaApplication>
-export function createMediaApplication(infrastructure: ArtifactsProjection) {
-  return {
-    handleDefineArtifactSchemaCommand: createDefineArtifactSchemaCommandHandler((event) => {
-      infrastructure.applyEvent(event)
-    }),
-    handleDefineRelationSchemaCommand: createDefineRelationSchemaCommandHandler((event) => {
-      infrastructure.applyEvent(event)
-    }),
-    handleRegisterArtifactCommand: createRegisterArtifactCommandHandler(
-      (id) => {
-        return Promise.resolve(infrastructure.get().artifactSchemas.get(id))
-      },
-      (event) => {
-        infrastructure.applyEvent(event)
-      },
-    ),
-    handleRegisterRelationCommand: createRegisterRelationCommandHandler(
-      (ids: { schemaId: string; sourceArtifactId: string; targetArtifactId: string }) => {
-        const schema = infrastructure.get().relationSchemas.get(ids.schemaId)
-        const sourceArtifact = infrastructure.get().artifacts.get(ids.sourceArtifactId)
-        const targetArtifact = infrastructure.get().artifacts.get(ids.targetArtifactId)
-        return Promise.resolve({ schema, sourceArtifact, targetArtifact })
-      },
-      (event) => {
-        infrastructure.applyEvent(event)
-      },
-    ),
   }
 }
 
