@@ -96,7 +96,6 @@ test('should insert the genre into the database', async ({ dbConnection }) => {
       longDescription: null,
       notes: null,
       parents: [],
-      children: [],
       derivedFrom: [],
       influencedBy: [],
       influences: [],

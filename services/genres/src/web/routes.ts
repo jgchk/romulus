@@ -714,13 +714,6 @@ export const getGenreRoute = createRoute({
                   nsfw: z.boolean(),
                 })
                 .array(),
-              children: z
-                .object({
-                  id: z.number().int(),
-                  name: z.string(),
-                  type: z.enum(GENRE_TYPES),
-                })
-                .array(),
               derivedFrom: z
                 .object({
                   id: z.number().int(),

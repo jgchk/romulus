@@ -61,12 +61,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     () => new Map<number, { id: number; username: string }>(),
   )
 
-  const { akas, parents, children, influencedBy, influences, contributors, ...rest } = maybeGenre
+  const { akas, parents, influencedBy, influences, contributors, ...rest } = maybeGenre
   const genre = {
     ...rest,
     akas: [...akas.primary, ...akas.secondary, ...akas.tertiary],
     parents: parents.sort((a, b) => a.name.localeCompare(b.name)),
-    children: children.sort((a, b) => a.name.localeCompare(b.name)),
     influencedBy: influencedBy.sort((a, b) => a.name.localeCompare(b.name)),
     influences: influences.sort((a, b) => a.name.localeCompare(b.name)),
     contributors: contributors.map((id) => usersMap.get(id)).filter(isDefined),
