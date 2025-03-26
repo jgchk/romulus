@@ -55,18 +55,31 @@ export class GetGenreTreeQuery {
       }),
     ])
 
-    const genresMap = new Map(
-      results.map((genre) => [
-        genre.id,
-        {
-          ...genre,
-          akas: [] as string[],
-          children: [] as { id: number; name: string }[],
-          derivedFrom: [] as { id: number; name: string }[],
-          derivations: [] as { id: number; name: string }[],
-        },
-      ]),
-    )
+    const genresMap = new Map<
+      number,
+      {
+        id: number
+        name: string
+        subtitle: string | null
+        type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
+        akas: string[]
+        children: { id: number; name: string }[]
+        derivedFrom: { id: number; name: string }[]
+        derivations: { id: number; name: string }[]
+        relevance: number
+        nsfw: boolean
+        updatedAt: Date
+      }
+    >()
+    for (const genre of results) {
+      genresMap.set(genre.id, {
+        ...genre,
+        akas: [] as string[],
+        children: [] as { id: number; name: string }[],
+        derivedFrom: [] as { id: number; name: string }[],
+        derivations: [] as { id: number; name: string }[],
+      })
+    }
 
     for (const { parentId, childId } of parentChildren) {
       const parent = genresMap.get(parentId)
