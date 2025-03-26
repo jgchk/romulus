@@ -32,12 +32,6 @@ export class GetGenreTreeQuery {
         updatedAt: true,
       },
       orderBy: (genres, { asc }) => asc(genres.name),
-      with: {
-        akas: {
-          columns: { name: true },
-          orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
-        },
-      },
     })
 
     const parentChildren = await this.db.query.genreParents.findMany({
@@ -54,11 +48,20 @@ export class GetGenreTreeQuery {
       },
     })
 
+    const akas = await this.db.query.genreAkas.findMany({
+      columns: {
+        genreId: true,
+        name: true,
+      },
+      orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
+    })
+
     const genresMap = new Map(
       results.map((genre) => [
         genre.id,
         {
           ...genre,
+          akas: [] as string[],
           children: [] as { id: number; name: string }[],
           derivedFrom: [] as { id: number; name: string }[],
           derivations: [] as { id: number; name: string }[],
@@ -83,9 +86,15 @@ export class GetGenreTreeQuery {
       }
     }
 
-    return [...genresMap.values()].map(({ akas, children, ...genre }) => ({
+    for (const { genreId, name } of akas) {
+      const genre = genresMap.get(genreId)
+      if (genre) {
+        genre.akas.push(name)
+      }
+    }
+
+    return [...genresMap.values()].map(({ children, ...genre }) => ({
       ...genre,
-      akas: akas.map((aka) => aka.name),
       children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
       derivedFrom: genre.derivedFrom
         .sort((a, b) => a.name.localeCompare(b.name))
