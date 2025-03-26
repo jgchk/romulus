@@ -657,7 +657,6 @@ export const getGenreTreeRoute = createRoute({
                 subtitle: z.string().nullable(),
                 type: z.enum(GENRE_TYPES),
                 akas: z.string().array(),
-                parents: z.number().int().array(),
                 children: z.number().int().array(),
                 derivedFrom: z.number().int().array(),
                 derivations: z.number().int().array(),

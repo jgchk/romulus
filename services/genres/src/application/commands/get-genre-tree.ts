@@ -9,7 +9,6 @@ export type GetGenreTreeResult = {
   subtitle: string | null
   type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
   akas: string[]
-  parents: number[]
   children: number[]
   derivedFrom: number[]
   derivations: number[]
@@ -60,7 +59,6 @@ export class GetGenreTreeQuery {
         genre.id,
         {
           ...genre,
-          parents: [] as { id: number; name: string }[],
           children: [] as { id: number; name: string }[],
           derivedFrom: [] as { id: number; name: string }[],
           derivations: [] as { id: number; name: string }[],
@@ -73,7 +71,6 @@ export class GetGenreTreeQuery {
       const child = genresMap.get(childId)
       if (parent && child) {
         parent.children.push({ id: childId, name: child.name })
-        child.parents.push({ id: parentId, name: parent.name })
       }
     }
 
@@ -86,10 +83,9 @@ export class GetGenreTreeQuery {
       }
     }
 
-    return [...genresMap.values()].map(({ akas, parents, children, ...genre }) => ({
+    return [...genresMap.values()].map(({ akas, children, ...genre }) => ({
       ...genre,
       akas: akas.map((aka) => aka.name),
-      parents: parents.sort((a, b) => a.name.localeCompare(b.name)).map((parent) => parent.id),
       children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
       derivedFrom: genre.derivedFrom
         .sort((a, b) => a.name.localeCompare(b.name))
