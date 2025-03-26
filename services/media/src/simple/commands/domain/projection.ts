@@ -1,4 +1,5 @@
-import type { MediaType, MediaTypeEvent } from './types.js'
+import type { MediaTypeEvent } from '../../common/domain/events.js'
+import type { MediaType } from './types.js'
 
 export type Projection = {
   mediaTypes: Map<string, MediaType>
