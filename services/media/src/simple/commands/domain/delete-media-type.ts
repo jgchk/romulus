@@ -1,12 +1,5 @@
-import type { Result } from 'neverthrow'
-import { ok } from 'neverthrow'
-
-import type { MediaTypeTreeCycleError } from './errors.js'
-
-export function deleteMediaType(
-  command: DeleteMediaTypeCommand,
-): Result<MediaTypeDeletedEvent, MediaTypeTreeCycleError> {
-  return ok(mediaTypeDeletedEvent({ id: command.id }))
+export function deleteMediaType(command: DeleteMediaTypeCommand) {
+  return mediaTypeDeletedEvent({ id: command.id })
 }
 
 export type DeleteMediaTypeCommand = {
