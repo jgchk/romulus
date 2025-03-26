@@ -21,40 +21,39 @@ export class GetGenreTreeQuery {
   constructor(private db: IDrizzleConnection) {}
 
   async execute(): Promise<GetGenreTreeResult> {
-    const results = await this.db.query.genres.findMany({
-      columns: {
-        id: true,
-        name: true,
-        subtitle: true,
-        type: true,
-        relevance: true,
-        nsfw: true,
-        updatedAt: true,
-      },
-      orderBy: (genres, { asc }) => asc(genres.name),
-    })
-
-    const parentChildren = await this.db.query.genreParents.findMany({
-      columns: {
-        parentId: true,
-        childId: true,
-      },
-    })
-
-    const derivations = await this.db.query.genreDerivedFrom.findMany({
-      columns: {
-        derivedFromId: true,
-        derivationId: true,
-      },
-    })
-
-    const akas = await this.db.query.genreAkas.findMany({
-      columns: {
-        genreId: true,
-        name: true,
-      },
-      orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
-    })
+    const [results, parentChildren, derivations, akas] = await Promise.all([
+      this.db.query.genres.findMany({
+        columns: {
+          id: true,
+          name: true,
+          subtitle: true,
+          type: true,
+          relevance: true,
+          nsfw: true,
+          updatedAt: true,
+        },
+        orderBy: (genres, { asc }) => asc(genres.name),
+      }),
+      this.db.query.genreParents.findMany({
+        columns: {
+          parentId: true,
+          childId: true,
+        },
+      }),
+      this.db.query.genreDerivedFrom.findMany({
+        columns: {
+          derivedFromId: true,
+          derivationId: true,
+        },
+      }),
+      this.db.query.genreAkas.findMany({
+        columns: {
+          genreId: true,
+          name: true,
+        },
+        orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
+      }),
+    ])
 
     const genresMap = new Map(
       results.map((genre) => [
