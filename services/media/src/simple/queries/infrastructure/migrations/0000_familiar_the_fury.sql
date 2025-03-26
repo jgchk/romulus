@@ -5,8 +5,7 @@ CREATE TABLE "media_type_parents" (
 --> statement-breakpoint
 CREATE TABLE "media_types" (
 	"id" text PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"parents" text[]
+	"name" text NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "media_type_parents" ADD CONSTRAINT "media_type_parents_parent_id_media_types_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."media_types"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint

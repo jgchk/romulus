@@ -4,7 +4,6 @@ import { pgTable, text } from 'drizzle-orm/pg-core'
 export const mediaTypes = pgTable('media_types', {
   id: text('id').primaryKey().notNull(),
   name: text('name').notNull(),
-  parents: text('parents').array(),
 })
 
 export const mediaTypeRelations = relations(mediaTypes, ({ many }) => ({

@@ -1,5 +1,5 @@
 {
-  "id": "6337d102-8e64-47f9-b380-908dd8a4d250",
+  "id": "50a133c5-ef19-460a-a2e6-5dddae76c5de",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -71,12 +71,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "parents": {
-          "name": "parents",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
