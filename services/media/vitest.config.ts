@@ -5,6 +5,6 @@ export default defineConfig({
     css: true,
     include: ['./src/**/*.test.ts'],
     setupFiles: ['./src/vitest-setup.ts'],
-    testTimeout: 10000, // FIXME: We have slow tests due to using PGlite. Let's refactor to not rely on PGlite instead of increasing the timeout.
+    testTimeout: 15000, // FIXME: We have slow tests due to using PGlite. Let's refactor to not rely on PGlite instead of increasing the timeout.
   },
 })
