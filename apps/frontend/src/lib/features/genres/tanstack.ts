@@ -1,6 +1,9 @@
 import { queryOptions } from '@tanstack/svelte-query'
-import { parse } from 'devalue'
+import { parse, stringify } from 'devalue'
 
+import { browser } from '$app/environment'
+
+import { createGenreStore, type GenreStore } from './queries/infrastructure'
 import type { TreeGenre } from './queries/types'
 
 export const genreQueries = {
@@ -14,7 +17,25 @@ export const genreQueries = {
         })
         const json = (await response.json()) as { genres: string }
         const genreTree = parse(json.genres) as Map<number, TreeGenre>
+        cacheGenreTree(genreTree)
         return genreTree
       },
+      initialData: () => getGenreTreeFromCache(),
     }),
+}
+
+function cacheGenreTree(store: GenreStore) {
+  if (!browser) return
+
+  localStorage.setItem('genre-tree', stringify(store.values().toArray()))
+}
+
+function getGenreTreeFromCache() {
+  if (!browser) return
+
+  const lsGenreTree = localStorage.getItem('genre-tree')
+  if (lsGenreTree) {
+    const tree = createGenreStore(parse(lsGenreTree) as TreeGenre[])
+    return tree
+  }
 }
