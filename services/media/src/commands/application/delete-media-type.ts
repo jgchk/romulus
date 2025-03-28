@@ -1,5 +1,5 @@
-import type { MaybePromise } from '../../../utils.js'
 import { type MediaTypeDeletedEvent } from '../../common/domain/events.js'
+import type { MaybePromise } from '../../utils.js'
 import { deleteMediaType, type DeleteMediaTypeCommand } from '../domain/delete-media-type.js'
 
 export function createDeleteMediaTypeCommand(
