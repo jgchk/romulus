@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 import { describeRoute } from 'hono-openapi'
 import { resolver } from 'hono-openapi/arktype'
 
-import type { GetAllMediaTypesQuery } from '../application/get-all-media-types.js'
+import type { GetAllMediaTypesQueryHandler } from '../application/get-all-media-types.js'
 
 const responseSchema = type({
   id: 'string',
@@ -16,7 +16,7 @@ export type MediaRouter = ReturnType<typeof createMediaRouter>
 export function createMediaRouter({
   getAllMediaTypes,
 }: {
-  getAllMediaTypes: GetAllMediaTypesQuery
+  getAllMediaTypes: GetAllMediaTypesQueryHandler
 }) {
   const app = new Hono().get(
     '/media-types',

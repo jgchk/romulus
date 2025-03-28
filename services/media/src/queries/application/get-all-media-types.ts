@@ -1,9 +1,11 @@
 import type { MediaType } from '../../commands/domain/types.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 
-export type GetAllMediaTypesQuery = () => Promise<MediaType[]>
+export type GetAllMediaTypesQueryHandler = () => Promise<MediaType[]>
 
-export function createGetAllMediaTypesQuery(db: IDrizzleConnection): GetAllMediaTypesQuery {
+export function createGetAllMediaTypesQueryHandler(
+  db: IDrizzleConnection,
+): GetAllMediaTypesQueryHandler {
   return async function getAllMediaTypes() {
     return db.query.mediaTypes
       .findMany({
