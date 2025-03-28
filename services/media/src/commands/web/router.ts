@@ -1,25 +1,12 @@
 import { type } from 'arktype'
 import { Hono } from 'hono'
-import { describeRoute } from 'hono-openapi'
-import { resolver, validator } from 'hono-openapi/arktype'
+import { validator } from 'hono-openapi/arktype'
 
 import type { CreateMediaTypeCommandHandler } from '../application/create-media-type.js'
 import { MediaTypeTreeCycleError } from '../domain/errors.js'
+import { routes } from './routes.js'
 
 export type MediaRouter = ReturnType<typeof createMediaRouter>
-
-const successResponse = type({
-  success: 'true',
-})
-
-const errorResponse = type({
-  success: 'false',
-  error: {
-    name: '"MediaTypeTreeCycleError"',
-    message: 'string',
-    statusCode: '400',
-  },
-})
 
 export function createMediaRouter({
   createMediaType,
@@ -28,27 +15,7 @@ export function createMediaRouter({
 }) {
   const app = new Hono().post(
     '/media-types',
-    describeRoute({
-      description: 'Get all media types',
-      responses: {
-        200: {
-          description: 'Successful response',
-          content: {
-            'application/json': {
-              schema: resolver(successResponse),
-            },
-          },
-        },
-        400: {
-          description: 'Bad request',
-          content: {
-            'application/json': {
-              schema: resolver(errorResponse),
-            },
-          },
-        },
-      },
-    }),
+    routes.createMediaType.route(),
     validator(
       'json',
       type({
@@ -62,7 +29,11 @@ export function createMediaRouter({
       const result = await createMediaType({ mediaType: body })
 
       return result.match(
-        () => c.json({ success: true } satisfies typeof successResponse.infer, 200),
+        () =>
+          c.json(
+            { success: true } satisfies typeof routes.createMediaType.successResponse.infer,
+            200,
+          ),
         (err) => {
           if (err instanceof MediaTypeTreeCycleError) {
             return c.json(
@@ -73,7 +44,7 @@ export function createMediaRouter({
                   message: err.message,
                   statusCode: 400,
                 },
-              } satisfies typeof errorResponse.infer,
+              } satisfies typeof routes.createMediaType.errorResponse.infer,
               400,
             )
           } else {
