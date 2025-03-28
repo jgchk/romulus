@@ -35,10 +35,13 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.12",
+    "@hono/arktype-validator": "^2.0.0",
     "@romulus/custom-error": "workspace:*",
     "@romulus/hono-utils": "workspace:*",
+    "arktype": "^2.0.4",
     "drizzle-orm": "^0.36.0",
     "hono": "^4.6.12",
+    "hono-openapi": "^0.4.6",
     "immutable": "^5.0.3",
     "neverthrow": "^8.1.1",
     "postgres": "^3.4.5",
