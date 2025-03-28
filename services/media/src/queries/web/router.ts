@@ -5,13 +5,19 @@ import { resolver } from 'hono-openapi/arktype'
 
 import type { GetAllMediaTypesQueryHandler } from '../application/get-all-media-types.js'
 
-const responseSchema = type({
-  id: 'string',
-  name: 'string',
-  parents: 'string[]',
-})
-
 export type MediaRouter = ReturnType<typeof createMediaRouter>
+
+const response = type({
+  success: 'true',
+  mediaTypes: type(
+    {
+      id: 'string',
+      name: 'string',
+      parents: 'string[]',
+    },
+    '[]',
+  ),
+})
 
 export function createMediaRouter({
   getAllMediaTypes,
@@ -26,14 +32,16 @@ export function createMediaRouter({
         200: {
           description: 'Successful response',
           content: {
-            'application/json': { schema: resolver(responseSchema) },
+            'application/json': {
+              schema: resolver(response),
+            },
           },
         },
       },
     }),
     async (c) => {
       const mediaTypes = await getAllMediaTypes()
-      return c.json({ success: true, mediaTypes } as const)
+      return c.json({ success: true, mediaTypes } satisfies typeof response.infer)
     },
   )
 
