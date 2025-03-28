@@ -29,7 +29,7 @@
     "test:unit:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
+    "lint:fix": "prettier --write . && tsc --noEmit && eslint . --fix",
     "format": "prettier --write .",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/simple/queries/infrastructure/migrations ./dist/simple/queries/infrastructure/migrations"
   },
