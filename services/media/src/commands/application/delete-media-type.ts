@@ -2,10 +2,12 @@ import { type MediaTypeDeletedEvent } from '../../common/domain/events.js'
 import type { MaybePromise } from '../../utils.js'
 import { deleteMediaType, type DeleteMediaTypeCommand } from '../domain/delete-media-type.js'
 
-export function createDeleteMediaTypeCommand(
+export type DeleteMediaTypeCommandHandler = (command: DeleteMediaTypeCommand) => Promise<void>
+
+export function createDeleteMediaTypeCommandHandler(
   saveEvent: (event: MediaTypeDeletedEvent) => MaybePromise<void>,
-) {
-  return async function (command: DeleteMediaTypeCommand): Promise<void> {
+): DeleteMediaTypeCommandHandler {
+  return async function (command) {
     const event = deleteMediaType(command)
 
     await saveEvent(event)

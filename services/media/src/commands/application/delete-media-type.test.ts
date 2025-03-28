@@ -3,11 +3,11 @@ import { expect, it } from 'vitest'
 import { mediaTypeDeletedEvent, type MediaTypeEvent } from '../../common/domain/events.js'
 import { MemoryEventStore } from '../../common/infrastructure/memory-event-store.js'
 import { MEDIA_TYPE_TREE_EVENT_STORE_KEY } from './common.js'
-import { createDeleteMediaTypeCommand } from './delete-media-type.js'
+import { createDeleteMediaTypeCommandHandler } from './delete-media-type.js'
 
 it('should delete a media type', async () => {
   const eventStore = new MemoryEventStore<MediaTypeEvent>()
-  const deleteMediaType = createDeleteMediaTypeCommand((event) =>
+  const deleteMediaType = createDeleteMediaTypeCommandHandler((event) =>
     eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
 

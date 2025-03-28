@@ -6,11 +6,11 @@ import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
 import { MemoryEventStore } from '../../common/infrastructure/memory-event-store.js'
 import { MediaTypeTreeCycleError } from '../domain/errors.js'
 import { MEDIA_TYPE_TREE_EVENT_STORE_KEY } from './common.js'
-import { createCreateMediaTypeCommand } from './create-media-type.js'
+import { createCreateMediaTypeCommandHandler } from './create-media-type.js'
 
 it('should create a media type', async () => {
   const eventStore = new MemoryEventStore<MediaTypeEvent>()
-  const createMediaType = createCreateMediaTypeCommand((event) =>
+  const createMediaType = createCreateMediaTypeCommandHandler((event) =>
     eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
 
@@ -28,7 +28,7 @@ it('should create a media type', async () => {
 
 it('should error if media type creation fails', async () => {
   const eventStore = new MemoryEventStore<MediaTypeEvent>()
-  const createMediaType = createCreateMediaTypeCommand((event) =>
+  const createMediaType = createCreateMediaTypeCommandHandler((event) =>
     eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
 

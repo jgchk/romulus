@@ -5,12 +5,14 @@ import type { MaybePromise } from '../../utils.js'
 import { createMediaType, type CreateMediaTypeCommand } from '../domain/create-media-type.js'
 import type { MediaTypeTreeCycleError } from '../domain/errors.js'
 
-export function createCreateMediaTypeCommand(
+export type CreateMediaTypeCommandHandler = (
+  command: CreateMediaTypeCommand,
+) => Promise<Result<void, MediaTypeTreeCycleError>>
+
+export function createCreateMediaTypeCommandHandler(
   saveEvent: (event: MediaTypeCreatedEvent) => MaybePromise<void>,
-) {
-  return async function (
-    command: CreateMediaTypeCommand,
-  ): Promise<Result<void, MediaTypeTreeCycleError>> {
+): CreateMediaTypeCommandHandler {
+  return async function (command) {
     const result = createMediaType(command)
 
     if (result.isErr()) {

@@ -7,13 +7,13 @@ import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
 import { MemoryEventStore } from '../../common/infrastructure/memory-event-store.js'
 import { MediaTypeNotFoundError } from '../domain/errors.js'
 import { MEDIA_TYPE_TREE_EVENT_STORE_KEY } from './common.js'
-import { createCreateMediaTypeCommand } from './create-media-type.js'
-import { createUpdateMediaTypeCommand } from './update-media-type.js'
+import { createCreateMediaTypeCommandHandler } from './create-media-type.js'
+import { createUpdateMediaTypeCommandHandler } from './update-media-type.js'
 
 it('should update a media type', async () => {
   const eventStore = new MemoryEventStore<MediaTypeEvent>()
 
-  const createMediaType = createCreateMediaTypeCommand((event) =>
+  const createMediaType = createCreateMediaTypeCommandHandler((event) =>
     eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
 
@@ -21,7 +21,7 @@ it('should update a media type', async () => {
     mediaType: { id: 'test-id', name: 'Test', parents: [] },
   })
 
-  const updateMediaType = createUpdateMediaTypeCommand(
+  const updateMediaType = createUpdateMediaTypeCommandHandler(
     () => eventStore.get(MEDIA_TYPE_TREE_EVENT_STORE_KEY),
     (event) => eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
@@ -42,7 +42,7 @@ it('should update a media type', async () => {
 
 it('should error if media type update fails', async () => {
   const eventStore = new MemoryEventStore<MediaTypeEvent>()
-  const updateMediaType = createUpdateMediaTypeCommand(
+  const updateMediaType = createUpdateMediaTypeCommandHandler(
     () => eventStore.get(MEDIA_TYPE_TREE_EVENT_STORE_KEY),
     (event) => eventStore.save(MEDIA_TYPE_TREE_EVENT_STORE_KEY, [event]),
   )
