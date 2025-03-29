@@ -26,6 +26,22 @@ export const routes = {
               },
             },
           },
+          401: {
+            description: 'Unauthenticated',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          403: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
         },
       }),
     successResponse: type({
