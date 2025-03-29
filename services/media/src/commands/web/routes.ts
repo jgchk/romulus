@@ -33,4 +33,6 @@ export const routes = {
     }),
     errorResponse: createErrorResponse(type('"MediaTypeTreeCycleError"'), type('400')),
   },
+
+  unauthenticatedErrorResponse: createErrorResponse(type('"UnauthenticatedError"'), type('401')),
 }
