@@ -1,4 +1,3 @@
-import { CustomError } from '@romulus/custom-error'
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
@@ -65,10 +64,4 @@ function sendUnauthenticatedError(
     } satisfies typeof routes.unauthenticatedErrorResponse.infer,
     401,
   )
-}
-
-export class UnauthenticatedError extends CustomError {
-  constructor() {
-    super('UnauthenticatedError', 'You are not authenticated')
-  }
 }

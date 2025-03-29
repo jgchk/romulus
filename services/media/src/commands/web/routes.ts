@@ -35,4 +35,5 @@ export const routes = {
   },
 
   unauthenticatedErrorResponse: createErrorResponse(type('"UnauthenticatedError"'), type('401')),
+  unauthorizedErrorResponse: createErrorResponse(type('"UnauthorizedError"'), type('403')),
 }

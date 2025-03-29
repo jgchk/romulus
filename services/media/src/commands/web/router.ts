@@ -4,7 +4,10 @@ import { validator } from 'hono-openapi/arktype'
 
 import type { CreateMediaTypeCommandHandler } from '../application/create-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
+import type { IAuthorizationService } from '../domain/authorization.js'
 import { MediaTypeTreeCycleError } from '../domain/errors.js'
+import { MediaPermission } from '../domain/permissions.js'
+import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { bearerAuth } from './bearer-auth-middleware.js'
 import { routes } from './routes.js'
 
@@ -13,10 +16,14 @@ export type MediaRouter = ReturnType<typeof createMediaRouter>
 export function createMediaRouter({
   createMediaType,
   authentication,
+  authorization,
 }: {
   createMediaType: CreateMediaTypeCommandHandler
   authentication: IAuthenticationService
+  authorization: IAuthorizationService
 }) {
+  const authz = createAuthorizationMiddleware(authorization)
+
   const app = new Hono().use(bearerAuth(authentication)).post(
     '/media-types',
     routes.createMediaType.route(),
@@ -28,6 +35,7 @@ export function createMediaRouter({
         parents: 'string[]',
       }),
     ),
+    authz(MediaPermission.CreateMediaTypes),
     async (c) => {
       const body = c.req.valid('json')
       const result = await createMediaType({ mediaType: body })
