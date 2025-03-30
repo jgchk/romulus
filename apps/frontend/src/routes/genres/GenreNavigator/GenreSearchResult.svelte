@@ -39,7 +39,6 @@
 >
   {match.genre.name}
   {#if match.genre.subtitle}
-    &nbsp;
     <span
       class="text-[0.8rem] text-gray-500 transition group-hover:text-gray-600 dark:group-hover:text-gray-400"
       >[{match.genre.subtitle}]</span
