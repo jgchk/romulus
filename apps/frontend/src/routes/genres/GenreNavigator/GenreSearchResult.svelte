@@ -45,11 +45,9 @@
     >
   {/if}
   {#if match.matchedAka}
-    &nbsp;
     <span class="text-[0.8rem]">({match.matchedAka})</span>
   {/if}
   {#if $userSettings.showTypeTags && match.genre.type !== 'STYLE'}
-    &nbsp;
     <GenreTypeChip type={match.genre.type} />
   {/if}
   {#if match.genre.nsfw}

@@ -117,11 +117,9 @@
           </span>
         {/if}
         {#if $userSettings.showTypeTags && genre.type !== 'STYLE'}
-          &nbsp;
           <GenreTypeChip type={genre.type} />
         {/if}
         {#if $userSettings.showRelevanceTags}
-          &nbsp;
           <RelevanceChip relevance={genre.relevance} />
         {/if}
         {#if genre.nsfw}
