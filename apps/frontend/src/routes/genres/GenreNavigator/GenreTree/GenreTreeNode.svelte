@@ -105,7 +105,6 @@
       >
         <span class="genre-tree-node__name">{genre.name}</span>
         {#if genre.subtitle}
-          &nbsp;
           <span
             class={cn(
               'genre-tree-node__subtitle text-[0.8rem] transition',
