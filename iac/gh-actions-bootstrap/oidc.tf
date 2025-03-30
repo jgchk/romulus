@@ -132,7 +132,11 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "ec2:DescribeTags",
           "ec2:DescribeInstanceAttribute",
           "ec2:DescribeVolumes",
-          "ec2:DescribeInstanceCreditSpecifications"
+          "ec2:DescribeInstanceCreditSpecifications",
+          "ec2:TerminateInstances",
+          "ec2:RebootInstances",
+          "ec2:RunInstances",
+          "ec2:CreateTags"
         ],
         "Resource" : "*"
       },
