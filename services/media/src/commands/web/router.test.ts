@@ -142,10 +142,39 @@ describe('update', () => {
       { param: { id: 'test' }, json: { name: 'Test (Updated)', parents: ['test'] } },
       { headers: { authorization: `Bearer 000-000-000` } },
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
       success: false,
-      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
+      error: {
+        name: 'MediaTypeTreeCycleError',
+        message:
+          'A cycle would be created in the media type tree: Test (Updated) -> Test (Updated)',
+        statusCode: 400,
+      },
+    })
+  })
+
+  it('returns 404 error if the media type does not exist', async () => {
+    const { client } = setup({
+      updateMediaType: createUpdateMediaTypeCommandHandler(
+        () => [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      ),
+    })
+
+    const response = await client['media-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test (Updated)', parents: [] } },
+      { headers: { authorization: `Bearer 000-000-000` } },
+    )
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'MediaTypeNotFoundError',
+        message: "Media type with ID 'test' not found",
+        statusCode: 404,
+      },
     })
   })
 })
