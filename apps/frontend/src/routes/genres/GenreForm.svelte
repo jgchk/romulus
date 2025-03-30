@@ -243,7 +243,13 @@
         class="w-full"
         id="short-description"
         value={$form.shortDescription ?? ''}
-        onChange={(value) => ($form.shortDescription = value)}
+        onChange={(value) => {
+          const newValue = value ?? ''
+          const oldValue = $form.shortDescription ?? ''
+          if (newValue !== oldValue) {
+            $form.shortDescription = value
+          }
+        }}
         autofocus={autoFocus === 'shortDescription'}
         {genres}
       />
@@ -255,7 +261,13 @@
         class="w-full"
         id="long-description"
         value={$form.longDescription ?? ''}
-        onChange={(value) => ($form.longDescription = value)}
+        onChange={(value) => {
+          const newValue = value ?? ''
+          const oldValue = $form.longDescription ?? ''
+          if (newValue !== oldValue) {
+            $form.longDescription = value
+          }
+        }}
         autofocus={autoFocus === 'longDescription'}
         {genres}
       />
@@ -267,7 +279,13 @@
         class="w-full"
         id="notes"
         value={$form.notes ?? ''}
-        onChange={(value) => ($form.notes = value)}
+        onChange={(value) => {
+          const newValue = value ?? ''
+          const oldValue = $form.notes ?? ''
+          if (newValue !== oldValue) {
+            $form.notes = value
+          }
+        }}
         autofocus={autoFocus === 'notes'}
         {genres}
       />
