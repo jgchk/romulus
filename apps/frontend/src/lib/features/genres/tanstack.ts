@@ -21,6 +21,9 @@ export const genreQueries = {
         return genreTree
       },
       initialData: () => getGenreTreeFromCache(),
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     }),
 }
 
