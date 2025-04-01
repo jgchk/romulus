@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { getQueryClientContext } from '@tanstack/svelte-query'
   import type { Snippet } from 'svelte'
 
   import { browser } from '$app/environment'
   import { page } from '$app/stores'
   import Card from '$lib/atoms/Card.svelte'
   import SplitPane from '$lib/atoms/SplitPane.svelte'
+  import { genreQueries, getGenreTreeFromCache } from '$lib/features/genres/tanstack'
 
   import type { LayoutData } from './$types'
   import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
@@ -27,6 +29,18 @@
   })
 
   setTreeStateStoreContext(createTreeStateStore())
+
+  const queryClient = getQueryClientContext()
+  $effect(() => {
+    async function loadGenreTreeFromCache() {
+      const cached = await getGenreTreeFromCache()
+      if (cached) {
+        queryClient.setQueryData(genreQueries.tree().queryKey, cached)
+      }
+    }
+
+    void loadGenreTreeFromCache()
+  })
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
