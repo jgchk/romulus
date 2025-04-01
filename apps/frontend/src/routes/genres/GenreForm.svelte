@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getQueryClientContext } from '@tanstack/svelte-query'
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -12,6 +13,7 @@
   import { toast } from '$lib/atoms/Toast/toast'
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
   import Footer from './Footer.svelte'
@@ -33,6 +35,7 @@
 
   let topLevelConfirmation: 'confirm' | 'confirmed' | undefined = $state(undefined)
 
+  const queryClient = getQueryClientContext()
   const { form, errors, constraints, delayed, enhance, submit } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
@@ -58,6 +61,12 @@
     onUpdated: ({ form }) => {
       if (!form.valid) {
         toast.error('The form has errors. Please correct them before submitting.')
+      }
+    },
+
+    onResult: ({ result }) => {
+      if (result.type === 'success' || result.type === 'redirect') {
+        void queryClient.invalidateQueries({ queryKey: genreQueries.tree().queryKey })
       }
     },
   })
