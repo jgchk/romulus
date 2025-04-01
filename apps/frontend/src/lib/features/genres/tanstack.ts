@@ -30,7 +30,11 @@ export const genreQueries = {
 function cacheGenreTree(store: GenreStore) {
   if (!browser) return
 
-  localStorage.setItem('genre-tree', stringify([...store.values()]))
+  try {
+    localStorage.setItem('genre-tree', stringify([...store.values()]))
+  } catch (error) {
+    console.error('Error caching genre tree:', error)
+  }
 }
 
 function getGenreTreeFromCache() {
