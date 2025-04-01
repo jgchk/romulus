@@ -159,7 +159,8 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "elasticloadbalancing:DescribeTags",
           "elasticloadbalancing:DescribeListeners",
           "elasticloadbalancing:DescribeListenerAttributes",
-          "elasticloadbalancing:ModifyTargetGroup"
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes"
         ],
         "Resource" : "*"
       },
