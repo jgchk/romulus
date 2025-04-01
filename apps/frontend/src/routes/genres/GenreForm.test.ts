@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/svelte-query'
 import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import type { ComponentProps } from 'svelte'
@@ -13,8 +14,19 @@ import GenreForm from './GenreForm.svelte'
 function setup(props: ComponentProps<typeof GenreForm>) {
   const user = userEvent.setup()
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        experimental_prefetchInRender: true,
+        enabled: false,
+      },
+    },
+  })
+
   const returned = render(GenreForm, {
     props,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: new Map<any, any>([['$$_queryClient', queryClient]]),
   })
 
   return {
