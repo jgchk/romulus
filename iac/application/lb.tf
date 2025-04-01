@@ -52,5 +52,13 @@ resource "aws_lb_target_group" "frontend" {
     interval            = 30
     matcher             = "200-399"
   }
+
+  deregistration_delay = 30
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400 # 24 hours
+    enabled         = true
+  }
 }
 

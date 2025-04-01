@@ -70,6 +70,7 @@ resource "aws_ecs_task_definition" "frontend" {
       retries     = 3
       startPeriod = 60
     }
+    stopTimeout = 30
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -128,6 +129,7 @@ resource "aws_ecs_task_definition" "backend" {
       retries     = 3
       startPeriod = 60
     }
+    stopTimeout = 30
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -145,6 +147,9 @@ resource "aws_ecs_service" "frontend" {
   task_definition = aws_ecs_task_definition.frontend.arn
   desired_count   = 2
   launch_type     = "FARGATE"
+
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent         = 200
 
   # This forces a new deployment when task definition changes
   force_new_deployment = true
@@ -169,6 +174,9 @@ resource "aws_ecs_service" "backend" {
   task_definition = aws_ecs_task_definition.backend.arn
   desired_count   = 2
   launch_type     = "FARGATE"
+
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent         = 200
 
   # This forces a new deployment when task definition changes
   force_new_deployment = true
