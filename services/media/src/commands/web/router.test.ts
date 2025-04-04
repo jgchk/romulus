@@ -6,10 +6,10 @@ import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
 import { createCreateMediaTypeCommandHandler } from '../application/create-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/update-media-type.js'
 import { MediaPermission } from '../domain/permissions.js'
-import { createMediaRouter, type MediaRouterDependencies } from './router.js'
+import { createMediaCommandsRouter, type MediaCommandsRouterDependencies } from './router.js'
 
-function setup(options: Partial<MediaRouterDependencies> = {}) {
-  const router = createMediaRouter({
+function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
+  const router = createMediaCommandsRouter({
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     createMediaType: createCreateMediaTypeCommandHandler(() => {}),
     updateMediaType: createUpdateMediaTypeCommandHandler(

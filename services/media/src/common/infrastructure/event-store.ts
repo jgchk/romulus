@@ -1,5 +1,6 @@
+import type { MaybePromise } from '../../utils.js'
+
 export type IEventStore<Event> = {
-  get(id: string): Event[] | undefined
-  getAll(): Event[]
-  save(id: string, events: Event[]): void
+  get(id: string): MaybePromise<Event[]>
+  save(id: string, events: Event[]): MaybePromise<void>
 }

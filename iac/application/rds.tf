@@ -125,3 +125,31 @@ resource "aws_db_instance" "user_settings" {
     ]
   }
 }
+
+resource "aws_db_instance" "media" {
+  identifier                = "media"
+  engine                    = "postgres"
+  engine_version            = "15"
+  instance_class            = "db.t3.micro"
+  allocated_storage         = 20
+  username                  = jsondecode(aws_secretsmanager_secret_version.db_credentials.secret_string)["media_username"]
+  password                  = jsondecode(aws_secretsmanager_secret_version.db_credentials.secret_string)["media_password"]
+  db_subnet_group_name      = aws_db_subnet_group.postgres.name
+  vpc_security_group_ids    = [aws_security_group.postgres.id]
+  db_name                   = "media"
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "media-final-snapshot-${replace(timestamp(), ":", "-")}"
+
+  # Backup configuration
+  backup_retention_period = 7
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Sun:04:30-Sun:05:30"
+  copy_tags_to_snapshot   = true
+
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+    ]
+  }
+}
+

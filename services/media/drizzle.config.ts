@@ -2,8 +2,11 @@ import type { Config } from 'drizzle-kit'
 
 export default {
   dialect: 'postgresql',
-  out: './src/simple/queries/infrastructure/migrations',
-  schema: ['./src/simple/queries/infrastructure/drizzle-schema.ts'],
+  out: './src/common/infrastructure/drizzle/migrations',
+  schema: [
+    './src/queries/infrastructure/drizzle-schema.ts',
+    './src/common/infrastructure/drizzle/event-store-schema.ts',
+  ],
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },

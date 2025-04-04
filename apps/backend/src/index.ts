@@ -16,6 +16,7 @@ void main({
     authorizationDatabaseUrl: env.AUTHORIZATION_DATABASE_URL,
     genresDatabaseUrl: env.GENRES_DATABASE_URL,
     userSettingsDatabaseUrl: env.USER_SETTINGS_DATABASE_URL,
+    mediaDatabaseUrl: env.MEDIA_DATABASE_URL,
 
     enableDevAdminAccount: env.ENABLE_DEV_ADMIN_ACCOUNT,
   },

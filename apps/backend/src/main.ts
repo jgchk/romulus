@@ -11,6 +11,13 @@ import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { setupGenresPermissions } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { createGenresRouter } from '@romulus/genres/router'
+import {
+  createMediaApplication,
+  type MediaApplication,
+  setupMediaPermissions,
+} from '@romulus/media/application'
+import { createMediaInfrastructure, type MediaInfrastructure } from '@romulus/media/infrastructure'
+import { createMediaRouter } from '@romulus/media/web'
 import type { UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
@@ -36,6 +43,7 @@ export async function main({
     authorizationDatabaseUrl: string
     genresDatabaseUrl: string
     userSettingsDatabaseUrl: string
+    mediaDatabaseUrl: string
 
     enableDevAdminAccount: boolean
   }
@@ -45,6 +53,7 @@ export async function main({
     authorizationInfrastructure,
     genresInfrastructure,
     userSettingsInfrastructure,
+    mediaInfrastructure,
   } = await createInfrastructure(config)
 
   const {
@@ -52,11 +61,13 @@ export async function main({
     authorizationApplication,
     genresApplication,
     userSettingsApplication,
+    mediaApplication,
   } = createApplications({
     authenticationInfrastructure,
     authorizationInfrastructure,
     genresInfrastructure,
     userSettingsInfrastructure,
+    mediaInfrastructure,
   })
 
   const router = createRouter({
@@ -64,7 +75,10 @@ export async function main({
     authorizationApplication,
     genresApplication,
     userSettingsApplication,
+    mediaApplication,
   })
+
+  const t: string = 5
 
   await setupPermissions(authorizationApplication)
   await setupRoles(authorizationApplication)
@@ -84,6 +98,7 @@ async function createInfrastructure(config: {
   authorizationDatabaseUrl: string
   genresDatabaseUrl: string
   userSettingsDatabaseUrl: string
+  mediaDatabaseUrl: string
 }) {
   const authenticationInfrastructure = await AuthenticationInfrastructure.create(
     config.authenticationDatabaseUrl,
@@ -96,11 +111,14 @@ async function createInfrastructure(config: {
     config.userSettingsDatabaseUrl,
   )
 
+  const mediaInfrastructure = await createMediaInfrastructure(config.mediaDatabaseUrl)
+
   return {
     authenticationInfrastructure,
     authorizationInfrastructure,
     genresInfrastructure,
     userSettingsInfrastructure,
+    mediaInfrastructure,
   }
 }
 
@@ -109,11 +127,13 @@ function createApplications({
   authorizationInfrastructure,
   genresInfrastructure,
   userSettingsInfrastructure,
+  mediaInfrastructure,
 }: {
   authenticationInfrastructure: AuthenticationInfrastructure
   authorizationInfrastructure: AuthorizationInfrastructure
   genresInfrastructure: GenresInfrastructure
   userSettingsInfrastructure: UserSettingsInfrastructure
+  mediaInfrastructure: MediaInfrastructure
 }) {
   const authenticationApplication = createAuthenticationApplication({
     infrastructure: authenticationInfrastructure,
@@ -133,12 +153,18 @@ function createApplications({
     },
   })
   const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
+  const mediaApplication = createMediaApplication(
+    () => mediaInfrastructure.eventStore.get('media-types'),
+    (event) => mediaInfrastructure.eventStore.save('media-types', [event]),
+    mediaInfrastructure.db,
+  )
 
   return {
     authenticationApplication,
     authorizationApplication,
     genresApplication,
     userSettingsApplication,
+    mediaApplication,
   }
 }
 
@@ -147,11 +173,13 @@ function createRouter({
   authorizationApplication,
   genresApplication,
   userSettingsApplication,
+  mediaApplication,
 }: {
   authenticationApplication: AuthenticationApplication
   authorizationApplication: AuthorizationApplication
   genresApplication: GenresApplication
   userSettingsApplication: UserSettingsApplication
+  mediaApplication: MediaApplication
 }) {
   const authenticationRouter = createAuthenticationRouter(authenticationApplication)
   const authorizationRouter = createAuthorizationRouter({
@@ -205,6 +233,28 @@ function createRouter({
       },
     }),
   })
+  const mediaRouter = createMediaRouter({
+    ...mediaApplication,
+    authentication: {
+      whoami: (token: string) => {
+        const whoamiQuery = authenticationApplication.whoamiQuery()
+
+        // eslint-disable-next-line returned-errors/enforce-error-handling
+        return ResultAsync.fromSafePromise(whoamiQuery.execute(token)).andThen((res) => {
+          if (res instanceof Error) {
+            return err(res)
+          } else {
+            return ok({ id: res.account.id })
+          }
+        })
+      },
+    },
+    authorization: {
+      hasPermission(userId: number, permission: string) {
+        return authorizationApplication.checkMyPermission(permission, userId)
+      },
+    },
+  })
 
   const logger = createLogger()
 
@@ -230,6 +280,7 @@ function createRouter({
     .route('/authorization', authorizationRouter)
     .route('/genres', genresRouter)
     .route('/user-settings', userSettingsRouter)
+    .route('/media', mediaRouter)
 
   return router
 }
@@ -238,6 +289,7 @@ async function setupPermissions(authorizationApplication: AuthorizationApplicati
   await setupAuthorizationPermissions(createPermissions)
   await setupAuthenticationPermissions(createPermissions)
   await setupGenresPermissions(createPermissions)
+  await setupMediaPermissions(createPermissions)
 
   async function createPermissions(
     permissions: { name: string; description: string | undefined }[],

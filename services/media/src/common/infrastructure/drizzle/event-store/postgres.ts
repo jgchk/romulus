@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 
-import { withProps } from '../../utils.js'
-import * as schema from './drizzle-schema.js'
+import { withProps } from '../../../../utils.js'
+import * as schema from './schema.js'
 
 export function getPostgresConnection(databaseUrl = process.env.DATABASE_URL) {
   if (!databaseUrl) {

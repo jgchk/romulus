@@ -1,8 +1,8 @@
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 
-import { withProps } from '../../utils.js'
-import * as schema from './drizzle-schema.js'
+import { withProps } from '../../../../utils.js'
+import * as schema from './schema.js'
 
 export function getPGlitePostgresConnection() {
   return new PGlite()

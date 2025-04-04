@@ -3,10 +3,10 @@ import { hc, type InferRequestType, type InferResponseType } from 'hono/client'
 import type { StatusCode } from 'hono/utils/http-status'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import type { MediaRouter } from './router.js'
+import type { MediaCommandsRouter } from './router.js'
 
 export class MediaClient {
-  private client: ReturnType<typeof hc<MediaRouter>>
+  private client: ReturnType<typeof hc<MediaCommandsRouter>>
   private sessionToken: string | undefined
 
   constructor(options: {
@@ -14,7 +14,7 @@ export class MediaClient {
     sessionToken: string | undefined
     fetch?: typeof fetch
   }) {
-    this.client = hc<MediaRouter>(options.baseUrl, {
+    this.client = hc<MediaCommandsRouter>(options.baseUrl, {
       fetch: options.fetch ?? fetch,
       headers: { authorization: `Bearer ${this.sessionToken}` },
     })

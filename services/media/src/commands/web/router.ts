@@ -12,21 +12,21 @@ import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { bearerAuth } from './bearer-auth-middleware.js'
 import { routes } from './routes.js'
 
-export type MediaRouter = ReturnType<typeof createMediaRouter>
+export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
 
-export type MediaRouterDependencies = {
+export type MediaCommandsRouterDependencies = {
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
 }
 
-export function createMediaRouter({
+export function createMediaCommandsRouter({
   createMediaType,
   updateMediaType,
   authentication,
   authorization,
-}: MediaRouterDependencies) {
+}: MediaCommandsRouterDependencies) {
   const authz = createAuthorizationMiddleware(authorization)
 
   const app = new Hono()

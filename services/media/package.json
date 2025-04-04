@@ -2,25 +2,17 @@
   "name": "@romulus/media",
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "./application": {
+      "import": "./dist/application.js",
+      "types": "./dist/application.d.ts"
     },
-    "./artifacts/application": {
-      "import": "./dist/artifacts/commands/application/index.js",
-      "types": "./dist/artifacts/commands/application/index.d.ts"
+    "./infrastructure": {
+      "import": "./dist/infrastructure.js",
+      "types": "./dist/infrastructure.d.ts"
     },
-    "./artifacts/router": {
-      "import": "./dist/artifacts/commands/web/router.js",
-      "types": "./dist/artifacts/commands/web/router.d.ts"
-    },
-    "./artifacts/client": {
-      "import": "./dist/artifacts/commands/web/client.js",
-      "types": "./dist/artifacts/commands/web/client.d.ts"
-    },
-    "./artifacts/infrastructure": {
-      "import": "./dist/artifacts/commands/infrastructure/projection.js",
-      "types": "./dist/artifacts/commands/infrastructure/projection.d.ts"
+    "./web": {
+      "import": "./dist/web.js",
+      "types": "./dist/web.d.ts"
     }
   },
   "scripts": {
@@ -31,9 +23,10 @@
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && tsc --noEmit && eslint . --fix",
     "format": "prettier --write .",
-    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/queries/infrastructure/migrations ./dist/queries/infrastructure/migrations"
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/common/infrastructure/drizzle/migrations ./dist/common/infrastructure/drizzle/migrations"
   },
   "dependencies": {
+    "@aws-sdk/lib-dynamodb": "^3.778.0",
     "@electric-sql/pglite": "^0.2.12",
     "@hono/arktype-validator": "^2.0.0",
     "@romulus/custom-error": "workspace:*",

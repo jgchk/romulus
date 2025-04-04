@@ -13,13 +13,6 @@ export class MemoryEventStore<Event extends object> implements IEventStore<Event
     return (this.events.get(id) ?? []).map(({ event }) => event)
   }
 
-  getAll() {
-    return [...this.events.values()]
-      .flat()
-      .sort((a, b) => a.sequence - b.sequence)
-      .map(({ event }) => event)
-  }
-
   save(id: string, events: Event[]) {
     const currentEvents = this.events.get(id) ?? []
     currentEvents.push(...events.map((event) => ({ event, sequence: this.sequence++ })))

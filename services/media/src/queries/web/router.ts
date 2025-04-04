@@ -5,7 +5,7 @@ import { resolver } from 'hono-openapi/arktype'
 
 import type { GetAllMediaTypesQueryHandler } from '../application/get-all-media-types.js'
 
-export type MediaRouter = ReturnType<typeof createMediaRouter>
+export type MediaQueriesRouter = ReturnType<typeof createMediaQueriesRouter>
 
 const response = type({
   success: 'true',
@@ -19,7 +19,7 @@ const response = type({
   ),
 })
 
-export function createMediaRouter({
+export function createMediaQueriesRouter({
   getAllMediaTypes,
 }: {
   getAllMediaTypes: GetAllMediaTypesQueryHandler

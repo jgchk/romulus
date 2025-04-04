@@ -18,6 +18,11 @@ resource "random_password" "user_settings_password" {
   special = false
 }
 
+resource "random_password" "media_password" {
+  length  = 16
+  special = false
+}
+
 resource "aws_secretsmanager_secret" "db_credentials" {
   name = "postgresdb-credentials"
 }
@@ -33,6 +38,8 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
     genres_password         = random_password.genres_password.result
     user_settings_username  = "dbadmin"
     user_settings_password  = random_password.user_settings_password.result
+    media_username          = "dbadmin"
+    media_password          = random_password.media_password.result
   })
 }
 

@@ -113,6 +113,10 @@ resource "aws_ecs_task_definition" "backend" {
         value = "postgresql://${aws_db_instance.user_settings.username}:${aws_db_instance.user_settings.password}@${aws_db_instance.user_settings.endpoint}/${aws_db_instance.user_settings.db_name}?sslmode=require"
       },
       {
+        name  = "MEDIA_DATABASE_URL"
+        value = "postgresql://${aws_db_instance.media.username}:${aws_db_instance.media.password}@${aws_db_instance.media.endpoint}/${aws_db_instance.media.db_name}?sslmode=require"
+      },
+      {
         name  = "ENABLE_DEV_ADMIN_ACCOUNT"
         value = "false"
       }
