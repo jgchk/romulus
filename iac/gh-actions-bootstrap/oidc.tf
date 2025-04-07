@@ -85,7 +85,10 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "secretsmanager:DescribeSecret",
           "secretsmanager:GetResourcePolicy"
         ],
-        "Resource" : "arn:aws:secretsmanager:us-east-2:*:secret:postgresdb-credentials*"
+        "Resource" : [
+          "arn:aws:secretsmanager:us-east-2:*:secret:postgresdb-credentials*",
+          "arn:aws:secretsmanager:us-east-2:*:secret:media-db-credentials*"
+        ]
       },
       {
         "Effect" : "Allow",
