@@ -31,6 +31,7 @@ resource "aws_db_instance" "authentication" {
   db_name                   = "authn"
   skip_final_snapshot       = false
   final_snapshot_identifier = "authentication-final-snapshot-${replace(timestamp(), ":", "-")}"
+  deletion_protection       = true
 
   # Backup configuration
   backup_retention_period = 7
@@ -58,6 +59,7 @@ resource "aws_db_instance" "authorization" {
   db_name                   = "authz"
   skip_final_snapshot       = false
   final_snapshot_identifier = "authorization-final-snapshot-${replace(timestamp(), ":", "-")}"
+  deletion_protection       = true
 
   # Backup configuration
   backup_retention_period = 7
@@ -85,6 +87,7 @@ resource "aws_db_instance" "genres" {
   db_name                   = "genres"
   skip_final_snapshot       = false
   final_snapshot_identifier = "genres-final-snapshot-${replace(timestamp(), ":", "-")}"
+  deletion_protection       = true
 
   # Backup configuration
   backup_retention_period = 7
@@ -112,6 +115,7 @@ resource "aws_db_instance" "user_settings" {
   db_name                   = "user_settings"
   skip_final_snapshot       = false
   final_snapshot_identifier = "user-settings-final-snapshot-${replace(timestamp(), ":", "-")}"
+  deletion_protection       = true
 
   # Backup configuration
   backup_retention_period = 7
@@ -139,6 +143,7 @@ resource "aws_db_instance" "media" {
   db_name                   = "media"
   skip_final_snapshot       = false
   final_snapshot_identifier = "media-final-snapshot-${replace(timestamp(), ":", "-")}"
+  deletion_protection       = true
 
   # Backup configuration
   backup_retention_period = 7
