@@ -20,6 +20,10 @@
     "./router": {
       "import": "./dist/web/router.js",
       "types": "./dist/web/router.d.ts"
+    },
+    "./permissions": {
+      "import": "./dist/domain/permissions.js",
+      "types": "./dist/domain/permissions.d.ts"
     }
   },
   "scripts": {

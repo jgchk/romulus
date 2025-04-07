@@ -1,15 +1,18 @@
 import { serve } from '@hono/node-server'
 import { setupAuthenticationPermissions } from '@romulus/authentication/application'
 import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
+import { AuthenticationPermission } from '@romulus/authentication/permissions'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
 import {
   type AuthorizationApplication,
   setupAuthorizationPermissions,
 } from '@romulus/authorization/application'
 import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
+import { AuthorizationPermission, SYSTEM_USER_ID } from '@romulus/authorization/permissions'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
 import { setupGenresPermissions } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
+import { GenresPermission } from '@romulus/genres/permissions'
 import { createGenresRouter } from '@romulus/genres/router'
 import {
   createMediaApplication,
@@ -17,6 +20,7 @@ import {
   setupMediaPermissions,
 } from '@romulus/media/application'
 import { createMediaInfrastructure, type MediaInfrastructure } from '@romulus/media/infrastructure'
+import { MediaPermission } from '@romulus/media/permissions'
 import { createMediaRouter } from '@romulus/media/web'
 import type { UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
@@ -303,8 +307,46 @@ async function setupPermissions(authorizationApplication: AuthorizationApplicati
   }
 }
 
+const roles = {
+  admin: [
+    AuthenticationPermission.RequestPasswordReset,
+    AuthorizationPermission.CreatePermissions,
+    AuthorizationPermission.DeletePermissions,
+    AuthorizationPermission.CreateRoles,
+    AuthorizationPermission.DeleteRoles,
+    AuthorizationPermission.AssignRoles,
+    AuthorizationPermission.CheckUserPermissions,
+    AuthorizationPermission.GetUserPermissions,
+    AuthorizationPermission.GetAllPermissions,
+  ],
+  'genre-editor': [
+    GenresPermission.CreateGenres,
+    GenresPermission.EditGenres,
+    GenresPermission.DeleteGenres,
+    GenresPermission.VoteGenreRelevance,
+  ],
+  'media-type-editor': [
+    MediaPermission.CreateMediaTypes,
+    MediaPermission.EditMediaTypes,
+    MediaPermission.DeleteMediaTypes,
+  ],
+  default: [AuthorizationPermission.CheckOwnPermissions, AuthorizationPermission.GetOwnPermissions],
+} as const
+
 async function setupRoles(authorizationApplication: AuthorizationApplication) {
-  const result = await authorizationApplication.setupRoles()
+  for (const [role, permissions] of Object.entries(roles)) {
+    const result = await authorizationApplication.createRole(
+      role,
+      new Set(permissions),
+      undefined,
+      SYSTEM_USER_ID,
+    )
+    if (result.isErr()) {
+      console.error(result.error)
+    }
+  }
+
+  const result = await authorizationApplication.setDefaultRole('default', SYSTEM_USER_ID)
   if (result.isErr()) {
     console.error(result.error)
   }
