@@ -78,8 +78,6 @@ export async function main({
     mediaApplication,
   })
 
-  const t: string = 5
-
   await setupPermissions(authorizationApplication)
   await setupRoles(authorizationApplication)
 
