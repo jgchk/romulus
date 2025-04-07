@@ -31,7 +31,7 @@
     "@hono/arktype-validator": "^2.0.0",
     "@romulus/custom-error": "workspace:*",
     "@romulus/hono-utils": "workspace:*",
-    "arktype": "^2.0.4",
+    "arktype": "^2.1.18",
     "drizzle-orm": "^0.36.0",
     "hono": "^4.6.12",
     "hono-openapi": "^0.4.6",

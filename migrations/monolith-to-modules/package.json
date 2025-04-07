@@ -15,7 +15,7 @@
     "@romulus/authorization": "workspace:*",
     "@romulus/genres": "workspace:*",
     "@romulus/user-settings": "workspace:*",
-    "arktype": "^2.0.4",
+    "arktype": "^2.1.18",
     "postgres": "^3.4.5"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@
     "@romulus/media": "workspace:*",
     "@romulus/user-settings": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
-    "arktype": "^2.0.4",
+    "arktype": "^2.1.18",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.0",
