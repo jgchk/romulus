@@ -4,7 +4,7 @@ import { createMiddleware } from 'hono/factory'
 import type { IAuthenticationService } from '../domain/authentication.js'
 import type { routes } from './routes.js'
 
-export function bearerAuth(authentication: IAuthenticationService) {
+export function createBearerAuthMiddleware(authentication: IAuthenticationService) {
   return createMiddleware<{
     Variables: {
       token: string

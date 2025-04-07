@@ -18,6 +18,6 @@ export type MediaRouterDependencies = {
 
 export function createMediaRouter(dependencies: MediaRouterDependencies) {
   return new Hono()
-    .route('/', createMediaCommandsRouter(dependencies))
-    .route('/', createMediaQueriesRouter(dependencies))
+    .route('/commands', createMediaCommandsRouter(dependencies))
+    .route('/queries', createMediaQueriesRouter(dependencies))
 }

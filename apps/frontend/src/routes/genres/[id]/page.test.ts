@@ -30,6 +30,9 @@ const mockUser = {
       canDelete: true,
       canVoteRelevance: true,
     },
+    mediaTypes: {
+      canCreate: false,
+    },
   },
   createdAt: new Date(),
   updatedAt: new Date(),

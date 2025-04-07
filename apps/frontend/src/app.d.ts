@@ -19,6 +19,9 @@ declare global {
                 canDelete: boolean
                 canVoteRelevance: boolean
               }
+              mediaTypes: {
+                canCreate: boolean
+              }
             }
           }
         | undefined

@@ -1,11 +1,16 @@
 import { eq, max } from 'drizzle-orm'
+import { TypedEmitter } from 'tiny-typed-emitter'
 
 import type { IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
 import { eventsTable } from './drizzle/event-store/schema.js'
 import type { IEventStore } from './event-store.js'
 
 export class PostgresEventStore<Event extends object> implements IEventStore<Event> {
-  constructor(private db: IDrizzleEventStoreConnection) {}
+  private eventEmitter: TypedEmitter<Record<string, (events: Event[]) => void>>
+
+  constructor(private db: IDrizzleEventStoreConnection) {
+    this.eventEmitter = new TypedEmitter()
+  }
 
   async get(id: string): Promise<Event[]> {
     const results = await this.db.query.eventsTable.findMany({
@@ -41,5 +46,15 @@ export class PostgresEventStore<Event extends object> implements IEventStore<Eve
         })),
       )
     })
+
+    this.eventEmitter.emit(id, events)
+  }
+
+  on(id: string, callback: (events: Event[]) => void): void {
+    this.eventEmitter.on(id, callback)
+  }
+
+  off(id: string, callback: (events: Event[]) => void): void {
+    this.eventEmitter.off(id, callback)
   }
 }

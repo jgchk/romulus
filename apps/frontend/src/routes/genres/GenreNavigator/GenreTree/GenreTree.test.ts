@@ -35,6 +35,7 @@ it('should not show a create genre CTA when the user is logged in but does not h
         username: 'test-user',
         permissions: {
           genres: { canCreate: false, canEdit: false, canDelete: false, canVoteRelevance: false },
+          mediaTypes: { canCreate: false },
         },
       },
     },
@@ -52,6 +53,7 @@ it('should show a create genre CTA when the user has create genre permission', (
         username: 'test-user',
         permissions: {
           genres: { canCreate: true, canEdit: false, canDelete: false, canVoteRelevance: false },
+          mediaTypes: { canCreate: false },
         },
       },
     },

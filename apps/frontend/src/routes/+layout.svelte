@@ -10,6 +10,7 @@
   import { setUserContext, type UserStore } from '$lib/contexts/user'
   import { setUserSettingsContext } from '$lib/contexts/user-settings'
   import UserSettingsStore from '$lib/contexts/user-settings/store'
+  import MediaTypeSidebar from '$lib/features/media/components/Sidebar.svelte'
 
   import type { LayoutData } from './$types'
   import AccountDropdown from './AccountDropdown.svelte'
@@ -99,8 +100,13 @@
         {/if}
       </Card>
     </nav>
-    <main class="flex-1 overflow-auto">
-      {@render children?.()}
+    <main class="flex flex-1">
+      {#if data.user?.permissions.mediaTypes.canCreate}
+        <MediaTypeSidebar />
+      {/if}
+      <div class="flex-1">
+        {@render children?.()}
+      </div>
     </main>
 
     <Toaster class="pr-4 pt-4" />

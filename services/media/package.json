@@ -13,6 +13,14 @@
     "./web": {
       "import": "./dist/web.js",
       "types": "./dist/web.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./permissions": {
+      "import": "./dist/commands/domain/permissions.js",
+      "types": "./dist/commands/domain/permissions.d.ts"
     }
   },
   "scripts": {
@@ -23,6 +31,7 @@
     "lint": "prettier --check . && tsc --noEmit && eslint .",
     "lint:fix": "prettier --write . && tsc --noEmit && eslint . --fix",
     "format": "prettier --write .",
+    "dev": "tsc -p tsconfig.build.json --watch",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/common/infrastructure/drizzle/migrations ./dist/common/infrastructure/drizzle/migrations"
   },
   "dependencies": {
@@ -38,6 +47,7 @@
     "immutable": "^5.0.3",
     "neverthrow": "^8.1.1",
     "postgres": "^3.4.5",
+    "tiny-typed-emitter": "^2.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

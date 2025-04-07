@@ -5,9 +5,8 @@ import { err, ok, ResultAsync } from 'neverthrow'
 
 import type { MediaCommandsRouter } from './router.js'
 
-export class MediaClient {
+export class MediaCommandsClient {
   private client: ReturnType<typeof hc<MediaCommandsRouter>>
-  private sessionToken: string | undefined
 
   constructor(options: {
     baseUrl: string
@@ -16,9 +15,8 @@ export class MediaClient {
   }) {
     this.client = hc<MediaCommandsRouter>(options.baseUrl, {
       fetch: options.fetch ?? fetch,
-      headers: { authorization: `Bearer ${this.sessionToken}` },
+      headers: { authorization: `Bearer ${options.sessionToken}` },
     })
-    this.sessionToken = options.sessionToken
   }
 
   async createMediaType(

@@ -5,7 +5,7 @@ import { ResultAsync } from 'neverthrow'
 
 import type { MediaQueriesRouter } from './router.js'
 
-export class MediaClient {
+export class MediaQueriesClient {
   private client: ReturnType<typeof hc<MediaQueriesRouter>>
   private sessionToken: string | undefined
 

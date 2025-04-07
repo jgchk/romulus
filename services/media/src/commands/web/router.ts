@@ -9,7 +9,7 @@ import type { IAuthorizationService } from '../domain/authorization.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/errors.js'
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
-import { bearerAuth } from './bearer-auth-middleware.js'
+import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
 import { routes } from './routes.js'
 
 export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
@@ -27,10 +27,11 @@ export function createMediaCommandsRouter({
   authentication,
   authorization,
 }: MediaCommandsRouterDependencies) {
+  const bearerAuth = createBearerAuthMiddleware(authentication)
   const authz = createAuthorizationMiddleware(authorization)
 
   const app = new Hono()
-    .use(bearerAuth(authentication))
+    .use(bearerAuth)
     .post(
       '/media-types',
       routes.createMediaType.route(),

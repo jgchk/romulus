@@ -148,5 +148,10 @@ const roles = {
     'genres:delete-genres',
     'genres:vote-genre-relevance',
   ],
+  'media-type-editor': [
+    'media:create-media-types',
+    'media:edit-media-types',
+    'media:delete-media-types',
+  ],
   default: ['authorization:check-own-permissions', 'authorization:get-own-permissions'],
 } as const

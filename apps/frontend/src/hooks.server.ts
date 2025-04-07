@@ -1,6 +1,7 @@
 import type { AuthenticationClient } from '@romulus/authentication/client'
 import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
+import { MediaPermission } from '@romulus/media/permissions'
 import type { Handle, HandleFetch } from '@sveltejs/kit'
 
 import { env } from '$env/dynamic/private'
@@ -93,6 +94,9 @@ async function getUser(
         canDelete: false,
         canVoteRelevance: false,
       },
+      mediaTypes: {
+        canCreate: false,
+      },
     },
   }
 
@@ -109,5 +113,9 @@ async function getUser(
     canDelete: permissions.has(GenresPermission.DeleteGenres),
     canVoteRelevance: permissions.has(GenresPermission.VoteGenreRelevance),
   }
+  user.permissions.mediaTypes = {
+    canCreate: permissions.has(MediaPermission.CreateMediaTypes),
+  }
+
   return user
 }

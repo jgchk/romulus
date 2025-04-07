@@ -1,6 +1,7 @@
 import { AuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresClient } from '@romulus/genres/client'
+import { MediaClient } from '@romulus/media/client'
 import { UserSettingsClient } from '@romulus/user-settings/client'
 
 export type CompositionRoot = ReturnType<typeof createCompositionRoot>
@@ -15,6 +16,7 @@ export function createCompositionRoot(options: {
     authorization: () => createAuthorizationClient(options),
     userSettings: () => createUserSettingsClient(options),
     genres: () => createGenresClient(options),
+    media: () => createMediaClient(options),
   }
 }
 
@@ -61,6 +63,18 @@ function createGenresClient(options: {
 }) {
   return new GenresClient({
     baseUrl: `${options.baseUrl}/genres`,
+    sessionToken: options.sessionToken,
+    fetch: options.fetch,
+  })
+}
+
+function createMediaClient(options: {
+  baseUrl: string
+  sessionToken: string | undefined
+  fetch: typeof fetch
+}) {
+  return new MediaClient({
+    baseUrl: `${options.baseUrl}/media`,
     sessionToken: options.sessionToken,
     fetch: options.fetch,
   })

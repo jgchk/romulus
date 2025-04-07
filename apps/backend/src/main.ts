@@ -340,7 +340,7 @@ async function ensureAdminAccountExists(authentication: AuthenticationApplicatio
 }
 
 async function assignAllRolesToAccount(authorization: AuthorizationApplication, userId: number) {
-  const roles = ['default', 'genre-editor', 'admin']
+  const roles = ['default', 'genre-editor', 'media-type-editor', 'admin']
   for (const role of roles) {
     const result = await authorization.assignRoleToUser(
       userId,
