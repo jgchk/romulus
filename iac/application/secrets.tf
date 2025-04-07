@@ -41,8 +41,12 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
   })
 }
 
+resource "aws_secretsmanager_secret" "media_db_credentials" {
+  name = "media-db-credentials"
+}
+
 resource "aws_secretsmanager_secret_version" "media_db_credentials" {
-  secret_id = aws_secretsmanager_secret.db_credentials.id
+  secret_id = aws_secretsmanager_secret.media_db_credentials.id
   secret_string = jsonencode({
     username = "dbadmin"
     password = random_password.media_password.result
@@ -60,8 +64,11 @@ resource "aws_iam_policy" "secrets_manager_access" {
         Action = [
           "secretsmanager:GetSecretValue",
         ]
-        Effect   = "Allow"
-        Resource = aws_secretsmanager_secret.db_credentials.arn
+        Effect = "Allow"
+        Resource = [
+          aws_secretsmanager_secret.db_credentials.arn,
+          aws_secretsmanager_secret.media_db_credentials.arn
+        ]
       }
     ]
   })
