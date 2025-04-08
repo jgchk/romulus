@@ -1,15 +1,18 @@
 import type { MediaArtifactSchemaEvent } from '../../../common/domain/events.js'
 import type { MediaArtifactSchema } from '../../../common/domain/types.js'
 
-export type Projection = {
+export type MediaArtifactSchemasProjection = {
   schemas: Map<string, MediaArtifactSchema>
 }
 
-export function createDefaultProjection(): Projection {
+export function createDefaultMediaArtifactSchemasProjection(): MediaArtifactSchemasProjection {
   return { schemas: new Map() }
 }
 
-export function applyEvent(state: Projection, event: MediaArtifactSchemaEvent): Projection {
+export function applyMediaArtifactSchemaEvent(
+  state: MediaArtifactSchemasProjection,
+  event: MediaArtifactSchemaEvent,
+): MediaArtifactSchemasProjection {
   switch (event._tag) {
     case 'media-artifact-schema-created': {
       state.schemas.set(event.schema.id, event.schema)
@@ -18,10 +21,15 @@ export function applyEvent(state: Projection, event: MediaArtifactSchemaEvent): 
   }
 }
 
-export function applyEvents(state: Projection, events: MediaArtifactSchemaEvent[]): Projection {
-  return events.reduce(applyEvent, state)
+export function applyMediaArtifactSchemaEvents(
+  state: MediaArtifactSchemasProjection,
+  events: MediaArtifactSchemaEvent[],
+): MediaArtifactSchemasProjection {
+  return events.reduce(applyMediaArtifactSchemaEvent, state)
 }
 
-export function createProjectionFromEvents(events: MediaArtifactSchemaEvent[]): Projection {
-  return applyEvents(createDefaultProjection(), events)
+export function createMediaArtifactSchemasProjectionFromEvents(
+  events: MediaArtifactSchemaEvent[],
+): MediaArtifactSchemasProjection {
+  return applyMediaArtifactSchemaEvents(createDefaultMediaArtifactSchemasProjection(), events)
 }
