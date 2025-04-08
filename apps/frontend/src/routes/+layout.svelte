@@ -100,10 +100,11 @@
         {/if}
       </Card>
     </nav>
-    <main class="flex flex-1">
+    <main class="flex flex-1 overflow-auto">
       {#if data.user?.permissions.mediaTypes.canCreate}
         <MediaTypeSidebar />
       {/if}
+
       <div class="flex-1">
         {@render children?.()}
       </div>
