@@ -11,7 +11,7 @@
 </script>
 
 <li class="ml-2">
-  <div>{mediaType.name}</div>
+  <a href="/media-types/{mediaType.id}">{mediaType.name}</a>
   {#if mediaType.children.length > 0}
     <ul>
       {#each mediaType.children as child (child)}
