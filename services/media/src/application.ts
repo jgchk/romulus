@@ -33,7 +33,7 @@ export function createMediaApplication(
   db: IDrizzleConnection,
 ): MediaApplication {
   return {
-    createMediaType: createCreateMediaTypeCommandHandler(saveEvent),
+    createMediaType: createCreateMediaTypeCommandHandler(getMediaTypes, saveEvent),
     deleteMediaType: createDeleteMediaTypeCommandHandler(saveEvent),
     updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveEvent),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),

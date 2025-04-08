@@ -22,7 +22,7 @@ export const routes = {
             description: 'Bad request',
             content: {
               'application/json': {
-                schema: resolver(routes.createMediaType.errorResponse),
+                schema: resolver(routes.createMediaType.errorResponse.mediaTypeTreeCycleError),
               },
             },
           },
@@ -42,12 +42,23 @@ export const routes = {
               },
             },
           },
+          404: {
+            description: 'Media type not found',
+            content: {
+              'application/json': {
+                schema: resolver(routes.createMediaType.errorResponse.mediaTypeNotFoundError),
+              },
+            },
+          },
         },
       }),
     successResponse: type({
       success: 'true',
     }),
-    errorResponse: createErrorResponse(type('"MediaTypeTreeCycleError"'), type('400')),
+    errorResponse: {
+      mediaTypeTreeCycleError: createErrorResponse(type('"MediaTypeTreeCycleError"'), type('400')),
+      mediaTypeNotFoundError: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
+    },
   },
 
   updateMediaType: {

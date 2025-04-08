@@ -14,7 +14,10 @@ import { createUpdateMediaTypeCommandHandler } from './update-media-type.js'
 it('should update a media type', async () => {
   const eventStore = new MemoryEventStore<{ 'media-types': MediaTypeEvent }>()
 
-  const createMediaType = createCreateMediaTypeCommandHandler(createSaveMediaTypeEvent(eventStore))
+  const createMediaType = createCreateMediaTypeCommandHandler(
+    createGetMediaTypes(eventStore),
+    createSaveMediaTypeEvent(eventStore),
+  )
 
   await createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: [] },

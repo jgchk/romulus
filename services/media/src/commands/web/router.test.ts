@@ -14,8 +14,11 @@ import { createMediaCommandsRouter, type MediaCommandsRouterDependencies } from 
 
 function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
   const router = createMediaCommandsRouter({
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    createMediaType: createCreateMediaTypeCommandHandler(() => {}),
+    createMediaType: createCreateMediaTypeCommandHandler(
+      () => createDefaultMediaTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      () => {},
+    ),
     updateMediaType: createUpdateMediaTypeCommandHandler(
       () => createDefaultMediaTypesProjection(),
       // eslint-disable-next-line @typescript-eslint/no-empty-function

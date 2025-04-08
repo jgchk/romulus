@@ -39,6 +39,9 @@ export const actions = {
         case 'MediaTypeTreeCycleError': {
           return setError(form, 'parents._errors', result.error.message)
         }
+        case 'MediaTypeNotFoundError': {
+          return setError(form, 'parents._errors', result.error.message)
+        }
         default: {
           result.error satisfies never
         }

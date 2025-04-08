@@ -63,8 +63,16 @@ export function createMediaCommandsRouter({
                     message: err.message,
                     statusCode: 400,
                   },
-                } satisfies typeof routes.createMediaType.errorResponse.infer,
+                } satisfies typeof routes.createMediaType.errorResponse.mediaTypeTreeCycleError.infer,
                 400,
+              )
+            } else if (err instanceof MediaTypeNotFoundError) {
+              return c.json(
+                {
+                  success: false,
+                  error: { name: err.name, message: err.message, statusCode: 404 },
+                } satisfies typeof routes.createMediaType.errorResponse.mediaTypeNotFoundError.infer,
+                404,
               )
             } else {
               assertUnreachable(err)
