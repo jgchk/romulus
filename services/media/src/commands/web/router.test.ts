@@ -3,8 +3,12 @@ import { okAsync } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
-import { createCreateMediaTypeCommandHandler } from '../application/create-media-type.js'
-import { createUpdateMediaTypeCommandHandler } from '../application/update-media-type.js'
+import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
+import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
+import {
+  createDefaultMediaTypesProjection,
+  createMediaTypesProjectionFromEvents,
+} from '../domain/media-types/media-types-projection.js'
 import { MediaPermission } from '../domain/permissions.js'
 import { createMediaCommandsRouter, type MediaCommandsRouterDependencies } from './router.js'
 
@@ -13,7 +17,7 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     createMediaType: createCreateMediaTypeCommandHandler(() => {}),
     updateMediaType: createUpdateMediaTypeCommandHandler(
-      () => [],
+      () => createDefaultMediaTypesProjection(),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},
     ),
@@ -91,7 +95,10 @@ describe('update', () => {
   it('updates a media type', async () => {
     const { client } = setup({
       updateMediaType: createUpdateMediaTypeCommandHandler(
-        () => [mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } })],
+        () =>
+          createMediaTypesProjectionFromEvents([
+            mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+          ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       ),
@@ -132,7 +139,10 @@ describe('update', () => {
   it('returns 400 error if a cycle would be created', async () => {
     const { client } = setup({
       updateMediaType: createUpdateMediaTypeCommandHandler(
-        () => [mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } })],
+        () =>
+          createMediaTypesProjectionFromEvents([
+            mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+          ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       ),
@@ -157,7 +167,7 @@ describe('update', () => {
   it('returns 404 error if the media type does not exist', async () => {
     const { client } = setup({
       updateMediaType: createUpdateMediaTypeCommandHandler(
-        () => [],
+        () => createMediaTypesProjectionFromEvents([]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       ),

@@ -1,12 +1,12 @@
 import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
-import { type MediaTypeUpdatedEvent, mediaTypeUpdatedEvent } from '../../common/domain/events.js'
+import { type MediaTypeUpdatedEvent, mediaTypeUpdatedEvent } from '../../../common/domain/events.js'
+import type { MediaType } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from './errors.js'
-import type { Projection } from './projection.js'
-import type { MediaType } from './types.js'
+import type { MediaTypesProjection } from './media-types-projection.js'
 
-export function createUpdateMediaTypeCommand(projection: Projection) {
+export function createUpdateMediaTypeCommand(projection: MediaTypesProjection) {
   return function updateMediaType(
     command: UpdateMediaTypeCommand,
   ): Result<MediaTypeUpdatedEvent, MediaTypeTreeCycleError | MediaTypeNotFoundError> {
@@ -34,7 +34,7 @@ export type UpdateMediaTypeCommand = {
   update: Omit<MediaType, 'id'>
 }
 
-function checkForCycles(command: UpdateMediaTypeCommand, projection: Projection) {
+function checkForCycles(command: UpdateMediaTypeCommand, projection: MediaTypesProjection) {
   for (const parent of command.update.parents) {
     const path = hasPath(parent, command.id, projection.mediaTypes)
     if (path) {

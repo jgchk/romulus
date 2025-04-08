@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 
-import type { CreateMediaTypeCommandHandler } from './commands/application/create-media-type.js'
-import type { UpdateMediaTypeCommandHandler } from './commands/application/update-media-type.js'
+import type { CreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
+import type { UpdateMediaTypeCommandHandler } from './commands/application/media-types/update-media-type.js'
 import type { IAuthenticationService } from './commands/domain/authentication.js'
 import type { IAuthorizationService } from './commands/domain/authorization.js'
 import { createMediaCommandsRouter } from './commands/web/router.js'

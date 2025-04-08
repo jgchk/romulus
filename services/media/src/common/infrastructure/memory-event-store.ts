@@ -1,11 +1,14 @@
 import { TypedEmitter } from 'tiny-typed-emitter'
 
-import type { IEventStore } from './event-store.js'
+import type { DefaultEventSignature, EventSignature, IEventStore } from './event-store.js'
 
-export class MemoryEventStore<Event extends object> implements IEventStore<Event> {
-  private events: Map<string, { sequence: number; event: Event }[]>
+export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignature>
+  implements IEventStore<EventSignature<L>>
+{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private events: Map<keyof L, { sequence: number; event: any }[]>
   private sequence: number
-  private eventEmitter: TypedEmitter<Record<string, (events: Event[]) => void>>
+  private eventEmitter: TypedEmitter<{ [E in keyof L]: (events: L[E][]) => void }>
 
   constructor() {
     this.events = new Map()
@@ -13,23 +16,25 @@ export class MemoryEventStore<Event extends object> implements IEventStore<Event
     this.eventEmitter = new TypedEmitter()
   }
 
-  get(id: string) {
+  get<U extends keyof L>(id: U): L[U][] {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (this.events.get(id) ?? []).map(({ event }) => event)
   }
 
-  save(id: string, events: Event[]) {
+  save<U extends keyof L>(id: U, events: L[U][]): void {
     const currentEvents = this.events.get(id) ?? []
     currentEvents.push(...events.map((event) => ({ event, sequence: this.sequence++ })))
     this.events.set(id, currentEvents)
 
+    // @ts-expect-error - TS is not smart enough to infer the type of `events`
     this.eventEmitter.emit(id, events)
   }
 
-  on(id: string, callback: (events: Event[]) => void): void {
+  on<U extends keyof L>(id: U, callback: (events: L[U][]) => void): void {
     this.eventEmitter.on(id, callback)
   }
 
-  off(id: string, callback: (events: Event[]) => void): void {
+  off<U extends keyof L>(id: U, callback: (events: L[U][]) => void): void {
     this.eventEmitter.off(id, callback)
   }
 }

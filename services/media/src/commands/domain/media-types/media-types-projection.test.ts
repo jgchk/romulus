@@ -1,11 +1,11 @@
 import { expect, it } from 'vitest'
 
-import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
-import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
-import { applyEvent } from './projection.js'
+import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../../common/domain/events.js'
+import { mediaTypeUpdatedEvent } from '../../../common/domain/events.js'
+import { applyMediaTypeEvent } from './media-types-projection.js'
 
 it('should add a genre upon media-type-created event', () => {
-  const result = applyEvent(
+  const result = applyMediaTypeEvent(
     { mediaTypes: new Map() },
     mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
   )
@@ -16,7 +16,7 @@ it('should add a genre upon media-type-created event', () => {
 })
 
 it('should delete a genre upon media-type-deleted event', () => {
-  const result = applyEvent(
+  const result = applyMediaTypeEvent(
     { mediaTypes: new Map([['test', { id: 'test', name: 'Test', parents: [] }]]) },
     mediaTypeDeletedEvent({ id: 'test' }),
   )
@@ -27,7 +27,7 @@ it('should delete a genre upon media-type-deleted event', () => {
 })
 
 it('should update a genre upon media-type-updated event', () => {
-  const result = applyEvent(
+  const result = applyMediaTypeEvent(
     { mediaTypes: new Map([['test', { id: 'test', name: 'Test', parents: [] }]]) },
     mediaTypeUpdatedEvent({ id: 'test', update: { name: 'Test (Updated)', parents: [] } }),
   )

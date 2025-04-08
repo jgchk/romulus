@@ -1,14 +1,14 @@
 import { err, ok } from 'neverthrow'
 import { expect, it } from 'vitest'
 
-import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
-import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
+import { mediaTypeCreatedEvent } from '../../../common/domain/events.js'
+import { mediaTypeUpdatedEvent } from '../../../common/domain/events.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from './errors.js'
-import { createProjectionFromEvents } from './projection.js'
+import { createMediaTypesProjectionFromEvents } from './media-types-projection.js'
 import { createUpdateMediaTypeCommand } from './update-media-type.js'
 
 it('should update a media type', () => {
-  const projection = createProjectionFromEvents([
+  const projection = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } }),
   ])
 
@@ -25,7 +25,7 @@ it('should update a media type', () => {
 })
 
 it('should error if the media type does not exist', () => {
-  const projection = createProjectionFromEvents([])
+  const projection = createMediaTypesProjectionFromEvents([])
 
   const updateMediaType = createUpdateMediaTypeCommand(projection)
 
@@ -35,7 +35,7 @@ it('should error if the media type does not exist', () => {
 })
 
 it('should error if a 1-cycle would be created', () => {
-  const projection = createProjectionFromEvents([
+  const projection = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } }),
   ])
 
@@ -50,7 +50,7 @@ it('should error if a 1-cycle would be created', () => {
 })
 
 it('should error if a 2-cycle would be created', () => {
-  const projection = createProjectionFromEvents([
+  const projection = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({ mediaType: { id: 'parent', name: 'Parent', parents: [] } }),
     mediaTypeCreatedEvent({ mediaType: { id: 'child', name: 'Child', parents: ['parent'] } }),
   ])
@@ -68,7 +68,7 @@ it('should error if a 2-cycle would be created', () => {
 })
 
 it('should error if a 3-cycle would be created', () => {
-  const projection = createProjectionFromEvents([
+  const projection = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({ mediaType: { id: 'grandparent', name: 'Grandparent', parents: [] } }),
     mediaTypeCreatedEvent({ mediaType: { id: 'parent', name: 'Parent', parents: ['child'] } }),
     mediaTypeCreatedEvent({ mediaType: { id: 'child', name: 'Child', parents: ['grandparent'] } }),

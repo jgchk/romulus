@@ -1,9 +1,9 @@
 import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
-import { type MediaTypeCreatedEvent, mediaTypeCreatedEvent } from '../../common/domain/events.js'
+import { type MediaTypeCreatedEvent, mediaTypeCreatedEvent } from '../../../common/domain/events.js'
+import type { MediaType } from '../../../common/domain/types.js'
 import { MediaTypeTreeCycleError } from './errors.js'
-import type { MediaType } from './types.js'
 
 export function createMediaType(
   command: CreateMediaTypeCommand,

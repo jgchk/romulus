@@ -1,3 +1,8 @@
+import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
+import {
+  createGetMediaTypes,
+  createSaveMediaTypeEvent,
+} from './commands/infrastructure/media-types.js'
 import type { MediaTypeEvent } from './common/domain/events.js'
 import * as eventStoreDb from './common/infrastructure/drizzle/event-store/postgres.js'
 import { migratePostgres } from './common/infrastructure/drizzle/migrate.js'
@@ -12,7 +17,7 @@ import {
 export type MediaInfrastructure = {
   db: QueryProjectionDrizzleConnection
   eventStore: {
-    getEvents: () => Promise<MediaTypeEvent[]>
+    getMediaTypes: () => Promise<MediaTypesProjection>
     saveEvent: (event: MediaTypeEvent) => Promise<void>
   }
   destroy: () => Promise<void>
@@ -25,7 +30,7 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
 
   const eventStorePostgres = eventStoreDb.getPostgresConnection(databaseUrl)
   const eventStoreDrizzle = eventStoreDb.getDbConnection(eventStorePostgres)
-  const eventStore = new PostgresEventStore<MediaTypeEvent>(eventStoreDrizzle)
+  const eventStore = new PostgresEventStore<{ 'media-types': MediaTypeEvent }>(eventStoreDrizzle)
 
   function handleEvents(events: MediaTypeEvent[]) {
     async function handle() {
@@ -42,8 +47,8 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
   return {
     db,
     eventStore: {
-      getEvents: () => eventStore.get('media-types'),
-      saveEvent: (event) => eventStore.save('media-types', [event]),
+      getMediaTypes: createGetMediaTypes(eventStore),
+      saveEvent: createSaveMediaTypeEvent(eventStore),
     },
     destroy: async () => {
       await pg.end()

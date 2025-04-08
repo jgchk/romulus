@@ -1,15 +1,16 @@
 import {
   createCreateMediaTypeCommandHandler,
   type CreateMediaTypeCommandHandler,
-} from './commands/application/create-media-type.js'
+} from './commands/application/media-types/create-media-type.js'
 import {
   createDeleteMediaTypeCommandHandler,
   type DeleteMediaTypeCommandHandler,
-} from './commands/application/delete-media-type.js'
+} from './commands/application/media-types/delete-media-type.js'
 import {
   createUpdateMediaTypeCommandHandler,
   type UpdateMediaTypeCommandHandler,
-} from './commands/application/update-media-type.js'
+} from './commands/application/media-types/update-media-type.js'
+import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import { MediaPermission } from './commands/domain/permissions.js'
 import type { MediaTypeEvent } from './common/domain/events.js'
 import {
@@ -27,14 +28,14 @@ export type MediaApplication = {
 }
 
 export function createMediaApplication(
-  getEvents: () => MaybePromise<MediaTypeEvent[]>,
+  getMediaTypes: () => MaybePromise<MediaTypesProjection>,
   saveEvent: (event: MediaTypeEvent) => MaybePromise<void>,
   db: IDrizzleConnection,
 ): MediaApplication {
   return {
     createMediaType: createCreateMediaTypeCommandHandler(saveEvent),
     deleteMediaType: createDeleteMediaTypeCommandHandler(saveEvent),
-    updateMediaType: createUpdateMediaTypeCommandHandler(getEvents, saveEvent),
+    updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveEvent),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
   }
 }
