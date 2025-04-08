@@ -17,6 +17,10 @@ import {
   createGetAllMediaTypesQueryHandler,
   type GetAllMediaTypesQueryHandler,
 } from './queries/application/get-all-media-types.js'
+import {
+  createGetMediaTypeQueryHandler,
+  type GetMediaTypeQueryHandler,
+} from './queries/application/get-media-type.js'
 import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
 import type { MaybePromise } from './utils.js'
 
@@ -25,6 +29,7 @@ export type MediaApplication = {
   deleteMediaType: DeleteMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
+  getMediaType: GetMediaTypeQueryHandler
 }
 
 export function createMediaApplication(
@@ -37,6 +42,7 @@ export function createMediaApplication(
     deleteMediaType: createDeleteMediaTypeCommandHandler(saveEvent),
     updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveEvent),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
+    getMediaType: createGetMediaTypeQueryHandler(db),
   }
 }
 

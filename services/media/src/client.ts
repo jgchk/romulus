@@ -7,6 +7,7 @@ export class MediaClient {
 
   createMediaType: MediaCommandsClient['createMediaType']
   getAllMediaTypes: MediaQueriesClient['getAllMediaTypes']
+  getMediaType: MediaQueriesClient['getMediaType']
 
   constructor(options: {
     baseUrl: string
@@ -24,5 +25,6 @@ export class MediaClient {
 
     this.createMediaType = this.commandsClient.createMediaType.bind(this.commandsClient)
     this.getAllMediaTypes = this.queriesClient.getAllMediaTypes.bind(this.queriesClient)
+    this.getMediaType = this.queriesClient.getMediaType.bind(this.queriesClient)
   }
 }
