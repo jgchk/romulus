@@ -14,6 +14,12 @@ export function createUpdateMediaTypeCommand(projection: MediaTypesProjection) {
       return err(new MediaTypeNotFoundError(command.id))
     }
 
+    for (const parentId of command.update.parents) {
+      if (!projection.mediaTypes.has(parentId)) {
+        return err(new MediaTypeNotFoundError(parentId))
+      }
+    }
+
     const cycle = checkForCycles(command, projection)
     if (cycle !== undefined) {
       return err(

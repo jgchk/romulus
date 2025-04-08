@@ -92,3 +92,18 @@ it('should error if a 3-cycle would be created', () => {
     ),
   )
 })
+
+it('should error if the parent does not exist', () => {
+  const projection = createMediaTypesProjectionFromEvents([
+    mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } }),
+  ])
+
+  const updateMediaType = createUpdateMediaTypeCommand(projection)
+
+  const result = updateMediaType({
+    id: 'test-id',
+    update: { name: 'Test (Updated)', parents: ['parent-id'] },
+  })
+
+  expect(result).toEqual(err(new MediaTypeNotFoundError('parent-id')))
+})
