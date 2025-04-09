@@ -1,4 +1,4 @@
-import { MediaCommandsClient } from './commands/web/client.js'
+import { createMediaCommandsClient, type MediaCommandsClient } from './commands/web/client.js'
 import { MediaQueriesClient } from './queries/web/client.js'
 
 export class MediaClient {
@@ -14,7 +14,7 @@ export class MediaClient {
     sessionToken: string | undefined
     fetch?: typeof fetch
   }) {
-    this.commandsClient = new MediaCommandsClient({
+    this.commandsClient = createMediaCommandsClient({
       ...options,
       baseUrl: `${options.baseUrl}/commands`,
     })

@@ -5,42 +5,40 @@ import { err, ok, ResultAsync } from 'neverthrow'
 
 import type { MediaCommandsRouter } from './router.js'
 
-export class MediaCommandsClient {
-  private client: ReturnType<typeof hc<MediaCommandsRouter>>
+export type MediaCommandsClient = ReturnType<typeof createMediaCommandsClient>
 
-  constructor(options: {
-    baseUrl: string
-    sessionToken: string | undefined
-    fetch?: typeof fetch
-  }) {
-    this.client = hc<MediaCommandsRouter>(options.baseUrl, {
-      fetch: options.fetch ?? fetch,
-      headers: { authorization: `Bearer ${options.sessionToken}` },
-    })
-  }
+export function createMediaCommandsClient(options: {
+  baseUrl: string
+  sessionToken: string | undefined
+  fetch?: typeof fetch
+}) {
+  const client = hc<MediaCommandsRouter>(options.baseUrl, {
+    fetch: options.fetch ?? fetch,
+    headers: { authorization: `Bearer ${options.sessionToken}` },
+  })
 
-  async createMediaType(
-    body: InferRequestType<(typeof this.client)['media-types']['$post']>['json'],
-  ) {
-    return ResultAsync.fromPromise(
-      this.client['media-types'].$post({ json: body }),
-      (err) => new FetchError(toError(err)),
-    )
-      .map<InferResponseType<(typeof this.client)['media-types']['$post']>>((res) => res.json())
-      .andThen((res) => (res.success ? ok(res) : err(res.error)))
-  }
+  type Client = typeof client
 
-  async createMediaArtifactType(
-    body: InferRequestType<(typeof this.client)['media-artifact-types']['$post']>['json'],
-  ) {
-    return ResultAsync.fromPromise(
-      this.client['media-artifact-types'].$post({ json: body }),
-      (err) => new FetchError(toError(err)),
-    )
-      .map<InferResponseType<(typeof this.client)['media-artifact-types']['$post']>>((res) =>
-        res.json(),
+  return {
+    createMediaType(body: InferRequestType<Client['media-types']['$post']>['json']) {
+      return ResultAsync.fromPromise(
+        client['media-types'].$post({ json: body }),
+        (err) => new FetchError(toError(err)),
       )
-      .andThen((res) => (res.success ? ok(res) : err(res.error)))
+        .map<InferResponseType<Client['media-types']['$post']>>((res) => res.json())
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
+
+    createMediaArtifactType(
+      body: InferRequestType<Client['media-artifact-types']['$post']>['json'],
+    ) {
+      return ResultAsync.fromPromise(
+        client['media-artifact-types'].$post({ json: body }),
+        (err) => new FetchError(toError(err)),
+      )
+        .map<InferResponseType<Client['media-artifact-types']['$post']>>((res) => res.json())
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
   }
 }
 
