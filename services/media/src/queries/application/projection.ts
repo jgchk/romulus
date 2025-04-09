@@ -1,10 +1,20 @@
 import { eq } from 'drizzle-orm'
 
-import type { MediaTypeEvent } from '../../common/domain/events.js'
+import type { MediaArtifactTypeEvent, MediaTypeEvent } from '../../common/domain/events.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
-import { mediaTypeParents, mediaTypes } from '../infrastructure/drizzle-schema.js'
+import {
+  mediaArtifactRelationshipTypeChildren,
+  mediaArtifactRelationshipTypes,
+  mediaArtifactTypeMediaTypes,
+  mediaArtifactTypes,
+  mediaTypeParents,
+  mediaTypes,
+} from '../infrastructure/drizzle-schema.js'
 
-export async function applyEvent(db: IDrizzleConnection, event: MediaTypeEvent) {
+export async function applyEvent(
+  db: IDrizzleConnection,
+  event: MediaTypeEvent | MediaArtifactTypeEvent,
+) {
   switch (event._tag) {
     case 'media-type-created': {
       await db.transaction(async (tx) => {
@@ -59,6 +69,62 @@ export async function applyEvent(db: IDrizzleConnection, event: MediaTypeEvent) 
       await db.delete(mediaTypes).where(eq(mediaTypes.id, event.id)).execute()
 
       return
+    }
+
+    case 'media-artifact-type-created': {
+      await db.transaction(async (tx) => {
+        await tx
+          .insert(mediaArtifactTypes)
+          .values({ id: event.mediaArtifactType.id, name: event.mediaArtifactType.name })
+          .execute()
+
+        if (event.mediaArtifactType.mediaTypes.length > 0) {
+          await tx
+            .insert(mediaArtifactTypeMediaTypes)
+            .values(
+              event.mediaArtifactType.mediaTypes.map((mediaTypeId) => ({
+                mediaArtifactTypeId: event.mediaArtifactType.id,
+                mediaTypeId,
+              })),
+            )
+            .execute()
+        }
+      })
+
+      return
+    }
+
+    case 'media-artifact-relationship-type-created': {
+      await db.transaction(async (tx) => {
+        await tx
+          .insert(mediaArtifactRelationshipTypes)
+          .values({
+            id: event.mediaArtifactRelationshipType.id,
+            name: event.mediaArtifactRelationshipType.name,
+            parentMediaArtifactTypeId: event.mediaArtifactRelationshipType.parentMediaArtifactType,
+          })
+          .execute()
+
+        if (event.mediaArtifactRelationshipType.childMediaArtifactTypes.length > 0) {
+          await tx
+            .insert(mediaArtifactRelationshipTypeChildren)
+            .values(
+              event.mediaArtifactRelationshipType.childMediaArtifactTypes.map(
+                (childMediaArtifactTypeId) => ({
+                  mediaArtifactRelationshipTypeId: event.mediaArtifactRelationshipType.id,
+                  childMediaArtifactTypeId,
+                }),
+              ),
+            )
+            .execute()
+        }
+      })
+
+      return
+    }
+
+    default: {
+      event satisfies never
     }
   }
 }

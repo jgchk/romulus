@@ -1,6 +1,10 @@
 import { expect } from 'vitest'
 
-import { mediaTypeUpdatedEvent } from '../../common/domain/events.js'
+import {
+  mediaArtifactRelationshipTypeCreatedEvent,
+  mediaArtifactTypeCreatedEvent,
+  mediaTypeUpdatedEvent,
+} from '../../common/domain/events.js'
 import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
 import { test } from '../../vitest-setup.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
@@ -43,11 +47,96 @@ test('should handle the media-type-deleted event', async ({ dbConnection }) => {
   expect(mediaType).toBeUndefined()
 })
 
+test('should handle the media-artifact-type-created event', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+    }),
+  )
+
+  const mediaArtifactType = await getMediaArtifactTypeById(dbConnection, 'test')
+  expect(mediaArtifactType).toEqual({ id: 'test', name: 'Test', mediaTypes: [] })
+})
+
+test('should handle the media-artifact-relationship-type-created event', async ({
+  dbConnection,
+}) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactRelationshipTypeCreatedEvent({
+      mediaArtifactRelationshipType: {
+        id: 'gallery-artwork',
+        name: 'Gallery Artwork',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
+      },
+    }),
+  )
+
+  const mediaArtifactRelationshipType = await getMediaArtifactRelationshipType(
+    dbConnection,
+    'gallery-artwork',
+  )
+  expect(mediaArtifactRelationshipType).toEqual({
+    id: 'gallery-artwork',
+    name: 'Gallery Artwork',
+    parentMediaArtifactTypeId: 'gallery',
+    childMediaArtifactTypes: [
+      {
+        childMediaArtifactTypeId: 'painting',
+        mediaArtifactRelationshipTypeId: 'gallery-artwork',
+      },
+      {
+        childMediaArtifactTypeId: 'sculpture',
+        mediaArtifactRelationshipTypeId: 'gallery-artwork',
+      },
+    ],
+  })
+})
+
 async function getMediaTypeById(dbConnection: IDrizzleConnection, id: string) {
   return await dbConnection.query.mediaTypes.findFirst({
     where: (mediaTypes, { eq }) => eq(mediaTypes.id, id),
     with: {
       parents: true,
+    },
+  })
+}
+
+async function getMediaArtifactTypeById(dbConnection: IDrizzleConnection, id: string) {
+  return await dbConnection.query.mediaArtifactTypes.findFirst({
+    where: (mediaArtifactTypes, { eq }) => eq(mediaArtifactTypes.id, id),
+    with: {
+      mediaTypes: true,
+    },
+  })
+}
+
+async function getMediaArtifactRelationshipType(dbConnection: IDrizzleConnection, id: string) {
+  return await dbConnection.query.mediaArtifactRelationshipTypes.findFirst({
+    where: (mediaArtifactRelationshipTypes, { eq }) => eq(mediaArtifactRelationshipTypes.id, id),
+    with: {
+      childMediaArtifactTypes: true,
     },
   })
 }

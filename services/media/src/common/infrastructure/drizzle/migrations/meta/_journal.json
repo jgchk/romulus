@@ -15,6 +15,13 @@
       "when": 1743679276172,
       "tag": "0001_thankful_nitro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744227721426,
+      "tag": "0002_cooing_centennial",
+      "breakpoints": true
     }
   ]
 }
