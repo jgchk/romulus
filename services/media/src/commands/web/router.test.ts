@@ -3,6 +3,7 @@ import { okAsync } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
+import { createCreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import {
@@ -24,6 +25,11 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},
     ),
+    createMediaArtifactType: createCreateMediaArtifactTypeCommandHandler({
+      getMediaTypes: () => createDefaultMediaTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      saveMediaArtifactTypeEvent: () => {},
+    }),
     authentication: {
       whoami: () => okAsync({ id: 0 }),
     },
@@ -39,7 +45,7 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
   return { router, client }
 }
 
-describe('create', () => {
+describe('createMediaType', () => {
   it('creates a media type', async () => {
     const { client } = setup()
 
@@ -94,7 +100,7 @@ describe('create', () => {
   })
 })
 
-describe('update', () => {
+describe('updateMediaType', () => {
   it('updates a media type', async () => {
     const { client } = setup({
       updateMediaType: createUpdateMediaTypeCommandHandler(
@@ -187,6 +193,99 @@ describe('update', () => {
         name: 'MediaTypeNotFoundError',
         message: "Media type with ID 'test' not found",
         statusCode: 404,
+      },
+    })
+  })
+})
+
+describe('createMediaArtifactType', () => {
+  it('creates a media artifact type', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'].$post(
+      { json: { id: 'test', name: 'Test', mediaTypes: [] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+  })
+
+  it('returns a 401 if the user is not authenticated', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'].$post(
+      { json: { id: 'test', name: 'Test', mediaTypes: [] } },
+      { headers: {} },
+    )
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthenticatedError',
+        message: 'You are not authenticated',
+        statusCode: 401,
+      },
+    })
+  })
+
+  it('returns a 403 if the user does not have permission', async () => {
+    const { client } = setup({
+      authorization: {
+        hasPermission: (userId, permission) => {
+          if (permission === MediaPermission.CreateMediaArtifactType) {
+            return Promise.resolve(false)
+          } else {
+            return Promise.resolve(true)
+          }
+        },
+      },
+    })
+
+    const response = await client['media-artifact-types'].$post(
+      { json: { id: 'test', name: 'Test', mediaTypes: [] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
+    })
+  })
+
+  it('returns a 422 if the media type does not exist', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'].$post(
+      { json: { id: 'test', name: 'Test', mediaTypes: ['media-type'] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(422)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'MediaTypeNotFoundError',
+        message: "Media type with ID 'media-type' not found",
+        statusCode: 422,
+      },
+    })
+  })
+
+  it('returns an error if the request body is invalid', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'].$post(
+      // @ts-expect-error - testing an invalid request body
+      { json: { foo: 'bar' } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'BadRequestError',
+        message:
+          'id must be a string (was missing)\nmediaTypes must be an array (was missing)\nname must be a string (was missing)',
+        statusCode: 400,
       },
     })
   })

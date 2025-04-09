@@ -1,7 +1,10 @@
+import type { Type } from 'arktype'
 import { type } from 'arktype'
-import { Hono } from 'hono'
-import { validator } from 'hono-openapi/arktype'
+import { type Env, Hono, type MiddlewareHandler, type ValidationTargets } from 'hono'
+import type { HasUndefined } from 'hono-openapi'
+import { validator as arktypeValidator } from 'hono-openapi/arktype'
 
+import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
@@ -17,6 +20,7 @@ export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
 export type MediaCommandsRouterDependencies = {
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
 }
@@ -24,6 +28,7 @@ export type MediaCommandsRouterDependencies = {
 export function createMediaCommandsRouter({
   createMediaType,
   updateMediaType,
+  createMediaArtifactType,
   authentication,
   authorization,
 }: MediaCommandsRouterDependencies) {
@@ -135,8 +140,72 @@ export function createMediaCommandsRouter({
         )
       },
     )
+    .post(
+      '/media-artifact-types',
+      routes.createMediaArtifactType.route(),
+      validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
+      authz(MediaPermission.CreateMediaArtifactType),
+      async (c) => {
+        const body = c.req.valid('json')
+        const result = await createMediaArtifactType({ mediaArtifactType: body })
+        return result.match(
+          () =>
+            c.json(
+              {
+                success: true,
+              } satisfies typeof routes.createMediaArtifactType.successResponse.infer,
+              200,
+            ),
+          (err) => {
+            if (err instanceof MediaTypeNotFoundError) {
+              return c.json(
+                {
+                  success: false,
+                  error: {
+                    name: err.name,
+                    message: err.message,
+                    statusCode: 422,
+                  },
+                } satisfies typeof routes.createMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
+                422,
+              )
+            } else {
+              assertUnreachable(err)
+            }
+          },
+        )
+      },
+    )
 
   return app
+}
+
+function validator<
+  T extends Type,
+  Target extends keyof ValidationTargets,
+  E extends Env,
+  P extends string,
+  I = T['inferIn'],
+  O = T['infer'],
+  V extends {
+    in: HasUndefined<I> extends true ? Partial<Record<Target, I>> : Record<Target, I>
+    out: Record<Target, O>
+  } = {
+    in: HasUndefined<I> extends true ? Partial<Record<Target, I>> : Record<Target, I>
+    out: Record<Target, O>
+  },
+>(target: Target, schema: T): MiddlewareHandler<E, P, V> {
+  return arktypeValidator(target, schema, (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          success: false,
+          error: { name: 'BadRequestError', message: result.errors.summary, statusCode: 400 },
+        } satisfies typeof routes.badRequestErrorResponse.infer,
+        400,
+      )
+    }
+  })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

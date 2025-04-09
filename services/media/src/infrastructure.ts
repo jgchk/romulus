@@ -1,9 +1,10 @@
 import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
+import { createSaveMediaArtifactTypeEvent } from './commands/infrastructure/media-artifact-types.js'
 import {
   createGetMediaTypes,
   createSaveMediaTypeEvent,
 } from './commands/infrastructure/media-types.js'
-import type { MediaTypeEvent } from './common/domain/events.js'
+import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
 import * as eventStoreDb from './common/infrastructure/drizzle/event-store/postgres.js'
 import { migratePostgres } from './common/infrastructure/drizzle/migrate.js'
 import { PostgresEventStore } from './common/infrastructure/postgres-event-store.js'
@@ -18,7 +19,8 @@ export type MediaInfrastructure = {
   db: QueryProjectionDrizzleConnection
   eventStore: {
     getMediaTypes: () => Promise<MediaTypesProjection>
-    saveEvent: (event: MediaTypeEvent) => Promise<void>
+    saveMediaTypeEvent: (event: MediaTypeEvent) => Promise<void>
+    saveMediaArtifactTypeEvent: (event: MediaArtifactTypeEvent) => Promise<void>
   }
   destroy: () => Promise<void>
 }
@@ -30,7 +32,10 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
 
   const eventStorePostgres = eventStoreDb.getPostgresConnection(databaseUrl)
   const eventStoreDrizzle = eventStoreDb.getDbConnection(eventStorePostgres)
-  const eventStore = new PostgresEventStore<{ 'media-types': MediaTypeEvent }>(eventStoreDrizzle)
+  const eventStore = new PostgresEventStore<{
+    'media-types': MediaTypeEvent
+    'media-artifact-types': MediaArtifactTypeEvent
+  }>(eventStoreDrizzle)
 
   function handleEvents(events: MediaTypeEvent[]) {
     async function handle() {
@@ -48,7 +53,8 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
     db,
     eventStore: {
       getMediaTypes: createGetMediaTypes(eventStore),
-      saveEvent: createSaveMediaTypeEvent(eventStore),
+      saveMediaTypeEvent: createSaveMediaTypeEvent(eventStore),
+      saveMediaArtifactTypeEvent: createSaveMediaArtifactTypeEvent(eventStore),
     },
     destroy: async () => {
       await pg.end()

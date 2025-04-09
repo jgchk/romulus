@@ -8,7 +8,6 @@ import {
 import type { MediaArtifactType } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError } from '../media-types/errors.js'
 import type { MediaTypesProjection } from '../media-types/media-types-projection.js'
-import type { MediaArtifactTypeNotFoundError } from './errors.js'
 
 export function createCreateMediaArtifactTypeCommandHandler(
   mediaTypesProjection: MediaTypesProjection,
@@ -19,10 +18,7 @@ export function createCreateMediaArtifactTypeCommandHandler(
 
   return function createMediaArtifactType(
     command: CreateMediaArtifactTypeCommand,
-  ): Result<
-    MediaArtifactTypeCreatedEvent,
-    MediaTypeNotFoundError | MediaArtifactTypeNotFoundError
-  > {
+  ): Result<MediaArtifactTypeCreatedEvent, MediaTypeNotFoundError> {
     for (const mediaType of command.mediaArtifactType.mediaTypes) {
       if (!doesMediaTypeExist(mediaType)) {
         return err(new MediaTypeNotFoundError(mediaType))

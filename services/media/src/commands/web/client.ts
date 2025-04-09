@@ -29,6 +29,19 @@ export class MediaCommandsClient {
       .map<InferResponseType<(typeof this.client)['media-types']['$post']>>((res) => res.json())
       .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
+
+  async createMediaArtifactType(
+    body: InferRequestType<(typeof this.client)['media-artifact-types']['$post']>['json'],
+  ) {
+    return ResultAsync.fromPromise(
+      this.client['media-artifact-types'].$post({ json: body }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client)['media-artifact-types']['$post']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
+  }
 }
 
 type MediaError = {

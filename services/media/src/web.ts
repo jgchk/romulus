@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 
+import type { CreateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/create-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from './commands/application/media-types/update-media-type.js'
 import type { IAuthenticationService } from './commands/domain/authentication.js'
@@ -14,6 +15,7 @@ export type MediaRouterDependencies = {
   getMediaType: GetMediaTypeQueryHandler
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
 }

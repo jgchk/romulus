@@ -1,4 +1,8 @@
 import {
+  createCreateMediaArtifactTypeCommandHandler,
+  type CreateMediaArtifactTypeCommandHandler,
+} from './commands/application/media-artifact-types/create-media-artifact-type.js'
+import {
   createCreateMediaTypeCommandHandler,
   type CreateMediaTypeCommandHandler,
 } from './commands/application/media-types/create-media-type.js'
@@ -12,7 +16,7 @@ import {
 } from './commands/application/media-types/update-media-type.js'
 import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import { MediaPermission } from './commands/domain/permissions.js'
-import type { MediaTypeEvent } from './common/domain/events.js'
+import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
 import {
   createGetAllMediaTypesQueryHandler,
   type GetAllMediaTypesQueryHandler,
@@ -28,19 +32,25 @@ export type MediaApplication = {
   createMediaType: CreateMediaTypeCommandHandler
   deleteMediaType: DeleteMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
 }
 
 export function createMediaApplication(
   getMediaTypes: () => MaybePromise<MediaTypesProjection>,
-  saveEvent: (event: MediaTypeEvent) => MaybePromise<void>,
+  saveMediaTypeEvent: (event: MediaTypeEvent) => MaybePromise<void>,
+  saveMediaArtifactTypeEvent: (event: MediaArtifactTypeEvent) => MaybePromise<void>,
   db: IDrizzleConnection,
 ): MediaApplication {
   return {
-    createMediaType: createCreateMediaTypeCommandHandler(getMediaTypes, saveEvent),
-    deleteMediaType: createDeleteMediaTypeCommandHandler(saveEvent),
-    updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveEvent),
+    createMediaType: createCreateMediaTypeCommandHandler(getMediaTypes, saveMediaTypeEvent),
+    deleteMediaType: createDeleteMediaTypeCommandHandler(saveMediaTypeEvent),
+    updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveMediaTypeEvent),
+    createMediaArtifactType: createCreateMediaArtifactTypeCommandHandler({
+      getMediaTypes,
+      saveMediaArtifactTypeEvent,
+    }),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
     getMediaType: createGetMediaTypeQueryHandler(db),
   }

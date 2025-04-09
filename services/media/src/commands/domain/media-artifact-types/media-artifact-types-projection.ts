@@ -1,12 +1,16 @@
 import type { MediaArtifactTypeEvent } from '../../../common/domain/events.js'
-import type { MediaArtifactType } from '../../../common/domain/types.js'
+import type {
+  MediaArtifactRelationshipType,
+  MediaArtifactType,
+} from '../../../common/domain/types.js'
 
 export type MediaArtifactTypesProjection = {
   types: Map<string, MediaArtifactType>
+  relationshipTypes: Map<string, MediaArtifactRelationshipType>
 }
 
 export function createDefaultMediaArtifactTypesProjection(): MediaArtifactTypesProjection {
-  return { types: new Map() }
+  return { types: new Map(), relationshipTypes: new Map() }
 }
 
 export function applyMediaArtifactTypeEvent(
@@ -16,6 +20,14 @@ export function applyMediaArtifactTypeEvent(
   switch (event._tag) {
     case 'media-artifact-type-created': {
       state.types.set(event.mediaArtifactType.id, event.mediaArtifactType)
+      return state
+    }
+
+    case 'media-artifact-relationship-type-created': {
+      state.relationshipTypes.set(
+        event.mediaArtifactRelationshipType.id,
+        event.mediaArtifactRelationshipType,
+      )
       return state
     }
   }

@@ -3,13 +3,12 @@ import { err, ok, type Result } from 'neverthrow'
 import type { MediaArtifactTypeCreatedEvent } from '../../../common/domain/events.js'
 import type { MaybePromise } from '../../../utils.js'
 import * as domain from '../../domain/media-artifact-types/create-media-artifact-type.js'
-import type { MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
 import type { MediaTypeNotFoundError } from '../../domain/media-types/errors.js'
 import { type MediaTypesProjection } from '../../domain/media-types/media-types-projection.js'
 
 export type CreateMediaArtifactTypeCommandHandler = (
   command: domain.CreateMediaArtifactTypeCommand,
-) => Promise<Result<void, MediaTypeNotFoundError | MediaArtifactTypeNotFoundError>>
+) => Promise<Result<void, MediaTypeNotFoundError>>
 
 export function createCreateMediaArtifactTypeCommandHandler({
   getMediaTypes,
