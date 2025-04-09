@@ -1,5 +1,6 @@
 import { createMediaCommandsClient, type MediaCommandsClient } from './commands/web/client.js'
-import { MediaQueriesClient } from './queries/web/client.js'
+import type { MediaQueriesClient } from './queries/web/client.js'
+import { createMediaQueriesClient } from './queries/web/client.js'
 
 export class MediaClient {
   private commandsClient: MediaCommandsClient
@@ -18,7 +19,7 @@ export class MediaClient {
       ...options,
       baseUrl: `${options.baseUrl}/commands`,
     })
-    this.queriesClient = new MediaQueriesClient({
+    this.queriesClient = createMediaQueriesClient({
       ...options,
       baseUrl: `${options.baseUrl}/queries`,
     })

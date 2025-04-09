@@ -5,36 +5,36 @@ import { err, ok, ResultAsync } from 'neverthrow'
 
 import type { MediaQueriesRouter } from './router.js'
 
-export class MediaQueriesClient {
-  private client: ReturnType<typeof hc<MediaQueriesRouter>>
+export type MediaQueriesClient = ReturnType<typeof createMediaQueriesClient>
 
-  constructor(options: {
-    baseUrl: string
-    sessionToken: string | undefined
-    fetch?: typeof fetch
-  }) {
-    this.client = hc<MediaQueriesRouter>(options.baseUrl, {
-      fetch: options.fetch ?? fetch,
-      headers: { authorization: `Bearer ${options.sessionToken}` },
-    })
-  }
+export function createMediaQueriesClient(options: {
+  baseUrl: string
+  sessionToken: string | undefined
+  fetch?: typeof fetch
+}) {
+  const client = hc<MediaQueriesRouter>(options.baseUrl, {
+    fetch: options.fetch ?? fetch,
+    headers: { authorization: `Bearer ${options.sessionToken}` },
+  })
 
-  async getAllMediaTypes() {
-    return ResultAsync.fromPromise(
-      this.client['media-types'].$get(),
-      (err) => new FetchError(toError(err)),
-    ).map<InferResponseType<(typeof this.client)['media-types']['$get']>>((res) => res.json())
-  }
+  type Client = typeof client
 
-  async getMediaType(id: string) {
-    return ResultAsync.fromPromise(
-      this.client['media-types'][':id'].$get({ param: { id } }),
-      (err) => new FetchError(toError(err)),
-    )
-      .map<InferResponseType<(typeof this.client)['media-types'][':id']['$get']>>((res) =>
-        res.json(),
+  return {
+    getAllMediaTypes() {
+      return ResultAsync.fromPromise(
+        client['media-types'].$get(),
+        (err) => new FetchError(toError(err)),
+      ).map<InferResponseType<Client['media-types']['$get']>>((res) => res.json())
+    },
+
+    getMediaType(id: string) {
+      return ResultAsync.fromPromise(
+        client['media-types'][':id'].$get({ param: { id } }),
+        (err) => new FetchError(toError(err)),
       )
-      .andThen((res) => (res.success ? ok(res) : err(res.error)))
+        .map<InferResponseType<Client['media-types'][':id']['$get']>>((res) => res.json())
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
   }
 }
 
