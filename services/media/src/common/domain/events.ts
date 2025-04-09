@@ -1,4 +1,4 @@
-import type { MediaArtifactSchema, MediaType } from './types.js'
+import type { MediaArtifactType, MediaType } from './types.js'
 
 export type MediaTypeEvent = MediaTypeCreatedEvent | MediaTypeDeletedEvent | MediaTypeUpdatedEvent
 
@@ -36,16 +36,16 @@ export function mediaTypeUpdatedEvent(
   return { ...event, _tag: 'media-type-updated' }
 }
 
-export type MediaArtifactSchemaEvent = MediaArtifactSchemaCreatedEvent
+export type MediaArtifactTypeEvent = MediaArtifactTypeCreatedEvent
 
-export type MediaArtifactSchemaCreatedEvent = {
-  _tag: 'media-artifact-schema-created'
+export type MediaArtifactTypeCreatedEvent = {
+  _tag: 'media-artifact-type-created'
   mediaType: string
-  schema: MediaArtifactSchema
+  mediaArtifactType: MediaArtifactType
 }
 
-export function mediaArtifactSchemaCreatedEvent(
-  event: Omit<MediaArtifactSchemaCreatedEvent, '_tag'>,
-): MediaArtifactSchemaCreatedEvent {
-  return { ...event, _tag: 'media-artifact-schema-created' }
+export function mediaArtifactTypeCreatedEvent(
+  event: Omit<MediaArtifactTypeCreatedEvent, '_tag'>,
+): MediaArtifactTypeCreatedEvent {
+  return { ...event, _tag: 'media-artifact-type-created' }
 }

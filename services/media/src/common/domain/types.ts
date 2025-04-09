@@ -4,7 +4,7 @@ export type MediaType = {
   parents: string[]
 }
 
-export type MediaArtifactSchema = {
+export type MediaArtifactType = {
   id: string
   name: string
 }

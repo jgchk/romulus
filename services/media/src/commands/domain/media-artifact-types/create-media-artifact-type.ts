@@ -2,26 +2,26 @@ import type { Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import {
-  type MediaArtifactSchemaCreatedEvent,
-  mediaArtifactSchemaCreatedEvent,
+  type MediaArtifactTypeCreatedEvent,
+  mediaArtifactTypeCreatedEvent,
 } from '../../../common/domain/events.js'
-import type { MediaArtifactSchema } from '../../../common/domain/types.js'
+import type { MediaArtifactType } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError } from '../media-types/errors.js'
 import type { MediaTypesProjection } from '../media-types/media-types-projection.js'
-import type { MediaArtifactSchemaNotFoundError } from './errors.js'
+import type { MediaArtifactTypeNotFoundError } from './errors.js'
 
-export function createCreateMediaArtifactSchemaCommandHandler(
+export function createCreateMediaArtifactTypeCommandHandler(
   mediaTypesProjection: MediaTypesProjection,
 ) {
   function doesMediaTypeExist(mediaType: string) {
     return mediaTypesProjection.mediaTypes.has(mediaType)
   }
 
-  return function createMediaArtifactSchema(
-    command: CreateMediaArtifactSchemaCommand,
+  return function createMediaArtifactType(
+    command: CreateMediaArtifactTypeCommand,
   ): Result<
-    MediaArtifactSchemaCreatedEvent,
-    MediaTypeNotFoundError | MediaArtifactSchemaNotFoundError
+    MediaArtifactTypeCreatedEvent,
+    MediaTypeNotFoundError | MediaArtifactTypeNotFoundError
   > {
     const mediaTypeExists = doesMediaTypeExist(command.mediaType)
     if (!mediaTypeExists) {
@@ -29,12 +29,15 @@ export function createCreateMediaArtifactSchemaCommandHandler(
     }
 
     return ok(
-      mediaArtifactSchemaCreatedEvent({ mediaType: command.mediaType, schema: command.schema }),
+      mediaArtifactTypeCreatedEvent({
+        mediaType: command.mediaType,
+        mediaArtifactType: command.mediaArtifactType,
+      }),
     )
   }
 }
 
-export type CreateMediaArtifactSchemaCommand = {
+export type CreateMediaArtifactTypeCommand = {
   mediaType: string
-  schema: MediaArtifactSchema
+  mediaArtifactType: MediaArtifactType
 }
