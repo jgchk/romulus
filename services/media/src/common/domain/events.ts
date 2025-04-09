@@ -36,7 +36,9 @@ export function mediaTypeUpdatedEvent(
   return { ...event, _tag: 'media-type-updated' }
 }
 
-export type MediaArtifactTypeEvent = MediaArtifactTypeCreatedEvent
+export type MediaArtifactTypeEvent =
+  | MediaArtifactTypeCreatedEvent
+  | MediaArtifactRelationshipTypeCreatedEvent
 
 export type MediaArtifactTypeCreatedEvent = {
   _tag: 'media-artifact-type-created'
@@ -48,8 +50,6 @@ export function mediaArtifactTypeCreatedEvent(
 ): MediaArtifactTypeCreatedEvent {
   return { ...event, _tag: 'media-artifact-type-created' }
 }
-
-export type MediaArtifactRelationshipTypeEvent = MediaArtifactRelationshipTypeCreatedEvent
 
 export type MediaArtifactRelationshipTypeCreatedEvent = {
   _tag: 'media-artifact-relationship-type-created'
