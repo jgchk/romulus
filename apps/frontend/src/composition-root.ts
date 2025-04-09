@@ -1,7 +1,7 @@
 import { AuthenticationClient } from '@romulus/authentication/client'
 import { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresClient } from '@romulus/genres/client'
-import { MediaClient } from '@romulus/media/client'
+import { createMediaClient as createMediaClient_ } from '@romulus/media/client'
 import { UserSettingsClient } from '@romulus/user-settings/client'
 
 export type CompositionRoot = ReturnType<typeof createCompositionRoot>
@@ -73,7 +73,7 @@ function createMediaClient(options: {
   sessionToken: string | undefined
   fetch: typeof fetch
 }) {
-  return new MediaClient({
+  return createMediaClient_({
     baseUrl: `${options.baseUrl}/media`,
     sessionToken: options.sessionToken,
     fetch: options.fetch,

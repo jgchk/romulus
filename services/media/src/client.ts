@@ -1,31 +1,23 @@
-import { createMediaCommandsClient, type MediaCommandsClient } from './commands/web/client.js'
-import type { MediaQueriesClient } from './queries/web/client.js'
+import { createMediaCommandsClient } from './commands/web/client.js'
 import { createMediaQueriesClient } from './queries/web/client.js'
 
-export class MediaClient {
-  private commandsClient: MediaCommandsClient
-  private queriesClient: MediaQueriesClient
+export function createMediaClient(options: {
+  baseUrl: string
+  sessionToken: string | undefined
+  fetch?: typeof fetch
+}) {
+  const commandsClient = createMediaCommandsClient({
+    ...options,
+    baseUrl: `${options.baseUrl}/commands`,
+  })
 
-  createMediaType: MediaCommandsClient['createMediaType']
-  getAllMediaTypes: MediaQueriesClient['getAllMediaTypes']
-  getMediaType: MediaQueriesClient['getMediaType']
+  const queriesClient = createMediaQueriesClient({
+    ...options,
+    baseUrl: `${options.baseUrl}/queries`,
+  })
 
-  constructor(options: {
-    baseUrl: string
-    sessionToken: string | undefined
-    fetch?: typeof fetch
-  }) {
-    this.commandsClient = createMediaCommandsClient({
-      ...options,
-      baseUrl: `${options.baseUrl}/commands`,
-    })
-    this.queriesClient = createMediaQueriesClient({
-      ...options,
-      baseUrl: `${options.baseUrl}/queries`,
-    })
-
-    this.createMediaType = this.commandsClient.createMediaType.bind(this.commandsClient)
-    this.getAllMediaTypes = this.queriesClient.getAllMediaTypes.bind(this.queriesClient)
-    this.getMediaType = this.queriesClient.getMediaType.bind(this.queriesClient)
+  return {
+    ...commandsClient,
+    ...queriesClient,
   }
 }
