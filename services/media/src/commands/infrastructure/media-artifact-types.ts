@@ -6,20 +6,18 @@ import {
 } from '../domain/media-artifact-types/media-artifact-types-projection.js'
 
 export function createGetMediaArtifactTypes(
-  eventStore: IEventStore<Record<`media-artifact-type-${string}`, MediaArtifactTypeEvent>>,
+  eventStore: IEventStore<{ 'media-artifact-types': MediaArtifactTypeEvent }>,
 ) {
-  return async function getMediaArtifactTypes(
-    mediaType: string,
-  ): Promise<MediaArtifactTypesProjection> {
-    const events = await eventStore.get(`media-artifact-type-${mediaType}`)
+  return async function getMediaArtifactTypes(): Promise<MediaArtifactTypesProjection> {
+    const events = await eventStore.get('media-artifact-types')
     return createMediaArtifactTypesProjectionFromEvents(events)
   }
 }
 
 export function createSaveMediaArtifactTypeEvent(
-  eventStore: IEventStore<Record<`media-artifact-type-${string}`, MediaArtifactTypeEvent>>,
+  eventStore: IEventStore<{ 'media-artifact-types': MediaArtifactTypeEvent }>,
 ) {
-  return async function saveEvent(mediaType: string, event: MediaArtifactTypeEvent): Promise<void> {
-    await eventStore.save(`media-artifact-type-${mediaType}`, [event])
+  return async function saveEvent(event: MediaArtifactTypeEvent): Promise<void> {
+    await eventStore.save('media-artifact-types', [event])
   }
 }

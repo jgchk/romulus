@@ -15,7 +15,7 @@ import { createCreateMediaArtifactTypeCommandHandler } from './create-media-arti
 it('should create a media artifact type', async () => {
   const eventStore = new MemoryEventStore<{
     'media-types': MediaTypeEvent
-    [key: `media-artifact-type-${string}`]: MediaArtifactTypeEvent
+    'media-artifact-types': MediaArtifactTypeEvent
   }>()
   eventStore.save('media-types', [
     mediaTypeCreatedEvent({
@@ -35,7 +35,7 @@ it('should create a media artifact type', async () => {
 
   expect(result).toEqual(ok(undefined))
 
-  const events = eventStore.get('media-artifact-type-test-media-type')
+  const events = eventStore.get('media-artifact-types')
   expect(events).toEqual([
     mediaArtifactTypeCreatedEvent({
       mediaType: 'test-media-type',

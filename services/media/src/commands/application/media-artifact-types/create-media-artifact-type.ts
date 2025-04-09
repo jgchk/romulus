@@ -16,10 +16,7 @@ export function createCreateMediaArtifactTypeCommandHandler({
   saveMediaArtifactTypeEvent,
 }: {
   getMediaTypes: () => MaybePromise<MediaTypesProjection>
-  saveMediaArtifactTypeEvent: (
-    mediaType: string,
-    event: MediaArtifactTypeCreatedEvent,
-  ) => MaybePromise<void>
+  saveMediaArtifactTypeEvent: (event: MediaArtifactTypeCreatedEvent) => MaybePromise<void>
 }): CreateMediaArtifactTypeCommandHandler {
   return async function (command) {
     const createMediaArtifactType = domain.createCreateMediaArtifactTypeCommandHandler(
@@ -32,7 +29,7 @@ export function createCreateMediaArtifactTypeCommandHandler({
       return err(result.error)
     }
 
-    await saveMediaArtifactTypeEvent(command.mediaType, result.value)
+    await saveMediaArtifactTypeEvent(result.value)
 
     return ok(undefined)
   }
