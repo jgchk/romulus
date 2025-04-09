@@ -19,15 +19,13 @@ it('should create a media artifact type', () => {
   const createMediaArtifactType = createCreateMediaArtifactTypeCommandHandler(mediaTypes)
 
   const result = createMediaArtifactType({
-    mediaType: 'test-media-type',
-    mediaArtifactType: { id: 'test-id', name: 'Test' },
+    mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
   })
 
   expect(result).toEqual(
     ok(
       mediaArtifactTypeCreatedEvent({
-        mediaType: 'test-media-type',
-        mediaArtifactType: { id: 'test-id', name: 'Test' },
+        mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
       }),
     ),
   )
@@ -39,8 +37,7 @@ it('should fail if the media type does not exist', () => {
   const createMediaArtifactType = createCreateMediaArtifactTypeCommandHandler(mediaTypes)
 
   const result = createMediaArtifactType({
-    mediaType: 'test-media-type',
-    mediaArtifactType: { id: 'test-id', name: 'Test' },
+    mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('test-media-type')))

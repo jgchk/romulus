@@ -40,7 +40,6 @@ export type MediaArtifactTypeEvent = MediaArtifactTypeCreatedEvent
 
 export type MediaArtifactTypeCreatedEvent = {
   _tag: 'media-artifact-type-created'
-  mediaType: string
   mediaArtifactType: MediaArtifactType
 }
 

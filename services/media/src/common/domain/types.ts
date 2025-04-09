@@ -7,4 +7,5 @@ export type MediaType = {
 export type MediaArtifactType = {
   id: string
   name: string
+  mediaTypes: string[]
 }

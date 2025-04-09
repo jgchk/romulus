@@ -23,14 +23,15 @@ export function createCreateMediaArtifactTypeCommandHandler(
     MediaArtifactTypeCreatedEvent,
     MediaTypeNotFoundError | MediaArtifactTypeNotFoundError
   > {
-    const mediaTypeExists = doesMediaTypeExist(command.mediaType)
-    if (!mediaTypeExists) {
-      return err(new MediaTypeNotFoundError(command.mediaType))
+    for (const mediaType of command.mediaArtifactType.mediaTypes) {
+      const mediaTypeExists = doesMediaTypeExist(mediaType)
+      if (!mediaTypeExists) {
+        return err(new MediaTypeNotFoundError(mediaType))
+      }
     }
 
     return ok(
       mediaArtifactTypeCreatedEvent({
-        mediaType: command.mediaType,
         mediaArtifactType: command.mediaArtifactType,
       }),
     )
@@ -38,6 +39,5 @@ export function createCreateMediaArtifactTypeCommandHandler(
 }
 
 export type CreateMediaArtifactTypeCommand = {
-  mediaType: string
   mediaArtifactType: MediaArtifactType
 }
