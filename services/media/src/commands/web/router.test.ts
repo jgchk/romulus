@@ -232,7 +232,7 @@ describe('createMediaArtifactType', () => {
     const { client } = setup({
       authorization: {
         hasPermission: (userId, permission) => {
-          if (permission === MediaPermission.CreateMediaArtifactType) {
+          if (permission === MediaPermission.CreateMediaArtifactTypes) {
             return Promise.resolve(false)
           } else {
             return Promise.resolve(true)

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createQuery } from '@tanstack/svelte-query'
 
-  import MediaTypeForm from '$lib/features/media/components/MediaTypeForm.svelte'
+  import MediaArtifactTypeForm from '$lib/features/media/components/MediaArtifactTypeForm.svelte'
   import { mediaTypeQueries } from '$lib/features/media/state/tanstack'
   import { pageTitle } from '$lib/utils/string'
 
@@ -17,9 +17,9 @@
 </script>
 
 <svelte:head>
-  <title>{pageTitle('New Media Type', 'Media Types')}</title>
+  <title>{pageTitle('New Media Artifact Type', 'Media Artifact Types')}</title>
 </svelte:head>
 
 {#if $mediaTypeTreeQuery.data}
-  <MediaTypeForm data={data.form} mediaTypes={$mediaTypeTreeQuery.data} />
+  <MediaArtifactTypeForm data={data.form} mediaTypes={$mediaTypeTreeQuery.data} />
 {/if}

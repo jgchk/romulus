@@ -22,6 +22,9 @@ declare global {
               mediaTypes: {
                 canCreate: boolean
               }
+              mediaArtifactTypes: {
+                canCreate: boolean
+              }
             }
           }
         | undefined

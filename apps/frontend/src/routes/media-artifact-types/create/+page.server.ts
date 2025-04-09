@@ -2,26 +2,26 @@ import { type Actions, error } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
-import { mediaTypeSchema } from '$lib/features/media/components/MediaTypeForm'
+import { mediaArtifactTypeSchema } from '$lib/features/media/components/MediaArtifactTypeForm'
 
 import type { PageServerLoad } from './$types'
 
 export const load = (async ({
   locals,
 }: {
-  locals: { user?: { permissions: { mediaTypes: { canCreate: boolean } } } }
+  locals: { user?: { permissions: { mediaArtifactTypes: { canCreate: boolean } } } }
 }) => {
-  if (!locals.user?.permissions.mediaTypes.canCreate) {
-    return error(403, { message: 'You do not have permission to create media types' })
+  if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {
+    return error(403, { message: 'You do not have permission to create media artifact types' })
   }
 
-  const form = await superValidate(zod(mediaTypeSchema), { errors: false })
+  const form = await superValidate(zod(mediaArtifactTypeSchema), { errors: false })
   return { form }
 }) satisfies PageServerLoad
 
 export const actions = {
   default: async ({ request, locals }: { request: Request; locals: App.Locals }) => {
-    const form = await superValidate(request, zod(mediaTypeSchema))
+    const form = await superValidate(request, zod(mediaArtifactTypeSchema))
 
     if (!form.valid) {
       return fail(400, { form })
@@ -29,17 +29,14 @@ export const actions = {
 
     const id = crypto.randomUUID()
 
-    const result = await locals.di.media().createMediaType({ id, ...form.data })
+    const result = await locals.di.media().createMediaArtifactType({ id, ...form.data })
     if (result.isErr()) {
       switch (result.error.name) {
         case 'FetchError': {
           return error(500, result.error.message)
         }
-        case 'MediaTypeTreeCycleError': {
-          return setError(form, 'parents._errors', result.error.message)
-        }
         case 'MediaTypeNotFoundError': {
-          return setError(form, 'parents._errors', result.error.message)
+          return setError(form, 'mediaTypes._errors', result.error.message)
         }
         default: {
           result.error satisfies never

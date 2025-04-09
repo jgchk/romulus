@@ -97,6 +97,9 @@ async function getUser(
       mediaTypes: {
         canCreate: false,
       },
+      mediaArtifactTypes: {
+        canCreate: false,
+      },
     },
   }
 
@@ -107,14 +110,19 @@ async function getUser(
   }
   const permissions = permissionsResult.value.permissions
 
-  user.permissions.genres = {
-    canCreate: permissions.has(GenresPermission.CreateGenres),
-    canEdit: permissions.has(GenresPermission.EditGenres),
-    canDelete: permissions.has(GenresPermission.DeleteGenres),
-    canVoteRelevance: permissions.has(GenresPermission.VoteGenreRelevance),
-  }
-  user.permissions.mediaTypes = {
-    canCreate: permissions.has(MediaPermission.CreateMediaTypes),
+  user.permissions = {
+    genres: {
+      canCreate: permissions.has(GenresPermission.CreateGenres),
+      canEdit: permissions.has(GenresPermission.EditGenres),
+      canDelete: permissions.has(GenresPermission.DeleteGenres),
+      canVoteRelevance: permissions.has(GenresPermission.VoteGenreRelevance),
+    },
+    mediaTypes: {
+      canCreate: permissions.has(MediaPermission.CreateMediaTypes),
+    },
+    mediaArtifactTypes: {
+      canCreate: permissions.has(MediaPermission.CreateMediaArtifactTypes),
+    },
   }
 
   return user

@@ -3,9 +3,9 @@ export const MediaPermission = {
   EditMediaTypes: 'media:edit-media-types',
   DeleteMediaTypes: 'media:delete-media-types',
 
-  CreateMediaArtifactType: 'media:create-media-artifact-type',
-  EditMediaArtifactType: 'media:edit-media-artifact-type',
-  DeleteMediaArtifactType: 'media:delete-media-artifact-type',
+  CreateMediaArtifactTypes: 'media:create-media-artifact-types',
+  EditMediaArtifactTypes: 'media:edit-media-artifact-types',
+  DeleteMediaArtifactTypes: 'media:delete-media-artifact-types',
 } as const
 
 export type MediaPermission = (typeof MediaPermission)[keyof typeof MediaPermission]

@@ -144,7 +144,7 @@ export function createMediaCommandsRouter({
       '/media-artifact-types',
       routes.createMediaArtifactType.route(),
       validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
-      authz(MediaPermission.CreateMediaArtifactType),
+      authz(MediaPermission.CreateMediaArtifactTypes),
       async (c) => {
         const body = c.req.valid('json')
         const result = await createMediaArtifactType({ mediaArtifactType: body })

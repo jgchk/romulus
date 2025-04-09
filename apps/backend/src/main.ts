@@ -330,6 +330,9 @@ const roles = {
     MediaPermission.CreateMediaTypes,
     MediaPermission.EditMediaTypes,
     MediaPermission.DeleteMediaTypes,
+    MediaPermission.CreateMediaArtifactTypes,
+    MediaPermission.EditMediaArtifactTypes,
+    MediaPermission.DeleteMediaArtifactTypes,
   ],
   default: [AuthorizationPermission.CheckOwnPermissions, AuthorizationPermission.GetOwnPermissions],
 } as const
