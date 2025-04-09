@@ -9,3 +9,10 @@ export type MediaArtifactType = {
   name: string
   mediaTypes: string[]
 }
+
+export type MediaArtifactRelationshipType = {
+  id: string
+  name: string
+  parentMediaArtifactType: string
+  childMediaArtifactTypes: string[]
+}

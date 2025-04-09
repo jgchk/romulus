@@ -24,8 +24,7 @@ export function createCreateMediaArtifactTypeCommandHandler(
     MediaTypeNotFoundError | MediaArtifactTypeNotFoundError
   > {
     for (const mediaType of command.mediaArtifactType.mediaTypes) {
-      const mediaTypeExists = doesMediaTypeExist(mediaType)
-      if (!mediaTypeExists) {
+      if (!doesMediaTypeExist(mediaType)) {
         return err(new MediaTypeNotFoundError(mediaType))
       }
     }
