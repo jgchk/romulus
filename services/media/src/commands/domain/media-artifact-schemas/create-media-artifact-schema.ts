@@ -8,12 +8,10 @@ import {
 import type { MediaArtifactSchema } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError } from '../media-types/errors.js'
 import type { MediaTypesProjection } from '../media-types/media-types-projection.js'
-import { MediaArtifactSchemaNotFoundError } from './errors.js'
-import type { MediaArtifactSchemasProjection } from './media-artifact-schema-projection.js'
+import type { MediaArtifactSchemaNotFoundError } from './errors.js'
 
 export function createCreateMediaArtifactSchemaCommandHandler(
   mediaTypesProjection: MediaTypesProjection,
-  mediaArtifactSchemasProjection: MediaArtifactSchemasProjection,
 ) {
   function doesMediaTypeExist(mediaType: string) {
     return mediaTypesProjection.mediaTypes.has(mediaType)
@@ -28,12 +26,6 @@ export function createCreateMediaArtifactSchemaCommandHandler(
     const mediaTypeExists = doesMediaTypeExist(command.mediaType)
     if (!mediaTypeExists) {
       return err(new MediaTypeNotFoundError(command.mediaType))
-    }
-
-    if (command.schema.parent !== undefined) {
-      if (!mediaArtifactSchemasProjection.schemas.has(command.schema.parent)) {
-        return err(new MediaArtifactSchemaNotFoundError(command.schema.parent))
-      }
     }
 
     return ok(

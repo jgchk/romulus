@@ -8,10 +8,7 @@ import {
   type MediaTypeEvent,
 } from '../../../common/domain/events.js'
 import { MemoryEventStore } from '../../../common/infrastructure/memory-event-store.js'
-import {
-  createGetMediaArtifactSchemas,
-  createSaveMediaArtifactSchemaEvent,
-} from '../../infrastructure/media-artifact-schemas.js'
+import { createSaveMediaArtifactSchemaEvent } from '../../infrastructure/media-artifact-schemas.js'
 import { createGetMediaTypes } from '../../infrastructure/media-types.js'
 import { createCreateMediaArtifactSchemaCommandHandler } from './create-media-artifact-schema.js'
 
@@ -28,13 +25,12 @@ it('should create a media artifact schema', async () => {
 
   const createMediaArtifactSchema = createCreateMediaArtifactSchemaCommandHandler({
     getMediaTypes: createGetMediaTypes(eventStore),
-    getMediaArtifactSchemas: createGetMediaArtifactSchemas(eventStore),
     saveMediaArtifactSchemaEvent: createSaveMediaArtifactSchemaEvent(eventStore),
   })
 
   const result = await createMediaArtifactSchema({
     mediaType: 'test-media-type',
-    schema: { id: 'test-id', name: 'Test', parent: undefined },
+    schema: { id: 'test-id', name: 'Test' },
   })
 
   expect(result).toEqual(ok(undefined))
@@ -43,7 +39,7 @@ it('should create a media artifact schema', async () => {
   expect(events).toEqual([
     mediaArtifactSchemaCreatedEvent({
       mediaType: 'test-media-type',
-      schema: { id: 'test-id', name: 'Test', parent: undefined },
+      schema: { id: 'test-id', name: 'Test' },
     }),
   ])
 })

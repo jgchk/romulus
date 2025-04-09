@@ -7,5 +7,4 @@ export type MediaType = {
 export type MediaArtifactSchema = {
   id: string
   name: string
-  parent: string | undefined
 }
