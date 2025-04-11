@@ -1,7 +1,7 @@
 import { CustomError } from '@romulus/custom-error'
 
-export class MediaArtifactTypeNotFoundError extends CustomError<'MediaArtifactTypeNotFound'> {
+export class MediaArtifactTypeNotFoundError extends CustomError<'MediaArtifactTypeNotFoundError'> {
   constructor(public readonly id: string) {
-    super('MediaArtifactTypeNotFound', `Media artifact type with ID '${id}' not found`)
+    super('MediaArtifactTypeNotFoundError', `Media artifact type with ID '${id}' not found`)
   }
 }

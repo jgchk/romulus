@@ -118,10 +118,10 @@ async function getUser(
       canVoteRelevance: permissions.has(GenresPermission.VoteGenreRelevance),
     },
     mediaTypes: {
-      canCreate: permissions.has(MediaPermission.CreateMediaTypes),
+      canCreate: permissions.has(MediaPermission.WriteMediaTypes),
     },
     mediaArtifactTypes: {
-      canCreate: permissions.has(MediaPermission.CreateMediaArtifactTypes),
+      canCreate: permissions.has(MediaPermission.WriteMediaArtifactTypes),
     },
   }
 

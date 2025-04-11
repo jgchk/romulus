@@ -155,12 +155,14 @@ function createApplications({
     },
   })
   const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
-  const mediaApplication = createMediaApplication(
-    () => mediaInfrastructure.eventStore.getMediaTypes(),
-    (event) => mediaInfrastructure.eventStore.saveMediaTypeEvent(event),
-    (event) => mediaInfrastructure.eventStore.saveMediaArtifactTypeEvent(event),
-    mediaInfrastructure.db,
-  )
+  const mediaApplication = createMediaApplication({
+    getMediaTypes: () => mediaInfrastructure.eventStore.getMediaTypes(),
+    getMediaArtifactTypes: () => mediaInfrastructure.eventStore.getMediaArtifactTypes(),
+    saveMediaTypeEvent: (event) => mediaInfrastructure.eventStore.saveMediaTypeEvent(event),
+    saveMediaArtifactTypeEvent: (event) =>
+      mediaInfrastructure.eventStore.saveMediaArtifactTypeEvent(event),
+    db: mediaInfrastructure.db,
+  })
 
   return {
     authenticationApplication,
@@ -326,14 +328,7 @@ const roles = {
     GenresPermission.DeleteGenres,
     GenresPermission.VoteGenreRelevance,
   ],
-  'media-type-editor': [
-    MediaPermission.CreateMediaTypes,
-    MediaPermission.EditMediaTypes,
-    MediaPermission.DeleteMediaTypes,
-    MediaPermission.CreateMediaArtifactTypes,
-    MediaPermission.EditMediaArtifactTypes,
-    MediaPermission.DeleteMediaArtifactTypes,
-  ],
+  'media-type-editor': [MediaPermission.WriteMediaTypes, MediaPermission.WriteMediaArtifactTypes],
   default: [AuthorizationPermission.CheckOwnPermissions, AuthorizationPermission.GetOwnPermissions],
 } as const
 

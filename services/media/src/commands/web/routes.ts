@@ -166,6 +166,57 @@ export const routes = {
     },
   },
 
+  createMediaArtifactRelationshipType: {
+    route: () =>
+      describeRoute({
+        description: 'Create a media artifact relationship type',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.createMediaArtifactRelationshipType.successResponse),
+              },
+            },
+          },
+          401: {
+            description: 'Unauthenticated',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          403: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          422: {
+            description: 'Referenced media type does not exist',
+            content: {
+              'application/json': {
+                schema: resolver(
+                  routes.createMediaArtifactRelationshipType.errorResponse
+                    .mediaArtifactTypeNotFoundError,
+                ),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({ success: 'true' }),
+    errorResponse: {
+      mediaArtifactTypeNotFoundError: createErrorResponse(
+        type('"MediaArtifactTypeNotFoundError"'),
+        type('422'),
+      ),
+    },
+  },
+
   badRequestErrorResponse: createErrorResponse(type('"BadRequestError"'), type('400')),
   unauthenticatedErrorResponse: createErrorResponse(type('"UnauthenticatedError"'), type('401')),
   unauthorizedErrorResponse: createErrorResponse(type('"UnauthorizedError"'), type('403')),

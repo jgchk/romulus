@@ -1,5 +1,9 @@
+import type { MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
 import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
-import { createSaveMediaArtifactTypeEvent } from './commands/infrastructure/media-artifact-types.js'
+import {
+  createGetMediaArtifactTypes,
+  createSaveMediaArtifactTypeEvent,
+} from './commands/infrastructure/media-artifact-types.js'
 import {
   createGetMediaTypes,
   createSaveMediaTypeEvent,
@@ -19,6 +23,7 @@ export type MediaInfrastructure = {
   db: QueryProjectionDrizzleConnection
   eventStore: {
     getMediaTypes: () => Promise<MediaTypesProjection>
+    getMediaArtifactTypes: () => Promise<MediaArtifactTypesProjection>
     saveMediaTypeEvent: (event: MediaTypeEvent) => Promise<void>
     saveMediaArtifactTypeEvent: (event: MediaArtifactTypeEvent) => Promise<void>
   }
@@ -53,6 +58,7 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
     db,
     eventStore: {
       getMediaTypes: createGetMediaTypes(eventStore),
+      getMediaArtifactTypes: createGetMediaArtifactTypes(eventStore),
       saveMediaTypeEvent: createSaveMediaTypeEvent(eventStore),
       saveMediaArtifactTypeEvent: createSaveMediaArtifactTypeEvent(eventStore),
     },

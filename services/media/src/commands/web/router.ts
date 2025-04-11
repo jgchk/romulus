@@ -4,11 +4,13 @@ import { type Env, Hono, type MiddlewareHandler, type ValidationTargets } from '
 import type { HasUndefined } from 'hono-openapi'
 import { validator as arktypeValidator } from 'hono-openapi/arktype'
 
+import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-relationship-type.js'
 import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
 import type { IAuthorizationService } from '../domain/authorization.js'
+import { MediaArtifactTypeNotFoundError } from '../domain/media-artifact-types/errors.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/media-types/errors.js'
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
@@ -21,6 +23,7 @@ export type MediaCommandsRouterDependencies = {
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
+  createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
 }
@@ -29,6 +32,7 @@ export function createMediaCommandsRouter({
   createMediaType,
   updateMediaType,
   createMediaArtifactType,
+  createMediaArtifactRelationshipType,
   authentication,
   authorization,
 }: MediaCommandsRouterDependencies) {
@@ -48,7 +52,7 @@ export function createMediaCommandsRouter({
           parents: 'string[]',
         }),
       ),
-      authz(MediaPermission.CreateMediaTypes),
+      authz(MediaPermission.WriteMediaTypes),
       async (c) => {
         const body = c.req.valid('json')
         const result = await createMediaType({ mediaType: body })
@@ -97,7 +101,7 @@ export function createMediaCommandsRouter({
           parents: 'string[]',
         }),
       ),
-      authz(MediaPermission.EditMediaTypes),
+      authz(MediaPermission.WriteMediaTypes),
       async (c) => {
         const param = c.req.valid('param')
         const body = c.req.valid('json')
@@ -144,7 +148,7 @@ export function createMediaCommandsRouter({
       '/media-artifact-types',
       routes.createMediaArtifactType.route(),
       validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
-      authz(MediaPermission.CreateMediaArtifactTypes),
+      authz(MediaPermission.WriteMediaArtifactTypes),
       async (c) => {
         const body = c.req.valid('json')
         const result = await createMediaArtifactType({ mediaArtifactType: body })
@@ -167,6 +171,52 @@ export function createMediaCommandsRouter({
                     statusCode: 422,
                   },
                 } satisfies typeof routes.createMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
+                422,
+              )
+            } else {
+              assertUnreachable(err)
+            }
+          },
+        )
+      },
+    )
+    .post(
+      '/media-artifact-relationship-types',
+      routes.createMediaArtifactRelationshipType.route(),
+      validator(
+        'json',
+        type({
+          id: 'string',
+          name: 'string',
+          parentMediaArtifactType: 'string',
+          childMediaArtifactTypes: 'string[]',
+        }),
+      ),
+      authz(MediaPermission.WriteMediaArtifactTypes),
+      async (c) => {
+        const body = c.req.valid('json')
+        const result = await createMediaArtifactRelationshipType({
+          mediaArtifactRelationshipType: body,
+        })
+        return result.match(
+          () =>
+            c.json(
+              {
+                success: true,
+              } satisfies typeof routes.createMediaArtifactType.successResponse.infer,
+              200,
+            ),
+          (err) => {
+            if (err instanceof MediaArtifactTypeNotFoundError) {
+              return c.json(
+                {
+                  success: false,
+                  error: {
+                    name: err.name,
+                    message: err.message,
+                    statusCode: 422,
+                  },
+                } satisfies typeof routes.createMediaArtifactRelationshipType.errorResponse.mediaArtifactTypeNotFoundError.infer,
                 422,
               )
             } else {
