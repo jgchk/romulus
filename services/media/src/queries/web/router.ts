@@ -1,85 +1,38 @@
 import { type } from 'arktype'
 import { Hono } from 'hono'
-import { describeRoute } from 'hono-openapi'
-import { resolver, validator } from 'hono-openapi/arktype'
+import { validator } from 'hono-openapi/arktype'
 
 import { MediaTypeNotFoundError } from '../../commands/domain/media-types/errors.js'
+import type { GetAllMediaArtifactTypesQueryHandler } from '../application/get-all-media-artifact-types.js'
 import type { GetAllMediaTypesQueryHandler } from '../application/get-all-media-types.js'
 import type { GetMediaTypeQueryHandler } from '../application/get-media-type.js'
-import type { routes } from './routes.js'
+import { routes } from './routes.js'
 
 export type MediaQueriesRouter = ReturnType<typeof createMediaQueriesRouter>
-
-const getAllMediaTypesResponse = type({
-  success: 'true',
-  mediaTypes: type(
-    {
-      id: 'string',
-      name: 'string',
-      parents: 'string[]',
-    },
-    '[]',
-  ),
-})
-
-const getMediaTypeResponse = type({
-  success: 'true',
-  mediaType: type({
-    id: 'string',
-    name: 'string',
-    parents: 'string[]',
-  }),
-})
 
 export function createMediaQueriesRouter({
   getAllMediaTypes,
   getMediaType,
+  getAllMediaArtifactTypes,
 }: {
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
+  getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
 }) {
   const app = new Hono()
-    .get(
-      '/media-types',
-      describeRoute({
-        description: 'Get all media types',
-        responses: {
-          200: {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: resolver(getAllMediaTypesResponse),
-              },
-            },
-          },
-        },
-      }),
-      async (c) => {
-        const mediaTypes = await getAllMediaTypes()
-        return c.json(
-          {
-            success: true,
-            mediaTypes,
-          } satisfies typeof routes.getAllMediaTypes.successResponse.infer,
-          200,
-        )
-      },
-    )
+    .get('/media-types', routes.getAllMediaTypes.route(), async (c) => {
+      const mediaTypes = await getAllMediaTypes()
+      return c.json(
+        {
+          success: true,
+          mediaTypes,
+        } satisfies typeof routes.getAllMediaTypes.successResponse.infer,
+        200,
+      )
+    })
     .get(
       '/media-types/:id',
-      describeRoute({
-        description: 'Get a media type by id',
-        responses: {
-          200: {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: resolver(getMediaTypeResponse),
-              },
-            },
-          },
-        },
-      }),
+      routes.getMediaType.route(),
       validator('param', type({ id: 'string' })),
       async (c) => {
         const { id } = c.req.valid('param')
@@ -100,6 +53,13 @@ export function createMediaQueriesRouter({
         )
       },
     )
+    .get('/media-artifact-types', routes.getAllMediaArtifactTypes.route(), async (c) => {
+      const response = await getAllMediaArtifactTypes()
+      return c.json({
+        success: true,
+        ...response,
+      } satisfies typeof routes.getAllMediaArtifactTypes.successResponse.infer)
+    })
 
   return app
 }

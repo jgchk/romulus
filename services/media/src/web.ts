@@ -7,6 +7,7 @@ import type { UpdateMediaTypeCommandHandler } from './commands/application/media
 import type { IAuthenticationService } from './commands/domain/authentication.js'
 import type { IAuthorizationService } from './commands/domain/authorization.js'
 import { createMediaCommandsRouter } from './commands/web/router.js'
+import type { GetAllMediaArtifactTypesQueryHandler } from './queries/application/get-all-media-artifact-types.js'
 import type { GetAllMediaTypesQueryHandler } from './queries/application/get-all-media-types.js'
 import type { GetMediaTypeQueryHandler } from './queries/application/get-media-type.js'
 import { createMediaQueriesRouter } from './queries/web/router.js'
@@ -14,6 +15,7 @@ import { createMediaQueriesRouter } from './queries/web/router.js'
 export type MediaRouterDependencies = {
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
+  getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler

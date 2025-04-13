@@ -23,6 +23,10 @@ import type { MediaTypesProjection } from './commands/domain/media-types/media-t
 import { MediaPermission } from './commands/domain/permissions.js'
 import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
 import {
+  createGetAllMediaArtifactTypesQueryHandler,
+  type GetAllMediaArtifactTypesQueryHandler,
+} from './queries/application/get-all-media-artifact-types.js'
+import {
   createGetAllMediaTypesQueryHandler,
   type GetAllMediaTypesQueryHandler,
 } from './queries/application/get-all-media-types.js'
@@ -41,6 +45,7 @@ export type MediaApplication = {
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
+  getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
 }
 
 export function createMediaApplication({
@@ -70,6 +75,7 @@ export function createMediaApplication({
     }),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
     getMediaType: createGetMediaTypeQueryHandler(db),
+    getAllMediaArtifactTypes: createGetAllMediaArtifactTypesQueryHandler(db),
   }
 }
 

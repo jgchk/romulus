@@ -65,4 +65,33 @@ export const routes = {
     }),
     errorResponse: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
   },
+  getAllMediaArtifactTypes: {
+    route: () =>
+      describeRoute({
+        description: 'Get all media artifact types',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.getAllMediaArtifactTypes.successResponse),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({
+      success: 'true',
+      mediaArtifactTypes: type({ id: 'string', name: 'string', mediaTypes: 'string[]' }, '[]'),
+      mediaArtifactRelationshipTypes: type(
+        {
+          id: 'string',
+          name: 'string',
+          parentMediaArtifactType: 'string',
+          childMediaArtifactTypes: 'string[]',
+        },
+        '[]',
+      ),
+    }),
+  },
 }
