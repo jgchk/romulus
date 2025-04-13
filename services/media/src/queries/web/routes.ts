@@ -32,6 +32,7 @@ export const routes = {
       ),
     }),
   },
+
   getMediaType: {
     route: () =>
       describeRoute({
@@ -65,6 +66,7 @@ export const routes = {
     }),
     errorResponse: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
   },
+
   getAllMediaArtifactTypes: {
     route: () =>
       describeRoute({
@@ -94,6 +96,7 @@ export const routes = {
       ),
     }),
   },
+
   getMediaArtifactType: {
     route: () =>
       describeRoute({
@@ -122,5 +125,43 @@ export const routes = {
       mediaArtifactType: type({ id: 'string', name: 'string', mediaTypes: 'string[]' }),
     }),
     errorResponse: createErrorResponse(type('"MediaArtifactTypeNotFoundError"'), type('404')),
+  },
+
+  getMediaArtifactRelationshipType: {
+    route: () =>
+      describeRoute({
+        description: 'Get a media artifact relationship type',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.getMediaArtifactRelationshipType.successResponse),
+              },
+            },
+          },
+          404: {
+            description: 'Media artifact type not found',
+            content: {
+              'application/json': {
+                schema: resolver(routes.getMediaArtifactRelationshipType.errorResponse),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({
+      success: 'true',
+      mediaArtifactRelationshipType: type({
+        id: 'string',
+        name: 'string',
+        parentMediaArtifactType: 'string',
+        childMediaArtifactTypes: 'string[]',
+      }),
+    }),
+    errorResponse: createErrorResponse(
+      type('"MediaArtifactRelationshipTypeNotFoundError"'),
+      type('404'),
+    ),
   },
 }
