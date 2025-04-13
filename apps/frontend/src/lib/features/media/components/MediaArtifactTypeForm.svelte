@@ -84,11 +84,6 @@
 
   <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton
-      kind="text"
-      href={id !== undefined ? `/media-artifact-types/${id}` : '/media-artifact-types'}
-    >
-      Cancel
-    </LinkButton>
+    <LinkButton kind="text" href="/media-artifact-types">Cancel</LinkButton>
   </Footer>
 </form>

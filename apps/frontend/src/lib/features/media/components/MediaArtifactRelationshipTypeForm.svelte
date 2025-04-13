@@ -22,7 +22,7 @@
     mediaArtifactTypes: Map<string, { id: string; name: string }>
   }
 
-  let { id, data, onSubmit, mediaArtifactTypes }: Props = $props()
+  let { data, onSubmit, mediaArtifactTypes }: Props = $props()
 
   const queryClient = getQueryClientContext()
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
@@ -92,13 +92,6 @@
 
   <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton
-      kind="text"
-      href={id !== undefined
-        ? `/media-artifact-types/relationships/${id}`
-        : '/media-artifact-types/relationships'}
-    >
-      Cancel
-    </LinkButton>
+    <LinkButton kind="text" href="/media-artifact-types/relationships">Cancel</LinkButton>
   </Footer>
 </form>

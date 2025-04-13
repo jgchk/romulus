@@ -8,7 +8,7 @@ import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {
-    return error(403, { message: 'You do not have permission to create media artifact types' })
+    return error(403, { message: 'You do not have permission to edit media artifact types' })
   }
 
   const response = await locals.di.media().getMediaArtifactType(params.id)
