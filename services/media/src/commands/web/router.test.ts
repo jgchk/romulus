@@ -464,6 +464,9 @@ describe('createMediaArtifactRelationshipType', () => {
         name: 'MediaArtifactTypeNotFoundError',
         message: "Media artifact type with ID 'nonexistent-parent' not found",
         statusCode: 422,
+        details: {
+          id: 'nonexistent-parent',
+        },
       },
     })
   })
