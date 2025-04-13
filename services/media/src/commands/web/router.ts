@@ -215,6 +215,7 @@ export function createMediaCommandsRouter({
                     name: err.name,
                     message: err.message,
                     statusCode: 422,
+                    details: { id: err.id },
                   },
                 } satisfies typeof routes.createMediaArtifactRelationshipType.errorResponse.mediaArtifactTypeNotFoundError.infer,
                 422,

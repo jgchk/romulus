@@ -2,7 +2,7 @@ import { type } from 'arktype'
 import { describeRoute } from 'hono-openapi'
 import { resolver } from 'hono-openapi/arktype'
 
-import { createErrorResponse } from '../../common/web/utils.js'
+import { createErrorResponse, createErrorResponseWithDetails } from '../../common/web/utils.js'
 
 export const routes = {
   createMediaType: {
@@ -196,7 +196,7 @@ export const routes = {
             },
           },
           422: {
-            description: 'Referenced media type does not exist',
+            description: 'Referenced media artifact type does not exist',
             content: {
               'application/json': {
                 schema: resolver(
@@ -210,9 +210,10 @@ export const routes = {
       }),
     successResponse: type({ success: 'true' }),
     errorResponse: {
-      mediaArtifactTypeNotFoundError: createErrorResponse(
+      mediaArtifactTypeNotFoundError: createErrorResponseWithDetails(
         type('"MediaArtifactTypeNotFoundError"'),
         type('422'),
+        type({ id: 'string' }),
       ),
     },
   },
