@@ -1,10 +1,10 @@
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { mediaArtifactRelationshipTypeSchema } from '$lib/features/media/components/MediaArtifactRelationshipTypeForm'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {
@@ -39,16 +39,14 @@ export const load = (async ({ locals, params }) => {
 }) satisfies PageServerLoad
 
 export const actions = {
-  default: async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  default: async ({ request, locals, params }) => {
     const form = await superValidate(request, zod(mediaArtifactRelationshipTypeSchema))
 
     if (!form.valid) {
       return fail(400, { form })
     }
 
-    const id = crypto.randomUUID()
-
-    const result = await locals.di.media().createMediaArtifactRelationshipType({ id, ...form.data })
+    const result = await locals.di.media().updateMediaArtifactRelationshipType(params.id, form.data)
     if (result.isErr()) {
       switch (result.error.name) {
         case 'FetchError': {
@@ -61,6 +59,9 @@ export const actions = {
           } else {
             return setError(form, 'childMediaArtifactTypes._errors', result.error.message)
           }
+        }
+        case 'MediaArtifactRelationshipTypeNotFoundError': {
+          return error(404, 'Media artifact relationship type not found')
         }
         default: {
           result.error satisfies never
