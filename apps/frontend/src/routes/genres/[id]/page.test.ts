@@ -33,6 +33,9 @@ const mockUser = {
     mediaTypes: {
       canCreate: false,
     },
+    mediaArtifactTypes: {
+      canCreate: false,
+    },
   },
   createdAt: new Date(),
   updatedAt: new Date(),
