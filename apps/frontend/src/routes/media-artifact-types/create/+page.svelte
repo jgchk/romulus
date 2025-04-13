@@ -25,11 +25,7 @@
 <div>
   <Card>
     {#if $mediaTypeTreeQuery.data}
-      <MediaArtifactTypeForm
-        action="?/create"
-        data={data.form}
-        mediaTypes={$mediaTypeTreeQuery.data}
-      />
+      <MediaArtifactTypeForm data={data.form} mediaTypes={$mediaTypeTreeQuery.data} />
     {:else if $mediaTypeTreeQuery.error}
       <div>Error loading media types: {$mediaTypeTreeQuery.error.message}</div>
     {:else}
