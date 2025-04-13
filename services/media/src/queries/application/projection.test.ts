@@ -2,6 +2,7 @@ import { expect } from 'vitest'
 
 import {
   mediaArtifactRelationshipTypeCreatedEvent,
+  mediaArtifactRelationshipTypeUpdatedEvent,
   mediaArtifactTypeCreatedEvent,
   mediaArtifactTypeUpdatedEvent,
   mediaTypeUpdatedEvent,
@@ -121,6 +122,72 @@ test('should handle the media-artifact-relationship-type-created event', async (
   expect(mediaArtifactRelationshipType).toEqual({
     id: 'gallery-artwork',
     name: 'Gallery Artwork',
+    parentMediaArtifactTypeId: 'gallery',
+    childMediaArtifactTypes: [
+      {
+        childMediaArtifactTypeId: 'painting',
+        mediaArtifactRelationshipTypeId: 'gallery-artwork',
+      },
+      {
+        childMediaArtifactTypeId: 'sculpture',
+        mediaArtifactRelationshipTypeId: 'gallery-artwork',
+      },
+    ],
+  })
+})
+
+test('should handle the media-artifact-relationship-type-updated event', async ({
+  dbConnection,
+}) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactRelationshipTypeCreatedEvent({
+      mediaArtifactRelationshipType: {
+        id: 'gallery-artwork',
+        name: 'Gallery Artwork',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
+      },
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactRelationshipTypeUpdatedEvent({
+      id: 'gallery-artwork',
+      update: {
+        name: 'Gallery Artwork (Updated)',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
+      },
+    }),
+  )
+
+  const mediaArtifactRelationshipType = await getMediaArtifactRelationshipType(
+    dbConnection,
+    'gallery-artwork',
+  )
+  expect(mediaArtifactRelationshipType).toEqual({
+    id: 'gallery-artwork',
+    name: 'Gallery Artwork (Updated)',
     parentMediaArtifactTypeId: 'gallery',
     childMediaArtifactTypes: [
       {

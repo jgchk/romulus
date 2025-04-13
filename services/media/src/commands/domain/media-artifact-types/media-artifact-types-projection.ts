@@ -35,6 +35,11 @@ export function applyMediaArtifactTypeEvent(
       )
       return state
     }
+
+    case 'media-artifact-relationship-type-updated': {
+      state.relationshipTypes.set(event.id, { id: event.id, ...event.update })
+      return state
+    }
   }
 }
 

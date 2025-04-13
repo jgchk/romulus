@@ -3,6 +3,10 @@ import {
   type CreateMediaArtifactRelationshipTypeCommandHandler,
 } from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import {
+  createUpdateMediaArtifactRelationshipTypeCommandHandler,
+  type UpdateMediaArtifactRelationshipTypeCommandHandler,
+} from './commands/application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
+import {
   createCreateMediaArtifactTypeCommandHandler,
   type CreateMediaArtifactTypeCommandHandler,
 } from './commands/application/media-artifact-types/create-media-artifact-type.js'
@@ -56,6 +60,7 @@ export type MediaApplication = {
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
+  updateMediaArtifactRelationshipType: UpdateMediaArtifactRelationshipTypeCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
   getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
@@ -90,6 +95,10 @@ export function createMediaApplication({
       saveMediaArtifactTypeEvent,
     }),
     createMediaArtifactRelationshipType: createCreateMediaArtifactRelationshipTypeCommandHandler({
+      getMediaArtifactTypes,
+      saveMediaArtifactTypeEvent,
+    }),
+    updateMediaArtifactRelationshipType: createUpdateMediaArtifactRelationshipTypeCommandHandler({
       getMediaArtifactTypes,
       saveMediaArtifactTypeEvent,
     }),

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import type { MediaArtifactTypeEvent, MediaTypeEvent } from '../../common/domain/events.js'
+import { type MediaArtifactTypeEvent, type MediaTypeEvent } from '../../common/domain/events.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import {
   mediaArtifactRelationshipTypeChildren,
@@ -144,6 +144,40 @@ export async function applyEvent(
                   childMediaArtifactTypeId,
                 }),
               ),
+            )
+            .execute()
+        }
+      })
+
+      return
+    }
+
+    case 'media-artifact-relationship-type-updated': {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(mediaArtifactRelationshipTypes)
+          .set({
+            name: event.update.name,
+            parentMediaArtifactTypeId: event.update.parentMediaArtifactType,
+          })
+          .where(eq(mediaArtifactRelationshipTypes.id, event.id))
+          .execute()
+
+        await tx
+          .delete(mediaArtifactRelationshipTypeChildren)
+          .where(
+            eq(mediaArtifactRelationshipTypeChildren.mediaArtifactRelationshipTypeId, event.id),
+          )
+          .execute()
+
+        if (event.update.childMediaArtifactTypes.length > 0) {
+          await tx
+            .insert(mediaArtifactRelationshipTypeChildren)
+            .values(
+              event.update.childMediaArtifactTypes.map((childMediaArtifactTypeId) => ({
+                mediaArtifactRelationshipTypeId: event.id,
+                childMediaArtifactTypeId,
+              })),
             )
             .execute()
         }

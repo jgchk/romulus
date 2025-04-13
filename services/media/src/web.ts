@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 
 import type { CreateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
+import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
 import type { CreateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/create-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
@@ -26,6 +27,7 @@ export type MediaRouterDependencies = {
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
+  updateMediaArtifactRelationshipType: UpdateMediaArtifactRelationshipTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
 }

@@ -38,8 +38,9 @@ export function mediaTypeUpdatedEvent(
 
 export type MediaArtifactTypeEvent =
   | MediaArtifactTypeCreatedEvent
-  | MediaArtifactRelationshipTypeCreatedEvent
   | MediaArtifactTypeUpdatedEvent
+  | MediaArtifactRelationshipTypeCreatedEvent
+  | MediaArtifactRelationshipTypeUpdatedEvent
 
 export type MediaArtifactTypeCreatedEvent = {
   _tag: 'media-artifact-type-created'
@@ -73,4 +74,16 @@ export function mediaArtifactRelationshipTypeCreatedEvent(
   event: Omit<MediaArtifactRelationshipTypeCreatedEvent, '_tag'>,
 ): MediaArtifactRelationshipTypeCreatedEvent {
   return { ...event, _tag: 'media-artifact-relationship-type-created' }
+}
+
+export type MediaArtifactRelationshipTypeUpdatedEvent = {
+  _tag: 'media-artifact-relationship-type-updated'
+  id: string
+  update: Omit<MediaArtifactRelationshipType, 'id'>
+}
+
+export function mediaArtifactRelationshipTypeUpdatedEvent(
+  event: Omit<MediaArtifactRelationshipTypeUpdatedEvent, '_tag'>,
+): MediaArtifactRelationshipTypeUpdatedEvent {
+  return { ...event, _tag: 'media-artifact-relationship-type-updated' }
 }

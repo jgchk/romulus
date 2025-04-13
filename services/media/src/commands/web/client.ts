@@ -64,6 +64,20 @@ export function createMediaCommandsClient(options: {
         )
         .andThen((res) => (res.success ? ok(res) : err(res.error)))
     },
+
+    updateMediaArtifactRelationshipType(
+      id: string,
+      body: InferRequestType<Client['media-artifact-relationship-types'][':id']['$put']>['json'],
+    ) {
+      return ResultAsync.fromPromise(
+        client['media-artifact-relationship-types'][':id'].$put({ param: { id }, json: body }),
+        (err) => new FetchError(toError(err)),
+      )
+        .map<InferResponseType<Client['media-artifact-relationship-types'][':id']['$put']>>((res) =>
+          res.json(),
+        )
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
   }
 }
 

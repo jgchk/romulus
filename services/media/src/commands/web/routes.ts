@@ -279,6 +279,74 @@ export const routes = {
     },
   },
 
+  updateMediaArtifactRelationshipType: {
+    route: () =>
+      describeRoute({
+        description: 'Update a media artifact relationship type',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.updateMediaArtifactRelationshipType.successResponse),
+              },
+            },
+          },
+          401: {
+            description: 'Unauthenticated',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          403: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          404: {
+            description: 'Media artifact relationship type not found',
+            content: {
+              'application/json': {
+                schema: resolver(
+                  routes.updateMediaArtifactRelationshipType.errorResponse
+                    .mediaArtifactRelationshipTypeNotFoundError,
+                ),
+              },
+            },
+          },
+          422: {
+            description: 'Referenced media artifact type does not exist',
+            content: {
+              'application/json': {
+                schema: resolver(
+                  routes.updateMediaArtifactRelationshipType.errorResponse
+                    .mediaArtifactTypeNotFoundError,
+                ),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({ success: 'true' }),
+    errorResponse: {
+      mediaArtifactRelationshipTypeNotFoundError: createErrorResponseWithDetails(
+        type('"MediaArtifactRelationshipTypeNotFoundError"'),
+        type('404'),
+        type({ id: 'string' }),
+      ),
+      mediaArtifactTypeNotFoundError: createErrorResponseWithDetails(
+        type('"MediaArtifactTypeNotFoundError"'),
+        type('422'),
+        type({ id: 'string' }),
+      ),
+    },
+  },
+
   badRequestErrorResponse: createErrorResponse(type('"BadRequestError"'), type('400')),
   unauthenticatedErrorResponse: createErrorResponse(type('"UnauthenticatedError"'), type('401')),
   unauthorizedErrorResponse: createErrorResponse(type('"UnauthorizedError"'), type('403')),
