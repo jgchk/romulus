@@ -19,10 +19,12 @@
     id?: string
     data: SuperValidated<Infer<MediaArtifactTypeSchema>>
     onSubmit?: () => void
+    onSuccess?: () => void
     mediaTypes: MediaTypeStore
+    action?: string
   }
 
-  let { id, data, onSubmit, mediaTypes }: Props = $props()
+  let { id, data, onSubmit, onSuccess, mediaTypes, action }: Props = $props()
 
   const queryClient = getQueryClientContext()
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
@@ -47,12 +49,13 @@
       if (result.type === 'success') {
         // TODO: invalid media artifact types query
         await queryClient.invalidateQueries({ queryKey: mediaTypeQueries.tree().queryKey })
+        onSuccess?.()
       }
     },
   })
 </script>
 
-<form method="post" use:enhance class="flex h-full flex-col">
+<form method="post" {action} use:enhance class="flex h-full flex-col">
   <div class="flex-1 space-y-3 overflow-auto p-4">
     <InputGroup errors={$errors.name}>
       <Label for="name">Name</Label>

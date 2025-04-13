@@ -6,17 +6,32 @@ import { mediaArtifactTypeSchema } from '$lib/features/media/components/MediaArt
 
 import type { PageServerLoad } from './$types'
 
-export const load = (async ({
-  locals,
-}: {
-  locals: { user?: { permissions: { mediaArtifactTypes: { canCreate: boolean } } } }
-}) => {
+export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {
     return error(403, { message: 'You do not have permission to create media artifact types' })
   }
 
-  const form = await superValidate(zod(mediaArtifactTypeSchema), { errors: false })
-  return { form }
+  const response = await locals.di.media().getMediaArtifactType(params.id)
+  if (response.isErr()) {
+    switch (response.error.name) {
+      case 'FetchError': {
+        return error(500, response.error.message)
+      }
+      case 'MediaArtifactTypeNotFoundError': {
+        return error(404, 'Media artifact type not found')
+      }
+      default: {
+        response.error satisfies never
+        return error(500, 'An unknown error occurred')
+      }
+    }
+  }
+
+  const form = await superValidate(response.value.mediaArtifactType, zod(mediaArtifactTypeSchema), {
+    errors: false,
+  })
+
+  return { id: params.id, form }
 }) satisfies PageServerLoad
 
 export const actions = {
@@ -29,6 +44,7 @@ export const actions = {
 
     const id = crypto.randomUUID()
 
+    // TODO: edit media artifact type
     const result = await locals.di.media().createMediaArtifactType({ id, ...form.data })
     if (result.isErr()) {
       switch (result.error.name) {

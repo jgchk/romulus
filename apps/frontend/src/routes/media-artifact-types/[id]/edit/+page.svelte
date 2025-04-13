@@ -23,41 +23,43 @@
 </div>
 
 <div>
-  <Card>
-    {#if $mediaTypeTreeQuery.data}
-      <MediaArtifactTypeForm
-        action="?/create"
-        data={data.form}
-        mediaTypes={$mediaTypeTreeQuery.data}
-      />
-    {:else if $mediaTypeTreeQuery.error}
-      <div>Error loading media types: {$mediaTypeTreeQuery.error.message}</div>
-    {:else}
-      <Loader size={32} />
-    {/if}
-  </Card>
-
   {#each data.mediaArtifactTypes as mediaArtifactType (mediaArtifactType.id)}
-    <Card class="relative p-4">
-      <div class="absolute right-2 top-2 flex space-x-1">
-        <LinkIconButton tooltip="Edit" href="/media-artifact-types/{mediaArtifactType.id}/edit"
-          ><Pencil /></LinkIconButton
-        >
-      </div>
+    {@const isEditing = data.id === mediaArtifactType.id}
 
-      <h3 class="font-medium">{mediaArtifactType.name}</h3>
-      <div>
+    <Card class="relative p-4">
+      {#if isEditing}
         {#if $mediaTypeTreeQuery.data}
-          {#each mediaArtifactType.mediaTypes as mediaTypeId (mediaTypeId)}
-            {@const mediaType = $mediaTypeTreeQuery.data.get(mediaTypeId)}
-            <Chip text={mediaType?.name ?? 'Unknown'} />
-          {/each}
+          <MediaArtifactTypeForm
+            id={data.id}
+            data={data.form}
+            mediaTypes={$mediaTypeTreeQuery.data}
+          />
         {:else if $mediaTypeTreeQuery.error}
           <div>Error loading media types: {$mediaTypeTreeQuery.error.message}</div>
         {:else}
           <Loader size={32} />
         {/if}
-      </div>
+      {:else}
+        <div class="absolute right-2 top-2 flex space-x-1">
+          <LinkIconButton tooltip="Edit" href="/media-artifact-types/{mediaArtifactType.id}/edit"
+            ><Pencil /></LinkIconButton
+          >
+        </div>
+
+        <h3 class="font-medium">{mediaArtifactType.name}</h3>
+        <div>
+          {#if $mediaTypeTreeQuery.data}
+            {#each mediaArtifactType.mediaTypes as mediaTypeId (mediaTypeId)}
+              {@const mediaType = $mediaTypeTreeQuery.data.get(mediaTypeId)}
+              <Chip text={mediaType?.name ?? 'Unknown'} />
+            {/each}
+          {:else if $mediaTypeTreeQuery.error}
+            <div>Error loading media types: {$mediaTypeTreeQuery.error.message}</div>
+          {:else}
+            <Loader size={32} />
+          {/if}
+        </div>
+      {/if}
     </Card>
   {/each}
 </div>

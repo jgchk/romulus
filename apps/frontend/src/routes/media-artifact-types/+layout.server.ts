@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit'
 
-import type { PageServerLoad } from './$types'
+import type { LayoutServerLoad } from './$types'
 
-export const load = (async ({ locals }: { locals: App.Locals }) => {
+export const load = (async ({ locals }) => {
   const response = await locals.di.media().getAllMediaArtifactTypes()
   if (response.isErr()) {
     switch (response.error.name) {
@@ -15,8 +15,9 @@ export const load = (async ({ locals }: { locals: App.Locals }) => {
       }
     }
   }
+
   return {
     mediaArtifactTypes: response.value.mediaArtifactTypes,
     mediaArtifactRelationshipTypes: response.value.mediaArtifactRelationshipTypes,
   }
-}) satisfies PageServerLoad
+}) satisfies LayoutServerLoad
