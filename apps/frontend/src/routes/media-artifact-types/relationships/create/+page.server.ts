@@ -1,4 +1,4 @@
-import { type Actions, error } from '@sveltejs/kit'
+import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
@@ -61,6 +61,6 @@ export const actions = {
       }
     }
 
-    return { form }
+    return redirect(303, '/media-artifact-types/relationships')
   },
 } satisfies Actions

@@ -94,7 +94,9 @@
     <Button type="submit" loading={$delayed}>Save</Button>
     <LinkButton
       kind="text"
-      href={id !== undefined ? `/media-artifact-types/${id}` : '/media-artifact-types'}
+      href={id !== undefined
+        ? `/media-artifact-types/relationships/${id}`
+        : '/media-artifact-types/relationships'}
     >
       Cancel
     </LinkButton>

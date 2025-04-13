@@ -5,7 +5,6 @@
   import Chip from '$lib/atoms/Chip.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
-  import MediaArtifactRelationshipTypeForm from '$lib/features/media/components/MediaArtifactRelationshipTypeForm.svelte'
 
   import type { PageProps } from './$types'
 
@@ -24,10 +23,6 @@
 </div>
 
 <div>
-  <Card>
-    <MediaArtifactRelationshipTypeForm data={data.form} {mediaArtifactTypes} />
-  </Card>
-
   {#each data.mediaArtifactRelationshipTypes as mediaArtifactRelationshipType (mediaArtifactRelationshipType.id)}
     <Card class="relative p-4">
       <div class="absolute right-2 top-2 flex space-x-1">
