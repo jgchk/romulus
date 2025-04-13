@@ -42,7 +42,7 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
     'media-artifact-types': MediaArtifactTypeEvent
   }>(eventStoreDrizzle)
 
-  function handleEvents(events: MediaTypeEvent[]) {
+  function handleEvents(events: (MediaTypeEvent | MediaArtifactTypeEvent)[]) {
     async function handle() {
       for (const event of events) {
         await applyEvent(db, event)
@@ -53,6 +53,7 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
   }
 
   eventStore.on('media-types', handleEvents)
+  eventStore.on('media-artifact-types', handleEvents)
 
   return {
     db,
