@@ -94,4 +94,33 @@ export const routes = {
       ),
     }),
   },
+  getMediaArtifactType: {
+    route: () =>
+      describeRoute({
+        description: 'Get a media artifact type',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.getMediaArtifactType.successResponse),
+              },
+            },
+          },
+          404: {
+            description: 'Media artifact type not found',
+            content: {
+              'application/json': {
+                schema: resolver(routes.getMediaArtifactType.errorResponse),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({
+      success: 'true',
+      mediaArtifactType: type({ id: 'string', name: 'string', mediaTypes: 'string[]' }),
+    }),
+    errorResponse: createErrorResponse(type('"MediaArtifactTypeNotFoundError"'), type('404')),
+  },
 }

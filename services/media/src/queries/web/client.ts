@@ -42,6 +42,15 @@ export function createMediaQueriesClient(options: {
         (err) => new FetchError(toError(err)),
       ).map<InferResponseType<Client['media-artifact-types']['$get']>>((res) => res.json())
     },
+
+    getMediaArtifactType(id: string) {
+      return ResultAsync.fromPromise(
+        client['media-artifact-types'][':id'].$get({ param: { id } }),
+        (err) => new FetchError(toError(err)),
+      )
+        .map<InferResponseType<Client['media-artifact-types'][':id']['$get']>>((res) => res.json())
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
   }
 }
 

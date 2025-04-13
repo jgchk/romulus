@@ -31,6 +31,10 @@ import {
   type GetAllMediaTypesQueryHandler,
 } from './queries/application/get-all-media-types.js'
 import {
+  createGetMediaArtifactTypeQueryHandler,
+  type GetMediaArtifactTypeQueryHandler,
+} from './queries/application/get-media-artifact-type.js'
+import {
   createGetMediaTypeQueryHandler,
   type GetMediaTypeQueryHandler,
 } from './queries/application/get-media-type.js'
@@ -46,6 +50,7 @@ export type MediaApplication = {
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
   getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
+  getMediaArtifactType: GetMediaArtifactTypeQueryHandler
 }
 
 export function createMediaApplication({
@@ -76,6 +81,7 @@ export function createMediaApplication({
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
     getMediaType: createGetMediaTypeQueryHandler(db),
     getAllMediaArtifactTypes: createGetAllMediaArtifactTypesQueryHandler(db),
+    getMediaArtifactType: createGetMediaArtifactTypeQueryHandler(db),
   }
 }
 
