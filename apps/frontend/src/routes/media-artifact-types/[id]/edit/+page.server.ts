@@ -1,10 +1,10 @@
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { mediaArtifactTypeSchema } from '$lib/features/media/components/MediaArtifactTypeForm'
 
-import type { PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {
@@ -35,17 +35,14 @@ export const load = (async ({ locals, params }) => {
 }) satisfies PageServerLoad
 
 export const actions = {
-  default: async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  default: async ({ request, locals, params }) => {
     const form = await superValidate(request, zod(mediaArtifactTypeSchema))
 
     if (!form.valid) {
       return fail(400, { form })
     }
 
-    const id = crypto.randomUUID()
-
-    // TODO: edit media artifact type
-    const result = await locals.di.media().createMediaArtifactType({ id, ...form.data })
+    const result = await locals.di.media().updateMediaArtifactType(params.id, form.data)
     if (result.isErr()) {
       switch (result.error.name) {
         case 'FetchError': {
@@ -53,6 +50,9 @@ export const actions = {
         }
         case 'MediaTypeNotFoundError': {
           return setError(form, 'mediaTypes._errors', result.error.message)
+        }
+        case 'MediaArtifactTypeNotFoundError': {
+          return error(404, 'Media artifact type not found')
         }
         default: {
           result.error satisfies never
