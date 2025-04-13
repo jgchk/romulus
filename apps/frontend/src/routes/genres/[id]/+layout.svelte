@@ -2,14 +2,13 @@
   import { createQuery } from '@tanstack/svelte-query'
 
   import { goto } from '$app/navigation'
-  import { page } from '$app/state'
   import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
   import { genreQueries } from '$lib/features/genres/tanstack'
 
   import {
     getTreeStateStoreContext,
     stringifyTreePath,
-    unstringifyTreePath,
+    useSelectedTreePath,
   } from '../tree-state-store.svelte'
   import type { LayoutData } from './$types'
 
@@ -24,15 +23,10 @@
 
   const genreTreeQuery = createQuery(genreQueries.tree())
 
-  const selectedPath = $derived.by(() => {
-    const selectedPathString = page.url.searchParams.get('selected-path')
-    const selectedPath =
-      selectedPathString === null ? undefined : unstringifyTreePath(selectedPathString)
-    return selectedPath
-  })
+  const getSelectedPath = useSelectedTreePath()
 
   $effect(() => {
-    if (selectedPath === undefined) {
+    if (getSelectedPath() === undefined) {
       if ($genreTreeQuery.data) {
         const genres = $genreTreeQuery.data
         const newPath = createGetPathToQuery(genres)(data.id)
@@ -47,6 +41,7 @@
   })
 
   $effect(() => {
+    const selectedPath = getSelectedPath()
     if (selectedPath !== undefined) {
       treeState.expandAlongPath(selectedPath)
     }

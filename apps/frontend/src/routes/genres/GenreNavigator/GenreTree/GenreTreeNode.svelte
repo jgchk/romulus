@@ -1,8 +1,8 @@
 <script lang="ts">
   import { CaretRight } from 'phosphor-svelte'
+  import { equals } from 'ramda'
 
   import { browser } from '$app/environment'
-  import { page } from '$app/state'
   import { tooltip } from '$lib/actions/tooltip'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
@@ -14,13 +14,18 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
-  import { getTreeStateStoreContext, stringifyTreePath } from '../../tree-state-store.svelte'
+  import {
+    getTreeStateStoreContext,
+    stringifyTreePath,
+    type TreePath,
+    useSelectedTreePath,
+  } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
 
   type Props = {
     id: number
-    path: (number | 'derived')[]
+    path: TreePath
     treeRef: HTMLElement | undefined
     genres: GenreStore
     hasParent: boolean
@@ -35,13 +40,9 @@
   const children = $derived(createGetChildrenQuery(genres)(id))
   const derivations = $derived(createGetDerivationsQuery(genres)(id))
 
-  const selectedId = $derived.by(() => {
-    if (page.url.pathname.startsWith('/genres/') && 'id' in page.params) {
-      const id = page.params.id
-      return Number.parseInt(id, 10)
-    }
-  })
-  let isSelected = $derived(selectedId === id)
+  const getSelectedPath = useSelectedTreePath()
+
+  let isSelected = $derived(getSelectedPath !== undefined && equals(getSelectedPath(), path))
   let isExpanded = $derived(treeState.isExpanded(path))
   let isExpandable = $derived(children.length > 0 || derivations.length > 0)
 

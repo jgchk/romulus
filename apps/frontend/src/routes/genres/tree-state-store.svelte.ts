@@ -1,6 +1,8 @@
 import { getContext, setContext } from 'svelte'
 import { SvelteSet } from 'svelte/reactivity'
 
+import { page } from '$app/state'
+
 export type TreePath = (number | 'derived')[]
 
 export function createTreeStateStore() {
@@ -43,6 +45,28 @@ export function createTreeStateStore() {
   }
 }
 
+export type TreeStateStore = ReturnType<typeof createTreeStateStore>
+
+export const TREE_STATE_STORE_KEY = Symbol('tree-state-store-context')
+
+export const setTreeStateStoreContext = (value: TreeStateStore) =>
+  setContext(TREE_STATE_STORE_KEY, value)
+
+export const getTreeStateStoreContext = () => getContext<TreeStateStore>(TREE_STATE_STORE_KEY)
+
+export function useSelectedTreePath() {
+  const selectedPath = $derived.by(() => {
+    if (!page.url.pathname.startsWith('/genres/')) return undefined
+
+    const selectedPathString = page.url.searchParams.get('selected-path')
+    const selectedPath =
+      selectedPathString === null ? undefined : unstringifyTreePath(selectedPathString)
+    return selectedPath
+  })
+
+  return () => selectedPath
+}
+
 export function stringifyTreePath(path: TreePath) {
   return path.join('-')
 }
@@ -60,12 +84,3 @@ export function getSelectedGenreIdFromTreePath(path: TreePath): number | undefin
     return segment
   }
 }
-
-export type TreeStateStore = ReturnType<typeof createTreeStateStore>
-
-export const TREE_STATE_STORE_KEY = Symbol('tree-state-store-context')
-
-export const setTreeStateStoreContext = (value: TreeStateStore) =>
-  setContext(TREE_STATE_STORE_KEY, value)
-
-export const getTreeStateStoreContext = () => getContext<TreeStateStore>(TREE_STATE_STORE_KEY)
