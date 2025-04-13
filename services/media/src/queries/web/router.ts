@@ -2,16 +2,14 @@ import { type } from 'arktype'
 import { Hono } from 'hono'
 import { validator } from 'hono-openapi/arktype'
 
-import {
-  MediaArtifactRelationshipTypeNotFoundError,
-  MediaArtifactTypeNotFoundError,
-} from '../../commands/domain/media-artifact-types/errors.js'
+import { MediaArtifactRelationshipTypeNotFoundError } from '../../commands/domain/media-artifact-relationship-types/errors.js'
+import { MediaArtifactTypeNotFoundError } from '../../commands/domain/media-artifact-types/errors.js'
 import { MediaTypeNotFoundError } from '../../commands/domain/media-types/errors.js'
-import type { GetAllMediaArtifactTypesQueryHandler } from '../application/get-all-media-artifact-types.js'
-import type { GetAllMediaTypesQueryHandler } from '../application/get-all-media-types.js'
-import type { GetMediaArtifactRelationshipTypeQueryHandler } from '../application/get-media-artifact-relationship-type.js'
-import type { GetMediaArtifactTypeQueryHandler } from '../application/get-media-artifact-type.js'
-import type { GetMediaTypeQueryHandler } from '../application/get-media-type.js'
+import type { GetMediaArtifactRelationshipTypeQueryHandler } from '../application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
+import type { GetAllMediaArtifactTypesQueryHandler } from '../application/media-artifact-types/get-all-media-artifact-types.js'
+import type { GetMediaArtifactTypeQueryHandler } from '../application/media-artifact-types/get-media-artifact-type.js'
+import type { GetAllMediaTypesQueryHandler } from '../application/media-types/get-all-media-types.js'
+import type { GetMediaTypeQueryHandler } from '../application/media-types/get-media-type.js'
 import { routes } from './routes.js'
 
 export type MediaQueriesRouter = ReturnType<typeof createMediaQueriesRouter>

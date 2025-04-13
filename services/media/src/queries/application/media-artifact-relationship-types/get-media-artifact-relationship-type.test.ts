@@ -3,10 +3,10 @@ import { expect } from 'vitest'
 import {
   mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactTypeCreatedEvent,
-} from '../../common/domain/events.js'
-import { test } from '../../vitest-setup.js'
+} from '../../../common/domain/events.js'
+import { test } from '../../../vitest-setup.js'
+import { applyEvent } from '../projection.js'
 import { createGetMediaArtifactRelationshipTypeQueryHandler } from './get-media-artifact-relationship-type.js'
-import { applyEvent } from './projection.js'
 
 test('should return the media artifact relationship type if it exists', async ({
   dbConnection,

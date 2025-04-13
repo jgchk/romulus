@@ -3,7 +3,7 @@ import { okAsync } from 'neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { mediaArtifactTypeCreatedEvent, mediaTypeCreatedEvent } from '../../common/domain/events.js'
-import { createCreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-relationship-type.js'
+import { createCreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import { createCreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'

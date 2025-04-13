@@ -4,7 +4,7 @@ import { type Env, Hono, type MiddlewareHandler, type ValidationTargets } from '
 import type { HasUndefined } from 'hono-openapi'
 import { validator as arktypeValidator } from 'hono-openapi/arktype'
 
-import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-relationship-type.js'
+import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'

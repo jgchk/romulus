@@ -1,9 +1,9 @@
 import { expect } from 'vitest'
 
-import { mediaTypeCreatedEvent } from '../../common/domain/events.js'
-import { test } from '../../vitest-setup.js'
+import { mediaTypeCreatedEvent } from '../../../common/domain/events.js'
+import { test } from '../../../vitest-setup.js'
+import { applyEvent } from '../projection.js'
 import { createGetMediaTypeQueryHandler } from './get-media-type.js'
-import { applyEvent } from './projection.js'
 
 test('should return the media type if it exists', async ({ dbConnection }) => {
   await applyEvent(

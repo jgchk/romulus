@@ -1,7 +1,7 @@
 import {
   createCreateMediaArtifactRelationshipTypeCommandHandler,
   type CreateMediaArtifactRelationshipTypeCommandHandler,
-} from './commands/application/media-artifact-types/create-media-artifact-relationship-type.js'
+} from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import {
   createCreateMediaArtifactTypeCommandHandler,
   type CreateMediaArtifactTypeCommandHandler,
@@ -27,25 +27,25 @@ import type { MediaTypesProjection } from './commands/domain/media-types/media-t
 import { MediaPermission } from './commands/domain/permissions.js'
 import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
 import {
-  createGetAllMediaArtifactTypesQueryHandler,
-  type GetAllMediaArtifactTypesQueryHandler,
-} from './queries/application/get-all-media-artifact-types.js'
-import {
-  createGetAllMediaTypesQueryHandler,
-  type GetAllMediaTypesQueryHandler,
-} from './queries/application/get-all-media-types.js'
-import {
   createGetMediaArtifactRelationshipTypeQueryHandler,
   type GetMediaArtifactRelationshipTypeQueryHandler,
-} from './queries/application/get-media-artifact-relationship-type.js'
+} from './queries/application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
+import {
+  createGetAllMediaArtifactTypesQueryHandler,
+  type GetAllMediaArtifactTypesQueryHandler,
+} from './queries/application/media-artifact-types/get-all-media-artifact-types.js'
 import {
   createGetMediaArtifactTypeQueryHandler,
   type GetMediaArtifactTypeQueryHandler,
-} from './queries/application/get-media-artifact-type.js'
+} from './queries/application/media-artifact-types/get-media-artifact-type.js'
+import {
+  createGetAllMediaTypesQueryHandler,
+  type GetAllMediaTypesQueryHandler,
+} from './queries/application/media-types/get-all-media-types.js'
 import {
   createGetMediaTypeQueryHandler,
   type GetMediaTypeQueryHandler,
-} from './queries/application/get-media-type.js'
+} from './queries/application/media-types/get-media-type.js'
 import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
 import type { MaybePromise } from './utils.js'
 

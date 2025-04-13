@@ -5,9 +5,9 @@ import {
   mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactTypeCreatedEvent,
 } from '../../../common/domain/events.js'
+import { MediaArtifactTypeNotFoundError } from '../media-artifact-types/errors.js'
+import { createMediaArtifactTypesProjectionFromEvents } from '../media-artifact-types/media-artifact-types-projection.js'
 import { createCreateMediaArtifactRelationshipTypeCommandHandler } from './create-media-artifact-relationship-type.js'
-import { MediaArtifactTypeNotFoundError } from './errors.js'
-import { createMediaArtifactTypesProjectionFromEvents } from './media-artifact-types-projection.js'
 
 it('should create a media artifact relationship type', () => {
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
