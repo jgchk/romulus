@@ -166,6 +166,67 @@ export const routes = {
     },
   },
 
+  updateMediaArtifactType: {
+    route: () =>
+      describeRoute({
+        description: 'Update a media artifact type',
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: resolver(routes.updateMediaArtifactType.successResponse),
+              },
+            },
+          },
+          401: {
+            description: 'Unauthenticated',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          403: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: resolver(routes.unauthorizedErrorResponse),
+              },
+            },
+          },
+          404: {
+            description: 'Media artifact type not found',
+            content: {
+              'application/json': {
+                schema: resolver(
+                  routes.updateMediaArtifactType.errorResponse.mediaArtifactTypeNotFoundError,
+                ),
+              },
+            },
+          },
+          422: {
+            description: 'Referenced media type does not exist',
+            content: {
+              'application/json': {
+                schema: resolver(
+                  routes.updateMediaArtifactType.errorResponse.mediaTypeNotFoundError,
+                ),
+              },
+            },
+          },
+        },
+      }),
+    successResponse: type({ success: 'true' }),
+    errorResponse: {
+      mediaTypeNotFoundError: createErrorResponse(type('"MediaTypeNotFoundError"'), type('422')),
+      mediaArtifactTypeNotFoundError: createErrorResponse(
+        type('"MediaArtifactTypeNotFoundError"'),
+        type('404'),
+      ),
+    },
+  },
+
   createMediaArtifactRelationshipType: {
     route: () =>
       describeRoute({

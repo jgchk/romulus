@@ -94,6 +94,35 @@ export async function applyEvent(
       return
     }
 
+    case 'media-artifact-type-updated': {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(mediaArtifactTypes)
+          .set({ name: event.update.name })
+          .where(eq(mediaArtifactTypes.id, event.id))
+          .execute()
+
+        await tx
+          .delete(mediaArtifactTypeMediaTypes)
+          .where(eq(mediaArtifactTypeMediaTypes.mediaArtifactTypeId, event.id))
+          .execute()
+
+        if (event.update.mediaTypes.length > 0) {
+          await tx
+            .insert(mediaArtifactTypeMediaTypes)
+            .values(
+              event.update.mediaTypes.map((mediaTypeId) => ({
+                mediaArtifactTypeId: event.id,
+                mediaTypeId,
+              })),
+            )
+            .execute()
+        }
+      })
+
+      return
+    }
+
     case 'media-artifact-relationship-type-created': {
       await db.transaction(async (tx) => {
         await tx

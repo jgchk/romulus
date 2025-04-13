@@ -7,6 +7,10 @@ import {
   type CreateMediaArtifactTypeCommandHandler,
 } from './commands/application/media-artifact-types/create-media-artifact-type.js'
 import {
+  createUpdateMediaArtifactTypeCommandHandler,
+  type UpdateMediaArtifactTypeCommandHandler,
+} from './commands/application/media-artifact-types/update-media-artifact-type.js'
+import {
   createCreateMediaTypeCommandHandler,
   type CreateMediaTypeCommandHandler,
 } from './commands/application/media-types/create-media-type.js'
@@ -46,6 +50,7 @@ export type MediaApplication = {
   deleteMediaType: DeleteMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
+  updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
@@ -72,6 +77,11 @@ export function createMediaApplication({
     updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveMediaTypeEvent),
     createMediaArtifactType: createCreateMediaArtifactTypeCommandHandler({
       getMediaTypes,
+      saveMediaArtifactTypeEvent,
+    }),
+    updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+      getMediaTypes,
+      getMediaArtifactTypes,
       saveMediaArtifactTypeEvent,
     }),
     createMediaArtifactRelationshipType: createCreateMediaArtifactRelationshipTypeCommandHandler({

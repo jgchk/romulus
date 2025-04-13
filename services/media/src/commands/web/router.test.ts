@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { mediaArtifactTypeCreatedEvent, mediaTypeCreatedEvent } from '../../common/domain/events.js'
 import { createCreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-relationship-type.js'
 import { createCreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
+import { createUpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import {
@@ -32,6 +33,12 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
     ),
     createMediaArtifactType: createCreateMediaArtifactTypeCommandHandler({
       getMediaTypes: () => createDefaultMediaTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      saveMediaArtifactTypeEvent: () => {},
+    }),
+    updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+      getMediaTypes: () => createDefaultMediaTypesProjection(),
+      getMediaArtifactTypes: () => createDefaultMediaArtifactTypesProjection(),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       saveMediaArtifactTypeEvent: () => {},
     }),
@@ -295,6 +302,170 @@ describe('createMediaArtifactType', () => {
         name: 'BadRequestError',
         message:
           'id must be a string (was missing)\nmediaTypes must be an array (was missing)\nname must be a string (was missing)',
+        statusCode: 400,
+      },
+    })
+  })
+})
+
+describe('updateMediaArtifactType', () => {
+  it('updates a media artifact type', async () => {
+    const { client } = setup({
+      updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+        getMediaTypes: () => createMediaTypesProjectionFromEvents([]),
+        getMediaArtifactTypes: () =>
+          createMediaArtifactTypesProjectionFromEvents([
+            mediaArtifactTypeCreatedEvent({
+              mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            }),
+          ]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        saveMediaArtifactTypeEvent: () => {},
+      }),
+    })
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test', mediaTypes: [] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+  })
+
+  it('returns a 401 if the user is not authenticated', async () => {
+    const { client } = setup({
+      updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+        getMediaTypes: () => createMediaTypesProjectionFromEvents([]),
+        getMediaArtifactTypes: () =>
+          createMediaArtifactTypesProjectionFromEvents([
+            mediaArtifactTypeCreatedEvent({
+              mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            }),
+          ]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        saveMediaArtifactTypeEvent: () => {},
+      }),
+    })
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test', mediaTypes: [] } },
+      { headers: {} },
+    )
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthenticatedError',
+        message: 'You are not authenticated',
+        statusCode: 401,
+      },
+    })
+  })
+
+  it('returns a 403 if the user does not have permission', async () => {
+    const { client } = setup({
+      authorization: {
+        hasPermission: (userId, permission) => {
+          if (permission === MediaPermission.WriteMediaArtifactTypes) {
+            return Promise.resolve(false)
+          } else {
+            return Promise.resolve(true)
+          }
+        },
+      },
+      updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+        getMediaTypes: () => createMediaTypesProjectionFromEvents([]),
+        getMediaArtifactTypes: () =>
+          createMediaArtifactTypesProjectionFromEvents([
+            mediaArtifactTypeCreatedEvent({
+              mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            }),
+          ]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        saveMediaArtifactTypeEvent: () => {},
+      }),
+    })
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test', mediaTypes: [] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
+    })
+  })
+
+  it('returns a 404 if the media artifact type does not exist', async () => {
+    const { client } = setup({
+      updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+        getMediaTypes: () => createMediaTypesProjectionFromEvents([]),
+        getMediaArtifactTypes: () => createMediaArtifactTypesProjectionFromEvents([]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        saveMediaArtifactTypeEvent: () => {},
+      }),
+    })
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test', mediaTypes: [] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'MediaArtifactTypeNotFoundError',
+        message: "Media artifact type with ID 'test' not found",
+        statusCode: 404,
+      },
+    })
+  })
+
+  it('returns a 422 if the media type does not exist', async () => {
+    const { client } = setup({
+      updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
+        getMediaTypes: () => createMediaTypesProjectionFromEvents([]),
+        getMediaArtifactTypes: () =>
+          createMediaArtifactTypesProjectionFromEvents([
+            mediaArtifactTypeCreatedEvent({
+              mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            }),
+          ]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        saveMediaArtifactTypeEvent: () => {},
+      }),
+    })
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      { param: { id: 'test' }, json: { name: 'Test', mediaTypes: ['media-type'] } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(422)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'MediaTypeNotFoundError',
+        message: "Media type with ID 'media-type' not found",
+        statusCode: 422,
+      },
+    })
+  })
+
+  it('returns an error if the request body is invalid', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'][':id'].$put(
+      // @ts-expect-error - testing an invalid request body
+      { json: { foo: 'bar' } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'BadRequestError',
+        message: 'mediaTypes must be an array (was missing)\nname must be a string (was missing)',
         statusCode: 400,
       },
     })

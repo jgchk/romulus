@@ -23,6 +23,11 @@ export function applyMediaArtifactTypeEvent(
       return state
     }
 
+    case 'media-artifact-type-updated': {
+      state.types.set(event.id, { id: event.id, ...event.update })
+      return state
+    }
+
     case 'media-artifact-relationship-type-created': {
       state.relationshipTypes.set(
         event.mediaArtifactRelationshipType.id,

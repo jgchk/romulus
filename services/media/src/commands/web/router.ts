@@ -6,6 +6,7 @@ import { validator as arktypeValidator } from 'hono-openapi/arktype'
 
 import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-relationship-type.js'
 import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
+import type { UpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
@@ -23,6 +24,7 @@ export type MediaCommandsRouterDependencies = {
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
+  updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   authentication: IAuthenticationService
   authorization: IAuthorizationService
@@ -32,6 +34,7 @@ export function createMediaCommandsRouter({
   createMediaType,
   updateMediaType,
   createMediaArtifactType,
+  updateMediaArtifactType,
   createMediaArtifactRelationshipType,
   authentication,
   authorization,
@@ -172,6 +175,56 @@ export function createMediaCommandsRouter({
                   },
                 } satisfies typeof routes.createMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
                 422,
+              )
+            } else {
+              assertUnreachable(err)
+            }
+          },
+        )
+      },
+    )
+    .put(
+      '/media-artifact-types/:id',
+      routes.updateMediaArtifactType.route(),
+      validator('param', type({ id: 'string' })),
+      validator('json', type({ name: 'string', mediaTypes: 'string[]' })),
+      authz(MediaPermission.WriteMediaArtifactTypes),
+      async (c) => {
+        const param = c.req.valid('param')
+        const body = c.req.valid('json')
+        const result = await updateMediaArtifactType({ id: param.id, update: body })
+        return result.match(
+          () =>
+            c.json(
+              {
+                success: true,
+              } satisfies typeof routes.updateMediaArtifactType.successResponse.infer,
+              200,
+            ),
+          (err) => {
+            if (err instanceof MediaTypeNotFoundError) {
+              return c.json(
+                {
+                  success: false,
+                  error: {
+                    name: err.name,
+                    message: err.message,
+                    statusCode: 422,
+                  },
+                } satisfies typeof routes.updateMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
+                422,
+              )
+            } else if (err instanceof MediaArtifactTypeNotFoundError) {
+              return c.json(
+                {
+                  success: false,
+                  error: {
+                    name: err.name,
+                    message: err.message,
+                    statusCode: 404,
+                  },
+                } satisfies typeof routes.updateMediaArtifactType.errorResponse.mediaArtifactTypeNotFoundError.infer,
+                404,
               )
             } else {
               assertUnreachable(err)

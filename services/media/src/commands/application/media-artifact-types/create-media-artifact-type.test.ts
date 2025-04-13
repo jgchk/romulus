@@ -17,6 +17,7 @@ it('should create a media artifact type', async () => {
     'media-types': MediaTypeEvent
     'media-artifact-types': MediaArtifactTypeEvent
   }>()
+
   eventStore.save('media-types', [
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },

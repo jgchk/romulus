@@ -3,6 +3,7 @@ import { expect } from 'vitest'
 import {
   mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactTypeCreatedEvent,
+  mediaArtifactTypeUpdatedEvent,
   mediaTypeUpdatedEvent,
 } from '../../common/domain/events.js'
 import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
@@ -57,6 +58,26 @@ test('should handle the media-artifact-type-created event', async ({ dbConnectio
 
   const mediaArtifactType = await getMediaArtifactTypeById(dbConnection, 'test')
   expect(mediaArtifactType).toEqual({ id: 'test', name: 'Test', mediaTypes: [] })
+})
+
+test('should handle the media-artifact-type-updated event', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeUpdatedEvent({
+      id: 'test',
+      update: { name: 'Test (Update)', mediaTypes: [] },
+    }),
+  )
+
+  const mediaArtifactType = await getMediaArtifactTypeById(dbConnection, 'test')
+  expect(mediaArtifactType).toEqual({ id: 'test', name: 'Test (Update)', mediaTypes: [] })
 })
 
 test('should handle the media-artifact-relationship-type-created event', async ({
