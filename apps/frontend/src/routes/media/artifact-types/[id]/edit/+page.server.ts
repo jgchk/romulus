@@ -3,6 +3,7 @@ import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { mediaArtifactTypeSchema } from '$lib/features/media/components/MediaArtifactTypeForm'
+import { routes } from '$lib/routes'
 
 import type { Actions, PageServerLoad } from './$types'
 
@@ -63,6 +64,6 @@ export const actions = {
       }
     }
 
-    return redirect(303, '/media-artifact-types')
+    return redirect(303, routes.media.artifactTypes.route())
   },
 } satisfies Actions
