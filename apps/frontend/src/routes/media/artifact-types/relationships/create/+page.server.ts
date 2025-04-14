@@ -42,6 +42,11 @@ export const actions = {
             return setError(form, 'childMediaArtifactTypes._errors', result.error.message)
           }
         }
+        case 'BadRequestError':
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError': {
+          return error(result.error.statusCode, result.error.message)
+        }
         default: {
           result.error satisfies never
         }

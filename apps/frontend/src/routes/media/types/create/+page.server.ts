@@ -41,6 +41,11 @@ export const actions = {
         case 'MediaTypeNotFoundError': {
           return setError(form, 'parents._errors', result.error.message)
         }
+        case 'BadRequestError':
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError': {
+          return error(result.error.statusCode, result.error.message)
+        }
         default: {
           result.error satisfies never
         }

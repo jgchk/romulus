@@ -60,8 +60,11 @@ export const actions = {
             return setError(form, 'childMediaArtifactTypes._errors', result.error.message)
           }
         }
-        case 'MediaArtifactRelationshipTypeNotFoundError': {
-          return error(404, 'Media artifact relationship type not found')
+        case 'BadRequestError':
+        case 'MediaArtifactRelationshipTypeNotFoundError':
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError': {
+          return error(result.error.statusCode, result.error.message)
         }
         default: {
           result.error satisfies never

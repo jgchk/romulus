@@ -48,11 +48,14 @@ export const actions = {
         case 'FetchError': {
           return error(500, result.error.message)
         }
+        case 'BadRequestError':
+        case 'UnauthenticatedError':
+        case 'UnauthorizedError':
+        case 'MediaArtifactTypeNotFoundError': {
+          return error(result.error.statusCode, result.error.message)
+        }
         case 'MediaTypeNotFoundError': {
           return setError(form, 'mediaTypes._errors', result.error.message)
-        }
-        case 'MediaArtifactTypeNotFoundError': {
-          return error(404, 'Media artifact type not found')
         }
         default: {
           result.error satisfies never
