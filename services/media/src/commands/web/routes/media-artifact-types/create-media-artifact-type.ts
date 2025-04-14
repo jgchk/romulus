@@ -15,6 +15,46 @@ import { type RouteResponse } from '../common.js'
 import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
+export function createCreateMediaArtifactTypeRoute({
+  authz,
+  createMediaArtifactType,
+}: CreateMediaArtifactTypeRouteDependencies) {
+  return factory.createHandlers(
+    createRoute(definition),
+    validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
+    authz(MediaPermission.WriteMediaArtifactTypes),
+    async (c): Promise<RouteResponse<typeof definition>> => {
+      const body = c.req.valid('json')
+      const result = await createMediaArtifactType({ mediaArtifactType: body })
+      return result.match(
+        () => c.json({ success: true }, 200),
+        (err) => {
+          if (err instanceof MediaTypeNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 422,
+                },
+              },
+              422,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    },
+  )
+}
+
+export type CreateMediaArtifactTypeRouteDependencies = {
+  authz: AuthorizationMiddleware
+  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
+}
+
 const definition = {
   description: 'Create a media artifact type',
   responses: {
@@ -60,41 +100,3 @@ const definition = {
     },
   },
 } satisfies RouteDefinition
-
-export function createCreateMediaArtifactTypeRoute({
-  authz,
-  createMediaArtifactType,
-}: {
-  authz: AuthorizationMiddleware
-  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
-}) {
-  return factory.createHandlers(
-    createRoute(definition),
-    validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
-    authz(MediaPermission.WriteMediaArtifactTypes),
-    async (c): Promise<RouteResponse<typeof definition>> => {
-      const body = c.req.valid('json')
-      const result = await createMediaArtifactType({ mediaArtifactType: body })
-      return result.match(
-        () => c.json({ success: true }, 200),
-        (err) => {
-          if (err instanceof MediaTypeNotFoundError) {
-            return c.json(
-              {
-                success: false,
-                error: {
-                  name: err.name,
-                  message: err.message,
-                  statusCode: 422,
-                },
-              },
-              422,
-            )
-          } else {
-            assertUnreachable(err)
-          }
-        },
-      )
-    },
-  )
-}
