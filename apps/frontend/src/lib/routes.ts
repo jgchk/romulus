@@ -1,5 +1,11 @@
 export const routes = {
   media: {
+    types: {
+      route: () => '/media/types',
+      create: {
+        route: () => `${routes.media.types.route()}/create`,
+      },
+    },
     artifactTypes: {
       route: () => '/media/artifact-types',
       create: {

@@ -13,20 +13,7 @@ export const load = (async ({ locals }) => {
 
   const form = await superValidate(zod(mediaTypeSchema), { errors: false })
 
-  const response = await locals.di.media().getAllMediaTypes()
-  if (response.isErr()) {
-    switch (response.error.name) {
-      case 'FetchError': {
-        return error(500, response.error.message)
-      }
-      default: {
-        response.error.name satisfies never
-        return error(500, 'Unknown error')
-      }
-    }
-  }
-
-  return { form, mediaTypes: response.value.mediaTypes }
+  return { form }
 }) satisfies PageServerLoad
 
 export const actions = {

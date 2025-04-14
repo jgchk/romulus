@@ -15,7 +15,4 @@
   <title>{pageTitle('New Media Type', 'Media Types')}</title>
 </svelte:head>
 
-<MediaTypeForm
-  data={data.form}
-  mediaTypes={new Map(data.mediaTypes.map((mediaType) => [mediaType.id, mediaType]))}
-/>
+<MediaTypeForm data={data.form} mediaTypes={data.mediaTypes} />

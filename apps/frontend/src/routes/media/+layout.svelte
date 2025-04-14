@@ -14,8 +14,9 @@
 </script>
 
 <nav>
-  <a href={routes.media.artifactTypes.route()}>Artifact Types</a>
-  <a href={routes.media.artifactTypes.relationships.route()}>Relationships</a>
+  <a href={routes.media.types.route()}>Media Types</a>
+  <a href={routes.media.artifactTypes.route()}>Media Artifact Types</a>
+  <a href={routes.media.artifactTypes.relationships.route()}>Media Artifact Relationship Types</a>
 </nav>
 
 <div class="flex-1">
