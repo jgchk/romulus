@@ -9,6 +9,9 @@ export const routes = {
         edit: {
           route: (id: string) => `${routes.media.artifactTypes.route()}/${id}/edit`,
         },
+        delete: {
+          route: (id: string) => `${routes.media.artifactTypes.route()}/${id}/delete`,
+        },
       },
       relationships: {
         route: () => `${routes.media.artifactTypes.route()}/relationships`,
