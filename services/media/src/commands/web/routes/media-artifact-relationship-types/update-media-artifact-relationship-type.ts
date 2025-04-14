@@ -16,7 +16,6 @@ import { type RouteResponse } from '../common.js'
 import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
-
 export function createUpdateMediaArtifactRelationshipTypeRoute({
   authz,
   updateMediaArtifactRelationshipType,
