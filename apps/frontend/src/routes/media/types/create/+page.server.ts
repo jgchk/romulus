@@ -1,8 +1,9 @@
-import { type Actions, error } from '@sveltejs/kit'
+import { type Actions, error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { mediaTypeSchema } from '$lib/features/media/components/MediaTypeForm'
+import { routes } from '$lib/routes'
 
 import type { PageServerLoad } from './$types'
 
@@ -49,6 +50,6 @@ export const actions = {
       }
     }
 
-    return { form }
+    return redirect(303, routes.media.types.route())
   },
 } satisfies Actions
