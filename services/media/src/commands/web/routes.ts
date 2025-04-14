@@ -59,56 +59,6 @@ export const unauthorizedErrorResponse = createErrorResponse(
 )
 
 export const routes = {
-  createMediaArtifactRelationshipType: {
-    description: 'Create a media artifact relationship type',
-    responses: {
-      200: {
-        description: 'Successful response',
-        content: {
-          'application/json': {
-            schema: type({ success: 'true' }),
-          },
-        },
-      },
-      400: {
-        description: 'Bad request',
-        content: {
-          'application/json': {
-            schema: badRequestErrorResponse,
-          },
-        },
-      },
-      401: {
-        description: 'Unauthenticated',
-        content: {
-          'application/json': {
-            schema: unauthenticatedErrorResponse,
-          },
-        },
-      },
-      403: {
-        description: 'Unauthorized',
-        content: {
-          'application/json': {
-            schema: unauthorizedErrorResponse,
-          },
-        },
-      },
-      422: {
-        description: 'Referenced media artifact type does not exist',
-        content: {
-          'application/json': {
-            schema: createErrorResponseWithDetails(
-              type('"MediaArtifactTypeNotFoundError"'),
-              type('422'),
-              type({ id: 'string' }),
-            ),
-          },
-        },
-      },
-    },
-  },
-
   updateMediaArtifactRelationshipType: {
     description: 'Update a media artifact relationship type',
     responses: {

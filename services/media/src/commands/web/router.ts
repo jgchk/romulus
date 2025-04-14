@@ -24,6 +24,7 @@ import { MediaArtifactTypeNotFoundError } from '../domain/media-artifact-types/e
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
+import { createCreateMediaArtifactRelationshipTypeRoute } from './router/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import { createCreateMediaArtifactTypeRoute } from './router/media-artifact-types/create-media-artifact-type.js'
 import { createDeleteMediaArtifactTypeRoute } from './router/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeRoute } from './router/media-artifact-types/update-media-artifact-type.js'
@@ -78,44 +79,10 @@ export function createMediaCommandsRouter({
     )
     .post(
       '/media-artifact-relationship-types',
-      createRoute(routes.createMediaArtifactRelationshipType),
-      validator(
-        'json',
-        type({
-          id: 'string',
-          name: 'string',
-          parentMediaArtifactType: 'string',
-          childMediaArtifactTypes: 'string[]',
-        }),
-      ),
-      authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c): Promise<RouteResponse<typeof routes.createMediaArtifactRelationshipType>> => {
-        const body = c.req.valid('json')
-        const result = await createMediaArtifactRelationshipType({
-          mediaArtifactRelationshipType: body,
-        })
-        return result.match(
-          () => c.json({ success: true }, 200),
-          (err) => {
-            if (err instanceof MediaArtifactTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 422,
-                    details: { id: err.id },
-                  },
-                },
-                422,
-              )
-            } else {
-              assertUnreachable(err)
-            }
-          },
-        )
-      },
+      ...createCreateMediaArtifactRelationshipTypeRoute({
+        authz,
+        createMediaArtifactRelationshipType,
+      }),
     )
     .put(
       '/media-artifact-relationship-types/:id',
