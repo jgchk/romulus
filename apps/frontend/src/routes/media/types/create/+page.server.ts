@@ -6,17 +6,27 @@ import { mediaTypeSchema } from '$lib/features/media/components/MediaTypeForm'
 
 import type { PageServerLoad } from './$types'
 
-export const load = (async ({
-  locals,
-}: {
-  locals: { user?: { permissions: { mediaTypes: { canCreate: boolean } } } }
-}) => {
+export const load = (async ({ locals }) => {
   if (!locals.user?.permissions.mediaTypes.canCreate) {
     return error(403, { message: 'You do not have permission to create media types' })
   }
 
   const form = await superValidate(zod(mediaTypeSchema), { errors: false })
-  return { form }
+
+  const response = await locals.di.media().getAllMediaTypes()
+  if (response.isErr()) {
+    switch (response.error.name) {
+      case 'FetchError': {
+        return error(500, response.error.message)
+      }
+      default: {
+        response.error.name satisfies never
+        return error(500, 'Unknown error')
+      }
+    }
+  }
+
+  return { form, mediaTypes: response.value.mediaTypes }
 }) satisfies PageServerLoad
 
 export const actions = {

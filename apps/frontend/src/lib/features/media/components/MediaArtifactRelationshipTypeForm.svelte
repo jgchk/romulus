@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getQueryClientContext } from '@tanstack/svelte-query'
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -11,7 +10,6 @@
   import { routes } from '$lib/routes'
 
   import Footer from '../../../../routes/genres/Footer.svelte'
-  import { mediaTypeQueries } from '../state/tanstack'
   import type { MediaArtifactRelationshipTypeSchema } from './MediaArtifactRelationshipTypeForm'
   import MediaArtifactTypeMultiselect from './MediaArtifactTypeMultiselect.svelte'
   import MediaArtifactTypeSelect from './MediaArtifactTypeSelect.svelte'
@@ -20,12 +18,12 @@
     id?: string
     data: SuperValidated<Infer<MediaArtifactRelationshipTypeSchema>>
     onSubmit?: () => void
+
     mediaArtifactTypes: Map<string, { id: string; name: string }>
   }
 
   let { data, onSubmit, mediaArtifactTypes }: Props = $props()
 
-  const queryClient = getQueryClientContext()
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
@@ -41,13 +39,6 @@
     onUpdated: ({ form }) => {
       if (!form.valid) {
         toast.error('The form has errors. Please correct them before submitting.')
-      }
-    },
-
-    onResult: async ({ result }) => {
-      if (result.type === 'success') {
-        // TODO: invalid media artifact types query
-        await queryClient.invalidateQueries({ queryKey: mediaTypeQueries.tree().queryKey })
       }
     },
   })

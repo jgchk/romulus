@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getQueryClientContext } from '@tanstack/svelte-query'
   import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
@@ -10,8 +9,6 @@
   import { toast } from '$lib/atoms/Toast/toast'
 
   import Footer from '../../../../routes/genres/Footer.svelte'
-  import { mediaTypeQueries } from '../state/tanstack'
-  import type { MediaTypeStore } from '../state/types'
   import type { MediaTypeSchema } from './MediaTypeForm'
   import MediaTypeMultiselect from './MediaTypeMultiselect.svelte'
 
@@ -19,12 +16,11 @@
     id?: string
     data: SuperValidated<Infer<MediaTypeSchema>>
     onSubmit?: () => void
-    mediaTypes: MediaTypeStore
+    mediaTypes: Map<string, { id: string; name: string }>
   }
 
   let { id, data, onSubmit, mediaTypes }: Props = $props()
 
-  const queryClient = getQueryClientContext()
   const { form, errors, constraints, delayed, enhance } = superForm(data, {
     dataType: 'json',
     taintedMessage: true,
@@ -40,12 +36,6 @@
     onUpdated: ({ form }) => {
       if (!form.valid) {
         toast.error('The form has errors. Please correct them before submitting.')
-      }
-    },
-
-    onResult: async ({ result }) => {
-      if (result.type === 'success') {
-        await queryClient.invalidateQueries({ queryKey: mediaTypeQueries.tree().queryKey })
       }
     },
   })

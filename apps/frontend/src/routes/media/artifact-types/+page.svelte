@@ -15,6 +15,6 @@
 
 <div>
   {#each data.mediaArtifactTypes as mediaArtifactType (mediaArtifactType.id)}
-    <MediaArtifactTypeCard {...mediaArtifactType} />
+    <MediaArtifactTypeCard {mediaArtifactType} mediaTypes={data.mediaTypes} />
   {/each}
 </div>
