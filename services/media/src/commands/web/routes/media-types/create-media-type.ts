@@ -10,12 +10,12 @@ import { MediaPermission } from '../../../domain/permissions.js'
 import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
 import {
   badRequestErrorResponse,
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
   unauthenticatedErrorResponse,
   unauthorizedErrorResponse,
-} from '../../routes.js'
+} from '../../errors.js'
+import { type RouteDefinition } from '../common.js'
+import { type RouteResponse } from '../common.js'
+import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
 const definition = {

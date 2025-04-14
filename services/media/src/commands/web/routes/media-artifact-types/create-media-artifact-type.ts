@@ -1,22 +1,22 @@
 import { type } from 'arktype'
 
-import { createErrorResponseWithDetails } from '../../../../common/web/utils.js'
-import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../../../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
-import { MediaArtifactTypeNotFoundError } from '../../../domain/media-artifact-types/errors.js'
+import { createErrorResponse } from '../../../../common/web/utils.js'
+import type { CreateMediaArtifactTypeCommandHandler } from '../../../application/media-artifact-types/create-media-artifact-type.js'
+import { MediaTypeNotFoundError } from '../../../domain/media-types/errors.js'
 import { MediaPermission } from '../../../domain/permissions.js'
 import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
 import {
   badRequestErrorResponse,
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
   unauthenticatedErrorResponse,
   unauthorizedErrorResponse,
-} from '../../routes.js'
+} from '../../errors.js'
+import { type RouteDefinition } from '../common.js'
+import { type RouteResponse } from '../common.js'
+import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
 const definition = {
-  description: 'Create a media artifact relationship type',
+  description: 'Create a media artifact type',
   responses: {
     200: {
       description: 'Successful response',
@@ -51,48 +51,34 @@ const definition = {
       },
     },
     422: {
-      description: 'Referenced media artifact type does not exist',
+      description: 'Referenced media type does not exist',
       content: {
         'application/json': {
-          schema: createErrorResponseWithDetails(
-            type('"MediaArtifactTypeNotFoundError"'),
-            type('422'),
-            type({ id: 'string' }),
-          ),
+          schema: createErrorResponse(type('"MediaTypeNotFoundError"'), type('422')),
         },
       },
     },
   },
 } satisfies RouteDefinition
 
-export function createCreateMediaArtifactRelationshipTypeRoute({
+export function createCreateMediaArtifactTypeRoute({
   authz,
-  createMediaArtifactRelationshipType,
+  createMediaArtifactType,
 }: {
   authz: AuthorizationMiddleware
-  createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
+  createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
 }) {
   return factory.createHandlers(
     createRoute(definition),
-    validator(
-      'json',
-      type({
-        id: 'string',
-        name: 'string',
-        parentMediaArtifactType: 'string',
-        childMediaArtifactTypes: 'string[]',
-      }),
-    ),
+    validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
     authz(MediaPermission.WriteMediaArtifactTypes),
     async (c): Promise<RouteResponse<typeof definition>> => {
       const body = c.req.valid('json')
-      const result = await createMediaArtifactRelationshipType({
-        mediaArtifactRelationshipType: body,
-      })
+      const result = await createMediaArtifactType({ mediaArtifactType: body })
       return result.match(
         () => c.json({ success: true }, 200),
         (err) => {
-          if (err instanceof MediaArtifactTypeNotFoundError) {
+          if (err instanceof MediaTypeNotFoundError) {
             return c.json(
               {
                 success: false,
@@ -100,7 +86,6 @@ export function createCreateMediaArtifactRelationshipTypeRoute({
                   name: err.name,
                   message: err.message,
                   statusCode: 422,
-                  details: { id: err.id },
                 },
               },
               422,

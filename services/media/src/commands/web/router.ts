@@ -1,14 +1,4 @@
-import type { Type } from 'arktype'
-import { type } from 'arktype'
-import {
-  type Env,
-  Hono,
-  type MiddlewareHandler,
-  type TypedResponse,
-  type ValidationTargets,
-} from 'hono'
-import { type HasUndefined } from 'hono-openapi'
-import { validator as arktypeValidator } from 'hono-openapi/arktype'
+import { Hono } from 'hono'
 
 import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
@@ -19,19 +9,15 @@ import type { CreateMediaTypeCommandHandler } from '../application/media-types/c
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
 import type { IAuthorizationService } from '../domain/authorization.js'
-import { MediaArtifactRelationshipTypeNotFoundError } from '../domain/media-artifact-relationship-types/errors.js'
-import { MediaArtifactTypeNotFoundError } from '../domain/media-artifact-types/errors.js'
-import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
-import { createCreateMediaArtifactRelationshipTypeRoute } from './router/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
-import { createCreateMediaArtifactTypeRoute } from './router/media-artifact-types/create-media-artifact-type.js'
-import { createDeleteMediaArtifactTypeRoute } from './router/media-artifact-types/delete-media-artifact-type.js'
-import { createUpdateMediaArtifactTypeRoute } from './router/media-artifact-types/update-media-artifact-type.js'
-import { createCreateMediaTypeRoute } from './router/media-types/create-media-type.js'
-import { createUpdateMediaTypeRoute } from './router/media-types/update-media-type.js'
-import type { badRequestErrorResponse } from './routes.js'
-import { createRoute, type RouteResponse, routes } from './routes.js'
+import { createCreateMediaArtifactRelationshipTypeRoute } from './routes/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
+import { createUpdateMediaArtifactRelationshipTypeRoute } from './routes/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
+import { createCreateMediaArtifactTypeRoute } from './routes/media-artifact-types/create-media-artifact-type.js'
+import { createDeleteMediaArtifactTypeRoute } from './routes/media-artifact-types/delete-media-artifact-type.js'
+import { createUpdateMediaArtifactTypeRoute } from './routes/media-artifact-types/update-media-artifact-type.js'
+import { createCreateMediaTypeRoute } from './routes/media-types/create-media-type.js'
+import { createUpdateMediaTypeRoute } from './routes/media-types/update-media-type.js'
 
 export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
 
@@ -86,105 +72,11 @@ export function createMediaCommandsRouter({
     )
     .put(
       '/media-artifact-relationship-types/:id',
-      createRoute(routes.updateMediaArtifactRelationshipType),
-      validator('param', type({ id: 'string' })),
-      validator(
-        'json',
-        type({
-          name: 'string',
-          parentMediaArtifactType: 'string',
-          childMediaArtifactTypes: 'string[]',
-        }),
-      ),
-      authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c): Promise<RouteResponse<typeof routes.updateMediaArtifactRelationshipType>> => {
-        const param = c.req.valid('param')
-        const body = c.req.valid('json')
-        const result = await updateMediaArtifactRelationshipType({
-          id: param.id,
-          update: body,
-        })
-        return result.match(
-          () => c.json({ success: true }, 200),
-          (err) => {
-            if (err instanceof MediaArtifactTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 422,
-                    details: { id: err.id },
-                  },
-                },
-                422,
-              )
-            } else if (err instanceof MediaArtifactRelationshipTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 404,
-                    details: { id: err.id },
-                  },
-                },
-                404,
-              )
-            } else {
-              assertUnreachable(err)
-            }
-          },
-        )
-      },
+      ...createUpdateMediaArtifactRelationshipTypeRoute({
+        authz,
+        updateMediaArtifactRelationshipType,
+      }),
     )
 
   return app
-}
-
-function validator<
-  T extends Type,
-  Target extends keyof ValidationTargets,
-  E extends Env,
-  P extends string,
-  I = T['inferIn'],
-  O = T['infer'],
-  V extends {
-    in: HasUndefined<I> extends true ? Partial<Record<Target, I>> : Record<Target, I>
-    out: Record<Target, O>
-  } = {
-    in: HasUndefined<I> extends true ? Partial<Record<Target, I>> : Record<Target, I>
-    out: Record<Target, O>
-  },
->(target: Target, schema: T): MiddlewareHandler<E, P, V> {
-  return arktypeValidator(
-    target,
-    schema,
-    (
-      result,
-      c,
-    ):
-      | TypedResponse<
-          typeof badRequestErrorResponse.infer,
-          (typeof badRequestErrorResponse.infer)['error']['statusCode']
-        >
-      | undefined => {
-      if (!result.success) {
-        return c.json(
-          {
-            success: false,
-            error: { name: 'BadRequestError', message: result.errors.summary, statusCode: 400 },
-          },
-          400,
-        )
-      }
-    },
-  )
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function assertUnreachable(x: never): never {
-  throw new Error("Didn't expect to get here")
 }

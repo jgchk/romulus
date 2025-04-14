@@ -3,13 +3,10 @@ import { type } from 'arktype'
 import type { DeleteMediaArtifactTypeCommandHandler } from '../../../application/media-artifact-types/delete-media-artifact-type.js'
 import { MediaPermission } from '../../../domain/permissions.js'
 import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
-import {
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
-  unauthenticatedErrorResponse,
-  unauthorizedErrorResponse,
-} from '../../routes.js'
+import { unauthenticatedErrorResponse, unauthorizedErrorResponse } from '../../errors.js'
+import { type RouteDefinition } from '../common.js'
+import { type RouteResponse } from '../common.js'
+import { createRoute } from '../common.js'
 import { factory, validator } from '../common.js'
 
 const definition = {

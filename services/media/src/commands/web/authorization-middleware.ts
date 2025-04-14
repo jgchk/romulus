@@ -2,7 +2,7 @@ import type { Context, TypedResponse } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import type { IAuthorizationService } from '../domain/authorization.js'
-import type { unauthorizedErrorResponse } from './routes.js'
+import type { unauthorizedErrorResponse } from './errors.js'
 
 export type AuthorizationMiddleware = ReturnType<typeof createAuthorizationMiddleware>
 

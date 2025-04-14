@@ -2,7 +2,7 @@ import type { Context, TypedResponse } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import type { IAuthenticationService } from '../domain/authentication.js'
-import type { unauthenticatedErrorResponse } from './routes.js'
+import type { unauthenticatedErrorResponse } from './errors.js'
 
 export function createBearerAuthMiddleware(authentication: IAuthenticationService) {
   return createMiddleware<{
