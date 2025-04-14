@@ -8,6 +8,7 @@
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
+  import { routes } from '$lib/routes'
 
   import Footer from '../../../../routes/genres/Footer.svelte'
   import { mediaTypeQueries } from '../state/tanstack'
@@ -84,6 +85,6 @@
 
   <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton kind="text" href="/media-artifact-types">Cancel</LinkButton>
+    <LinkButton kind="text" href={routes.media.artifactTypes.route()}>Cancel</LinkButton>
   </Footer>
 </form>

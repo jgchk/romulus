@@ -6,6 +6,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import MediaArtifactRelationshipTypeForm from '$lib/features/media/components/MediaArtifactRelationshipTypeForm.svelte'
+  import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
 
@@ -20,7 +21,9 @@
 
 <div class="mb-4 flex items-center justify-between">
   <h2 class="text-lg font-semibold">Media Artifact Relationship Types</h2>
-  <LinkButton href="/media-artifact-types/relationships/create">New Relationship Type</LinkButton>
+  <LinkButton href={routes.media.artifactTypes.relationships.create.route()}
+    >New Relationship Type</LinkButton
+  >
 </div>
 
 <div>
@@ -34,8 +37,9 @@
         <div class="absolute right-2 top-2 flex space-x-1">
           <LinkIconButton
             tooltip="Edit"
-            href="/media-artifact-types/relationships/{mediaArtifactRelationshipType.id}/edit"
-            ><Pencil /></LinkIconButton
+            href={routes.media.artifactTypes.relationships.details.edit.route(
+              mediaArtifactRelationshipType.id,
+            )}><Pencil /></LinkIconButton
           >
         </div>
 

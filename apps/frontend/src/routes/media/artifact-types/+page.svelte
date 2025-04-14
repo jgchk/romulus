@@ -8,6 +8,7 @@
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import Loader from '$lib/atoms/Loader.svelte'
   import { mediaTypeQueries } from '$lib/features/media/state/tanstack'
+  import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
 
@@ -18,14 +19,16 @@
 
 <div class="mb-4 flex items-center justify-between">
   <h2 class="text-lg font-semibold">Media Artifact Types</h2>
-  <LinkButton href="/media-artifact-types/create">New Type</LinkButton>
+  <LinkButton href={routes.media.artifactTypes.create.route()}>New Type</LinkButton>
 </div>
 
 <div>
   {#each data.mediaArtifactTypes as mediaArtifactType (mediaArtifactType.id)}
     <Card class="relative p-4">
       <div class="absolute right-2 top-2 flex space-x-1">
-        <LinkIconButton tooltip="Edit" href="/media-artifact-types/{mediaArtifactType.id}/edit"
+        <LinkIconButton
+          tooltip="Edit"
+          href={routes.media.artifactTypes.details.edit.route(mediaArtifactType.id)}
           ><Pencil /></LinkIconButton
         >
       </div>
