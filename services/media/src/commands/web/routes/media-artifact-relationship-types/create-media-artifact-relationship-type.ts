@@ -15,6 +15,58 @@ import { type RouteResponse } from '../common.js'
 import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
+
+export function createCreateMediaArtifactRelationshipTypeRoute({
+  authz,
+  createMediaArtifactRelationshipType,
+}: CreateMediaArtifactRelationshipTypeRouteDependencies) {
+  return factory.createHandlers(
+    createRoute(definition),
+    validator(
+      'json',
+      type({
+        id: 'string',
+        name: 'string',
+        parentMediaArtifactType: 'string',
+        childMediaArtifactTypes: 'string[]',
+      }),
+    ),
+    authz(MediaPermission.WriteMediaArtifactTypes),
+    async (c): Promise<RouteResponse<typeof definition>> => {
+      const body = c.req.valid('json')
+      const result = await createMediaArtifactRelationshipType({
+        mediaArtifactRelationshipType: body,
+      })
+      return result.match(
+        () => c.json({ success: true }, 200),
+        (err) => {
+          if (err instanceof MediaArtifactTypeNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 422,
+                  details: { id: err.id },
+                },
+              },
+              422,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    },
+  )
+}
+
+export type CreateMediaArtifactRelationshipTypeRouteDependencies = {
+  authz: AuthorizationMiddleware
+  createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
+}
+
 const definition = {
   description: 'Create a media artifact relationship type',
   responses: {
@@ -64,52 +116,3 @@ const definition = {
     },
   },
 } satisfies RouteDefinition
-
-export function createCreateMediaArtifactRelationshipTypeRoute({
-  authz,
-  createMediaArtifactRelationshipType,
-}: {
-  authz: AuthorizationMiddleware
-  createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
-}) {
-  return factory.createHandlers(
-    createRoute(definition),
-    validator(
-      'json',
-      type({
-        id: 'string',
-        name: 'string',
-        parentMediaArtifactType: 'string',
-        childMediaArtifactTypes: 'string[]',
-      }),
-    ),
-    authz(MediaPermission.WriteMediaArtifactTypes),
-    async (c): Promise<RouteResponse<typeof definition>> => {
-      const body = c.req.valid('json')
-      const result = await createMediaArtifactRelationshipType({
-        mediaArtifactRelationshipType: body,
-      })
-      return result.match(
-        () => c.json({ success: true }, 200),
-        (err) => {
-          if (err instanceof MediaArtifactTypeNotFoundError) {
-            return c.json(
-              {
-                success: false,
-                error: {
-                  name: err.name,
-                  message: err.message,
-                  statusCode: 422,
-                  details: { id: err.id },
-                },
-              },
-              422,
-            )
-          } else {
-            assertUnreachable(err)
-          }
-        },
-      )
-    },
-  )
-}
