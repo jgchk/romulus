@@ -16,6 +16,60 @@ import { type RouteResponse } from '../common.js'
 import { createRoute } from '../common.js'
 import { assertUnreachable, factory, validator } from '../common.js'
 
+export function createUpdateMediaArtifactTypeRoute({
+  authz,
+  updateMediaArtifactType,
+}: UpdateMediaArtifactTypeRouteDependencies) {
+  return factory.createHandlers(
+    createRoute(definition),
+    validator('param', type({ id: 'string' })),
+    validator('json', type({ name: 'string', mediaTypes: 'string[]' })),
+    authz(MediaPermission.WriteMediaArtifactTypes),
+    async (c): Promise<RouteResponse<typeof definition>> => {
+      const param = c.req.valid('param')
+      const body = c.req.valid('json')
+      const result = await updateMediaArtifactType({ id: param.id, update: body })
+      return result.match(
+        () => c.json({ success: true }, 200),
+        (err) => {
+          if (err instanceof MediaTypeNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 422,
+                },
+              },
+              422,
+            )
+          } else if (err instanceof MediaArtifactTypeNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 404,
+                },
+              },
+              404,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    },
+  )
+}
+
+export type UpdateMediaArtifactTypeRouteDependencies = {
+  authz: AuthorizationMiddleware
+  updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
+}
+
 const definition = {
   description: 'Update a media artifact type',
   responses: {
@@ -69,55 +123,3 @@ const definition = {
     },
   },
 } satisfies RouteDefinition
-
-export function createUpdateMediaArtifactTypeRoute({
-  authz,
-  updateMediaArtifactType,
-}: {
-  authz: AuthorizationMiddleware
-  updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
-}) {
-  return factory.createHandlers(
-    createRoute(definition),
-    validator('param', type({ id: 'string' })),
-    validator('json', type({ name: 'string', mediaTypes: 'string[]' })),
-    authz(MediaPermission.WriteMediaArtifactTypes),
-    async (c): Promise<RouteResponse<typeof definition>> => {
-      const param = c.req.valid('param')
-      const body = c.req.valid('json')
-      const result = await updateMediaArtifactType({ id: param.id, update: body })
-      return result.match(
-        () => c.json({ success: true }, 200),
-        (err) => {
-          if (err instanceof MediaTypeNotFoundError) {
-            return c.json(
-              {
-                success: false,
-                error: {
-                  name: err.name,
-                  message: err.message,
-                  statusCode: 422,
-                },
-              },
-              422,
-            )
-          } else if (err instanceof MediaArtifactTypeNotFoundError) {
-            return c.json(
-              {
-                success: false,
-                error: {
-                  name: err.name,
-                  message: err.message,
-                  statusCode: 404,
-                },
-              },
-              404,
-            )
-          } else {
-            assertUnreachable(err)
-          }
-        },
-      )
-    },
-  )
-}
