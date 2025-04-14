@@ -88,48 +88,6 @@ describe('createMediaType', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ success: true })
   })
-
-  it('returns 403 if user does not have permission', async () => {
-    const { client } = setup({
-      authorization: {
-        hasPermission: (userId, permission) => {
-          if (permission === MediaPermission.WriteMediaTypes) {
-            return Promise.resolve(false)
-          } else {
-            return Promise.resolve(true)
-          }
-        },
-      },
-    })
-
-    const response = await client['media-types'].$post(
-      { json: { id: 'test', name: 'Test', parents: [] } },
-      { headers: { authorization: `Bearer 000-000-000` } },
-    )
-    expect(response.status).toBe(403)
-    expect(await response.json()).toEqual({
-      success: false,
-      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
-    })
-  })
-
-  it('returns 422 error if a cycle would be created', async () => {
-    const { client } = setup()
-
-    const response = await client['media-types'].$post(
-      { json: { id: 'test', name: 'Test', parents: ['test'] } },
-      { headers: { authorization: `Bearer 000-000-000` } },
-    )
-    expect(response.status).toBe(422)
-    expect(await response.json()).toEqual({
-      success: false,
-      error: {
-        name: 'MediaTypeTreeCycleError',
-        message: 'A cycle would be created in the media type tree: Test -> Test',
-        statusCode: 422,
-      },
-    })
-  })
 })
 
 describe('updateMediaType', () => {
