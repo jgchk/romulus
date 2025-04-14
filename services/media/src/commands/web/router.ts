@@ -25,6 +25,7 @@ import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/media
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
+import { createCreateMediaTypeRoute } from './router/create-media-type.js'
 import type { badRequestErrorResponse } from './routes.js'
 import { createRoute, type RouteResponse, routes } from './routes.js'
 
@@ -58,51 +59,7 @@ export function createMediaCommandsRouter({
 
   const app = new Hono()
     .use(bearerAuth)
-    .post(
-      '/media-types',
-      createRoute(routes.createMediaType),
-      validator(
-        'json',
-        type({
-          id: 'string',
-          name: 'string',
-          parents: 'string[]',
-        }),
-      ),
-      authz(MediaPermission.WriteMediaTypes),
-      async (c): Promise<RouteResponse<typeof routes.createMediaType>> => {
-        const body = c.req.valid('json')
-        const result = await createMediaType({ mediaType: body })
-        return result.match(
-          () => c.json({ success: true }, 200),
-          (err) => {
-            if (err instanceof MediaTypeTreeCycleError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 422,
-                  },
-                } as const,
-                422,
-              )
-            } else if (err instanceof MediaTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: { name: err.name, message: err.message, statusCode: 404 },
-                } as const,
-                404,
-              )
-            } else {
-              assertUnreachable(err)
-            }
-          },
-        )
-      },
-    )
+    .post('/media-types', ...createCreateMediaTypeRoute({ authz, createMediaType }))
     .put(
       '/media-types/:id',
       createRoute(routes.updateMediaType),

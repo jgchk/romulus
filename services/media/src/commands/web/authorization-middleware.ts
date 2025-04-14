@@ -4,6 +4,8 @@ import { createMiddleware } from 'hono/factory'
 import type { IAuthorizationService } from '../domain/authorization.js'
 import type { unauthorizedErrorResponse } from './routes.js'
 
+export type AuthorizationMiddleware = ReturnType<typeof createAuthorizationMiddleware>
+
 export function createAuthorizationMiddleware(authorization: IAuthorizationService) {
   return function (permission: string) {
     return createMiddleware<{

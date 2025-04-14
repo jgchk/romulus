@@ -7,7 +7,7 @@ import type { OpenAPIV3 } from 'openapi-types'
 
 import { createErrorResponse, createErrorResponseWithDetails } from '../../common/web/utils.js'
 
-type RouteDefinition = Omit<DescribeRouteOptions, 'responses'> & {
+export type RouteDefinition = Omit<DescribeRouteOptions, 'responses'> & {
   responses: Partial<Record<StatusCode, RouteResponseDefinition>>
 }
 
@@ -59,62 +59,6 @@ export const unauthorizedErrorResponse = createErrorResponse(
 )
 
 export const routes = {
-  createMediaType: {
-    description: 'Create a media type',
-    responses: {
-      200: {
-        description: 'Successful response',
-        content: {
-          'application/json': {
-            schema: type({
-              success: 'true',
-            }),
-          },
-        },
-      },
-      400: {
-        description: 'Bad request',
-        content: {
-          'application/json': {
-            schema: badRequestErrorResponse,
-          },
-        },
-      },
-      401: {
-        description: 'Unauthenticated',
-        content: {
-          'application/json': {
-            schema: unauthenticatedErrorResponse,
-          },
-        },
-      },
-      403: {
-        description: 'Unauthorized',
-        content: {
-          'application/json': {
-            schema: unauthorizedErrorResponse,
-          },
-        },
-      },
-      404: {
-        description: 'Media type not found',
-        content: {
-          'application/json': {
-            schema: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
-          },
-        },
-      },
-      422: {
-        description: 'Unprocessable content',
-        content: {
-          'application/json': {
-            schema: createErrorResponse(type('"MediaTypeTreeCycleError"'), type('422')),
-          },
-        },
-      },
-    },
-  },
-
   updateMediaType: {
     description: 'Update a media type',
     responses: {
