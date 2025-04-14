@@ -1,10 +1,6 @@
 <script lang="ts">
-  import { Pencil } from 'phosphor-svelte'
-
-  import Card from '$lib/atoms/Card.svelte'
-  import Chip from '$lib/atoms/Chip.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
-  import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
+  import MediaArtifactRelationshipTypeCard from '$lib/features/media/components/MediaArtifactRelationshipTypeCard.svelte'
   import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
@@ -27,28 +23,6 @@
 
 <div>
   {#each data.mediaArtifactRelationshipTypes as mediaArtifactRelationshipType (mediaArtifactRelationshipType.id)}
-    <Card class="relative p-4">
-      <div class="absolute right-2 top-2 flex space-x-1">
-        <LinkIconButton
-          tooltip="Edit"
-          href={routes.media.artifactTypes.relationships.details.edit.route(
-            mediaArtifactRelationshipType.id,
-          )}><Pencil /></LinkIconButton
-        >
-      </div>
-
-      <h3 class="font-medium">{mediaArtifactRelationshipType.name}</h3>
-      <div>
-        <Chip
-          text={mediaArtifactTypes.get(mediaArtifactRelationshipType.parentMediaArtifactType)
-            ?.name ?? 'Unknown'}
-        />
-        &gt;
-        {#each mediaArtifactRelationshipType.childMediaArtifactTypes as childMediaArtifactTypeId (childMediaArtifactTypeId)}
-          {@const childMediaArtifactType = mediaArtifactTypes.get(childMediaArtifactTypeId)}
-          <Chip text={childMediaArtifactType?.name ?? 'Unknown'} />
-        {/each}
-      </div>
-    </Card>
+    <MediaArtifactRelationshipTypeCard {...mediaArtifactRelationshipType} {mediaArtifactTypes} />
   {/each}
 </div>
