@@ -9,6 +9,27 @@ import { type RouteResponse } from '../common.js'
 import { createRoute } from '../common.js'
 import { factory, validator } from '../common.js'
 
+export function createDeleteMediaArtifactTypeRoute({
+  authz,
+  deleteMediaArtifactType,
+}: DeleteMediaArtifactTypeRouteDependencies) {
+  return factory.createHandlers(
+    createRoute(definition),
+    validator('param', type({ id: 'string' })),
+    authz(MediaPermission.WriteMediaArtifactTypes),
+    async (c): Promise<RouteResponse<typeof definition>> => {
+      const param = c.req.valid('param')
+      await deleteMediaArtifactType({ id: param.id })
+      return c.json({ success: true }, 200)
+    },
+  )
+}
+
+export type DeleteMediaArtifactTypeRouteDependencies = {
+  authz: AuthorizationMiddleware
+  deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
+}
+
 const definition = {
   description: 'Delete a media artifact type',
   responses: {
@@ -38,22 +59,3 @@ const definition = {
     },
   },
 } satisfies RouteDefinition
-
-export function createDeleteMediaArtifactTypeRoute({
-  authz,
-  deleteMediaArtifactType,
-}: {
-  authz: AuthorizationMiddleware
-  deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
-}) {
-  return factory.createHandlers(
-    createRoute(definition),
-    validator('param', type({ id: 'string' })),
-    authz(MediaPermission.WriteMediaArtifactTypes),
-    async (c): Promise<RouteResponse<typeof definition>> => {
-      const param = c.req.valid('param')
-      await deleteMediaArtifactType({ id: param.id })
-      return c.json({ success: true }, 200)
-    },
-  )
-}

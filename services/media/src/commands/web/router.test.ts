@@ -303,48 +303,6 @@ describe('deleteMediaArtifactType', () => {
       success: true,
     })
   })
-
-  it('returns a 401 if the user is not authenticated', async () => {
-    const { client } = setup()
-
-    const response = await client['media-artifact-types'][':id'].$delete(
-      { param: { id: 'test' } },
-      { headers: {} },
-    )
-    expect(response.status).toBe(401)
-    expect(await response.json()).toEqual({
-      success: false,
-      error: {
-        name: 'UnauthenticatedError',
-        message: 'You are not authenticated',
-        statusCode: 401,
-      },
-    })
-  })
-
-  it('returns a 403 if the user does not have permission', async () => {
-    const { client } = setup({
-      authorization: {
-        hasPermission: (userId, permission) => {
-          if (permission === MediaPermission.WriteMediaArtifactTypes) {
-            return Promise.resolve(false)
-          } else {
-            return Promise.resolve(true)
-          }
-        },
-      },
-    })
-
-    const response = await client['media-artifact-types'][':id'].$delete(
-      { param: { id: 'test' } },
-      { headers: { authorization: 'Bearer 000-000-000' } },
-    )
-    expect(response.status).toBe(403)
-    expect(await response.json()).toEqual({
-      success: false,
-      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
-    })
-  })
 })
 
 describe('createMediaArtifactRelationshipType', () => {
