@@ -25,8 +25,9 @@ import { MediaTypeNotFoundError } from '../domain/media-types/errors.js'
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
-import { createCreateMediaTypeRoute } from './router/create-media-type.js'
-import { createUpdateMediaTypeRoute } from './router/update-media-type.js'
+import { createCreateMediaArtifactTypeRoute } from './router/media-artifact-types/create-media-artifact-type.js'
+import { createCreateMediaTypeRoute } from './router/media-types/create-media-type.js'
+import { createUpdateMediaTypeRoute } from './router/media-types/update-media-type.js'
 import type { badRequestErrorResponse } from './routes.js'
 import { createRoute, type RouteResponse, routes } from './routes.js'
 
@@ -64,33 +65,7 @@ export function createMediaCommandsRouter({
     .put('/media-types/:id', ...createUpdateMediaTypeRoute({ authz, updateMediaType }))
     .post(
       '/media-artifact-types',
-      createRoute(routes.createMediaArtifactType),
-      validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
-      authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c): Promise<RouteResponse<typeof routes.createMediaArtifactType>> => {
-        const body = c.req.valid('json')
-        const result = await createMediaArtifactType({ mediaArtifactType: body })
-        return result.match(
-          () => c.json({ success: true }, 200),
-          (err) => {
-            if (err instanceof MediaTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 422,
-                  },
-                },
-                422,
-              )
-            } else {
-              assertUnreachable(err)
-            }
-          },
-        )
-      },
+      ...createCreateMediaArtifactTypeRoute({ authz, createMediaArtifactType }),
     )
     .put(
       '/media-artifact-types/:id',

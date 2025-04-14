@@ -1,10 +1,13 @@
 import { type } from 'arktype'
 
-import { createErrorResponse } from '../../../common/web/utils.js'
-import type { CreateMediaTypeCommandHandler } from '../../application/media-types/create-media-type.js'
-import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../../domain/media-types/errors.js'
-import { MediaPermission } from '../../domain/permissions.js'
-import type { AuthorizationMiddleware } from '../authorization-middleware.js'
+import { createErrorResponse } from '../../../../common/web/utils.js'
+import type { UpdateMediaTypeCommandHandler } from '../../../application/media-types/update-media-type.js'
+import {
+  MediaTypeNotFoundError,
+  MediaTypeTreeCycleError,
+} from '../../../domain/media-types/errors.js'
+import { MediaPermission } from '../../../domain/permissions.js'
+import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
 import {
   badRequestErrorResponse,
   createRoute,
@@ -12,19 +15,17 @@ import {
   type RouteResponse,
   unauthenticatedErrorResponse,
   unauthorizedErrorResponse,
-} from '../routes.js'
-import { assertUnreachable, factory, validator } from './common.js'
+} from '../../routes.js'
+import { assertUnreachable, factory, validator } from '../common.js'
 
 const definition = {
-  description: 'Create a media type',
+  description: 'Update a media type',
   responses: {
     200: {
       description: 'Successful response',
       content: {
         'application/json': {
-          schema: type({
-            success: 'true',
-          }),
+          schema: type({ success: 'true' }),
         },
       },
     },
@@ -53,7 +54,7 @@ const definition = {
       },
     },
     404: {
-      description: 'Media type not found',
+      description: 'Not found',
       content: {
         'application/json': {
           schema: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
@@ -71,27 +72,28 @@ const definition = {
   },
 } satisfies RouteDefinition
 
-export function createCreateMediaTypeRoute({
+export function createUpdateMediaTypeRoute({
   authz,
-  createMediaType,
+  updateMediaType,
 }: {
   authz: AuthorizationMiddleware
-  createMediaType: CreateMediaTypeCommandHandler
+  updateMediaType: UpdateMediaTypeCommandHandler
 }) {
   return factory.createHandlers(
     createRoute(definition),
+    validator('param', type({ id: 'string' })),
     validator(
       'json',
       type({
-        id: 'string',
         name: 'string',
         parents: 'string[]',
       }),
     ),
     authz(MediaPermission.WriteMediaTypes),
     async (c): Promise<RouteResponse<typeof definition>> => {
+      const param = c.req.valid('param')
       const body = c.req.valid('json')
-      const result = await createMediaType({ mediaType: body })
+      const result = await updateMediaType({ id: param.id, update: body })
       return result.match(
         () => c.json({ success: true }, 200),
         (err) => {
@@ -104,15 +106,19 @@ export function createCreateMediaTypeRoute({
                   message: err.message,
                   statusCode: 422,
                 },
-              } as const,
+              },
               422,
             )
           } else if (err instanceof MediaTypeNotFoundError) {
             return c.json(
               {
                 success: false,
-                error: { name: err.name, message: err.message, statusCode: 404 },
-              } as const,
+                error: {
+                  name: err.name,
+                  message: err.message,
+                  statusCode: 404,
+                },
+              },
               404,
             )
           } else {
