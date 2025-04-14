@@ -14,7 +14,6 @@
 <nav>
   <a href="/media/artifact-types">Artifact Types</a>
   <a href="/media/artifact-types/relationships">Relationships</a>
-  <a href="/media/artifact-types/schema-preview">Schema Preview</a>
 </nav>
 
 <div class="flex-1">
