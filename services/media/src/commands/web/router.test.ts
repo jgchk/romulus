@@ -10,6 +10,7 @@ import {
 import { createCreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import { createUpdateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
 import { createCreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
+import { createDeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
@@ -44,6 +45,10 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
     updateMediaArtifactType: createUpdateMediaArtifactTypeCommandHandler({
       getMediaTypes: () => createDefaultMediaTypesProjection(),
       getMediaArtifactTypes: () => createDefaultMediaArtifactTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      saveMediaArtifactTypeEvent: () => {},
+    }),
+    deleteMediaArtifactType: createDeleteMediaArtifactTypeCommandHandler({
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       saveMediaArtifactTypeEvent: () => {},
     }),
@@ -108,20 +113,20 @@ describe('createMediaType', () => {
     })
   })
 
-  it('returns 400 error if a cycle would be created', async () => {
+  it('returns 422 error if a cycle would be created', async () => {
     const { client } = setup()
 
     const response = await client['media-types'].$post(
       { json: { id: 'test', name: 'Test', parents: ['test'] } },
       { headers: { authorization: `Bearer 000-000-000` } },
     )
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(422)
     expect(await response.json()).toEqual({
       success: false,
       error: {
         name: 'MediaTypeTreeCycleError',
         message: 'A cycle would be created in the media type tree: Test -> Test',
-        statusCode: 400,
+        statusCode: 422,
       },
     })
   })
@@ -172,7 +177,7 @@ describe('updateMediaType', () => {
     })
   })
 
-  it('returns 400 error if a cycle would be created', async () => {
+  it('returns 422 error if a cycle would be created', async () => {
     const { client } = setup({
       updateMediaType: createUpdateMediaTypeCommandHandler(
         () =>
@@ -188,14 +193,14 @@ describe('updateMediaType', () => {
       { param: { id: 'test' }, json: { name: 'Test (Updated)', parents: ['test'] } },
       { headers: { authorization: `Bearer 000-000-000` } },
     )
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(422)
     expect(await response.json()).toEqual({
       success: false,
       error: {
         name: 'MediaTypeTreeCycleError',
         message:
           'A cycle would be created in the media type tree: Test (Updated) -> Test (Updated)',
-        statusCode: 400,
+        statusCode: 422,
       },
     })
   })
@@ -478,6 +483,64 @@ describe('updateMediaArtifactType', () => {
         message: 'mediaTypes must be an array (was missing)\nname must be a string (was missing)',
         statusCode: 400,
       },
+    })
+  })
+})
+
+describe('deleteMediaArtifactType', () => {
+  it('deletes a media artifact type', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'][':id'].$delete(
+      { param: { id: 'test' } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      success: true,
+    })
+  })
+
+  it('returns a 401 if the user is not authenticated', async () => {
+    const { client } = setup()
+
+    const response = await client['media-artifact-types'][':id'].$delete(
+      { param: { id: 'test' } },
+      { headers: {} },
+    )
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        name: 'UnauthenticatedError',
+        message: 'You are not authenticated',
+        statusCode: 401,
+      },
+    })
+  })
+
+  it('returns a 403 if the user does not have permission', async () => {
+    const { client } = setup({
+      authorization: {
+        hasPermission: (userId, permission) => {
+          if (permission === MediaPermission.WriteMediaArtifactTypes) {
+            return Promise.resolve(false)
+          } else {
+            return Promise.resolve(true)
+          }
+        },
+      },
+    })
+
+    const response = await client['media-artifact-types'][':id'].$delete(
+      { param: { id: 'test' } },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: { name: 'UnauthorizedError', message: 'You are not authorized', statusCode: 403 },
     })
   })
 })

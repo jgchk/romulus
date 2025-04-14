@@ -1,12 +1,19 @@
 import type { Type } from 'arktype'
 import { type } from 'arktype'
-import { type Env, Hono, type MiddlewareHandler, type ValidationTargets } from 'hono'
-import type { HasUndefined } from 'hono-openapi'
+import {
+  type Env,
+  Hono,
+  type MiddlewareHandler,
+  type TypedResponse,
+  type ValidationTargets,
+} from 'hono'
+import { type HasUndefined } from 'hono-openapi'
 import { validator as arktypeValidator } from 'hono-openapi/arktype'
 
 import type { CreateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
 import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from '../application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
 import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
+import type { DeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
@@ -18,7 +25,8 @@ import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/media
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
-import { routes } from './routes.js'
+import type { badRequestErrorResponse } from './routes.js'
+import { createRoute, type RouteResponse, routes } from './routes.js'
 
 export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
 
@@ -27,6 +35,7 @@ export type MediaCommandsRouterDependencies = {
   updateMediaType: UpdateMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
+  deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   updateMediaArtifactRelationshipType: UpdateMediaArtifactRelationshipTypeCommandHandler
   authentication: IAuthenticationService
@@ -38,6 +47,7 @@ export function createMediaCommandsRouter({
   updateMediaType,
   createMediaArtifactType,
   updateMediaArtifactType,
+  deleteMediaArtifactType,
   createMediaArtifactRelationshipType,
   updateMediaArtifactRelationshipType,
   authentication,
@@ -50,7 +60,7 @@ export function createMediaCommandsRouter({
     .use(bearerAuth)
     .post(
       '/media-types',
-      routes.createMediaType.route(),
+      createRoute(routes.createMediaType),
       validator(
         'json',
         type({
@@ -60,15 +70,11 @@ export function createMediaCommandsRouter({
         }),
       ),
       authz(MediaPermission.WriteMediaTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.createMediaType>> => {
         const body = c.req.valid('json')
         const result = await createMediaType({ mediaType: body })
         return result.match(
-          () =>
-            c.json(
-              { success: true } satisfies typeof routes.createMediaType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaTypeTreeCycleError) {
               return c.json(
@@ -77,17 +83,17 @@ export function createMediaCommandsRouter({
                   error: {
                     name: err.name,
                     message: err.message,
-                    statusCode: 400,
+                    statusCode: 422,
                   },
-                } satisfies typeof routes.createMediaType.errorResponse.mediaTypeTreeCycleError.infer,
-                400,
+                } as const,
+                422,
               )
             } else if (err instanceof MediaTypeNotFoundError) {
               return c.json(
                 {
                   success: false,
                   error: { name: err.name, message: err.message, statusCode: 404 },
-                } satisfies typeof routes.createMediaType.errorResponse.mediaTypeNotFoundError.infer,
+                } as const,
                 404,
               )
             } else {
@@ -99,7 +105,7 @@ export function createMediaCommandsRouter({
     )
     .put(
       '/media-types/:id',
-      routes.updateMediaType.route(),
+      createRoute(routes.updateMediaType),
       validator('param', type({ id: 'string' })),
       validator(
         'json',
@@ -109,16 +115,12 @@ export function createMediaCommandsRouter({
         }),
       ),
       authz(MediaPermission.WriteMediaTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.updateMediaType>> => {
         const param = c.req.valid('param')
         const body = c.req.valid('json')
         const result = await updateMediaType({ id: param.id, update: body })
         return result.match(
-          () =>
-            c.json(
-              { success: true } satisfies typeof routes.updateMediaType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaTypeTreeCycleError) {
               return c.json(
@@ -127,10 +129,10 @@ export function createMediaCommandsRouter({
                   error: {
                     name: err.name,
                     message: err.message,
-                    statusCode: 400,
+                    statusCode: 422,
                   },
-                } satisfies typeof routes.updateMediaType.errorResponse.cycle.infer,
-                400,
+                },
+                422,
               )
             } else if (err instanceof MediaTypeNotFoundError) {
               return c.json(
@@ -141,7 +143,7 @@ export function createMediaCommandsRouter({
                     message: err.message,
                     statusCode: 404,
                   },
-                } satisfies typeof routes.updateMediaType.errorResponse.notFound.infer,
+                },
                 404,
               )
             } else {
@@ -153,20 +155,14 @@ export function createMediaCommandsRouter({
     )
     .post(
       '/media-artifact-types',
-      routes.createMediaArtifactType.route(),
+      createRoute(routes.createMediaArtifactType),
       validator('json', type({ id: 'string', name: 'string', mediaTypes: 'string[]' })),
       authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.createMediaArtifactType>> => {
         const body = c.req.valid('json')
         const result = await createMediaArtifactType({ mediaArtifactType: body })
         return result.match(
-          () =>
-            c.json(
-              {
-                success: true,
-              } satisfies typeof routes.createMediaArtifactType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaTypeNotFoundError) {
               return c.json(
@@ -177,7 +173,7 @@ export function createMediaCommandsRouter({
                     message: err.message,
                     statusCode: 422,
                   },
-                } satisfies typeof routes.createMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
+                },
                 422,
               )
             } else {
@@ -189,22 +185,16 @@ export function createMediaCommandsRouter({
     )
     .put(
       '/media-artifact-types/:id',
-      routes.updateMediaArtifactType.route(),
+      createRoute(routes.updateMediaArtifactType),
       validator('param', type({ id: 'string' })),
       validator('json', type({ name: 'string', mediaTypes: 'string[]' })),
       authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.updateMediaArtifactType>> => {
         const param = c.req.valid('param')
         const body = c.req.valid('json')
         const result = await updateMediaArtifactType({ id: param.id, update: body })
         return result.match(
-          () =>
-            c.json(
-              {
-                success: true,
-              } satisfies typeof routes.updateMediaArtifactType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaTypeNotFoundError) {
               return c.json(
@@ -215,7 +205,7 @@ export function createMediaCommandsRouter({
                     message: err.message,
                     statusCode: 422,
                   },
-                } satisfies typeof routes.updateMediaArtifactType.errorResponse.mediaTypeNotFoundError.infer,
+                },
                 422,
               )
             } else if (err instanceof MediaArtifactTypeNotFoundError) {
@@ -227,7 +217,7 @@ export function createMediaCommandsRouter({
                     message: err.message,
                     statusCode: 404,
                   },
-                } satisfies typeof routes.updateMediaArtifactType.errorResponse.mediaArtifactTypeNotFoundError.infer,
+                },
                 404,
               )
             } else {
@@ -237,9 +227,20 @@ export function createMediaCommandsRouter({
         )
       },
     )
+    .delete(
+      '/media-artifact-types/:id',
+      createRoute(routes.deleteMediaArtifactType),
+      validator('param', type({ id: 'string' })),
+      authz(MediaPermission.WriteMediaArtifactTypes),
+      async (c): Promise<RouteResponse<typeof routes.deleteMediaArtifactType>> => {
+        const param = c.req.valid('param')
+        await deleteMediaArtifactType({ id: param.id })
+        return c.json({ success: true }, 200)
+      },
+    )
     .post(
       '/media-artifact-relationship-types',
-      routes.createMediaArtifactRelationshipType.route(),
+      createRoute(routes.createMediaArtifactRelationshipType),
       validator(
         'json',
         type({
@@ -250,19 +251,13 @@ export function createMediaCommandsRouter({
         }),
       ),
       authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.createMediaArtifactRelationshipType>> => {
         const body = c.req.valid('json')
         const result = await createMediaArtifactRelationshipType({
           mediaArtifactRelationshipType: body,
         })
         return result.match(
-          () =>
-            c.json(
-              {
-                success: true,
-              } satisfies typeof routes.createMediaArtifactRelationshipType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaArtifactTypeNotFoundError) {
               return c.json(
@@ -274,7 +269,7 @@ export function createMediaCommandsRouter({
                     statusCode: 422,
                     details: { id: err.id },
                   },
-                } satisfies typeof routes.createMediaArtifactRelationshipType.errorResponse.mediaArtifactTypeNotFoundError.infer,
+                },
                 422,
               )
             } else {
@@ -286,7 +281,7 @@ export function createMediaCommandsRouter({
     )
     .put(
       '/media-artifact-relationship-types/:id',
-      routes.updateMediaArtifactRelationshipType.route(),
+      createRoute(routes.updateMediaArtifactRelationshipType),
       validator('param', type({ id: 'string' })),
       validator(
         'json',
@@ -297,7 +292,7 @@ export function createMediaCommandsRouter({
         }),
       ),
       authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c) => {
+      async (c): Promise<RouteResponse<typeof routes.updateMediaArtifactRelationshipType>> => {
         const param = c.req.valid('param')
         const body = c.req.valid('json')
         const result = await updateMediaArtifactRelationshipType({
@@ -305,13 +300,7 @@ export function createMediaCommandsRouter({
           update: body,
         })
         return result.match(
-          () =>
-            c.json(
-              {
-                success: true,
-              } satisfies typeof routes.updateMediaArtifactRelationshipType.successResponse.infer,
-              200,
-            ),
+          () => c.json({ success: true }, 200),
           (err) => {
             if (err instanceof MediaArtifactTypeNotFoundError) {
               return c.json(
@@ -323,7 +312,7 @@ export function createMediaCommandsRouter({
                     statusCode: 422,
                     details: { id: err.id },
                   },
-                } satisfies typeof routes.updateMediaArtifactRelationshipType.errorResponse.mediaArtifactTypeNotFoundError.infer,
+                },
                 422,
               )
             } else if (err instanceof MediaArtifactRelationshipTypeNotFoundError) {
@@ -336,7 +325,7 @@ export function createMediaCommandsRouter({
                     statusCode: 404,
                     details: { id: err.id },
                   },
-                } satisfies typeof routes.updateMediaArtifactRelationshipType.errorResponse.mediaArtifactRelationshipTypeNotFoundError.infer,
+                },
                 404,
               )
             } else {
@@ -365,17 +354,29 @@ function validator<
     out: Record<Target, O>
   },
 >(target: Target, schema: T): MiddlewareHandler<E, P, V> {
-  return arktypeValidator(target, schema, (result, c) => {
-    if (!result.success) {
-      return c.json(
-        {
-          success: false,
-          error: { name: 'BadRequestError', message: result.errors.summary, statusCode: 400 },
-        } satisfies typeof routes.badRequestErrorResponse.infer,
-        400,
-      )
-    }
-  })
+  return arktypeValidator(
+    target,
+    schema,
+    (
+      result,
+      c,
+    ):
+      | TypedResponse<
+          typeof badRequestErrorResponse.infer,
+          (typeof badRequestErrorResponse.infer)['error']['statusCode']
+        >
+      | undefined => {
+      if (!result.success) {
+        return c.json(
+          {
+            success: false,
+            error: { name: 'BadRequestError', message: result.errors.summary, statusCode: 400 },
+          },
+          400,
+        )
+      }
+    },
+  )
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

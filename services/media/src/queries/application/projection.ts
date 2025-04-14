@@ -123,6 +123,12 @@ export async function applyEvent(
       return
     }
 
+    case 'media-artifact-type-deleted': {
+      await db.delete(mediaArtifactTypes).where(eq(mediaArtifactTypes.id, event.id)).execute()
+
+      return
+    }
+
     case 'media-artifact-relationship-type-created': {
       await db.transaction(async (tx) => {
         await tx

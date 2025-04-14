@@ -52,6 +52,17 @@ export function createMediaCommandsClient(options: {
         .andThen((res) => (res.success ? ok(res) : err(res.error)))
     },
 
+    deleteMediaArtifactType(id: string) {
+      return ResultAsync.fromPromise(
+        client['media-artifact-types'][':id'].$delete({ param: { id } }),
+        (err) => new FetchError(toError(err)),
+      )
+        .map<InferResponseType<Client['media-artifact-types'][':id']['$delete']>>((res) =>
+          res.json(),
+        )
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
+
     createMediaArtifactRelationshipType(
       body: InferRequestType<Client['media-artifact-relationship-types']['$post']>['json'],
     ) {

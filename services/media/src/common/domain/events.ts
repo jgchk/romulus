@@ -39,6 +39,7 @@ export function mediaTypeUpdatedEvent(
 export type MediaArtifactTypeEvent =
   | MediaArtifactTypeCreatedEvent
   | MediaArtifactTypeUpdatedEvent
+  | MediaArtifactTypeDeletedEvent
   | MediaArtifactRelationshipTypeCreatedEvent
   | MediaArtifactRelationshipTypeUpdatedEvent
 
@@ -63,6 +64,17 @@ export function mediaArtifactTypeUpdatedEvent(
   event: Omit<MediaArtifactTypeUpdatedEvent, '_tag'>,
 ): MediaArtifactTypeUpdatedEvent {
   return { ...event, _tag: 'media-artifact-type-updated' }
+}
+
+export type MediaArtifactTypeDeletedEvent = {
+  _tag: 'media-artifact-type-deleted'
+  id: string
+}
+
+export function mediaArtifactTypeDeletedEvent(
+  event: Omit<MediaArtifactTypeDeletedEvent, '_tag'>,
+): MediaArtifactTypeDeletedEvent {
+  return { ...event, _tag: 'media-artifact-type-deleted' }
 }
 
 export type MediaArtifactRelationshipTypeCreatedEvent = {

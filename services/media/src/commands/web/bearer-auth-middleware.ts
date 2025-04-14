@@ -1,8 +1,8 @@
-import type { Context } from 'hono'
+import type { Context, TypedResponse } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import type { IAuthenticationService } from '../domain/authentication.js'
-import type { routes } from './routes.js'
+import type { unauthenticatedErrorResponse } from './routes.js'
 
 export function createBearerAuthMiddleware(authentication: IAuthenticationService) {
   return createMiddleware<{
@@ -52,7 +52,11 @@ function sendUnauthenticatedError(
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     {}
   >,
-): void | Response | PromiseLike<void | Response> {
+): Response &
+  TypedResponse<
+    typeof unauthenticatedErrorResponse.infer,
+    (typeof unauthenticatedErrorResponse.infer)['error']['statusCode']
+  > {
   return c.json(
     {
       success: false,
@@ -61,7 +65,7 @@ function sendUnauthenticatedError(
         message: 'You are not authenticated',
         statusCode: 401,
       },
-    } satisfies typeof routes.unauthenticatedErrorResponse.infer,
+    },
     401,
   )
 }

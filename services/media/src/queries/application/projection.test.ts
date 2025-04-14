@@ -4,6 +4,7 @@ import {
   mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactRelationshipTypeUpdatedEvent,
   mediaArtifactTypeCreatedEvent,
+  mediaArtifactTypeDeletedEvent,
   mediaArtifactTypeUpdatedEvent,
   mediaTypeUpdatedEvent,
 } from '../../common/domain/events.js'
@@ -79,6 +80,25 @@ test('should handle the media-artifact-type-updated event', async ({ dbConnectio
 
   const mediaArtifactType = await getMediaArtifactTypeById(dbConnection, 'test')
   expect(mediaArtifactType).toEqual({ id: 'test', name: 'Test (Update)', mediaTypes: [] })
+})
+
+test('should handle the media-artifact-deleted event', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeDeletedEvent({
+      id: 'test',
+    }),
+  )
+
+  const mediaArtifactType = await getMediaArtifactTypeById(dbConnection, 'test')
+  expect(mediaArtifactType).toBeUndefined()
 })
 
 test('should handle the media-artifact-relationship-type-created event', async ({

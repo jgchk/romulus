@@ -28,6 +28,26 @@ export function applyMediaArtifactTypeEvent(
       return state
     }
 
+    case 'media-artifact-type-deleted': {
+      state.types.delete(event.id)
+      for (const [relationshipTypeId, relationshipType] of state.relationshipTypes.entries()) {
+        if (relationshipType.parentMediaArtifactType === event.id) {
+          state.relationshipTypes.delete(relationshipTypeId)
+          continue
+        }
+
+        for (const [
+          index,
+          childArtifactTypeId,
+        ] of relationshipType.childMediaArtifactTypes.entries()) {
+          if (childArtifactTypeId === event.id) {
+            relationshipType.childMediaArtifactTypes.splice(index, 1)
+          }
+        }
+      }
+      return state
+    }
+
     case 'media-artifact-relationship-type-created': {
       state.relationshipTypes.set(
         event.mediaArtifactRelationshipType.id,
