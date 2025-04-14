@@ -14,7 +14,7 @@ export const routes = {
         },
       },
       relationships: {
-        route: () => `${routes.media.artifactTypes.route()}/relationships`,
+        route: () => `/media/artifact-relationship-types`,
         create: {
           route: () => `${routes.media.artifactTypes.relationships.route()}/create`,
         },
