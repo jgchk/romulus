@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { routes } from '$lib/routes'
+
   import TreeNode from './TreeNode.svelte'
 
   let {
@@ -11,7 +13,7 @@
 </script>
 
 <li class="ml-2">
-  <a href="/media-types/{mediaType.id}">{mediaType.name}</a>
+  <a href={routes.media.types.details.route(id)}>{mediaType.name}</a>
   {#if mediaType.children.length > 0}
     <ul>
       {#each mediaType.children as child (child)}
