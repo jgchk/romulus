@@ -25,6 +25,7 @@ import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
 import { createCreateMediaArtifactTypeRoute } from './router/media-artifact-types/create-media-artifact-type.js'
+import { createDeleteMediaArtifactTypeRoute } from './router/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeRoute } from './router/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeRoute } from './router/media-types/create-media-type.js'
 import { createUpdateMediaTypeRoute } from './router/media-types/update-media-type.js'
@@ -73,14 +74,7 @@ export function createMediaCommandsRouter({
     )
     .delete(
       '/media-artifact-types/:id',
-      createRoute(routes.deleteMediaArtifactType),
-      validator('param', type({ id: 'string' })),
-      authz(MediaPermission.WriteMediaArtifactTypes),
-      async (c): Promise<RouteResponse<typeof routes.deleteMediaArtifactType>> => {
-        const param = c.req.valid('param')
-        await deleteMediaArtifactType({ id: param.id })
-        return c.json({ success: true }, 200)
-      },
+      ...createDeleteMediaArtifactTypeRoute({ authz, deleteMediaArtifactType }),
     )
     .post(
       '/media-artifact-relationship-types',

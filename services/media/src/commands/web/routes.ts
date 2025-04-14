@@ -59,36 +59,6 @@ export const unauthorizedErrorResponse = createErrorResponse(
 )
 
 export const routes = {
-  deleteMediaArtifactType: {
-    description: 'Delete a media artifact type',
-    responses: {
-      200: {
-        description: 'Successful response',
-        content: {
-          'application/json': {
-            schema: type({ success: 'true' }),
-          },
-        },
-      },
-      401: {
-        description: 'Unauthenticated',
-        content: {
-          'application/json': {
-            schema: unauthenticatedErrorResponse,
-          },
-        },
-      },
-      403: {
-        description: 'Unauthorized',
-        content: {
-          'application/json': {
-            schema: unauthorizedErrorResponse,
-          },
-        },
-      },
-    },
-  },
-
   createMediaArtifactRelationshipType: {
     description: 'Create a media artifact relationship type',
     responses: {
