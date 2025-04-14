@@ -59,60 +59,6 @@ export const unauthorizedErrorResponse = createErrorResponse(
 )
 
 export const routes = {
-  updateMediaType: {
-    description: 'Update a media type',
-    responses: {
-      200: {
-        description: 'Successful response',
-        content: {
-          'application/json': {
-            schema: type({ success: 'true' }),
-          },
-        },
-      },
-      400: {
-        description: 'Bad request',
-        content: {
-          'application/json': {
-            schema: badRequestErrorResponse,
-          },
-        },
-      },
-      401: {
-        description: 'Unauthenticated',
-        content: {
-          'application/json': {
-            schema: unauthenticatedErrorResponse,
-          },
-        },
-      },
-      403: {
-        description: 'Unauthorized',
-        content: {
-          'application/json': {
-            schema: unauthorizedErrorResponse,
-          },
-        },
-      },
-      404: {
-        description: 'Not found',
-        content: {
-          'application/json': {
-            schema: createErrorResponse(type('"MediaTypeNotFoundError"'), type('404')),
-          },
-        },
-      },
-      422: {
-        description: 'Unprocessable content',
-        content: {
-          'application/json': {
-            schema: createErrorResponse(type('"MediaTypeTreeCycleError"'), type('422')),
-          },
-        },
-      },
-    },
-  },
-
   createMediaArtifactType: {
     description: 'Create a media artifact type',
     responses: {

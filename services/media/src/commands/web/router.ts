@@ -21,11 +21,12 @@ import type { IAuthenticationService } from '../domain/authentication.js'
 import type { IAuthorizationService } from '../domain/authorization.js'
 import { MediaArtifactRelationshipTypeNotFoundError } from '../domain/media-artifact-relationship-types/errors.js'
 import { MediaArtifactTypeNotFoundError } from '../domain/media-artifact-types/errors.js'
-import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from '../domain/media-types/errors.js'
+import { MediaTypeNotFoundError } from '../domain/media-types/errors.js'
 import { MediaPermission } from '../domain/permissions.js'
 import { createAuthorizationMiddleware } from './authorization-middleware.js'
 import { createBearerAuthMiddleware } from './bearer-auth-middleware.js'
 import { createCreateMediaTypeRoute } from './router/create-media-type.js'
+import { createUpdateMediaTypeRoute } from './router/update-media-type.js'
 import type { badRequestErrorResponse } from './routes.js'
 import { createRoute, type RouteResponse, routes } from './routes.js'
 
@@ -60,56 +61,7 @@ export function createMediaCommandsRouter({
   const app = new Hono()
     .use(bearerAuth)
     .post('/media-types', ...createCreateMediaTypeRoute({ authz, createMediaType }))
-    .put(
-      '/media-types/:id',
-      createRoute(routes.updateMediaType),
-      validator('param', type({ id: 'string' })),
-      validator(
-        'json',
-        type({
-          name: 'string',
-          parents: 'string[]',
-        }),
-      ),
-      authz(MediaPermission.WriteMediaTypes),
-      async (c): Promise<RouteResponse<typeof routes.updateMediaType>> => {
-        const param = c.req.valid('param')
-        const body = c.req.valid('json')
-        const result = await updateMediaType({ id: param.id, update: body })
-        return result.match(
-          () => c.json({ success: true }, 200),
-          (err) => {
-            if (err instanceof MediaTypeTreeCycleError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 422,
-                  },
-                },
-                422,
-              )
-            } else if (err instanceof MediaTypeNotFoundError) {
-              return c.json(
-                {
-                  success: false,
-                  error: {
-                    name: err.name,
-                    message: err.message,
-                    statusCode: 404,
-                  },
-                },
-                404,
-              )
-            } else {
-              assertUnreachable(err)
-            }
-          },
-        )
-      },
-    )
+    .put('/media-types/:id', ...createUpdateMediaTypeRoute({ authz, updateMediaType }))
     .post(
       '/media-artifact-types',
       createRoute(routes.createMediaArtifactType),
