@@ -1,5 +1,7 @@
 <script lang="ts">
+  import LinkButton from '$lib/atoms/LinkButton.svelte'
   import Tree from '$lib/features/media/components/Tree.svelte'
+  import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
 
@@ -28,6 +30,11 @@
   }
 </script>
 
-<div>
+<div class="space-y-4">
+  <div class="flex justify-end space-x-2">
+    <LinkButton href={routes.media.types.cards.route()} kind="outline">Cards</LinkButton>
+    <LinkButton href={routes.media.types.tree.route()}>Tree</LinkButton>
+  </div>
+
   <Tree mediaTypes={convertTree([...data.mediaTypes.values()])} />
 </div>

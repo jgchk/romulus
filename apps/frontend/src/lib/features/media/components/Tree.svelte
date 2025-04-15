@@ -27,12 +27,25 @@
   })
 </script>
 
-<nav aria-label="Media Type Tree">
+<nav aria-label="Media Type Tree" class="media-type-tree">
   {#if topLevelMediaTypes.length > 0}
-    <ul>
+    <ul class="space-y-1">
       {#each topLevelMediaTypes as mediaTypeId (mediaTypeId)}
         <TreeNode id={mediaTypeId} {mediaTypes} />
       {/each}
     </ul>
+  {:else}
+    <div class="italic text-gray-500">No media types available</div>
   {/if}
 </nav>
+
+<style>
+  :global(.media-type-tree ul) {
+    list-style-type: none;
+    padding-left: 1.5rem;
+  }
+
+  :global(.media-type-tree) {
+    font-size: 0.95rem;
+  }
+</style>

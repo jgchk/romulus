@@ -17,11 +17,23 @@ export const routes = {
   media: {
     types: {
       route: () => '/media/types',
+      cards: {
+        route: () => `${routes.media.types.route()}/cards`,
+      },
+      tree: {
+        route: () => `${routes.media.types.route()}/tree`,
+      },
       create: {
         route: () => `${routes.media.types.route()}/create`,
       },
       details: {
         route: (id: string) => `${routes.media.types.route()}/${id}`,
+        edit: {
+          route: (id: string) => `${routes.media.types.route()}/${id}/edit`,
+        },
+        delete: {
+          route: (id: string) => `${routes.media.types.route()}/${id}/delete`,
+        },
       },
     },
     artifactTypes: {
