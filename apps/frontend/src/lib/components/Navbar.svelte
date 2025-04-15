@@ -1,6 +1,7 @@
 <script lang="ts">
   import Card from '$lib/atoms/Card.svelte'
   import { getUserContext } from '$lib/contexts/user'
+  import { routes } from '$lib/routes'
 
   import AccountDropdown from '../../routes/AccountDropdown.svelte'
 
@@ -12,22 +13,22 @@
     class="flex p-1 text-sm font-bold tracking-wide text-gray-600 transition dark:text-gray-300"
   >
     <a
-      href="/genres"
+      href={routes.genres.route()}
       class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
       >Tree</a
     >
     <a
-      href="/genres/table"
+      href={routes.genres.table.route()}
       class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
       >Table</a
     >
     <a
-      href="/genres/latest"
+      href={routes.genres.latest.route()}
       class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
       >Latest</a
     >
     <a
-      href="/genres/random"
+      href={routes.genres.random.route()}
       class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
       >Random</a
     >

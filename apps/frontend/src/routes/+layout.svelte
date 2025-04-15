@@ -7,6 +7,7 @@
   import { browser } from '$app/environment'
   import Toaster from '$lib/atoms/Toast/Toaster.svelte'
   import Navbar from '$lib/components/Navbar.svelte'
+  import NewNavbar from '$lib/components/NewNavbar.svelte'
   import { setUserContext, type UserStore } from '$lib/contexts/user'
   import { setUserSettingsContext } from '$lib/contexts/user-settings'
   import UserSettingsStore from '$lib/contexts/user-settings/store'
@@ -53,7 +54,11 @@
   <div
     class="flex h-full w-full flex-col gap-1 bg-gray-200 p-2 text-black transition dark:bg-gray-800 dark:text-white"
   >
-    <Navbar />
+    {#if $user?.permissions.mediaTypes.canCreate}
+      <NewNavbar />
+    {:else}
+      <Navbar />
+    {/if}
     <main class="flex-1 overflow-auto">
       {@render children?.()}
     </main>

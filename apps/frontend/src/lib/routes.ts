@@ -1,4 +1,19 @@
 export const routes = {
+  home: {
+    route: () => '/',
+  },
+  genres: {
+    route: () => '/genres',
+    table: {
+      route: () => '/genres/table',
+    },
+    latest: {
+      route: () => '/genres/latest',
+    },
+    random: {
+      route: () => '/genres/random',
+    },
+  },
   media: {
     types: {
       route: () => '/media/types',
