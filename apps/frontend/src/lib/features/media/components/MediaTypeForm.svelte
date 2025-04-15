@@ -7,6 +7,7 @@
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
+  import { routes } from '$lib/routes'
 
   import Footer from '../../../../routes/genres/Footer.svelte'
   import type { MediaTypeSchema } from './MediaTypeForm'
@@ -71,8 +72,6 @@
 
   <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton kind="text" href={id !== undefined ? `/media-types/${id}` : '/media-types'}>
-      Cancel
-    </LinkButton>
+    <LinkButton kind="text" href={routes.media.types.route()}>Cancel</LinkButton>
   </Footer>
 </form>
