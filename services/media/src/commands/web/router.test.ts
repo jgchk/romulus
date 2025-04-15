@@ -13,6 +13,7 @@ import { createCreateMediaArtifactTypeCommandHandler } from '../application/medi
 import { createDeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
+import { createDeleteMediaTypeCommandHandler } from '../application/media-types/delete-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import {
   createDefaultMediaArtifactTypesProjection,
@@ -33,6 +34,10 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
     ),
     updateMediaType: createUpdateMediaTypeCommandHandler(
       () => createDefaultMediaTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      () => {},
+    ),
+    deleteMediaType: createDeleteMediaTypeCommandHandler(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},
     ),
@@ -104,6 +109,19 @@ describe('updateMediaType', () => {
 
     const response = await client['media-types'][':id'].$put(
       { param: { id: 'test' }, json: { name: 'Test (Updated)', parents: [] } },
+      { headers: { authorization: `Bearer 000-000-000` } },
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+  })
+})
+
+describe('deleteMediaType', () => {
+  it('deletes a media type', async () => {
+    const { client } = setup()
+
+    const response = await client['media-types'][':id'].$delete(
+      { param: { id: 'test' } },
       { headers: { authorization: `Bearer 000-000-000` } },
     )
     expect(response.status).toBe(200)

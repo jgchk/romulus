@@ -6,6 +6,7 @@ import type { CreateMediaArtifactTypeCommandHandler } from '../application/media
 import type { DeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
+import type { DeleteMediaTypeCommandHandler } from '../application/media-types/delete-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
 import type { IAuthenticationService } from '../domain/authentication.js'
 import type { IAuthorizationService } from '../domain/authorization.js'
@@ -17,6 +18,7 @@ import { createCreateMediaArtifactTypeRoute } from './routes/media-artifact-type
 import { createDeleteMediaArtifactTypeRoute } from './routes/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeRoute } from './routes/media-artifact-types/update-media-artifact-type.js'
 import { createCreateMediaTypeRoute } from './routes/media-types/create-media-type.js'
+import { createDeleteMediaTypeRoute } from './routes/media-types/delete-media-type.js'
 import { createUpdateMediaTypeRoute } from './routes/media-types/update-media-type.js'
 
 export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
@@ -24,6 +26,7 @@ export type MediaCommandsRouter = ReturnType<typeof createMediaCommandsRouter>
 export type MediaCommandsRouterDependencies = {
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  deleteMediaType: DeleteMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
@@ -36,6 +39,7 @@ export type MediaCommandsRouterDependencies = {
 export function createMediaCommandsRouter({
   createMediaType,
   updateMediaType,
+  deleteMediaType,
   createMediaArtifactType,
   updateMediaArtifactType,
   deleteMediaArtifactType,
@@ -51,6 +55,7 @@ export function createMediaCommandsRouter({
     .use(bearerAuth)
     .post('/media-types', ...createCreateMediaTypeRoute({ authz, createMediaType }))
     .put('/media-types/:id', ...createUpdateMediaTypeRoute({ authz, updateMediaType }))
+    .delete('/media-types/:id', ...createDeleteMediaTypeRoute({ authz, deleteMediaType }))
     .post(
       '/media-artifact-types',
       ...createCreateMediaArtifactTypeRoute({ authz, createMediaArtifactType }),

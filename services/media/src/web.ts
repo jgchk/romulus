@@ -6,6 +6,7 @@ import type { CreateMediaArtifactTypeCommandHandler } from './commands/applicati
 import type { DeleteMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/delete-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/update-media-artifact-type.js'
 import type { CreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
+import type { DeleteMediaTypeCommandHandler } from './commands/application/media-types/delete-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from './commands/application/media-types/update-media-type.js'
 import type { IAuthenticationService } from './commands/domain/authentication.js'
 import type { IAuthorizationService } from './commands/domain/authorization.js'
@@ -25,6 +26,7 @@ export type MediaRouterDependencies = {
   getMediaArtifactRelationshipType: GetMediaArtifactRelationshipTypeQueryHandler
   createMediaType: CreateMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  deleteMediaType: DeleteMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler

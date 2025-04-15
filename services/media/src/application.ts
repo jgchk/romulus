@@ -59,8 +59,8 @@ import type { MaybePromise } from './utils.js'
 
 export type MediaApplication = {
   createMediaType: CreateMediaTypeCommandHandler
-  deleteMediaType: DeleteMediaTypeCommandHandler
   updateMediaType: UpdateMediaTypeCommandHandler
+  deleteMediaType: DeleteMediaTypeCommandHandler
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
@@ -88,8 +88,8 @@ export function createMediaApplication({
 }): MediaApplication {
   return {
     createMediaType: createCreateMediaTypeCommandHandler(getMediaTypes, saveMediaTypeEvent),
-    deleteMediaType: createDeleteMediaTypeCommandHandler(saveMediaTypeEvent),
     updateMediaType: createUpdateMediaTypeCommandHandler(getMediaTypes, saveMediaTypeEvent),
+    deleteMediaType: createDeleteMediaTypeCommandHandler(saveMediaTypeEvent),
     createMediaArtifactType: createCreateMediaArtifactTypeCommandHandler({
       getMediaTypes,
       saveMediaArtifactTypeEvent,
