@@ -1,9 +1,7 @@
 <script lang="ts">
   import Card from '$lib/atoms/Card.svelte'
-  import LinkButton from '$lib/atoms/LinkButton.svelte'
   import MediaArtifactRelationshipTypeCard from '$lib/features/media/components/MediaArtifactRelationshipTypeCard.svelte'
   import MediaArtifactRelationshipTypeForm from '$lib/features/media/components/MediaArtifactRelationshipTypeForm.svelte'
-  import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
 
@@ -15,13 +13,6 @@
     ),
   )
 </script>
-
-<div class="mb-4 flex items-center justify-between">
-  <h2 class="text-lg font-semibold">Media Artifact Relationship Types</h2>
-  <LinkButton href={routes.media.artifactTypes.relationships.create.route()}
-    >New Relationship Type</LinkButton
-  >
-</div>
 
 <div>
   <Card>
