@@ -163,7 +163,7 @@
           handleSelect(option)
           inputRef?.focus()
         }}
-        bind:parentElement={optionsDropdownElement}
+        bind:ref={optionsDropdownElement}
       >
         {#snippet option({ option })}
           {#if optionSnippet}

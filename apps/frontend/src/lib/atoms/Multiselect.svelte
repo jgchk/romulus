@@ -353,7 +353,7 @@
           inputRef?.focus()
         }}
         onLoadMore={() => handleLoadMore()}
-        bind:parentElement={optionsDropdownElement}
+        bind:ref={optionsDropdownElement}
       >
         {#snippet option({ option })}
           {#if optionSnippet}

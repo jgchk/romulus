@@ -21,7 +21,7 @@
     option?: Snippet<[{ option: Option }]>
     onSelect?: (data: { option: Option; i: number }) => void
     onLoadMore?: () => void
-    parentElement?: HTMLElement
+    ref?: HTMLElement
   }
 
   let {
@@ -32,7 +32,7 @@
     option: optionSnippet,
     onSelect,
     onLoadMore,
-    parentElement = $bindable(),
+    ref = $bindable(),
   }: Props = $props()
 </script>
 
@@ -42,7 +42,7 @@
   transition:fade={{ duration: disableTransitionInUnitTests(75) }}
   tabindex="-1"
   use:popoverElement
-  bind:this={parentElement}
+  bind:this={ref}
 >
   {#await options}
     <div>Loading...</div>
