@@ -29,7 +29,7 @@
 
 <nav aria-label="Media Type Tree" class="media-type-tree">
   {#if topLevelMediaTypes.length > 0}
-    <ul class="space-y-1">
+    <ul>
       {#each topLevelMediaTypes as mediaTypeId (mediaTypeId)}
         <TreeNode id={mediaTypeId} {mediaTypes} />
       {/each}

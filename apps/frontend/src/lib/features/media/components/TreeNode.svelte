@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { CaretDown, CaretRight } from 'phosphor-svelte'
+  import { CaretRight } from 'phosphor-svelte'
 
+  import IconButton from '$lib/atoms/IconButton.svelte'
   import { routes } from '$lib/routes'
+  import { slide } from '$lib/transitions/slide'
+  import { cn } from '$lib/utils/dom'
 
   import TreeNode from './TreeNode.svelte'
 
@@ -12,40 +15,39 @@
     $props()
 
   const mediaType = $derived(mediaTypes.get(id)!)
-  let expanded = $state(true)
+  let isExpanded = $state(true)
+
+  const isExpandable = $derived(mediaType.children.length > 0)
 </script>
 
-<li class="py-1">
-  <div class="flex items-center rounded p-1 transition-colors hover:bg-gray-100">
-    {#if mediaType.children.length > 0}
-      <button
-        type="button"
-        class="mr-1 text-gray-500 hover:text-gray-700"
-        onclick={() => (expanded = !expanded)}
-      >
-        {#if expanded}
-          <CaretDown size={16} />
-        {:else}
-          <CaretRight size={16} />
-        {/if}
-      </button>
-    {:else}
-      <span class="mr-1 w-4"></span>
-    {/if}
+<li class="ml-4 border-l border-gray-200 transition dark:border-gray-800">
+  <div class="media-type-tree-node flex">
+    <IconButton
+      size="sm"
+      tooltip={isExpanded ? 'Collapse' : 'Expand'}
+      class={cn('ml-1 flex-shrink-0 text-gray-500', !isExpandable && 'invisible')}
+      onClick={() => (isExpanded = !isExpanded)}
+    >
+      <CaretRight class={cn('transition', isExpanded && 'rotate-90')} />
+    </IconButton>
 
     <a
       href={routes.media.types.details.route(id)}
-      class="hover:text-blue-600 flex-1 transition-colors"
+      class="group block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] text-gray-600 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
     >
       {mediaType.name}
     </a>
   </div>
 
-  {#if mediaType.children.length > 0 && expanded}
-    <ul class="mt-1">
-      {#each mediaType.children as child (child)}
-        <TreeNode id={child} {mediaTypes} />
-      {/each}
-    </ul>
+  {#if isExpanded && isExpandable}
+    <div transition:slide|local={{ axis: 'y' }}>
+      {#if mediaType.children.length > 0}
+        <ul>
+          {#each mediaType.children as childId (childId)}
+            <TreeNode id={childId} {mediaTypes} />
+          {/each}
+        </ul>
+      {/if}
+    </div>
   {/if}
 </li>
