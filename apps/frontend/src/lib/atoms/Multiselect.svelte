@@ -5,6 +5,7 @@
 
 <script lang="ts" generics="InternalOption extends Option<OptionData>">
   import { flip, offset } from '@floating-ui/dom'
+  import { size } from '@floating-ui/dom'
   import { CaretDown, DotsSixVertical, Trash } from 'phosphor-svelte'
   import { flip as flipAnimation } from 'svelte/animate'
   import {
@@ -13,7 +14,7 @@
     overrideItemIdKeyNameBeforeInitialisingDndZones,
   } from 'svelte-dnd-action'
 
-  import { clickOutside } from '$lib/actions/clickOutside'
+  import { isMouseEventOutsideNodes } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import { tooltip } from '$lib/actions/tooltip'
   import { getInputGroupErrors } from '$lib/atoms/InputGroup'
@@ -23,6 +24,7 @@
 
   import type { MultiselectProps, Option, OptionData } from './Multiselect'
   import OptionsDropdown from './OptionsDropdown.svelte'
+  import Portal from './Portal.svelte'
 
   type Props = MultiselectProps<InternalOption>
 
@@ -171,7 +173,17 @@
   }
 
   const [popoverReference, popoverElement] = createPopoverActions({
-    middleware: [offset(4), flip()],
+    middleware: [
+      offset(4),
+      flip(),
+      size({
+        apply({ rects, elements }) {
+          Object.assign(elements.floating.style, {
+            minWidth: `${rects.reference.width}px`,
+          })
+        },
+      }),
+    ],
   })
 
   try {
@@ -190,18 +202,25 @@
   }
 
   const flipDurationMs = 75
+
+  let containerElement: HTMLElement | undefined = $state(undefined)
+  let optionsDropdownElement: HTMLElement | undefined = $state(undefined)
 </script>
+
+<svelte:document
+  onclickcapture={(e) => {
+    if (isMouseEventOutsideNodes(e, [containerElement, optionsDropdownElement])) {
+      e.stopPropagation()
+      open = false
+    }
+  }}
+/>
 
 <div
   use:popoverReference
   data-invalid={errors}
   class={tw('relative', class_)}
-  use:clickOutside={(e) => {
-    if (open) {
-      e.stopPropagation()
-      open = false
-    }
-  }}
+  bind:this={containerElement}
 >
   <div
     class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
@@ -323,24 +342,27 @@
   </div>
 
   {#if open}
-    <OptionsDropdown
-      options={filteredOptions}
-      {popoverElement}
-      bind:focusedIndex
-      {hasMore}
-      onSelect={({ option }) => {
-        handleSelect(option)
-        inputRef?.focus()
-      }}
-      onLoadMore={() => handleLoadMore()}
-    >
-      {#snippet option({ option })}
-        {#if optionSnippet}
-          {@render optionSnippet({ option })}
-        {:else}
-          {option.label}
-        {/if}
-      {/snippet}
-    </OptionsDropdown>
+    <Portal>
+      <OptionsDropdown
+        options={filteredOptions}
+        {popoverElement}
+        bind:focusedIndex
+        {hasMore}
+        onSelect={({ option }) => {
+          handleSelect(option)
+          inputRef?.focus()
+        }}
+        onLoadMore={() => handleLoadMore()}
+        bind:parentElement={optionsDropdownElement}
+      >
+        {#snippet option({ option })}
+          {#if optionSnippet}
+            {@render optionSnippet({ option })}
+          {:else}
+            {option.label}
+          {/if}
+        {/snippet}
+      </OptionsDropdown>
+    </Portal>
   {/if}
 </div>

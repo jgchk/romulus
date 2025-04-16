@@ -19,6 +19,7 @@
     option?: Snippet<[{ option: Option }]>
     onSelect?: (data: { option: Option; i: number }) => void
     onLoadMore?: () => void
+    parentElement?: HTMLElement
   }
 
   let {
@@ -29,15 +30,17 @@
     option: optionSnippet,
     onSelect,
     onLoadMore,
+    parentElement = $bindable(),
   }: Props = $props()
 </script>
 
 <div
   role="listbox"
-  class="relative z-10 max-h-[calc(100vh/3)] w-full overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+  class="relative z-10 max-h-[calc(100vh/3)] overflow-auto rounded border border-gray-300 bg-gray-100 p-1 text-sm text-black shadow transition dark:border-gray-600 dark:bg-gray-800 dark:text-white"
   transition:fade={{ duration: disableTransitionInUnitTests(75) }}
   tabindex="-1"
   use:popoverElement
+  bind:this={parentElement}
 >
   {#await options}
     <div>Loading...</div>

@@ -12,12 +12,7 @@ export const clickOutside: Action<ClickOutsideHandler> = (
   let handler = handler_
 
   const handleClick = (event: MouseEvent) => {
-    if (
-      node &&
-      event.target instanceof Node &&
-      !node.contains(event.target) &&
-      !event.defaultPrevented
-    ) {
+    if (isMouseEventOutsideNode(event, node)) {
       handler(withProps(event, { outside: node }))
     }
   }
@@ -32,4 +27,21 @@ export const clickOutside: Action<ClickOutsideHandler> = (
       document.removeEventListener('click', handleClick, true)
     },
   }
+}
+
+export function isMouseEventOutsideNode(event: MouseEvent, node: Node | null | undefined): boolean {
+  return (
+    node !== null &&
+    node !== undefined &&
+    event.target instanceof Node &&
+    !node.contains(event.target) &&
+    !event.defaultPrevented
+  )
+}
+
+export function isMouseEventOutsideNodes(
+  event: MouseEvent,
+  nodes: (Node | null | undefined)[],
+): boolean {
+  return nodes.every((node) => isMouseEventOutsideNode(event, node))
 }

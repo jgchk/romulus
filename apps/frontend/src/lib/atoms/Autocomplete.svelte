@@ -4,15 +4,16 @@
 </script>
 
 <script lang="ts" generics="T, O extends AutocompleteOption<T>">
-  import { flip, offset } from '@floating-ui/dom'
+  import { flip, offset, size } from '@floating-ui/dom'
 
-  import { clickOutside } from '$lib/actions/clickOutside'
+  import { isMouseEventOutsideNodes } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import { getInputGroupErrors } from '$lib/atoms/InputGroup'
   import { cn, tw } from '$lib/utils/dom'
 
   import type { AutocompleteOption, AutocompleteProps } from './Autocomplete'
   import OptionsDropdown from './OptionsDropdown.svelte'
+  import Portal from './Portal.svelte'
 
   let open = $state(false)
   let focusedIndex = $state(0)
@@ -96,20 +97,37 @@
   }
 
   const [popoverReference, popoverElement] = createPopoverActions({
-    middleware: [offset(4), flip()],
+    middleware: [
+      offset(4),
+      flip(),
+      size({
+        apply({ rects, elements }) {
+          Object.assign(elements.floating.style, {
+            minWidth: `${rects.reference.width}px`,
+          })
+        },
+      }),
+    ],
   })
+
+  let containerElement: HTMLElement | undefined = $state(undefined)
+  let optionsDropdownElement: HTMLElement | undefined = $state(undefined)
 </script>
+
+<svelte:document
+  onclickcapture={(e) => {
+    if (isMouseEventOutsideNodes(e, [containerElement, optionsDropdownElement])) {
+      e.stopPropagation()
+      open = false
+    }
+  }}
+/>
 
 <div
   use:popoverReference
   data-invalid={errors}
   class={tw('relative', class_)}
-  use:clickOutside={(e) => {
-    if (open) {
-      e.stopPropagation()
-      open = false
-    }
-  }}
+  bind:this={containerElement}
 >
   <div
     class="flex rounded border border-gray-300 bg-black bg-opacity-[0.04] transition focus-within:border-secondary-500 hover:bg-opacity-[0.07] dark:border-gray-600 dark:bg-white dark:bg-opacity-5 dark:hover:bg-opacity-10"
@@ -136,22 +154,25 @@
   </div>
 
   {#if open}
-    <OptionsDropdown
-      {options}
-      {popoverElement}
-      bind:focusedIndex
-      onSelect={({ option }) => {
-        handleSelect(option)
-        inputRef?.focus()
-      }}
-    >
-      {#snippet option({ option })}
-        {#if optionSnippet}
-          {@render optionSnippet({ option })}
-        {:else}
-          {option.label}
-        {/if}
-      {/snippet}
-    </OptionsDropdown>
+    <Portal>
+      <OptionsDropdown
+        {options}
+        {popoverElement}
+        bind:focusedIndex
+        onSelect={({ option }) => {
+          handleSelect(option)
+          inputRef?.focus()
+        }}
+        bind:parentElement={optionsDropdownElement}
+      >
+        {#snippet option({ option })}
+          {#if optionSnippet}
+            {@render optionSnippet({ option })}
+          {:else}
+            {option.label}
+          {/if}
+        {/snippet}
+      </OptionsDropdown>
+    </Portal>
   {/if}
 </div>
