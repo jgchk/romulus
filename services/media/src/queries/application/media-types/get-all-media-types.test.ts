@@ -20,7 +20,27 @@ test('should get all media types', async ({ dbConnection }) => {
   const result = await getAllMediaTypes()
 
   expect(result).toEqual([
-    { id: 'parent', name: 'Parent', parents: [] },
     { id: 'child', name: 'Child', parents: ['parent'] },
+    { id: 'parent', name: 'Parent', parents: [] },
+  ])
+})
+
+test('should sort media types in alphabetical order', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaTypeCreatedEvent({ mediaType: { id: 'b', name: 'B', parents: [] } }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaTypeCreatedEvent({ mediaType: { id: 'a', name: 'A', parents: [] } }),
+  )
+
+  const getAllMediaTypes = createGetAllMediaTypesQueryHandler(dbConnection)
+
+  const result = await getAllMediaTypes()
+
+  expect(result).toEqual([
+    { id: 'a', name: 'A', parents: [] },
+    { id: 'b', name: 'B', parents: [] },
   ])
 })

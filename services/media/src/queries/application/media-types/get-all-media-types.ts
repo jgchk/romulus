@@ -16,6 +16,7 @@ export function createGetAllMediaTypesQueryHandler(
             },
           },
         },
+        orderBy: (mediaTypes, { asc }) => asc(mediaTypes.name),
       })
       .then((results) =>
         results.map((result) => ({
