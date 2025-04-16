@@ -11,7 +11,7 @@
   import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { tw } from '$lib/utils/dom'
 
-  import DropdownOption from './DropdownOption.svelte'
+  import SelectOption from './SelectOption.svelte'
 
   type Props = {
     options: Option[] | Promise<Option[]>
@@ -53,7 +53,7 @@
       </div>
     {:else}
       {#each options as option, i (option.value)}
-        <DropdownOption
+        <SelectOption
           isFocused={focusedIndex === i}
           onClick={() => {
             onSelect?.({ option, i })
@@ -67,7 +67,7 @@
           {:else}
             {option.label}
           {/if}
-        </DropdownOption>
+        </SelectOption>
       {/each}
 
       {#if hasMore}
