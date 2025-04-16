@@ -12,8 +12,8 @@
   import { cn, tw } from '$lib/utils/dom'
 
   import type { AutocompleteOption, AutocompleteProps } from './Autocomplete'
-  import OptionsDropdown from './OptionsDropdown.svelte'
   import Portal from './Portal.svelte'
+  import SelectDropdown from './SelectDropdown.svelte'
 
   let open = $state(false)
   let focusedIndex = $state(0)
@@ -155,7 +155,7 @@
 
   {#if open}
     <Portal>
-      <OptionsDropdown
+      <SelectDropdown
         {options}
         {popoverElement}
         bind:focusedIndex
@@ -172,7 +172,7 @@
             {option.label}
           {/if}
         {/snippet}
-      </OptionsDropdown>
+      </SelectDropdown>
     </Portal>
   {/if}
 </div>

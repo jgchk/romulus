@@ -23,8 +23,8 @@
   import { diceCoefficient } from '$lib/utils/string'
 
   import type { MultiselectProps, Option, OptionData } from './Multiselect'
-  import OptionsDropdown from './OptionsDropdown.svelte'
   import Portal from './Portal.svelte'
+  import SelectDropdown from './SelectDropdown.svelte'
 
   type Props = MultiselectProps<InternalOption>
 
@@ -343,7 +343,7 @@
 
   {#if open}
     <Portal>
-      <OptionsDropdown
+      <SelectDropdown
         options={filteredOptions}
         {popoverElement}
         bind:focusedIndex
@@ -362,7 +362,7 @@
             {option.label}
           {/if}
         {/snippet}
-      </OptionsDropdown>
+      </SelectDropdown>
     </Portal>
   {/if}
 </div>

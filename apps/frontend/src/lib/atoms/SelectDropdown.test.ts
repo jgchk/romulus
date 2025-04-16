@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/svelte'
 import { expect, it, vi } from 'vitest'
 
-import Popover from './OptionsDropdown.svelte'
+import SelectDropdown from './SelectDropdown.svelte'
 
 type Option = { value: string; label: string }
 
@@ -20,7 +20,7 @@ function rejectingPromise(errorMessage: string): Promise<Option[]> {
 }
 
 it('displays "No results" when there are no options', () => {
-  const { getByText } = render(Popover, {
+  const { getByText } = render(SelectDropdown, {
     options: [],
     popoverElement: () => {},
     focusedIndex: 0,
@@ -29,7 +29,7 @@ it('displays "No results" when there are no options', () => {
 })
 
 it('does not display "Load More" when there are no options', () => {
-  const { queryByText } = render(Popover, {
+  const { queryByText } = render(SelectDropdown, {
     options: [],
     popoverElement: () => {},
     focusedIndex: 0,
@@ -39,7 +39,7 @@ it('does not display "Load More" when there are no options', () => {
 })
 
 it('displays options correctly', () => {
-  const { getByText } = render(Popover, {
+  const { getByText } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -51,7 +51,7 @@ it('displays options correctly', () => {
 
 it('dispatches select event when an option is clicked', async () => {
   const selectSpy = vi.fn()
-  const { getAllByTestId } = render(Popover, {
+  const { getAllByTestId } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -67,7 +67,7 @@ it('dispatches select event when an option is clicked', async () => {
 })
 
 it('does not display "Load More" when hasMore is false', () => {
-  const { queryByText } = render(Popover, {
+  const { queryByText } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -78,7 +78,7 @@ it('does not display "Load More" when hasMore is false', () => {
 
 it('dispatches loadMore event when "Load More" is clicked', async () => {
   const loadMoreSpy = vi.fn()
-  const { getByText } = render(Popover, {
+  const { getByText } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -91,7 +91,7 @@ it('dispatches loadMore event when "Load More" is clicked', async () => {
 })
 
 it('updates focusedIndex on mouseenter for options', async () => {
-  const { getAllByTestId } = render(Popover, {
+  const { getAllByTestId } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -108,7 +108,7 @@ it('updates focusedIndex on mouseenter for options', async () => {
 
 it('displays loading indicator when options is a promise', async () => {
   const promise = delayedOptions(sampleOptions, 100)
-  const { getByText, findByText } = render(Popover, {
+  const { getByText, findByText } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -125,7 +125,7 @@ it('displays loading indicator when options is a promise', async () => {
 
 it('displays options immediately when promise resolves quickly', async () => {
   const promise = Promise.resolve(sampleOptions)
-  const { getByText, queryByText } = render(Popover, {
+  const { getByText, queryByText } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -138,7 +138,7 @@ it('displays options immediately when promise resolves quickly', async () => {
 
 it('displays error message when promise rejects', async () => {
   const promise = rejectingPromise('Failed to load options')
-  const { getByText, findByText } = render(Popover, {
+  const { getByText, findByText } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -154,7 +154,7 @@ it('displays error message when promise rejects', async () => {
 })
 
 it('handles change from array to promise', async () => {
-  const { getByText, findByText, rerender } = render(Popover, {
+  const { getByText, findByText, rerender } = render(SelectDropdown, {
     options: sampleOptions,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -175,7 +175,7 @@ it('handles change from array to promise', async () => {
 
 it('handles change from promise to array', async () => {
   const promise = delayedOptions(sampleOptions, 100)
-  const { getByText, findByText, rerender } = render(Popover, {
+  const { getByText, findByText, rerender } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 0,
@@ -195,7 +195,7 @@ it('handles change from promise to array', async () => {
 
 it('applies focusedIndex after promise resolves', async () => {
   const promise = delayedOptions(sampleOptions, 100)
-  const { getAllByTestId, findByText } = render(Popover, {
+  const { getAllByTestId, findByText } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 1,
@@ -209,7 +209,7 @@ it('applies focusedIndex after promise resolves', async () => {
 
 it('displays "Load More" after promise resolves when hasMore is true', async () => {
   const promise = delayedOptions(sampleOptions, 100)
-  const { getByText, findByText } = render(Popover, {
+  const { getByText, findByText } = render(SelectDropdown, {
     options: promise,
     popoverElement: () => {},
     focusedIndex: 0,
