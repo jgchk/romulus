@@ -11,6 +11,8 @@
   import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { tw } from '$lib/utils/dom'
 
+  import DropdownOption from './DropdownOption.svelte'
+
   type Props = {
     options: Option[] | Promise<Option[]>
     popoverElement: Action
@@ -51,23 +53,21 @@
       </div>
     {:else}
       {#each options as option, i (option.value)}
-        <button
-          type="button"
-          class={tw(
-            'block w-full rounded border border-transparent p-1 px-1.5 text-left transition hover:bg-gray-200 dark:hover:bg-gray-700',
-            focusedIndex === i && 'border-secondary-500',
-          )}
-          tabindex="-1"
-          onclick={() => onSelect?.({ option, i })}
-          onmouseenter={() => (focusedIndex = i)}
-          data-testId="multiselect__option"
+        <DropdownOption
+          isFocused={focusedIndex === i}
+          onClick={() => {
+            onSelect?.({ option, i })
+          }}
+          onMouseEnter={() => {
+            focusedIndex = i
+          }}
         >
           {#if optionSnippet}
             {@render optionSnippet({ option })}
           {:else}
             {option.label}
           {/if}
-        </button>
+        </DropdownOption>
       {/each}
 
       {#if hasMore}
