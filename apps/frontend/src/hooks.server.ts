@@ -2,7 +2,7 @@ import type { AuthenticationClient } from '@romulus/authentication/client'
 import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
 import { MediaPermission } from '@romulus/media/permissions'
-import type { Handle, HandleFetch } from '@sveltejs/kit'
+import type { Handle, HandleFetch, HandleServerError } from '@sveltejs/kit'
 
 import { env } from '$env/dynamic/private'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'
@@ -69,6 +69,10 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
   request.headers.set('X-Request-Id', event.locals.requestId)
 
   return fetch(request)
+}
+
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+  logger.error({ error, event, status, message })
 }
 
 async function getUser(

@@ -1,18 +1,20 @@
+import type { RequestEvent } from '@sveltejs/kit'
 import { pino } from 'pino'
 
 export type Logger = {
-  http({
-    requestId,
-    request,
-    response,
-    startTime,
-    endTime,
-  }: {
+  http(data: {
     requestId: string
     request: Request
     response: Response
     startTime: number
     endTime: number
+  }): void
+
+  error(data: {
+    error: unknown
+    event: RequestEvent<Partial<Record<string, string>>, string | null>
+    status: number
+    message: string
   }): void
 }
 
@@ -34,6 +36,15 @@ export function createLogger(): Logger {
         },
         responseTime: endTime - startTime,
         msg: 'request completed',
+      })
+    },
+
+    error({ error, event, status, message }) {
+      logger.error({
+        error,
+        event,
+        status,
+        message,
       })
     },
   }
