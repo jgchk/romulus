@@ -1,46 +1,37 @@
 <script lang="ts">
-  import Multiselect from '$lib/atoms/Multiselect.svelte'
+  import { createQuery } from '@tanstack/svelte-query'
+
+  import Loader from '$lib/atoms/Loader.svelte'
+  import { Multiselect } from '$lib/atoms/Multiselect'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
-  import {
-    createSearchGenresQuery,
-    type GenreMatch,
-  } from '$lib/features/genres/queries/application/search'
+  import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import { genreQueries } from '$lib/features/genres/tanstack'
   import { cn } from '$lib/utils/dom'
-  import { isDefined, type Timeout } from '$lib/utils/types'
+  import type { Timeout } from '$lib/utils/types'
 
-  import type { GenreMultiselectProps } from './GenreMultiselect'
+  let {
+    value = $bindable([]),
+    onChange,
+    exclude = [],
+    id,
+    class: class_,
+  }: {
+    value?: number[]
+    onChange?: (value: number[]) => void
+    exclude?: number[]
+    id?: string
+    class?: string
+  } = $props()
 
-  type Props = GenreMultiselectProps
-
-  let { value = $bindable(), exclude = [], onChange = undefined, genres, ...rest }: Props = $props()
+  const userSettings = getUserSettingsContext()
 
   let excludeSet = $derived(new Set(exclude))
 
-  let values = $derived(
-    value
-      .map((id) => {
-        const genre = createGetGenreQuery(genres)(id)
-        if (!genre) return
-
-        const data: GenreMatch = {
-          id,
-          genre,
-          weight: 0,
-        }
-
-        return {
-          value: id,
-          label: genre.name,
-          data,
-        }
-      })
-      .filter(isDefined),
-  )
-
   let filter = $state('')
-
   let debouncedFilter = $state('')
 
   let timeout: Timeout | undefined
@@ -51,59 +42,82 @@
     return () => clearTimeout(timeout)
   })
 
+  const genreTreeQuery = createQuery(genreQueries.tree())
+
+  const genres: GenreStore = $derived($genreTreeQuery.data ?? new Map<number, TreeGenre>())
+
   let options = $derived(
     createSearchGenresQuery(genres)(debouncedFilter)
-      .filter((match) => !excludeSet.has(match.genre.id))
-      .slice(0, 100)
-      .map((match) => ({
-        value: match.genre.id,
-        label: match.genre.name,
-        data: match,
-      })),
+      .filter((match) => !excludeSet.has(match.id) && !value.includes(match.id))
+      .slice(0, 100),
   )
 
-  const userSettings = getUserSettingsContext()
+  const selectedItems = $derived(
+    value.map((id) => ({ id, genre: createGetGenreQuery(genres)(id) })),
+  )
 </script>
 
-<Multiselect
-  value={values}
-  virtual
-  bind:filter
-  {options}
-  onChange={(newValue) => {
-    value = newValue.map((v) => v.value)
+<Multiselect.Root
+  value={value.map((v) => v.toString())}
+  options={options.map(({ id }) => id.toString())}
+  onChange={(vs) => {
+    value = vs.map((v) => Number.parseInt(v))
     onChange?.(value)
   }}
-  {...rest}
+  class={class_}
 >
-  {#snippet selected({ option })}
-    <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
-      <span>{option.data.genre.name}</span>{#if option.data.genre.subtitle}&nbsp;<span
-          class="text-xs text-gray-500">[{option.data.genre.subtitle}]</span
-        >{/if}{#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-        &nbsp;
-        <GenreTypeChip type={option.data.genre.type} class="dark:border dark:border-gray-700" />
-      {/if}
-    </div>
-  {/snippet}
-
-  {#snippet option({ option })}
-    <div class={cn(option.data.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
-      {option.data.genre.name}
-      {#if option.data.genre.subtitle}
-        &nbsp;
-        <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
-          >[{option.data.genre.subtitle}]</span
-        >
-      {/if}
-      {#if option.data.matchedAka}
-        &nbsp;
-        <span class="text-[0.8rem]">({option.data.matchedAka})</span>
-      {/if}
-      {#if $userSettings.showTypeTags && option.data.genre.type !== 'STYLE'}
-        &nbsp;
-        <GenreTypeChip type={option.data.genre.type} />
-      {/if}
-    </div>
-  {/snippet}
-</Multiselect>
+  <Multiselect.Trigger>
+    {#each selectedItems as { id, genre } (id)}
+      <Multiselect.SelectedItem value={id.toString()}>
+        {#if genre === undefined}
+          {#if !!$genreTreeQuery.data || !!$genreTreeQuery.error}
+            Unknown
+          {:else}
+            <Loader size={10} />
+          {/if}
+        {:else}
+          <div class={cn(genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
+            <span>{genre.name}</span>{#if genre.subtitle}&nbsp;<span class="text-xs text-gray-500"
+                >[{genre.subtitle}]</span
+              >{/if}{#if $userSettings.showTypeTags && genre.type !== 'STYLE'}
+              &nbsp;
+              <GenreTypeChip type={genre.type} class="dark:border dark:border-gray-700" />
+            {/if}
+          </div>
+        {/if}
+      </Multiselect.SelectedItem>
+    {/each}
+    <Multiselect.Input {id} bind:value={filter} />
+  </Multiselect.Trigger>
+  <Multiselect.Options>
+    {#if $genreTreeQuery.data}
+      {#each options as genreMatch (genreMatch.id)}
+        <Multiselect.Option value={genreMatch.id.toString()}>
+          <div class={cn(genreMatch.genre.nsfw && !$userSettings.showNsfw && 'blur-sm')}>
+            {genreMatch.genre.name}
+            {#if genreMatch.genre.subtitle}
+              &nbsp;
+              <span class="text-[0.8rem] text-gray-500 group-hover:text-gray-400"
+                >[{genreMatch.genre.subtitle}]</span
+              >
+            {/if}
+            {#if genreMatch.matchedAka}
+              &nbsp;
+              <span class="text-[0.8rem]">({genreMatch.matchedAka})</span>
+            {/if}
+            {#if $userSettings.showTypeTags && genreMatch.genre.type !== 'STYLE'}
+              &nbsp;
+              <GenreTypeChip type={genreMatch.genre.type} />
+            {/if}
+          </div>
+        </Multiselect.Option>
+      {/each}
+    {:else if $genreTreeQuery.error}
+      <div class="flex w-full items-center justify-center p-2 text-sm text-error-500">
+        Error loading genres
+      </div>
+    {:else}
+      <Loader size={32} />
+    {/if}
+  </Multiselect.Options>
+</Multiselect.Root>

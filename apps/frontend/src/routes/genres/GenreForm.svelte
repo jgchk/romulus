@@ -190,44 +190,35 @@
 
     <InputGroup errors={$errors.parents?._errors}>
       <Label for="parents">Parents</Label>
-      {#await genres then genres}
-        <GenreMultiselect
-          id="parents"
-          class="genre-parents w-full"
-          bind:value={$form.parents}
-          exclude={id !== undefined ? [id] : []}
-          {...$constraints.parents}
-          {genres}
-        />
-      {/await}
+      <GenreMultiselect
+        id="parents"
+        class="genre-parents w-full"
+        bind:value={$form.parents}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.parents}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.derivedFrom?._errors}>
       <Label for="derives">Derived From</Label>
-      {#await genres then genres}
-        <GenreMultiselect
-          id="derives"
-          class="genre-derives w-full"
-          bind:value={$form.derivedFrom}
-          exclude={id !== undefined ? [id] : []}
-          {...$constraints.derivedFrom}
-          {genres}
-        />
-      {/await}
+      <GenreMultiselect
+        id="derives"
+        class="genre-derives w-full"
+        bind:value={$form.derivedFrom}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.derivedFrom}
+      />
     </InputGroup>
 
     <InputGroup errors={$errors.influencedBy?._errors}>
       <Label for="influences">Influences</Label>
-      {#await genres then genres}
-        <GenreMultiselect
-          id="influences"
-          class="genre-influences w-full"
-          bind:value={$form.influencedBy}
-          exclude={id !== undefined ? [id] : []}
-          {...$constraints.influencedBy}
-          {genres}
-        />
-      {/await}
+      <GenreMultiselect
+        id="influences"
+        class="genre-influences w-full"
+        bind:value={$form.influencedBy}
+        exclude={id !== undefined ? [id] : []}
+        {...$constraints.influencedBy}
+      />
     </InputGroup>
 
     {#if showRelevance}

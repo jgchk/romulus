@@ -1,5 +1,7 @@
+import { QueryClient } from '@tanstack/svelte-query'
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
+import type { ComponentProps } from 'svelte'
 import { writable } from 'svelte/store'
 import { expect, it, test, vi } from 'vitest'
 
@@ -7,8 +9,8 @@ import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 import type { TreeGenre } from '$lib/features/genres/queries/types'
+import { genreQueries } from '$lib/features/genres/tanstack'
 
-import type { GenreMultiselectProps } from './GenreMultiselect'
 import GenreMultiselect from './GenreMultiselect.svelte'
 
 const data: TreeGenre[] = [
@@ -75,9 +77,20 @@ const data: TreeGenre[] = [
 ]
 
 const setup = (
-  props: GenreMultiselectProps,
+  props: ComponentProps<typeof GenreMultiselect>,
   options: { userSettings?: Partial<UserSettings>; genres?: TreeGenre[] } = {},
 ) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        experimental_prefetchInRender: true,
+        enabled: false,
+      },
+    },
+  })
+
+  queryClient.setQueryData(genreQueries.tree().queryKey, createGenreStore(options.genres ?? data))
+
   const returned = render(GenreMultiselect, {
     props,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,6 +99,7 @@ const setup = (
         USER_SETTINGS_CONTEXT_KEY,
         writable<UserSettings>({ ...DEFAULT_USER_SETTINGS, ...options.userSettings }),
       ],
+      ['$$_queryClient', queryClient],
     ]),
   })
 
@@ -101,10 +115,7 @@ const setup = (
 }
 
 test('renders selected genres', () => {
-  const { queryAllByTestId } = setup({
-    value: data.map((g) => g.id),
-    genres: createGenreStore(data),
-  })
+  const { queryAllByTestId } = setup({ value: data.map((g) => g.id) })
 
   const selected = queryAllByTestId('multiselect__selected')
 
@@ -118,7 +129,7 @@ test('renders selected genres', () => {
 
 test('renders selected genres with no type chips when showTypeTags is disabled', () => {
   const { queryAllByTestId } = setup(
-    { value: data.map((g) => g.id), genres: createGenreStore(data) },
+    { value: data.map((g) => g.id) },
     { userSettings: { showTypeTags: false } },
   )
 
@@ -133,14 +144,13 @@ test('renders selected genres with no type chips when showTypeTags is disabled',
 })
 
 test('renders no selected genres when value is empty', () => {
-  const { queryAllByTestId } = setup({ value: [], genres: createGenreStore(data) })
+  const { queryAllByTestId } = setup({ value: [] })
   expect(queryAllByTestId('multiselect__selected')).toHaveLength(0)
 })
 
 test('renders all options when input is focused', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -157,7 +167,6 @@ test('renders all options when input is focused', async () => {
 test('closes the options when clicking outside', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -174,7 +183,6 @@ test('selects the top search result when hitting enter', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
     onChange,
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -193,7 +201,6 @@ test('selects the next search result when pressing down arrow', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
     onChange,
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -213,7 +220,6 @@ test('wraps around when navigating the search results with arrow keys', async ()
   const { queryAllByTestId, user, input } = setup({
     value: [],
     onChange,
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -233,7 +239,6 @@ test('selects an option when clicked', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
     onChange,
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -248,19 +253,33 @@ test('selects an option when clicked', async () => {
   expect(queryAllByTestId('multiselect__option')).toHaveLength(data.length - 1)
 })
 
-test('does not display nonexistent genres', () => {
-  const { queryAllByTestId } = setup({
-    value: [5],
-    genres: createGenreStore(data),
+it('focuses the input after clicking an option', async () => {
+  const onChange = vi.fn()
+  const { queryAllByTestId, user, input } = setup({
+    value: [],
+    onChange,
   })
 
-  expect(queryAllByTestId('multiselect__selected')).toHaveLength(0)
+  await user.click(input)
+
+  await user.click(queryAllByTestId('multiselect__option')[0])
+
+  expect(input).toHaveFocus()
+})
+
+test('displays "Unknown" for selected nonexistent genres', () => {
+  const { queryAllByTestId } = setup({
+    value: [5],
+  })
+
+  const selected = queryAllByTestId('multiselect__selected')
+  expect(selected).toHaveLength(1)
+  expect(selected[0]).toHaveTextContent('Unknown')
 })
 
 test('should match on names', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -276,7 +295,6 @@ test('should match on names', async () => {
 test('should match on AKAs', async () => {
   const { queryAllByTestId, user, input } = setup({
     value: [],
-    genres: createGenreStore(data),
   })
 
   await user.click(input)
@@ -291,9 +309,12 @@ test('should match on AKAs', async () => {
 
 it('blurs NSFW options when showNsfw is disabled', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [] },
     {
-      value: [],
-      genres: createGenreStore([
+      userSettings: {
+        showNsfw: false,
+      },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -306,10 +327,7 @@ it('blurs NSFW options when showNsfw is disabled', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: false },
+      ],
     },
   )
 
@@ -322,9 +340,10 @@ it('blurs NSFW options when showNsfw is disabled', async () => {
 
 it('does not blur NSFW options when showNsfw is enabled', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [] },
     {
-      value: [],
-      genres: createGenreStore([
+      userSettings: { showNsfw: true },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -337,10 +356,7 @@ it('does not blur NSFW options when showNsfw is enabled', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: true },
+      ],
     },
   )
 
@@ -353,9 +369,10 @@ it('does not blur NSFW options when showNsfw is enabled', async () => {
 
 it('does not blur non-NSFW options', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [] },
     {
-      value: [],
-      genres: createGenreStore([
+      userSettings: { showNsfw: false },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -368,10 +385,7 @@ it('does not blur non-NSFW options', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: false },
+      ],
     },
   )
 
@@ -384,9 +398,10 @@ it('does not blur non-NSFW options', async () => {
 
 it('blurs selected NSFW options when showNsfw is disabled', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [5] },
     {
-      value: [5],
-      genres: createGenreStore([
+      userSettings: { showNsfw: false },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -399,10 +414,7 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: false },
+      ],
     },
   )
 
@@ -415,9 +427,10 @@ it('blurs selected NSFW options when showNsfw is disabled', async () => {
 
 it('does not blur selected NSFW options when showNsfw is enabled', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [5] },
     {
-      value: [5],
-      genres: createGenreStore([
+      userSettings: { showNsfw: true },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -430,10 +443,7 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: true },
+      ],
     },
   )
 
@@ -446,9 +456,10 @@ it('does not blur selected NSFW options when showNsfw is enabled', async () => {
 
 it('does not blur selected non-NSFW options', async () => {
   const { queryAllByTestId, user, input } = setup(
+    { value: [5] },
     {
-      value: [5],
-      genres: createGenreStore([
+      userSettings: { showNsfw: false },
+      genres: [
         {
           id: 5,
           name: 'Five',
@@ -461,10 +472,7 @@ it('does not blur selected non-NSFW options', async () => {
           relevance: 1,
           updatedAt: new Date(),
         },
-      ]),
-    },
-    {
-      userSettings: { showNsfw: false },
+      ],
     },
   )
 

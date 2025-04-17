@@ -1,0 +1,6 @@
+export { default as Input } from './MultiselectInput.svelte'
+export { default as Option } from './MultiselectOption.svelte'
+export { default as Options } from './MultiselectOptions.svelte'
+export { default as Root } from './MultiselectRoot.svelte'
+export { default as SelectedItem } from './MultiselectSelectedItem.svelte'
+export { default as Trigger } from './MultiselectTrigger.svelte'

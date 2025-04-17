@@ -1,42 +1,25 @@
 <script lang="ts">
-  import type { MultiselectProps, PlainOption } from '$lib/atoms/Multiselect'
-  import Multiselect from '$lib/atoms/Multiselect.svelte'
+  import { Multiselect } from '$lib/atoms/Multiselect'
   import { toAscii } from '$lib/utils/string'
-  import { isDefined, type Timeout } from '$lib/utils/types'
-
-  type Props = Omit<MultiselectProps<PlainOption<string>>, 'value' | 'options'> & {
-    value: string[]
-    exclude?: string[]
-    onChange?: (value: string[]) => void
-    mediaArtifactTypes: Map<string, { id: string; name: string }>
-  }
+  import type { Timeout } from '$lib/utils/types'
 
   let {
-    value = $bindable(),
+    value = $bindable([]),
     exclude = [],
-    onChange = undefined,
+    id,
+    class: class_,
     mediaArtifactTypes,
-    ...rest
-  }: Props = $props()
+  }: {
+    value?: string[]
+    exclude?: string[]
+    id?: string
+    class?: string
+    mediaArtifactTypes: Map<string, { id: string; name: string }>
+  } = $props()
 
   let excludeSet = $derived(new Set(exclude))
 
-  let values = $derived(
-    value
-      .map((id) => {
-        const mediaArtifactType = mediaArtifactTypes.get(id)
-        if (!mediaArtifactType) return
-
-        return {
-          value: id,
-          label: mediaArtifactType.name,
-        }
-      })
-      .filter(isDefined),
-  )
-
   let filter = $state('')
-
   let debouncedFilter = $state('')
 
   let timeout: Timeout | undefined
@@ -47,29 +30,42 @@
     return () => clearTimeout(timeout)
   })
 
+  const selectedItems = $derived(
+    value.map((id) => ({ id, mediaArtifactType: mediaArtifactTypes.get(id) })),
+  )
+
   let options = $derived(
     [...mediaArtifactTypes.values()]
       .filter(
         (mediaArtifactType) =>
           !excludeSet.has(mediaArtifactType.id) &&
-          toAscii(mediaArtifactType.name.toLowerCase()).startsWith(debouncedFilter.toLowerCase()),
+          !value.includes(mediaArtifactType.id) &&
+          toAscii(mediaArtifactType.name)
+            .toLowerCase()
+            .startsWith(toAscii(debouncedFilter).toLowerCase()),
       )
-      .slice(0, 100)
-      .map((mediaArtifactType) => ({
-        value: mediaArtifactType.id,
-        label: mediaArtifactType.name,
-      })),
+      .slice(0, 100),
   )
 </script>
 
-<Multiselect
-  value={values}
-  virtual
-  bind:filter
-  {options}
-  onChange={(newValue) => {
-    value = newValue.map((v) => v.value)
-    onChange?.(value)
-  }}
-  {...rest}
-/>
+<Multiselect.Root bind:value options={options.map(({ id }) => id)} class={class_}>
+  <Multiselect.Trigger>
+    {#each selectedItems as { id, mediaArtifactType } (id)}
+      <Multiselect.SelectedItem value={id}>
+        {#if mediaArtifactType === undefined}
+          Unknown
+        {:else}
+          {mediaArtifactType.name}
+        {/if}
+      </Multiselect.SelectedItem>
+    {/each}
+    <Multiselect.Input {id} bind:value={filter} />
+  </Multiselect.Trigger>
+  <Multiselect.Options>
+    {#each options as mediaArtifactType (mediaArtifactType.id)}
+      <Multiselect.Option value={mediaArtifactType.id}>
+        {mediaArtifactType.name}
+      </Multiselect.Option>
+    {/each}
+  </Multiselect.Options>
+</Multiselect.Root>
