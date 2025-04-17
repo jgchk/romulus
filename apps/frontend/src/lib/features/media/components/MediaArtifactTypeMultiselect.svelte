@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Multiselect } from '$lib/atoms/Multiselect'
+  import { useDebounce } from '$lib/runes/use-debounce.svelte'
   import { toAscii } from '$lib/utils/string'
-  import type { Timeout } from '$lib/utils/types'
 
   let {
     value = $bindable([]),
@@ -20,15 +20,7 @@
   let excludeSet = $derived(new Set(exclude))
 
   let filter = $state('')
-  let debouncedFilter = $state('')
-
-  let timeout: Timeout | undefined
-  $effect(() => {
-    const v = filter
-    clearTimeout(timeout)
-    timeout = setTimeout(() => (debouncedFilter = v), 250)
-    return () => clearTimeout(timeout)
-  })
+  const debouncedFilter = useDebounce(() => filter, 250)
 
   const selectedItems = $derived(
     value.map((id) => ({ id, mediaArtifactType: mediaArtifactTypes.get(id) })),
@@ -42,7 +34,7 @@
           !value.includes(mediaArtifactType.id) &&
           toAscii(mediaArtifactType.name)
             .toLowerCase()
-            .startsWith(toAscii(debouncedFilter).toLowerCase()),
+            .startsWith(toAscii(debouncedFilter.current).toLowerCase()),
       )
       .slice(0, 100),
   )

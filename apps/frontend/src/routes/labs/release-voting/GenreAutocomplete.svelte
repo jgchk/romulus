@@ -6,8 +6,8 @@
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import { useDebounce } from '$lib/runes/use-debounce.svelte'
   import { cn } from '$lib/utils/dom'
-  import type { Timeout } from '$lib/utils/types'
 
   type Props = Omit<AutocompleteProps<number>, 'value' | 'options' | 'onSelect' | 'option'> & {
     onSelect?: (genre: TreeGenre) => void
@@ -17,18 +17,10 @@
   let { onSelect, genres, ...rest }: Props = $props()
 
   let value = $state('')
-  let debouncedFilter = $state('')
-
-  let timeout: Timeout | undefined
-  $effect(() => {
-    const v = value
-    clearTimeout(timeout)
-    timeout = setTimeout(() => (debouncedFilter = v), 250)
-    return () => clearTimeout(timeout)
-  })
+  const debouncedFilter = useDebounce(() => value, 250)
 
   let options = $derived(
-    createSearchGenresQuery(genres)(debouncedFilter)
+    createSearchGenresQuery(genres)(debouncedFilter.current)
       .slice(0, 100)
       .map((match) => ({
         value: match,

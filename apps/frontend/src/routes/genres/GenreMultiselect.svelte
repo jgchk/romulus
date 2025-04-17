@@ -10,8 +10,8 @@
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { genreQueries } from '$lib/features/genres/tanstack'
+  import { useDebounce } from '$lib/runes/use-debounce.svelte'
   import { cn } from '$lib/utils/dom'
-  import type { Timeout } from '$lib/utils/types'
 
   let {
     value = $bindable([]),
@@ -32,22 +32,14 @@
   let excludeSet = $derived(new Set(exclude))
 
   let filter = $state('')
-  let debouncedFilter = $state('')
-
-  let timeout: Timeout | undefined
-  $effect(() => {
-    const v = filter
-    clearTimeout(timeout)
-    timeout = setTimeout(() => (debouncedFilter = v), 250)
-    return () => clearTimeout(timeout)
-  })
+  const debouncedFilter = useDebounce(() => filter, 250)
 
   const genreTreeQuery = createQuery(genreQueries.tree())
 
   const genres: GenreStore = $derived($genreTreeQuery.data ?? new Map<number, TreeGenre>())
 
   let options = $derived(
-    createSearchGenresQuery(genres)(debouncedFilter)
+    createSearchGenresQuery(genres)(debouncedFilter.current)
       .filter((match) => !excludeSet.has(match.id) && !value.includes(match.id))
       .slice(0, 100),
   )

@@ -12,8 +12,8 @@
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import { useDebounce } from '$lib/runes/use-debounce.svelte'
   import { tw } from '$lib/utils/dom'
-  import type { Timeout } from '$lib/utils/types'
 
   type Props = {
     filter?: string
@@ -22,17 +22,9 @@
 
   let { filter = $bindable(''), genres }: Props = $props()
 
-  let debouncedFilter = $state(filter)
+  const debouncedFilter = useDebounce(() => filter, 5000)
 
-  let timeout: Timeout | undefined
-  $effect(() => {
-    const v = filter
-    clearTimeout(timeout)
-    timeout = setTimeout(() => (debouncedFilter = v), 250)
-    return () => clearTimeout(timeout)
-  })
-
-  let results = $derived(createSearchGenresQuery(genres)(debouncedFilter))
+  let results = $derived(createSearchGenresQuery(genres)(debouncedFilter.current))
 
   const dispatch = createEventDispatcher<{ close: undefined; select: TreeGenre }>()
 
@@ -48,10 +40,11 @@
         if (e.key === 'Enter') {
           e.stopPropagation()
           e.preventDefault()
+          debouncedFilter.current = filter
         }
       }}
     />
-    <IconButton tooltip="Search" onClick={() => (debouncedFilter = filter)}>
+    <IconButton tooltip="Search" onClick={() => (debouncedFilter.current = filter)}>
       <MagnifyingGlass />
     </IconButton>
     <IconButton tooltip="Close" onClick={() => dispatch('close')}>
