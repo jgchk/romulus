@@ -1,14 +1,35 @@
 <script lang="ts">
-  import { type ComponentProps } from 'svelte'
-
-  import Select from '$lib/atoms/Select.svelte'
+  import { Select } from '$lib/atoms/Select'
   import { GENRE_TYPES, type GenreType, GenreTypeNames } from '$lib/types/genres'
 
-  type Props = Omit<ComponentProps<Select<GenreType>>, 'options'>
+  type Props = {
+    id?: string
+    class?: string
+    value?: GenreType
+    onChange?: (value: GenreType | undefined) => void
+  }
 
-  let { value = $bindable(undefined), ...rest }: Props = $props()
+  let { value = $bindable(undefined), id, class: class_, onChange }: Props = $props()
 
-  const options = GENRE_TYPES.map((type) => ({ value: type, label: GenreTypeNames[type] }))
+  const options = GENRE_TYPES
 </script>
 
-<Select bind:value {options} {...rest} />
+<Select.Root
+  bind:value
+  options={[...options]}
+  onChange={onChange as (value: string | undefined) => void}
+  class={class_}
+>
+  <Select.Trigger {id}>
+    {#if value !== undefined}
+      {GenreTypeNames[value]}
+    {/if}
+  </Select.Trigger>
+  <Select.Options>
+    {#each options as option (option)}
+      <Select.Option value={option}>
+        {GenreTypeNames[option]}
+      </Select.Option>
+    {/each}
+  </Select.Options>
+</Select.Root>

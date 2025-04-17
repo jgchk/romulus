@@ -141,8 +141,7 @@
     <LimitSelect
       class="w-32"
       value={data.limit}
-      onChange={(option) => {
-        const value = option.value
+      onChange={(value) => {
         if (value === undefined) {
           return
         }

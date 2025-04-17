@@ -15,7 +15,7 @@ export const GenreTypeNames: Record<GenreType, string> = {
   SCENE: 'Scene',
 }
 
-export function getGenreRelevanceText(relevance: number) {
+export function getGenreRelevanceText(relevance: number | undefined) {
   switch (relevance) {
     case 0: {
       return 'Invented'
@@ -40,6 +40,10 @@ export function getGenreRelevanceText(relevance: number) {
     }
     case 7: {
       return 'Universal'
+    }
+    case 99:
+    case undefined: {
+      return 'Unset'
     }
     default: {
       throw new Error(`Not a valid relevance: ${relevance}`)

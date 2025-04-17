@@ -4,10 +4,10 @@ import { getContext, setContext } from 'svelte'
 import { createPopoverActions } from '$lib/actions/popover'
 import type { Action } from '$lib/actions/types'
 
-export class MultiselectState {
+export class SelectState {
   uuid: string
 
-  value: WritableBox<string[]>
+  value: WritableBox<string | undefined>
   options: ReadableBox<string[]>
   disabled: ReadableBox<boolean>
 
@@ -15,6 +15,7 @@ export class MultiselectState {
   focusedValue = $state<string | undefined>(undefined)
   filter = $state('')
 
+  triggerRef = $state<HTMLElement | null>(null)
   inputRef = $state<HTMLInputElement | null>(null)
   optionsRef = $state<HTMLElement | null>(null)
 
@@ -26,7 +27,7 @@ export class MultiselectState {
     options,
     disabled,
   }: {
-    value: WritableBox<string[]>
+    value: WritableBox<string | undefined>
     options: ReadableBox<string[]>
     disabled: ReadableBox<boolean>
   }) {
@@ -64,20 +65,8 @@ export class MultiselectState {
     })
   }
 
-  selectValue(value: string) {
-    this.value.current = [...this.value.current.filter((v) => v !== value), value]
-  }
-
-  deselectValue(value: string) {
-    this.value.current = this.value.current.filter((v) => v !== value)
-  }
-
-  deselectLastValue() {
-    this.value.current = this.value.current.slice(0, -1)
-  }
-
   get optionsClassname() {
-    return `multiselect-${this.uuid}-options`
+    return `select-${this.uuid}-options`
   }
 
   focusNextValue() {
@@ -100,18 +89,26 @@ export class MultiselectState {
     const previousOptionValue = this.options.current[previousIndex]
     this.focusedValue = previousOptionValue
   }
+
+  close(refocus = true) {
+    this.filter = ''
+    this.open = false
+    if (refocus) {
+      this.triggerRef?.focus()
+    }
+  }
 }
 
-const MULTISELECT_STATE_KEY = Symbol('multiselect-state')
+const SELECT_STATE_KEY = Symbol('select-state')
 
-export function setMultiselectState(state: MultiselectState): void {
-  setContext<MultiselectState>(MULTISELECT_STATE_KEY, state)
+export function setSelectState(state: SelectState): void {
+  setContext<SelectState>(SELECT_STATE_KEY, state)
 }
 
-export function getMultiselectState(): MultiselectState {
-  const state = getContext<MultiselectState | undefined>(MULTISELECT_STATE_KEY)
+export function getSelectState(): SelectState {
+  const state = getContext<SelectState | undefined>(SELECT_STATE_KEY)
   if (state === undefined) {
-    throw new Error('Could not find MultiselectState. Did you call setMultiselectState()?')
+    throw new Error('Could not find SelectState. Did you call setSelectState()?')
   }
   return state
 }
@@ -144,5 +141,58 @@ export function writableBoxWith<T>(getter: () => T, setter: (v: T) => void): Wri
     set current(v: T) {
       setter(v)
     },
+  }
+}
+
+export function createSelectHandleKeyDown(selectState: SelectState) {
+  return function (event: KeyboardEvent) {
+    switch (event.key) {
+      case 'Enter': {
+        if (!selectState.open) {
+          event.preventDefault()
+          selectState.open = true
+          return
+        }
+
+        event.preventDefault()
+        selectState.value.current = selectState.focusedValue
+        selectState.close()
+
+        return
+      }
+
+      case 'ArrowDown': {
+        event.preventDefault()
+
+        if (!selectState.open) {
+          selectState.open = true
+          return
+        }
+
+        selectState.focusNextValue()
+        return
+      }
+
+      case 'ArrowUp': {
+        event.preventDefault()
+
+        if (!selectState.open) {
+          selectState.open = true
+          return
+        }
+
+        selectState.focusPreviousValue()
+        return
+      }
+
+      case 'Escape': {
+        if (selectState.open) {
+          event.preventDefault()
+          event.stopPropagation()
+          selectState.close()
+        }
+        return
+      }
+    }
   }
 }

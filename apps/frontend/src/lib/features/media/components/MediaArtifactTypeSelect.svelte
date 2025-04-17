@@ -1,21 +1,56 @@
 <script lang="ts">
-  import type { SelectProps } from '$lib/atoms/Select'
-  import Select from '$lib/atoms/Select.svelte'
+  import { Select } from '$lib/atoms/Select'
+  import { useDebounce } from '$lib/runes/use-debounce.svelte'
+  import { toAscii } from '$lib/utils/string'
+  import { ifDefined } from '$lib/utils/types'
 
-  type Props = Omit<SelectProps<string>, 'options'> & {
+  type Props = {
+    id?: string
+    class?: string
+    value?: string
     exclude?: string[]
-    onChange?: (value: string[]) => void
+    onChange?: (value: string | undefined) => void
     mediaArtifactTypes: Map<string, { id: string; name: string }>
   }
 
-  let { value = $bindable(undefined), mediaArtifactTypes, ...rest }: Props = $props()
+  let {
+    id,
+    class: class_,
+    value = $bindable(undefined),
+    exclude,
+    onChange,
+    mediaArtifactTypes,
+  }: Props = $props()
 
-  let options = $derived(
-    [...mediaArtifactTypes.values()].map((mediaArtifactType) => ({
-      value: mediaArtifactType.id,
-      label: mediaArtifactType.name,
-    })),
+  let filter = $state('')
+  const debouncedFilter = useDebounce(() => filter, 250)
+
+  const selectedItem = $derived(ifDefined(value, (value) => mediaArtifactTypes.get(value)))
+
+  const excludeSet = $derived(new Set(exclude))
+  const options = $derived(
+    [...mediaArtifactTypes.values()]
+      .filter(
+        (mediaType) =>
+          !excludeSet.has(mediaType.id) &&
+          toAscii(mediaType.name)
+            .toLowerCase()
+            .startsWith(toAscii(debouncedFilter.current).toLowerCase()),
+      )
+      .slice(0, 100),
   )
 </script>
 
-<Select bind:value {options} {...rest} />
+<Select.Root bind:value options={options.map(({ id }) => id)} {onChange} class={class_}>
+  <Select.Trigger {id}>
+    {selectedItem?.name ?? 'Select a media artifact type...'}
+  </Select.Trigger>
+  <Select.Options>
+    <Select.Input bind:value={filter} />
+    {#each options as mediaArtifactType (mediaArtifactType.id)}
+      <Select.Option value={mediaArtifactType.id}>
+        {mediaArtifactType.name}
+      </Select.Option>
+    {/each}
+  </Select.Options>
+</Select.Root>

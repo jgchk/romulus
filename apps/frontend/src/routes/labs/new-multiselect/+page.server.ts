@@ -16,9 +16,28 @@ export const load = (async ({ locals }) => {
     }
   }
 
+  const mediaArtifactTypesResponse = await locals.di.media().getAllMediaArtifactTypes()
+  if (mediaArtifactTypesResponse.isErr()) {
+    switch (mediaArtifactTypesResponse.error.name) {
+      case 'FetchError': {
+        return error(500, mediaArtifactTypesResponse.error.message)
+      }
+      default: {
+        mediaArtifactTypesResponse.error.name satisfies never
+        return error(500, 'An unknown error occurred')
+      }
+    }
+  }
+
   return {
     mediaTypes: new Map(
       mediaTypesResponse.value.mediaTypes.map((mediaType) => [mediaType.id, mediaType]),
+    ),
+    mediaArtifactTypes: new Map(
+      mediaArtifactTypesResponse.value.mediaArtifactTypes.map((mediaArtifactType) => [
+        mediaArtifactType.id,
+        mediaArtifactType,
+      ]),
     ),
   }
 }) satisfies PageServerLoad

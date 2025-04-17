@@ -28,7 +28,7 @@
     id="relevance-filter"
     class="w-full"
     value={genreRelevanceFilter}
-    onChange={(option) => onChange?.({ genreRelevanceFilter: option.value })}
+    onChange={(relevance) => onChange?.({ genreRelevanceFilter: relevance })}
   />
 </InputGroup>
 
