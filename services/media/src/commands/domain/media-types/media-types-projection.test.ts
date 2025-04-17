@@ -7,7 +7,7 @@ import { applyMediaTypeEvent } from './media-types-projection.js'
 it('should add a genre upon media-type-created event', () => {
   const result = applyMediaTypeEvent(
     { mediaTypes: new Map() },
-    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] }, userId: 0 }),
   )
 
   expect(result).toEqual({
@@ -18,7 +18,7 @@ it('should add a genre upon media-type-created event', () => {
 it('should delete a genre upon media-type-deleted event', () => {
   const result = applyMediaTypeEvent(
     { mediaTypes: new Map([['test', { id: 'test', name: 'Test', parents: [] }]]) },
-    mediaTypeDeletedEvent({ id: 'test' }),
+    mediaTypeDeletedEvent({ id: 'test', userId: 0 }),
   )
 
   expect(result).toEqual({
@@ -29,7 +29,11 @@ it('should delete a genre upon media-type-deleted event', () => {
 it('should update a genre upon media-type-updated event', () => {
   const result = applyMediaTypeEvent(
     { mediaTypes: new Map([['test', { id: 'test', name: 'Test', parents: [] }]]) },
-    mediaTypeUpdatedEvent({ id: 'test', update: { name: 'Test (Updated)', parents: [] } }),
+    mediaTypeUpdatedEvent({
+      id: 'test',
+      update: { name: 'Test (Updated)', parents: [] },
+      userId: 0,
+    }),
   )
 
   expect(result).toEqual({

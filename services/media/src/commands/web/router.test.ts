@@ -100,7 +100,10 @@ describe('updateMediaType', () => {
       updateMediaType: createUpdateMediaTypeCommandHandler(
         () =>
           createMediaTypesProjectionFromEvents([
-            mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+            mediaTypeCreatedEvent({
+              mediaType: { id: 'test', name: 'Test', parents: [] },
+              userId: 0,
+            }),
           ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
@@ -151,6 +154,7 @@ describe('updateMediaArtifactType', () => {
           createMediaArtifactTypesProjectionFromEvents([
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+              userId: 0,
             }),
           ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -191,12 +195,15 @@ describe('createMediaArtifactRelationshipType', () => {
           createMediaArtifactTypesProjectionFromEvents([
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+              userId: 0,
             }),
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+              userId: 0,
             }),
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+              userId: 0,
             }),
           ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -228,12 +235,15 @@ describe('updateMediaArtifactRelationshipType', () => {
           createMediaArtifactTypesProjectionFromEvents([
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+              userId: 0,
             }),
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+              userId: 0,
             }),
             mediaArtifactTypeCreatedEvent({
               mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+              userId: 0,
             }),
             mediaArtifactRelationshipTypeCreatedEvent({
               mediaArtifactRelationshipType: {
@@ -242,6 +252,7 @@ describe('updateMediaArtifactRelationshipType', () => {
                 parentMediaArtifactType: 'gallery',
                 childMediaArtifactTypes: ['painting', 'sculpture'],
               },
+              userId: 0,
             }),
           ]),
         // eslint-disable-next-line @typescript-eslint/no-empty-function

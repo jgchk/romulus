@@ -17,13 +17,17 @@ it('should create a media type', async () => {
 
   const result = await createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: [] },
+    userId: 0,
   })
 
   expect(result).toEqual(ok(undefined))
 
   const events = eventStore.get('media-types')
   expect(events).toEqual([
-    mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({
+      mediaType: { id: 'test-id', name: 'Test', parents: [] },
+      userId: 0,
+    }),
   ])
 })
 
@@ -36,6 +40,7 @@ it('should error if media type creation fails', async () => {
 
   const result = await createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: ['test-id'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeTreeCycleError(['Test', 'Test'])))

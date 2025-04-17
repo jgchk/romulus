@@ -34,11 +34,18 @@ export function createUpdateMediaArtifactRelationshipTypeCommandHandler(
       }
     }
 
-    return ok(mediaArtifactRelationshipTypeUpdatedEvent({ id: command.id, update: command.update }))
+    return ok(
+      mediaArtifactRelationshipTypeUpdatedEvent({
+        id: command.id,
+        update: command.update,
+        userId: command.userId,
+      }),
+    )
   }
 }
 
 export type UpdateMediaArtifactRelationshipTypeCommand = {
   id: string
   update: Omit<MediaArtifactRelationshipType, 'id'>
+  userId: number
 }

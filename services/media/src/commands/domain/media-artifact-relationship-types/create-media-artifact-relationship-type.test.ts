@@ -13,12 +13,15 @@ it('should create a media artifact relationship type', () => {
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   ])
 
@@ -32,6 +35,7 @@ it('should create a media artifact relationship type', () => {
       parentMediaArtifactType: 'gallery',
       childMediaArtifactTypes: ['painting', 'sculpture'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(
@@ -43,6 +47,7 @@ it('should create a media artifact relationship type', () => {
           parentMediaArtifactType: 'gallery',
           childMediaArtifactTypes: ['painting', 'sculpture'],
         },
+        userId: 0,
       }),
     ),
   )
@@ -52,9 +57,11 @@ it('should error if the parent media artifact type does not exist', () => {
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   ])
 
@@ -68,6 +75,7 @@ it('should error if the parent media artifact type does not exist', () => {
       parentMediaArtifactType: 'gallery',
       childMediaArtifactTypes: ['painting', 'sculpture'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaArtifactTypeNotFoundError('gallery')))
@@ -77,9 +85,11 @@ it('should error if a child media artifact type does not exist', () => {
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   ])
 
@@ -93,6 +103,7 @@ it('should error if a child media artifact type does not exist', () => {
       parentMediaArtifactType: 'gallery',
       childMediaArtifactTypes: ['painting', 'sculpture'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaArtifactTypeNotFoundError('painting')))

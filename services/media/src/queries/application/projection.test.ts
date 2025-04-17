@@ -16,7 +16,7 @@ import { applyEvent } from './projection.js'
 test('should handle the media-type-created event', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] }, userId: 0 }),
   )
 
   const mediaType = await getMediaTypeById(dbConnection, 'test')
@@ -26,12 +26,16 @@ test('should handle the media-type-created event', async ({ dbConnection }) => {
 test('should handle the media-type-updated event', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] }, userId: 0 }),
   )
 
   await applyEvent(
     dbConnection,
-    mediaTypeUpdatedEvent({ id: 'test', update: { name: 'Test (Update)', parents: [] } }),
+    mediaTypeUpdatedEvent({
+      id: 'test',
+      update: { name: 'Test (Update)', parents: [] },
+      userId: 0,
+    }),
   )
 
   const mediaType = await getMediaTypeById(dbConnection, 'test')
@@ -41,10 +45,10 @@ test('should handle the media-type-updated event', async ({ dbConnection }) => {
 test('should handle the media-type-deleted event', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] }, userId: 0 }),
   )
 
-  await applyEvent(dbConnection, mediaTypeDeletedEvent({ id: 'test' }))
+  await applyEvent(dbConnection, mediaTypeDeletedEvent({ id: 'test', userId: 0 }))
 
   const mediaType = await getMediaTypeById(dbConnection, 'test')
   expect(mediaType).toBeUndefined()
@@ -55,6 +59,7 @@ test('should handle the media-artifact-type-created event', async ({ dbConnectio
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+      userId: 0,
     }),
   )
 
@@ -67,6 +72,7 @@ test('should handle the media-artifact-type-updated event', async ({ dbConnectio
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+      userId: 0,
     }),
   )
 
@@ -75,6 +81,7 @@ test('should handle the media-artifact-type-updated event', async ({ dbConnectio
     mediaArtifactTypeUpdatedEvent({
       id: 'test',
       update: { name: 'Test (Update)', mediaTypes: [] },
+      userId: 0,
     }),
   )
 
@@ -87,6 +94,7 @@ test('should handle the media-artifact-deleted event', async ({ dbConnection }) 
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+      userId: 0,
     }),
   )
 
@@ -94,6 +102,7 @@ test('should handle the media-artifact-deleted event', async ({ dbConnection }) 
     dbConnection,
     mediaArtifactTypeDeletedEvent({
       id: 'test',
+      userId: 0,
     }),
   )
 
@@ -108,18 +117,21 @@ test('should handle the media-artifact-relationship-type-created event', async (
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   )
 
@@ -132,6 +144,7 @@ test('should handle the media-artifact-relationship-type-created event', async (
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 
@@ -163,18 +176,21 @@ test('should handle the media-artifact-relationship-type-updated event', async (
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
@@ -186,6 +202,7 @@ test('should handle the media-artifact-relationship-type-updated event', async (
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 
@@ -198,6 +215,7 @@ test('should handle the media-artifact-relationship-type-updated event', async (
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 

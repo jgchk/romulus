@@ -33,11 +33,18 @@ export function createUpdateMediaArtifactTypeCommandHandler({
       }
     }
 
-    return ok(mediaArtifactTypeUpdatedEvent({ id: command.id, update: command.update }))
+    return ok(
+      mediaArtifactTypeUpdatedEvent({
+        id: command.id,
+        update: command.update,
+        userId: command.userId,
+      }),
+    )
   }
 }
 
 export type UpdateMediaArtifactTypeCommand = {
   id: string
   update: Omit<MediaArtifactType, 'id'>
+  userId: number
 }

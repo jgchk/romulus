@@ -19,7 +19,7 @@ export function createDeleteMediaArtifactTypeRoute({
     authz(MediaPermission.WriteMediaArtifactTypes),
     async (c): Promise<RouteResponse<typeof definition>> => {
       const param = c.req.valid('param')
-      await deleteMediaArtifactType({ id: param.id })
+      await deleteMediaArtifactType({ id: param.id, userId: c.var.user.id })
       return c.json({ success: true }, 200)
     },
   )

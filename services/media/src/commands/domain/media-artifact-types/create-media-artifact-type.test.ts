@@ -13,6 +13,7 @@ it('should create a media artifact type', () => {
   const mediaTypes = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
 
@@ -20,12 +21,14 @@ it('should create a media artifact type', () => {
 
   const result = createMediaArtifactType({
     mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(
     ok(
       mediaArtifactTypeCreatedEvent({
         mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
+        userId: 0,
       }),
     ),
   )
@@ -38,6 +41,7 @@ it('should fail if the media type does not exist', () => {
 
   const result = createMediaArtifactType({
     mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('test-media-type')))

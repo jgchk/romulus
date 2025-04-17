@@ -16,11 +16,13 @@ it('should update a media artifact type', () => {
   const mediaTypes = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 
@@ -32,6 +34,7 @@ it('should update a media artifact type', () => {
   const result = updateMediaArtifactType({
     id: 'test',
     update: { name: 'Test (Updated)', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(
@@ -39,6 +42,7 @@ it('should update a media artifact type', () => {
       mediaArtifactTypeUpdatedEvent({
         id: 'test',
         update: { name: 'Test (Updated)', mediaTypes: ['test-media-type'] },
+        userId: 0,
       }),
     ),
   )
@@ -48,6 +52,7 @@ it('should fail if the media artifact type does not exist', () => {
   const mediaTypes = createMediaTypesProjectionFromEvents([
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([])
@@ -60,6 +65,7 @@ it('should fail if the media artifact type does not exist', () => {
   const result = updateMediaArtifactType({
     id: 'test',
     update: { name: 'Test (Updated)', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaArtifactTypeNotFoundError('test')))
@@ -70,6 +76,7 @@ it('should fail if the media type does not exist', () => {
   const mediaArtifactTypes = createMediaArtifactTypesProjectionFromEvents([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 
@@ -81,6 +88,7 @@ it('should fail if the media type does not exist', () => {
   const result = updateMediaArtifactType({
     id: 'test',
     update: { name: 'Test (Updated)', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('test-media-type')))

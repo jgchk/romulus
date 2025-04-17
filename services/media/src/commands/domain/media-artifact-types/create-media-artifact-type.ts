@@ -28,6 +28,7 @@ export function createCreateMediaArtifactTypeCommandHandler(
     return ok(
       mediaArtifactTypeCreatedEvent({
         mediaArtifactType: command.mediaArtifactType,
+        userId: command.userId,
       }),
     )
   }
@@ -35,4 +36,5 @@ export function createCreateMediaArtifactTypeCommandHandler(
 
 export type CreateMediaArtifactTypeCommand = {
   mediaArtifactType: MediaArtifactType
+  userId: number
 }

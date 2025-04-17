@@ -35,7 +35,7 @@ export function createCreateMediaTypeRoute({
     authz(MediaPermission.WriteMediaTypes),
     async (c): Promise<RouteResponse<typeof definition>> => {
       const body = c.req.valid('json')
-      const result = await createMediaType({ mediaType: body })
+      const result = await createMediaType({ mediaType: body, userId: c.var.user.id })
       return result.match(
         () => c.json({ success: true }, 200),
         (err) => {

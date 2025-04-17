@@ -13,18 +13,21 @@ test('should get all media artifact types', async ({ dbConnection }) => {
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   )
   await applyEvent(
@@ -36,6 +39,7 @@ test('should get all media artifact types', async ({ dbConnection }) => {
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 

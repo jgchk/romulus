@@ -25,7 +25,10 @@ export function createCreateMediaArtifactTypeRoute({
     authz(MediaPermission.WriteMediaArtifactTypes),
     async (c): Promise<RouteResponse<typeof definition>> => {
       const body = c.req.valid('json')
-      const result = await createMediaArtifactType({ mediaArtifactType: body })
+      const result = await createMediaArtifactType({
+        mediaArtifactType: body,
+        userId: c.var.user.id,
+      })
       return result.match(
         () => c.json({ success: true }, 200),
         (err) => {

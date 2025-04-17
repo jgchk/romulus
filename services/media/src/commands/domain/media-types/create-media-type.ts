@@ -20,10 +20,11 @@ export function createCreateMediaTypeCommandHandler(projection: MediaTypesProjec
       }
     }
 
-    return ok(mediaTypeCreatedEvent({ mediaType: command.mediaType }))
+    return ok(mediaTypeCreatedEvent({ mediaType: command.mediaType, userId: command.userId }))
   }
 }
 
 export type CreateMediaTypeCommand = {
   mediaType: MediaType
+  userId: number
 }

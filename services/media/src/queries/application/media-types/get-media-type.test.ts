@@ -8,7 +8,7 @@ import { createGetMediaTypeQueryHandler } from './get-media-type.js'
 test('should return the media type if it exists', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] }, userId: 0 }),
   )
 
   const getMediaType = createGetMediaTypeQueryHandler(dbConnection)

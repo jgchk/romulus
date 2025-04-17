@@ -20,12 +20,15 @@ it('should create a media artifact relationship type', async () => {
   eventStore.save('media-artifact-types', [
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: [] },
+      userId: 0,
     }),
   ])
 
@@ -42,6 +45,7 @@ it('should create a media artifact relationship type', async () => {
       parentMediaArtifactType: 'gallery',
       childMediaArtifactTypes: ['painting', 'sculpture'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(ok(undefined))
@@ -56,6 +60,7 @@ it('should create a media artifact relationship type', async () => {
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 })

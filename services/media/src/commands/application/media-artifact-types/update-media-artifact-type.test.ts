@@ -27,11 +27,13 @@ it('should update a media artifact type', async () => {
   eventStore.save('media-types', [
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
   eventStore.save('media-artifact-types', [
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 
@@ -47,6 +49,7 @@ it('should update a media artifact type', async () => {
       name: 'Test',
       mediaTypes: ['test-media-type'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(ok(undefined))
@@ -55,10 +58,12 @@ it('should update a media artifact type', async () => {
   expect(events).toEqual([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
     mediaArtifactTypeUpdatedEvent({
       id: 'test',
       update: { name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 })
@@ -72,6 +77,7 @@ it('should fail if the media artifact type does not exist', async () => {
   eventStore.save('media-types', [
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
 
@@ -87,6 +93,7 @@ it('should fail if the media artifact type does not exist', async () => {
       name: 'Test',
       mediaTypes: ['test-media-type'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaArtifactTypeNotFoundError('test')))
@@ -104,6 +111,7 @@ it('should fail if the media type does not exist', async () => {
   eventStore.save('media-artifact-types', [
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 
@@ -119,6 +127,7 @@ it('should fail if the media type does not exist', async () => {
       name: 'Test',
       mediaTypes: ['test-media-type'],
     },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('test-media-type')))
@@ -127,6 +136,7 @@ it('should fail if the media type does not exist', async () => {
   expect(events).toEqual([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 })

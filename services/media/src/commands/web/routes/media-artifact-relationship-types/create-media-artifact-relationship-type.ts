@@ -35,6 +35,7 @@ export function createCreateMediaArtifactRelationshipTypeRoute({
       const body = c.req.valid('json')
       const result = await createMediaArtifactRelationshipType({
         mediaArtifactRelationshipType: body,
+        userId: c.var.user.id,
       })
       return result.match(
         () => c.json({ success: true }, 200),

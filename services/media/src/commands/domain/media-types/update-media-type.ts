@@ -31,13 +31,16 @@ export function createUpdateMediaTypeCommand(projection: MediaTypesProjection) {
       )
     }
 
-    return ok(mediaTypeUpdatedEvent({ id: command.id, update: command.update }))
+    return ok(
+      mediaTypeUpdatedEvent({ id: command.id, update: command.update, userId: command.userId }),
+    )
   }
 }
 
 export type UpdateMediaTypeCommand = {
   id: string
   update: Omit<MediaType, 'id'>
+  userId: number
 }
 
 function checkForCycles(command: UpdateMediaTypeCommand, projection: MediaTypesProjection) {

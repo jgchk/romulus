@@ -21,6 +21,7 @@ it('should update a media type', async () => {
 
   await createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: [] },
+    userId: 0,
   })
 
   const updateMediaType = createUpdateMediaTypeCommandHandler(
@@ -31,14 +32,19 @@ it('should update a media type', async () => {
   const result = await updateMediaType({
     id: 'test-id',
     update: { name: 'Test (Updated)', parents: [] },
+    userId: 0,
   })
 
   expect(result).toEqual(ok(undefined))
 
   const events = eventStore.get('media-types')
   expect(events).toEqual([
-    mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } }),
-    mediaTypeUpdatedEvent({ id: 'test-id', update: { name: 'Test (Updated)', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] }, userId: 0 }),
+    mediaTypeUpdatedEvent({
+      id: 'test-id',
+      update: { name: 'Test (Updated)', parents: [] },
+      userId: 0,
+    }),
   ])
 })
 
@@ -52,6 +58,7 @@ it('should error if media type update fails', async () => {
   const result = await updateMediaType({
     id: 'test-id',
     update: { name: 'Test (Updated)', parents: [] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('test-id')))

@@ -5,6 +5,7 @@ export type MediaTypeEvent = MediaTypeCreatedEvent | MediaTypeDeletedEvent | Med
 export type MediaTypeCreatedEvent = {
   _tag: 'media-type-created'
   mediaType: MediaType
+  userId: number
 }
 
 export function mediaTypeCreatedEvent(
@@ -16,6 +17,7 @@ export function mediaTypeCreatedEvent(
 export type MediaTypeDeletedEvent = {
   _tag: 'media-type-deleted'
   id: string
+  userId: number
 }
 
 export function mediaTypeDeletedEvent(
@@ -28,6 +30,7 @@ export type MediaTypeUpdatedEvent = {
   _tag: 'media-type-updated'
   id: string
   update: Omit<MediaType, 'id'>
+  userId: number
 }
 
 export function mediaTypeUpdatedEvent(
@@ -46,6 +49,7 @@ export type MediaArtifactTypeEvent =
 export type MediaArtifactTypeCreatedEvent = {
   _tag: 'media-artifact-type-created'
   mediaArtifactType: MediaArtifactType
+  userId: number
 }
 
 export function mediaArtifactTypeCreatedEvent(
@@ -58,6 +62,7 @@ export type MediaArtifactTypeUpdatedEvent = {
   _tag: 'media-artifact-type-updated'
   id: string
   update: Omit<MediaArtifactType, 'id'>
+  userId: number
 }
 
 export function mediaArtifactTypeUpdatedEvent(
@@ -69,6 +74,7 @@ export function mediaArtifactTypeUpdatedEvent(
 export type MediaArtifactTypeDeletedEvent = {
   _tag: 'media-artifact-type-deleted'
   id: string
+  userId: number
 }
 
 export function mediaArtifactTypeDeletedEvent(
@@ -80,6 +86,7 @@ export function mediaArtifactTypeDeletedEvent(
 export type MediaArtifactRelationshipTypeCreatedEvent = {
   _tag: 'media-artifact-relationship-type-created'
   mediaArtifactRelationshipType: MediaArtifactRelationshipType
+  userId: number
 }
 
 export function mediaArtifactRelationshipTypeCreatedEvent(
@@ -92,6 +99,7 @@ export type MediaArtifactRelationshipTypeUpdatedEvent = {
   _tag: 'media-artifact-relationship-type-updated'
   id: string
   update: Omit<MediaArtifactRelationshipType, 'id'>
+  userId: number
 }
 
 export function mediaArtifactRelationshipTypeUpdatedEvent(

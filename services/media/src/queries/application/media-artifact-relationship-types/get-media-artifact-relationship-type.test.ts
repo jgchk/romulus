@@ -19,6 +19,7 @@ test('should return the media artifact relationship type if it exists', async ({
         name: 'Gallery',
         mediaTypes: [],
       },
+      userId: 0,
     }),
   )
   await applyEvent(
@@ -29,6 +30,7 @@ test('should return the media artifact relationship type if it exists', async ({
         name: 'Painting',
         mediaTypes: [],
       },
+      userId: 0,
     }),
   )
   await applyEvent(
@@ -39,6 +41,7 @@ test('should return the media artifact relationship type if it exists', async ({
         name: 'Sculpture',
         mediaTypes: [],
       },
+      userId: 0,
     }),
   )
   await applyEvent(
@@ -50,6 +53,7 @@ test('should return the media artifact relationship type if it exists', async ({
         parentMediaArtifactType: 'gallery',
         childMediaArtifactTypes: ['painting', 'sculpture'],
       },
+      userId: 0,
     }),
   )
 

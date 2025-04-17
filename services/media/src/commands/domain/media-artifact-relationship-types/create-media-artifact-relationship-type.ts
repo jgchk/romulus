@@ -39,6 +39,7 @@ export function createCreateMediaArtifactRelationshipTypeCommandHandler(
     return ok(
       mediaArtifactRelationshipTypeCreatedEvent({
         mediaArtifactRelationshipType: command.mediaArtifactRelationshipType,
+        userId: command.userId,
       }),
     )
   }
@@ -46,4 +47,5 @@ export function createCreateMediaArtifactRelationshipTypeCommandHandler(
 
 export type CreateMediaArtifactRelationshipTypeCommand = {
   mediaArtifactRelationshipType: MediaArtifactRelationshipType
+  userId: number
 }

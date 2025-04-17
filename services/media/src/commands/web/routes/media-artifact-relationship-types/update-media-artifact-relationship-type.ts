@@ -38,6 +38,7 @@ export function createUpdateMediaArtifactRelationshipTypeRoute({
       const result = await updateMediaArtifactRelationshipType({
         id: param.id,
         update: body,
+        userId: c.var.user.id,
       })
       return result.match(
         () => c.json({ success: true }, 200),

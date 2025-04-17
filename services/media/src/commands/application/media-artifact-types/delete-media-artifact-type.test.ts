@@ -14,10 +14,10 @@ it('should delete a media artifact type', async () => {
     saveMediaArtifactTypeEvent: createSaveMediaArtifactTypeEvent(eventStore),
   })
 
-  const result = await deleteMediaArtifactType({ id: 'test-id' })
+  const result = await deleteMediaArtifactType({ id: 'test-id', userId: 0 })
 
   expect(result).toEqual(undefined)
 
   const events = eventStore.get('media-artifact-types')
-  expect(events).toEqual([mediaArtifactTypeDeletedEvent({ id: 'test-id' })])
+  expect(events).toEqual([mediaArtifactTypeDeletedEvent({ id: 'test-id', userId: 0 })])
 })

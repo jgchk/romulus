@@ -10,6 +10,7 @@ test('should return the media artifact type if it exists', async ({ dbConnection
     dbConnection,
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: [] },
+      userId: 0,
     }),
   )
 

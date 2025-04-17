@@ -8,11 +8,14 @@ import { createGetAllMediaTypesQueryHandler } from './get-all-media-types.js'
 test('should get all media types', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'parent', name: 'Parent', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'parent', name: 'Parent', parents: [] }, userId: 0 }),
   )
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'child', name: 'Child', parents: ['parent'] } }),
+    mediaTypeCreatedEvent({
+      mediaType: { id: 'child', name: 'Child', parents: ['parent'] },
+      userId: 0,
+    }),
   )
 
   const getAllMediaTypes = createGetAllMediaTypesQueryHandler(dbConnection)
@@ -28,11 +31,11 @@ test('should get all media types', async ({ dbConnection }) => {
 test('should sort media types in alphabetical order', async ({ dbConnection }) => {
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'b', name: 'B', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'b', name: 'B', parents: [] }, userId: 0 }),
   )
   await applyEvent(
     dbConnection,
-    mediaTypeCreatedEvent({ mediaType: { id: 'a', name: 'A', parents: [] } }),
+    mediaTypeCreatedEvent({ mediaType: { id: 'a', name: 'A', parents: [] }, userId: 0 }),
   )
 
   const getAllMediaTypes = createGetAllMediaTypesQueryHandler(dbConnection)

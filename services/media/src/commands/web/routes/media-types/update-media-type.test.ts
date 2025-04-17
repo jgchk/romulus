@@ -47,7 +47,10 @@ it('updates a media type', async () => {
     updateMediaType: createUpdateMediaTypeCommandHandler(
       () =>
         createMediaTypesProjectionFromEvents([
-          mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+          mediaTypeCreatedEvent({
+            mediaType: { id: 'test', name: 'Test', parents: [] },
+            userId: 0,
+          }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},
@@ -91,7 +94,10 @@ it('returns 422 error if a cycle would be created', async () => {
     updateMediaType: createUpdateMediaTypeCommandHandler(
       () =>
         createMediaTypesProjectionFromEvents([
-          mediaTypeCreatedEvent({ mediaType: { id: 'test', name: 'Test', parents: [] } }),
+          mediaTypeCreatedEvent({
+            mediaType: { id: 'test', name: 'Test', parents: [] },
+            userId: 0,
+          }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},

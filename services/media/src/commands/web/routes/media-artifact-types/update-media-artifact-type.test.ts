@@ -55,6 +55,7 @@ it('updates a media artifact type', async () => {
         createMediaArtifactTypesProjectionFromEvents([
           mediaArtifactTypeCreatedEvent({
             mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            userId: 0,
           }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -78,6 +79,7 @@ it('returns a 401 if the user is not authenticated', async () => {
         createMediaArtifactTypesProjectionFromEvents([
           mediaArtifactTypeCreatedEvent({
             mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            userId: 0,
           }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -117,6 +119,7 @@ it('returns a 403 if the user does not have permission', async () => {
         createMediaArtifactTypesProjectionFromEvents([
           mediaArtifactTypeCreatedEvent({
             mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            userId: 0,
           }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -168,6 +171,7 @@ it('returns a 422 if the media type does not exist', async () => {
         createMediaArtifactTypesProjectionFromEvents([
           mediaArtifactTypeCreatedEvent({
             mediaArtifactType: { id: 'test', name: 'Test', mediaTypes: [] },
+            userId: 0,
           }),
         ]),
       // eslint-disable-next-line @typescript-eslint/no-empty-function

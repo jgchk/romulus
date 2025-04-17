@@ -21,6 +21,7 @@ it('should create a media artifact type', async () => {
   eventStore.save('media-types', [
     mediaTypeCreatedEvent({
       mediaType: { id: 'test-media-type', name: 'Test Media Type', parents: [] },
+      userId: 0,
     }),
   ])
 
@@ -31,6 +32,7 @@ it('should create a media artifact type', async () => {
 
   const result = await createMediaArtifactType({
     mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
+    userId: 0,
   })
 
   expect(result).toEqual(ok(undefined))
@@ -39,6 +41,7 @@ it('should create a media artifact type', async () => {
   expect(events).toEqual([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
+      userId: 0,
     }),
   ])
 })

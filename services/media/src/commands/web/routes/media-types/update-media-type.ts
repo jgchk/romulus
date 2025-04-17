@@ -36,7 +36,7 @@ export function createUpdateMediaTypeRoute({
     async (c): Promise<RouteResponse<typeof definition>> => {
       const param = c.req.valid('param')
       const body = c.req.valid('json')
-      const result = await updateMediaType({ id: param.id, update: body })
+      const result = await updateMediaType({ id: param.id, update: body, userId: c.var.user.id })
       return result.match(
         () => c.json({ success: true }, 200),
         (err) => {

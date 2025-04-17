@@ -11,10 +11,15 @@ it('should create a media type', () => {
     createMediaTypesProjectionFromEvents([]),
   )
 
-  const result = createMediaType({ mediaType: { id: 'test-id', name: 'Test', parents: [] } })
+  const result = createMediaType({
+    mediaType: { id: 'test-id', name: 'Test', parents: [] },
+    userId: 0,
+  })
 
   expect(result).toEqual(
-    ok(mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] } })),
+    ok(
+      mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] }, userId: 0 }),
+    ),
   )
 })
 
@@ -25,6 +30,7 @@ it('should error if a 1-cycle would be created', () => {
 
   const result = createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: ['test-id'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeTreeCycleError(['Test', 'Test'])))
@@ -37,6 +43,7 @@ it('should error if the parent does not exist', () => {
 
   const result = createMediaType({
     mediaType: { id: 'test-id', name: 'Test', parents: ['parent-id'] },
+    userId: 0,
   })
 
   expect(result).toEqual(err(new MediaTypeNotFoundError('parent-id')))
