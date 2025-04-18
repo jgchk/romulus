@@ -1,8 +1,12 @@
-import type { MediaArtifactType } from '../../../common/domain/types.js'
+import type {
+  MediaArtifactRelationshipType,
+  MediaArtifactType,
+} from '../../../common/domain/types.js'
 import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export type GetMediaArtifactTypesByMediaTypeQueryHandler = (mediaTypeId: string) => Promise<{
   mediaArtifactTypes: MediaArtifactType[]
+  mediaArtifactRelationshipTypes: MediaArtifactRelationshipType[]
 }>
 
 export function createGetMediaArtifactTypesByMediaTypeQueryHandler(
@@ -16,7 +20,9 @@ export function createGetMediaArtifactTypesByMediaTypeQueryHandler(
         columns: {},
         with: {
           mediaArtifactType: {
-            with: { mediaTypes: { columns: { mediaTypeId: true } } },
+            with: {
+              mediaTypes: { columns: { mediaTypeId: true } },
+            },
           },
         },
       })
@@ -26,6 +32,24 @@ export function createGetMediaArtifactTypesByMediaTypeQueryHandler(
           mediaTypes: result.mediaArtifactType.mediaTypes.map((mediaType) => mediaType.mediaTypeId),
         })),
       )
-    return { mediaArtifactTypes }
+    const mediaArtifactTypeIds = mediaArtifactTypes.map(({ id }) => id)
+
+    const mediaArtifactRelationshipTypes = await db.query.mediaArtifactRelationshipTypes
+      .findMany({
+        where: (mediaArtifactRelationshipTypes, { inArray }) =>
+          inArray(mediaArtifactRelationshipTypes.parentMediaArtifactTypeId, mediaArtifactTypeIds),
+        with: { childMediaArtifactTypes: { columns: { childMediaArtifactTypeId: true } } },
+      })
+      .then((results) =>
+        results.map(({ parentMediaArtifactTypeId, ...result }) => ({
+          ...result,
+          parentMediaArtifactType: parentMediaArtifactTypeId,
+          childMediaArtifactTypes: result.childMediaArtifactTypes.map(
+            ({ childMediaArtifactTypeId }) => childMediaArtifactTypeId,
+          ),
+        })),
+      )
+
+    return { mediaArtifactTypes, mediaArtifactRelationshipTypes }
   }
 }

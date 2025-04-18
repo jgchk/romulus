@@ -50,6 +50,7 @@ export const mediaArtifactTypes = pgTable('media_artifact_types', {
 
 export const mediaArtifactTypeRelations = relations(mediaArtifactTypes, ({ many }) => ({
   mediaTypes: many(mediaArtifactTypeMediaTypes),
+  mediaArtifactRelationshipTypes: many(mediaArtifactRelationshipTypes),
 }))
 
 export const mediaArtifactTypeMediaTypes = pgTable(
@@ -98,7 +99,11 @@ export const mediaArtifactRelationshipTypes = pgTable('media_artifact_relationsh
 
 export const mediaArtifactRelationshipTypeRelations = relations(
   mediaArtifactRelationshipTypes,
-  ({ many }) => ({
+  ({ one, many }) => ({
+    parentMediaArtifactType: one(mediaArtifactTypes, {
+      fields: [mediaArtifactRelationshipTypes.parentMediaArtifactTypeId],
+      references: [mediaArtifactTypes.id],
+    }),
     childMediaArtifactTypes: many(mediaArtifactRelationshipTypeChildren),
   }),
 )

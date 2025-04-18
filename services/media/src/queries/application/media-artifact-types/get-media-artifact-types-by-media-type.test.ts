@@ -1,6 +1,7 @@
 import { expect } from 'vitest'
 
 import {
+  mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactTypeCreatedEvent,
   mediaTypeCreatedEvent,
 } from '../../../common/domain/events.js'
@@ -53,6 +54,19 @@ test('should get all media artifact types for the given media type', async ({ db
     }),
   )
 
+  await applyEvent(
+    dbConnection,
+    mediaArtifactRelationshipTypeCreatedEvent({
+      mediaArtifactRelationshipType: {
+        id: 'gallery-artwork',
+        name: 'Gallery Artwork',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
+      },
+      userId: 0,
+    }),
+  )
+
   const getMediaArtifactTypesByMediaType =
     createGetMediaArtifactTypesByMediaTypeQueryHandler(dbConnection)
 
@@ -64,6 +78,89 @@ test('should get all media artifact types for the given media type', async ({ db
         id: 'painting',
         name: 'Painting',
         mediaTypes: ['painting'],
+      },
+    ],
+    mediaArtifactRelationshipTypes: [],
+  })
+})
+
+test('should get all media artifact types for the given media type', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaTypeCreatedEvent({
+      mediaType: { id: 'visual-art', name: 'Visual Art', parents: [] },
+      userId: 0,
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaTypeCreatedEvent({
+      mediaType: { id: 'painting', name: 'Painting', parents: ['visual-art'] },
+      userId: 0,
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaTypeCreatedEvent({
+      mediaType: { id: 'sculpting', name: 'Sculpting', parents: ['visual-art'] },
+      userId: 0,
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'gallery', name: 'Gallery', mediaTypes: ['visual-art'] },
+      userId: 0,
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'painting', name: 'Painting', mediaTypes: ['painting'] },
+      userId: 0,
+    }),
+  )
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'sculpture', name: 'Sculpture', mediaTypes: ['sculpting'] },
+      userId: 0,
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactRelationshipTypeCreatedEvent({
+      mediaArtifactRelationshipType: {
+        id: 'gallery-artwork',
+        name: 'Gallery Artwork',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
+      },
+      userId: 0,
+    }),
+  )
+
+  const getMediaArtifactTypesByMediaType =
+    createGetMediaArtifactTypesByMediaTypeQueryHandler(dbConnection)
+
+  const result = await getMediaArtifactTypesByMediaType('visual-art')
+
+  expect(result).toEqual({
+    mediaArtifactTypes: [
+      {
+        id: 'gallery',
+        name: 'Gallery',
+        mediaTypes: ['visual-art'],
+      },
+    ],
+    mediaArtifactRelationshipTypes: [
+      {
+        id: 'gallery-artwork',
+        name: 'Gallery Artwork',
+        parentMediaArtifactType: 'gallery',
+        childMediaArtifactTypes: ['painting', 'sculpture'],
       },
     ],
   })

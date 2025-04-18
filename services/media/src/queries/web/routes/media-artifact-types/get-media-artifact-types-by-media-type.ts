@@ -17,8 +17,8 @@ export function createGetMediaArtifactTypesByMediaTypeRoute({
     validator('param', type({ id: 'string' })),
     async (c): Promise<RouteResponse<typeof definition>> => {
       const { id } = c.req.valid('param')
-      const { mediaArtifactTypes } = await getMediaArtifactTypesByMediaType(id)
-      return c.json({ success: true, mediaArtifactTypes }, 200)
+      const response = await getMediaArtifactTypesByMediaType(id)
+      return c.json({ success: true, ...response }, 200)
     },
   )
 }
@@ -38,6 +38,15 @@ const definition = {
             success: 'true',
             mediaArtifactTypes: type(
               { id: 'string', name: 'string', mediaTypes: 'string[]' },
+              '[]',
+            ),
+            mediaArtifactRelationshipTypes: type(
+              {
+                id: 'string',
+                name: 'string',
+                parentMediaArtifactType: 'string',
+                childMediaArtifactTypes: 'string[]',
+              },
               '[]',
             ),
           }),
