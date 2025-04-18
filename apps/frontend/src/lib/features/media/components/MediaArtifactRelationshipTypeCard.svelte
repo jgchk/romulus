@@ -34,7 +34,7 @@
   <div class="absolute right-2 top-2 flex space-x-1">
     <LinkIconButton
       tooltip="Edit"
-      href={routes.media.artifactTypes.relationships.details.edit.route(id)}
+      href={routes.media.artifactRelationshipTypes.details.edit.route(id)}
       ><Pencil /></LinkIconButton
     >
   </div>

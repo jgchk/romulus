@@ -89,7 +89,7 @@
           >Artifact Types</a
         >
         <a
-          href={routes.media.artifactTypes.relationships.route()}
+          href={routes.media.artifactRelationshipTypes.route()}
           class="h-full rounded bg-transparent px-2.5 py-1 transition hover:bg-gray-200 dark:hover:bg-gray-800"
           >Artifact Relationships</a
         >

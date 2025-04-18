@@ -49,15 +49,15 @@ export const routes = {
           route: (id: string) => `${routes.media.artifactTypes.route()}/${id}/delete`,
         },
       },
-      relationships: {
-        route: () => `/media/artifact-relationship-types`,
-        create: {
-          route: () => `${routes.media.artifactTypes.relationships.route()}/create`,
-        },
-        details: {
-          edit: {
-            route: (id: string) => `${routes.media.artifactTypes.relationships.route()}/${id}/edit`,
-          },
+    },
+    artifactRelationshipTypes: {
+      route: () => `/media/artifact-relationship-types`,
+      create: {
+        route: () => `${routes.media.artifactRelationshipTypes.route()}/create`,
+      },
+      details: {
+        edit: {
+          route: (id: string) => `${routes.media.artifactRelationshipTypes.route()}/${id}/edit`,
         },
       },
     },

@@ -84,8 +84,7 @@
 
   <Footer>
     <Button type="submit" loading={$delayed}>Save</Button>
-    <LinkButton kind="text" href={routes.media.artifactTypes.relationships.route()}
-      >Cancel</LinkButton
+    <LinkButton kind="text" href={routes.media.artifactRelationshipTypes.route()}>Cancel</LinkButton
     >
   </Footer>
 </form>

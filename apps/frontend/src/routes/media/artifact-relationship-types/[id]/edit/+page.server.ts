@@ -73,6 +73,6 @@ export const actions = {
       }
     }
 
-    return redirect(303, routes.media.artifactTypes.relationships.route())
+    return redirect(303, routes.media.artifactRelationshipTypes.route())
   },
 } satisfies Actions
