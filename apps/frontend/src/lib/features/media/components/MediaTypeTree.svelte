@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TreeNode from './TreeNode.svelte'
+  import MediaTypeTreeNode from './MediaTypeTreeNode.svelte'
 
   let {
     mediaTypes,
@@ -31,7 +31,7 @@
   {#if topLevelMediaTypes.length > 0}
     <ul>
       {#each topLevelMediaTypes as mediaTypeId (mediaTypeId)}
-        <TreeNode id={mediaTypeId} {mediaTypes} />
+        <MediaTypeTreeNode id={mediaTypeId} {mediaTypes} />
       {/each}
     </ul>
   {:else}

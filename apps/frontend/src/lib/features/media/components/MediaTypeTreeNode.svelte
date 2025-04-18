@@ -7,7 +7,7 @@
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
-  import TreeNode from './TreeNode.svelte'
+  import MediaTypeTreeNode from './MediaTypeTreeNode.svelte'
 
   let {
     id,
@@ -59,7 +59,7 @@
       {#if mediaType.children.length > 0}
         <ul>
           {#each mediaType.children as childId (childId)}
-            <TreeNode id={childId} {mediaTypes} />
+            <MediaTypeTreeNode id={childId} {mediaTypes} />
           {/each}
         </ul>
       {/if}

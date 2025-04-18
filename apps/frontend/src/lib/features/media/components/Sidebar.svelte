@@ -1,7 +1,7 @@
 <script lang="ts">
   import LinkButton from '$lib/atoms/LinkButton.svelte'
 
-  import Tree from './Tree.svelte'
+  import MediaTypeTree from './MediaTypeTree.svelte'
 
   let {
     mediaTypes,
@@ -20,7 +20,7 @@
 
 {#if expanded}
   <div>
-    <Tree {mediaTypes} />
+    <MediaTypeTree {mediaTypes} />
 
     <LinkButton href="/media-types/create">New Media Type</LinkButton>
   </div>

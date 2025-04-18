@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Tree from '$lib/features/media/components/Tree.svelte'
+  import MediaTypeTree from '$lib/features/media/components/MediaTypeTree.svelte'
 
   import type { PageProps } from './$types'
 
@@ -29,5 +29,5 @@
 </script>
 
 <div class="max-w-lg">
-  <Tree mediaTypes={convertTree([...data.mediaTypes.values()])} />
+  <MediaTypeTree mediaTypes={convertTree([...data.mediaTypes.values()])} />
 </div>
