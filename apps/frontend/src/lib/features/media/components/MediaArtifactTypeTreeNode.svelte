@@ -40,12 +40,15 @@
 
       <LinkIconButton
         tooltip="Edit"
-        href={routes.media.types.details.edit.route(mediaArtifactType.id)}
+        href={routes.media.artifactTypes.details.edit.route(mediaArtifactType.id)}
         size="sm"
       >
         <Pencil />
       </LinkIconButton>
-      <form method="post" action={routes.media.types.details.delete.route(mediaArtifactType.id)}>
+      <form
+        method="post"
+        action={routes.media.artifactTypes.details.delete.route(mediaArtifactType.id)}
+      >
         <input type="hidden" name="id" value={mediaArtifactType.id} />
         <IconButton tooltip="Delete" type="submit" size="sm">
           <Trash />
