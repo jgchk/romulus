@@ -17,12 +17,6 @@ export const routes = {
   media: {
     types: {
       route: () => '/media/types',
-      cards: {
-        route: () => `${routes.media.types.route()}/cards`,
-      },
-      tree: {
-        route: () => `${routes.media.types.route()}/tree`,
-      },
       create: {
         route: () => `${routes.media.types.route()}/create`,
       },
