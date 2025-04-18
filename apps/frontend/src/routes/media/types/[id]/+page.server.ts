@@ -35,5 +35,6 @@ export const load = (async ({ params, locals }: { params: { id: string }; locals
   return {
     mediaType: response.value.mediaType,
     mediaArtifactTypes: artifactsResponse.value.mediaArtifactTypes,
+    mediaArtifactRelationshipTypes: artifactsResponse.value.mediaArtifactRelationshipTypes,
   }
 }) satisfies PageServerLoad

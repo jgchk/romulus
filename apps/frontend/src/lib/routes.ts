@@ -36,11 +36,12 @@ export const routes = {
         route: () => `${routes.media.artifactTypes.route()}/create`,
       },
       details: {
+        route: (id: string) => `${routes.media.artifactTypes.route()}/${id}`,
         edit: {
-          route: (id: string) => `${routes.media.artifactTypes.route()}/${id}/edit`,
+          route: (id: string) => `${routes.media.artifactTypes.details.route(id)}/edit`,
         },
         delete: {
-          route: (id: string) => `${routes.media.artifactTypes.route()}/${id}/delete`,
+          route: (id: string) => `${routes.media.artifactTypes.details.route(id)}/delete`,
         },
       },
     },

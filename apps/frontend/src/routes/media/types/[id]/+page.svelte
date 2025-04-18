@@ -4,7 +4,7 @@
   import Chip from '$lib/atoms/Chip.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
-  import MediaArtifactTypeCard from '$lib/features/media/components/MediaArtifactTypeCard.svelte'
+  import MediaArtifactTypeTree from '$lib/features/media/components/MediaArtifactTypeTree.svelte'
   import { routes } from '$lib/routes'
 
   import type { PageProps } from './$types'
@@ -69,8 +69,7 @@
   </div>
 </div>
 
-<div>
-  {#each data.mediaArtifactTypes as mediaArtifactType (mediaArtifactType.id)}
-    <MediaArtifactTypeCard {mediaArtifactType} mediaTypes={data.mediaTypes} />
-  {/each}
-</div>
+<MediaArtifactTypeTree
+  mediaArtifactTypes={data.mediaArtifactTypes}
+  mediaArtifactRelationshipTypes={data.mediaArtifactRelationshipTypes}
+/>
