@@ -2,15 +2,11 @@
   import type { Snippet } from 'svelte'
 
   import { isMouseEventOutsideNodes } from '$lib/actions/clickOutside'
+  import { readableBoxWith, writableBoxWith } from '$lib/runes/box.svelte'
   import { tw } from '$lib/utils/dom'
 
   import { getInputGroupErrors } from '../InputGroup'
-  import {
-    MultiselectState,
-    readableBoxWith,
-    setMultiselectState,
-    writableBoxWith,
-  } from './MultiselectState.svelte'
+  import { MultiselectState, setMultiselectState } from './MultiselectState.svelte'
 
   let {
     value = $bindable([]),

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { getMultiselectState, writableBoxWith } from './MultiselectState.svelte'
+  import { writableBoxWith } from '$lib/runes/box.svelte'
+
+  import { getMultiselectState } from './MultiselectState.svelte'
 
   let {
     value: value_ = $bindable(''),

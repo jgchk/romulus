@@ -3,6 +3,7 @@ import { getContext, setContext } from 'svelte'
 
 import { createPopoverActions } from '$lib/actions/popover'
 import type { Action } from '$lib/actions/types'
+import type { ReadableBox, WritableBox } from '$lib/runes/box.svelte'
 
 export class SelectState {
   uuid: string
@@ -111,37 +112,6 @@ export function getSelectState(): SelectState {
     throw new Error('Could not find SelectState. Did you call setSelectState()?')
   }
   return state
-}
-
-type ReadableBox<T> = {
-  readonly current: T
-}
-
-type WritableBox<T> = {
-  current: T
-}
-
-export function readableBoxWith<T>(getter: () => T): ReadableBox<T> {
-  const derived = $derived.by(getter)
-
-  return {
-    get current() {
-      return derived
-    },
-  }
-}
-
-export function writableBoxWith<T>(getter: () => T, setter: (v: T) => void): WritableBox<T> {
-  const derived = $derived.by(getter)
-
-  return {
-    get current() {
-      return derived
-    },
-    set current(v: T) {
-      setter(v)
-    },
-  }
 }
 
 export function createSelectHandleKeyDown(selectState: SelectState) {

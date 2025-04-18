@@ -3,6 +3,7 @@ import { getContext, setContext } from 'svelte'
 
 import { createPopoverActions } from '$lib/actions/popover'
 import type { Action } from '$lib/actions/types'
+import type { ReadableBox, WritableBox } from '$lib/runes/box.svelte'
 
 export class MultiselectState {
   uuid: string
@@ -114,35 +115,4 @@ export function getMultiselectState(): MultiselectState {
     throw new Error('Could not find MultiselectState. Did you call setMultiselectState()?')
   }
   return state
-}
-
-type ReadableBox<T> = {
-  readonly current: T
-}
-
-type WritableBox<T> = {
-  current: T
-}
-
-export function readableBoxWith<T>(getter: () => T): ReadableBox<T> {
-  const derived = $derived.by(getter)
-
-  return {
-    get current() {
-      return derived
-    },
-  }
-}
-
-export function writableBoxWith<T>(getter: () => T, setter: (v: T) => void): WritableBox<T> {
-  const derived = $derived.by(getter)
-
-  return {
-    get current() {
-      return derived
-    },
-    set current(v: T) {
-      setter(v)
-    },
-  }
 }
