@@ -7,3 +7,8 @@ export const withProps = <T extends object, P extends Record<string, unknown>>(
 }
 
 export type MaybePromise<T> = T | Promise<T>
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function assertUnreachable(x: never): never {
+  throw new Error("Didn't expect to get here")
+}

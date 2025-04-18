@@ -1,6 +1,12 @@
 import { type } from 'arktype'
 
 import { createErrorResponseWithDetails } from '../../../../common/web/utils.js'
+import { type RouteDefinition } from '../../../../common/web/utils.js'
+import { type RouteResponse } from '../../../../common/web/utils.js'
+import { createRoute } from '../../../../common/web/utils.js'
+import { validator } from '../../../../common/web/utils.js'
+import { factory } from '../../../../common/web/utils.js'
+import { assertUnreachable } from '../../../../utils.js'
 import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from '../../../application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
 import { MediaArtifactRelationshipTypeNotFoundError } from '../../../domain/media-artifact-relationship-types/errors.js'
 import { MediaArtifactTypeNotFoundError } from '../../../domain/media-artifact-types/errors.js'
@@ -11,10 +17,6 @@ import {
   unauthenticatedErrorResponse,
   unauthorizedErrorResponse,
 } from '../../errors.js'
-import { type RouteDefinition } from '../common.js'
-import { type RouteResponse } from '../common.js'
-import { createRoute } from '../common.js'
-import { assertUnreachable, factory, validator } from '../common.js'
 
 export function createUpdateMediaArtifactRelationshipTypeRoute({
   authz,

@@ -5,34 +5,6 @@ import { resolver } from 'hono-openapi/arktype'
 import { createErrorResponse } from '../../common/web/utils.js'
 
 export const routes = {
-  getAllMediaTypes: {
-    route: () =>
-      describeRoute({
-        description: 'Get all media types',
-        responses: {
-          200: {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: resolver(routes.getAllMediaTypes.successResponse),
-              },
-            },
-          },
-        },
-      }),
-    successResponse: type({
-      success: 'true',
-      mediaTypes: type(
-        {
-          id: 'string',
-          name: 'string',
-          parents: 'string[]',
-        },
-        '[]',
-      ),
-    }),
-  },
-
   getMediaType: {
     route: () =>
       describeRoute({

@@ -1,6 +1,12 @@
 import { type } from 'arktype'
 
 import { createErrorResponse } from '../../../../common/web/utils.js'
+import { type RouteDefinition } from '../../../../common/web/utils.js'
+import { type RouteResponse } from '../../../../common/web/utils.js'
+import { createRoute } from '../../../../common/web/utils.js'
+import { validator } from '../../../../common/web/utils.js'
+import { factory } from '../../../../common/web/utils.js'
+import { assertUnreachable } from '../../../../utils.js'
 import type { CreateMediaArtifactTypeCommandHandler } from '../../../application/media-artifact-types/create-media-artifact-type.js'
 import { MediaTypeNotFoundError } from '../../../domain/media-types/errors.js'
 import { MediaPermission } from '../../../domain/permissions.js'
@@ -10,10 +16,6 @@ import {
   unauthenticatedErrorResponse,
   unauthorizedErrorResponse,
 } from '../../errors.js'
-import { type RouteDefinition } from '../common.js'
-import { type RouteResponse } from '../common.js'
-import { createRoute } from '../common.js'
-import { assertUnreachable, factory, validator } from '../common.js'
 
 export function createCreateMediaArtifactTypeRoute({
   authz,
