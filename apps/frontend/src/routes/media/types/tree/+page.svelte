@@ -36,5 +36,7 @@
     <LinkButton href={routes.media.types.tree.route()}>Tree</LinkButton>
   </div>
 
-  <Tree mediaTypes={convertTree([...data.mediaTypes.values()])} />
+  <div class="max-w-lg">
+    <Tree mediaTypes={convertTree([...data.mediaTypes.values()])} />
+  </div>
 </div>

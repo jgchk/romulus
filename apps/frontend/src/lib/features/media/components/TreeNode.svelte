@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { CaretRight } from 'phosphor-svelte'
+  import { CaretRight, Pencil, Trash } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
+  import LinkIconButton from '$lib/atoms/LinkIconButton.svelte'
   import { routes } from '$lib/routes'
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
@@ -37,6 +38,20 @@
     >
       {mediaType.name}
     </a>
+
+    <LinkIconButton
+      tooltip="Edit"
+      href={routes.media.types.details.edit.route(mediaType.id)}
+      size="sm"
+    >
+      <Pencil />
+    </LinkIconButton>
+    <form method="post" action={routes.media.types.details.delete.route(mediaType.id)}>
+      <input type="hidden" name="id" value={mediaType.id} />
+      <IconButton tooltip="Delete" type="submit" size="sm">
+        <Trash />
+      </IconButton>
+    </form>
   </div>
 
   {#if isExpanded && isExpandable}
