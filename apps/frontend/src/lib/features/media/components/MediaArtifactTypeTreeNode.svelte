@@ -61,7 +61,7 @@
               <li>
                 <div class="flex">
                   <a
-                    href={routes.media.artifactTypes.details.route(id)}
+                    href={routes.media.artifactRelationshipTypes.details.route(relationship.id)}
                     class="group block flex-1 truncate rounded border border-black border-opacity-0 px-1.5 text-[0.93rem] italic text-gray-500 transition hover:border-opacity-[0.03] hover:bg-gray-200 hover:text-black dark:border-white dark:border-opacity-0 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-white"
                   >
                     {relationship.name}

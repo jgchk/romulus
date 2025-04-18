@@ -51,8 +51,9 @@ export const routes = {
         route: () => `${routes.media.artifactRelationshipTypes.route()}/create`,
       },
       details: {
+        route: (id: string) => `${routes.media.artifactRelationshipTypes.route()}/${id}`,
         edit: {
-          route: (id: string) => `${routes.media.artifactRelationshipTypes.route()}/${id}/edit`,
+          route: (id: string) => `${routes.media.artifactRelationshipTypes.details.route(id)}/edit`,
         },
       },
     },
