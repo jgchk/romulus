@@ -11,8 +11,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "lint": "prettier --check . && pnpm check && eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
+    "lint": "prettier --check . && pnpm check && eslint --cache . ",
+    "lint:fix": "prettier --write . && eslint --cache --fix .",
     "format": "prettier --write .",
     "docker:build": "docker build -t romulus .",
     "docker:run": "docker run --network host -p 3000:3000 --env-file .env.docker romulus"

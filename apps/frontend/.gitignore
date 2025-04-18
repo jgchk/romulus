@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 dumpfile.dump
 /coverage
 ai.txt
+.eslintcache
