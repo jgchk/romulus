@@ -2,7 +2,6 @@ import { type } from 'arktype'
 import { Hono } from 'hono'
 
 import { MediaArtifactRelationshipTypeNotFoundError } from '../../commands/domain/media-artifact-relationship-types/errors.js'
-import { MediaArtifactTypeNotFoundError } from '../../commands/domain/media-artifact-types/errors.js'
 import { validator } from '../../common/web/utils.js'
 import type { GetMediaArtifactRelationshipTypeQueryHandler } from '../application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
 import type { GetAllMediaArtifactTypesQueryHandler } from '../application/media-artifact-types/get-all-media-artifact-types.js'
@@ -11,6 +10,7 @@ import type { GetAllMediaTypesQueryHandler } from '../application/media-types/ge
 import type { GetMediaTypeQueryHandler } from '../application/media-types/get-media-type.js'
 import { routes } from './routes.js'
 import { createGetAllMediaArtifactTypesRoute } from './routes/media-artifact-types/get-all-media-artifact-types.js'
+import { createGetMediaArtifactTypeRoute } from './routes/media-artifact-types/get-media-artifact-type.js'
 import { createGetAllMediaTypesRoute } from './routes/media-types/get-all-media-types.js'
 import { createGetMediaTypeRoute } from './routes/media-types/get-media-type.js'
 
@@ -36,32 +36,7 @@ export function createMediaQueriesRouter({
       '/media-artifact-types',
       ...createGetAllMediaArtifactTypesRoute({ getAllMediaArtifactTypes }),
     )
-    .get(
-      '/media-artifact-types/:id',
-      routes.getMediaArtifactType.route(),
-      validator('param', type({ id: 'string' })),
-      async (c) => {
-        const { id } = c.req.valid('param')
-        const mediaArtifactType = await getMediaArtifactType(id)
-        if (mediaArtifactType === undefined) {
-          const error = new MediaArtifactTypeNotFoundError(id)
-          return c.json(
-            {
-              success: false,
-              error: { name: error.name, message: error.message, statusCode: 404 },
-            } satisfies typeof routes.getMediaArtifactType.errorResponse.infer,
-            404,
-          )
-        }
-        return c.json(
-          {
-            success: true,
-            mediaArtifactType,
-          } satisfies typeof routes.getMediaArtifactType.successResponse.infer,
-          200,
-        )
-      },
-    )
+    .get('/media-artifact-types/:id', ...createGetMediaArtifactTypeRoute({ getMediaArtifactType }))
     .get(
       '/media-artifact-relationship-types/:id',
       routes.getMediaArtifactRelationshipType.route(),

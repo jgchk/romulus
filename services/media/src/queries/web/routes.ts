@@ -5,66 +5,6 @@ import { resolver } from 'hono-openapi/arktype'
 import { createErrorResponse } from '../../common/web/utils.js'
 
 export const routes = {
-  getAllMediaArtifactTypes: {
-    route: () =>
-      describeRoute({
-        description: 'Get all media artifact types',
-        responses: {
-          200: {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: resolver(routes.getAllMediaArtifactTypes.successResponse),
-              },
-            },
-          },
-        },
-      }),
-    successResponse: type({
-      success: 'true',
-      mediaArtifactTypes: type({ id: 'string', name: 'string', mediaTypes: 'string[]' }, '[]'),
-      mediaArtifactRelationshipTypes: type(
-        {
-          id: 'string',
-          name: 'string',
-          parentMediaArtifactType: 'string',
-          childMediaArtifactTypes: 'string[]',
-        },
-        '[]',
-      ),
-    }),
-  },
-
-  getMediaArtifactType: {
-    route: () =>
-      describeRoute({
-        description: 'Get a media artifact type',
-        responses: {
-          200: {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: resolver(routes.getMediaArtifactType.successResponse),
-              },
-            },
-          },
-          404: {
-            description: 'Media artifact type not found',
-            content: {
-              'application/json': {
-                schema: resolver(routes.getMediaArtifactType.errorResponse),
-              },
-            },
-          },
-        },
-      }),
-    successResponse: type({
-      success: 'true',
-      mediaArtifactType: type({ id: 'string', name: 'string', mediaTypes: 'string[]' }),
-    }),
-    errorResponse: createErrorResponse(type('"MediaArtifactTypeNotFoundError"'), type('404')),
-  },
-
   getMediaArtifactRelationshipType: {
     route: () =>
       describeRoute({
