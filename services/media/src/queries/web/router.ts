@@ -10,6 +10,7 @@ import type { GetMediaArtifactTypeQueryHandler } from '../application/media-arti
 import type { GetAllMediaTypesQueryHandler } from '../application/media-types/get-all-media-types.js'
 import type { GetMediaTypeQueryHandler } from '../application/media-types/get-media-type.js'
 import { routes } from './routes.js'
+import { createGetAllMediaArtifactTypesRoute } from './routes/media-artifact-types/get-all-media-artifact-types.js'
 import { createGetAllMediaTypesRoute } from './routes/media-types/get-all-media-types.js'
 import { createGetMediaTypeRoute } from './routes/media-types/get-media-type.js'
 
@@ -31,13 +32,10 @@ export function createMediaQueriesRouter({
   const app = new Hono()
     .get('/media-types', ...createGetAllMediaTypesRoute({ getAllMediaTypes }))
     .get('/media-types/:id', ...createGetMediaTypeRoute({ getMediaType }))
-    .get('/media-artifact-types', routes.getAllMediaArtifactTypes.route(), async (c) => {
-      const response = await getAllMediaArtifactTypes()
-      return c.json({
-        success: true,
-        ...response,
-      } satisfies typeof routes.getAllMediaArtifactTypes.successResponse.infer)
-    })
+    .get(
+      '/media-artifact-types',
+      ...createGetAllMediaArtifactTypesRoute({ getAllMediaArtifactTypes }),
+    )
     .get(
       '/media-artifact-types/:id',
       routes.getMediaArtifactType.route(),
