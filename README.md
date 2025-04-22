@@ -36,6 +36,13 @@ pnpm db:start
 pnpm dev
 ```
 
+When running locally, a default administrator account will be created automatically with:
+
+- Username: `admin`
+- Password: `admin`
+
+This account has all available permissions for testing purposes.
+
 ## Testing
 
 ```bash
@@ -55,4 +62,3 @@ pnpm build
 # Build specific package
 pnpm --filter @romulus/frontend build
 ```
-
