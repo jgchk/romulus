@@ -1,38 +1,58 @@
-# create-svelte
+# Romulus
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+A genre classification and media categorization platform built with a modular monolith architecture.
 
-## Creating a project
+## Project Structure
 
-If you're seeing this, you've probably already done this step. Congrats!
+This monorepo contains:
+
+- **Frontend**: SvelteKit application with Tailwind CSS
+- **Backend**: Node.js backend services
+- **Services**:
+  - Authentication: User accounts and API keys
+  - Authorization: Permission management
+  - Genres: Genre classification and relationships
+  - Media: Media type categorization and artifact relationships
+  - User Settings: User preferences storage
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+- Docker and Docker Compose (for local database)
+
+### Setup
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
+# Install dependencies
+pnpm install
 
-# create a new project in my-app
-npm create svelte@latest my-app
+# Start local database
+pnpm db:start
+
+# Start all services in development mode
+pnpm dev
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Testing
 
 ```bash
-npm run dev
+# Run all tests
+pnpm test
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Run tests for a specific package
+pnpm --filter @romulus/genres test
 ```
 
 ## Building
 
-To create a production version of your app:
-
 ```bash
-npm run build
+# Build all packages
+pnpm build
+
+# Build specific package
+pnpm --filter @romulus/frontend build
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
