@@ -17,7 +17,7 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
 
   constructor() {
     this.events = new Map()
-    this.sequence = 0
+    this.sequence = 1
     this.eventEmitter = new TypedEmitter()
   }
 
