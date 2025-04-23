@@ -61,3 +61,24 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
+
+resource "aws_lb_listener_rule" "redirect_www_to_apex" {
+  listener_arn = aws_lb_listener.frontend_https.arn
+  priority     = 1
+
+  condition {
+    host_header {
+      values = ["www.${var.domain_name}"]
+    }
+  }
+
+  action {
+    type = "redirect"
+    redirect {
+      host        = var.domain_name
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
