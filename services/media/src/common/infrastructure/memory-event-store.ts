@@ -25,6 +25,17 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     return (this.events.get(aggregateId) ?? []) as EventEnvelope<U, L[U]>[]
   }
 
+  getAll<T extends keyof L = keyof L>(): EventEnvelope<T, L[T]>[] {
+    // Collect all events from all streams
+    const allEvents: EventEnvelope<T, L[T]>[] = []
+    for (const events of this.events.values()) {
+      allEvents.push(...(events as EventEnvelope<T, L[T]>[]))
+    }
+
+    // Sort by sequence number
+    return allEvents.sort((a, b) => a.sequence - b.sequence)
+  }
+
   save<U extends keyof L>(aggregateId: U, events: L[U][]): void {
     const currentEvents = this.get(aggregateId)
     const currentVersion = Math.max(...currentEvents.map((event) => event.version), 0)

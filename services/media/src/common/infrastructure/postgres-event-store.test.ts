@@ -82,6 +82,63 @@ describe('get()', () => {
   })
 })
 
+describe('getAll()', () => {
+  test('should retrieve all events from all streams in sequence order', async ({
+    dbConnection,
+  }) => {
+    const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)
+
+    // Save events for first aggregate
+    await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test1' }])
+
+    // Save events for second aggregate
+    await eventStore.save('another-aggregate', [{ type: 'AnotherTestEvent', value: 42 }])
+
+    // Save more events for first aggregate
+    await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test2' }])
+
+    // All events should be returned, ordered by sequence
+    expect(await eventStore.getAll()).toEqual([
+      {
+        aggregateId: 'test-aggregate',
+        version: 1,
+        sequence: 1,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test1',
+          type: 'TestEvent',
+        },
+      },
+      {
+        aggregateId: 'another-aggregate',
+        version: 1,
+        sequence: 2,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          value: 42,
+          type: 'AnotherTestEvent',
+        },
+      },
+      {
+        aggregateId: 'test-aggregate',
+        version: 2,
+        sequence: 3,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test2',
+          type: 'TestEvent',
+        },
+      },
+    ])
+  })
+
+  test('should return empty array when no events exist', async ({ dbConnection }) => {
+    const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)
+
+    expect(await eventStore.getAll()).toEqual([])
+  })
+})
+
 describe('save()', () => {
   test('should save events for an aggregate', async ({ dbConnection }) => {
     const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)

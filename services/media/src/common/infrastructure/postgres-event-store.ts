@@ -28,6 +28,14 @@ export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignat
     return results as EventEnvelope<U, L[U]>[]
   }
 
+  async getAll<T extends keyof L = keyof L>(): Promise<EventEnvelope<T, L[T]>[]> {
+    const results = await this.db.query.eventsTable.findMany({
+      orderBy: (events, { asc }) => asc(events.sequence),
+    })
+
+    return results as EventEnvelope<T, L[T]>[]
+  }
+
   async save<U extends keyof L>(id: U, events: L[U][]): Promise<void> {
     if (events.length === 0) return
 
