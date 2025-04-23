@@ -62,7 +62,7 @@ it('should update a media artifact relationship type', async () => {
 
   const events = eventStore.get('media-artifact-types')
   expect(events).toHaveLength(5)
-  expect(events[4]).toEqual(
+  expect(events[4]?.eventData).toEqual(
     mediaArtifactRelationshipTypeUpdatedEvent({
       id: 'gallery-artwork',
       update: {

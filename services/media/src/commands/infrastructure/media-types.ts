@@ -8,7 +8,7 @@ import {
 export function createGetMediaTypes(eventStore: IEventStore<{ 'media-types': MediaTypeEvent }>) {
   return async function getMediaTypes(): Promise<MediaTypesProjection> {
     const events = await eventStore.get('media-types')
-    return createMediaTypesProjectionFromEvents(events)
+    return createMediaTypesProjectionFromEvents(events.map((event) => event.eventData))
   }
 }
 

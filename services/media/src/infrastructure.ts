@@ -11,6 +11,7 @@ import {
 import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
 import * as eventStoreDb from './common/infrastructure/drizzle/event-store/postgres.js'
 import { migratePostgres } from './common/infrastructure/drizzle/migrate.js'
+import type { EventEnvelope } from './common/infrastructure/event-store.js'
 import { PostgresEventStore } from './common/infrastructure/postgres-event-store.js'
 import { applyEvent } from './queries/application/projection.js'
 import type { IDrizzleConnection as QueryProjectionDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
@@ -42,10 +43,15 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
     'media-artifact-types': MediaArtifactTypeEvent
   }>(eventStoreDrizzle)
 
-  function handleEvents(events: (MediaTypeEvent | MediaArtifactTypeEvent)[]) {
+  function handleEvents(
+    events: (
+      | EventEnvelope<'media-types', MediaTypeEvent>
+      | EventEnvelope<'media-artifact-types', MediaArtifactTypeEvent>
+    )[],
+  ) {
     async function handle() {
       for (const event of events) {
-        await applyEvent(db, event)
+        await applyEvent(db, event.eventData)
       }
     }
 

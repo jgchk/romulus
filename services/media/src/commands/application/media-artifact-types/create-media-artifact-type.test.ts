@@ -38,7 +38,7 @@ it('should create a media artifact type', async () => {
   expect(result).toEqual(ok(undefined))
 
   const events = eventStore.get('media-artifact-types')
-  expect(events).toEqual([
+  expect(events.map((event) => event.eventData)).toEqual([
     mediaArtifactTypeCreatedEvent({
       mediaArtifactType: { id: 'test-id', name: 'Test', mediaTypes: ['test-media-type'] },
       userId: 0,

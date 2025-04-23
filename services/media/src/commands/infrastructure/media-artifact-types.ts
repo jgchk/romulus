@@ -10,7 +10,7 @@ export function createGetMediaArtifactTypes(
 ) {
   return async function getMediaArtifactTypes(): Promise<MediaArtifactTypesProjection> {
     const events = await eventStore.get('media-artifact-types')
-    return createMediaArtifactTypesProjectionFromEvents(events)
+    return createMediaArtifactTypesProjectionFromEvents(events.map((event) => event.eventData))
   }
 }
 

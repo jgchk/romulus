@@ -3,7 +3,6 @@ import { afterAll, describe, expect, test as base, vi } from 'vitest'
 
 import type { IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
 import { getPGliteDbConnection, getPGlitePostgresConnection } from './drizzle/event-store/pglite.js'
-import { eventsTable } from './drizzle/event-store/schema.js'
 import { migratePGlite } from './drizzle/migrate.js'
 import { PostgresEventStore } from './postgres-event-store.js'
 
@@ -52,16 +51,26 @@ describe('get()', () => {
       { type: 'TestEvent', data: 'test2' },
     ])
 
-    const events = await eventStore.get('test-aggregate')
-
-    expect(events).toEqual([
+    expect(await eventStore.get('test-aggregate')).toEqual([
       {
-        data: 'test1',
-        type: 'TestEvent',
+        aggregateId: 'test-aggregate',
+        version: 1,
+        sequence: 1,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test1',
+          type: 'TestEvent',
+        },
       },
       {
-        data: 'test2',
-        type: 'TestEvent',
+        aggregateId: 'test-aggregate',
+        version: 2,
+        sequence: 2,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test2',
+          type: 'TestEvent',
+        },
       },
     ])
   })
@@ -69,9 +78,7 @@ describe('get()', () => {
   test('should return empty array when no events exist', async ({ dbConnection }) => {
     const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)
 
-    const events = await eventStore.get('test-aggregate')
-
-    expect(events).toEqual([])
+    expect(await eventStore.get('test-aggregate')).toEqual([])
   })
 })
 
@@ -84,16 +91,26 @@ describe('save()', () => {
       { type: 'TestEvent', data: 'test2' },
     ])
 
-    const events = await eventStore.get('test-aggregate')
-
-    expect(events).toEqual([
+    expect(await eventStore.get('test-aggregate')).toEqual([
       {
-        data: 'test1',
-        type: 'TestEvent',
+        aggregateId: 'test-aggregate',
+        version: 1,
+        sequence: 1,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test1',
+          type: 'TestEvent',
+        },
       },
       {
-        data: 'test2',
-        type: 'TestEvent',
+        aggregateId: 'test-aggregate',
+        version: 2,
+        sequence: 2,
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test2',
+          type: 'TestEvent',
+        },
       },
     ])
   })
@@ -103,83 +120,46 @@ describe('save()', () => {
 
     await eventStore.save('test-aggregate', [])
 
-    const events = await eventStore.get('test-aggregate')
-
-    expect(events).toEqual([])
+    expect(await eventStore.get('test-aggregate')).toEqual([])
   })
 
-  test.skip('should increment version and sequence correctly', async ({ dbConnection }) => {
+  test('should handle multiple aggregates correctly', async ({ dbConnection }) => {
     const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)
 
-    // Insert initial events
-    await db.insert(eventsTable).values([
+    // Save events for first aggregate
+    const events1: TestEvent[] = [{ type: 'TestEvent', data: 'test1' }]
+    await eventStore.save('test-aggregate', events1)
+
+    // Save events for second aggregate
+    const events2: AnotherTestEvent[] = [{ type: 'AnotherTestEvent', value: 42 }]
+    await eventStore.save('another-aggregate', events2)
+
+    expect(await eventStore.get('test-aggregate')).toEqual([
       {
         aggregateId: 'test-aggregate',
         version: 1,
         sequence: 1,
-        timestamp: new Date(),
-        eventData: { type: 'TestEvent', data: 'initial' },
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          data: 'test1',
+          type: 'TestEvent',
+        },
       },
     ])
 
-    // Save new events
-    const events: TestEvent[] = [
-      { type: 'TestEvent', data: 'new1' },
-      { type: 'TestEvent', data: 'new2' },
-    ]
-    await eventStore.save('test-aggregate', events)
-
-    // Verify versions and sequences
-    const savedEvents = await db.query.eventsTable.findMany({
-      where: (evts, { eq }) => eq(evts.aggregateId, 'test-aggregate'),
-      orderBy: (evts, { asc }) => asc(evts.version),
-    })
-
-    expect(savedEvents).toEqual([
-      expect.objectContaining({
+    expect(await eventStore.get('another-aggregate')).toEqual([
+      {
+        aggregateId: 'another-aggregate',
         version: 1,
-        sequence: 1,
-      }),
-      expect.objectContaining({
-        version: 2,
         sequence: 2,
-      }),
-      expect.objectContaining({
-        version: 3,
-        sequence: 3,
-      }),
+        timestamp: expect.any(Date) as Date,
+        eventData: {
+          value: 42,
+          type: 'AnotherTestEvent',
+        },
+      },
     ])
   })
-
-  // test('should handle multiple aggregates correctly', async ({ dbConnection }) => {
-  //   const eventStore = new PostgresEventStore<TestEventSignature>(dbConnection)
-  //
-  //   // Save events for first aggregate
-  //   const events1: TestEvent[] = [{ type: 'TestEvent', data: 'test1' }]
-  //   await eventStore.save('test-aggregate', events1)
-  //
-  //   // Save events for second aggregate
-  //   const events2: AnotherTestEvent[] = [{ type: 'AnotherTestEvent', value: 42 }]
-  //   await eventStore.save('another-aggregate', events2)
-  //
-  //   // Verify events for first aggregate
-  //   const savedEvents1 = await db.query.eventsTable.findMany({
-  //     where: (evts, { eq }) => eq(evts.aggregateId, 'test-aggregate'),
-  //   })
-  //   expect(savedEvents1).toHaveLength(1)
-  //   expect(savedEvents1[0].eventData).toEqual({ type: 'TestEvent', data: 'test1' })
-  //
-  //   // Verify events for second aggregate
-  //   const savedEvents2 = await db.query.eventsTable.findMany({
-  //     where: (evts, { eq }) => eq(evts.aggregateId, 'another-aggregate'),
-  //   })
-  //   expect(savedEvents2).toHaveLength(1)
-  //   expect(savedEvents2[0].eventData).toEqual({ type: 'AnotherTestEvent', value: 42 })
-  //
-  //   // Verify sequences are global
-  //   expect(savedEvents1[0].sequence).toBe(1)
-  //   expect(savedEvents2[0].sequence).toBe(2)
-  // })
 })
 
 describe('on()/off()', () => {
@@ -195,7 +175,18 @@ describe('on()/off()', () => {
     await eventStore.save('test-aggregate', events)
 
     // Verify subscriber was called
-    expect(subscriber).toHaveBeenCalledWith(events)
+    expect(subscriber).toHaveBeenCalledWith([
+      {
+        aggregateId: 'test-aggregate',
+        eventData: {
+          data: 'test1',
+          type: 'TestEvent',
+        },
+        sequence: 1,
+        timestamp: expect.any(Date) as Date,
+        version: 1,
+      },
+    ])
 
     // Remove subscriber
     eventStore.off('test-aggregate', subscriber)
@@ -208,4 +199,3 @@ describe('on()/off()', () => {
     expect(subscriber).toHaveBeenCalledTimes(1)
   })
 })
-

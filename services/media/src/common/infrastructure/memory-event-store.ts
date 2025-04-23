@@ -1,14 +1,19 @@
 import { TypedEmitter } from 'tiny-typed-emitter'
 
-import type { DefaultEventSignature, EventSignature, IEventStore } from './event-store.js'
+import type {
+  DefaultEventSignature,
+  EventEnvelope,
+  EventSignature,
+  IEventStore,
+} from './event-store.js'
 
 export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignature>
   implements IEventStore<EventSignature<L>>
 {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private events: Map<keyof L, { sequence: number; event: any }[]>
+  private events: Map<keyof L, EventEnvelope<string, any>[]>
   private sequence: number
-  private eventEmitter: TypedEmitter<{ [E in keyof L]: (events: L[E][]) => void }>
+  private eventEmitter: TypedEmitter<{ [E in keyof L]: (events: EventEnvelope<E, L[E]>[]) => void }>
 
   constructor() {
     this.events = new Map()
@@ -16,25 +21,42 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     this.eventEmitter = new TypedEmitter()
   }
 
-  get<U extends keyof L>(id: U): L[U][] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return (this.events.get(id) ?? []).map(({ event }) => event)
+  get<U extends keyof L>(aggregateId: U): EventEnvelope<U, L[U]>[] {
+    return (this.events.get(aggregateId) ?? []) as EventEnvelope<U, L[U]>[]
   }
 
-  save<U extends keyof L>(id: U, events: L[U][]): void {
-    const currentEvents = this.events.get(id) ?? []
-    currentEvents.push(...events.map((event) => ({ event, sequence: this.sequence++ })))
-    this.events.set(id, currentEvents)
+  save<U extends keyof L>(aggregateId: U, events: L[U][]): void {
+    const currentEvents = this.get(aggregateId)
+    const currentVersion = Math.max(...currentEvents.map((event) => event.version), 0)
 
-    // @ts-expect-error - TS is not smart enough to infer the type of `events`
-    this.eventEmitter.emit(id, events)
+    const envelopedEvents = events.map((eventData, i) => ({
+      aggregateId,
+      version: currentVersion + 1 + i,
+      sequence: this.sequence++,
+      timestamp: new Date(),
+      eventData,
+    }))
+
+    currentEvents.push(...envelopedEvents)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.events.set(aggregateId, currentEvents as EventEnvelope<string, any>[])
+
+    // @ts-expect-error - TS is not smart enough to infer the type of `envelopedEvents`
+    this.eventEmitter.emit(aggregateId, envelopedEvents)
   }
 
-  on<U extends keyof L>(id: U, callback: (events: L[U][]) => void): void {
-    this.eventEmitter.on(id, callback)
+  on<U extends keyof L>(
+    aggregateId: U,
+    callback: (events: EventEnvelope<U, L[U]>[]) => void,
+  ): void {
+    this.eventEmitter.on(aggregateId, callback)
   }
 
-  off<U extends keyof L>(id: U, callback: (events: L[U][]) => void): void {
-    this.eventEmitter.off(id, callback)
+  off<U extends keyof L>(
+    aggregateId: U,
+    callback: (events: EventEnvelope<U, L[U]>[]) => void,
+  ): void {
+    this.eventEmitter.off(aggregateId, callback)
   }
 }

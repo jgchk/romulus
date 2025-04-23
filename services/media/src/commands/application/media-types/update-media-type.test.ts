@@ -25,7 +25,10 @@ it('should update a media type', async () => {
   })
 
   const updateMediaType = createUpdateMediaTypeCommandHandler(
-    () => createMediaTypesProjectionFromEvents(eventStore.get('media-types')),
+    () =>
+      createMediaTypesProjectionFromEvents(
+        eventStore.get('media-types').map((event) => event.eventData),
+      ),
     (event) => eventStore.save('media-types', [event]),
   )
 
@@ -38,7 +41,7 @@ it('should update a media type', async () => {
   expect(result).toEqual(ok(undefined))
 
   const events = eventStore.get('media-types')
-  expect(events).toEqual([
+  expect(events.map((event) => event.eventData)).toEqual([
     mediaTypeCreatedEvent({ mediaType: { id: 'test-id', name: 'Test', parents: [] }, userId: 0 }),
     mediaTypeUpdatedEvent({
       id: 'test-id',

@@ -19,5 +19,7 @@ it('should delete a media artifact type', async () => {
   expect(result).toEqual(undefined)
 
   const events = eventStore.get('media-artifact-types')
-  expect(events).toEqual([mediaArtifactTypeDeletedEvent({ id: 'test-id', userId: 0 })])
+  expect(events.map((event) => event.eventData)).toEqual([
+    mediaArtifactTypeDeletedEvent({ id: 'test-id', userId: 0 }),
+  ])
 })
