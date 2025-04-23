@@ -44,7 +44,7 @@ resource "cloudflare_dns_record" "root" {
   name    = "@"
   content = aws_lb.frontend.dns_name
   ttl     = 1
-  proxied = true
+  proxied = false
 }
 
 resource "cloudflare_dns_record" "www" {
@@ -53,5 +53,5 @@ resource "cloudflare_dns_record" "www" {
   name    = "www"
   content = aws_lb.frontend.dns_name
   ttl     = 1
-  proxied = true
+  proxied = false
 }
