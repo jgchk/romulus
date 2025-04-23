@@ -13,6 +13,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Run a specific test with pattern: `pnpm test:unit -t "test description"`
 - Database migration: `pnpm db:generate`
 
+## Development Workflow
+
+- After making any changes, always run:
+  1. Lint: `pnpm lint` to check for type errors and code style issues
+  2. Unit tests: `pnpm test:unit <path>` to run tests for the modified files or `pnpm test` for all tests
+- Fix any lint errors or failing tests before considering the changes complete
+
 ## Code Style Guidelines
 
 - TypeScript with strict mode and ESM modules
