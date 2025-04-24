@@ -12,13 +12,49 @@ export const genreQueries = {
     queryOptions({
       queryKey: [...genreQueries.all(), 'tree'],
       queryFn: async ({ signal }) => {
-        const response = await fetch('/api/genre-tree', {
-          signal,
+        // 1. Kick off the network fetch (with cache side-effect)
+        const apiPromise = (async () => {
+          const response = await fetch('/api/genre-tree', { signal })
+          const json = (await response.json()) as { genres: string[] }
+          const genreTree = createGenreStore(json.genres.map((genre) => parseTreeGenre(genre)))
+          void cacheGenreTree(genreTree)
+          return genreTree
+        })()
+
+        // 2. Kick off the cache lookup
+        const cachePromise = getGenreTreeFromCache()
+
+        // 3. Race them, but don’t cancel either
+        const result = await new Promise<GenreStore>((resolve, reject) => {
+          let settled = false
+
+          cachePromise
+            .then((cacheResult) => {
+              if (cacheResult && !settled) {
+                settled = true
+                resolve(cacheResult)
+              }
+            })
+            .catch((err) => {
+              console.error('Error loading genre tree from cache:', err)
+            })
+
+          apiPromise
+            .then((apiResult) => {
+              if (!settled) {
+                settled = true
+                resolve(apiResult)
+              }
+            })
+            .catch((err) => {
+              if (!settled) {
+                settled = true
+                reject(err as Error)
+              }
+            })
         })
-        const json = (await response.json()) as { genres: string[] }
-        const genreTree = createGenreStore(json.genres.map((genre) => parseTreeGenre(genre)))
-        await cacheGenreTree(genreTree)
-        return genreTree
+
+        return result
       },
       refetchOnMount: false,
       refetchOnReconnect: false,
