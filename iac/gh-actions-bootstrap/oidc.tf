@@ -163,7 +163,8 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "elasticloadbalancing:DescribeListeners",
           "elasticloadbalancing:DescribeListenerAttributes",
           "elasticloadbalancing:ModifyTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroupAttributes"
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:DescribeRules"
         ],
         "Resource" : "*"
       },
@@ -220,6 +221,17 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "arn:aws:wafv2:us-east-2:${data.aws_caller_identity.current.account_id}:regional/webacl/*/*"
         ]
       },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "route53:GetHostedZone",
+          "route53:ListTagsForResource",
+          "route53:ListResourceRecordSets"
+        ],
+        "Resource" : [
+          "arn:aws:route53:::hostedzone/*"
+        ]
+      }
     ]
   })
 }
