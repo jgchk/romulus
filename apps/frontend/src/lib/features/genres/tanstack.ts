@@ -1,12 +1,10 @@
 import { queryOptions } from '@tanstack/svelte-query'
-import { parse, stringify } from 'devalue'
 import * as localForage from 'localforage'
 
 import { browser } from '$app/environment'
 
 import { createGenreStore, type GenreStore } from './queries/infrastructure'
-import { type TreeGenre } from './queries/types'
-import { parseTreeGenre } from './serialization'
+import { parseTreeGenre, stringifyTreeGenre } from './serialization'
 
 export const genreQueries = {
   all: () => ['genres'],
@@ -32,7 +30,10 @@ export async function cacheGenreTree(store: GenreStore) {
   if (!browser) return
 
   try {
-    await localForage.setItem('genre-tree', stringify([...store.values()]))
+    await localForage.setItem(
+      'genre-tree',
+      [...store.values()].map((genre) => stringifyTreeGenre(genre)),
+    )
   } catch (error) {
     console.error('Error caching genre tree:', error)
   }
@@ -41,9 +42,9 @@ export async function cacheGenreTree(store: GenreStore) {
 export async function getGenreTreeFromCache() {
   if (!browser) return
 
-  const stringifiedGenreTree = await localForage.getItem<string | null>('genre-tree')
+  const stringifiedGenreTree = await localForage.getItem<string[] | null>('genre-tree')
   if (stringifiedGenreTree) {
-    const tree = createGenreStore(parse(stringifiedGenreTree) as TreeGenre[])
+    const tree = createGenreStore(stringifiedGenreTree.map((genre) => parseTreeGenre(genre)))
     return tree
   }
 }
