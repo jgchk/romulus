@@ -18,8 +18,6 @@ on:
         required: true
       BASTION_PUBLIC_KEY:
         required: true
-      CLOUDFLARE_ZONE_ID:
-        required: true
       CLOUDFLARE_API_TOKEN:
         required: true
 
@@ -64,4 +62,3 @@ jobs:
             -var="backend_image_tag=${{ inputs.backend_image_tag }}" \
             -var="allowed_ssh_ip=${{ secrets.ALLOWED_SSH_IP }}" \
             -var="bastion_public_key=${{ secrets.BASTION_PUBLIC_KEY }}" \
-            -var="cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}"
