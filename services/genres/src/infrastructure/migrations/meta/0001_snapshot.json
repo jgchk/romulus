@@ -38,13 +38,9 @@
         "GenreAka_genreId_Genre_id_fk": {
           "name": "GenreAka_genreId_Genre_id_fk",
           "tableFrom": "GenreAka",
-          "columnsFrom": [
-            "genreId"
-          ],
+          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -52,10 +48,7 @@
       "compositePrimaryKeys": {
         "GenreAka_genreId_name_pk": {
           "name": "GenreAka_genreId_name_pk",
-          "columns": [
-            "genreId",
-            "name"
-          ]
+          "columns": ["genreId", "name"]
         }
       },
       "uniqueConstraints": {},
@@ -85,26 +78,18 @@
         "GenreDerivedFrom_derivedFromId_Genre_id_fk": {
           "name": "GenreDerivedFrom_derivedFromId_Genre_id_fk",
           "tableFrom": "GenreDerivedFrom",
-          "columnsFrom": [
-            "derivedFromId"
-          ],
+          "columnsFrom": ["derivedFromId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         },
         "GenreDerivedFrom_derivationId_Genre_id_fk": {
           "name": "GenreDerivedFrom_derivationId_Genre_id_fk",
           "tableFrom": "GenreDerivedFrom",
-          "columnsFrom": [
-            "derivationId"
-          ],
+          "columnsFrom": ["derivationId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -112,10 +97,7 @@
       "compositePrimaryKeys": {
         "GenreDerivedFrom_derivedFromId_derivationId_pk": {
           "name": "GenreDerivedFrom_derivedFromId_derivationId_pk",
-          "columns": [
-            "derivedFromId",
-            "derivationId"
-          ]
+          "columns": ["derivedFromId", "derivationId"]
         }
       },
       "uniqueConstraints": {},
@@ -265,13 +247,9 @@
         "GenreHistoryAka_genreId_GenreHistory_id_fk": {
           "name": "GenreHistoryAka_genreId_GenreHistory_id_fk",
           "tableFrom": "GenreHistoryAka",
-          "columnsFrom": [
-            "genreId"
-          ],
+          "columnsFrom": ["genreId"],
           "tableTo": "GenreHistory",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -279,10 +257,7 @@
       "compositePrimaryKeys": {
         "GenreHistoryAka_genreId_name_pk": {
           "name": "GenreHistoryAka_genreId_name_pk",
-          "columns": [
-            "genreId",
-            "name"
-          ]
+          "columns": ["genreId", "name"]
         }
       },
       "uniqueConstraints": {},
@@ -312,26 +287,18 @@
         "GenreInfluences_influencedId_Genre_id_fk": {
           "name": "GenreInfluences_influencedId_Genre_id_fk",
           "tableFrom": "GenreInfluences",
-          "columnsFrom": [
-            "influencedId"
-          ],
+          "columnsFrom": ["influencedId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         },
         "GenreInfluences_influencerId_Genre_id_fk": {
           "name": "GenreInfluences_influencerId_Genre_id_fk",
           "tableFrom": "GenreInfluences",
-          "columnsFrom": [
-            "influencerId"
-          ],
+          "columnsFrom": ["influencerId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -339,10 +306,7 @@
       "compositePrimaryKeys": {
         "GenreInfluences_influencerId_influencedId_pk": {
           "name": "GenreInfluences_influencerId_influencedId_pk",
-          "columns": [
-            "influencerId",
-            "influencedId"
-          ]
+          "columns": ["influencerId", "influencedId"]
         }
       },
       "uniqueConstraints": {},
@@ -372,26 +336,18 @@
         "GenreParents_parentId_Genre_id_fk": {
           "name": "GenreParents_parentId_Genre_id_fk",
           "tableFrom": "GenreParents",
-          "columnsFrom": [
-            "parentId"
-          ],
+          "columnsFrom": ["parentId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         },
         "GenreParents_childId_Genre_id_fk": {
           "name": "GenreParents_childId_Genre_id_fk",
           "tableFrom": "GenreParents",
-          "columnsFrom": [
-            "childId"
-          ],
+          "columnsFrom": ["childId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -399,10 +355,7 @@
       "compositePrimaryKeys": {
         "GenreParents_parentId_childId_pk": {
           "name": "GenreParents_parentId_childId_pk",
-          "columns": [
-            "parentId",
-            "childId"
-          ]
+          "columns": ["parentId", "childId"]
         }
       },
       "uniqueConstraints": {},
@@ -451,13 +404,9 @@
         "GenreRelevanceVote_genreId_Genre_id_fk": {
           "name": "GenreRelevanceVote_genreId_Genre_id_fk",
           "tableFrom": "GenreRelevanceVote",
-          "columnsFrom": [
-            "genreId"
-          ],
+          "columnsFrom": ["genreId"],
           "tableTo": "Genre",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "cascade",
           "onDelete": "cascade"
         }
@@ -465,10 +414,7 @@
       "compositePrimaryKeys": {
         "GenreRelevanceVote_genreId_accountId_pk": {
           "name": "GenreRelevanceVote_genreId_accountId_pk",
-          "columns": [
-            "genreId",
-            "accountId"
-          ]
+          "columns": ["genreId", "accountId"]
         }
       },
       "uniqueConstraints": {},
@@ -565,22 +511,12 @@
     "public.GenreOperation": {
       "name": "GenreOperation",
       "schema": "public",
-      "values": [
-        "DELETE",
-        "UPDATE",
-        "CREATE"
-      ]
+      "values": ["DELETE", "UPDATE", "CREATE"]
     },
     "public.GenreType": {
       "name": "GenreType",
       "schema": "public",
-      "values": [
-        "TREND",
-        "SCENE",
-        "STYLE",
-        "META",
-        "MOVEMENT"
-      ]
+      "values": ["TREND", "SCENE", "STYLE", "META", "MOVEMENT"]
     }
   },
   "schemas": {},
