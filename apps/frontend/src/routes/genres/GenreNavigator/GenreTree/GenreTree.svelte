@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from '$lib/atoms/Button.svelte'
+  import VirtualList from '$lib/atoms/VirtualList.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { createGetRootGenresQuery } from '$lib/features/genres/queries/application/get-root-genres'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
@@ -20,11 +21,13 @@
 
 <nav aria-label="Genre Tree" class="flex h-full w-full flex-col">
   {#if topLevelGenres.length > 0}
-    <div bind:this={ref} class="flex-1 overflow-auto p-2 pl-1">
-      <ul>
-        {#each topLevelGenres as genreId (genreId)}
-          <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} {genres} hasParent={false} />
-        {/each}
+    <div bind:this={ref} class="min-h-0 flex-1 p-2 pl-1">
+      <ul class="h-full overflow-auto">
+        <VirtualList items={topLevelGenres.slice(0, 200)} itemHeight={24}>
+          {#snippet children({ item: genreId })}
+            <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} {genres} hasParent={false} />
+          {/snippet}
+        </VirtualList>
       </ul>
     </div>
   {:else}
