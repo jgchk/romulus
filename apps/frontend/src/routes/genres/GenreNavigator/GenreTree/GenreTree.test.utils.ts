@@ -21,8 +21,7 @@ export function setup(
 ) {
   const user = userEvent.setup()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const renderedComponent = renderComponent({ ...props, virtual: props.virtual ?? false }, context)
+  const renderedComponent = renderComponent(props, context)
   const componentModel = createComponentModel(renderedComponent)
 
   return {
