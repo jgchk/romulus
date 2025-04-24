@@ -20,7 +20,10 @@ export function setup(
   } = {},
 ) {
   const user = userEvent.setup()
-  const renderedComponent = renderComponent(props, context)
+
+  // @ts-expect-error - component props are still weird
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const renderedComponent = renderComponent({ ...props, virtual: props.virtual ?? false }, context)
   const componentModel = createComponentModel(renderedComponent)
 
   return {

@@ -8,7 +8,7 @@
   import { getTreeStateStoreContext } from '../../tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
 
-  let { genres }: { genres: GenreStore } = $props()
+  let { genres, virtual = true }: { genres: GenreStore; virtual?: boolean } = $props()
 
   const treeState = getTreeStateStoreContext()
 
@@ -23,11 +23,23 @@
   {#if topLevelGenres.length > 0}
     <div bind:this={ref} class="min-h-0 flex-1 p-2 pl-1">
       <ul class="h-full overflow-auto">
-        <VirtualList items={topLevelGenres.slice(0, 200)} itemHeight={24}>
-          {#snippet children({ item: genreId })}
+        {#if virtual}
+          <VirtualList items={topLevelGenres.slice(0, 200)} itemHeight={24}>
+            {#snippet children({ item: genreId })}
+              <GenreTreeNode
+                id={genreId}
+                path={[genreId]}
+                treeRef={ref}
+                {genres}
+                hasParent={false}
+              />
+            {/snippet}
+          </VirtualList>
+        {:else}
+          {#each topLevelGenres as genreId (genreId)}
             <GenreTreeNode id={genreId} path={[genreId]} treeRef={ref} {genres} hasParent={false} />
-          {/snippet}
-        </VirtualList>
+          {/each}
+        {/if}
       </ul>
     </div>
   {:else}
