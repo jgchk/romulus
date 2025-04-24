@@ -3,6 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Build/Lint/Test Commands
+
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
 - `pnpm lint` - Check code style and types
@@ -15,6 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `vitest run src/path/to/file.test.ts` - Run a single test file
 
 ## Code Style Guidelines
+
 - **TypeScript**: Strict mode enabled, use proper type annotations
 - **Formatting**: Prettier for consistent formatting
 - **Imports**: Use simple-import-sort plugin ordering
