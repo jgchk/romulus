@@ -33,6 +33,10 @@ resource "aws_db_instance" "authentication" {
   final_snapshot_identifier = "authentication-final-snapshot-${replace(timestamp(), ":", "-")}"
   deletion_protection       = true
 
+  # Performance Insights
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+
   # Backup configuration
   backup_retention_period = 7
   backup_window           = "03:00-04:00"
@@ -60,6 +64,10 @@ resource "aws_db_instance" "authorization" {
   skip_final_snapshot       = false
   final_snapshot_identifier = "authorization-final-snapshot-${replace(timestamp(), ":", "-")}"
   deletion_protection       = true
+
+  # Performance Insights
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
 
   # Backup configuration
   backup_retention_period = 7
@@ -89,6 +97,10 @@ resource "aws_db_instance" "genres" {
   final_snapshot_identifier = "genres-final-snapshot-${replace(timestamp(), ":", "-")}"
   deletion_protection       = true
 
+  # Performance Insights
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+
   # Backup configuration
   backup_retention_period = 7
   backup_window           = "03:00-04:00"
@@ -117,6 +129,10 @@ resource "aws_db_instance" "user_settings" {
   final_snapshot_identifier = "user-settings-final-snapshot-${replace(timestamp(), ":", "-")}"
   deletion_protection       = true
 
+  # Performance Insights
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+
   # Backup configuration
   backup_retention_period = 7
   backup_window           = "03:00-04:00"
@@ -144,6 +160,10 @@ resource "aws_db_instance" "media" {
   skip_final_snapshot       = false
   final_snapshot_identifier = "media-final-snapshot-${replace(timestamp(), ":", "-")}"
   deletion_protection       = true
+
+  # Performance Insights
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
 
   # Backup configuration
   backup_retention_period = 7
