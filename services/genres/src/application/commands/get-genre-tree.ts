@@ -21,6 +21,9 @@ export class GetGenreTreeQuery {
   constructor(private db: IDrizzleConnection) {}
 
   async execute(): Promise<GetGenreTreeResult> {
+    console.time('get-genre-tree all')
+
+    console.time('get-genre-tree a')
     const [results, parentChildren, derivations, akas] = await Promise.all([
       this.db.query.genres.findMany({
         columns: {
@@ -54,7 +57,9 @@ export class GetGenreTreeQuery {
         orderBy: [desc(genreAkas.relevance), asc(genreAkas.order)],
       }),
     ])
+    console.timeEnd('get-genre-tree a')
 
+    console.time('get-genre-tree b')
     const genresMap = new Map<
       number,
       {
@@ -71,6 +76,9 @@ export class GetGenreTreeQuery {
         updatedAt: Date
       }
     >()
+    console.timeEnd('get-genre-tree b')
+
+    console.time('get-genre-tree c')
     for (const genre of results) {
       genresMap.set(genre.id, {
         ...genre,
@@ -80,7 +88,9 @@ export class GetGenreTreeQuery {
         derivations: [] as { id: number; name: string }[],
       })
     }
+    console.timeEnd('get-genre-tree c')
 
+    console.time('get-genre-tree d')
     for (const { parentId, childId } of parentChildren) {
       const parent = genresMap.get(parentId)
       const child = genresMap.get(childId)
@@ -88,7 +98,9 @@ export class GetGenreTreeQuery {
         parent.children.push({ id: childId, name: child.name })
       }
     }
+    console.timeEnd('get-genre-tree d')
 
+    console.time('get-genre-tree e')
     for (const { derivedFromId, derivationId } of derivations) {
       const derivedFrom = genresMap.get(derivedFromId)
       const derivation = genresMap.get(derivationId)
@@ -97,15 +109,19 @@ export class GetGenreTreeQuery {
         derivation.derivedFrom.push({ id: derivedFromId, name: derivedFrom.name })
       }
     }
+    console.timeEnd('get-genre-tree e')
 
+    console.time('get-genre-tree f')
     for (const { genreId, name } of akas) {
       const genre = genresMap.get(genreId)
       if (genre) {
         genre.akas.push(name)
       }
     }
+    console.timeEnd('get-genre-tree f')
 
-    return [...genresMap.values()].map(({ children, ...genre }) => ({
+    console.time('get-genre-tree g')
+    const output = [...genresMap.values()].map(({ children, ...genre }) => ({
       ...genre,
       children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
       derivedFrom: genre.derivedFrom
@@ -115,5 +131,10 @@ export class GetGenreTreeQuery {
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((derivation) => derivation.id),
     }))
+    console.timeEnd('get-genre-tree g')
+
+    console.timeEnd('get-genre-tree all')
+
+    return output
   }
 }
