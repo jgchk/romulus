@@ -5,7 +5,8 @@ import * as localForage from 'localforage'
 import { browser } from '$app/environment'
 
 import { createGenreStore, type GenreStore } from './queries/infrastructure'
-import type { TreeGenre } from './queries/types'
+import { type TreeGenre } from './queries/types'
+import { parseTreeGenre } from './serialization'
 
 export const genreQueries = {
   all: () => ['genres'],
@@ -16,8 +17,8 @@ export const genreQueries = {
         const response = await fetch('/api/genre-tree', {
           signal,
         })
-        const json = (await response.json()) as { genres: string }
-        const genreTree = parse(json.genres) as Map<number, TreeGenre>
+        const json = (await response.json()) as { genres: string[] }
+        const genreTree = createGenreStore(json.genres.map((genre) => parseTreeGenre(genre)))
         await cacheGenreTree(genreTree)
         return genreTree
       },

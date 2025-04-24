@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit'
-import { stringify } from 'devalue'
 
-import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
+import { stringifyTreeGenre } from '$lib/features/genres/serialization'
 
 import type { RequestHandler } from './$types'
 
@@ -13,7 +12,8 @@ export const GET = (async ({ locals }) => {
       if (res.isErr()) throw res.error
       return res.value.tree
     })
-    .then((genres) => createGenreStore(genres))
 
-  return json({ genres: stringify(genres) })
+  const output = json({ genres: genres.map((genre) => stringifyTreeGenre(genre)) })
+
+  return output
 }) satisfies RequestHandler
