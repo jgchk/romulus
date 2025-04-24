@@ -60,77 +60,90 @@ export class GetGenreTreeQuery {
     console.timeEnd('get-genre-tree a')
 
     console.time('get-genre-tree b')
-    const genresMap = new Map<
-      number,
-      {
-        id: number
-        name: string
-        subtitle: string | null
-        type: 'TREND' | 'SCENE' | 'STYLE' | 'META' | 'MOVEMENT'
-        akas: string[]
-        children: { id: number; name: string }[]
-        derivedFrom: { id: number; name: string }[]
-        derivations: { id: number; name: string }[]
-        relevance: number
-        nsfw: boolean
-        updatedAt: Date
-      }
-    >()
     console.timeEnd('get-genre-tree b')
 
     console.time('get-genre-tree c')
-    for (const genre of results) {
-      genresMap.set(genre.id, {
-        ...genre,
-        akas: [] as string[],
-        children: [] as { id: number; name: string }[],
-        derivedFrom: [] as { id: number; name: string }[],
-        derivations: [] as { id: number; name: string }[],
-      })
+    // Group relationships by parent/source ID for faster access
+    const childrenByParent = new Map<number, number[]>()
+    const derivationsBySource = new Map<number, number[]>()
+    const derivedFromByDerivation = new Map<number, number[]>()
+    const akasByGenre = new Map<number, string[]>()
+
+    // Pre-allocate all relationship maps - this avoids the overhead of creating objects in the loop
+    for (const { parentId, childId } of parentChildren) {
+      if (!childrenByParent.has(parentId)) {
+        childrenByParent.set(parentId, [])
+      }
+      childrenByParent.get(parentId)!.push(childId)
+    }
+
+    for (const { derivedFromId, derivationId } of derivations) {
+      if (!derivationsBySource.has(derivedFromId)) {
+        derivationsBySource.set(derivedFromId, [])
+      }
+      derivationsBySource.get(derivedFromId)!.push(derivationId)
+
+      if (!derivedFromByDerivation.has(derivationId)) {
+        derivedFromByDerivation.set(derivationId, [])
+      }
+      derivedFromByDerivation.get(derivationId)!.push(derivedFromId)
+    }
+
+    for (const { genreId, name } of akas) {
+      if (!akasByGenre.has(genreId)) {
+        akasByGenre.set(genreId, [])
+      }
+      akasByGenre.get(genreId)!.push(name)
     }
     console.timeEnd('get-genre-tree c')
 
-    console.time('get-genre-tree d')
-    for (const { parentId, childId } of parentChildren) {
-      const parent = genresMap.get(parentId)
-      const child = genresMap.get(childId)
-      if (parent && child) {
-        parent.children.push({ id: childId, name: child.name })
-      }
-    }
-    console.timeEnd('get-genre-tree d')
-
-    console.time('get-genre-tree e')
-    for (const { derivedFromId, derivationId } of derivations) {
-      const derivedFrom = genresMap.get(derivedFromId)
-      const derivation = genresMap.get(derivationId)
-      if (derivedFrom && derivation) {
-        derivedFrom.derivations.push({ id: derivationId, name: derivation.name })
-        derivation.derivedFrom.push({ id: derivedFromId, name: derivedFrom.name })
-      }
-    }
-    console.timeEnd('get-genre-tree e')
-
-    console.time('get-genre-tree f')
-    for (const { genreId, name } of akas) {
-      const genre = genresMap.get(genreId)
-      if (genre) {
-        genre.akas.push(name)
-      }
-    }
-    console.timeEnd('get-genre-tree f')
-
     console.time('get-genre-tree g')
-    const output = [...genresMap.values()].map(({ children, ...genre }) => ({
-      ...genre,
-      children: children.sort((a, b) => a.name.localeCompare(b.name)).map((child) => child.id),
-      derivedFrom: genre.derivedFrom
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((derivedFrom) => derivedFrom.id),
-      derivations: genre.derivations
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((derivation) => derivation.id),
-    }))
+    // Generate final output in a single pass with optimized sorting
+    const output: GetGenreTreeResult = []
+    const nameById = new Map(results.map((genre) => [genre.id, genre.name]))
+
+    for (const genre of results) {
+      const genreId = genre.id
+      const genreName = genre.name
+
+      // Get children IDs and sort by name
+      const childrenIds = childrenByParent.get(genreId) ?? []
+      childrenIds.sort((a, b) => {
+        const nameA = nameById.get(a) ?? ''
+        const nameB = nameById.get(b) ?? ''
+        return nameA.localeCompare(nameB)
+      })
+
+      // Get derivedFrom IDs and sort by name
+      const derivedFromIds = derivedFromByDerivation.get(genreId) ?? []
+      derivedFromIds.sort((a, b) => {
+        const nameA = nameById.get(a) ?? ''
+        const nameB = nameById.get(b) ?? ''
+        return nameA.localeCompare(nameB)
+      })
+
+      // Get derivations IDs and sort by name
+      const derivationsIds = derivationsBySource.get(genreId) ?? []
+      derivationsIds.sort((a, b) => {
+        const nameA = nameById.get(a) ?? ''
+        const nameB = nameById.get(b) ?? ''
+        return nameA.localeCompare(nameB)
+      })
+
+      output.push({
+        id: genreId,
+        name: genreName,
+        subtitle: genre.subtitle,
+        type: genre.type,
+        akas: akasByGenre.get(genreId) ?? [],
+        children: childrenIds,
+        derivedFrom: derivedFromIds,
+        derivations: derivationsIds,
+        relevance: genre.relevance,
+        nsfw: genre.nsfw,
+        updatedAt: genre.updatedAt,
+      })
+    }
     console.timeEnd('get-genre-tree g')
 
     console.timeEnd('get-genre-tree all')
