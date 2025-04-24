@@ -11,7 +11,7 @@ export const genreQueries = {
   tree: () =>
     queryOptions({
       queryKey: [...genreQueries.all(), 'tree'],
-      queryFn: async ({ signal }) => {
+      queryFn: async ({ signal, client, queryKey }) => {
         // 1. Kick off the network fetch (with cache side-effect)
         const apiPromise = (async () => {
           const response = await fetch('/api/genre-tree', { signal })
@@ -41,7 +41,9 @@ export const genreQueries = {
 
           apiPromise
             .then((apiResult) => {
-              if (!settled) {
+              if (settled) {
+                client.setQueryData(queryKey, apiResult)
+              } else {
                 settled = true
                 resolve(apiResult)
               }
