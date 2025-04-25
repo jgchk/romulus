@@ -12,6 +12,7 @@ import { createUpdateMediaArtifactRelationshipTypeCommandHandler } from '../appl
 import { createCreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import { createDeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
+import { createCreateMediaArtifactCommandHandler } from '../application/media-artifacts/create-media-artifact.js'
 import { createCreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import { createDeleteMediaTypeCommandHandler } from '../application/media-types/delete-media-type.js'
 import { createUpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
@@ -61,6 +62,11 @@ function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       saveMediaArtifactTypeEvent: () => {},
     }),
+    createMediaArtifact: createCreateMediaArtifactCommandHandler(
+      () => createDefaultMediaArtifactTypesProjection(),
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      () => {},
+    ),
     updateMediaArtifactRelationshipType: createUpdateMediaArtifactRelationshipTypeCommandHandler({
       getMediaArtifactTypes: () => createDefaultMediaArtifactTypesProjection(),
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -269,6 +275,31 @@ describe('updateMediaArtifactRelationshipType', () => {
           childMediaArtifactTypes: ['painting', 'sculpture'],
         },
       },
+      { headers: { authorization: 'Bearer 000-000-000' } },
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+  })
+})
+
+describe('createMediaArtifact', () => {
+  it('creates a media artifact', async () => {
+    const { client } = setup({
+      createMediaArtifact: createCreateMediaArtifactCommandHandler(
+        () =>
+          createMediaArtifactTypesProjectionFromEvents([
+            mediaArtifactTypeCreatedEvent({
+              mediaArtifactType: { id: 'test-type', name: 'Test Type', mediaTypes: [] },
+              userId: 0,
+            }),
+          ]),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      ),
+    })
+
+    const response = await client['media-artifacts'].$post(
+      { json: { id: 'test', name: 'Test Artifact', mediaArtifactType: 'test-type' } },
       { headers: { authorization: 'Bearer 000-000-000' } },
     )
     expect(response.status).toBe(200)

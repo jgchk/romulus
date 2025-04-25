@@ -1,6 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import { type MediaArtifactTypeEvent, type MediaTypeEvent } from '../../common/domain/events.js'
+import {
+  type MediaArtifactEvent,
+  type MediaArtifactTypeEvent,
+  type MediaTypeEvent,
+} from '../../common/domain/events.js'
 import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import {
   mediaArtifactRelationshipTypeChildren,
@@ -13,7 +17,7 @@ import {
 
 export async function applyEvent(
   db: IDrizzleConnection,
-  event: MediaTypeEvent | MediaArtifactTypeEvent,
+  event: MediaTypeEvent | MediaArtifactTypeEvent | MediaArtifactEvent,
 ) {
   switch (event._tag) {
     case 'media-type-created': {

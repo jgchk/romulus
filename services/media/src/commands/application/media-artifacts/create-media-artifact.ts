@@ -10,7 +10,7 @@ export type CreateMediaArtifactCommandHandler = (
   command: domain.CreateMediaArtifactCommand,
 ) => Promise<Result<void, MediaArtifactTypeNotFoundError>>
 
-export function createCreateMediaTypeCommandHandler(
+export function createCreateMediaArtifactCommandHandler(
   getMediaArtifactTypes: () => MaybePromise<MediaArtifactTypesProjection>,
   saveEvent: (id: string, event: MediaArtifactCreatedEvent) => MaybePromise<void>,
 ): CreateMediaArtifactCommandHandler {

@@ -4,11 +4,16 @@ import {
   createGetMediaArtifactTypes,
   createSaveMediaArtifactTypeEvent,
 } from './commands/infrastructure/media-artifact-types.js'
+import { createSaveMediaArtifactEvent } from './commands/infrastructure/media-artifacts.js'
 import {
   createGetMediaTypes,
   createSaveMediaTypeEvent,
 } from './commands/infrastructure/media-types.js'
-import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
+import type {
+  MediaArtifactEvent,
+  MediaArtifactTypeEvent,
+  MediaTypeEvent,
+} from './common/domain/events.js'
 import * as eventStoreDb from './common/infrastructure/drizzle/event-store/postgres.js'
 import { migratePostgres } from './common/infrastructure/drizzle/migrate.js'
 import type { EventEnvelope } from './common/infrastructure/event-store.js'
@@ -27,6 +32,7 @@ export type MediaInfrastructure = {
     getMediaArtifactTypes: () => Promise<MediaArtifactTypesProjection>
     saveMediaTypeEvent: (event: MediaTypeEvent) => Promise<void>
     saveMediaArtifactTypeEvent: (event: MediaArtifactTypeEvent) => Promise<void>
+    saveMediaArtifactEvent: (id: string, event: MediaArtifactEvent) => Promise<void>
   }
   destroy: () => Promise<void>
 }
@@ -41,12 +47,14 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
   const eventStore = new PostgresEventStore<{
     'media-types': MediaTypeEvent
     'media-artifact-types': MediaArtifactTypeEvent
+    [key: `media-artifact-id-${string}`]: MediaArtifactEvent
   }>(eventStoreDrizzle)
 
   function handleEvents(
     events: (
       | EventEnvelope<'media-types', MediaTypeEvent>
       | EventEnvelope<'media-artifact-types', MediaArtifactTypeEvent>
+      | EventEnvelope<`media-artifact-id-${string}`, MediaArtifactEvent>
     )[],
   ) {
     async function handle() {
@@ -58,8 +66,7 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
     void handle()
   }
 
-  eventStore.on('media-types', handleEvents)
-  eventStore.on('media-artifact-types', handleEvents)
+  eventStore.onAll(handleEvents)
 
   return {
     db,
@@ -68,11 +75,12 @@ export async function createMediaInfrastructure(databaseUrl: string): Promise<Me
       getMediaArtifactTypes: createGetMediaArtifactTypes(eventStore),
       saveMediaTypeEvent: createSaveMediaTypeEvent(eventStore),
       saveMediaArtifactTypeEvent: createSaveMediaArtifactTypeEvent(eventStore),
+      saveMediaArtifactEvent: createSaveMediaArtifactEvent(eventStore),
     },
     destroy: async () => {
       await pg.end()
       await eventStorePostgres.end()
-      eventStore.off('media-types', handleEvents)
+      eventStore.offAll(handleEvents)
     },
   }
 }

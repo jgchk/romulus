@@ -11,7 +11,7 @@ import { MemoryEventStore } from '../../../common/infrastructure/memory-event-st
 import { MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
 import { createGetMediaArtifactTypes } from '../../infrastructure/media-artifact-types.js'
 import { createSaveMediaArtifactEvent } from '../../infrastructure/media-artifacts.js'
-import { createCreateMediaTypeCommandHandler } from './create-media-artifact.js'
+import { createCreateMediaArtifactCommandHandler } from './create-media-artifact.js'
 
 it('should create a media artifact', async () => {
   // Setup event store
@@ -29,7 +29,7 @@ it('should create a media artifact', async () => {
   ])
 
   // Create the command handler
-  const createMediaArtifact = createCreateMediaTypeCommandHandler(
+  const createMediaArtifact = createCreateMediaArtifactCommandHandler(
     createGetMediaArtifactTypes(eventStore),
     createSaveMediaArtifactEvent(eventStore),
   )
@@ -65,7 +65,7 @@ it('should fail if the media artifact type does not exist', async () => {
   }>()
 
   // Create the command handler
-  const createMediaArtifact = createCreateMediaTypeCommandHandler(
+  const createMediaArtifact = createCreateMediaArtifactCommandHandler(
     createGetMediaArtifactTypes(eventStore),
     createSaveMediaArtifactEvent(eventStore),
   )

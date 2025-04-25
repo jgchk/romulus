@@ -5,6 +5,7 @@ import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from '../appli
 import type { CreateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/create-media-artifact-type.js'
 import type { DeleteMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/delete-media-artifact-type.js'
 import type { UpdateMediaArtifactTypeCommandHandler } from '../application/media-artifact-types/update-media-artifact-type.js'
+import type { CreateMediaArtifactCommandHandler } from '../application/media-artifacts/create-media-artifact.js'
 import type { CreateMediaTypeCommandHandler } from '../application/media-types/create-media-type.js'
 import type { DeleteMediaTypeCommandHandler } from '../application/media-types/delete-media-type.js'
 import type { UpdateMediaTypeCommandHandler } from '../application/media-types/update-media-type.js'
@@ -17,6 +18,7 @@ import { createUpdateMediaArtifactRelationshipTypeRoute } from './routes/media-a
 import { createCreateMediaArtifactTypeRoute } from './routes/media-artifact-types/create-media-artifact-type.js'
 import { createDeleteMediaArtifactTypeRoute } from './routes/media-artifact-types/delete-media-artifact-type.js'
 import { createUpdateMediaArtifactTypeRoute } from './routes/media-artifact-types/update-media-artifact-type.js'
+import { createCreateMediaArtifactRoute } from './routes/media-artifacts/create-media-artifact.js'
 import { createCreateMediaTypeRoute } from './routes/media-types/create-media-type.js'
 import { createDeleteMediaTypeRoute } from './routes/media-types/delete-media-type.js'
 import { createUpdateMediaTypeRoute } from './routes/media-types/update-media-type.js'
@@ -30,6 +32,7 @@ export type MediaCommandsRouterDependencies = {
   createMediaArtifactType: CreateMediaArtifactTypeCommandHandler
   updateMediaArtifactType: UpdateMediaArtifactTypeCommandHandler
   deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
+  createMediaArtifact: CreateMediaArtifactCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   updateMediaArtifactRelationshipType: UpdateMediaArtifactRelationshipTypeCommandHandler
   authentication: IAuthenticationService
@@ -43,6 +46,7 @@ export function createMediaCommandsRouter({
   createMediaArtifactType,
   updateMediaArtifactType,
   deleteMediaArtifactType,
+  createMediaArtifact,
   createMediaArtifactRelationshipType,
   updateMediaArtifactRelationshipType,
   authentication,
@@ -68,6 +72,7 @@ export function createMediaCommandsRouter({
       '/media-artifact-types/:id',
       ...createDeleteMediaArtifactTypeRoute({ authz, deleteMediaArtifactType }),
     )
+    .post('/media-artifacts', ...createCreateMediaArtifactRoute({ authz, createMediaArtifact }))
     .post(
       '/media-artifact-relationship-types',
       ...createCreateMediaArtifactRelationshipTypeRoute({

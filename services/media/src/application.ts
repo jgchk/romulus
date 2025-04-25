@@ -19,6 +19,10 @@ import {
   type UpdateMediaArtifactTypeCommandHandler,
 } from './commands/application/media-artifact-types/update-media-artifact-type.js'
 import {
+  createCreateMediaArtifactCommandHandler as createCreateMediaArtifactCommandHandler,
+  type CreateMediaArtifactCommandHandler,
+} from './commands/application/media-artifacts/create-media-artifact.js'
+import {
   createCreateMediaTypeCommandHandler,
   type CreateMediaTypeCommandHandler,
 } from './commands/application/media-types/create-media-type.js'
@@ -33,7 +37,11 @@ import {
 import type { MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
 import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import { MediaPermission } from './commands/domain/permissions.js'
-import type { MediaArtifactTypeEvent, MediaTypeEvent } from './common/domain/events.js'
+import type {
+  MediaArtifactEvent,
+  MediaArtifactTypeEvent,
+  MediaTypeEvent,
+} from './common/domain/events.js'
 import {
   createGetMediaArtifactRelationshipTypeQueryHandler,
   type GetMediaArtifactRelationshipTypeQueryHandler,
@@ -70,6 +78,7 @@ export type MediaApplication = {
   deleteMediaArtifactType: DeleteMediaArtifactTypeCommandHandler
   createMediaArtifactRelationshipType: CreateMediaArtifactRelationshipTypeCommandHandler
   updateMediaArtifactRelationshipType: UpdateMediaArtifactRelationshipTypeCommandHandler
+  createMediaArtifact: CreateMediaArtifactCommandHandler
   getAllMediaTypes: GetAllMediaTypesQueryHandler
   getMediaType: GetMediaTypeQueryHandler
   getAllMediaArtifactTypes: GetAllMediaArtifactTypesQueryHandler
@@ -83,12 +92,14 @@ export function createMediaApplication({
   getMediaArtifactTypes,
   saveMediaTypeEvent,
   saveMediaArtifactTypeEvent,
+  saveMediaArtifactEvent,
   db,
 }: {
   getMediaTypes: () => MaybePromise<MediaTypesProjection>
   getMediaArtifactTypes: () => MaybePromise<MediaArtifactTypesProjection>
   saveMediaTypeEvent: (event: MediaTypeEvent) => MaybePromise<void>
   saveMediaArtifactTypeEvent: (event: MediaArtifactTypeEvent) => MaybePromise<void>
+  saveMediaArtifactEvent: (id: string, event: MediaArtifactEvent) => MaybePromise<void>
   db: IDrizzleConnection
 }): MediaApplication {
   return {
@@ -115,6 +126,10 @@ export function createMediaApplication({
       getMediaArtifactTypes,
       saveMediaArtifactTypeEvent,
     }),
+    createMediaArtifact: createCreateMediaArtifactCommandHandler(
+      getMediaArtifactTypes,
+      saveMediaArtifactEvent,
+    ),
     getAllMediaTypes: createGetAllMediaTypesQueryHandler(db),
     getMediaType: createGetMediaTypeQueryHandler(db),
     getAllMediaArtifactTypes: createGetAllMediaArtifactTypesQueryHandler(db),
