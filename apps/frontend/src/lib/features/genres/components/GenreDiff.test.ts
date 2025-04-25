@@ -8,7 +8,7 @@ import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 
-import { test } from '../../vitest-setup'
+import { test } from '../../../../vitest-setup'
 import GenreDiff from './GenreDiff.svelte'
 
 const mockHistory = {

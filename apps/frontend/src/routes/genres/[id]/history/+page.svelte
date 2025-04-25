@@ -2,11 +2,11 @@
   import { createQuery } from '@tanstack/svelte-query'
 
   import LinkButton from '$lib/atoms/LinkButton.svelte'
+  import GenreDiff from '$lib/features/genres/components/GenreDiff.svelte'
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
   import Footer from '../../Footer.svelte'
-  import GenreDiff from '../../GenreDiff.svelte'
   import GenrePageHeader from '../GenrePageHeader.svelte'
   import type { PageData } from './$types'
 
