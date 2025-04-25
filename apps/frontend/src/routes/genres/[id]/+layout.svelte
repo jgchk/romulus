@@ -6,7 +6,7 @@
     getTreeStateStoreContext,
     stringifyTreePath,
     useSelectedTreePath,
-  } from '$lib/features/genres/components/GenreNavigator/GenreTree/tree-state-store.svelte'
+  } from '$lib/features/genres/components/GenreTree/tree-state-store.svelte'
   import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
   import { genreQueries } from '$lib/features/genres/tanstack'
 

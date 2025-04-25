@@ -9,7 +9,7 @@
   import {
     createTreeStateStore,
     setTreeStateStoreContext,
-  } from '$lib/features/genres/components/GenreNavigator/GenreTree/tree-state-store.svelte'
+  } from '$lib/features/genres/components/GenreTree/tree-state-store.svelte'
 
   import type { LayoutData } from './$types'
 

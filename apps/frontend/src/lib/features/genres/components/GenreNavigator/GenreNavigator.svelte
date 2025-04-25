@@ -13,8 +13,8 @@
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { slide } from '$lib/transitions/slide'
 
+  import GenreTree from '../GenreTree/GenreTree.svelte'
   import GenreSearchResults from './GenreSearchResults.svelte'
-  import GenreTree from './GenreTree/GenreTree.svelte'
   import GenreNavigatorSettings from './Settings/Settings.svelte'
   import { searchStore } from './state'
 
