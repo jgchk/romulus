@@ -18,9 +18,9 @@
   import { genreQueries } from '$lib/features/genres/tanstack'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
-  import Footer from './Footer.svelte'
+  import Footer from '../../../../routes/genres/Footer.svelte'
+  import RelevanceSelect from '../../../../routes/genres/RelevanceSelect.svelte'
   import type { GenreFormField } from './GenreForm'
-  import RelevanceSelect from './RelevanceSelect.svelte'
 
   type Props = {
     id?: number

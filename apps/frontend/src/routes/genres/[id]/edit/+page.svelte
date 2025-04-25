@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createQuery } from '@tanstack/svelte-query'
 
+  import GenreForm from '$lib/features/genres/components/GenreForm.svelte'
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
-  import GenreForm from '../../GenreForm.svelte'
   import type { PageData } from './$types'
 
   type Props = {

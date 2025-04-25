@@ -1,6 +1,6 @@
+import { isGenreFormField } from '$lib/features/genres/components/GenreForm'
 import { getStringParam } from '$lib/utils/params'
 
-import { isGenreFormField } from '../../GenreForm'
 import type { PageLoad } from './$types'
 
 export const load: PageLoad = ({ url, data }) => {
