@@ -15,8 +15,8 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
+  import RelevanceChip from '../RelevanceChip.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
-  import RelevanceChip from './RelevanceChip.svelte'
   import {
     getTreeStateStoreContext,
     stringifyTreePath,

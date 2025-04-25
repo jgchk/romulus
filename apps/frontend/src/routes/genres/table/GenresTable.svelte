@@ -9,7 +9,7 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import LimitSelect from '$lib/components/LimitSelect.svelte'
-  import RelevanceChip from '$lib/features/genres/components/GenreTree/RelevanceChip.svelte'
+  import RelevanceChip from '$lib/features/genres/components/RelevanceChip.svelte'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
