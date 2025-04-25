@@ -12,13 +12,13 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
+  import GenreMultiselect from '$lib/features/genres/components/GenreMultiselect.svelte'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { genreQueries } from '$lib/features/genres/tanstack'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
   import Footer from './Footer.svelte'
   import type { GenreFormField } from './GenreForm'
-  import GenreMultiselect from './GenreMultiselect.svelte'
   import GenreTypeSelect from './GenreTypeSelect.svelte'
   import RelevanceSelect from './RelevanceSelect.svelte'
 

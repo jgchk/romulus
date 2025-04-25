@@ -1,8 +1,8 @@
 <script lang="ts">
+  import GenreMultiselect from '$lib/features/genres/components/GenreMultiselect.svelte'
   import MediaArtifactTypeSelect from '$lib/features/media/components/MediaArtifactTypeSelect.svelte'
   import MediaTypeMultiselect from '$lib/features/media/components/MediaTypeMultiselect.svelte'
 
-  import GenreMultiselect from '../../genres/GenreMultiselect.svelte'
   import type { PageProps } from './$types'
 
   let { data }: PageProps = $props()
