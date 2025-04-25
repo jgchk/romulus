@@ -1,6 +1,7 @@
 import { expect } from 'vitest'
 
 import {
+  mediaArtifactCreatedEvent,
   mediaArtifactRelationshipTypeCreatedEvent,
   mediaArtifactRelationshipTypeUpdatedEvent,
   mediaArtifactTypeCreatedEvent,
@@ -240,6 +241,35 @@ test('should handle the media-artifact-relationship-type-updated event', async (
   })
 })
 
+test('should handle media-artifact-created event', async ({ dbConnection }) => {
+  await applyEvent(
+    dbConnection,
+    mediaArtifactTypeCreatedEvent({
+      mediaArtifactType: { id: 'test-type', name: 'Test Type', mediaTypes: [] },
+      userId: 0,
+    }),
+  )
+
+  await applyEvent(
+    dbConnection,
+    mediaArtifactCreatedEvent({
+      mediaArtifact: {
+        id: 'test-artifact',
+        name: 'Test Artifact',
+        mediaArtifactType: 'test-type',
+      },
+      userId: 0,
+    }),
+  )
+
+  const mediaArtifact = await getMediaArtifact(dbConnection, 'test-artifact')
+  expect(mediaArtifact).toEqual({
+    id: 'test-artifact',
+    name: 'Test Artifact',
+    mediaArtifactTypeId: 'test-type',
+  })
+})
+
 async function getMediaTypeById(dbConnection: IDrizzleConnection, id: string) {
   return await dbConnection.query.mediaTypes.findFirst({
     where: (mediaTypes, { eq }) => eq(mediaTypes.id, id),
@@ -264,5 +294,11 @@ async function getMediaArtifactRelationshipType(dbConnection: IDrizzleConnection
     with: {
       childMediaArtifactTypes: true,
     },
+  })
+}
+
+async function getMediaArtifact(dbConnection: IDrizzleConnection, id: string) {
+  return await dbConnection.query.mediaArtifacts.findFirst({
+    where: (mediaArtifacts, { eq }) => eq(mediaArtifacts.id, id),
   })
 }

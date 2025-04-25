@@ -22,6 +22,13 @@
       "when": 1744227721426,
       "tag": "0002_cooing_centennial",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745544833226,
+      "tag": "0003_peaceful_moonstone",
+      "breakpoints": true
     }
   ]
 }

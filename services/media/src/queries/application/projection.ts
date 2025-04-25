@@ -9,6 +9,7 @@ import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import {
   mediaArtifactRelationshipTypeChildren,
   mediaArtifactRelationshipTypes,
+  mediaArtifacts,
   mediaArtifactTypeMediaTypes,
   mediaArtifactTypes,
   mediaTypeParents,
@@ -191,6 +192,16 @@ export async function applyEvent(
             )
             .execute()
         }
+      })
+
+      return
+    }
+
+    case 'media-artifact-created': {
+      await db.insert(mediaArtifacts).values({
+        id: event.mediaArtifact.id,
+        name: event.mediaArtifact.name,
+        mediaArtifactTypeId: event.mediaArtifact.mediaArtifactType,
       })
 
       return
