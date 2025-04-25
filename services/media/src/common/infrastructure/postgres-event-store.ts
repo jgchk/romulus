@@ -1,5 +1,6 @@
+import { EventEmitter } from 'node:events'
+
 import { eq, max } from 'drizzle-orm'
-import { TypedEmitter } from 'tiny-typed-emitter'
 
 import type { IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
 import { eventsTable } from './drizzle/event-store/schema.js'
@@ -13,10 +14,10 @@ import type {
 export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignature>
   implements IEventStore<EventSignature<L>>
 {
-  private eventEmitter: TypedEmitter<{ [E in keyof L]: (events: EventEnvelope<E, L[E]>[]) => void }>
+  private eventEmitter: EventEmitter
 
   constructor(private db: IDrizzleEventStoreConnection) {
-    this.eventEmitter = new TypedEmitter()
+    this.eventEmitter = new EventEmitter()
   }
 
   async get<U extends keyof L>(id: U): Promise<EventEnvelope<U, L[U]>[]> {
@@ -67,15 +68,25 @@ export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignat
       return envelopedEvents
     })
 
-    // @ts-expect-error - TS is not smart enough to infer the type of `envelopedEvents`
-    this.eventEmitter.emit(id, envelopedEvents)
+    this.eventEmitter.emit(id.toString(), envelopedEvents)
+
+    // Emit to global subscribers
+    this.eventEmitter.emit('*', envelopedEvents)
   }
 
   on<U extends keyof L>(id: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void {
-    this.eventEmitter.on(id, callback)
+    this.eventEmitter.on(id.toString(), callback)
   }
 
   off<U extends keyof L>(id: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void {
-    this.eventEmitter.off(id, callback)
+    this.eventEmitter.off(id.toString(), callback)
+  }
+
+  onAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+    this.eventEmitter.on('*', callback)
+  }
+
+  offAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+    this.eventEmitter.off('*', callback)
   }
 }

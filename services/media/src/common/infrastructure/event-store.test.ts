@@ -358,4 +358,121 @@ describe.each(implementations)('$name', ({ createStore, beforeEach: setup }) => 
       expect(subscriber2).toHaveBeenCalled()
     })
   })
+
+  describe('onAll()/offAll()', () => {
+    test('should emit all events to global subscribers', async () => {
+      const eventStore = createStore()
+
+      // Set up global subscriber
+      const subscriber = vi.fn()
+      eventStore.onAll(subscriber)
+
+      // Save events to first aggregate
+      await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test1' }])
+
+      // Verify subscriber was called
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      expect(subscriber).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            aggregateId: 'test-aggregate',
+            eventData: {
+              data: 'test1',
+              type: 'TestEvent',
+            },
+          }),
+        ]),
+      )
+
+      // Reset mock
+      subscriber.mockClear()
+
+      // Save events to second aggregate
+      await eventStore.save('another-aggregate', [{ type: 'AnotherTestEvent', value: 42 }])
+
+      // Verify subscriber was called again, with events from the second aggregate
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      expect(subscriber).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            aggregateId: 'another-aggregate',
+            eventData: {
+              value: 42,
+              type: 'AnotherTestEvent',
+            },
+          }),
+        ]),
+      )
+    })
+
+    test('should allow unsubscribing from all events', async () => {
+      const eventStore = createStore()
+
+      // Set up global subscriber
+      const subscriber = vi.fn()
+      eventStore.onAll(subscriber)
+
+      // Save events
+      await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test1' }])
+
+      // Verify subscriber was called
+      expect(subscriber).toHaveBeenCalledTimes(1)
+
+      // Unsubscribe
+      eventStore.offAll(subscriber)
+      subscriber.mockClear()
+
+      // Save more events
+      await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test2' }])
+      await eventStore.save('another-aggregate', [{ type: 'AnotherTestEvent', value: 42 }])
+
+      // Verify subscriber was not called again
+      expect(subscriber).not.toHaveBeenCalled()
+    })
+
+    test('should allow multiple global subscribers', async () => {
+      const eventStore = createStore()
+
+      // Set up global subscribers
+      const subscriber1 = vi.fn()
+      const subscriber2 = vi.fn()
+      eventStore.onAll(subscriber1)
+      eventStore.onAll(subscriber2)
+
+      // Save events
+      await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test' }])
+
+      // Verify both subscribers were called
+      expect(subscriber1).toHaveBeenCalledTimes(1)
+      expect(subscriber2).toHaveBeenCalledTimes(1)
+    })
+
+    test('should work alongside aggregate-specific subscribers', async () => {
+      const eventStore = createStore()
+
+      // Set up subscribers
+      const specificSubscriber = vi.fn()
+      const globalSubscriber = vi.fn()
+      eventStore.on('test-aggregate', specificSubscriber)
+      eventStore.onAll(globalSubscriber)
+
+      // Save events to first aggregate
+      await eventStore.save('test-aggregate', [{ type: 'TestEvent', data: 'test1' }])
+
+      // Verify both subscribers were called
+      expect(specificSubscriber).toHaveBeenCalledTimes(1)
+      expect(globalSubscriber).toHaveBeenCalledTimes(1)
+
+      // Reset mocks
+      specificSubscriber.mockClear()
+      globalSubscriber.mockClear()
+
+      // Save events to second aggregate
+      await eventStore.save('another-aggregate', [{ type: 'AnotherTestEvent', value: 42 }])
+
+      // Verify only global subscriber was called
+      expect(specificSubscriber).not.toHaveBeenCalled()
+      expect(globalSubscriber).toHaveBeenCalledTimes(1)
+    })
+  })
 })

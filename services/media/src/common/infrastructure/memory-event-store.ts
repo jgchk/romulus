@@ -1,4 +1,4 @@
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'node:events'
 
 import type {
   DefaultEventSignature,
@@ -13,12 +13,12 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private events: Map<keyof L, EventEnvelope<string, any>[]>
   private sequence: number
-  private eventEmitter: TypedEmitter<{ [E in keyof L]: (events: EventEnvelope<E, L[E]>[]) => void }>
+  private eventEmitter: EventEmitter
 
   constructor() {
     this.events = new Map()
     this.sequence = 1
-    this.eventEmitter = new TypedEmitter()
+    this.eventEmitter = new EventEmitter()
   }
 
   get<T extends keyof L = keyof L>(aggregateId: T): EventEnvelope<T, L[T]>[] {
@@ -53,21 +53,31 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.events.set(aggregateId, currentEvents as EventEnvelope<string, any>[])
 
-    // @ts-expect-error - TS is not smart enough to infer the type of `envelopedEvents`
-    this.eventEmitter.emit(aggregateId, envelopedEvents)
+    this.eventEmitter.emit(aggregateId.toString(), envelopedEvents)
+
+    // Emit to global subscribers
+    this.eventEmitter.emit('*', envelopedEvents)
   }
 
   on<U extends keyof L>(
     aggregateId: U,
     callback: (events: EventEnvelope<U, L[U]>[]) => void,
   ): void {
-    this.eventEmitter.on(aggregateId, callback)
+    this.eventEmitter.on(aggregateId.toString(), callback)
   }
 
   off<U extends keyof L>(
     aggregateId: U,
     callback: (events: EventEnvelope<U, L[U]>[]) => void,
   ): void {
-    this.eventEmitter.off(aggregateId, callback)
+    this.eventEmitter.off(aggregateId.toString(), callback)
+  }
+
+  onAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+    this.eventEmitter.on('*', callback)
+  }
+
+  offAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+    this.eventEmitter.off('*', callback)
   }
 }

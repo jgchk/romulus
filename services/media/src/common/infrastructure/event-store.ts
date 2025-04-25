@@ -6,6 +6,8 @@ export type IEventStore<L extends EventSignature<L> = DefaultEventSignature> = {
   save<U extends keyof L>(aggregateId: U, events: L[U][]): MaybePromise<void>
   on<U extends keyof L>(aggregateId: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void
   off<U extends keyof L>(aggregateId: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void
+  onAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void
+  offAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void
 }
 
 export type EventSignature<L> = {
