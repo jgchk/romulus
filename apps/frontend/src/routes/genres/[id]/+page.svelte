@@ -14,6 +14,7 @@
   import { getUserContext } from '$lib/contexts/user'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import RelevanceVoteForm from '$lib/features/genres/components/RelevanceVoteForm.svelte'
+  import RelevanceVoteGraph from '$lib/features/genres/components/RelevanceVoteGraph.svelte'
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { slide } from '$lib/transitions/slide'
   import { GenreTypeNames, getGenreRelevanceText, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
@@ -23,7 +24,6 @@
   import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
   import GenrePageHeader from './GenrePageHeader.svelte'
-  import RelevanceVoteGraph from './RelevanceVoteGraph.svelte'
 
   type Props = {
     data: PageData

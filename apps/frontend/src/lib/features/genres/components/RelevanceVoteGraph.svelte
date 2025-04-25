@@ -9,13 +9,7 @@
   import { cn } from '$lib/utils/dom'
   import { sum } from '$lib/utils/math'
 
-  import type { PageData } from './$types'
-
-  type Props = {
-    votes: PageData['relevanceVotes']
-  }
-
-  let { votes }: Props = $props()
+  let { votes }: { votes: Map<number, number> } = $props()
   let totalVotes = $derived(sum([...votes.values()]))
 
   const relevanceData: Record<number, { color: string; docs: string }> = {
