@@ -156,11 +156,11 @@ function createApplications({
   })
   const userSettingsApplication = createUserSettingsApplication(userSettingsInfrastructure)
   const mediaApplication = createMediaApplication({
-    getMediaTypes: () => mediaInfrastructure.eventStore.getMediaTypes(),
-    getMediaArtifactTypes: () => mediaInfrastructure.eventStore.getMediaArtifactTypes(),
-    saveMediaTypeEvent: (event) => mediaInfrastructure.eventStore.saveMediaTypeEvent(event),
-    saveMediaArtifactTypeEvent: (event) =>
-      mediaInfrastructure.eventStore.saveMediaArtifactTypeEvent(event),
+    getMediaTypes: mediaInfrastructure.eventStore.getMediaTypes,
+    getMediaArtifactTypes: mediaInfrastructure.eventStore.getMediaArtifactTypes,
+    saveMediaTypeEvent: mediaInfrastructure.eventStore.saveMediaTypeEvent,
+    saveMediaArtifactTypeEvent: mediaInfrastructure.eventStore.saveMediaArtifactTypeEvent,
+    saveMediaArtifactEvent: mediaInfrastructure.eventStore.saveMediaArtifactEvent,
     db: mediaInfrastructure.db,
   })
 
