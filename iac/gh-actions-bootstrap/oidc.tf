@@ -164,7 +164,8 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "elasticloadbalancing:DescribeListenerAttributes",
           "elasticloadbalancing:ModifyTargetGroup",
           "elasticloadbalancing:ModifyTargetGroupAttributes",
-          "elasticloadbalancing:DescribeRules"
+          "elasticloadbalancing:DescribeRules",
+          "elasticloadbalancing:ModifyListener"
         ],
         "Resource" : "*"
       },
@@ -193,7 +194,9 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Effect" : "Allow",
         "Action" : [
           "acm:DescribeCertificate",
-          "acm:ListTagsForCertificate"
+          "acm:ListTagsForCertificate",
+          "acm:RequestCertificate",
+          "acm:DeleteCertificate"
         ],
         "Resource" : [
           "arn:aws:acm:us-east-2:${data.aws_caller_identity.current.account_id}:certificate/*"
@@ -226,12 +229,22 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Action" : [
           "route53:GetHostedZone",
           "route53:ListTagsForResource",
-          "route53:ListResourceRecordSets"
+          "route53:ListResourceRecordSets",
+          "route53:ChangeResourceRecordSets"
         ],
         "Resource" : [
           "arn:aws:route53:::hostedzone/*"
         ]
-      }
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "route53:GetChange"
+        ],
+        "Resource" : [
+          "arn:aws:route53:::change/*"
+        ]
+      },
     ]
   })
 }
