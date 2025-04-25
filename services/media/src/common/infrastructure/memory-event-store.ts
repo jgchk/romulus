@@ -21,8 +21,8 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     this.eventEmitter = new TypedEmitter()
   }
 
-  get<U extends keyof L>(aggregateId: U): EventEnvelope<U, L[U]>[] {
-    return (this.events.get(aggregateId) ?? []) as EventEnvelope<U, L[U]>[]
+  get<T extends keyof L = keyof L>(aggregateId: T): EventEnvelope<T, L[T]>[] {
+    return (this.events.get(aggregateId) ?? []) as EventEnvelope<T, L[T]>[]
   }
 
   getAll<T extends keyof L = keyof L>(): EventEnvelope<T, L[T]>[] {
