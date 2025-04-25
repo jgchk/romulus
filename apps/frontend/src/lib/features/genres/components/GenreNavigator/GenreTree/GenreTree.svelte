@@ -4,8 +4,8 @@
   import { createGetRootGenresQuery } from '$lib/features/genres/queries/application/get-root-genres'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
-  import { getTreeStateStoreContext } from '../../../../../../routes/genres/tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
+  import { getTreeStateStoreContext } from './tree-state-store.svelte'
 
   let { genres }: { genres: GenreStore } = $props()
 

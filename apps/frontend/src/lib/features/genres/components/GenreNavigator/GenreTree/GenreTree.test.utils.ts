@@ -9,11 +9,8 @@ import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
 import { withProps } from '$lib/utils/object'
 
-import {
-  createTreeStateStore,
-  TREE_STATE_STORE_KEY,
-} from '../../../../../../routes/genres/tree-state-store.svelte'
 import GenreTree from './GenreTree.svelte'
+import { createTreeStateStore, TREE_STATE_STORE_KEY } from './tree-state-store.svelte'
 
 export function setup(
   props: ComponentProps<typeof GenreTree>,

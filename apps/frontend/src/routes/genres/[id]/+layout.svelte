@@ -2,14 +2,14 @@
   import { createQuery } from '@tanstack/svelte-query'
 
   import { goto } from '$app/navigation'
-  import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
-  import { genreQueries } from '$lib/features/genres/tanstack'
-
   import {
     getTreeStateStoreContext,
     stringifyTreePath,
     useSelectedTreePath,
-  } from '../tree-state-store.svelte'
+  } from '$lib/features/genres/components/GenreNavigator/GenreTree/tree-state-store.svelte'
+  import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
+  import { genreQueries } from '$lib/features/genres/tanstack'
+
   import type { LayoutData } from './$types'
 
   type Props = {

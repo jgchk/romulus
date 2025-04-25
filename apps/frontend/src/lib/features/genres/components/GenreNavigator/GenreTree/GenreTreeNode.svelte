@@ -15,13 +15,13 @@
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
+  import GenreTreeNode from './GenreTreeNode.svelte'
+  import RelevanceChip from './RelevanceChip.svelte'
   import {
     getTreeStateStoreContext,
     stringifyTreePath,
     useSelectedTreePath,
-  } from '../../../../../../routes/genres/tree-state-store.svelte'
-  import GenreTreeNode from './GenreTreeNode.svelte'
-  import RelevanceChip from './RelevanceChip.svelte'
+  } from './tree-state-store.svelte'
 
   type Props = {
     id: number
