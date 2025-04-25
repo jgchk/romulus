@@ -3,12 +3,13 @@
 
   import { page } from '$app/stores'
 
-  import type { PageData } from './$types'
-
   type Props = {
     label: string
     sort: string
-    data: PageData
+    data: {
+      sort: 'name' | 'type' | 'relevance' | 'updated'
+      order: 'asc' | 'desc'
+    }
   }
 
   let { label, sort, data }: Props = $props()

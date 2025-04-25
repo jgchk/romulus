@@ -2,11 +2,11 @@
   import { createQuery } from '@tanstack/svelte-query'
 
   import Loader from '$lib/atoms/Loader.svelte'
+  import GenresTable from '$lib/features/genres/components/GenresTable.svelte'
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { pageTitle } from '$lib/utils/string'
 
   import type { PageData } from './$types'
-  import GenresTable from './GenresTable.svelte'
 
   type Props = {
     data: PageData

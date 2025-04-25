@@ -14,12 +14,16 @@
   import type { TreeGenre } from '$lib/features/genres/queries/types'
   import { getTimeSinceShort, toPrettyDate } from '$lib/utils/datetime'
 
-  import type { PageData } from './$types'
-  import ColumnHeader from './ColumnHeader.svelte'
+  import ColumnHeader from './GenresTableColumnHeader.svelte'
 
   type Props = {
     genres: GenreStore
-    data: PageData
+    data: {
+      sort: 'name' | 'type' | 'relevance' | 'updated'
+      order: 'asc' | 'desc'
+      limit: number
+      page: number
+    }
   }
 
   let { genres, data }: Props = $props()
