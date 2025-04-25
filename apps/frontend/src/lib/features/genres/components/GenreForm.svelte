@@ -19,8 +19,8 @@
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
   import Footer from '../../../../routes/genres/Footer.svelte'
-  import RelevanceSelect from '../../../../routes/genres/RelevanceSelect.svelte'
   import type { GenreFormField } from './GenreForm'
+  import RelevanceSelect from './RelevanceSelect.svelte'
 
   type Props = {
     id?: number

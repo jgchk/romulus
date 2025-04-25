@@ -3,7 +3,7 @@
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
 
-  import RelevanceSelect from '../../../../../../routes/genres/RelevanceSelect.svelte'
+  import RelevanceSelect from '../../RelevanceSelect.svelte'
 
   type Props = {
     genreRelevanceFilter: number

@@ -4,8 +4,8 @@
   import Button from '$lib/atoms/Button.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
+  import RelevanceSelect from '$lib/features/genres/components/RelevanceSelect.svelte'
 
-  import RelevanceSelect from '../RelevanceSelect.svelte'
   import type { PageData } from './$types'
 
   type Props = {
