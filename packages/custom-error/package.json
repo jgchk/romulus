@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "prettier --check . && tsc --noEmit && eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
+    "lint:fix": "eslint . --fix && prettier --write .",
     "format": "prettier --write .",
     "build": "rm -rf ./dist && tsc"
   },

@@ -33,7 +33,7 @@
     "db:generate": "drizzle-kit generate",
     "generate-genres": "tsx src/scripts/generate-genres.ts",
     "lint": "prettier --check . && tsc --noEmit && eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
+    "lint:fix": "eslint . --fix && prettier --write .",
     "format": "prettier --write .",
     "dev": "tsc -p tsconfig.build.json --watch",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && cp -r ./src/infrastructure/migrations ./dist/infrastructure/migrations"
