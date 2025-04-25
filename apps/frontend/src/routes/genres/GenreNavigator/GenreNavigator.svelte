@@ -4,6 +4,7 @@
 
   import Button from '$lib/atoms/Button.svelte'
   import Card from '$lib/atoms/Card.svelte'
+  import Delay from '$lib/atoms/Delay.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
   import Input from '$lib/atoms/Input.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
@@ -76,9 +77,11 @@
     {:else if $genreTreeQuery.error}
       <div>Error fetching genres</div>
     {:else}
-      <div class="center h-full max-h-96 w-full">
-        <Loader size={32} class="text-primary-500" />
-      </div>
+      <Delay>
+        <div class="center h-full max-h-96 w-full">
+          <Loader size={32} class="text-primary-500" />
+        </div>
+      </Delay>
     {/if}
   </div>
 
