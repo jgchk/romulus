@@ -9,11 +9,11 @@ import { describe, expect, it } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import { relevanceVoteSchema } from '$lib/features/genres/components/RelevanceVoteForm'
 import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
 import { genreQueries } from '$lib/features/genres/tanstack'
 
 import GenrePage from './+page.svelte'
-import { relevanceVoteSchema } from './utils'
 
 const mockUser = {
   id: 0,
