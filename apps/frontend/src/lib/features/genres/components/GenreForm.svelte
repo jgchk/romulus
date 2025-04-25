@@ -11,6 +11,7 @@
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
+  import Footer from '$lib/components/Footer.svelte'
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
   import GenreMultiselect from '$lib/features/genres/components/GenreMultiselect.svelte'
   import GenreTypeSelect from '$lib/features/genres/components/GenreTypeSelect.svelte'
@@ -18,7 +19,6 @@
   import { genreQueries } from '$lib/features/genres/tanstack'
   import type { GenreSchema } from '$lib/server/api/genres/types'
 
-  import Footer from '../../../../routes/genres/Footer.svelte'
   import type { GenreFormField } from './GenreForm'
   import RelevanceSelect from './RelevanceSelect.svelte'
 

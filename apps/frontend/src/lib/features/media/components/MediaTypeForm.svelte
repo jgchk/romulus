@@ -7,9 +7,9 @@
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { toast } from '$lib/atoms/Toast/toast'
+  import Footer from '$lib/components/Footer.svelte'
   import { routes } from '$lib/routes'
 
-  import Footer from '../../../../routes/genres/Footer.svelte'
   import type { MediaTypeSchema } from './MediaTypeForm'
   import MediaTypeMultiselect from './MediaTypeMultiselect.svelte'
 

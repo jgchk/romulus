@@ -9,6 +9,7 @@
   import Label from '$lib/atoms/Label.svelte'
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import AccountLink from '$lib/components/AccountLink.svelte'
+  import Footer from '$lib/components/Footer.svelte'
   import GenreLink from '$lib/components/GenreLink.svelte'
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserContext } from '$lib/contexts/user'
@@ -22,7 +23,6 @@
   import { cn } from '$lib/utils/dom'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
-  import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
 
   type Props = {
