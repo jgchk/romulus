@@ -11,15 +11,15 @@
   import { createGetDerivationsQuery } from '$lib/features/genres/queries/application/get-derivations'
   import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
   import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { TreePath } from '$lib/features/genres/queries/types'
   import { slide } from '$lib/transitions/slide'
   import { cn, isFullyVisible, tw } from '$lib/utils/dom'
 
   import {
     getTreeStateStoreContext,
     stringifyTreePath,
-    type TreePath,
     useSelectedTreePath,
-  } from '../../tree-state-store.svelte'
+  } from '../../../../../../routes/genres/tree-state-store.svelte'
   import GenreTreeNode from './GenreTreeNode.svelte'
   import RelevanceChip from './RelevanceChip.svelte'
 

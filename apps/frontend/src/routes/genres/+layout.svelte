@@ -5,9 +5,9 @@
   import { page } from '$app/stores'
   import Card from '$lib/atoms/Card.svelte'
   import SplitPane from '$lib/atoms/SplitPane.svelte'
+  import GenreNavigator from '$lib/features/genres/components/GenreNavigator/GenreNavigator.svelte'
 
   import type { LayoutData } from './$types'
-  import GenreNavigator from './GenreNavigator/GenreNavigator.svelte'
   import { createTreeStateStore, setTreeStateStoreContext } from './tree-state-store.svelte'
 
   type Props = {
