@@ -4,32 +4,25 @@ import { eq, max } from 'drizzle-orm'
 
 import type { IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
 import { eventsTable } from './drizzle/event-store/schema.js'
-import type {
-  DefaultEventSignature,
-  EventEnvelope,
-  EventSignature,
-  IEventStore,
-} from './event-store.js'
+import type { EventEnvelope, IEventStore } from './event-store.js'
 
-export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignature>
-  implements IEventStore<EventSignature<L>>
-{
+export class PostgresEventStore<L extends Record<string, unknown>> implements IEventStore<L> {
   private eventEmitter: EventEmitter
 
   constructor(private db: IDrizzleEventStoreConnection) {
     this.eventEmitter = new EventEmitter()
   }
 
-  async get<U extends keyof L>(id: U): Promise<EventEnvelope<U, L[U]>[]> {
+  async get<T extends keyof L & string>(aggregateId: T): Promise<EventEnvelope<T, L[T]>[]> {
     const results = await this.db.query.eventsTable.findMany({
-      where: (events, { eq }) => eq(events.aggregateId, id.toString()),
+      where: (events, { eq }) => eq(events.aggregateId, aggregateId),
       orderBy: (events, { asc }) => asc(events.version),
     })
 
-    return results as EventEnvelope<U, L[U]>[]
+    return results as EventEnvelope<T, L[T]>[]
   }
 
-  async getAll<T extends keyof L = keyof L>(): Promise<EventEnvelope<T, L[T]>[]> {
+  async getAll<T extends keyof L & string>(): Promise<EventEnvelope<T, L[T]>[]> {
     const results = await this.db.query.eventsTable.findMany({
       orderBy: (events, { asc }) => asc(events.sequence),
     })
@@ -37,14 +30,14 @@ export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignat
     return results as EventEnvelope<T, L[T]>[]
   }
 
-  async save<U extends keyof L>(id: U, events: L[U][]): Promise<void> {
+  async save<T extends keyof L & string>(aggregateId: T, events: L[T][]): Promise<void> {
     if (events.length === 0) return
 
     const envelopedEvents = await this.db.transaction(async (tx) => {
       const currentVersionResult = await tx
         .select({ version: max(eventsTable.version) })
         .from(eventsTable)
-        .where(eq(eventsTable.aggregateId, id.toString()))
+        .where(eq(eventsTable.aggregateId, aggregateId))
       const currentVersion = currentVersionResult[0]?.version ?? 0
 
       const currentSequenceResult = await tx
@@ -56,7 +49,7 @@ export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignat
         .insert(eventsTable)
         .values(
           events.map((event, i) => ({
-            aggregateId: id.toString(),
+            aggregateId,
             version: currentVersion + 1 + i,
             sequence: currentSequence + 1 + i,
             timestamp: new Date(),
@@ -68,25 +61,31 @@ export class PostgresEventStore<L extends EventSignature<L> = DefaultEventSignat
       return envelopedEvents
     })
 
-    this.eventEmitter.emit(id.toString(), envelopedEvents)
+    this.eventEmitter.emit(aggregateId, envelopedEvents)
 
     // Emit to global subscribers
     this.eventEmitter.emit('*', envelopedEvents)
   }
 
-  on<U extends keyof L>(id: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void {
-    this.eventEmitter.on(id.toString(), callback)
+  on<T extends keyof L & string>(
+    aggregateId: T,
+    callback: (events: EventEnvelope<T, L[T]>[]) => void,
+  ): void {
+    this.eventEmitter.on(aggregateId, callback)
   }
 
-  off<U extends keyof L>(id: U, callback: (events: EventEnvelope<U, L[U]>[]) => void): void {
-    this.eventEmitter.off(id.toString(), callback)
+  off<T extends keyof L & string>(
+    aggregateId: T,
+    callback: (events: EventEnvelope<T, L[T]>[]) => void,
+  ): void {
+    this.eventEmitter.off(aggregateId, callback)
   }
 
-  onAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+  onAll<T extends keyof L & string>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
     this.eventEmitter.on('*', callback)
   }
 
-  offAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+  offAll<T extends keyof L & string>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
     this.eventEmitter.off('*', callback)
   }
 }

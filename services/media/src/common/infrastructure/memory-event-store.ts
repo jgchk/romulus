@@ -1,15 +1,8 @@
 import { EventEmitter } from 'node:events'
 
-import type {
-  DefaultEventSignature,
-  EventEnvelope,
-  EventSignature,
-  IEventStore,
-} from './event-store.js'
+import type { EventEnvelope, IEventStore } from './event-store.js'
 
-export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignature>
-  implements IEventStore<EventSignature<L>>
-{
+export class MemoryEventStore<L extends Record<string, unknown>> implements IEventStore<L> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private events: Map<keyof L, EventEnvelope<string, any>[]>
   private sequence: number
@@ -21,11 +14,11 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     this.eventEmitter = new EventEmitter()
   }
 
-  get<T extends keyof L = keyof L>(aggregateId: T): EventEnvelope<T, L[T]>[] {
+  get<T extends keyof L & string>(aggregateId: T): EventEnvelope<T, L[T]>[] {
     return (this.events.get(aggregateId) ?? []) as EventEnvelope<T, L[T]>[]
   }
 
-  getAll<T extends keyof L = keyof L>(): EventEnvelope<T, L[T]>[] {
+  getAll<T extends keyof L & string>(): EventEnvelope<T, L[T]>[] {
     // Collect all events from all streams
     const allEvents: EventEnvelope<T, L[T]>[] = []
     for (const events of this.events.values()) {
@@ -36,7 +29,7 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     return allEvents.sort((a, b) => a.sequence - b.sequence)
   }
 
-  save<U extends keyof L>(aggregateId: U, events: L[U][]): void {
+  save<T extends keyof L & string>(aggregateId: T, events: L[T][]): void {
     const currentEvents = this.get(aggregateId)
     const currentVersion = Math.max(...currentEvents.map((event) => event.version), 0)
 
@@ -53,31 +46,31 @@ export class MemoryEventStore<L extends EventSignature<L> = DefaultEventSignatur
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.events.set(aggregateId, currentEvents as EventEnvelope<string, any>[])
 
-    this.eventEmitter.emit(aggregateId.toString(), envelopedEvents)
+    this.eventEmitter.emit(aggregateId, envelopedEvents)
 
     // Emit to global subscribers
     this.eventEmitter.emit('*', envelopedEvents)
   }
 
-  on<U extends keyof L>(
-    aggregateId: U,
-    callback: (events: EventEnvelope<U, L[U]>[]) => void,
+  on<T extends keyof L & string>(
+    aggregateId: T,
+    callback: (events: EventEnvelope<T, L[T]>[]) => void,
   ): void {
-    this.eventEmitter.on(aggregateId.toString(), callback)
+    this.eventEmitter.on(aggregateId, callback)
   }
 
-  off<U extends keyof L>(
-    aggregateId: U,
-    callback: (events: EventEnvelope<U, L[U]>[]) => void,
+  off<T extends keyof L & string>(
+    aggregateId: T,
+    callback: (events: EventEnvelope<T, L[T]>[]) => void,
   ): void {
-    this.eventEmitter.off(aggregateId.toString(), callback)
+    this.eventEmitter.off(aggregateId, callback)
   }
 
-  onAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+  onAll<T extends keyof L & string>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
     this.eventEmitter.on('*', callback)
   }
 
-  offAll<T extends keyof L = keyof L>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
+  offAll<T extends keyof L & string>(callback: (events: EventEnvelope<T, L[T]>[]) => void): void {
     this.eventEmitter.off('*', callback)
   }
 }
