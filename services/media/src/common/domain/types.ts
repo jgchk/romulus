@@ -16,3 +16,9 @@ export type MediaArtifactRelationshipType = {
   parentMediaArtifactType: string
   childMediaArtifactTypes: string[]
 }
+
+export type MediaArtifact = {
+  id: string
+  name: string
+  mediaArtifactType: string
+}

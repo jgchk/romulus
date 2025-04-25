@@ -1,4 +1,9 @@
-import type { MediaArtifactRelationshipType, MediaArtifactType, MediaType } from './types.js'
+import type {
+  MediaArtifact,
+  MediaArtifactRelationshipType,
+  MediaArtifactType,
+  MediaType,
+} from './types.js'
 
 export type MediaTypeEvent = MediaTypeCreatedEvent | MediaTypeDeletedEvent | MediaTypeUpdatedEvent
 
@@ -106,4 +111,18 @@ export function mediaArtifactRelationshipTypeUpdatedEvent(
   event: Omit<MediaArtifactRelationshipTypeUpdatedEvent, '_tag'>,
 ): MediaArtifactRelationshipTypeUpdatedEvent {
   return { ...event, _tag: 'media-artifact-relationship-type-updated' }
+}
+
+export type MediaArtifactEvent = MediaArtifactCreatedEvent
+
+export type MediaArtifactCreatedEvent = {
+  _tag: 'media-artifact-created'
+  mediaArtifact: MediaArtifact
+  userId: number
+}
+
+export function mediaArtifactCreatedEvent(
+  event: Omit<MediaArtifactCreatedEvent, '_tag'>,
+): MediaArtifactCreatedEvent {
+  return { ...event, _tag: 'media-artifact-created' }
 }
