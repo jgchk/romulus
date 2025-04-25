@@ -1,6 +1,6 @@
-import type { ArkErrors } from 'arktype'
+import { type ArkErrors } from 'arktype'
 import { type } from 'arktype'
-import type { Result } from 'neverthrow'
+import { type Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 export type Env = typeof envSchema.infer

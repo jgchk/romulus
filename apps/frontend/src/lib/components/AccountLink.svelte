@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HTMLAttributes } from 'svelte/elements'
+  import { type HTMLAttributes } from 'svelte/elements'
 
   import { tw } from '$lib/utils/dom'
 

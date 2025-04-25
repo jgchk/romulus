@@ -1,4 +1,4 @@
-import type { Snippet } from 'svelte'
+import { type Snippet } from 'svelte'
 
 export type AutocompleteProps<T, O extends AutocompleteOption<T> = AutocompleteOption<T>> = {
   value: string

@@ -1,6 +1,6 @@
 import { browser } from '$app/environment'
 
-import type { Action } from './types'
+import { type Action } from './types'
 
 let trapFocusList: HTMLElement[] = []
 

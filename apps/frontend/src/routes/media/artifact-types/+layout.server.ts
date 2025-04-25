@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-import type { LayoutServerLoad } from './$types'
+import { type LayoutServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
   const mediaTypesResponse = await locals.di.media().getAllMediaTypes()

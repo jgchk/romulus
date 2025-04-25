@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import { setSessionCookie } from '$lib/cookie'
 
-import type { PageServerLoad } from './$types'
+import { type PageServerLoad } from './$types'
 
 const schema = z
   .object({

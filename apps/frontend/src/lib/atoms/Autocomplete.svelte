@@ -11,7 +11,7 @@
   import { getInputGroupErrors } from '$lib/atoms/InputGroup'
   import { cn, tw } from '$lib/utils/dom'
 
-  import type { AutocompleteOption, AutocompleteProps } from './Autocomplete'
+  import { type AutocompleteOption, type AutocompleteProps } from './Autocomplete'
   import Portal from './Portal.svelte'
   import SelectDropdown from './SelectDropdown.svelte'
 

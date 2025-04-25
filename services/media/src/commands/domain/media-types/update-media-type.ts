@@ -1,10 +1,10 @@
-import type { Result } from 'neverthrow'
+import { type Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import { type MediaTypeUpdatedEvent, mediaTypeUpdatedEvent } from '../../../common/domain/events.js'
-import type { MediaType } from '../../../common/domain/types.js'
+import { type MediaType } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError, MediaTypeTreeCycleError } from './errors.js'
-import type { MediaTypesProjection } from './media-types-projection.js'
+import { type MediaTypesProjection } from './media-types-projection.js'
 
 export function createUpdateMediaTypeCommand(projection: MediaTypesProjection) {
   return function updateMediaType(

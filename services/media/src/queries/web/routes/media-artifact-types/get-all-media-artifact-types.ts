@@ -6,7 +6,7 @@ import {
   type RouteResponse,
 } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import type { GetAllMediaArtifactTypesQueryHandler } from '../../../application/media-artifact-types/get-all-media-artifact-types.js'
+import { type GetAllMediaArtifactTypesQueryHandler } from '../../../application/media-artifact-types/get-all-media-artifact-types.js'
 
 export function createGetAllMediaArtifactTypesRoute({
   getAllMediaArtifactTypes,

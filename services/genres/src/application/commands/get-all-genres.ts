@@ -1,9 +1,9 @@
 import { intersection } from 'ramda'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
-import type { DrizzleGetAllGenresQueryInput } from '../../infrastructure/drizzle-get-all-genres.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type DrizzleGetAllGenresQueryInput } from '../../infrastructure/drizzle-get-all-genres.js'
 import { DrizzleGetAllGenresQuery } from '../../infrastructure/drizzle-get-all-genres.js'
-import type { Genre, GenreType } from '../../infrastructure/drizzle-schema.js'
+import { type Genre, type GenreType } from '../../infrastructure/drizzle-schema.js'
 
 export type GetAllGenresQueryInput<I extends GetAllGenresQueryIncludeFields = never> = {
   skip?: number

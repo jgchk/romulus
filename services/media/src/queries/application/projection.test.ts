@@ -11,7 +11,7 @@ import {
 } from '../../common/domain/events.js'
 import { mediaTypeCreatedEvent, mediaTypeDeletedEvent } from '../../common/domain/events.js'
 import { test } from '../../vitest-setup.js'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import { applyEvent } from './projection.js'
 
 test('should handle the media-type-created event', async ({ dbConnection }) => {

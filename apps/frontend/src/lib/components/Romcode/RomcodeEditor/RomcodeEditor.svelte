@@ -10,7 +10,7 @@
   import { Link, TextB, TextItalic } from 'phosphor-svelte'
 
   import IconButton from '$lib/atoms/IconButton.svelte'
-  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { makeGenreTag } from '$lib/types/genres'
   import { cn, tw } from '$lib/utils/dom'
 

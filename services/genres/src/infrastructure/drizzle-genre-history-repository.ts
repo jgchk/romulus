@@ -1,6 +1,6 @@
 import { GenreHistory } from '../domain/genre-history.js'
-import type { GenreHistoryRepository } from '../domain/genre-history-repository.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type GenreHistoryRepository } from '../domain/genre-history-repository.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import { genreHistory, genreHistoryAkas } from './drizzle-schema.js'
 
 export class DrizzleGenreHistoryRepository implements GenreHistoryRepository {

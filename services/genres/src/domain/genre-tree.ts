@@ -1,7 +1,7 @@
 import { err, ok, type Result } from 'neverthrow'
 
 import { GenreCycleError } from './errors/genre-cycle.js'
-import type { GenreTreeNode } from './genre-tree-node.js'
+import { type GenreTreeNode } from './genre-tree-node.js'
 
 export class GenreTree {
   map: Map<number, { node: GenreTreeNode; status?: 'created' | 'updated' | 'deleted' }>

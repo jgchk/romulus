@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/svelte-query'
 import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import type { ComponentProps } from 'svelte'
+import { type ComponentProps } from 'svelte'
 import { writable } from 'svelte/store'
 import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'

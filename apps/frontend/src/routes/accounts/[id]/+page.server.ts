@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { getIntParam, getStringParam } from '$lib/utils/params'
 
-import type { Actions, PageServerLoad } from './$types'
+import { type Actions, type PageServerLoad } from './$types'
 
 const SORT_OPTIONS = ['genre', 'change', 'date'] as const
 const ORDER_OPTIONS = ['asc', 'desc'] as const

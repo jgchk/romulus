@@ -1,13 +1,13 @@
-import type { Result } from 'neverthrow'
+import { type Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
 import {
   type MediaArtifactTypeCreatedEvent,
   mediaArtifactTypeCreatedEvent,
 } from '../../../common/domain/events.js'
-import type { MediaArtifactType } from '../../../common/domain/types.js'
+import { type MediaArtifactType } from '../../../common/domain/types.js'
 import { MediaTypeNotFoundError } from '../media-types/errors.js'
-import type { MediaTypesProjection } from '../media-types/media-types-projection.js'
+import { type MediaTypesProjection } from '../media-types/media-types-projection.js'
 
 export function createCreateMediaArtifactTypeCommandHandler(
   mediaTypesProjection: MediaTypesProjection,

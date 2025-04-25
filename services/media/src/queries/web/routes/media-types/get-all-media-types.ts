@@ -6,7 +6,7 @@ import {
   type RouteResponse,
 } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import type { GetAllMediaTypesQueryHandler } from '../../../application/media-types/get-all-media-types.js'
+import { type GetAllMediaTypesQueryHandler } from '../../../application/media-types/get-all-media-types.js'
 
 export function createGetAllMediaTypesRoute({
   getAllMediaTypes,

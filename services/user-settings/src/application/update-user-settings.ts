@@ -1,4 +1,4 @@
-import type { IUserSettingsRepository } from '../domain/repository.js'
+import { type IUserSettingsRepository } from '../domain/repository.js'
 import { InvalidGenreRelevanceFilterError, type UserSettingsData } from '../domain/user-settings.js'
 
 export type UpdateUserSettingsCommand = {

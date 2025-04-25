@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 import { genreRelevanceVotes } from '../../infrastructure/drizzle-schema.js'
 
 export type GetGenreRelevanceVoteByAccountResult = {

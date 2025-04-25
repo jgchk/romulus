@@ -1,5 +1,5 @@
-import type { MediaArtifactType } from '../../../common/domain/types.js'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type MediaArtifactType } from '../../../common/domain/types.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export type GetMediaArtifactTypeQueryHandler = (
   id: string,

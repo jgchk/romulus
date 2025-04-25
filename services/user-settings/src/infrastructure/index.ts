@@ -1,7 +1,7 @@
-import type { Sql } from 'postgres'
+import { type Sql } from 'postgres'
 
-import type { IUserSettingsRepository } from '../domain/repository.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type IUserSettingsRepository } from '../domain/repository.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import { getDbConnection, getPostgresConnection, migrate } from './drizzle-postgres-connection.js'
 import { DrizzleUserSettingsRepository } from './drizzle-repository.js'
 

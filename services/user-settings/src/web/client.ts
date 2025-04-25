@@ -1,9 +1,9 @@
 import { CustomError } from '@romulus/custom-error'
 import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
 import { hc } from 'hono/client'
-import type { StatusCode } from 'hono/utils/http-status'
+import { type StatusCode } from 'hono/utils/http-status'
 
-import type { UserSettingsRouter } from './router.js'
+import { type UserSettingsRouter } from './router.js'
 
 export class UserSettingsClient {
   private client: ReturnType<typeof hc<UserSettingsRouter>>

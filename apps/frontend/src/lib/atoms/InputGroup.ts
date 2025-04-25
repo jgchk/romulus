@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte'
-import type { Readable } from 'svelte/store'
+import { type Readable } from 'svelte/store'
 
 export type InputGroupErrors = Readable<string[] | undefined>
 

@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { isNotNull } from '$lib/utils/types'
 
-import type { PageServerLoad } from './$types'
+import { type PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)

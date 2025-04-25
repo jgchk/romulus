@@ -1,4 +1,4 @@
-import type { GenreType } from '$lib/types/genres'
+import { type GenreType } from '$lib/types/genres'
 
 const GenreFormFields = {
   name: '',

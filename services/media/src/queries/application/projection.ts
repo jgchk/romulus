@@ -5,7 +5,7 @@ import {
   type MediaArtifactTypeEvent,
   type MediaTypeEvent,
 } from '../../common/domain/events.js'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import {
   mediaArtifactRelationshipTypeChildren,
   mediaArtifactRelationshipTypes,

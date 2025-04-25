@@ -1,4 +1,4 @@
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export type GetApiKeysByAccountResult = {
   id: number

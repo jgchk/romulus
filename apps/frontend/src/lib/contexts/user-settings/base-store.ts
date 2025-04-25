@@ -7,8 +7,8 @@ import {
   writable,
 } from 'svelte/store'
 
-import type { UserSettingsRepository } from './repository'
-import type { UserSettings } from './types'
+import { type UserSettingsRepository } from './repository'
+import { type UserSettings } from './types'
 
 export class BaseUserSettingsStore implements Writable<UserSettings> {
   store: Writable<UserSettings>

@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createGetGenreQuery } from '$lib/features/genres/queries/application/get-genre'
-  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { tw } from '$lib/utils/dom'
 
   type Props = {

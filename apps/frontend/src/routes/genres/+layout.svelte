@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
+  import { type Snippet } from 'svelte'
 
   import { browser } from '$app/environment'
   import { page } from '$app/stores'
@@ -11,7 +11,7 @@
     setTreeStateStoreContext,
   } from '$lib/features/genres/components/GenreTree/tree-state-store.svelte'
 
-  import type { LayoutData } from './$types'
+  import { type LayoutData } from './$types'
 
   type Props = {
     data: LayoutData

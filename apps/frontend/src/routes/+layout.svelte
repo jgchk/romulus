@@ -12,7 +12,7 @@
   import { setUserSettingsContext } from '$lib/contexts/user-settings'
   import UserSettingsStore from '$lib/contexts/user-settings/store'
 
-  import type { LayoutData } from './$types'
+  import { type LayoutData } from './$types'
   import DarkModeApplier from './DarkModeApplier.svelte'
 
   type Props = {

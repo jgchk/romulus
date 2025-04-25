@@ -3,7 +3,7 @@
   import MediaArtifactTypeCard from '$lib/features/media/components/MediaArtifactTypeCard.svelte'
   import MediaArtifactTypeForm from '$lib/features/media/components/MediaArtifactTypeForm.svelte'
 
-  import type { PageProps } from './$types'
+  import { type PageProps } from './$types'
 
   let { data }: PageProps = $props()
 </script>

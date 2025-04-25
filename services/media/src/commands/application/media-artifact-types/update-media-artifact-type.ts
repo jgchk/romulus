@@ -1,13 +1,13 @@
-import type { Result } from 'neverthrow'
+import { type Result } from 'neverthrow'
 import { err, ok } from 'neverthrow'
 
-import type { MediaArtifactTypeUpdatedEvent } from '../../../common/domain/events.js'
-import type { MaybePromise } from '../../../utils.js'
-import type { MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
-import type { MediaArtifactTypesProjection } from '../../domain/media-artifact-types/media-artifact-types-projection.js'
+import { type MediaArtifactTypeUpdatedEvent } from '../../../common/domain/events.js'
+import { type MaybePromise } from '../../../utils.js'
+import { type MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
+import { type MediaArtifactTypesProjection } from '../../domain/media-artifact-types/media-artifact-types-projection.js'
 import * as domain from '../../domain/media-artifact-types/update-media-artifact-type.js'
-import type { MediaTypeNotFoundError } from '../../domain/media-types/errors.js'
-import type { MediaTypesProjection } from '../../domain/media-types/media-types-projection.js'
+import { type MediaTypeNotFoundError } from '../../domain/media-types/errors.js'
+import { type MediaTypesProjection } from '../../domain/media-types/media-types-projection.js'
 
 export type UpdateMediaArtifactTypeCommandHandler = (
   command: domain.UpdateMediaArtifactTypeCommand,

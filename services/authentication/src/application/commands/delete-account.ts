@@ -1,7 +1,7 @@
-import type { IAuthorizationService } from '../../domain/authorization.js'
+import { type IAuthorizationService } from '../../domain/authorization.js'
 import { UnauthorizedError } from '../../domain/errors/unauthorized.js'
 import { AuthenticationPermission } from '../../domain/permissions.js'
-import type { AccountRepository } from '../../domain/repositories/account.js'
+import { type AccountRepository } from '../../domain/repositories/account.js'
 
 export class DeleteAccountCommand {
   constructor(

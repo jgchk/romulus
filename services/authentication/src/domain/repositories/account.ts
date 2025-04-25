@@ -1,5 +1,5 @@
-import type { CreatedAccount, NewAccount } from '../entities/account.js'
-import type { NonUniqueUsernameError } from '../errors/non-unique-username.js'
+import { type CreatedAccount, type NewAccount } from '../entities/account.js'
+import { type NonUniqueUsernameError } from '../errors/non-unique-username.js'
 
 export type AccountRepository = {
   findById(id: number): Promise<CreatedAccount | undefined>

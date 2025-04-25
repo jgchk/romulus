@@ -1,9 +1,9 @@
 import { err, ok } from 'neverthrow'
 
 import { mediaArtifactRelationshipTypeUpdatedEvent } from '../../../common/domain/events.js'
-import type { MediaArtifactRelationshipType } from '../../../common/domain/types.js'
+import { type MediaArtifactRelationshipType } from '../../../common/domain/types.js'
 import { MediaArtifactTypeNotFoundError } from '../media-artifact-types/errors.js'
-import type { MediaArtifactTypesProjection } from '../media-artifact-types/media-artifact-types-projection.js'
+import { type MediaArtifactTypesProjection } from '../media-artifact-types/media-artifact-types-projection.js'
 import { MediaArtifactRelationshipTypeNotFoundError } from './errors.js'
 
 export function createUpdateMediaArtifactRelationshipTypeCommandHandler(

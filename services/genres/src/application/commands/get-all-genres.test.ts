@@ -1,6 +1,6 @@
 import { expect } from 'vitest'
 
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
 import { DrizzleGenreRelevanceVoteRepository } from '../../infrastructure/drizzle-genre-relevance-vote-repository.js'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'

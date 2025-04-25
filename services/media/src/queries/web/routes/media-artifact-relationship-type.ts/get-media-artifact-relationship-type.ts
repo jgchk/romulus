@@ -9,7 +9,7 @@ import {
   validator,
 } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import type { GetMediaArtifactRelationshipTypeQueryHandler } from '../../../application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
+import { type GetMediaArtifactRelationshipTypeQueryHandler } from '../../../application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
 
 export function createGetMediaArtifactRelationshipTypeRoute({
   getMediaArtifactRelationshipType,

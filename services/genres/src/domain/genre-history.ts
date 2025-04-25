@@ -1,4 +1,4 @@
-import type { Genre } from './genre.js'
+import { type Genre } from './genre.js'
 
 export class GenreHistory {
   constructor(

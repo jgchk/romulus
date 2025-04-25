@@ -1,7 +1,7 @@
-import type { Instance, Props as TippyProps } from 'tippy.js'
+import { type Instance, type Props as TippyProps } from 'tippy.js'
 import tippy from 'tippy.js'
 
-import type { Action } from './types'
+import { type Action } from './types'
 
 export type TooltipProps = Partial<TippyProps> & { enabled?: boolean }
 

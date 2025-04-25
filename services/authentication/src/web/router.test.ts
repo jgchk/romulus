@@ -17,7 +17,7 @@ import {
   ValidateApiKeyCommand,
   WhoamiQuery,
 } from '../application/index.js'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import { MockAuthorizationService } from '../test/mock-authorization-service.js'
 import { test } from '../vitest-setup.js'
 import { CommandsCompositionRoot } from './composition-root.js'

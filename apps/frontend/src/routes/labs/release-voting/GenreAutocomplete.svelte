@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { AutocompleteProps } from '$lib/atoms/Autocomplete'
+  import { type AutocompleteProps } from '$lib/atoms/Autocomplete'
   import Autocomplete from '$lib/atoms/Autocomplete.svelte'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
-  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
-  import type { TreeGenre } from '$lib/features/genres/queries/types'
+  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import { type TreeGenre } from '$lib/features/genres/queries/types'
   import { useDebounce } from '$lib/runes/use-debounce.svelte'
   import { cn } from '$lib/utils/dom'
 

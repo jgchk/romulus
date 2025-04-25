@@ -1,4 +1,4 @@
-import type { AccountRepository } from '../../domain/repositories/account.js'
+import { type AccountRepository } from '../../domain/repositories/account.js'
 
 export class GetAccountsQuery {
   constructor(private accountRepo: AccountRepository) {}

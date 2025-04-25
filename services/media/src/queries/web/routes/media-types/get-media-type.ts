@@ -9,7 +9,7 @@ import {
   validator,
 } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import type { GetMediaTypeQueryHandler } from '../../../application/media-types/get-media-type.js'
+import { type GetMediaTypeQueryHandler } from '../../../application/media-types/get-media-type.js'
 
 export function createGetMediaTypeRoute({ getMediaType }: GetMediaTypeRouteDependencies) {
   return factory.createHandlers(

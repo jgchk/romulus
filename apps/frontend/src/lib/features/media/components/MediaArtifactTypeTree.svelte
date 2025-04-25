@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MediaArtifactTypeTreeMap } from './MediaArtifactTypeTree'
+  import { type MediaArtifactTypeTreeMap } from './MediaArtifactTypeTree'
   import MediaArtifactTypeTreeNode from './MediaArtifactTypeTreeNode.svelte'
 
   let {

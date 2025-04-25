@@ -1,4 +1,4 @@
-import type { AuthenticationClient } from '@romulus/authentication/client'
+import { type AuthenticationClient } from '@romulus/authentication/client'
 import { FetchError } from '@romulus/authentication/client'
 import { isActionFailure } from '@sveltejs/kit'
 import { errAsync, okAsync } from 'neverthrow'

@@ -1,12 +1,12 @@
 import { err, ok, type Result } from 'neverthrow'
 
-import type { MediaTypeUpdatedEvent } from '../../../common/domain/events.js'
-import type { MaybePromise } from '../../../utils.js'
-import type {
-  MediaTypeNotFoundError,
-  MediaTypeTreeCycleError,
+import { type MediaTypeUpdatedEvent } from '../../../common/domain/events.js'
+import { type MaybePromise } from '../../../utils.js'
+import {
+  type MediaTypeNotFoundError,
+  type MediaTypeTreeCycleError,
 } from '../../domain/media-types/errors.js'
-import type { MediaTypesProjection } from '../../domain/media-types/media-types-projection.js'
+import { type MediaTypesProjection } from '../../domain/media-types/media-types-projection.js'
 import {
   createUpdateMediaTypeCommand,
   type UpdateMediaTypeCommand,

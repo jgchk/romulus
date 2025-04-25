@@ -1,10 +1,10 @@
 import { CustomError } from '@romulus/custom-error'
 import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
-import type { InferResponseType } from 'hono/client'
+import { type InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import type { Router } from './router.js'
+import { type Router } from './router.js'
 
 export class AuthenticationClient {
   private client: ReturnType<typeof hc<Router>>

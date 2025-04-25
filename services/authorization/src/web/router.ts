@@ -1,7 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import type { AuthorizationApplication } from '../application/index.js'
-import type { IAuthenticationService } from '../domain/authentication.js'
+import { type AuthorizationApplication } from '../application/index.js'
+import { type IAuthenticationService } from '../domain/authentication.js'
 import {
   DuplicatePermissionError,
   PermissionNotFoundError,

@@ -1,4 +1,4 @@
-import type { GenresClient } from '@romulus/genres/client'
+import { type GenresClient } from '@romulus/genres/client'
 import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import { genreSchema } from '$lib/server/api/genres/types'
 
-import type { Actions, PageServerLoad } from './$types'
+import { type Actions, type PageServerLoad } from './$types'
 
 export const load = (async ({
   locals,

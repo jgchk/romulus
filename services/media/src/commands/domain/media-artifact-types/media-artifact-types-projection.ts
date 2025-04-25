@@ -1,7 +1,7 @@
-import type { MediaArtifactTypeEvent } from '../../../common/domain/events.js'
-import type {
-  MediaArtifactRelationshipType,
-  MediaArtifactType,
+import { type MediaArtifactTypeEvent } from '../../../common/domain/events.js'
+import {
+  type MediaArtifactRelationshipType,
+  type MediaArtifactType,
 } from '../../../common/domain/types.js'
 
 export type MediaArtifactTypesProjection = {

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import RomcodeGenreLink from './RomcodeGenreLink.svelte'
   import RomcodeNode from './RomcodeNode.svelte'
-  import type { Node } from './types'
+  import { type Node } from './types'
 
   type Props = {
     node: Node

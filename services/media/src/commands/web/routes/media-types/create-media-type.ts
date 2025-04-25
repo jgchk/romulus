@@ -7,13 +7,13 @@ import { type RouteResponse } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
 import { validator } from '../../../../common/web/utils.js'
 import { assertUnreachable } from '../../../../utils.js'
-import type { CreateMediaTypeCommandHandler } from '../../../application/media-types/create-media-type.js'
+import { type CreateMediaTypeCommandHandler } from '../../../application/media-types/create-media-type.js'
 import {
   MediaTypeNotFoundError,
   MediaTypeTreeCycleError,
 } from '../../../domain/media-types/errors.js'
 import { MediaPermission } from '../../../domain/permissions.js'
-import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
+import { type AuthorizationMiddleware } from '../../authorization-middleware.js'
 import {
   badRequestErrorResponse,
   unauthenticatedErrorResponse,

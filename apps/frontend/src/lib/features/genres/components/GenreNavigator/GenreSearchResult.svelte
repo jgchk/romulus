@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip'
   import GenreTypeChip from '$lib/components/GenreTypeChip.svelte'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { GenreType } from '$lib/types/genres'
+  import { type GenreType } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
 
   import { searchStore } from './state'

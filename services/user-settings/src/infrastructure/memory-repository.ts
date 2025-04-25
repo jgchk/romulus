@@ -1,5 +1,5 @@
-import type { IUserSettingsRepository } from '../domain/repository.js'
-import type { UserSettingsData } from '../domain/user-settings.js'
+import { type IUserSettingsRepository } from '../domain/repository.js'
+import { type UserSettingsData } from '../domain/user-settings.js'
 import { UserSettings } from '../domain/user-settings.js'
 
 export class MemoryUserSettingsRepository implements IUserSettingsRepository {

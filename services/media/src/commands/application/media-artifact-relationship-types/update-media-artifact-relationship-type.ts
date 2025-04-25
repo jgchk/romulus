@@ -1,11 +1,11 @@
 import { err, ok, type Result } from 'neverthrow'
 
-import type { MediaArtifactRelationshipTypeUpdatedEvent } from '../../../common/domain/events.js'
-import type { MaybePromise } from '../../../utils.js'
-import type { MediaArtifactRelationshipTypeNotFoundError } from '../../domain/media-artifact-relationship-types/errors.js'
+import { type MediaArtifactRelationshipTypeUpdatedEvent } from '../../../common/domain/events.js'
+import { type MaybePromise } from '../../../utils.js'
+import { type MediaArtifactRelationshipTypeNotFoundError } from '../../domain/media-artifact-relationship-types/errors.js'
 import * as domain from '../../domain/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
-import type { MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
-import type { MediaArtifactTypesProjection } from '../../domain/media-artifact-types/media-artifact-types-projection.js'
+import { type MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'
+import { type MediaArtifactTypesProjection } from '../../domain/media-artifact-types/media-artifact-types-projection.js'
 
 export type UpdateMediaArtifactRelationshipTypeCommandHandler = (
   command: domain.UpdateMediaArtifactRelationshipTypeCommand,

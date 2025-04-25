@@ -9,7 +9,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isDefined } from '$lib/utils/types'
 
-import type { PageServerLoad } from './$types'
+import { type PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)

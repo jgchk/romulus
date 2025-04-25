@@ -9,8 +9,8 @@ import {
   RoleDeletedEvent,
 } from '../domain/authorizer.js'
 import { PermissionCreatedEvent } from '../domain/authorizer.js'
-import type { IAuthorizerRepository } from '../domain/repository.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type IAuthorizerRepository } from '../domain/repository.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import {
   defaultRoleTable,
   permissionsTable,

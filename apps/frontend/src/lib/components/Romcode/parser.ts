@@ -1,4 +1,4 @@
-import type { Bold, GenreLink, Italic, Link, Root, Text } from './types'
+import { type Bold, type GenreLink, type Italic, type Link, type Root, type Text } from './types'
 import { visit } from './visit'
 
 const linkPlugin = (root: Root) => {

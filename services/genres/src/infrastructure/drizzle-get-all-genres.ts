@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from 'drizzle-orm'
 
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import {
   type Genre,
   genreAkas,

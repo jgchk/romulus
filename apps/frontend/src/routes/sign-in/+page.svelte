@@ -9,7 +9,7 @@
   import { toast } from '$lib/atoms/Toast/toast'
   import { pageTitle } from '$lib/utils/string'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
 
   type Props = {
     data: PageData

@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
 import { GenreTree } from '../domain/genre-tree.js'
-import type { GenreTreeNode } from '../domain/genre-tree-node.js'
-import type { GenreTreeRepository } from '../domain/genre-tree-repository.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type GenreTreeNode } from '../domain/genre-tree-node.js'
+import { type GenreTreeRepository } from '../domain/genre-tree-repository.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import { genreDerivedFrom, genreInfluences, genreParents } from './drizzle-schema.js'
 
 export class DrizzleGenreTreeRepository implements GenreTreeRepository {

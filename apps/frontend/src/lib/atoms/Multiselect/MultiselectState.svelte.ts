@@ -2,8 +2,8 @@ import { flip, offset, size } from '@floating-ui/dom'
 import { getContext, setContext } from 'svelte'
 
 import { createPopoverActions } from '$lib/actions/popover'
-import type { Action } from '$lib/actions/types'
-import type { ReadableBox, WritableBox } from '$lib/runes/box.svelte'
+import { type Action } from '$lib/actions/types'
+import { type ReadableBox, type WritableBox } from '$lib/runes/box.svelte'
 
 export class MultiselectState {
   uuid: string

@@ -1,6 +1,6 @@
 import { getByRole, getByTestId, queryByRole, render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import type { ComponentProps } from 'svelte'
+import { type ComponentProps } from 'svelte'
 import { readable, writable } from 'svelte/store'
 import { expect } from 'vitest'
 

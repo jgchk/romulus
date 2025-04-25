@@ -1,6 +1,6 @@
-import type { GenreType } from '$lib/types/genres'
+import { type GenreType } from '$lib/types/genres'
 
-import type { TreeGenre } from './queries/types'
+import { type TreeGenre } from './queries/types'
 
 export function stringifyTreeGenre(genre: TreeGenre): string {
   let s = '' + genre.id

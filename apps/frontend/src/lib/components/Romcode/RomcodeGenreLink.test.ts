@@ -1,6 +1,6 @@
 import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import type { ComponentProps } from 'svelte'
+import { type ComponentProps } from 'svelte'
 import { writable } from 'svelte/store'
 import { expect, it, test } from 'vitest'
 

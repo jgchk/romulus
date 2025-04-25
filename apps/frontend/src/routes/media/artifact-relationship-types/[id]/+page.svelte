@@ -1,7 +1,7 @@
 <script lang="ts">
   import MediaArtifactRelationshipTypeCard from '$lib/features/media/components/MediaArtifactRelationshipTypeCard.svelte'
 
-  import type { PageProps } from './$types'
+  import { type PageProps } from './$types'
 
   let { data }: PageProps = $props()
 

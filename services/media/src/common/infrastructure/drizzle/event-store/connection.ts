@@ -1,4 +1,4 @@
-import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
+import { type PgDatabase, type PgQueryResultHKT } from 'drizzle-orm/pg-core'
 
 import type * as schema from './schema.js'
 

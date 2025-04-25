@@ -1,4 +1,4 @@
-import type { AccountRepository } from '../../domain/repositories/account.js'
+import { type AccountRepository } from '../../domain/repositories/account.js'
 import { AccountNotFoundError } from '../errors/account-not-found.js'
 
 export class GetAccountQuery {

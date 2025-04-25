@@ -22,7 +22,7 @@ import {
 import { createMediaInfrastructure, type MediaInfrastructure } from '@romulus/media/infrastructure'
 import { MediaPermission } from '@romulus/media/permissions'
 import { createMediaRouter } from '@romulus/media/web'
-import type { UserSettingsApplication } from '@romulus/user-settings/application'
+import { type UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'

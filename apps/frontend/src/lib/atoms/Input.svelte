@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FullAutoFill } from 'svelte/elements'
+  import { type FullAutoFill } from 'svelte/elements'
 
   import { tw } from '$lib/utils/dom'
 

@@ -1,6 +1,6 @@
 import { autoUpdate, computePosition } from '@floating-ui/dom'
 
-import type { Action } from './types'
+import { type Action } from './types'
 
 export type FloatingParams = Partial<Parameters<typeof computePosition>[2]>
 

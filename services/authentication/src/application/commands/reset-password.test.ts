@@ -6,7 +6,7 @@ import { NonUniqueUsernameError } from '../../domain/errors/non-unique-username.
 import { BcryptHashRepository } from '../../infrastructure/bcrypt-hash-repository.js'
 import { CryptoTokenGenerator } from '../../infrastructure/crypto-token-generator.js'
 import { DrizzleAccountRepository } from '../../infrastructure/drizzle-account-repository.js'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 import { DrizzlePasswordResetTokenRepository } from '../../infrastructure/drizzle-password-reset-token-repository.js'
 import { DrizzleSessionRepository } from '../../infrastructure/drizzle-session-repository.js'
 import { Sha256HashRepository } from '../../infrastructure/sha256-hash-repository.js'

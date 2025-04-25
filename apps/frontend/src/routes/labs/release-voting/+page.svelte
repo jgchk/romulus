@@ -5,9 +5,9 @@
   import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
   import { ifDefined } from '$lib/utils/types'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
   import GenreVoteForm from './GenreVoteForm.svelte'
-  import type { Genre } from './types'
+  import { type Genre } from './types'
   import VoteDisplay from './VoteDisplay.svelte'
 
   type Props = { data: PageData }

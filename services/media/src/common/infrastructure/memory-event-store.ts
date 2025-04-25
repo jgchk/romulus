@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 
-import type { EventEnvelope, IEventStore } from './event-store.js'
+import { type EventEnvelope, type IEventStore } from './event-store.js'
 
 export class MemoryEventStore<L extends Record<string, unknown>> implements IEventStore<L> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -34,13 +34,13 @@ import {
   createUpdateMediaTypeCommandHandler,
   type UpdateMediaTypeCommandHandler,
 } from './commands/application/media-types/update-media-type.js'
-import type { MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
-import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
+import { type MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
+import { type MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import { MediaPermission } from './commands/domain/permissions.js'
-import type {
-  MediaArtifactEvent,
-  MediaArtifactTypeEvent,
-  MediaTypeEvent,
+import {
+  type MediaArtifactEvent,
+  type MediaArtifactTypeEvent,
+  type MediaTypeEvent,
 } from './common/domain/events.js'
 import {
   createGetMediaArtifactRelationshipTypeQueryHandler,
@@ -66,8 +66,8 @@ import {
   createGetMediaTypeQueryHandler,
   type GetMediaTypeQueryHandler,
 } from './queries/application/media-types/get-media-type.js'
-import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
-import type { MaybePromise } from './utils.js'
+import { type IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
+import { type MaybePromise } from './utils.js'
 
 export type MediaApplication = {
   createMediaType: CreateMediaTypeCommandHandler

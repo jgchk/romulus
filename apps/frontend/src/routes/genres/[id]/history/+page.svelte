@@ -8,7 +8,7 @@
   import { genreQueries } from '$lib/features/genres/tanstack'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
 
   type Props = {
     data: PageData

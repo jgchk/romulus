@@ -1,4 +1,4 @@
-import type { Context } from 'hono'
+import { type Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 
 import { UnauthorizedError } from '../domain/errors/unauthorized.js'

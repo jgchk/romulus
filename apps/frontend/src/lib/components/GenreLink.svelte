@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
-  import type { GenreType } from '$lib/types/genres'
+  import { type GenreType } from '$lib/types/genres'
   import { tw } from '$lib/utils/dom'
 
   import GenreTypeChip from './GenreTypeChip.svelte'

@@ -1,3 +1,3 @@
-import type { PageData } from './$types'
+import { type PageData } from './$types'
 
 export type Genre = PageData['genres'][number]

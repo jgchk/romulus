@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { mediaTypeSchema } from '$lib/features/media/components/MediaTypeForm'
 import { routes } from '$lib/routes'
 
-import type { PageServerLoad } from './$types'
+import { type PageServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
   if (!locals.user?.permissions.mediaTypes.canCreate) {

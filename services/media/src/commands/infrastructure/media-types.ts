@@ -1,5 +1,5 @@
-import type { MediaTypeEvent } from '../../common/domain/events.js'
-import type { IEventStore } from '../../common/infrastructure/event-store.js'
+import { type MediaTypeEvent } from '../../common/domain/events.js'
+import { type IEventStore } from '../../common/infrastructure/event-store.js'
 import {
   createMediaTypesProjectionFromEvents,
   type MediaTypesProjection,

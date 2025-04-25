@@ -1,6 +1,6 @@
 import { AuthorizationApplication } from '../application/index.js'
-import type { IAuthorizerRepository } from '../domain/repository.js'
-import type { IDrizzleConnection } from '../infrastructure/drizzle-database.js'
+import { type IAuthorizerRepository } from '../domain/repository.js'
+import { type IDrizzleConnection } from '../infrastructure/drizzle-database.js'
 import { DrizzleAuthorizerRepository } from '../infrastructure/drizzle-repository.js'
 
 export class CompositionRoot {

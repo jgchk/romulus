@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-import type { LayoutLoad } from './$types'
+import { type LayoutLoad } from './$types'
 
 export const load: LayoutLoad = ({ params }) => {
   const id = parseInt(params.id)

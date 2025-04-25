@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
 import { PasswordResetToken } from '../domain/entities/password-reset-token.js'
-import type { PasswordResetTokenRepository } from '../domain/repositories/password-reset-token.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type PasswordResetTokenRepository } from '../domain/repositories/password-reset-token.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import { passwordResetTokensTable } from './drizzle-schema.js'
 
 export class DrizzlePasswordResetTokenRepository implements PasswordResetTokenRepository {

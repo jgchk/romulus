@@ -7,7 +7,7 @@
 
   import { cn } from '$lib/utils/dom'
 
-  import type { Toast } from './toast'
+  import { type Toast } from './toast'
   import { toast, ToastDefaults } from './toast'
 
   type Props = {

@@ -2,9 +2,9 @@ import { EventEmitter } from 'node:events'
 
 import { eq, max } from 'drizzle-orm'
 
-import type { IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
+import { type IDrizzleEventStoreConnection } from './drizzle/event-store/connection.js'
 import { eventsTable } from './drizzle/event-store/schema.js'
-import type { EventEnvelope, IEventStore } from './event-store.js'
+import { type EventEnvelope, type IEventStore } from './event-store.js'
 
 export class PostgresEventStore<L extends Record<string, unknown>> implements IEventStore<L> {
   private eventEmitter: EventEmitter

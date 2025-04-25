@@ -1,5 +1,5 @@
-import type { MediaType } from '../../../common/domain/types.js'
-import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import { type MediaType } from '../../../common/domain/types.js'
+import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export type GetAllMediaTypesQueryHandler = () => Promise<MediaType[]>
 

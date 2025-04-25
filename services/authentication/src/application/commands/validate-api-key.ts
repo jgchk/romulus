@@ -1,5 +1,5 @@
-import type { ApiKeyRepository } from '../../domain/repositories/api-key.js'
-import type { HashRepository } from '../../domain/repositories/hash-repository.js'
+import { type ApiKeyRepository } from '../../domain/repositories/api-key.js'
+import { type HashRepository } from '../../domain/repositories/hash-repository.js'
 
 export class ValidateApiKeyCommand {
   constructor(

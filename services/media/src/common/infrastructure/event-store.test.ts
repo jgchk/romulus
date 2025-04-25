@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { getPGliteDbConnection, getPGlitePostgresConnection } from './drizzle/event-store/pglite.js'
 import { migratePGlite } from './drizzle/migrate.js'
-import type { IEventStore } from './event-store.js'
+import { type IEventStore } from './event-store.js'
 import { MemoryEventStore } from './memory-event-store.js'
 import { PostgresEventStore } from './postgres-event-store.js'
 

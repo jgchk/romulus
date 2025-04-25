@@ -3,7 +3,7 @@
 
   import { page } from '$app/stores'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
 
   type Props = {
     label: string

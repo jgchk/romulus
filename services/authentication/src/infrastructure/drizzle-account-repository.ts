@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import type { NewAccount } from '../domain/entities/account.js'
+import { type NewAccount } from '../domain/entities/account.js'
 import { CreatedAccount } from '../domain/entities/account.js'
 import { NonUniqueUsernameError } from '../domain/errors/non-unique-username.js'
-import type { AccountRepository } from '../domain/repositories/account.js'
-import type { IDrizzleConnection } from './drizzle-database.js'
+import { type AccountRepository } from '../domain/repositories/account.js'
+import { type IDrizzleConnection } from './drizzle-database.js'
 import { accountsTable } from './drizzle-schema.js'
 
 export class DrizzleAccountRepository implements AccountRepository {

@@ -1,5 +1,5 @@
-import type { MediaArtifactTypeDeletedEvent } from '../../../common/domain/events.js'
-import type { MaybePromise } from '../../../utils.js'
+import { type MediaArtifactTypeDeletedEvent } from '../../../common/domain/events.js'
+import { type MaybePromise } from '../../../utils.js'
 import {
   deleteMediaArtifactType,
   type DeleteMediaArtifactTypeCommand,

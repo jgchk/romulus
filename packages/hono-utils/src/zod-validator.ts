@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator'
-import type { ValidationTargets } from 'hono'
-import type { ZodType, ZodTypeDef } from 'zod'
+import { type ValidationTargets } from 'hono'
+import { type ZodType, type ZodTypeDef } from 'zod'
 
 import { setError } from './errors.js'
 

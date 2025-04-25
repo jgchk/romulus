@@ -10,7 +10,7 @@
   import { toPrettyDate } from '$lib/utils/datetime'
   import { capitalize } from '$lib/utils/string'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
   import ColumnHeader from './ColumnHeader.svelte'
 
   type Props = {

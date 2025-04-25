@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SvelteComponentTyped } from 'svelte'
-import type { Writable } from 'svelte/store'
+import { type SvelteComponentTyped } from 'svelte'
+import { type Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
 
-import type { AreAllPropsOptional } from '$lib/utils/types'
+import { type AreAllPropsOptional } from '$lib/utils/types'
 
 export const ToastDefaults = {
   duration: 4000,

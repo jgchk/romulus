@@ -1,8 +1,8 @@
 import { Session } from '../../domain/entities/session.js'
-import type { AccountRepository } from '../../domain/repositories/account.js'
-import type { HashRepository } from '../../domain/repositories/hash-repository.js'
-import type { SessionRepository } from '../../domain/repositories/session.js'
-import type { TokenGenerator } from '../../domain/repositories/token-generator.js'
+import { type AccountRepository } from '../../domain/repositories/account.js'
+import { type HashRepository } from '../../domain/repositories/hash-repository.js'
+import { type SessionRepository } from '../../domain/repositories/session.js'
+import { type TokenGenerator } from '../../domain/repositories/token-generator.js'
 import { InvalidLoginError } from '../errors/invalid-login.js'
 
 export type LoginResult = {

@@ -10,7 +10,7 @@
   import Footer from '$lib/components/Footer.svelte'
   import { routes } from '$lib/routes'
 
-  import type { MediaArtifactRelationshipTypeSchema } from './MediaArtifactRelationshipTypeForm'
+  import { type MediaArtifactRelationshipTypeSchema } from './MediaArtifactRelationshipTypeForm'
   import MediaArtifactTypeMultiselect from './MediaArtifactTypeMultiselect.svelte'
   import MediaArtifactTypeSelect from './MediaArtifactTypeSelect.svelte'
 

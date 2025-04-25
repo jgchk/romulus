@@ -6,7 +6,7 @@ import {
   RoleDeletedEvent,
 } from '../domain/authorizer.js'
 import { Authorizer, PermissionCreatedEvent } from '../domain/authorizer.js'
-import type { IAuthorizerRepository } from '../domain/repository.js'
+import { type IAuthorizerRepository } from '../domain/repository.js'
 
 export class MemoryAuthorizerRepository implements IAuthorizerRepository {
   private permissions: Map<string, Permission>

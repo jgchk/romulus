@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts" generics="T extends unknown">
-  import type { Snippet } from 'svelte'
+  import { type Snippet } from 'svelte'
 
   type Props = {
     items: T[]

@@ -1,4 +1,4 @@
-import type { AuthenticationClient } from '@romulus/authentication/client'
+import { type AuthenticationClient } from '@romulus/authentication/client'
 import { err, ok } from 'neverthrow'
 
 export async function checkApiAuth(

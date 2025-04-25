@@ -2,7 +2,7 @@
   import MediaTypeForm from '$lib/features/media/components/MediaTypeForm.svelte'
   import { pageTitle } from '$lib/utils/string'
 
-  import type { PageData } from './$types'
+  import { type PageData } from './$types'
 
   type Props = {
     data: PageData
