@@ -13,6 +13,7 @@
   import Romcode from '$lib/components/Romcode/Romcode.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
+  import GenrePageHeader from '$lib/features/genres/components/GenrePageHeader.svelte'
   import RelevanceVoteForm from '$lib/features/genres/components/RelevanceVoteForm.svelte'
   import RelevanceVoteGraph from '$lib/features/genres/components/RelevanceVoteGraph.svelte'
   import { genreQueries } from '$lib/features/genres/tanstack'
@@ -23,7 +24,6 @@
 
   import Footer from '../Footer.svelte'
   import type { PageData } from './$types'
-  import GenrePageHeader from './GenrePageHeader.svelte'
 
   type Props = {
     data: PageData
