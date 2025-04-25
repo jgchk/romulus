@@ -110,6 +110,15 @@ export function createMediaCommandsClient(options: {
         )
         .andThen((res) => (res.success ? ok(res) : err(res.error)))
     },
+
+    createMediaArtifact(body: InferRequestType<Client['media-artifacts']['$post']>['json']) {
+      return ResultAsync.fromPromise(
+        client['media-artifacts'].$post({ json: body }),
+        (err) => new FetchError(toError(err)),
+      )
+        .map<InferResponseType<Client['media-artifacts']['$post']>>((res) => res.json())
+        .andThen((res) => (res.success ? ok(res) : err(res.error)))
+    },
   }
 }
 
