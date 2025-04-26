@@ -1,5 +1,5 @@
 import openApiDoc from '../../../../docs/openapi.yaml?raw'
-import { type RequestHandler } from './$types'
+import type { RequestHandler } from './$types'
 
 export const GET: RequestHandler = ({ url }) => {
   const doc = openApiDoc.replace(

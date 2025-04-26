@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
 
   let { delay = 500, children }: { delay?: number; children: Snippet } = $props()
 

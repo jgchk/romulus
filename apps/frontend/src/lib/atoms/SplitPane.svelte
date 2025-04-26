@@ -3,7 +3,8 @@
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher, type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
 
   import { cn, tw, unfocus } from '$lib/utils/dom'
 

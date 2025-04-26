@@ -1,6 +1,6 @@
 import { getContext, setContext } from 'svelte'
 
-import { type IUserSettingsStore } from './types'
+import type { IUserSettingsStore } from './types'
 
 export const USER_SETTINGS_CONTEXT_KEY = Symbol('user-settings-context')
 

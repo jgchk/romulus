@@ -12,10 +12,8 @@ import {
 import { MediaPermission } from '../../../domain/permissions.js'
 import { createAuthorizationMiddleware } from '../../authorization-middleware.js'
 import { createBearerAuthMiddleware } from '../../bearer-auth-middleware.js'
-import {
-  createCreateMediaArtifactRoute,
-  type CreateMediaArtifactRouteDependencies,
-} from './create-media-artifact.js'
+import type { CreateMediaArtifactRouteDependencies } from './create-media-artifact.js'
+import { createCreateMediaArtifactRoute } from './create-media-artifact.js'
 
 function setup(options: Partial<CreateMediaArtifactRouteDependencies> = {}) {
   const bearerAuth = createBearerAuthMiddleware({

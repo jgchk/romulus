@@ -1,4 +1,4 @@
-import { type ApiKey } from '../entities/api-key.js'
+import type { ApiKey } from '../entities/api-key.js'
 
 export type ApiKeyRepository = {
   findById(id: number): Promise<ApiKey | undefined>

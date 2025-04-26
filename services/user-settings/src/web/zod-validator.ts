@@ -1,6 +1,6 @@
 import { zValidator as honoZodValidator } from '@hono/zod-validator'
-import { type Env, type Input, type MiddlewareHandler, type ValidationTargets } from 'hono'
-import { type z } from 'zod'
+import type { Env, Input, MiddlewareHandler, ValidationTargets } from 'hono'
+import type { z } from 'zod'
 
 import { setError } from './utils.js'
 

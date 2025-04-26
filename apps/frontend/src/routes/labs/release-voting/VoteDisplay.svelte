@@ -4,7 +4,7 @@
   import Button from '$lib/atoms/Button.svelte'
   import IconButton from '$lib/atoms/IconButton.svelte'
 
-  import { type Genre } from './types'
+  import type { Genre } from './types'
 
   type Props = {
     genre: Genre

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type ComponentProps } from 'svelte'
+  import type { ComponentProps } from 'svelte'
 
   import Input from './Input.svelte'
 

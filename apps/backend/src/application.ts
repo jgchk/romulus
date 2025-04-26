@@ -14,9 +14,9 @@ import {
   ValidateApiKeyCommand,
   WhoamiQuery,
 } from '@romulus/authentication/application'
-import { type AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
+import type { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { AuthorizationApplication } from '@romulus/authorization/application'
-import { type AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
+import type { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import {
   CreateGenreCommand,
   DeleteGenreCommand,
@@ -32,9 +32,9 @@ import {
   UpdateGenreCommand,
   VoteGenreRelevanceCommand,
 } from '@romulus/genres/application'
-import { type GenresInfrastructure } from '@romulus/genres/infrastructure'
+import type { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { UserSettingsApplication } from '@romulus/user-settings/application'
-import { type UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
+import type { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 
 export type AuthenticationApplication = ReturnType<typeof createAuthenticationApplication>
 export function createAuthenticationApplication({

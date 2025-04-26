@@ -1,5 +1,5 @@
-import { type HashRepository } from '../../domain/repositories/hash-repository.js'
-import { type SessionRepository } from '../../domain/repositories/session.js'
+import type { HashRepository } from '../../domain/repositories/hash-repository.js'
+import type { SessionRepository } from '../../domain/repositories/session.js'
 
 export class LogoutCommand {
   constructor(

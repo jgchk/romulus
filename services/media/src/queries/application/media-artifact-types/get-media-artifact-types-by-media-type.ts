@@ -1,8 +1,8 @@
-import {
-  type MediaArtifactRelationshipType,
-  type MediaArtifactType,
+import type {
+  MediaArtifactRelationshipType,
+  MediaArtifactType,
 } from '../../../common/domain/types.js'
-import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export type GetMediaArtifactTypesByMediaTypeQueryHandler = (mediaTypeId: string) => Promise<{
   mediaArtifactTypes: MediaArtifactType[]

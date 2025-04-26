@@ -1,9 +1,10 @@
 import { render } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms'
+import type { SuperValidated } from 'sveltekit-superforms'
+import { setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { expect, it } from 'vitest'
-import { type z } from 'zod'
+import type { z } from 'zod'
 
 import { DEFAULT_USER_SETTINGS } from '$lib/contexts/user-settings/types'
 

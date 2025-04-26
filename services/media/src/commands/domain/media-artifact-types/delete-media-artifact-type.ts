@@ -1,7 +1,5 @@
-import {
-  type MediaArtifactTypeDeletedEvent,
-  mediaArtifactTypeDeletedEvent,
-} from '../../../common/domain/events.js'
+import type { MediaArtifactTypeDeletedEvent } from '../../../common/domain/events.js'
+import { mediaArtifactTypeDeletedEvent } from '../../../common/domain/events.js'
 
 export function deleteMediaArtifactType(
   command: DeleteMediaArtifactTypeCommand,

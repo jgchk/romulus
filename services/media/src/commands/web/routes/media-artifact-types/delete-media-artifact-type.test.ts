@@ -7,10 +7,8 @@ import { createDeleteMediaArtifactTypeCommandHandler } from '../../../applicatio
 import { MediaPermission } from '../../../domain/permissions.js'
 import { createAuthorizationMiddleware } from '../../authorization-middleware.js'
 import { createBearerAuthMiddleware } from '../../bearer-auth-middleware.js'
-import {
-  createDeleteMediaArtifactTypeRoute,
-  type DeleteMediaArtifactTypeRouteDependencies,
-} from './delete-media-artifact-type.js'
+import type { DeleteMediaArtifactTypeRouteDependencies } from './delete-media-artifact-type.js'
+import { createDeleteMediaArtifactTypeRoute } from './delete-media-artifact-type.js'
 
 function setup(options: Partial<DeleteMediaArtifactTypeRouteDependencies> = {}) {
   const bearerAuth = createBearerAuthMiddleware({

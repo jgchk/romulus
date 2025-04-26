@@ -1,13 +1,9 @@
-import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 
-import { type IDrizzleConnection } from './drizzle-database.js'
-import {
-  type Genre,
-  genreAkas,
-  genres,
-  type GenreType,
-  UNSET_GENRE_RELEVANCE,
-} from './drizzle-schema.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
+import type { Genre, GenreType } from './drizzle-schema.js'
+import { genreAkas, genres, UNSET_GENRE_RELEVANCE } from './drizzle-schema.js'
 
 export type DrizzleGetAllGenresQueryInput<I extends IncludeFields = never> = {
   skip?: number

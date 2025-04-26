@@ -1,4 +1,4 @@
-import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 
 export class GetRandomGenreIdQuery {
   constructor(private db: IDrizzleConnection) {}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
   import { writable } from 'svelte/store'
 
   import { tw } from '$lib/utils/dom'

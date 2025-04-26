@@ -7,7 +7,7 @@
   import MediaArtifactTypeTree from '$lib/features/media/components/MediaArtifactTypeTree.svelte'
   import { routes } from '$lib/routes'
 
-  import { type PageProps } from './$types'
+  import type { PageProps } from './$types'
 
   let { data }: PageProps = $props()
 

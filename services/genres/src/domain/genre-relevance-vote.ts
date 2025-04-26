@@ -1,4 +1,4 @@
-import { type GenreRelevance } from './genre-relevance.js'
+import type { GenreRelevance } from './genre-relevance.js'
 
 export class GenreRelevanceVote {
   constructor(

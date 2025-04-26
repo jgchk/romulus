@@ -2,7 +2,7 @@
   import GenreLink from '$lib/components/GenreLink.svelte'
 
   import ColumnHeader from './ColumnHeader.svelte'
-  import { type Genre } from './types'
+  import type { Genre } from './types'
 
   type Props = {
     misplacedScenes: Genre[]

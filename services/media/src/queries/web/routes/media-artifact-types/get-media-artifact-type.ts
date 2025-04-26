@@ -1,15 +1,10 @@
 import { type } from 'arktype'
 
 import { MediaArtifactTypeNotFoundError } from '../../../../commands/domain/media-artifact-types/errors.js'
-import {
-  createErrorResponse,
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
-  validator,
-} from '../../../../common/web/utils.js'
+import type { RouteDefinition, RouteResponse } from '../../../../common/web/utils.js'
+import { createErrorResponse, createRoute, validator } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import { type GetMediaArtifactTypeQueryHandler } from '../../../application/media-artifact-types/get-media-artifact-type.js'
+import type { GetMediaArtifactTypeQueryHandler } from '../../../application/media-artifact-types/get-media-artifact-type.js'
 
 export function createGetMediaArtifactTypeRoute({
   getMediaArtifactType,

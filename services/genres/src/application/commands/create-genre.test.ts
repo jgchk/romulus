@@ -1,13 +1,14 @@
 import { ok } from 'neverthrow'
 import { expect } from 'vitest'
 
-import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 import { DrizzleGenreHistoryRepository } from '../../infrastructure/drizzle-genre-history-repository.js'
 import { DrizzleGenreRepository } from '../../infrastructure/drizzle-genre-repository.js'
 import { DrizzleGenreTreeRepository } from '../../infrastructure/drizzle-genre-tree-repository.js'
 import { MockAuthorizationService } from '../../test/mock-authorization-service.js'
 import { test } from '../../vitest-setup.js'
-import { CreateGenreCommand, type CreateGenreInput } from './create-genre.js'
+import type { CreateGenreInput } from './create-genre.js'
+import { CreateGenreCommand } from './create-genre.js'
 import { GetGenreQuery } from './get-genre.js'
 import { GetGenreHistoryQuery } from './get-genre-history.js'
 

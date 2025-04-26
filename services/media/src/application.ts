@@ -1,73 +1,43 @@
-import {
-  createCreateMediaArtifactRelationshipTypeCommandHandler,
-  type CreateMediaArtifactRelationshipTypeCommandHandler,
-} from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
-import {
-  createUpdateMediaArtifactRelationshipTypeCommandHandler,
-  type UpdateMediaArtifactRelationshipTypeCommandHandler,
-} from './commands/application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
-import {
-  createCreateMediaArtifactTypeCommandHandler,
-  type CreateMediaArtifactTypeCommandHandler,
-} from './commands/application/media-artifact-types/create-media-artifact-type.js'
-import {
-  createDeleteMediaArtifactTypeCommandHandler,
-  type DeleteMediaArtifactTypeCommandHandler,
-} from './commands/application/media-artifact-types/delete-media-artifact-type.js'
-import {
-  createUpdateMediaArtifactTypeCommandHandler,
-  type UpdateMediaArtifactTypeCommandHandler,
-} from './commands/application/media-artifact-types/update-media-artifact-type.js'
-import {
-  createCreateMediaArtifactCommandHandler as createCreateMediaArtifactCommandHandler,
-  type CreateMediaArtifactCommandHandler,
-} from './commands/application/media-artifacts/create-media-artifact.js'
-import {
-  createCreateMediaTypeCommandHandler,
-  type CreateMediaTypeCommandHandler,
-} from './commands/application/media-types/create-media-type.js'
-import {
-  createDeleteMediaTypeCommandHandler,
-  type DeleteMediaTypeCommandHandler,
-} from './commands/application/media-types/delete-media-type.js'
-import {
-  createUpdateMediaTypeCommandHandler,
-  type UpdateMediaTypeCommandHandler,
-} from './commands/application/media-types/update-media-type.js'
-import { type MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
-import { type MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
+import type { CreateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
+import { createCreateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/create-media-artifact-relationship-type.js'
+import type { UpdateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
+import { createUpdateMediaArtifactRelationshipTypeCommandHandler } from './commands/application/media-artifact-relationship-types/update-media-artifact-relationship-type.js'
+import type { CreateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/create-media-artifact-type.js'
+import { createCreateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/create-media-artifact-type.js'
+import type { DeleteMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/delete-media-artifact-type.js'
+import { createDeleteMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/delete-media-artifact-type.js'
+import type { UpdateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/update-media-artifact-type.js'
+import { createUpdateMediaArtifactTypeCommandHandler } from './commands/application/media-artifact-types/update-media-artifact-type.js'
+import type { CreateMediaArtifactCommandHandler } from './commands/application/media-artifacts/create-media-artifact.js'
+import { createCreateMediaArtifactCommandHandler as createCreateMediaArtifactCommandHandler } from './commands/application/media-artifacts/create-media-artifact.js'
+import type { CreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
+import { createCreateMediaTypeCommandHandler } from './commands/application/media-types/create-media-type.js'
+import type { DeleteMediaTypeCommandHandler } from './commands/application/media-types/delete-media-type.js'
+import { createDeleteMediaTypeCommandHandler } from './commands/application/media-types/delete-media-type.js'
+import type { UpdateMediaTypeCommandHandler } from './commands/application/media-types/update-media-type.js'
+import { createUpdateMediaTypeCommandHandler } from './commands/application/media-types/update-media-type.js'
+import type { MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
+import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import { MediaPermission } from './commands/domain/permissions.js'
-import {
-  type MediaArtifactEvent,
-  type MediaArtifactTypeEvent,
-  type MediaTypeEvent,
+import type {
+  MediaArtifactEvent,
+  MediaArtifactTypeEvent,
+  MediaTypeEvent,
 } from './common/domain/events.js'
-import {
-  createGetMediaArtifactRelationshipTypeQueryHandler,
-  type GetMediaArtifactRelationshipTypeQueryHandler,
-} from './queries/application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
-import {
-  createGetAllMediaArtifactTypesQueryHandler,
-  type GetAllMediaArtifactTypesQueryHandler,
-} from './queries/application/media-artifact-types/get-all-media-artifact-types.js'
-import {
-  createGetMediaArtifactTypeQueryHandler,
-  type GetMediaArtifactTypeQueryHandler,
-} from './queries/application/media-artifact-types/get-media-artifact-type.js'
-import {
-  createGetMediaArtifactTypesByMediaTypeQueryHandler,
-  type GetMediaArtifactTypesByMediaTypeQueryHandler,
-} from './queries/application/media-artifact-types/get-media-artifact-types-by-media-type.js'
-import {
-  createGetAllMediaTypesQueryHandler,
-  type GetAllMediaTypesQueryHandler,
-} from './queries/application/media-types/get-all-media-types.js'
-import {
-  createGetMediaTypeQueryHandler,
-  type GetMediaTypeQueryHandler,
-} from './queries/application/media-types/get-media-type.js'
-import { type IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
-import { type MaybePromise } from './utils.js'
+import type { GetMediaArtifactRelationshipTypeQueryHandler } from './queries/application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
+import { createGetMediaArtifactRelationshipTypeQueryHandler } from './queries/application/media-artifact-relationship-types/get-media-artifact-relationship-type.js'
+import type { GetAllMediaArtifactTypesQueryHandler } from './queries/application/media-artifact-types/get-all-media-artifact-types.js'
+import { createGetAllMediaArtifactTypesQueryHandler } from './queries/application/media-artifact-types/get-all-media-artifact-types.js'
+import type { GetMediaArtifactTypeQueryHandler } from './queries/application/media-artifact-types/get-media-artifact-type.js'
+import { createGetMediaArtifactTypeQueryHandler } from './queries/application/media-artifact-types/get-media-artifact-type.js'
+import type { GetMediaArtifactTypesByMediaTypeQueryHandler } from './queries/application/media-artifact-types/get-media-artifact-types-by-media-type.js'
+import { createGetMediaArtifactTypesByMediaTypeQueryHandler } from './queries/application/media-artifact-types/get-media-artifact-types-by-media-type.js'
+import type { GetAllMediaTypesQueryHandler } from './queries/application/media-types/get-all-media-types.js'
+import { createGetAllMediaTypesQueryHandler } from './queries/application/media-types/get-all-media-types.js'
+import type { GetMediaTypeQueryHandler } from './queries/application/media-types/get-media-type.js'
+import { createGetMediaTypeQueryHandler } from './queries/application/media-types/get-media-type.js'
+import type { IDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
+import type { MaybePromise } from './utils.js'
 
 export type MediaApplication = {
   createMediaType: CreateMediaTypeCommandHandler

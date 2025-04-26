@@ -10,7 +10,7 @@
   import { createGetPathToQuery } from '$lib/features/genres/queries/application/get-path-to'
   import { genreQueries } from '$lib/features/genres/tanstack'
 
-  import { type LayoutData } from './$types'
+  import type { LayoutData } from './$types'
 
   type Props = {
     data: LayoutData

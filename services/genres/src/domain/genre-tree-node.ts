@@ -1,4 +1,5 @@
-import { err, ok, type Result } from 'neverthrow'
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 import { intersection } from 'ramda'
 
 import { DerivedChildError } from './errors/derived-child.js'

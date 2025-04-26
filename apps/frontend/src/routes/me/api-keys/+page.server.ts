@@ -1,9 +1,9 @@
-import { type AuthenticationClient } from '@romulus/authentication/client'
+import type { AuthenticationClient } from '@romulus/authentication/client'
 import { FetchError } from '@romulus/authentication/client'
 import { error, fail } from '@sveltejs/kit'
 import { z } from 'zod'
 
-import { type Actions, type PageServerLoad, type RequestEvent } from './$types'
+import type { Actions, PageServerLoad, RequestEvent } from './$types'
 
 export const load = (async ({
   locals,

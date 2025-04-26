@@ -1,11 +1,12 @@
-import { type AuthenticationClient } from '@romulus/authentication/client'
-import { type Cookies, error, redirect } from '@sveltejs/kit'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import type { Cookies } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { setSessionCookie } from '$lib/cookie'
 
-import { type Actions, type PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 import { signInSchema } from './common'
 
 export const load = (async ({ locals }: { locals: { user: object | undefined } }) => {

@@ -1,4 +1,4 @@
-import { type Cookies } from '@sveltejs/kit'
+import type { Cookies } from '@sveltejs/kit'
 
 const SESSION_COOKIE_NAME = 'auth_session'
 const IS_SECURE = process.env.NODE_ENV === 'production'

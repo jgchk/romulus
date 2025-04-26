@@ -1,12 +1,13 @@
 import { FetchError } from '@romulus/authentication/client'
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import type { Actions } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
 
 import { setSessionCookie } from '$lib/cookie'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 const schema = z
   .object({

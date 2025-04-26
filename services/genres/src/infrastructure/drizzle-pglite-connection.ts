@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { PGlite } from '@electric-sql/pglite'
-import { type PgliteDatabase } from 'drizzle-orm/pglite'
+import type { PgliteDatabase } from 'drizzle-orm/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { migrate as drizzleMigrate } from 'drizzle-orm/pglite/migrator'
 

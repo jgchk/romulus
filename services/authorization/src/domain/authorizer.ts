@@ -1,5 +1,6 @@
 import { CustomError } from '@romulus/custom-error'
-import { err, ok, type Result } from 'neverthrow'
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 
 export class Authorizer {
   private permissions: Map<string, Permission>

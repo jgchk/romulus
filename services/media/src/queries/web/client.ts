@@ -1,9 +1,10 @@
 import { CustomError } from '@romulus/custom-error'
-import { hc, type InferResponseType } from 'hono/client'
-import { type StatusCode } from 'hono/utils/http-status'
+import type { InferResponseType } from 'hono/client'
+import { hc } from 'hono/client'
+import type { StatusCode } from 'hono/utils/http-status'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import { type MediaQueriesRouter } from './router.js'
+import type { MediaQueriesRouter } from './router.js'
 
 export type MediaQueriesClient = ReturnType<typeof createMediaQueriesClient>
 

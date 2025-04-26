@@ -24,7 +24,8 @@ import {
   createDefaultMediaTypesProjection,
   createMediaTypesProjectionFromEvents,
 } from '../domain/media-types/media-types-projection.js'
-import { createMediaCommandsRouter, type MediaCommandsRouterDependencies } from './router.js'
+import type { MediaCommandsRouterDependencies } from './router.js'
+import { createMediaCommandsRouter } from './router.js'
 
 function setup(options: Partial<MediaCommandsRouterDependencies> = {}) {
   const router = createMediaCommandsRouter({

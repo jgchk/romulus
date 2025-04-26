@@ -1,4 +1,4 @@
-import { type TreeGenre } from '../types'
+import type { TreeGenre } from '../types'
 
 export type GenreStore = Map<number, TreeGenre>
 

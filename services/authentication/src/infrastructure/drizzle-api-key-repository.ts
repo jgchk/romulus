@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
 import { ApiKey } from '../domain/entities/api-key.js'
-import { type ApiKeyRepository } from '../domain/repositories/api-key.js'
-import { type IDrizzleConnection } from './drizzle-database.js'
+import type { ApiKeyRepository } from '../domain/repositories/api-key.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
 import { apiKeysTable } from './drizzle-schema.js'
 
 export class DrizzleApiKeyRepository implements ApiKeyRepository {

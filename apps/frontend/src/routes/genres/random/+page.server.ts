@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
   const response = await locals.di.genres().getRandomGenreId()

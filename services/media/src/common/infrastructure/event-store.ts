@@ -1,4 +1,4 @@
-import { type MaybePromise } from '../../utils.js'
+import type { MaybePromise } from '../../utils.js'
 
 export type IEventStore<L extends Record<string, unknown>> = {
   get<T extends keyof L & string>(aggregateId: T): MaybePromise<EventEnvelope<T, L[T]>[]>

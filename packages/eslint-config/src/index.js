@@ -25,7 +25,7 @@ export default tseslint.config(
       import: importPlugin,
     },
     rules: {
-      'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
+      'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     },
   },
   {
@@ -34,7 +34,7 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/consistent-type-imports': [
         'error',
-        { disallowTypeAnnotations: false, fixStyle: 'inline-type-imports' },
+        { disallowTypeAnnotations: false, fixStyle: 'separate-type-imports' },
       ],
     },
   },

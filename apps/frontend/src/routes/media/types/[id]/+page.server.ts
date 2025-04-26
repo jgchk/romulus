@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load = (async ({ params, locals }: { params: { id: string }; locals: App.Locals }) => {
   const response = await locals.di.media().getMediaType(params.id)

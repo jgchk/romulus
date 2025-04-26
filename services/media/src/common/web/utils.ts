@@ -1,12 +1,14 @@
-import { type Type, type } from 'arktype'
-import { type Env, type MiddlewareHandler, type TypedResponse, type ValidationTargets } from 'hono'
+import type { Type } from 'arktype'
+import { type } from 'arktype'
+import type { Env, MiddlewareHandler, TypedResponse, ValidationTargets } from 'hono'
 import { createFactory } from 'hono/factory'
-import { type StatusCode } from 'hono/utils/http-status'
-import { describeRoute, type DescribeRouteOptions, type HasUndefined } from 'hono-openapi'
+import type { StatusCode } from 'hono/utils/http-status'
+import type { DescribeRouteOptions, HasUndefined } from 'hono-openapi'
+import { describeRoute } from 'hono-openapi'
 import { resolver, validator as arktypeValidator } from 'hono-openapi/arktype'
-import { type OpenAPIV3 } from 'openapi-types'
+import type { OpenAPIV3 } from 'openapi-types'
 
-import { type badRequestErrorResponse } from '../../commands/web/errors.js'
+import type { badRequestErrorResponse } from '../../commands/web/errors.js'
 
 export function createErrorResponse<N extends string, SC extends number>(
   name: type.Any<N>,

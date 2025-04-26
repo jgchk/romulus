@@ -1,12 +1,13 @@
-import { type GenresClient } from '@romulus/genres/client'
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import type { GenresClient } from '@romulus/genres/client'
+import type { Actions } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { genreSchema } from '$lib/server/api/genres/types'
 import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load = (async ({
   locals,

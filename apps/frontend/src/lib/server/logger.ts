@@ -1,4 +1,4 @@
-import { type RequestEvent } from '@sveltejs/kit'
+import type { RequestEvent } from '@sveltejs/kit'
 import { pino } from 'pino'
 
 export type Logger = {

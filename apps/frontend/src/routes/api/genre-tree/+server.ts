@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit'
 
 import { stringifyTreeGenre } from '$lib/features/genres/serialization'
 
-import { type RequestHandler } from './$types'
+import type { RequestHandler } from './$types'
 
 export const GET = (async ({ locals }) => {
   console.time('genre-tree/server all')

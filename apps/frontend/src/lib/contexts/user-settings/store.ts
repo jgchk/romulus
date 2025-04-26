@@ -1,4 +1,4 @@
-import { type Subscriber, type Unsubscriber, type Updater } from 'svelte/store'
+import type { Subscriber, Unsubscriber, Updater } from 'svelte/store'
 
 import { browser } from '$app/environment'
 
@@ -8,7 +8,8 @@ import {
   LocalUserSettingsRepository,
   RemoteUserSettingsRepository,
 } from './repository'
-import { DEFAULT_USER_SETTINGS, type IUserSettingsStore, type UserSettings } from './types'
+import type { IUserSettingsStore, UserSettings } from './types'
+import { DEFAULT_USER_SETTINGS } from './types'
 
 export default class UserSettingsStore implements IUserSettingsStore {
   store: BaseUserSettingsStore

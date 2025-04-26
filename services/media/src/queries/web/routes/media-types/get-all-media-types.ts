@@ -1,12 +1,9 @@
 import { type } from 'arktype'
 
-import {
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
-} from '../../../../common/web/utils.js'
+import type { RouteDefinition, RouteResponse } from '../../../../common/web/utils.js'
+import { createRoute } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import { type GetAllMediaTypesQueryHandler } from '../../../application/media-types/get-all-media-types.js'
+import type { GetAllMediaTypesQueryHandler } from '../../../application/media-types/get-all-media-types.js'
 
 export function createGetAllMediaTypesRoute({
   getAllMediaTypes,

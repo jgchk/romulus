@@ -3,7 +3,8 @@ import * as localForage from 'localforage'
 
 import { browser } from '$app/environment'
 
-import { createGenreStore, type GenreStore } from './queries/infrastructure'
+import type { GenreStore } from './queries/infrastructure'
+import { createGenreStore } from './queries/infrastructure'
 import { parseTreeGenre, stringifyTreeGenre } from './serialization'
 
 export const genreQueries = {

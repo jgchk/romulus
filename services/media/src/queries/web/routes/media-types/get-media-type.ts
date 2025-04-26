@@ -1,15 +1,10 @@
 import { type } from 'arktype'
 
 import { MediaTypeNotFoundError } from '../../../../commands/domain/media-types/errors.js'
-import {
-  createErrorResponse,
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
-  validator,
-} from '../../../../common/web/utils.js'
+import type { RouteDefinition, RouteResponse } from '../../../../common/web/utils.js'
+import { createErrorResponse, createRoute, validator } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import { type GetMediaTypeQueryHandler } from '../../../application/media-types/get-media-type.js'
+import type { GetMediaTypeQueryHandler } from '../../../application/media-types/get-media-type.js'
 
 export function createGetMediaTypeRoute({ getMediaType }: GetMediaTypeRouteDependencies) {
   return factory.createHandlers(

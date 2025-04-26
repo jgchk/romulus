@@ -1,13 +1,9 @@
 import { type } from 'arktype'
 
-import {
-  createRoute,
-  type RouteDefinition,
-  type RouteResponse,
-  validator,
-} from '../../../../common/web/utils.js'
+import type { RouteDefinition, RouteResponse } from '../../../../common/web/utils.js'
+import { createRoute, validator } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import { type GetMediaArtifactTypesByMediaTypeQueryHandler } from '../../../application/media-artifact-types/get-media-artifact-types-by-media-type.js'
+import type { GetMediaArtifactTypesByMediaTypeQueryHandler } from '../../../application/media-artifact-types/get-media-artifact-types-by-media-type.js'
 
 export function createGetMediaArtifactTypesByMediaTypeRoute({
   getMediaArtifactTypesByMediaType,

@@ -1,8 +1,8 @@
-import {
-  type MediaArtifact,
-  type MediaArtifactRelationshipType,
-  type MediaArtifactType,
-  type MediaType,
+import type {
+  MediaArtifact,
+  MediaArtifactRelationshipType,
+  MediaArtifactType,
+  MediaType,
 } from './types.js'
 
 export type MediaTypeEvent = MediaTypeCreatedEvent | MediaTypeDeletedEvent | MediaTypeUpdatedEvent

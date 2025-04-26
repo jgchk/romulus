@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-import { type UserSettingsApplication } from '../application/index.js'
-import { type IAuthenticationService } from '../domain/authentication.js'
+import type { UserSettingsApplication } from '../application/index.js'
+import type { IAuthenticationService } from '../domain/authentication.js'
 import { InvalidGenreRelevanceFilterError } from '../domain/user-settings.js'
 import { bearerAuth } from './bearer-auth-middleware.js'
 import { setError } from './utils.js'

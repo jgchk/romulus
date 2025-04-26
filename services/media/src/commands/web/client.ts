@@ -1,9 +1,10 @@
 import { CustomError } from '@romulus/custom-error'
-import { hc, type InferRequestType, type InferResponseType } from 'hono/client'
-import { type StatusCode } from 'hono/utils/http-status'
+import type { InferRequestType, InferResponseType } from 'hono/client'
+import { hc } from 'hono/client'
+import type { StatusCode } from 'hono/utils/http-status'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import { type MediaCommandsRouter } from './router.js'
+import type { MediaCommandsRouter } from './router.js'
 
 export type MediaCommandsClient = ReturnType<typeof createMediaCommandsClient>
 

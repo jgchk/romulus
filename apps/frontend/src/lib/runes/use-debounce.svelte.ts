@@ -1,4 +1,4 @@
-import { type Timeout } from '$lib/utils/types'
+import type { Timeout } from '$lib/utils/types'
 
 export function useDebounce<T>(getter: () => T, wait: number) {
   let debounced = $state<T>(getter())

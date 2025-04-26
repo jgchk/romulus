@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher, type Snippet } from 'svelte'
-  import { type AriaRole } from 'svelte/elements'
+  import type { Snippet } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
+  import type { AriaRole } from 'svelte/elements'
   import { fade, scale } from 'svelte/transition'
 
   import { trapFocus } from '$lib/actions/trapFocus'

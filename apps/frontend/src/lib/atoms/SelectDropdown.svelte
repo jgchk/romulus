@@ -4,10 +4,10 @@
 </script>
 
 <script lang="ts" generics="Option extends O">
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
   import { fade } from 'svelte/transition'
 
-  import { type Action } from '$lib/actions/types'
+  import type { Action } from '$lib/actions/types'
   import { disableTransitionInUnitTests } from '$lib/transitions/utils'
   import { tw } from '$lib/utils/dom'
 

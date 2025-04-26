@@ -1,5 +1,5 @@
-import { type MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
-import { type MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
+import type { MediaArtifactTypesProjection } from './commands/domain/media-artifact-types/media-artifact-types-projection.js'
+import type { MediaTypesProjection } from './commands/domain/media-types/media-types-projection.js'
 import {
   createGetMediaArtifactTypes,
   createSaveMediaArtifactTypeEvent,
@@ -9,17 +9,17 @@ import {
   createGetMediaTypes,
   createSaveMediaTypeEvent,
 } from './commands/infrastructure/media-types.js'
-import {
-  type MediaArtifactEvent,
-  type MediaArtifactTypeEvent,
-  type MediaTypeEvent,
+import type {
+  MediaArtifactEvent,
+  MediaArtifactTypeEvent,
+  MediaTypeEvent,
 } from './common/domain/events.js'
 import * as eventStoreDb from './common/infrastructure/drizzle/event-store/postgres.js'
 import { migratePostgres } from './common/infrastructure/drizzle/migrate.js'
-import { type EventEnvelope } from './common/infrastructure/event-store.js'
+import type { EventEnvelope } from './common/infrastructure/event-store.js'
 import { PostgresEventStore } from './common/infrastructure/postgres-event-store.js'
 import { applyEvent } from './queries/application/projection.js'
-import { type IDrizzleConnection as QueryProjectionDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
+import type { IDrizzleConnection as QueryProjectionDrizzleConnection } from './queries/infrastructure/drizzle-database.js'
 import {
   getDbConnection,
   getPostgresConnection,

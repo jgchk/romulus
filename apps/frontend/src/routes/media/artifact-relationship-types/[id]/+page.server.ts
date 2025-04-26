@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {

@@ -1,14 +1,8 @@
-import {
-  get,
-  type Subscriber,
-  type Unsubscriber,
-  type Updater,
-  type Writable,
-  writable,
-} from 'svelte/store'
+import type { Subscriber, Unsubscriber, Updater, Writable } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 
-import { type UserSettingsRepository } from './repository'
-import { type UserSettings } from './types'
+import type { UserSettingsRepository } from './repository'
+import type { UserSettings } from './types'
 
 export class BaseUserSettingsStore implements Writable<UserSettings> {
   store: Writable<UserSettings>

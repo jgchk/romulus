@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm'
 
-import { type IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
+import type { IDrizzleConnection } from '../../infrastructure/drizzle-database.js'
 import { genreHistory } from '../../infrastructure/drizzle-schema.js'
 
 export type GetGenreHistoryByAccountResult = {

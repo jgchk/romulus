@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getQueryClientContext } from '@tanstack/svelte-query'
-  import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
+  import type { Infer, SuperValidated } from 'sveltekit-superforms'
+  import { superForm } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
   import Checkbox from '$lib/atoms/Checkbox.svelte'
@@ -15,11 +16,11 @@
   import RomcodeEditor from '$lib/components/Romcode/RomcodeEditor/RomcodeEditor.svelte'
   import GenreMultiselect from '$lib/features/genres/components/GenreMultiselect.svelte'
   import GenreTypeSelect from '$lib/features/genres/components/GenreTypeSelect.svelte'
-  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
   import { genreQueries } from '$lib/features/genres/tanstack'
-  import { type GenreSchema } from '$lib/server/api/genres/types'
+  import type { GenreSchema } from '$lib/server/api/genres/types'
 
-  import { type GenreFormField } from './GenreForm'
+  import type { GenreFormField } from './GenreForm'
   import RelevanceSelect from './RelevanceSelect.svelte'
 
   type Props = {

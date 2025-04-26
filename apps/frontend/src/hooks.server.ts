@@ -1,8 +1,8 @@
-import { type AuthenticationClient } from '@romulus/authentication/client'
-import { type AuthorizationClient } from '@romulus/authorization/client'
+import type { AuthenticationClient } from '@romulus/authentication/client'
+import type { AuthorizationClient } from '@romulus/authorization/client'
 import { GenresPermission } from '@romulus/genres/permissions'
 import { MediaPermission } from '@romulus/media/permissions'
-import { type Handle, type HandleFetch, type HandleServerError } from '@sveltejs/kit'
+import type { Handle, HandleFetch, HandleServerError } from '@sveltejs/kit'
 
 import { env } from '$env/dynamic/private'
 import { getSessionCookie, setSessionCookie } from '$lib/cookie'

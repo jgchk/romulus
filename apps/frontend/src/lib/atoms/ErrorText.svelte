@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type AriaRole } from 'svelte/elements'
+  import type { AriaRole } from 'svelte/elements'
 
   type Props = {
     errors: string[] | undefined

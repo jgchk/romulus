@@ -5,7 +5,7 @@
   import VirtualList from '$lib/atoms/VirtualList.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { createSearchGenresQuery } from '$lib/features/genres/queries/application/search'
-  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import GenreSearchResult from './GenreSearchResult.svelte'
   import { searchStore } from './state'

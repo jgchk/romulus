@@ -8,11 +8,12 @@
   import Toaster from '$lib/atoms/Toast/Toaster.svelte'
   import Navbar from '$lib/components/Navbar.svelte'
   import NewNavbar from '$lib/components/NewNavbar.svelte'
-  import { setUserContext, type UserStore } from '$lib/contexts/user'
+  import type { UserStore } from '$lib/contexts/user'
+  import { setUserContext } from '$lib/contexts/user'
   import { setUserSettingsContext } from '$lib/contexts/user-settings'
   import UserSettingsStore from '$lib/contexts/user-settings/store'
 
-  import { type LayoutData } from './$types'
+  import type { LayoutData } from './$types'
   import DarkModeApplier from './DarkModeApplier.svelte'
 
   type Props = {

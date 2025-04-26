@@ -1,6 +1,6 @@
 <script lang="ts">
   import Chip from '$lib/atoms/Chip.svelte'
-  import { type GenreType } from '$lib/types/genres'
+  import type { GenreType } from '$lib/types/genres'
   import { cn } from '$lib/utils/dom'
 
   type Props = {

@@ -1,11 +1,12 @@
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import type { Actions } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 
 import { mediaTypeSchema } from '$lib/features/media/components/MediaTypeForm'
 import { routes } from '$lib/routes'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
   if (!locals.user?.permissions.mediaTypes.canCreate) {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Select } from '$lib/atoms/Select'
-  import { GENRE_TYPES, type GenreType, GenreTypeNames } from '$lib/types/genres'
+  import type { GenreType } from '$lib/types/genres'
+  import { GENRE_TYPES, GenreTypeNames } from '$lib/types/genres'
 
   type Props = {
     id?: string

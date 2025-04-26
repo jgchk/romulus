@@ -1,5 +1,5 @@
 import { cubicOut } from 'svelte/easing'
-import { type EasingFunction, type TransitionConfig } from 'svelte/transition'
+import type { EasingFunction, TransitionConfig } from 'svelte/transition'
 
 import { disableTransitionInUnitTests } from './utils'
 

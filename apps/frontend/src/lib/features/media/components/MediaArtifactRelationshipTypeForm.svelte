@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms'
+  import type { Infer, SuperValidated } from 'sveltekit-superforms'
+  import { superForm } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
   import Input from '$lib/atoms/Input.svelte'
@@ -10,7 +11,7 @@
   import Footer from '$lib/components/Footer.svelte'
   import { routes } from '$lib/routes'
 
-  import { type MediaArtifactRelationshipTypeSchema } from './MediaArtifactRelationshipTypeForm'
+  import type { MediaArtifactRelationshipTypeSchema } from './MediaArtifactRelationshipTypeForm'
   import MediaArtifactTypeMultiselect from './MediaArtifactTypeMultiselect.svelte'
   import MediaArtifactTypeSelect from './MediaArtifactTypeSelect.svelte'
 

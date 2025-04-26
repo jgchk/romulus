@@ -1,7 +1,7 @@
 import { diceCoefficient, toAscii } from '$lib/utils/string'
 
-import { type GenreStore } from '../infrastructure'
-import { type TreeGenre } from '../types'
+import type { GenreStore } from '../infrastructure'
+import type { TreeGenre } from '../types'
 
 export type SearchGenresQuery = (query: string) => GenreMatch[]
 

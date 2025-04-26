@@ -4,7 +4,7 @@
   import { getUserContext } from '$lib/contexts/user'
   import { pageTitle } from '$lib/utils/string'
 
-  import { type ActionData, type PageData } from './$types'
+  import type { ActionData, PageData } from './$types'
   import GenresTable from './GenresTable.svelte'
 
   type Props = {

@@ -1,5 +1,5 @@
-import { type GenreStore } from '../infrastructure'
-import { type TreePath } from '../types'
+import type { GenreStore } from '../infrastructure'
+import type { TreePath } from '../types'
 import { createGetChildrenQuery } from './get-children'
 import { createGetDerivationsQuery } from './get-derivations'
 import { createGetGenreQuery } from './get-genre'

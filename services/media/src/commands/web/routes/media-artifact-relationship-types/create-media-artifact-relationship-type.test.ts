@@ -12,10 +12,8 @@ import {
 import { MediaPermission } from '../../../domain/permissions.js'
 import { createAuthorizationMiddleware } from '../../authorization-middleware.js'
 import { createBearerAuthMiddleware } from '../../bearer-auth-middleware.js'
-import {
-  createCreateMediaArtifactRelationshipTypeRoute,
-  type CreateMediaArtifactRelationshipTypeRouteDependencies,
-} from './create-media-artifact-relationship-type.js'
+import type { CreateMediaArtifactRelationshipTypeRouteDependencies } from './create-media-artifact-relationship-type.js'
+import { createCreateMediaArtifactRelationshipTypeRoute } from './create-media-artifact-relationship-type.js'
 
 function setup(options: Partial<CreateMediaArtifactRelationshipTypeRouteDependencies> = {}) {
   const bearerAuth = createBearerAuthMiddleware({

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Trash } from 'phosphor-svelte'
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
 
   import { tooltip } from '$lib/actions/tooltip'
 

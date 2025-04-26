@@ -1,4 +1,4 @@
-import { type PasswordResetToken } from '../entities/password-reset-token.js'
+import type { PasswordResetToken } from '../entities/password-reset-token.js'
 
 export type PasswordResetTokenRepository = {
   create(token: PasswordResetToken): Promise<void>

@@ -6,7 +6,7 @@
   import InputGroup from '$lib/atoms/InputGroup.svelte'
   import Label from '$lib/atoms/Label.svelte'
 
-  import { type ActionData } from './$types'
+  import type { ActionData } from './$types'
 
   type Props = {
     form: ActionData

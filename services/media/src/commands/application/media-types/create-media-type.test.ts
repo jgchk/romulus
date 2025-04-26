@@ -1,7 +1,7 @@
 import { err, ok } from 'neverthrow'
 import { expect, it } from 'vitest'
 
-import { type MediaTypeEvent } from '../../../common/domain/events.js'
+import type { MediaTypeEvent } from '../../../common/domain/events.js'
 import { mediaTypeCreatedEvent } from '../../../common/domain/events.js'
 import { MemoryEventStore } from '../../../common/infrastructure/memory-event-store.js'
 import { MediaTypeTreeCycleError } from '../../domain/media-types/errors.js'

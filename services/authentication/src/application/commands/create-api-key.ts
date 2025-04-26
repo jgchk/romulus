@@ -1,7 +1,7 @@
 import { ApiKey } from '../../domain/entities/api-key.js'
-import { type ApiKeyRepository } from '../../domain/repositories/api-key.js'
-import { type HashRepository } from '../../domain/repositories/hash-repository.js'
-import { type TokenGenerator } from '../../domain/repositories/token-generator.js'
+import type { ApiKeyRepository } from '../../domain/repositories/api-key.js'
+import type { HashRepository } from '../../domain/repositories/hash-repository.js'
+import type { TokenGenerator } from '../../domain/repositories/token-generator.js'
 
 export type CreateApiKeyResult = {
   id: number

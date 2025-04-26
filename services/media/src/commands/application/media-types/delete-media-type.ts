@@ -1,9 +1,7 @@
-import { type MediaTypeDeletedEvent } from '../../../common/domain/events.js'
-import { type MaybePromise } from '../../../utils.js'
-import {
-  deleteMediaType,
-  type DeleteMediaTypeCommand,
-} from '../../domain/media-types/delete-media-type.js'
+import type { MediaTypeDeletedEvent } from '../../../common/domain/events.js'
+import type { MaybePromise } from '../../../utils.js'
+import type { DeleteMediaTypeCommand } from '../../domain/media-types/delete-media-type.js'
+import { deleteMediaType } from '../../domain/media-types/delete-media-type.js'
 
 export type DeleteMediaTypeCommandHandler = (command: DeleteMediaTypeCommand) => Promise<void>
 

@@ -1,4 +1,4 @@
-import { type Genre } from './genre.js'
+import type { Genre } from './genre.js'
 
 export type GenreRepository = {
   findById(id: number): Promise<Genre | undefined>

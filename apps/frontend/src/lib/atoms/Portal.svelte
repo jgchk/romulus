@@ -1,5 +1,6 @@
 <script lang="ts" module>
-  import { type Snippet, tick } from 'svelte'
+  import type { Snippet } from 'svelte'
+  import { tick } from 'svelte'
 
   export function portal(el: HTMLElement, target: HTMLElement | string = 'body') {
     let targetEl: Element | null

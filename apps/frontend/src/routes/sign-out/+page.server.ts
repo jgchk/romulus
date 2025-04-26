@@ -1,4 +1,5 @@
-import { type Actions, redirect } from '@sveltejs/kit'
+import type { Actions } from '@sveltejs/kit'
+import { redirect } from '@sveltejs/kit'
 
 import { deleteSessionCookie } from '$lib/cookie'
 

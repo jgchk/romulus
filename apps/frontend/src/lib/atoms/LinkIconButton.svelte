@@ -1,6 +1,6 @@
 <script lang="ts">
   import { IconContext } from 'phosphor-svelte'
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
   import { scale } from 'svelte/transition'
 
   import { tooltip as tooltipAction } from '$lib/actions/tooltip'

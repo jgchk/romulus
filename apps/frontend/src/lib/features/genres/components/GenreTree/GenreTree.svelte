@@ -2,7 +2,7 @@
   import Button from '$lib/atoms/Button.svelte'
   import { getUserContext } from '$lib/contexts/user'
   import { createGetRootGenresQuery } from '$lib/features/genres/queries/application/get-root-genres'
-  import { type GenreStore } from '$lib/features/genres/queries/infrastructure'
+  import type { GenreStore } from '$lib/features/genres/queries/infrastructure'
 
   import GenreTreeNode from './GenreTreeNode.svelte'
   import { getTreeStateStoreContext } from './tree-state-store.svelte'

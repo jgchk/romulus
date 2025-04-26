@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { mediaArtifactRelationshipTypeSchema } from '$lib/features/media/components/MediaArtifactRelationshipTypeForm'
 import { routes } from '$lib/routes'
 
-import { type Actions, type PageServerLoad } from './$types'
+import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals, params }) => {
   if (!locals.user?.permissions.mediaArtifactTypes.canCreate) {

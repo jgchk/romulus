@@ -1,16 +1,16 @@
 import { CustomError } from '@romulus/custom-error'
 import { createExponentialBackoffFetch } from '@romulus/fetch-retry'
-import { type InferRequestType, type InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
-import { type StatusCode } from 'hono/utils/http-status'
+import type { StatusCode } from 'hono/utils/http-status'
 import { err, ok, ResultAsync } from 'neverthrow'
 
-import {
-  type GetAllGenresQueryIncludeFields,
-  type GetAllGenresQueryInput,
-  type GetAllGenresQueryResult,
+import type {
+  GetAllGenresQueryIncludeFields,
+  GetAllGenresQueryInput,
+  GetAllGenresQueryResult,
 } from '../application/commands/get-all-genres.js'
-import { type GenresRouter } from './router.js'
+import type { GenresRouter } from './router.js'
 
 export class GenresClient {
   private client: ReturnType<typeof hc<GenresRouter>>

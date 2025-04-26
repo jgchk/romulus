@@ -1,13 +1,13 @@
 import { type } from 'arktype'
 
-import { type RouteDefinition } from '../../../../common/web/utils.js'
-import { type RouteResponse } from '../../../../common/web/utils.js'
+import type { RouteDefinition } from '../../../../common/web/utils.js'
+import type { RouteResponse } from '../../../../common/web/utils.js'
 import { createRoute } from '../../../../common/web/utils.js'
 import { validator } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
-import { type DeleteMediaTypeCommandHandler } from '../../../application/media-types/delete-media-type.js'
+import type { DeleteMediaTypeCommandHandler } from '../../../application/media-types/delete-media-type.js'
 import { MediaPermission } from '../../../domain/permissions.js'
-import { type AuthorizationMiddleware } from '../../authorization-middleware.js'
+import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
 import { unauthenticatedErrorResponse, unauthorizedErrorResponse } from '../../errors.js'
 
 export function createDeleteMediaTypeRoute({

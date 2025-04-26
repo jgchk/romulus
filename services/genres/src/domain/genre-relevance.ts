@@ -1,4 +1,5 @@
-import { err, ok, type Result } from 'neverthrow'
+import type { Result } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 
 import { MAX_GENRE_RELEVANCE, MIN_GENRE_RELEVANCE } from '../config.js'
 import { InvalidGenreRelevanceError } from './errors/invalid-genre-relevance.js'

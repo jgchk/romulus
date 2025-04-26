@@ -2,9 +2,9 @@
   import Card from '$lib/atoms/Card.svelte'
   import { ifDefined } from '$lib/utils/types'
 
-  import { type PageData } from './$types'
+  import type { PageData } from './$types'
   import IntegrityTables from './IntegrityTables.svelte'
-  import { type Genre } from './types'
+  import type { Genre } from './types'
 
   type Props = { data: PageData }
   let { data }: Props = $props()

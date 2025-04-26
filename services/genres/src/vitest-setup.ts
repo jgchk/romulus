@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { afterAll, test as base, vi } from 'vitest'
 
-import { type IDrizzleConnection } from './infrastructure/drizzle-database.js'
+import type { IDrizzleConnection } from './infrastructure/drizzle-database.js'
 import {
   getPGliteDbConnection,
   getPGlitePostgresConnection,

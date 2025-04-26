@@ -23,7 +23,7 @@
   import { cn } from '$lib/utils/dom'
   import { genreTitle, pageTitle } from '$lib/utils/string'
 
-  import { type PageData } from './$types'
+  import type { PageData } from './$types'
 
   type Props = {
     data: PageData

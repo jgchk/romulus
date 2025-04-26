@@ -1,9 +1,7 @@
 import { expect, it } from 'vitest'
 
-import {
-  mediaArtifactTypeDeletedEvent,
-  type MediaArtifactTypeEvent,
-} from '../../../common/domain/events.js'
+import type { MediaArtifactTypeEvent } from '../../../common/domain/events.js'
+import { mediaArtifactTypeDeletedEvent } from '../../../common/domain/events.js'
 import { MemoryEventStore } from '../../../common/infrastructure/memory-event-store.js'
 import { createSaveMediaArtifactTypeEvent } from '../../infrastructure/media-artifact-types.js'
 import { createDeleteMediaArtifactTypeCommandHandler } from './delete-media-artifact-type.js'

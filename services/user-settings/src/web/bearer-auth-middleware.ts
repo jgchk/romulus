@@ -1,6 +1,6 @@
 import { createMiddleware } from 'hono/factory'
 
-import { type IAuthenticationService } from '../domain/authentication.js'
+import type { IAuthenticationService } from '../domain/authentication.js'
 import { UnauthorizedError } from '../domain/user-settings.js'
 import { setError } from './utils.js'
 

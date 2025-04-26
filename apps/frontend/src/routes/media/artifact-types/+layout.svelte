@@ -3,7 +3,7 @@
   import LinkButton from '$lib/atoms/LinkButton.svelte'
   import { routes } from '$lib/routes'
 
-  import { type LayoutProps } from './$types'
+  import type { LayoutProps } from './$types'
 
   let { children }: LayoutProps = $props()
 </script>

@@ -3,10 +3,8 @@ import { setupAuthenticationPermissions } from '@romulus/authentication/applicat
 import { AuthenticationInfrastructure } from '@romulus/authentication/infrastructure'
 import { AuthenticationPermission } from '@romulus/authentication/permissions'
 import { createAuthenticationRouter } from '@romulus/authentication/router'
-import {
-  type AuthorizationApplication,
-  setupAuthorizationPermissions,
-} from '@romulus/authorization/application'
+import type { AuthorizationApplication } from '@romulus/authorization/application'
+import { setupAuthorizationPermissions } from '@romulus/authorization/application'
 import { AuthorizationInfrastructure } from '@romulus/authorization/infrastructure'
 import { AuthorizationPermission, SYSTEM_USER_ID } from '@romulus/authorization/permissions'
 import { createAuthorizationRouter } from '@romulus/authorization/router'
@@ -14,28 +12,25 @@ import { setupGenresPermissions } from '@romulus/genres/application'
 import { GenresInfrastructure } from '@romulus/genres/infrastructure'
 import { GenresPermission } from '@romulus/genres/permissions'
 import { createGenresRouter } from '@romulus/genres/router'
-import {
-  createMediaApplication,
-  type MediaApplication,
-  setupMediaPermissions,
-} from '@romulus/media/application'
-import { createMediaInfrastructure, type MediaInfrastructure } from '@romulus/media/infrastructure'
+import type { MediaApplication } from '@romulus/media/application'
+import { createMediaApplication, setupMediaPermissions } from '@romulus/media/application'
+import type { MediaInfrastructure } from '@romulus/media/infrastructure'
+import { createMediaInfrastructure } from '@romulus/media/infrastructure'
 import { MediaPermission } from '@romulus/media/permissions'
 import { createMediaRouter } from '@romulus/media/web'
-import { type UserSettingsApplication } from '@romulus/user-settings/application'
+import type { UserSettingsApplication } from '@romulus/user-settings/application'
 import { UserSettingsInfrastructure } from '@romulus/user-settings/infrastructure'
 import { createUserSettingsRouter } from '@romulus/user-settings/router'
 import { Hono } from 'hono'
 import { requestId } from 'hono/request-id'
 import { err, ok, ResultAsync } from 'neverthrow'
 
+import type { AuthenticationApplication, GenresApplication } from './application.js'
 import {
-  type AuthenticationApplication,
   createAuthenticationApplication,
   createAuthorizationApplication,
   createGenresApplication,
   createUserSettingsApplication,
-  type GenresApplication,
 } from './application.js'
 import { createLogger } from './logger.js'
 

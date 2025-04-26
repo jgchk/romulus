@@ -8,10 +8,8 @@ import { createDefaultMediaTypesProjection } from '../../../domain/media-types/m
 import { MediaPermission } from '../../../domain/permissions.js'
 import { createAuthorizationMiddleware } from '../../authorization-middleware.js'
 import { createBearerAuthMiddleware } from '../../bearer-auth-middleware.js'
-import {
-  createCreateMediaArtifactTypeRoute,
-  type CreateMediaArtifactTypeRouteDependencies,
-} from './create-media-artifact-type.js'
+import type { CreateMediaArtifactTypeRouteDependencies } from './create-media-artifact-type.js'
+import { createCreateMediaArtifactTypeRoute } from './create-media-artifact-type.js'
 
 function setup(options: Partial<CreateMediaArtifactTypeRouteDependencies> = {}) {
   const bearerAuth = createBearerAuthMiddleware({

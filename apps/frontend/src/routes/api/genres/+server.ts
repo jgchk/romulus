@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit'
 
-import { type RequestHandler } from './$types'
+import type { RequestHandler } from './$types'
 import { parseQueryParams } from './utils'
 
 export const GET = (async ({ url, request, locals }) => {

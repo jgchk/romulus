@@ -3,7 +3,8 @@
 </script>
 
 <script lang="ts" generics="T extends unknown">
-  import { onMount, type Snippet, tick } from 'svelte'
+  import type { Snippet } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { run } from 'svelte/legacy'
 
   import { cn } from '$lib/utils/dom'

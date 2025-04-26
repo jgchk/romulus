@@ -8,7 +8,7 @@
   import { copyTextToClipboard } from '$lib/utils/dom'
   import { pageTitle } from '$lib/utils/string'
 
-  import { type ActionData, type PageData } from './$types'
+  import type { ActionData, PageData } from './$types'
   import CreateApiKeyDialog from './CreateApiKeyDialog.svelte'
   import DeleteApiKeyDialog from './DeleteApiKeyDialog.svelte'
 

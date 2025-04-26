@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type ComponentProps } from 'svelte'
+  import type { ComponentProps } from 'svelte'
 
   import Delay from './Delay.svelte'
 

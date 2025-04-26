@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from 'svelte'
+  import type { Snippet } from 'svelte'
 
   import { isMouseEventOutsideNodes } from '$lib/actions/clickOutside'
   import { readableBoxWith, writableBoxWith } from '$lib/runes/box.svelte'

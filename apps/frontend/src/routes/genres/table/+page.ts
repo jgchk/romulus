@@ -6,7 +6,7 @@
 
 import { getIntParam, getStringParam } from '$lib/utils/params'
 
-import { type PageLoad } from './$types'
+import type { PageLoad } from './$types'
 
 const SORT_OPTIONS = ['name', 'type', 'relevance', 'updated'] as const
 const ORDER_OPTIONS = ['asc', 'desc'] as const

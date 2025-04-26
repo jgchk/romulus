@@ -1,5 +1,6 @@
 import { FetchError } from '@romulus/genres/client'
-import { type Actions, error, redirect } from '@sveltejs/kit'
+import type { Actions } from '@sveltejs/kit'
+import { error, redirect } from '@sveltejs/kit'
 import { fail, setError, superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { z } from 'zod'
@@ -9,7 +10,7 @@ import { UNSET_GENRE_RELEVANCE } from '$lib/types/genres'
 import { countBy } from '$lib/utils/array'
 import { isDefined } from '$lib/utils/types'
 
-import { type PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const maybeId = z.coerce.number().int().safeParse(params.id)

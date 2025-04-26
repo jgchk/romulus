@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
 import { Genre } from '../domain/genre.js'
-import { type GenreRepository } from '../domain/genre-repository.js'
-import { type IDrizzleConnection } from './drizzle-database.js'
+import type { GenreRepository } from '../domain/genre-repository.js'
+import type { IDrizzleConnection } from './drizzle-database.js'
 import { genreAkas, genres } from './drizzle-schema.js'
 
 export class DrizzleGenreRepository implements GenreRepository {

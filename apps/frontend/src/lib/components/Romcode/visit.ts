@@ -1,4 +1,4 @@
-import { type Node, type Parent, type Root } from './types'
+import type { Node, Parent, Root } from './types'
 
 export type Visitor = (node: Node, index: number | undefined, parent: Parent | undefined) => void
 

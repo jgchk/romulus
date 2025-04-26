@@ -1,4 +1,4 @@
-import { type GenreStore } from '../infrastructure'
+import type { GenreStore } from '../infrastructure'
 
 export type GetChildrenQuery = (id: number) => number[]
 

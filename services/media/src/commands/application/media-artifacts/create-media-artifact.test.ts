@@ -1,11 +1,10 @@
 import { err, ok } from 'neverthrow'
 import { expect, it } from 'vitest'
 
+import type { MediaArtifactEvent, MediaArtifactTypeEvent } from '../../../common/domain/events.js'
 import {
   mediaArtifactCreatedEvent,
-  type MediaArtifactEvent,
   mediaArtifactTypeCreatedEvent,
-  type MediaArtifactTypeEvent,
 } from '../../../common/domain/events.js'
 import { MemoryEventStore } from '../../../common/infrastructure/memory-event-store.js'
 import { MediaArtifactTypeNotFoundError } from '../../domain/media-artifact-types/errors.js'

@@ -1,7 +1,7 @@
-import { type IUserSettingsRepository } from '../domain/repository.js'
-import { type GetUserSettingsQuery } from './get-user-settings.js'
+import type { IUserSettingsRepository } from '../domain/repository.js'
+import type { GetUserSettingsQuery } from './get-user-settings.js'
 import { GetUserSettingsQueryHandler } from './get-user-settings.js'
-import { type UpdateUserSettingsCommand } from './update-user-settings.js'
+import type { UpdateUserSettingsCommand } from './update-user-settings.js'
 import { UpdateUserSettingsCommandHandler } from './update-user-settings.js'
 
 export class UserSettingsApplication {

@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts" generics="C extends typeof SvelteComponent<any, any, any>">
-  import { type Snippet, type SvelteComponent } from 'svelte'
+  import type { Snippet, SvelteComponent } from 'svelte'
   import { scale } from 'svelte/transition'
 
   import { tooltip } from '$lib/actions/tooltip'

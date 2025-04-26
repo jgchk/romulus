@@ -1,9 +1,7 @@
-import { type MediaArtifactTypeEvent } from '../../common/domain/events.js'
-import { type IEventStore } from '../../common/infrastructure/event-store.js'
-import {
-  createMediaArtifactTypesProjectionFromEvents,
-  type MediaArtifactTypesProjection,
-} from '../domain/media-artifact-types/media-artifact-types-projection.js'
+import type { MediaArtifactTypeEvent } from '../../common/domain/events.js'
+import type { IEventStore } from '../../common/infrastructure/event-store.js'
+import type { MediaArtifactTypesProjection } from '../domain/media-artifact-types/media-artifact-types-projection.js'
+import { createMediaArtifactTypesProjectionFromEvents } from '../domain/media-artifact-types/media-artifact-types-projection.js'
 
 export function createGetMediaArtifactTypes(
   eventStore: IEventStore<{ 'media-artifact-types': MediaArtifactTypeEvent }>,

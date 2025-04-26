@@ -1,7 +1,7 @@
 <script lang="ts">
   import MediaTypeTree from '$lib/features/media/components/MediaTypeTree.svelte'
 
-  import { type PageProps } from './$types'
+  import type { PageProps } from './$types'
 
   let { data }: PageProps = $props()
 

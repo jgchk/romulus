@@ -7,7 +7,7 @@
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
 
-  import { type MediaArtifactTypeTreeMap } from './MediaArtifactTypeTree'
+  import type { MediaArtifactTypeTreeMap } from './MediaArtifactTypeTree'
   import MediaArtifactTypeTreeNode from './MediaArtifactTypeTreeNode.svelte'
 
   let { id, mediaArtifactTypes }: { id: string; mediaArtifactTypes: MediaArtifactTypeTreeMap } =

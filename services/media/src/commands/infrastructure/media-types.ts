@@ -1,9 +1,7 @@
-import { type MediaTypeEvent } from '../../common/domain/events.js'
-import { type IEventStore } from '../../common/infrastructure/event-store.js'
-import {
-  createMediaTypesProjectionFromEvents,
-  type MediaTypesProjection,
-} from '../domain/media-types/media-types-projection.js'
+import type { MediaTypeEvent } from '../../common/domain/events.js'
+import type { IEventStore } from '../../common/infrastructure/event-store.js'
+import type { MediaTypesProjection } from '../domain/media-types/media-types-projection.js'
+import { createMediaTypesProjectionFromEvents } from '../domain/media-types/media-types-projection.js'
 
 export function createGetMediaTypes(eventStore: IEventStore<{ 'media-types': MediaTypeEvent }>) {
   return async function getMediaTypes(): Promise<MediaTypesProjection> {

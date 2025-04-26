@@ -1,4 +1,5 @@
-import { DEFAULT_USER_SETTINGS, type UserSettings } from './types'
+import type { UserSettings } from './types'
+import { DEFAULT_USER_SETTINGS } from './types'
 
 export type UserSettingsRepository = {
   save(settings: UserSettings): Promise<void>

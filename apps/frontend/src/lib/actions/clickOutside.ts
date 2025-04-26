@@ -1,6 +1,6 @@
 import { withProps } from '$lib/utils/object'
 
-import { type Action } from './types'
+import type { Action } from './types'
 
 export type ClickOutsideHandler = (event: ClickOutsideEvent) => void
 type ClickOutsideEvent = MouseEvent & { outside: Node }

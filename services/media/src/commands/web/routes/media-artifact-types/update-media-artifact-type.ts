@@ -1,17 +1,17 @@
 import { type } from 'arktype'
 
+import type { RouteDefinition } from '../../../../common/web/utils.js'
+import type { RouteResponse } from '../../../../common/web/utils.js'
 import { createErrorResponse } from '../../../../common/web/utils.js'
-import { type RouteDefinition } from '../../../../common/web/utils.js'
-import { type RouteResponse } from '../../../../common/web/utils.js'
 import { createRoute } from '../../../../common/web/utils.js'
 import { validator } from '../../../../common/web/utils.js'
 import { factory } from '../../../../common/web/utils.js'
 import { assertUnreachable } from '../../../../utils.js'
-import { type UpdateMediaArtifactTypeCommandHandler } from '../../../application/media-artifact-types/update-media-artifact-type.js'
+import type { UpdateMediaArtifactTypeCommandHandler } from '../../../application/media-artifact-types/update-media-artifact-type.js'
 import { MediaArtifactTypeNotFoundError } from '../../../domain/media-artifact-types/errors.js'
 import { MediaTypeNotFoundError } from '../../../domain/media-types/errors.js'
 import { MediaPermission } from '../../../domain/permissions.js'
-import { type AuthorizationMiddleware } from '../../authorization-middleware.js'
+import type { AuthorizationMiddleware } from '../../authorization-middleware.js'
 import {
   badRequestErrorResponse,
   unauthenticatedErrorResponse,

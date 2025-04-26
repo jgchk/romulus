@@ -1,14 +1,15 @@
 import { QueryClient } from '@tanstack/svelte-query'
 import { render, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
-import { type ComponentProps } from 'svelte'
+import type { ComponentProps } from 'svelte'
 import { writable } from 'svelte/store'
 import { expect, it, test, vi } from 'vitest'
 
 import { USER_SETTINGS_CONTEXT_KEY } from '$lib/contexts/user-settings'
-import { DEFAULT_USER_SETTINGS, type UserSettings } from '$lib/contexts/user-settings/types'
+import type { UserSettings } from '$lib/contexts/user-settings/types'
+import { DEFAULT_USER_SETTINGS } from '$lib/contexts/user-settings/types'
 import { createGenreStore } from '$lib/features/genres/queries/infrastructure'
-import { type TreeGenre } from '$lib/features/genres/queries/types'
+import type { TreeGenre } from '$lib/features/genres/queries/types'
 import { genreQueries } from '$lib/features/genres/tanstack'
 
 import GenreMultiselect from './GenreMultiselect.svelte'

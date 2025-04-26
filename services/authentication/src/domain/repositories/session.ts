@@ -1,4 +1,4 @@
-import { type Session } from '../entities/session.js'
+import type { Session } from '../entities/session.js'
 
 export type SessionRepository = {
   findByTokenHash(tokenHash: string): Promise<Session | undefined>

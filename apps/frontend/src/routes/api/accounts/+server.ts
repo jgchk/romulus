@@ -1,5 +1,6 @@
 import { UserSettingsClientError } from '@romulus/user-settings/client'
-import { error, json, type RequestHandler } from '@sveltejs/kit'
+import type { RequestHandler } from '@sveltejs/kit'
+import { error, json } from '@sveltejs/kit'
 import { z } from 'zod'
 
 import { genreRelevance, UNSET_GENRE_RELEVANCE } from '$lib/types/genres'

@@ -1,5 +1,5 @@
 import { render } from '@testing-library/svelte'
-import { type ComponentProps } from 'svelte'
+import type { ComponentProps } from 'svelte'
 import { expect, it } from 'vitest'
 
 import DelayTest from './Delay.test.svelte'

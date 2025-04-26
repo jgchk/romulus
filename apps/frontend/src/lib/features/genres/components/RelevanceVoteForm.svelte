@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { superForm, type SuperValidated } from 'sveltekit-superforms'
+  import type { SuperValidated } from 'sveltekit-superforms'
+  import { superForm } from 'sveltekit-superforms'
 
   import Button from '$lib/atoms/Button.svelte'
   import InputGroup from '$lib/atoms/InputGroup.svelte'
