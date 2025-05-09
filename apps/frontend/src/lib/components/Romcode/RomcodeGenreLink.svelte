@@ -19,7 +19,7 @@
 </script>
 
 <a
-  href={genre ? `/genres/${id}` : `/genre/${id}/history`}
+  href={genre ? `/genres/${id}` : `/genres/${id}/history`}
   class={tw('inline-block underline', genre?.nsfw && !$userSettings.showNsfw && 'blur-sm')}
   >{#if text}{text}{:else if genre}{genre.name}{:else}&lt;Deleted Genre&gt;{/if}</a
 >{#if genre?.nsfw}&nbsp;<span
