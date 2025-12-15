@@ -25,6 +25,9 @@ declare global {
               mediaArtifactTypes: {
                 canCreate: boolean
               }
+              genreEditors: {
+                canManage: boolean
+              }
             }
           }
         | undefined

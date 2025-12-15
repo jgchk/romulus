@@ -8,6 +8,7 @@ import { UnauthorizedApiKeyDeletionError } from '../application/commands/delete-
 import type { GetAccountQuery } from '../application/commands/get-account.js'
 import type { GetAccountsQuery } from '../application/commands/get-accounts.js'
 import type { GetApiKeysByAccountQuery } from '../application/commands/get-api-keys-by-account.js'
+import type { ListAccountsQuery } from '../application/commands/list-accounts.js'
 import type { LoginCommand } from '../application/commands/login.js'
 import type { LogoutCommand } from '../application/commands/logout.js'
 import type { RefreshSessionCommand } from '../application/commands/refresh-session.js'
@@ -21,6 +22,7 @@ import { NonUniqueUsernameError } from '../application/errors/non-unique-usernam
 import { PasswordResetTokenExpiredError } from '../application/errors/password-reset-token-expired.js'
 import { PasswordResetTokenNotFoundError } from '../application/errors/password-reset-token-not-found.js'
 import type { ValidateApiKeyCommand } from '../application/index.js'
+import type { IAuthorizationService } from '../domain/authorization.js'
 import { UnauthorizedError } from '../domain/errors/unauthorized.js'
 import { getBearerAuthToken } from './bearer-auth-middleware.js'
 import {
@@ -30,6 +32,7 @@ import {
   getAccountRoute,
   getAccountsRoute,
   getApiKeysRoute,
+  listAccountsRoute,
   loginRoute,
   logoutRoute,
   refreshSessionRoute,
@@ -58,6 +61,8 @@ export type AuthorizationRouterDependencies = {
   deleteApiKeyCommand(): DeleteApiKeyCommand
   getApiKeysByAccountQuery(): GetApiKeysByAccountQuery
   validateApiKeyCommand(): ValidateApiKeyCommand
+  listAccountsQuery(): ListAccountsQuery
+  authorizationService(): IAuthorizationService
 }
 
 export function createAuthenticationRouter(di: AuthorizationRouterDependencies) {
@@ -550,6 +555,60 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
       const key = c.req.valid('param').key
       const result = await di.validateApiKeyCommand().execute(key)
       return c.json({ success: true, valid: result } as const, 200)
+    })
+
+    .openapi(listAccountsRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const hasPermission = await di
+        .authorizationService()
+        .hasPermission(whoamiResult.account.id, 'authorization:manage-genre-editors')
+      if (!hasPermission) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'ForbiddenError',
+              message: 'You do not have permission to list accounts',
+              statusCode: 403,
+            },
+          } as const,
+          403,
+        )
+      }
+
+      const { limit, offset, username } = c.req.valid('query')
+      const result = await di.listAccountsQuery().execute({ limit, offset, username })
+
+      return c.json({ success: true, accounts: result.accounts, total: result.total } as const, 200)
     })
 
   app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {

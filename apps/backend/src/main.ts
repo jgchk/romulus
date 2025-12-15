@@ -323,6 +323,7 @@ const roles = {
     GenresPermission.DeleteGenres,
     GenresPermission.VoteGenreRelevance,
   ],
+  'genre-editor-manager': [AuthorizationPermission.ManageGenreEditors],
   'media-type-editor': [MediaPermission.WriteMediaTypes, MediaPermission.WriteMediaArtifactTypes],
   default: [AuthorizationPermission.CheckOwnPermissions, AuthorizationPermission.GetOwnPermissions],
 } as const

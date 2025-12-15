@@ -741,3 +741,77 @@ export const validateApiKeyRoute = createRoute({
     },
   },
 })
+
+export const listAccountsRoute = createRoute({
+  method: 'get',
+  path: '/accounts/list',
+  security: [{ Bearer: [] }],
+  request: {
+    headers: HeadersSchema,
+    query: z.object({
+      limit: z.coerce.number().int().min(1).max(100).optional(),
+      offset: z.coerce.number().int().min(0).optional(),
+      username: z.string().optional(),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(true),
+            accounts: z
+              .object({
+                id: z.number().int(),
+                username: z.string(),
+              })
+              .array(),
+            total: z.number().int(),
+          }),
+        },
+      },
+      description: 'List of accounts with pagination',
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: ValidationErrorSchema,
+          }),
+        },
+      },
+      description: 'The request is invalid',
+    },
+    401: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: z.object({
+              name: z.literal('UnauthorizedError'),
+              message: z.string(),
+              statusCode: z.literal(401),
+            }),
+          }),
+        },
+      },
+      description: 'The user is not authenticated',
+    },
+    403: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: z.object({
+              name: z.literal('ForbiddenError'),
+              message: z.string(),
+              statusCode: z.literal(403),
+            }),
+          }),
+        },
+      },
+      description: 'The user does not have permission to list accounts',
+    },
+  },
+})

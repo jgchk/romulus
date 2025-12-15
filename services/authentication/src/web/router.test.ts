@@ -8,6 +8,7 @@ import {
   GetAccountQuery,
   GetAccountsQuery,
   GetApiKeysByAccountQuery,
+  ListAccountsQuery,
   LoginCommand,
   LogoutCommand,
   RefreshSessionCommand,
@@ -84,6 +85,8 @@ function setup(dbConnection: IDrizzleConnection) {
     getApiKeysByAccountQuery: () => new GetApiKeysByAccountQuery(di.dbConnection()),
     validateApiKeyCommand: () =>
       new ValidateApiKeyCommand(di.apiKeyRepository(), di.apiKeyHashRepository()),
+    listAccountsQuery: () => new ListAccountsQuery(di.accountRepository()),
+    authorizationService: () => authorization,
   })
   const client = testClient(app)
 

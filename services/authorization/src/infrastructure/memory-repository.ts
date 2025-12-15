@@ -1,4 +1,9 @@
-import { DefaultRoleSetEvent, Role, RoleAssignedToUserEvent } from '../domain/authorizer.js'
+import {
+  DefaultRoleSetEvent,
+  Role,
+  RoleAssignedToUserEvent,
+  RoleRemovedFromUserEvent,
+} from '../domain/authorizer.js'
 import {
   Permission,
   PermissionDeletedEvent,
@@ -44,6 +49,14 @@ export class MemoryAuthorizerRepository implements IAuthorizerRepository {
         const userRoles = this.userRoles.get(event.userId) ?? new Set()
         userRoles.add(event.roleName)
         this.userRoles.set(event.userId, userRoles)
+      } else if (event instanceof RoleRemovedFromUserEvent) {
+        const userRoles = this.userRoles.get(event.userId)
+        if (userRoles) {
+          userRoles.delete(event.roleName)
+          if (userRoles.size === 0) {
+            this.userRoles.delete(event.userId)
+          }
+        }
       } else {
         event satisfies never
       }

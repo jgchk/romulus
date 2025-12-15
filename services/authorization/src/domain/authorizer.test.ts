@@ -13,6 +13,7 @@ import {
   RoleCreatedEvent,
   RoleDeletedEvent,
   RoleNotFoundError,
+  RoleRemovedFromUserEvent,
 } from './authorizer.js'
 
 describe('createPermission()', () => {
@@ -368,5 +369,84 @@ describe('setDefaultRole()', () => {
     const result = authorizer.setDefaultRole('role')
 
     expect(result).toEqual(err(new RoleNotFoundError('role')))
+  })
+})
+
+describe('getUsersWithRole()', () => {
+  test('should return empty array when no users have the role', () => {
+    const authorizer = Authorizer.fromEvents([new RoleCreatedEvent('role', new Set(), undefined)])
+
+    expect(authorizer.getUsersWithRole('role')).toEqual([])
+  })
+
+  test('should return users with the role', () => {
+    const authorizer = Authorizer.fromEvents([
+      new RoleCreatedEvent('role', new Set(), undefined),
+      new RoleAssignedToUserEvent(1, 'role'),
+      new RoleAssignedToUserEvent(2, 'role'),
+    ])
+
+    expect(authorizer.getUsersWithRole('role')).toEqual([1, 2])
+  })
+
+  test('should return empty array when role does not exist', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    expect(authorizer.getUsersWithRole('nonexistent')).toEqual([])
+  })
+
+  test('should not include users from other roles', () => {
+    const authorizer = Authorizer.fromEvents([
+      new RoleCreatedEvent('role1', new Set(), undefined),
+      new RoleCreatedEvent('role2', new Set(), undefined),
+      new RoleAssignedToUserEvent(1, 'role1'),
+      new RoleAssignedToUserEvent(2, 'role2'),
+    ])
+
+    expect(authorizer.getUsersWithRole('role1')).toEqual([1])
+    expect(authorizer.getUsersWithRole('role2')).toEqual([2])
+  })
+})
+
+describe('removeRoleFromUser()', () => {
+  test('should remove a role from a user', () => {
+    const authorizer = Authorizer.fromEvents([
+      new RoleCreatedEvent('role', new Set(), undefined),
+      new RoleAssignedToUserEvent(1, 'role'),
+    ])
+
+    const result = authorizer.removeRoleFromUser(1, 'role')
+    expect(result).toEqual(ok(undefined))
+
+    expect(authorizer.getUncommittedEvents()).toEqual([new RoleRemovedFromUserEvent(1, 'role')])
+  })
+
+  test('should error if the role does not exist', () => {
+    const authorizer = Authorizer.fromEvents([])
+
+    const result = authorizer.removeRoleFromUser(1, 'nonexistent')
+
+    expect(result).toEqual(err(new RoleNotFoundError('nonexistent')))
+  })
+
+  test('user should not have permission after role is removed', () => {
+    const authorizer = Authorizer.fromEvents([
+      new PermissionCreatedEvent('permission', undefined),
+      new RoleCreatedEvent('role', new Set(['permission']), undefined),
+      new RoleAssignedToUserEvent(1, 'role'),
+      new RoleRemovedFromUserEvent(1, 'role'),
+    ])
+
+    expect(authorizer.hasPermission(1, 'permission')).toBe(false)
+  })
+
+  test('user should not appear in getUsersWithRole after role is removed', () => {
+    const authorizer = Authorizer.fromEvents([
+      new RoleCreatedEvent('role', new Set(), undefined),
+      new RoleAssignedToUserEvent(1, 'role'),
+      new RoleRemovedFromUserEvent(1, 'role'),
+    ])
+
+    expect(authorizer.getUsersWithRole('role')).toEqual([])
   })
 })

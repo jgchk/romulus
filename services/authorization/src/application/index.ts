@@ -93,6 +93,19 @@ export class AuthorizationApplication {
       .map((authorizer) => authorizer.getAllPermissions())
   }
 
+  getUsersWithRole(roleName: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors)
+      .map(() => this.repo.get())
+      .map((authorizer) => authorizer.getUsersWithRole(roleName))
+  }
+
+  removeRoleFromUser(userId: number, roleName: string, requestorUserId: number) {
+    return this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors)
+      .map(() => this.repo.get())
+      .andThrough((authorizer) => authorizer.removeRoleFromUser(userId, roleName))
+      .map((authorizer) => this.repo.save(authorizer))
+  }
+
   getSystemUserId() {
     return SYSTEM_USER_ID
   }
