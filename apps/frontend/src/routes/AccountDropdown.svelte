@@ -1,11 +1,12 @@
 <script lang="ts">
   import { offset } from '@floating-ui/dom'
-  import { CaretDown, Key, MoonStars, SignOut, Sun, UserCircle } from 'phosphor-svelte'
+  import { CaretDown, Key, MoonStars, SignOut, Sun, UserCircle, UsersThree } from 'phosphor-svelte'
 
   import { enhance } from '$app/forms'
   import { clickOutside } from '$lib/actions/clickOutside'
   import { createPopoverActions } from '$lib/actions/popover'
   import Card from '$lib/atoms/Card.svelte'
+  import { getUserContext } from '$lib/contexts/user'
   import { getUserSettingsContext } from '$lib/contexts/user-settings'
   import { slide } from '$lib/transitions/slide'
   import { cn } from '$lib/utils/dom'
@@ -23,6 +24,7 @@
     middleware: [offset(4)],
   })
 
+  const user = getUserContext()
   const userSettings = getUserSettingsContext()
 </script>
 
@@ -73,6 +75,16 @@
           <Key size={18} />
           API Keys
         </a>
+
+        {#if $user?.permissions.genreEditors.canManage}
+          <a
+            class="flex w-full items-center justify-start gap-1.5 text-nowrap px-2 py-1.5 text-gray-600 transition hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
+            href="/genre-editors"
+          >
+            <UsersThree size={18} />
+            Genre Editors
+          </a>
+        {/if}
 
         <button
           type="button"
