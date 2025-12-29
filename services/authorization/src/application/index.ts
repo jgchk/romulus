@@ -104,13 +104,29 @@ export class AuthorizationApplication {
   }
 
   getUsersWithRole(roleName: string, requestorUserId: number) {
-    return this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors)
+    // TODO: Same code smell as assignRoleToUser - see comment there.
+    const permissionCheck =
+      roleName === 'genre-editor'
+        ? this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors).orElse(
+            () => this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles),
+          )
+        : this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
+
+    return permissionCheck
       .map(() => this.repo.get())
       .map((authorizer) => authorizer.getUsersWithRole(roleName))
   }
 
   removeRoleFromUser(userId: number, roleName: string, requestorUserId: number) {
-    return this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors)
+    // TODO: Same code smell as assignRoleToUser - see comment there.
+    const permissionCheck =
+      roleName === 'genre-editor'
+        ? this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors).orElse(
+            () => this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles),
+          )
+        : this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
+
+    return permissionCheck
       .map(() => this.repo.get())
       .andThrough((authorizer) => authorizer.removeRoleFromUser(userId, roleName))
       .map((authorizer) => this.repo.save(authorizer))
