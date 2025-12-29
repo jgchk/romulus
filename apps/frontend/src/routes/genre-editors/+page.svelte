@@ -24,12 +24,12 @@
 </svelte:head>
 
 <div class="flex h-full w-full flex-col gap-4 p-4 lg:flex-row">
-  <Card class="flex-1 p-4">
+  <Card class="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
     <h2 class="mb-4 text-xl font-bold">Current Genre Editors</h2>
     {#if data.editors.length === 0}
       <p class="text-gray-600 transition dark:text-gray-400">No genre editors assigned yet.</p>
     {:else}
-      <div class="space-y-2">
+      <div class="space-y-2 overflow-y-auto">
         {#each data.editors as editor (editor.id)}
           <div
             class="flex items-center justify-between rounded border border-gray-200 p-2 transition dark:border-gray-700"
@@ -47,7 +47,7 @@
     {/if}
   </Card>
 
-  <Card class="flex-1 p-4">
+  <Card class="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
     <h2 class="mb-4 text-xl font-bold">Add Genre Editor</h2>
 
     <form method="GET" class="mb-4">
@@ -72,7 +72,7 @@
         {/if}
       </p>
     {:else}
-      <div class="space-y-2">
+      <div class="space-y-2 overflow-y-auto">
         {#each nonEditorAccounts as account (account.id)}
           <div
             class="flex items-center justify-between rounded border border-gray-200 p-2 transition dark:border-gray-700"
