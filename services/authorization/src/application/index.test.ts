@@ -201,6 +201,42 @@ describe('assignRoleToUser()', () => {
 
     expect(result).toEqual(err(new RoleNotFoundError('role')))
   })
+
+  test('should allow assigning genre-editor role with ManageGenreEditors permission', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [AuthorizationPermission.ManageGenreEditors],
+    })
+    const r1 = await app.createRole('genre-editor', new Set(), undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+
+    const result = await app.assignRoleToUser(2, 'genre-editor', userId)
+
+    expect(result).toEqual(ok(undefined))
+  })
+
+  test('should allow assigning genre-editor role with AssignRoles permission', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [AuthorizationPermission.AssignRoles],
+    })
+    const r1 = await app.createRole('genre-editor', new Set(), undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+
+    const result = await app.assignRoleToUser(2, 'genre-editor', userId)
+
+    expect(result).toEqual(ok(undefined))
+  })
+
+  test('should not allow assigning non-genre-editor roles with only ManageGenreEditors permission', async () => {
+    const { app, userId } = await setup({
+      userPermissions: [AuthorizationPermission.ManageGenreEditors],
+    })
+    const r1 = await app.createRole('admin', new Set(), undefined, SYSTEM_USER_ID)
+    expect(r1).toEqual(ok(undefined))
+
+    const result = await app.assignRoleToUser(2, 'admin', userId)
+
+    expect(result).toEqual(err(new UnauthorizedError()))
+  })
 })
 
 describe('checkMyPermission()', () => {

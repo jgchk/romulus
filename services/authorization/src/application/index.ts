@@ -58,7 +58,17 @@ export class AuthorizationApplication {
   }
 
   assignRoleToUser(userId: number, roleName: string, requestorUserId: number) {
-    return this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
+    // TODO: This hard-coded role check is a code smell. Ideally, roles would define
+    // which permission is required to assign them (e.g., a `requiredAssignPermission` field),
+    // making this data-driven rather than conditional logic in the application layer.
+    const permissionCheck =
+      roleName === 'genre-editor'
+        ? this.checkPermission(requestorUserId, AuthorizationPermission.ManageGenreEditors).orElse(
+            () => this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles),
+          )
+        : this.checkPermission(requestorUserId, AuthorizationPermission.AssignRoles)
+
+    return permissionCheck
       .map(() => this.repo.get())
       .andThrough((authorizer) => authorizer.assignRoleToUser(userId, roleName))
       .map((authorizer) => this.repo.save(authorizer))
