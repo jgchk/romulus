@@ -139,7 +139,11 @@ resource "aws_iam_policy" "github_actions_deploy" {
           "ec2:TerminateInstances",
           "ec2:RebootInstances",
           "ec2:RunInstances",
-          "ec2:CreateTags"
+          "ec2:CreateTags",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupEgress"
         ],
         "Resource" : "*"
       },
