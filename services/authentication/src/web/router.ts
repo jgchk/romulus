@@ -357,6 +357,60 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
       return c.json({ success: true, ...result } as const, 200)
     })
 
+    .openapi(listAccountsRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResult = await di.whoamiQuery().execute(token)
+      if (whoamiResult instanceof UnauthorizedError) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthorizedError',
+              message: new UnauthorizedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const hasPermission = await di
+        .authorizationService()
+        .hasPermission(whoamiResult.account.id, 'authorization:manage-genre-editors')
+      if (!hasPermission) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'ForbiddenError',
+              message: 'You do not have permission to list accounts',
+              statusCode: 403,
+            },
+          } as const,
+          403,
+        )
+      }
+
+      const { limit, offset, username } = c.req.valid('query')
+      const result = await di.listAccountsQuery().execute({ limit, offset, username })
+
+      return c.json({ success: true, accounts: result.accounts, total: result.total } as const, 200)
+    })
+
     .openapi(getAccountRoute, async (c) => {
       const { id } = c.req.valid('param')
 
@@ -555,60 +609,6 @@ export function createAuthenticationRouter(di: AuthorizationRouterDependencies) 
       const key = c.req.valid('param').key
       const result = await di.validateApiKeyCommand().execute(key)
       return c.json({ success: true, valid: result } as const, 200)
-    })
-
-    .openapi(listAccountsRoute, async (c) => {
-      const token = getBearerAuthToken(c)
-      if (token === undefined) {
-        return c.json(
-          {
-            success: false,
-            error: {
-              name: 'UnauthorizedError',
-              message: new UnauthorizedError().message,
-              statusCode: 401,
-            },
-          } as const,
-          401,
-        )
-      }
-
-      const whoamiResult = await di.whoamiQuery().execute(token)
-      if (whoamiResult instanceof UnauthorizedError) {
-        return c.json(
-          {
-            success: false,
-            error: {
-              name: 'UnauthorizedError',
-              message: new UnauthorizedError().message,
-              statusCode: 401,
-            },
-          } as const,
-          401,
-        )
-      }
-
-      const hasPermission = await di
-        .authorizationService()
-        .hasPermission(whoamiResult.account.id, 'authorization:manage-genre-editors')
-      if (!hasPermission) {
-        return c.json(
-          {
-            success: false,
-            error: {
-              name: 'ForbiddenError',
-              message: 'You do not have permission to list accounts',
-              statusCode: 403,
-            },
-          } as const,
-          403,
-        )
-      }
-
-      const { limit, offset, username } = c.req.valid('query')
-      const result = await di.listAccountsQuery().execute({ limit, offset, username })
-
-      return c.json({ success: true, accounts: result.accounts, total: result.total } as const, 200)
     })
 
   app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {
