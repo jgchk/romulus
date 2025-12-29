@@ -27,17 +27,19 @@
   <Card class="flex-1 p-4">
     <h2 class="mb-4 text-xl font-bold">Current Genre Editors</h2>
     {#if data.editors.length === 0}
-      <p class="text-gray-500">No genre editors assigned yet.</p>
+      <p class="text-gray-600 transition dark:text-gray-400">No genre editors assigned yet.</p>
     {:else}
       <div class="space-y-2">
         {#each data.editors as editor (editor.id)}
-          <div class="flex items-center justify-between rounded border p-2">
-            <a href="/accounts/{editor.id}" class="text-blue-600 hover:underline">
+          <div
+            class="flex items-center justify-between rounded border border-gray-200 p-2 transition dark:border-gray-700"
+          >
+            <a href="/accounts/{editor.id}" class="text-primary-500 hover:underline">
               {editor.username}
             </a>
             <form method="POST" action="?/remove" use:enhance>
               <input type="hidden" name="userId" value={editor.id} />
-              <Button type="submit" class="bg-red-600 hover:bg-red-700">Remove</Button>
+              <Button type="submit" color="error">Remove</Button>
             </form>
           </div>
         {/each}
@@ -62,7 +64,7 @@
     </form>
 
     {#if nonEditorAccounts.length === 0}
-      <p class="text-gray-500">
+      <p class="text-gray-600 transition dark:text-gray-400">
         {#if data.usernameFilter}
           No users found matching "{data.usernameFilter}".
         {:else}
@@ -72,13 +74,15 @@
     {:else}
       <div class="space-y-2">
         {#each nonEditorAccounts as account (account.id)}
-          <div class="flex items-center justify-between rounded border p-2">
-            <a href="/accounts/{account.id}" class="text-blue-600 hover:underline">
+          <div
+            class="flex items-center justify-between rounded border border-gray-200 p-2 transition dark:border-gray-700"
+          >
+            <a href="/accounts/{account.id}" class="text-primary-500 hover:underline">
               {account.username}
             </a>
             <form method="POST" action="?/add" use:enhance>
               <input type="hidden" name="userId" value={account.id} />
-              <Button type="submit" class="bg-green-600 hover:bg-green-700">Add</Button>
+              <Button type="submit" color="secondary">Add</Button>
             </form>
           </div>
         {/each}
@@ -86,7 +90,7 @@
     {/if}
 
     {#if data.total > data.accounts.length}
-      <p class="mt-4 text-sm text-gray-500">
+      <p class="mt-4 text-sm text-gray-600 transition dark:text-gray-400">
         Showing {data.accounts.length} of {data.total} users. Use search to find more.
       </p>
     {/if}
