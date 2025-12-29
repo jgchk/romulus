@@ -1,9 +1,13 @@
-import { eq } from 'drizzle-orm'
+import { count, eq, ilike } from 'drizzle-orm'
 
 import type { NewAccount } from '../domain/entities/account.js'
 import { CreatedAccount } from '../domain/entities/account.js'
 import { NonUniqueUsernameError } from '../domain/errors/non-unique-username.js'
-import type { AccountRepository } from '../domain/repositories/account.js'
+import type {
+  AccountRepository,
+  FindAllOptions,
+  FindAllResult,
+} from '../domain/repositories/account.js'
 import type { IDrizzleConnection } from './drizzle-database.js'
 import { accountsTable } from './drizzle-schema.js'
 
@@ -56,6 +60,40 @@ export class DrizzleAccountRepository implements AccountRepository {
     })
 
     return account
+  }
+
+  async findAll(options?: FindAllOptions): Promise<FindAllResult> {
+    const limit = options?.limit ?? 50
+    const offset = options?.offset ?? 0
+    const usernameFilter = options?.username
+
+    const whereClause = usernameFilter
+      ? ilike(accountsTable.username, `%${usernameFilter}%`)
+      : undefined
+
+    const entries = await this.db.query.accountsTable.findMany({
+      where: whereClause,
+      limit,
+      offset,
+      orderBy: (accounts, { asc }) => asc(accounts.id),
+    })
+
+    const [countResult] = await this.db
+      .select({ count: count() })
+      .from(accountsTable)
+      .where(whereClause)
+
+    const accounts = entries.map(
+      (entry) =>
+        new CreatedAccount(entry.id, {
+          username: entry.username,
+          passwordHash: entry.password,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        }),
+    )
+
+    return { accounts, total: countResult?.count ?? 0 }
   }
 
   async create(account: NewAccount): Promise<CreatedAccount | NonUniqueUsernameError> {

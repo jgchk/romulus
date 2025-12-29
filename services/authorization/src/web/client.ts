@@ -124,6 +124,34 @@ export class AuthorizationClient {
         res.success ? ok({ ...res, permissions: new Set(res.permissions) }) : err(res),
       )
   }
+
+  getUsersWithRole(roleName: string) {
+    return ResultAsync.fromPromise(
+      this.client.roles[':name'].users.$get(
+        { param: { name: roleName } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.roles)[':name']['users']['$get']>>((res) =>
+        res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res)))
+  }
+
+  removeRoleFromUser(userId: number, roleName: string) {
+    return ResultAsync.fromPromise(
+      this.client.users[':id'].roles[':roleName'].$delete(
+        { param: { id: userId, roleName } },
+        { headers: { authorization: `Bearer ${this.sessionToken}` } },
+      ),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.users)[':id']['roles'][':roleName']['$delete']>>(
+        (res) => res.json(),
+      )
+      .andThen((res) => (res.success ? ok(res) : err(res)))
+  }
 }
 
 export class FetchError extends CustomError {

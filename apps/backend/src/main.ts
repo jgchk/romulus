@@ -323,6 +323,7 @@ const roles = {
     GenresPermission.DeleteGenres,
     GenresPermission.VoteGenreRelevance,
   ],
+  'genre-editor-manager': [AuthorizationPermission.ManageGenreEditors],
   'media-type-editor': [MediaPermission.WriteMediaTypes, MediaPermission.WriteMediaArtifactTypes],
   default: [AuthorizationPermission.CheckOwnPermissions, AuthorizationPermission.GetOwnPermissions],
 } as const
@@ -376,7 +377,7 @@ async function ensureAdminAccountExists(authentication: AuthenticationApplicatio
 }
 
 async function assignAllRolesToAccount(authorization: AuthorizationApplication, userId: number) {
-  const roles = ['default', 'genre-editor', 'media-type-editor', 'admin']
+  const roles = ['default', 'genre-editor', 'genre-editor-manager', 'media-type-editor', 'admin']
   for (const role of roles) {
     const result = await authorization.assignRoleToUser(
       userId,

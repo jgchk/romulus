@@ -18,6 +18,8 @@ import {
   deleteRoleRoute,
   ensurePermissionsRoute,
   getMyPermissionsRoute,
+  getUsersWithRoleRoute,
+  removeRoleFromUserRoute,
 } from './routes.js'
 
 export type Router = ReturnType<typeof createAuthorizationRouter>
@@ -494,6 +496,120 @@ export function createAuthorizationRouter(deps: AuthorizationRouterDependencies)
                 error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
               } as const,
               403,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(getUsersWithRoleRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const { name } = c.req.valid('param')
+      const result = await deps.application().getUsersWithRole(name, user.id)
+
+      return result.match(
+        (userIds) => c.json({ success: true as const, userIds }, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else {
+            assertUnreachable(err)
+          }
+        },
+      )
+    })
+    .openapi(removeRoleFromUserRoute, async (c) => {
+      const token = getBearerAuthToken(c)
+      if (token === undefined) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: new UnauthenticatedError().message,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+
+      const whoamiResponse = await deps.authentication().whoami(token)
+      if (whoamiResponse.isErr()) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              name: 'UnauthenticatedError',
+              message: 'Failed to authenticate',
+              details: whoamiResponse.error,
+              statusCode: 401,
+            },
+          } as const,
+          401,
+        )
+      }
+      const user = whoamiResponse.value
+
+      const { id, roleName } = c.req.valid('param')
+      const result = await deps.application().removeRoleFromUser(id, roleName, user.id)
+
+      return result.match(
+        () => c.json({ success: true } as const, 200),
+        (err) => {
+          if (err instanceof UnauthorizedError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'UnauthorizedError', message: err.message, statusCode: 403 },
+              } as const,
+              403,
+            )
+          } else if (err instanceof RoleNotFoundError) {
+            return c.json(
+              {
+                success: false,
+                error: { name: 'RoleNotFoundError', message: err.message, statusCode: 400 },
+              } as const,
+              400,
             )
           } else {
             assertUnreachable(err)

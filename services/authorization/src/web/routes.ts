@@ -474,3 +474,111 @@ export const getMyPermissionsRoute = createRoute({
     },
   },
 })
+
+export const getUsersWithRoleRoute = createRoute({
+  method: 'get',
+  path: '/roles/{name}/users',
+  request: {
+    params: z.object({
+      name: z.string(),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(true),
+            userIds: z.number().int().array(),
+          }),
+        },
+      },
+      description: 'List of user IDs with the specified role',
+    },
+    401: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: UnauthenticatedErrorSchema,
+          }),
+        },
+      },
+      description: 'The user is not authenticated',
+    },
+    403: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: UnauthorizedErrorSchema,
+          }),
+        },
+      },
+      description: 'The user is not authorized to perform this action',
+    },
+  },
+})
+
+export const removeRoleFromUserRoute = createRoute({
+  method: 'delete',
+  path: '/users/{id}/roles/{roleName}',
+  request: {
+    params: z.object({
+      id: z.coerce.number().int(),
+      roleName: z.string(),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(true),
+          }),
+        },
+      },
+      description: 'Role was removed from user successfully',
+    },
+    400: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: z.union([
+              ValidationErrorSchema,
+              z.object({
+                name: z.literal('RoleNotFoundError'),
+                message: z.string(),
+                statusCode: z.literal(400),
+              }),
+            ]),
+          }),
+        },
+      },
+      description: 'The request is invalid or references a non-existent role',
+    },
+    401: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: UnauthenticatedErrorSchema,
+          }),
+        },
+      },
+      description: 'The user is not authenticated',
+    },
+    403: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.literal(false),
+            error: UnauthorizedErrorSchema,
+          }),
+        },
+      },
+      description: 'The user is not authorized to perform this action',
+    },
+  },
+})

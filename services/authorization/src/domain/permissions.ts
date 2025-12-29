@@ -12,6 +12,7 @@ export const AuthorizationPermission = {
   GetUserPermissions: 'authorization:get-user-permissions',
   GetOwnPermissions: 'authorization:get-own-permissions',
   GetAllPermissions: 'authorization:get-all-permissions',
+  ManageGenreEditors: 'authorization:manage-genre-editors',
 } as const
 
 export type AuthorizationPermission =

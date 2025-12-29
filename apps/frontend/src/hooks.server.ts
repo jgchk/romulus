@@ -1,5 +1,6 @@
 import type { AuthenticationClient } from '@romulus/authentication/client'
 import type { AuthorizationClient } from '@romulus/authorization/client'
+import { AuthorizationPermission } from '@romulus/authorization/permissions'
 import { GenresPermission } from '@romulus/genres/permissions'
 import { MediaPermission } from '@romulus/media/permissions'
 import type { Handle, HandleFetch, HandleServerError } from '@sveltejs/kit'
@@ -104,6 +105,9 @@ async function getUser(
       mediaArtifactTypes: {
         canCreate: false,
       },
+      genreEditors: {
+        canManage: false,
+      },
     },
   }
 
@@ -126,6 +130,9 @@ async function getUser(
     },
     mediaArtifactTypes: {
       canCreate: permissions.has(MediaPermission.WriteMediaArtifactTypes),
+    },
+    genreEditors: {
+      canManage: permissions.has(AuthorizationPermission.ManageGenreEditors),
     },
   }
 

@@ -5,6 +5,7 @@ import {
   GetAccountQuery,
   GetAccountsQuery,
   GetApiKeysByAccountQuery,
+  ListAccountsQuery,
   LoginCommand,
   LogoutCommand,
   RefreshSessionCommand,
@@ -125,6 +126,12 @@ export function createAuthenticationApplication({
     },
     validateApiKeyCommand() {
       return new ValidateApiKeyCommand(infrastructure.apiKeyRepo(), infrastructure.apiKeyHashRepo())
+    },
+    listAccountsQuery() {
+      return new ListAccountsQuery(infrastructure.accountRepo())
+    },
+    authorizationService() {
+      return authorizationService
     },
   }
 }

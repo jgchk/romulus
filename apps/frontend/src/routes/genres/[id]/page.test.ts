@@ -37,6 +37,9 @@ const mockUser = {
     mediaArtifactTypes: {
       canCreate: false,
     },
+    genreEditors: {
+      canManage: false,
+    },
   },
   createdAt: new Date(),
   updatedAt: new Date(),

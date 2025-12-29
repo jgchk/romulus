@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import { Authorizer, DefaultRoleSetEvent } from '../domain/authorizer.js'
-import { Role, RoleAssignedToUserEvent } from '../domain/authorizer.js'
+import { Role, RoleAssignedToUserEvent, RoleRemovedFromUserEvent } from '../domain/authorizer.js'
 import {
   Permission,
   PermissionDeletedEvent,
@@ -119,6 +119,15 @@ export class DrizzleAuthorizerRepository implements IAuthorizerRepository {
             roleName: event.roleName,
           })
           .onConflictDoNothing()
+      } else if (event instanceof RoleRemovedFromUserEvent) {
+        await this.db
+          .delete(userRolesTable)
+          .where(
+            and(
+              eq(userRolesTable.userId, event.userId),
+              eq(userRolesTable.roleName, event.roleName),
+            ),
+          )
       } else {
         event satisfies never
       }

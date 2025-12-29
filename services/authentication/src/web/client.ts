@@ -218,6 +218,20 @@ export class AuthenticationClient {
       )
       .andThen((res) => (res.success ? ok(res) : err(res.error)))
   }
+
+  listAccounts(options?: { limit?: number; offset?: number; username?: string }) {
+    return ResultAsync.fromPromise(
+      this.client.accounts.list.$get({
+        query: options ?? {},
+        header: {
+          authorization: `Bearer ${this.sessionToken}`,
+        },
+      }),
+      (err) => new FetchError(toError(err)),
+    )
+      .map<InferResponseType<(typeof this.client.accounts)['list']['$get']>>((res) => res.json())
+      .andThen((res) => (res.success ? ok(res) : err(res.error)))
+  }
 }
 
 export class FetchError extends CustomError<'FetchError'> {

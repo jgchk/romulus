@@ -143,6 +143,14 @@ export class Authorizer {
       const userRoles = this.userRoles.get(event.userId) ?? new Set()
       userRoles.add(event.roleName)
       this.userRoles.set(event.userId, userRoles)
+    } else if (event instanceof RoleRemovedFromUserEvent) {
+      const userRoles = this.userRoles.get(event.userId)
+      if (userRoles) {
+        userRoles.delete(event.roleName)
+        if (userRoles.size === 0) {
+          this.userRoles.delete(event.userId)
+        }
+      }
     } else {
       event satisfies never
     }
@@ -191,6 +199,28 @@ export class Authorizer {
     return [...this.permissions.values()]
   }
 
+  getUsersWithRole(roleName: string): number[] {
+    const userIds: number[] = []
+    for (const [userId, roles] of this.userRoles.entries()) {
+      if (roles.has(roleName)) {
+        userIds.push(userId)
+      }
+    }
+    return userIds
+  }
+
+  removeRoleFromUser(userId: number, roleName: string): Result<void, RoleNotFoundError> {
+    if (!this.roles.has(roleName)) {
+      return err(new RoleNotFoundError(roleName))
+    }
+
+    const event = new RoleRemovedFromUserEvent(userId, roleName)
+    this.applyEvent(event)
+    this.addEvent(event)
+
+    return ok(undefined)
+  }
+
   getUncommittedEvents(): AuthorizerEvent[] {
     return [...this.uncommittedEvents]
   }
@@ -218,6 +248,7 @@ type AuthorizerEvent =
   | RoleDeletedEvent
   | DefaultRoleSetEvent
   | RoleAssignedToUserEvent
+  | RoleRemovedFromUserEvent
 
 export class PermissionCreatedEvent {
   constructor(
@@ -247,6 +278,13 @@ export class DefaultRoleSetEvent {
 }
 
 export class RoleAssignedToUserEvent {
+  constructor(
+    public readonly userId: number,
+    public readonly roleName: string,
+  ) {}
+}
+
+export class RoleRemovedFromUserEvent {
   constructor(
     public readonly userId: number,
     public readonly roleName: string,
