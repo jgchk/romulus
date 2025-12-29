@@ -1,6 +1,6 @@
 # Romulus
 
-A genre classification and media categorization platform built with a modular monolith architecture.
+A genre classification and media categorization platform built with a modular monolith architecture
 
 ## Project Structure
 
