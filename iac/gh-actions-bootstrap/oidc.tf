@@ -254,7 +254,10 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Effect" : "Allow",
         "Action" : [
           "budgets:ViewBudget",
-          "budgets:ModifyBudget"
+          "budgets:ModifyBudget",
+          "budgets:ListTagsForResource",
+          "budgets:TagResource",
+          "budgets:UntagResource"
         ],
         "Resource" : [
           "arn:aws:budgets::${data.aws_caller_identity.current.account_id}:budget/romulus-monthly"
