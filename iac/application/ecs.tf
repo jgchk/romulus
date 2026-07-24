@@ -96,25 +96,27 @@ resource "aws_ecs_task_definition" "backend" {
       containerPort = 3000
     }]
     environment = [
+      # Consolidated onto a single db.t3.small (openspec change reduce-aws-costs).
+      # All five URLs target the consolidated instance; database names differ.
       {
         name  = "AUTHENTICATION_DATABASE_URL"
-        value = "postgresql://${aws_db_instance.authentication.username}:${aws_db_instance.authentication.password}@${aws_db_instance.authentication.endpoint}/${aws_db_instance.authentication.db_name}?sslmode=require"
+        value = "postgresql://${aws_db_instance.consolidated.username}:${aws_db_instance.consolidated.password}@${aws_db_instance.consolidated.endpoint}/authn?sslmode=require"
       },
       {
         name  = "AUTHORIZATION_DATABASE_URL"
-        value = "postgresql://${aws_db_instance.authorization.username}:${aws_db_instance.authorization.password}@${aws_db_instance.authorization.endpoint}/${aws_db_instance.authorization.db_name}?sslmode=require"
+        value = "postgresql://${aws_db_instance.consolidated.username}:${aws_db_instance.consolidated.password}@${aws_db_instance.consolidated.endpoint}/authz?sslmode=require"
       },
       {
         name  = "GENRES_DATABASE_URL"
-        value = "postgresql://${aws_db_instance.genres.username}:${aws_db_instance.genres.password}@${aws_db_instance.genres.endpoint}/${aws_db_instance.genres.db_name}?sslmode=require"
+        value = "postgresql://${aws_db_instance.consolidated.username}:${aws_db_instance.consolidated.password}@${aws_db_instance.consolidated.endpoint}/genres?sslmode=require"
       },
       {
         name  = "USER_SETTINGS_DATABASE_URL"
-        value = "postgresql://${aws_db_instance.user_settings.username}:${aws_db_instance.user_settings.password}@${aws_db_instance.user_settings.endpoint}/${aws_db_instance.user_settings.db_name}?sslmode=require"
+        value = "postgresql://${aws_db_instance.consolidated.username}:${aws_db_instance.consolidated.password}@${aws_db_instance.consolidated.endpoint}/user_settings?sslmode=require"
       },
       {
         name  = "MEDIA_DATABASE_URL"
-        value = "postgresql://${aws_db_instance.media.username}:${aws_db_instance.media.password}@${aws_db_instance.media.endpoint}/${aws_db_instance.media.db_name}?sslmode=require"
+        value = "postgresql://${aws_db_instance.consolidated.username}:${aws_db_instance.consolidated.password}@${aws_db_instance.consolidated.endpoint}/media?sslmode=require"
       },
       {
         name  = "ENABLE_DEV_ADMIN_ACCOUNT"
@@ -149,7 +151,7 @@ resource "aws_ecs_service" "frontend" {
   name            = "frontend-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.frontend.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   deployment_minimum_healthy_percent = 100
@@ -176,7 +178,7 @@ resource "aws_ecs_service" "backend" {
   name            = "backend-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.backend.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   deployment_minimum_healthy_percent = 100

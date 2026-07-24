@@ -20,6 +20,8 @@ on:
         required: true
       CLOUDFLARE_API_TOKEN:
         required: true
+      COST_ALERT_EMAIL:
+        required: true
 
 env:
   NODE_VERSION: 20.x
@@ -62,3 +64,4 @@ jobs:
             -var="backend_image_tag=${{ inputs.backend_image_tag }}" \
             -var="allowed_ssh_ip=${{ secrets.ALLOWED_SSH_IP }}" \
             -var="bastion_public_key=${{ secrets.BASTION_PUBLIC_KEY }}" \
+            -var="cost_alert_email=${{ secrets.COST_ALERT_EMAIL }}" \

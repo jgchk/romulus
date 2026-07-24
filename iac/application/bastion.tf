@@ -57,6 +57,13 @@ resource "aws_instance" "bastion" {
   tags = {
     Name = "bastion-host"
   }
+
+  # The Ubuntu AMI lookup uses most_recent, which drifts whenever Canonical
+  # publishes a new image and would otherwise force a bastion replacement on
+  # every apply. Pin to the deployed AMI; the bastion is disposable anyway.
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 resource "aws_key_pair" "bastion" {
