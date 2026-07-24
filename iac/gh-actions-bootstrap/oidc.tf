@@ -87,7 +87,8 @@ resource "aws_iam_policy" "github_actions_deploy" {
         ],
         "Resource" : [
           "arn:aws:secretsmanager:us-east-2:*:secret:postgresdb-credentials*",
-          "arn:aws:secretsmanager:us-east-2:*:secret:media-db-credentials*"
+          "arn:aws:secretsmanager:us-east-2:*:secret:media-db-credentials*",
+          "arn:aws:secretsmanager:us-east-2:*:secret:consolidated-db-credentials*"
         ]
       },
       {
@@ -248,6 +249,59 @@ resource "aws_iam_policy" "github_actions_deploy" {
         "Resource" : [
           "arn:aws:route53:::change/*"
         ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "budgets:ViewBudget",
+          "budgets:ModifyBudget"
+        ],
+        "Resource" : [
+          "arn:aws:budgets::${data.aws_caller_identity.current.account_id}:budget/romulus-monthly"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ce:GetAnomalyMonitors",
+          "ce:GetAnomalySubscriptions",
+          "ce:CreateAnomalyMonitor",
+          "ce:CreateAnomalySubscription",
+          "ce:UpdateAnomalyMonitor",
+          "ce:UpdateAnomalySubscription",
+          "ce:DeleteAnomalyMonitor",
+          "ce:DeleteAnomalySubscription",
+          "ce:ListTagsForResource",
+          "ce:TagResource"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "sns:GetTopicAttributes",
+          "sns:SetTopicAttributes",
+          "sns:ListTagsForResource",
+          "sns:GetSubscriptionAttributes",
+          "sns:SetSubscriptionAttributes",
+          "sns:ListSubscriptionsByTopic",
+          "sns:Subscribe",
+          "sns:Unsubscribe"
+        ],
+        "Resource" : [
+          "arn:aws:sns:us-east-2:${data.aws_caller_identity.current.account_id}:romulus-rds-alerts*"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DeleteAlarms",
+          "cloudwatch:ListTagsForResource",
+          "cloudwatch:TagResource"
+        ],
+        "Resource" : "*"
       },
     ]
   })
