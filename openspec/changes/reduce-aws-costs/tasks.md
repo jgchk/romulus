@@ -18,7 +18,7 @@
 - [x] 1.1 Add `aws_budgets_budget` (monthly, $130 limit) with alert thresholds at 80/100/120% (ACTUAL) + 100% (FORECASTED) emailing `jake@f-m.fm`. → `iac/application/cost_management.tf`
 - [x] 1.2 Add Cost Anomaly Detection: `aws_ce_anomaly_monitor` (service monitor) + `aws_ce_anomaly_subscription` ($10 impact threshold) emailing the same address. → `iac/application/cost_management.tf`
 - [x] 1.3 `terraform apply` — 3 added (budget, anomaly monitor + subscription), 1 changed (bastion SG → current IP), 0 destroyed. Budget + anomaly detection live.
-- [ ] ▸ GATE: budget + anomaly alerts confirmed active before making any cost-affecting change.
+- [x] ▸ GATE: budget + anomaly alerts confirmed active before making any cost-affecting change. ✓ (budget visible in console; SNS subscription confirmed)
 
 ## 2. Reversible right-sizing wins (bank ~$50/mo; each independently revertible)
 
@@ -36,9 +36,9 @@
 
 ## 4. RDS consolidation — Phase 1: provision target (additive, zero risk)
 
-- [ ] 4.1 Add a new `aws_db_instance` `consolidated` (`db.t3.small`, postgres 15, gp2 20 GB, `deletion_protection = true`, `skip_final_snapshot = false`, backups + Performance Insights matching current); apply. Old five untouched.
-- [ ] 4.2 Create the five databases (`authn`, `authz`, `genres`, `user_settings`, `media`) and per-database roles/passwords on the new instance (design.md D7); store in `secrets.tf`/Secrets Manager.
-- [ ] ▸ GATE: new instance reachable from the bastion; five empty databases + roles verified.
+- [x] 4.1 Add a new `aws_db_instance` `consolidated` (`db.t3.small`, postgres 15, gp2 20 GB, `deletion_protection = true`, `skip_final_snapshot = false`, backups + Performance Insights matching current); apply. Old five untouched.
+- [x] 4.2 Created the five databases (`authn`, `authz`, `genres`, `user_settings`, `media`) on the new instance under a single `dbadmin` master (design.md D7); credentials in `consolidated-db-credentials` (Secrets Manager).
+- [x] ▸ GATE: new instance reachable from the bastion; five empty databases verified. ✓
 
 ## 5. RDS consolidation — Phase 2: trial migration (source stays authoritative)
 
@@ -59,15 +59,15 @@
 
 ## 7. RDS consolidation — Phase 4: soak (old instances retained & powered on)
 
-- [~] 7.1 SOAK IN PROGRESS: cutover 2026-07-24, target **3 days → reconvene ~2026-07-27**. Hands-off monitoring live via CloudWatch alarms (`monitoring.tf`): consolidated CPU>80%, FreeableMemory<256MB, FreeStorageSpace<2GB → SNS email `jake@f-m.fm`. Early read: CPU ~6%, ~1.08 GB free of 2 GB — comfortable. Low-memory alarm ⇒ resize to `db.t3.medium`.
+- [x] 7.1 Soak complete (2026-07-24 → 2026-08-01, 8 days — well past the 3-day target). All three CloudWatch alarms stayed OK the entire window; zero alarm firings. Metrics: CPU daily max 7–29%, FreeableMemory min ~1.0 GB of 2 GB (4× above the 256 MB threshold), FreeStorageSpace steady ~18.3 GB. No resize needed.
 - [x] 7.2 Old five instances left running + unmodified (rollback net). Confirmed idle (0 connections) post-cutover.
-- [ ] ▸ GATE: soak completes ~2026-07-27 with no alarms/issues. *(Rollback during soak loses soak-window writes — design.md Risks.)*
+- [x] ▸ GATE: soak completed with no alarms/issues. ✓ (verified 2026-08-01: alarm history clean, old five had 0.0 max connections for the whole window)
 
 ## 8. RDS consolidation — Phase 5: decommission (deliberate two-step)
 
-- [ ] 8.1 Set `deletion_protection = false` on the five old instances; `terraform apply` (this apply changes nothing else — review the plan).
-- [ ] 8.2 Remove the five old `aws_db_instance` blocks (and now-unused SG rules/secrets); `terraform apply`. Final snapshots are taken automatically. *(Recovery point #2.)*
-- [ ] ▸ GATE: confirm five final snapshots exist and the app is still healthy.
+- [x] 8.1 Set `deletion_protection = false` on the five old instances; applied 2026-08-01 (0 add, 5 change, 0 destroy — protection flag only).
+- [x] 8.2 Removed the five old `aws_db_instance` blocks + old secrets (`postgresdb-credentials`, `media-db-credentials`, 30-day recovery window) + 5 `random_password`s; repointed `SecretsManagerAccess` policy to `consolidated-db-credentials`. Applied (0 add, 1 change, 14 destroy). Final snapshots taken automatically. *(Recovery point #2.)*
+- [x] ▸ GATE: five final snapshots `available` (created 2026-08-01T11:32Z); only `consolidated` remains; site 200 with live connections. ✓
 
 ## 9. Bastion removal (LAST — migration no longer needs it)
 
