@@ -71,10 +71,10 @@
 
 ## 9. Bastion removal (LAST — migration no longer needs it)
 
-- [ ] 9.1 Establish and **test** the replacement DB-access path (SSM Session Manager on an on-demand instance, or ECS Exec into a backend task) before removing anything.
-- [ ] 9.2 Remove `bastion.tf` (instance, key pair, SG) and the bastion's ingress rule on the postgres SG; apply.
-- [ ] 9.3 Verify the public IPv4 count drops and confirm the replacement access path works.
-- [ ] ↩ ROLLBACK: `terraform apply` recreates the bastion from AMI + `user_data` (stateless, minutes).
+- [x] 9.1 Replacement access path: **break-glass bastion** (chosen over SSM/ECS Exec — both need interface endpoints that cost more than the bastion, since the private subnets have no NAT). `bastion.tf` resources are now conditional on `enable_bastion` (default `false`); the mechanism is the same bastion proven throughout the migration. Procedure documented in `iac/application/BASTION.md`. Scrubbed `~/.pgpass`, psql history, and migration dumps off the bastion before teardown.
+- [x] 9.2 Applied 2026-08-01: instance, key pair, and SG destroyed; bastion ingress removed from the postgres SG. (Note: Terraform ordered the SG delete before the postgres-SG update and hit `DependencyViolation` twice; resolved by revoking the ingress rule via CLI, then a clean converging apply.)
+- [x] 9.3 Verified: 0 EC2 instances; only the ALB's two public IPv4s remain; site 200; `terraform plan` clean.
+- [x] ↩ ROLLBACK: set `enable_bastion = true` + targeted apply recreates the bastion from AMI + `user_data` (stateless, minutes) — see `BASTION.md`.
 
 ## 10. Verification & close-out
 

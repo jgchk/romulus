@@ -5,7 +5,7 @@ resource "aws_security_group" "postgres" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.backend.id, aws_security_group.bastion.id]
+    security_groups = concat([aws_security_group.backend.id], aws_security_group.bastion[*].id)
   }
 
   tags = {
